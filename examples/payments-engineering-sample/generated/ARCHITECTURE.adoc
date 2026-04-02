@@ -1,0 +1,753 @@
+= Sample Payments Architecture
+:toc:
+:toclevels: 3
+:sectnums:
+
+== Introduction
+
+This architecture description is generated from `architecture.yml`, `requirements.yml`, and `design.yml`.
+Each design chapter is anchored on catalog references, while architecture elements and requirement links are derived automatically.
+
+== Architectural Views
+
+
+=== VIEW-CONTEXT
+
+The following view is the full model projection for `VIEW-CONTEXT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-CONTEXT (system-context)
+N_COMP_AUTH_ORCHESTRATOR["Authorization Orchestrator"]:::component
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_RISK_SCORER["Risk Scorer"]:::container
+N_EXT_BANK_GW[["Bank Gateway"]]:::external
+N_ACT_CUSTOMER(("Customer")):::person
+N_ACT_SUPPORT(("Support Agent")):::person
+N_SYS_PAYMENTS["Payments System"]:::system
+N_ACT_CUSTOMER -->|uses: Submits payment at checkout. catalog: customer, payment authorization is requested| N_CONT_CHECKOUT_API
+N_ACT_SUPPORT -->|uses: Reviews declined payments. catalog: support agent, payment is declined| N_CONT_CHECKOUT_API
+N_CONT_CHECKOUT_API -->|depends_on: Delegates payment authorization. catalog: payment authorization is requested, checkout is active| N_CONT_PAYMENT_ENGINE
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification. catalog: support agent is notified, payment review is pending, support agent| N_ACT_SUPPORT
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns decline outcome for customer messaging. catalog: payment is declined, decline reason| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns temporary unavailable response when bank link is down. catalog: bank link is unavailable| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Requests fraud scoring. catalog: fraud check is enabled, risk score is high, risk score| N_CONT_RISK_SCORER
+N_CONT_PAYMENT_ENGINE -->|depends_on: Calls bank authorization API. catalog: bank link is available, payment authorization is requested| N_EXT_BANK_GW
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+=== VIEW-CONTAINER
+
+The following view is the full model projection for `VIEW-CONTAINER`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-CONTAINER (container)
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_RISK_SCORER["Risk Scorer"]:::container
+N_EXT_BANK_GW[["Bank Gateway"]]:::external
+N_ACT_SUPPORT(("Support Agent")):::person
+N_SYS_PAYMENTS["Payments System"]:::system
+N_CONT_CHECKOUT_API -->|depends_on: Delegates payment authorization. catalog: payment authorization is requested, checkout is active| N_CONT_PAYMENT_ENGINE
+N_CONT_CHECKOUT_API -->|part_of| N_SYS_PAYMENTS
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification. catalog: support agent is notified, payment review is pending, support agent| N_ACT_SUPPORT
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns decline outcome for customer messaging. catalog: payment is declined, decline reason| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns temporary unavailable response when bank link is down. catalog: bank link is unavailable| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Requests fraud scoring. catalog: fraud check is enabled, risk score is high, risk score| N_CONT_RISK_SCORER
+N_CONT_PAYMENT_ENGINE -->|depends_on: Calls bank authorization API. catalog: bank link is available, payment authorization is requested| N_EXT_BANK_GW
+N_CONT_PAYMENT_ENGINE -->|part_of| N_SYS_PAYMENTS
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+=== VIEW-DEPLOYMENT
+
+The following view is the full model projection for `VIEW-DEPLOYMENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-DEPLOYMENT (deployment)
+N_EKS_PAYMENTS_PROD_EKS["payments-prod-eks"]:::cluster
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_RISK_SCORER["Risk Scorer"]:::container
+N_ENV_PROD["prod"]:::environment
+N_EXT_BANK_GW[["Bank Gateway"]]:::external
+N_FLUXKUS_PAYMENTS_APPS["payments-apps"]:::flux
+N_GITSRC_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]:::source
+N_HELMREL_CHECKOUT_API["checkout-api"]:::helm
+N_HELMREL_PAYMENT_ENGINE["payment-engine"]:::helm
+N_HELMREL_RISK_SCORER["risk-scorer"]:::helm
+N_NS_FLUX_SYSTEM["flux-system"]:::namespace
+N_NS_PAYMENTS["payments"]:::namespace
+N_NS_RISK["risk"]:::namespace
+N_ACT_SUPPORT(("Support Agent")):::person
+N_CONT_CHECKOUT_API -->|depends_on: Delegates payment authorization. catalog: payment authorization is requested, checkout is active| N_CONT_PAYMENT_ENGINE
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification. catalog: support agent is notified, payment review is pending, support agent| N_ACT_SUPPORT
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns decline outcome for customer messaging. catalog: payment is declined, decline reason| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns temporary unavailable response when bank link is down. catalog: bank link is unavailable| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Requests fraud scoring. catalog: fraud check is enabled, risk score is high, risk score| N_CONT_RISK_SCORER
+N_CONT_PAYMENT_ENGINE -->|depends_on: Calls bank authorization API. catalog: bank link is available, payment authorization is requested| N_EXT_BANK_GW
+N_EKS_PAYMENTS_PROD_EKS -->|part_of| N_ENV_PROD
+N_FLUXKUS_PAYMENTS_APPS -->|depends_on source| N_GITSRC_PAYMENTS_SAMPLE_SOURCE
+N_FLUXKUS_PAYMENTS_APPS -->|manages| N_HELMREL_CHECKOUT_API
+N_FLUXKUS_PAYMENTS_APPS -->|manages| N_HELMREL_PAYMENT_ENGINE
+N_FLUXKUS_PAYMENTS_APPS -->|manages| N_HELMREL_RISK_SCORER
+N_FLUXKUS_PAYMENTS_APPS -->|runs_in| N_NS_FLUX_SYSTEM
+N_HELMREL_CHECKOUT_API -->|deploys| N_CONT_CHECKOUT_API
+N_HELMREL_CHECKOUT_API -->|depends_on source| N_GITSRC_PAYMENTS_SAMPLE_SOURCE
+N_HELMREL_CHECKOUT_API -->|runs_in| N_NS_PAYMENTS
+N_HELMREL_PAYMENT_ENGINE -->|deploys| N_CONT_PAYMENT_ENGINE
+N_HELMREL_PAYMENT_ENGINE -->|depends_on source| N_GITSRC_PAYMENTS_SAMPLE_SOURCE
+N_HELMREL_PAYMENT_ENGINE -->|runs_in| N_NS_PAYMENTS
+N_HELMREL_RISK_SCORER -->|deploys| N_CONT_RISK_SCORER
+N_HELMREL_RISK_SCORER -->|depends_on source| N_GITSRC_PAYMENTS_SAMPLE_SOURCE
+N_HELMREL_RISK_SCORER -->|runs_in| N_NS_RISK
+N_NS_FLUX_SYSTEM -->|part_of| N_EKS_PAYMENTS_PROD_EKS
+N_NS_PAYMENTS -->|part_of| N_EKS_PAYMENTS_PROD_EKS
+N_NS_RISK -->|part_of| N_EKS_PAYMENTS_PROD_EKS
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+== Design Chapters
+
+
+[[chapter-ch-bank-link-fallback]]
+=== Bank Link Fallback Behavior
+
+Fallback behavior is activated when <<EVT-BANK-LINK-UNAVAILABLE,bank link is unavailable>> occurs during authorization. In this
+condition Payment Engine must stop external authorization attempts and return a deterministic temporary
+unavailable response to Checkout API.
+
+Checkout API converts that response into user guidance that distinguishes transient infrastructure
+failure from card or account decline. This prevents false negative messaging and reduces <<ACT-SUPPORT,support agent>> load
+caused by misleading decline prompts.
+
+This complements, but does not replace, the normal bank-link-up authorization path.
+
+==== Chapter Scope Diagram
+
+
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: chapter-CH-BANK-LINK-FALLBACK (chapter)
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns temporary unavailable response when bank link is down.| N_CONT_CHECKOUT_API
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+==== Reference Map
+
+* Derived Architecture Refs: <<CONT-CHECKOUT-API,Checkout API>>, <<CONT-PAYMENT-ENGINE,Payment Engine>>
+* Derived Requirement Refs: <<REQ-PAY-006,REQ-PAY-006>>
+* Direct Relationships: <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<CONT-CHECKOUT-API,Checkout API>> (depends_on: Returns temporary unavailable response when bank link is down.)
+
+
+[[chapter-ch-decline-handling]]
+=== Decline Handling And Support Flow
+
+When <<EVT-PAYMENT-DECLINED,payment is declined>> is produced, Payment Engine returns a decline payload to Checkout API
+containing <<ACT-CUSTOMER,customer>>-safe messaging and <<DATA-DECLINE-REASON,decline reason>> details. Checkout API then renders clear
+feedback and retry guidance so users can recover without ambiguous failure states.
+
+<<ACT-SUPPORT,support agent>> is linked to the same decline context to allow post-event triage, root-cause review, and
+operational communication. This keeps user-facing behavior and <<ACT-SUPPORT,support agent>>-facing diagnosis aligned to the
+same canonical event and data terms.
+
+The chapter covers both <<ACT-CUSTOMER,customer>> messaging and <<ACT-SUPPORT,support agent>>-side operational follow-up.
+
+==== Chapter Scope Diagram
+
+
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: chapter-CH-DECLINE-HANDLING (chapter)
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_ACT_SUPPORT(("Support Agent")):::person
+N_ACT_SUPPORT -->|uses: Reviews declined payments.| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification.| N_ACT_SUPPORT
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns decline outcome for customer messaging.| N_CONT_CHECKOUT_API
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+==== Reference Map
+
+* Derived Architecture Refs: <<ACT-SUPPORT,support agent>>, <<CONT-CHECKOUT-API,Checkout API>>, <<CONT-PAYMENT-ENGINE,Payment Engine>>
+* Derived Requirement Refs: <<REQ-PAY-003,REQ-PAY-003>>, <<REQ-PAY-004,REQ-PAY-004>>
+* Direct Relationships: <<ACT-SUPPORT,support agent>> -> <<CONT-CHECKOUT-API,Checkout API>> (uses: Reviews declined payments.); <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<ACT-SUPPORT,support agent>> (depends_on: Sends high-risk review notification.); <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<CONT-CHECKOUT-API,Checkout API>> (depends_on: Returns decline outcome for customer messaging.)
+
+
+[[chapter-ch-fraud-check]]
+=== Fraud Check Integration
+
+Fraud evaluation is a mandatory branch for transactions where <<FEAT-FRAUD-CHECK,fraud check is enabled>> is enabled. Payment
+Engine calls Risk Scorer before final authorization, and the risk pipeline computes <<DATA-RISK-SCORE,risk score>>
+from request metadata, amount, and behavioral signals.
+
+If the resulting score indicates <<EVT-RISK-HIGH,risk score is high>>, the authorization path must transition away from
+immediate approval and into controlled review handling. If the score remains below threshold, the
+payment can continue through the normal bank authorization branch.
+
+This chapter defines the boundary between fast-path processing and human-review escalation.
+
+==== Chapter Scope Diagram
+
+
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: chapter-CH-FRAUD-CHECK (chapter)
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_RISK_SCORER["Risk Scorer"]:::container
+N_CONT_PAYMENT_ENGINE -->|depends_on: Requests fraud scoring.| N_CONT_RISK_SCORER
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+==== Reference Map
+
+* Derived Architecture Refs: <<CONT-PAYMENT-ENGINE,Payment Engine>>, <<CONT-RISK-SCORER,Risk Scorer>>
+* Derived Requirement Refs: <<REQ-PAY-002,REQ-PAY-002>>, <<REQ-PAY-004,REQ-PAY-004>>, <<REQ-PAY-005,REQ-PAY-005>>
+* Direct Relationships: <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<CONT-RISK-SCORER,Risk Scorer>> (depends_on: Requests fraud scoring.)
+
+
+[[chapter-ch-payment-auth]]
+=== Payment Authorization Flow
+
+The payment authorization flow starts when a <<ACT-CUSTOMER,customer>> submits checkout data and the system raises
+<<EVT-PAYMENT-AUTH-REQUESTED,payment authorization is requested>> while <<STATE-CHECKOUT-ACTIVE,checkout is active>> is true. Checkout API creates a payment
+session key and forwards the authorization request to Payment Engine.
+
+Payment Engine coordinates internal checks and sends the external authorization call to <<EXT-BANK-GW,bank gateway>>
+only when <<STATE-BANK-LINK-UP,bank link is available>> is satisfied. The <<DATA-PAYMENT-ID,payment id>> term is carried end-to-end so every
+service invocation and auditable decision can be correlated across logs, traces, and <<ACT-SUPPORT,support agent>> tooling.
+
+This is the nominal happy-path before decline or review branches are considered.
+
+==== Chapter Scope Diagram
+
+
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: chapter-CH-PAYMENT-AUTH (chapter)
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_EXT_BANK_GW[["Bank Gateway"]]:::external
+N_ACT_CUSTOMER(("Customer")):::person
+N_ACT_CUSTOMER -->|uses: Submits payment at checkout.| N_CONT_CHECKOUT_API
+N_CONT_CHECKOUT_API -->|depends_on: Delegates payment authorization.| N_CONT_PAYMENT_ENGINE
+N_CONT_PAYMENT_ENGINE -->|depends_on: Calls bank authorization API.| N_EXT_BANK_GW
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+==== Reference Map
+
+* Derived Architecture Refs: <<ACT-CUSTOMER,customer>>, <<CONT-CHECKOUT-API,Checkout API>>, <<CONT-PAYMENT-ENGINE,Payment Engine>>, <<EXT-BANK-GW,bank gateway>>
+* Derived Requirement Refs: <<REQ-PAY-001,REQ-PAY-001>>, <<REQ-PAY-002,REQ-PAY-002>>, <<REQ-PAY-004,REQ-PAY-004>>, <<REQ-PAY-005,REQ-PAY-005>>
+* Direct Relationships: <<ACT-CUSTOMER,customer>> -> <<CONT-CHECKOUT-API,Checkout API>> (uses: Submits payment at checkout.); <<CONT-CHECKOUT-API,Checkout API>> -> <<CONT-PAYMENT-ENGINE,Payment Engine>> (depends_on: Delegates payment authorization.); <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<EXT-BANK-GW,bank gateway>> (depends_on: Calls bank authorization API.)
+
+
+[[chapter-ch-review-escalation]]
+=== High-Risk Review Escalation
+
+Review escalation applies when risk logic determines the transaction cannot be auto-approved. Payment
+Engine places the transaction into <<STATE-REVIEW-PENDING,payment review is pending>> and emits <<EVT-SUPPORT-NOTIFIED,support agent is notified>> so manual
+intervention is guaranteed and auditable.
+
+<<ACT-SUPPORT,support agent>> receives enough context to decide whether to release, reject, or request additional
+verification. This chapter intentionally describes a controlled pause state instead of a hard failure
+so business workflows can continue safely under supervision.
+
+Checkout API provides status visibility while <<ACT-SUPPORT,support agent>> decisions are made.
+
+==== Chapter Scope Diagram
+
+
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: chapter-CH-REVIEW-ESCALATION (chapter)
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_ACT_SUPPORT(("Support Agent")):::person
+N_ACT_SUPPORT -->|uses: Reviews declined payments.| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification.| N_ACT_SUPPORT
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+----
+
+
+
+==== Reference Map
+
+* Derived Architecture Refs: <<ACT-SUPPORT,support agent>>, <<CONT-CHECKOUT-API,Checkout API>>, <<CONT-PAYMENT-ENGINE,Payment Engine>>
+* Derived Requirement Refs: <<REQ-PAY-004,REQ-PAY-004>>
+* Direct Relationships: <<ACT-SUPPORT,support agent>> -> <<CONT-CHECKOUT-API,Checkout API>> (uses: Reviews declined payments.); <<CONT-PAYMENT-ENGINE,Payment Engine>> -> <<ACT-SUPPORT,support agent>> (depends_on: Sends high-risk review notification.)
+
+
+
+
+== Reference Index
+
+This section combines implementation elements and glossary terms in one place.
+
+
+=== Actor(s)
+
+
+[[ACT-CUSTOMER]]
+==== Customer (ACT-CUSTOMER)
+
+End user submitting payment details during checkout.
+
+Aliases: `buyer`
+
+
+
+[[ACT-SUPPORT]]
+==== Support agent (ACT-SUPPORT)
+
+Operations role that investigates declines and high-risk review cases.
+
+Aliases: `support`
+
+
+
+
+=== System(s)
+
+
+[[EXT-BANK-GW]]
+==== Bank gateway (EXT-BANK-GW)
+
+External banking endpoint used for card authorization and decline decisions.
+
+Aliases: `bank API`
+
+
+
+[[SYS-FRAUD]]
+==== Fraud detection system (SYS-FRAUD)
+
+Service that evaluates transaction risk and classifies payments for approval or review.
+
+Aliases: `fraud service`
+
+
+
+[[SYS-PAYMENTS]]
+==== Payments system (SYS-PAYMENTS)
+
+Core platform that orchestrates checkout, authorization, and customer payment outcomes.
+
+Aliases: `payment platform`
+
+
+
+
+=== Container(s)
+
+
+[[CONT-CHECKOUT-API]]
+==== Checkout API (CONT-CHECKOUT-API)
+
+Checkout API runs as a container-level runtime unit using Go.
+
+Aliases: _none_
+
+Parent: <<SYS-PAYMENTS,payments system>>
+
+
+
+[[CONT-PAYMENT-ENGINE]]
+==== Payment Engine (CONT-PAYMENT-ENGINE)
+
+Payment Engine runs as a container-level runtime unit using Rust.
+
+Aliases: _none_
+
+Parent: <<SYS-PAYMENTS,payments system>>
+
+
+
+[[CONT-RISK-SCORER]]
+==== Risk Scorer (CONT-RISK-SCORER)
+
+Risk Scorer runs as a container-level runtime unit using TypeScript.
+
+Aliases: _none_
+
+Parent: <<SYS-FRAUD,fraud detection system>>
+
+
+
+
+=== Component(s)
+
+
+[[COMP-AUTH-ORCHESTRATOR]]
+==== Authorization Orchestrator (COMP-AUTH-ORCHESTRATOR)
+
+Authorization Orchestrator is a component-level responsibility within its parent container.
+
+Aliases: _none_
+
+Parent: <<CONT-PAYMENT-ENGINE,Payment Engine>>
+
+
+
+[[COMP-RULE-EVALUATOR]]
+==== Rule Evaluator (COMP-RULE-EVALUATOR)
+
+Rule Evaluator is a component-level responsibility within its parent container.
+
+Aliases: _none_
+
+Parent: <<CONT-RISK-SCORER,Risk Scorer>>
+
+
+
+
+=== Event(s)
+
+
+[[EVT-BANK-LINK-UNAVAILABLE]]
+==== Bank link is unavailable (EVT-BANK-LINK-UNAVAILABLE)
+
+Event raised when payment engine cannot reach the external bank gateway.
+
+Aliases: `bank link down`
+
+
+
+[[EVT-PAYMENT-AUTH-REQUESTED]]
+==== Payment authorization is requested (EVT-PAYMENT-AUTH-REQUESTED)
+
+Event raised when checkout asks payment engine to authorize a transaction.
+
+Aliases: `payment auth requested`
+
+
+
+[[EVT-PAYMENT-DECLINED]]
+==== Payment is declined (EVT-PAYMENT-DECLINED)
+
+Event indicating authorization was rejected and customer decline handling must execute.
+
+Aliases: `payment declined`
+
+
+
+[[EVT-RISK-HIGH]]
+==== Risk score is high (EVT-RISK-HIGH)
+
+Event emitted when computed fraud risk exceeds the configured high-risk threshold.
+
+Aliases: `high risk`
+
+
+
+[[EVT-SUPPORT-NOTIFIED]]
+==== Support agent is notified (EVT-SUPPORT-NOTIFIED)
+
+Event indicating manual review notification was sent to support operations.
+
+Aliases: `support notified`
+
+
+
+
+=== State(s)
+
+
+[[STATE-BANK-LINK-UP]]
+==== Bank link is available (STATE-BANK-LINK-UP)
+
+Connectivity state showing bank gateway communication is currently healthy.
+
+Aliases: `bank link up`
+
+
+
+[[STATE-CHECKOUT-ACTIVE]]
+==== Checkout is active (STATE-CHECKOUT-ACTIVE)
+
+Processing state where the user is actively submitting or confirming payment.
+
+Aliases: `checkout active`
+
+
+
+[[STATE-REVIEW-PENDING]]
+==== Payment review is pending (STATE-REVIEW-PENDING)
+
+Transaction state requiring manual support review before final disposition.
+
+Aliases: `review pending`
+
+
+
+
+=== Feature(s)
+
+
+[[FEAT-FRAUD-CHECK]]
+==== Fraud check is enabled (FEAT-FRAUD-CHECK)
+
+Feature flag controlling whether risk scoring is required before authorization.
+
+Aliases: `fraud check`
+
+
+
+
+=== Mode(s)
+
+
+[[MODE-NORMAL]]
+==== Normal mode is active (MODE-NORMAL)
+
+Standard operating mode with full external dependency usage enabled.
+
+Aliases: `normal mode`
+
+
+
+
+=== Condition(s)
+
+
+[[COND-3DS-REQUIRED]]
+==== 3DS verification is required (COND-3DS-REQUIRED)
+
+Condition indicating strong customer authentication must be performed.
+
+Aliases: `3DS required`
+
+
+
+[[COND-RISK-THRESHOLD-EXCEEDED]]
+==== Risk threshold is exceeded (COND-RISK-THRESHOLD-EXCEEDED)
+
+Condition indicating risk score crossed a policy threshold for escalation.
+
+Aliases: `risk above threshold`
+
+
+
+
+=== Data term(s)
+
+
+[[DATA-DECLINE-REASON]]
+==== Decline reason (DATA-DECLINE-REASON)
+
+Structured reason code or message explaining why authorization failed.
+
+Aliases: `decline code`
+
+
+
+[[DATA-PAYMENT-ID]]
+==== Payment id (DATA-PAYMENT-ID)
+
+Stable identifier used to correlate a payment across services and records.
+
+Aliases: _none_
+
+
+
+[[DATA-RISK-SCORE]]
+==== Risk score (DATA-RISK-SCORE)
+
+Numeric fraud score produced by risk evaluation logic.
+
+Aliases: _none_
+
+
+
+
+
+
+== Requirements Appendix
+
+
+[[REQ-PAY-001]]
+=== REQ-PAY-001
+
+While <<STATE-CHECKOUT-ACTIVE,checkout is active>>, when <<EVT-PAYMENT-AUTH-REQUESTED,payment authorization is requested>>, the <<SYS-PAYMENTS,payments system>> shall create a payment session and request authorization from <<EXT-BANK-GW,bank gateway>>.
+
+
+Notes: Core authorization path from checkout to <<EXT-BANK-GW,bank gateway>>.
+
+
+
+[[REQ-PAY-002]]
+=== REQ-PAY-002
+
+Where <<FEAT-FRAUD-CHECK,fraud check is enabled>>, when <<EVT-PAYMENT-AUTH-REQUESTED,payment authorization is requested>>, the <<SYS-FRAUD,fraud detection system>> shall calculate a <<DATA-RISK-SCORE,risk score>> before approval.
+
+
+Notes: Fraud scoring gate before approval.
+
+
+
+[[REQ-PAY-003]]
+=== REQ-PAY-003
+
+If <<EVT-PAYMENT-DECLINED,payment is declined>>, then the <<SYS-PAYMENTS,payments system>> shall present a <<DATA-DECLINE-REASON,decline reason>> and a retry option to <<ACT-CUSTOMER,customer>>.
+
+
+Notes: Decline handling and <<ACT-CUSTOMER,customer>> feedback.
+
+
+
+[[REQ-PAY-004]]
+=== REQ-PAY-004
+
+While <<STATE-CHECKOUT-ACTIVE,checkout is active>>, when <<EVT-PAYMENT-AUTH-REQUESTED,payment authorization is requested>> and <<EVT-RISK-HIGH,risk score is high>>, the <<SYS-PAYMENTS,payments system>> shall place the payment in <<STATE-REVIEW-PENDING,payment review is pending>> state and notify <<ACT-SUPPORT,support agent>>.
+
+
+Notes: Escalation flow for high-risk payments.
+
+
+
+[[REQ-PAY-005]]
+=== REQ-PAY-005
+
+Where <<FEAT-FRAUD-CHECK,fraud check is enabled>>, when <<EVT-PAYMENT-AUTH-REQUESTED,payment authorization is requested>>, the <<SYS-PAYMENTS,payments system>> shall persist an audit record with <<DATA-PAYMENT-ID,payment id>> and <<DATA-RISK-SCORE,risk score>>.
+
+
+Notes: Auditability for authorization decisions.
+
+
+
+[[REQ-PAY-006]]
+=== REQ-PAY-006
+
+If <<EVT-BANK-LINK-UNAVAILABLE,bank link is unavailable>>, then the <<SYS-PAYMENTS,payments system>> shall present a temporary unavailable message to <<ACT-CUSTOMER,customer>>.
+
+
+Notes: Fallback behavior when external banking path is down.
+
+
+
+
+

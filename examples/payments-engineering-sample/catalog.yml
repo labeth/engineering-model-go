@@ -1,0 +1,96 @@
+catalog:
+  systems:
+    - id: SYS-PAYMENTS
+      name: payments system
+      definition: Core platform that orchestrates checkout, authorization, and customer payment outcomes.
+      aliases: [payment platform]
+    - id: SYS-FRAUD
+      name: fraud detection system
+      definition: Service that evaluates transaction risk and classifies payments for approval or review.
+      aliases: [fraud service]
+    - id: EXT-BANK-GW
+      name: bank gateway
+      definition: External banking endpoint used for card authorization and decline decisions.
+      aliases: [bank API]
+
+  actors:
+    - id: ACT-CUSTOMER
+      name: customer
+      definition: End user submitting payment details during checkout.
+      aliases: [buyer]
+    - id: ACT-SUPPORT
+      name: support agent
+      definition: Operations role that investigates declines and high-risk review cases.
+      aliases: [support]
+
+  events:
+    - id: EVT-PAYMENT-AUTH-REQUESTED
+      name: payment authorization is requested
+      definition: Event raised when checkout asks payment engine to authorize a transaction.
+      aliases: [payment auth requested]
+    - id: EVT-PAYMENT-DECLINED
+      name: payment is declined
+      definition: Event indicating authorization was rejected and customer decline handling must execute.
+      aliases: [payment declined]
+    - id: EVT-RISK-HIGH
+      name: risk score is high
+      definition: Event emitted when computed fraud risk exceeds the configured high-risk threshold.
+      aliases: [high risk]
+    - id: EVT-SUPPORT-NOTIFIED
+      name: support agent is notified
+      definition: Event indicating manual review notification was sent to support operations.
+      aliases: [support notified]
+    - id: EVT-BANK-LINK-UNAVAILABLE
+      name: bank link is unavailable
+      definition: Event raised when payment engine cannot reach the external bank gateway.
+      aliases: [bank link down]
+
+  states:
+    - id: STATE-CHECKOUT-ACTIVE
+      name: checkout is active
+      definition: Processing state where the user is actively submitting or confirming payment.
+      aliases: [checkout active]
+    - id: STATE-BANK-LINK-UP
+      name: bank link is available
+      definition: Connectivity state showing bank gateway communication is currently healthy.
+      aliases: [bank link up]
+    - id: STATE-REVIEW-PENDING
+      name: payment review is pending
+      definition: Transaction state requiring manual support review before final disposition.
+      aliases: [review pending]
+
+  features:
+    - id: FEAT-FRAUD-CHECK
+      name: fraud check is enabled
+      definition: Feature flag controlling whether risk scoring is required before authorization.
+      aliases: [fraud check]
+
+  modes:
+    - id: MODE-NORMAL
+      name: normal mode is active
+      definition: Standard operating mode with full external dependency usage enabled.
+      aliases: [normal mode]
+
+  conditions:
+    - id: COND-3DS-REQUIRED
+      name: 3DS verification is required
+      definition: Condition indicating strong customer authentication must be performed.
+      aliases: [3DS required]
+    - id: COND-RISK-THRESHOLD-EXCEEDED
+      name: risk threshold is exceeded
+      definition: Condition indicating risk score crossed a policy threshold for escalation.
+      aliases: [risk above threshold]
+
+  dataTerms:
+    - id: DATA-PAYMENT-ID
+      name: payment id
+      definition: Stable identifier used to correlate a payment across services and records.
+      aliases: []
+    - id: DATA-RISK-SCORE
+      name: risk score
+      definition: Numeric fraud score produced by risk evaluation logic.
+      aliases: []
+    - id: DATA-DECLINE-REASON
+      name: decline reason
+      definition: Structured reason code or message explaining why authorization failed.
+      aliases: [decline code]

@@ -1,0 +1,91 @@
+design:
+  id: sample-payments-architecture
+  title: Sample Payments Architecture
+  views:
+    - VIEW-CONTEXT
+    - VIEW-CONTAINER
+    - VIEW-DEPLOYMENT
+  chapters:
+    - id: CH-PAYMENT-AUTH
+      title: Payment Authorization Flow
+      narrative: |
+        The payment authorization flow starts when a customer submits checkout data and the system raises
+        payment authorization is requested while checkout is active is true. Checkout API creates a payment
+        session key and forwards the authorization request to Payment Engine.
+
+        Payment Engine coordinates internal checks and sends the external authorization call to Bank Gateway
+        only when bank link is available is satisfied. The payment id term is carried end-to-end so every
+        service invocation and auditable decision can be correlated across logs, traces, and support tooling.
+
+        This is the nominal happy-path before decline or review branches are considered.
+      catalogRefs:
+        - payment authorization is requested
+        - checkout is active
+        - bank link is available
+        - payment id
+
+    - id: CH-FRAUD-CHECK
+      title: Fraud Check Integration
+      narrative: |
+        Fraud evaluation is a mandatory branch for transactions where fraud check is enabled is enabled. Payment
+        Engine calls Risk Scorer before final authorization, and the risk pipeline computes risk score
+        from request metadata, amount, and behavioral signals.
+
+        If the resulting score indicates risk score is high, the authorization path must transition away from
+        immediate approval and into controlled review handling. If the score remains below threshold, the
+        payment can continue through the normal bank authorization branch.
+
+        This chapter defines the boundary between fast-path processing and human-review escalation.
+      catalogRefs:
+        - fraud check is enabled
+        - risk score is high
+        - risk score
+
+    - id: CH-DECLINE-HANDLING
+      title: Decline Handling And Support Flow
+      narrative: |
+        When payment is declined is produced, Payment Engine returns a decline payload to Checkout API
+        containing customer-safe messaging and decline reason details. Checkout API then renders clear
+        feedback and retry guidance so users can recover without ambiguous failure states.
+
+        support agent is linked to the same decline context to allow post-event triage, root-cause review, and
+        operational communication. This keeps user-facing behavior and support-facing diagnosis aligned to the
+        same canonical event and data terms.
+
+        The chapter covers both customer messaging and support-side operational follow-up.
+      catalogRefs:
+        - payment is declined
+        - support agent
+        - decline reason
+
+    - id: CH-REVIEW-ESCALATION
+      title: High-Risk Review Escalation
+      narrative: |
+        Review escalation applies when risk logic determines the transaction cannot be auto-approved. Payment
+        Engine places the transaction into payment review is pending and emits support agent is notified so manual
+        intervention is guaranteed and auditable.
+
+        support agent receives enough context to decide whether to release, reject, or request additional
+        verification. This chapter intentionally describes a controlled pause state instead of a hard failure
+        so business workflows can continue safely under supervision.
+
+        Checkout API provides status visibility while support decisions are made.
+      catalogRefs:
+        - support agent is notified
+        - payment review is pending
+        - support agent
+
+    - id: CH-BANK-LINK-FALLBACK
+      title: Bank Link Fallback Behavior
+      narrative: |
+        Fallback behavior is activated when bank link is unavailable occurs during authorization. In this
+        condition Payment Engine must stop external authorization attempts and return a deterministic temporary
+        unavailable response to Checkout API.
+
+        Checkout API converts that response into user guidance that distinguishes transient infrastructure
+        failure from card or account decline. This prevents false negative messaging and reduces support load
+        caused by misleading decline prompts.
+
+        This complements, but does not replace, the normal bank-link-up authorization path.
+      catalogRefs:
+        - bank link is unavailable

@@ -1,0 +1,31 @@
+flowchart LR
+%% view: VIEW-CONTEXT (system-context)
+N_COMP_AUTH_ORCHESTRATOR["Authorization Orchestrator"]:::component
+N_CONT_CHECKOUT_API["Checkout API"]:::container
+N_CONT_PAYMENT_ENGINE["Payment Engine"]:::container
+N_CONT_RISK_SCORER["Risk Scorer"]:::container
+N_EXT_BANK_GW[["Bank Gateway"]]:::external
+N_ACT_CUSTOMER(("Customer")):::person
+N_ACT_SUPPORT(("Support Agent")):::person
+N_SYS_PAYMENTS["Payments System"]:::system
+N_ACT_CUSTOMER -->|uses: Submits payment at checkout. catalog: customer, payment authorization is requested| N_CONT_CHECKOUT_API
+N_ACT_SUPPORT -->|uses: Reviews declined payments. catalog: support agent, payment is declined| N_CONT_CHECKOUT_API
+N_CONT_CHECKOUT_API -->|depends_on: Delegates payment authorization. catalog: payment authorization is requested, checkout is active| N_CONT_PAYMENT_ENGINE
+N_CONT_PAYMENT_ENGINE -->|depends_on: Sends high-risk review notification. catalog: support agent is notified, payment review is pending, support agent| N_ACT_SUPPORT
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns decline outcome for customer messaging. catalog: payment is declined, decline reason| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Returns temporary unavailable response when bank link is down. catalog: bank link is unavailable| N_CONT_CHECKOUT_API
+N_CONT_PAYMENT_ENGINE -->|depends_on: Requests fraud scoring. catalog: fraud check is enabled, risk score is high, risk score| N_CONT_RISK_SCORER
+N_CONT_PAYMENT_ENGINE -->|depends_on: Calls bank authorization API. catalog: bank link is available, payment authorization is requested| N_EXT_BANK_GW
+
+classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;
+classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;
+classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;
+classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;
+classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;
+classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;
+classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;
+classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;
+classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;
+classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;
+classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

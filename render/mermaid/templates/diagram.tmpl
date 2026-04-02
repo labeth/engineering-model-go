@@ -1,0 +1,12 @@
+flowchart LR
+%% view: {{ .ViewID }} ({{ .ViewKind }})
+{{- range .Nodes }}
+{{ . }}
+{{- end }}
+{{- range .Edges }}
+{{ .From }} -->|{{ .Label }}| {{ .To }}
+{{- end }}
+
+{{- range .ClassDefs }}
+{{ . }}
+{{- end }}

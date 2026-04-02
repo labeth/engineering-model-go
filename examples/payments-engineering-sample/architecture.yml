@@ -1,0 +1,111 @@
+model:
+  id: sample-payments-system
+  title: Sample Payments System
+  baseCatalogRef: ./catalog.yml
+
+c4:
+  people:
+    - id: ACT-CUSTOMER
+      name: Customer
+      description: Starts checkout and confirms payment.
+    - id: ACT-SUPPORT
+      name: Support Agent
+      description: Reviews failed-payment cases.
+
+  softwareSystems:
+    - id: SYS-PAYMENTS
+      name: Payments System
+      boundary: internal
+    - id: SYS-FRAUD
+      name: Fraud Detection System
+      boundary: internal
+    - id: EXT-BANK-GW
+      kind: external_system
+      name: Bank Gateway
+
+  containers:
+    - id: CONT-CHECKOUT-API
+      name: Checkout API
+      technology: Go
+      partOf: SYS-PAYMENTS
+    - id: CONT-PAYMENT-ENGINE
+      name: Payment Engine
+      technology: Rust
+      partOf: SYS-PAYMENTS
+    - id: CONT-RISK-SCORER
+      name: Risk Scorer
+      technology: TypeScript
+      partOf: SYS-FRAUD
+
+  components:
+    - id: COMP-AUTH-ORCHESTRATOR
+      name: Authorization Orchestrator
+      partOf: CONT-PAYMENT-ENGINE
+    - id: COMP-RULE-EVALUATOR
+      name: Rule Evaluator
+      partOf: CONT-RISK-SCORER
+
+relationships:
+  - type: uses
+    from: ACT-CUSTOMER
+    to: CONT-CHECKOUT-API
+    description: Submits payment at checkout.
+    catalogRefs: [ACT-CUSTOMER, EVT-PAYMENT-AUTH-REQUESTED]
+
+  - type: depends_on
+    from: CONT-CHECKOUT-API
+    to: CONT-PAYMENT-ENGINE
+    description: Delegates payment authorization.
+    catalogRefs: [EVT-PAYMENT-AUTH-REQUESTED, STATE-CHECKOUT-ACTIVE]
+
+  - type: depends_on
+    from: CONT-PAYMENT-ENGINE
+    to: CONT-RISK-SCORER
+    description: Requests fraud scoring.
+    catalogRefs: [FEAT-FRAUD-CHECK, EVT-RISK-HIGH, DATA-RISK-SCORE]
+
+  - type: depends_on
+    from: CONT-PAYMENT-ENGINE
+    to: EXT-BANK-GW
+    description: Calls bank authorization API.
+    catalogRefs: [STATE-BANK-LINK-UP, EVT-PAYMENT-AUTH-REQUESTED]
+
+  - type: depends_on
+    from: CONT-PAYMENT-ENGINE
+    to: CONT-CHECKOUT-API
+    description: Returns decline outcome for customer messaging.
+    catalogRefs: [EVT-PAYMENT-DECLINED, DATA-DECLINE-REASON]
+
+  - type: uses
+    from: ACT-SUPPORT
+    to: CONT-CHECKOUT-API
+    description: Reviews declined payments.
+    catalogRefs: [ACT-SUPPORT, EVT-PAYMENT-DECLINED]
+
+  - type: depends_on
+    from: CONT-PAYMENT-ENGINE
+    to: ACT-SUPPORT
+    description: Sends high-risk review notification.
+    catalogRefs: [EVT-SUPPORT-NOTIFIED, STATE-REVIEW-PENDING, ACT-SUPPORT]
+
+  - type: depends_on
+    from: CONT-PAYMENT-ENGINE
+    to: CONT-CHECKOUT-API
+    description: Returns temporary unavailable response when bank link is down.
+    catalogRefs: [EVT-BANK-LINK-UNAVAILABLE]
+
+viewpoints:
+  - id: VIEW-CONTEXT
+    kind: system-context
+    roots: [SYS-PAYMENTS]
+    includeRelations: [uses, depends_on]
+
+  - id: VIEW-CONTAINER
+    kind: container
+    roots: [SYS-PAYMENTS]
+    includeRelations: [part_of, depends_on]
+
+  - id: VIEW-DEPLOYMENT
+    kind: deployment
+    roots: [ENV-PROD]
+    includeRelations: [part_of, runs_in, manages, deploys, depends_on]

@@ -1,0 +1,136 @@
+= {{ .Title }}
+:toc:
+:toclevels: 3
+:sectnums:
+
+== Introduction
+
+This architecture description is generated from `architecture.yml`, `requirements.yml`, and `design.yml`.
+Each design chapter is anchored on catalog references, while architecture elements and requirement links are derived automatically.
+
+== Architectural Views
+
+{{ range .Views }}
+=== {{ .ID }}
+
+The following view is the full model projection for `{{ .ID }}`.
+
+[source,mermaid]
+----
+{{ .Mermaid }}
+----
+
+{{ end }}
+
+== Design Chapters
+
+{{ range .Chapters }}
+[[{{ .Anchor }}]]
+=== {{ .Header }}
+
+{{ .Narrative }}
+
+==== Chapter Scope Diagram
+
+{{ if .HasRelationships }}
+The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+
+[source,mermaid]
+----
+{{ .Mermaid }}
+----
+
+{{ else }}
+No direct dependencies are tagged for this chapter.
+
+{{ end }}
+
+==== Reference Map
+
+* Derived Architecture Refs: {{ .DerivedC4Refs }}
+* Derived Requirement Refs: {{ .DerivedRequirementRefs }}
+* Direct Relationships: {{ .DirectRelationships }}
+
+{{ end }}
+
+{{ if .HasReferenceIndex }}
+== Reference Index
+
+This section combines implementation elements and glossary terms in one place.
+
+{{ range .ReferenceSections }}
+=== {{ .KindTitle }}
+
+{{ range .Entries }}
+[[{{ .Anchor }}]]
+==== {{ .Heading }} ({{ .ID }})
+
+{{ if .HasDefinition }}{{ .Definition }}{{ else }}_missing definition_{{ end }}
+
+Aliases: {{ .Aliases }}
+{{ if .HasParent }}
+Parent: {{ .ParentRef }}
+{{ end }}
+
+{{ end }}
+{{ end }}
+{{ end }}
+
+== Requirements Appendix
+
+{{ range .Requirements }}
+[[{{ .Anchor }}]]
+=== {{ .ID }}
+
+{{ .Text }}
+
+{{ if .HasNotes }}
+Notes: {{ .Notes }}
+
+{{ end }}
+{{ end }}
+
+{{ if .HasCodeMapping }}
+== Code Mapping
+
+Code symbols are linked through trace markers.
+Mapping priority is: explicit `TRACE-PART-OF`, then inferred container mapping from traced requirements and chapter scope.
+
+{{ range .CodeContainers }}
+=== {{ .Label }} (`{{ .ID }}`)
+
+This section summarizes traced symbols mapped to this container.
+
+{{ range .Symbols }}
+==== `{{ .TraceID }}`
+
+Location: `{{ .PathLine }}`
+
+{{ if .HasSignature }}
+Declaration:
+
+`{{ .Signature }}`
+{{ end }}
+{{ if .HasRequirements }}
+Linked requirements: {{ .Requirements }}
+{{ end }}
+{{ if .HasMapping }}
+Mapping source: {{ .MappingNote }} {{ .Mapping }}
+{{ else }}
+Mapping source: {{ .MappingNote }}
+{{ end }}
+
+'''
+
+{{ end }}
+
+{{ end }}
+{{ if .HasUnmapped }}
+=== Unmapped Symbols
+
+{{ range .UnmappedSymbols }}
+* `{{ .TraceID }}` at `{{ .PathLine }}`
+{{ end }}
+
+{{ end }}
+{{ end }}
