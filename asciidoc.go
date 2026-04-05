@@ -1595,7 +1595,7 @@ func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping
 				fuToRuntime[r.Owner] = name
 			}
 		}
-		if r.Kind == "service" && len(r.Ports) > 0 {
+		if (r.Kind == "service" || r.Kind == "helmrelease") && len(r.Ports) > 0 {
 			servicePorts[name] = strings.Join(r.Ports, ", ")
 		}
 	}

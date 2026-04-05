@@ -3,6 +3,8 @@ kind: GitRepository
 metadata:
   name: payments-sample-source
   namespace: flux-system
+  annotations:
+    engmodel.dev/owner-unit: FU-GITOPS-OPERATIONS
 spec:
   interval: 1m
   url: https://github.com/example/payments-engineering-sample.git

@@ -234,7 +234,7 @@ Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Threats: no explicit attack vector targeting this unit
-Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
@@ -290,7 +290,7 @@ Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
@@ -346,7 +346,7 @@ Consumes: none
 Produces: derived unit outcomes from authored mappings
 Depends on: none
 Threats: no explicit attack vector targeting this unit
-Evidence: authored unit with no direct derived runtime/code evidence yet
+Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
 
 
 
@@ -374,7 +374,7 @@ Consumes: none
 Produces: derived unit outcomes from authored mappings
 Depends on: none
 Threats: no explicit attack vector targeting this unit
-Evidence: authored unit with no direct derived runtime/code evidence yet
+Evidence: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 
 
 
@@ -392,9 +392,9 @@ Show inferred runtime interaction and containment mapped to authored unit bounda
 flowchart LR
   RT_CHECKOUT_API["checkout-api"]
   RT_PAYMENT_ENGINE["payment-engine"]
-  RT_CHECKOUT_API -->|API unknown| RT_PAYMENT_ENGINE
+  RT_CHECKOUT_API -->|API 8081/TCP| RT_PAYMENT_ENGINE
   RT_RISK_SCORER["risk-scorer"]
-  RT_PAYMENT_ENGINE -->|API unknown| RT_RISK_SCORER
+  RT_PAYMENT_ENGINE -->|API 8082/TCP| RT_RISK_SCORER
 ----
 
 === Functional Groups (View Scoped)
@@ -453,7 +453,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 |Depends on |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 |Threats |no explicit attack vector targeting this unit
-|Evidence |runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -507,7 +507,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 |Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Depends on |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Threats |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+|Evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 |===
 
 
@@ -578,6 +578,8 @@ flowchart LR
   TGT_CHECKOUT_API["checkout-api"]
   ACT_PLATFORM_OPERATOR --> PFU_GITOPS_OPERATIONS
   PFU_GITOPS_OPERATIONS --> TGT_CHECKOUT_API
+  TGT_FLUX_SYSTEM["flux_system"]
+  PFU_GITOPS_OPERATIONS --> TGT_FLUX_SYSTEM
   TGT_PAYMENT_ENGINE["payment-engine"]
   PFU_GITOPS_OPERATIONS --> TGT_PAYMENT_ENGINE
   TGT_PAYMENTS_APPS["payments-apps"]
@@ -657,7 +659,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 |Depends on |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 |Threats |no explicit attack vector targeting this unit
-|Evidence |runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -711,7 +713,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 |Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Depends on |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Threats |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+|Evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 |===
 
 
@@ -765,7 +767,7 @@ Tags: day1
 |Produces |derived unit outcomes from authored mappings
 |Depends on |none
 |Threats |no explicit attack vector targeting this unit
-|Evidence |authored unit with no direct derived runtime/code evidence yet
+|Evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
 |===
 
 
@@ -792,7 +794,7 @@ Tags: day2
 |Produces |derived unit outcomes from authored mappings
 |Depends on |none
 |Threats |no explicit attack vector targeting this unit
-|Evidence |authored unit with no direct derived runtime/code evidence yet
+|Evidence |runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 |===
 
 
@@ -891,7 +893,7 @@ Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Threats: no explicit attack vector targeting this unit
-Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
@@ -937,7 +939,7 @@ Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
@@ -1002,16 +1004,16 @@ flowchart LR
 |application security telemetry hooks |code |FU-RISK-SCORING |code support/audit_envelope.ts
 |fraud and abuse detection code paths |code |FU-RISK-SCORING |code risk_scorer.ts
 |deployment and platform audit events |deployment |FU-CHECKOUT |helmrelease checkout-api
+|deployment and platform audit events |deployment |FU-CHECKOUT |namespace payments
+|deployment and platform audit events |deployment |FU-CLUSTER-PROVISIONING |cluster payments
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |gitrepository payments-sample-source
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |kustomization payments-apps
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |namespace flux_system
 |deployment and platform audit events |deployment |FU-PAYMENT-AUTHORIZATION |helmrelease payment-engine
 |deployment and platform audit events |deployment |FU-RISK-SCORING |helmrelease risk-scorer
-|deployment and platform audit events |deployment |unresolved |cluster payments
-|deployment and platform audit events |deployment |unresolved |gitrepository payments-sample-source
-|deployment and platform audit events |deployment |unresolved |kustomization payments-apps
-|deployment and platform audit events |deployment |unresolved |namespace flux_system
-|deployment and platform audit events |deployment |unresolved |namespace payments
-|deployment and platform audit events |deployment |unresolved |namespace risk
+|deployment and platform audit events |deployment |FU-RISK-SCORING |namespace risk
 |abuse and fraud decision logs |runtime |FU-RISK-SCORING |helmrelease risk-scorer
-|abuse and fraud decision logs |runtime |unresolved |namespace risk
+|abuse and fraud decision logs |runtime |FU-RISK-SCORING |namespace risk
 |===
 
 === Functional Groups (View Scoped)
@@ -1080,7 +1082,7 @@ Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 Threats: no explicit attack vector targeting this unit
-Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
@@ -1126,7 +1128,7 @@ Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
@@ -1172,7 +1174,7 @@ Consumes: none
 Produces: derived unit outcomes from authored mappings
 Depends on: none
 Threats: no explicit attack vector targeting this unit
-Evidence: authored unit with no direct derived runtime/code evidence yet
+Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
 
 
 
@@ -1195,7 +1197,7 @@ Consumes: none
 Produces: derived unit outcomes from authored mappings
 Depends on: none
 Threats: no explicit attack vector targeting this unit
-Evidence: authored unit with no direct derived runtime/code evidence yet
+Evidence: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 
 
 
@@ -1250,6 +1252,8 @@ flowchart LR
   REQC_REQ_PAY_001["REQ-PAY-001"]
   FU_FU_CHECKOUT["Checkout Handling"]
   REQC_REQ_PAY_001 --> FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
   CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]
@@ -1265,6 +1269,8 @@ flowchart LR
   REQC_REQ_PAY_002["REQ-PAY-002"]
   FU_FU_RISK_SCORING["Risk Scoring"]
   REQC_REQ_PAY_002 --> FU_FU_RISK_SCORING
+  RTC_FU_RISK_SCORING_RISK["risk"]
+  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
   RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
   CDC_FU_RISK_SCORING_RISK_SCORER["risk_scorer"]
@@ -1879,12 +1885,12 @@ Transaction state requiring manual support review before final disposition.
 [[REF_RT_CLUSTER_PAYMENTS]]
 ==== payments
 Kind: Runtime cluster
-Owner: unresolved
+Owner: FU-CLUSTER-PROVISIONING
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]
 ==== flux-system/payments-sample-source
 Kind: Runtime gitrepository
-Owner: unresolved
+Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
 [[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]
 ==== payments/checkout-api
@@ -1904,22 +1910,22 @@ Source: examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yam
 [[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]
 ==== flux-system/payments-apps
 Kind: Runtime kustomization
-Owner: unresolved
+Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
 [[REF_RT_NAMESPACE_FLUX_SYSTEM]]
 ==== flux_system
 Kind: Runtime namespace
-Owner: unresolved
+Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_PAYMENTS]]
 ==== payments
 Kind: Runtime namespace
-Owner: unresolved
+Owner: FU-CHECKOUT
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_RISK]]
 ==== risk
 Kind: Runtime namespace
-Owner: unresolved
+Owner: FU-RISK-SCORING
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 
 === Inferred Code References

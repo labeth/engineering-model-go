@@ -145,7 +145,7 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 		out = append(out, inferredRuntimeItem{
 			Name:   name,
 			Kind:   kind,
-			Owner:  "unresolved",
+			Owner:  inferOwnerByConvention(kind, name),
 			Source: filepath.ToSlash(path),
 		})
 	}
@@ -164,6 +164,25 @@ func normalizeTerraformKind(resourceType string) string {
 	}
 }
 
+func inferOwnerByConvention(kind, name string) string {
+	k := strings.ToLower(strings.TrimSpace(kind))
+	n := strings.ToLower(strings.TrimSpace(name))
+	switch {
+	case k == "cluster":
+		return "FU-CLUSTER-PROVISIONING"
+	case k == "namespace" && (n == "flux-system" || n == "flux_system"):
+		return "FU-GITOPS-OPERATIONS"
+	case (k == "gitrepository" || k == "kustomization") && strings.HasPrefix(n, "flux-system/"):
+		return "FU-GITOPS-OPERATIONS"
+	case k == "namespace" && n == "payments":
+		return "FU-CHECKOUT"
+	case k == "namespace" && n == "risk":
+		return "FU-RISK-SCORING"
+	default:
+		return "unresolved"
+	}
+}
+
 type manifestMetadata struct {
 	Name        string            `yaml:"name"`
 	Namespace   string            `yaml:"namespace"`
@@ -177,7 +196,8 @@ type manifestObject struct {
 }
 
 type manifestSpec struct {
-	Ports []manifestPort `yaml:"ports"`
+	Ports  []manifestPort `yaml:"ports"`
+	Values map[string]any `yaml:"values"`
 }
 
 type manifestPort struct {
@@ -230,21 +250,28 @@ func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagno
 		if kind == "" || name == "" {
 			continue
 		}
+		ports := normalizePorts(doc.Spec.Ports)
+		if len(ports) == 0 && strings.EqualFold(kind, "HelmRelease") {
+			ports = portsFromHelmValues(doc.Spec.Values)
+		}
+		if ns := strings.TrimSpace(doc.Metadata.Namespace); ns != "" {
+			name = fmt.Sprintf("%s/%s", ns, name)
+		}
 		owner := "unresolved"
 		if doc.Metadata.Annotations != nil {
 			if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/owner-unit"]); x != "" {
 				owner = x
 			}
 		}
-		if ns := strings.TrimSpace(doc.Metadata.Namespace); ns != "" {
-			name = fmt.Sprintf("%s/%s", ns, name)
+		if owner == "unresolved" {
+			owner = inferOwnerByConvention(strings.ToLower(kind), name)
 		}
 		out = append(out, inferredRuntimeItem{
 			Name:   name,
 			Kind:   strings.ToLower(kind),
 			Owner:  owner,
 			Source: filepath.ToSlash(path),
-			Ports:  normalizePorts(doc.Spec.Ports),
+			Ports:  ports,
 		})
 	}
 	return out, nil
@@ -268,6 +295,39 @@ func normalizePorts(in []manifestPort) []string {
 		}
 	}
 	return out
+}
+
+func portsFromHelmValues(values map[string]any) []string {
+	if values == nil {
+		return nil
+	}
+	serviceRaw, ok := values["service"]
+	if !ok {
+		return nil
+	}
+	service, ok := serviceRaw.(map[string]any)
+	if !ok {
+		return nil
+	}
+	portRaw, ok := service["port"]
+	if !ok {
+		return nil
+	}
+	port := 0
+	switch v := portRaw.(type) {
+	case int:
+		port = v
+	case int64:
+		port = int(v)
+	case float64:
+		port = int(v)
+	case string:
+		fmt.Sscanf(strings.TrimSpace(v), "%d", &port)
+	}
+	if port <= 0 {
+		return nil
+	}
+	return []string{fmt.Sprintf("%d/TCP", port)}
 }
 
 func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
