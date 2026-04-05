@@ -15,6 +15,7 @@ var asciidocTemplate = template.Must(template.New("asciidoc").Parse(asciidocTemp
 type asciidocTemplateData struct {
 	Title                      string
 	Introduction               string
+	HealthRows                 []asciidocHealthRow
 	Terms                      []asciidocTerm
 	Purpose                    string
 	ReaderTracks               []string
@@ -36,6 +37,14 @@ type asciidocTemplateData struct {
 	RequirementInf             string
 	Requirements               []asciidocRequirementSection
 	ReferenceIndex             asciidocReferenceIndex
+}
+
+type asciidocHealthRow struct {
+	ViewID       string
+	ViewHeading  string
+	UnitsInScope int
+	WithEvidence int
+	GapCount     int
 }
 
 type asciidocTerm struct {

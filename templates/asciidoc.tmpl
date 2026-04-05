@@ -27,6 +27,19 @@ Read in this order:
 2. Runtime/Deployment/Realization/Security Views: view-specific realization details.
 3. Generated Evidence Appendix: traceability and inferred references for audit/tooling.
 
+== Document Health Snapshot
+
+[cols="3,1,1,1",options="header"]
+|===
+|View |Units in Scope |Direct Evidence Coverage |Gap Count
+{{- range .HealthRows }}
+|{{ .ViewHeading }} (`{{ .ViewID }}`)
+|{{ .UnitsInScope }}
+|{{ .WithEvidence }}
+|{{ .GapCount }}
+{{- end }}
+|===
+
 == Terms and Definitions
 
 [cols="3,7",options="header"]

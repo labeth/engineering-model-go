@@ -288,6 +288,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	doc, err := renderAsciiDocTemplate(asciidocTemplateData{
 		Title:        nonEmpty(design.Design.Title, bundle.Architecture.Model.Title),
 		Introduction: linkifyText(strings.TrimSpace(bundle.Architecture.Model.Introduction), linkTargets),
+		HealthRows:   buildHealthRows(viewSections),
 		Terms:        terms,
 		Purpose:      "This architecture description is generated from authored structure and inferred realization layers.",
 		ReaderTracks: []string{"Product/domain engineers: Functional + Runtime", "Platform/SRE engineers: Deployment + Runtime", "Implementation engineers: Realization + Functional", "Security engineers: Security + Functional"},
@@ -559,6 +560,48 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 		}
 	}
 	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
+}
+
+func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
+	withEvidence := 0
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "runtime", "deployment":
+			if strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "code-ownership":
+			if strings.Contains(evidence, "code modules:") {
+				withEvidence++
+			}
+		case "security":
+			if !strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				withEvidence++
+			}
+		default:
+			withEvidence++
+		}
+	}
+	return withEvidence
+}
+
+func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
+	rows := make([]asciidocHealthRow, 0, len(views))
+	for _, v := range views {
+		gapCount := len(v.CoverageGaps)
+		if gapCount == 1 && strings.Contains(strings.ToLower(strings.TrimSpace(v.CoverageGaps[0])), "no major coverage gaps") {
+			gapCount = 0
+		}
+		rows = append(rows, asciidocHealthRow{
+			ViewID:       v.ID,
+			ViewHeading:  v.Heading,
+			UnitsInScope: len(v.Units),
+			WithEvidence: viewWithEvidenceCount(v.Kind, v.Units),
+			GapCount:     gapCount,
+		})
+	}
+	return rows
 }
 
 func viewNextActions(kind string, gaps []string) []string {
