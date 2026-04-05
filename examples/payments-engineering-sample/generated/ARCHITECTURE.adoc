@@ -118,46 +118,71 @@ Read in this order:
 == Functional View
 
 Show authored architecture scope for this view.
-=== Functional Scope Diagram
+=== Functional Context Diagram
 
 [source,mermaid]
 ----
 flowchart LR
-%% view: VIEW-FUNCTIONAL (authored-functional)
-N_ACT_CUSTOMER(("Customer")):::actor
-N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
-N_ACT_SUPPORT(("Support Agent")):::actor
-N_FG_FRAUD["Fraud Evaluation"]:::functional_group
-N_FG_PAYMENTS["Payments"]:::functional_group
-N_FG_PLATFORM["Platform"]:::functional_group
-N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
-N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
-N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_ACT_CUSTOMER --> N_FU_CHECKOUT
-N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
-N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
-N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
-N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
-N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
-N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+  ACT_ACT_CUSTOMER(("Customer"))
+  ACT_ACT_SUPPORT(("Support Agent"))
+  ACT_ACT_PLATFORM_OPERATOR(("Platform Operator"))
+  FU_FU_CHECKOUT["Checkout Handling"]
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  FU_FU_RISK_SCORING["Risk Scoring"]
+  FU_FU_SUPPORT_REVIEW["Support Review"]
+  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
+  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
+  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]
+  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]
+  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]
+  ACT_ACT_CUSTOMER --> FU_FU_CHECKOUT
+  ACT_ACT_SUPPORT --> FU_FU_SUPPORT_REVIEW
+  ACT_ACT_PLATFORM_OPERATOR --> FU_FU_GITOPS_OPERATIONS
+  FU_FU_PAYMENT_AUTHORIZATION --> REF_REF_BANK_GATEWAY_ENDPOINT
+  FU_FU_RISK_SCORING --> REF_REF_POSTGRES_DRIVER
+----
+
+=== Functional Decomposition Diagram
+
+[source,mermaid]
+----
+flowchart TB
+  FG_FG_PAYMENTS["Payments"]
+  FG_FG_FRAUD["Fraud Evaluation"]
+  FG_FG_PLATFORM["Platform"]
+  FU_FU_CHECKOUT["Checkout Handling"]
+  FG_FG_PAYMENTS -->|contains| FU_FU_CHECKOUT
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  FG_FG_PAYMENTS -->|contains| FU_FU_PAYMENT_AUTHORIZATION
+  FU_FU_RISK_SCORING["Risk Scoring"]
+  FG_FG_FRAUD -->|contains| FU_FU_RISK_SCORING
+  FU_FU_SUPPORT_REVIEW["Support Review"]
+  FG_FG_FRAUD -->|contains| FU_FU_SUPPORT_REVIEW
+  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
+  FG_FG_PLATFORM -->|contains| FU_FU_CLUSTER_PROVISIONING
+  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
+  FG_FG_PLATFORM -->|contains| FU_FU_GITOPS_OPERATIONS
+----
+
+=== Functional Collaboration Diagram
+
+[source,mermaid]
+----
+flowchart LR
+  FU_FU_CHECKOUT["Checkout Handling"]
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  FU_FU_RISK_SCORING["Risk Scoring"]
+  FU_FU_SUPPORT_REVIEW["Support Review"]
+  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
+  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
+  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]
+  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]
+  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]
+  FU_FU_CHECKOUT --> FU_FU_PAYMENT_AUTHORIZATION
+  FU_FU_PAYMENT_AUTHORIZATION --> FU_FU_RISK_SCORING
+  FU_FU_PAYMENT_AUTHORIZATION --> REF_REF_BANK_GATEWAY_ENDPOINT
+  FU_FU_PAYMENT_AUTHORIZATION --> FU_FU_SUPPORT_REVIEW
+  FU_FU_RISK_SCORING --> REF_REF_POSTGRES_DRIVER
 ----
 
 === Functional Groups (View Scoped)

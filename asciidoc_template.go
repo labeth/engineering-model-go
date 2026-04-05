@@ -167,6 +167,9 @@ type asciidocViewSection struct {
 	Heading          string
 	Inf              string
 	Mermaid          string
+	FuncContextGraph string
+	FuncDecompGraph  string
+	FuncCollabGraph  string
 	Groups           []asciidocEntitySection
 	Units            []asciidocUnitSection
 	InferredGraph    string

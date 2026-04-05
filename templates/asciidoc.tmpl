@@ -40,11 +40,25 @@ Read in this order:
 {{ $v.Inf }}
 
 {{- if eq $v.Kind "authored-functional" }}
-=== Functional Scope Diagram
+=== Functional Context Diagram
 
 [source,mermaid]
 ----
-{{ $v.Mermaid }}
+{{ $v.FuncContextGraph }}
+----
+
+=== Functional Decomposition Diagram
+
+[source,mermaid]
+----
+{{ $v.FuncDecompGraph }}
+----
+
+=== Functional Collaboration Diagram
+
+[source,mermaid]
+----
+{{ $v.FuncCollabGraph }}
 ----
 {{- end }}
 

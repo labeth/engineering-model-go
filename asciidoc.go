@@ -195,6 +195,10 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		viewSections[i].Groups = gs
 		viewSections[i].Units = us
 		switch v.Kind {
+		case "authored-functional":
+			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
+			viewSections[i].FuncDecompGraph = buildFunctionalDecompositionMermaid(bundle.Architecture.AuthoredArchitecture)
+			viewSections[i].FuncCollabGraph = buildFunctionalCollaborationMermaid(bundle.Architecture.AuthoredArchitecture)
 		case "runtime":
 			apiRows := buildRuntimeAPIRows(inferredRuntime, bundle.Architecture.AuthoredArchitecture.Mappings)
 			viewSections[i].RuntimeAPIRows = apiRows
@@ -1220,6 +1224,75 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 		}
 	}
 	return strings.Join(lines, "\n")
+}
+
+func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
+	lines := []string{"flowchart LR"}
+	for _, act := range a.Actors {
+		an := "ACT_" + sanitizeNode(act.ID)
+		lines = append(lines, fmt.Sprintf("  %s((\"%s\"))", an, escapeMermaidLabel(nonEmpty(act.Name, act.ID))))
+	}
+	for _, fu := range a.FunctionalUnits {
+		un := "FU_" + sanitizeNode(fu.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+	}
+	for _, ref := range a.ReferencedElements {
+		rn := "REF_" + sanitizeNode(ref.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", rn, escapeMermaidLabel(nonEmpty(ref.Name, ref.ID))))
+	}
+	for _, m := range a.Mappings {
+		switch m.Type {
+		case "interacts_with":
+			lines = append(lines, fmt.Sprintf("  ACT_%s --> FU_%s", sanitizeNode(m.From), sanitizeNode(m.To)))
+		case "depends_on":
+			if strings.HasPrefix(m.To, "REF-") {
+				lines = append(lines, fmt.Sprintf("  FU_%s --> REF_%s", sanitizeNode(m.From), sanitizeNode(m.To)))
+			}
+		}
+	}
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
+	lines := []string{"flowchart TB"}
+	for _, fg := range a.FunctionalGroups {
+		gn := "FG_" + sanitizeNode(fg.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", gn, escapeMermaidLabel(nonEmpty(fg.Name, fg.ID))))
+	}
+	for _, fu := range a.FunctionalUnits {
+		un := "FU_" + sanitizeNode(fu.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+		if strings.TrimSpace(fu.Group) != "" {
+			lines = append(lines, fmt.Sprintf("  FG_%s -->|contains| %s", sanitizeNode(fu.Group), un))
+		}
+	}
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
+	lines := []string{"flowchart LR"}
+	for _, fu := range a.FunctionalUnits {
+		un := "FU_" + sanitizeNode(fu.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+	}
+	for _, ref := range a.ReferencedElements {
+		rn := "REF_" + sanitizeNode(ref.ID)
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]", rn, escapeMermaidLabel(nonEmpty(ref.Name, ref.ID))))
+	}
+	for _, m := range a.Mappings {
+		if m.Type != "depends_on" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		switch {
+		case strings.HasPrefix(from, "FU-") && strings.HasPrefix(to, "FU-"):
+			lines = append(lines, fmt.Sprintf("  FU_%s --> FU_%s", sanitizeNode(from), sanitizeNode(to)))
+		case strings.HasPrefix(from, "FU-") && strings.HasPrefix(to, "REF-"):
+			lines = append(lines, fmt.Sprintf("  FU_%s --> REF_%s", sanitizeNode(from), sanitizeNode(to)))
+		}
+	}
+	return strings.Join(uniquePreserve(lines), "\n")
 }
 
 func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, labels map[string]string) string {
