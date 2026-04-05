@@ -1,6 +1,6 @@
 = Sample Payments Layered Design
 :toc:
-:toclevels: 3
+:toclevels: 2
 :sectnums:
 
 == Introduction
@@ -152,12 +152,14 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 ==== Payments (FG-PAYMENTS)
 
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
-Tags: 
+
+
 
 The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
 It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
 declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
 fraud and external bank capabilities.
+
 
 
 ===== Payments Functional Story
@@ -169,11 +171,13 @@ fraud and external bank capabilities.
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-Tags: 
+
+
 
 The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
 It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
 escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
+
 
 
 ===== Fraud Evaluation Functional Story
@@ -185,11 +189,13 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-Tags: 
+
+
 
 The platform group provides the runtime and deployment foundation used by all product capabilities.
 It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
 The group enables safe delivery and reliable operations without owning payment business logic.
+
 
 
 ===== Platform Functional Story
@@ -206,11 +212,13 @@ platform provides the execution foundation and delivery control needed by <<REF_
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
+
+
 
 Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
 It provides a stable scoring contract to authorization and supports audit context for later analysis.
 The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
 
 
 ===== Risk Scoring Functional Story
@@ -220,21 +228,25 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Inputs: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Threats: no explicit attack vector targeting this unit
+Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
 ==== Support Review (FU-SUPPORT-REVIEW)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
+
+
 
 Support review handles manual decisions for escalated or ambiguous payment cases.
 It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
 The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
 
 
 ===== Support Review Functional Story
@@ -244,21 +256,25 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Inputs: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
+
+
 
 Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
 It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
 It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
 
 
 ===== Checkout Handling Functional Story
@@ -268,21 +284,25 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Failure modes: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: none
+Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
+
+
 
 Payment authorization orchestrates the final transaction decision path.
 It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
 The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
 
 
 ===== Payment Authorization Functional Story
@@ -292,10 +312,12 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Failure modes: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Depends on: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Threats: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 
 
 
@@ -304,9 +326,11 @@ Failure modes: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day1
 
+
 Cluster provisioning creates the runtime substrate used by all application workloads.
 It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
 This unit is responsible for predictable, repeatable infrastructure foundations.
+
 
 
 ===== Cluster Provisioning Functional Story
@@ -316,10 +340,12 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
-Inputs: inferred from mapped interactions and runtime context
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: no explicit authored requirement trigger
+Consumes: none
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
@@ -328,9 +354,11 @@ Failure modes: no explicit attack vector targeting this unit
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day2
 
+
 GitOps operations continuously reconciles intended release state with actual runtime state.
 It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
 The unit provides safe and observable release behavior as an ongoing operational capability.
+
 
 
 ===== Gitops Operations Functional Story
@@ -340,10 +368,12 @@ The unit provides safe and observable release behavior as an ongoing operational
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
-Inputs: inferred from mapped interactions and runtime context
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: no explicit authored requirement trigger
+Consumes: none
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
@@ -411,12 +441,8 @@ flowchart LR
 ==== Payments (FG-PAYMENTS)
 
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
-Tags: 
 
-The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
-It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
-fraud and external bank capabilities.
+
 
 
 ===== Payments Runtime Story
@@ -428,11 +454,8 @@ fraud and external bank capabilities.
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-Tags: 
 
-The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
-It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
-escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
+
 
 
 ===== Fraud Evaluation Runtime Story
@@ -449,11 +472,8 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
 
 
 ===== Risk Scoring Runtime Story
@@ -466,10 +486,12 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-|Inputs |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-|Outputs |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Dependencies |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Depends on |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Threats |no explicit attack vector targeting this unit
+|Evidence |runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -477,11 +499,8 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 ==== Support Review (FU-SUPPORT-REVIEW)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
 
 
 ===== Support Review Runtime Story
@@ -494,10 +513,12 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-|Inputs |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-|Outputs |derived unit outcomes from authored mappings
-|Dependencies |none
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Produces |derived unit outcomes from authored mappings
+|Depends on |none
+|Threats |no explicit attack vector targeting this unit
+|Evidence |authored unit with no direct derived runtime/code evidence yet
 |===
 
 
@@ -505,11 +526,8 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
 
 
 ===== Checkout Handling Runtime Story
@@ -522,10 +540,12 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Inputs |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Outputs |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Failure modes |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+|Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Consumes |none
+|Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Depends on |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Threats |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 |===
 
 
@@ -533,11 +553,8 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
 
 
 ===== Payment Authorization Runtime Story
@@ -550,10 +567,12 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Inputs |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Outputs |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Failure modes |<<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+|Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Consumes |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+|Produces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Depends on |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Threats |<<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 |===
 
 
@@ -659,12 +678,8 @@ flowchart LR
 ==== Payments (FG-PAYMENTS)
 
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
-Tags: 
 
-The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
-It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
-fraud and external bank capabilities.
+
 
 
 ===== Payments Deployment Story
@@ -676,11 +691,8 @@ fraud and external bank capabilities.
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-Tags: 
 
-The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
-It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
-escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
+
 
 
 ===== Fraud Evaluation Deployment Story
@@ -692,11 +704,8 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-Tags: 
 
-The platform group provides the runtime and deployment foundation used by all product capabilities.
-It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
-The group enables safe delivery and reliable operations without owning payment business logic.
+
 
 
 ===== Platform Deployment Story
@@ -713,11 +722,8 @@ platform deployment establishes and governs cluster, namespace, and release-cont
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
 
 
 ===== Risk Scoring Deployment Story
@@ -730,10 +736,12 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-|Inputs |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-|Outputs |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Dependencies |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Depends on |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Threats |no explicit attack vector targeting this unit
+|Evidence |runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -741,11 +749,8 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 ==== Support Review (FU-SUPPORT-REVIEW)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
 
 
 ===== Support Review Deployment Story
@@ -758,10 +763,12 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-|Inputs |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-|Outputs |derived unit outcomes from authored mappings
-|Dependencies |none
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Produces |derived unit outcomes from authored mappings
+|Depends on |none
+|Threats |no explicit attack vector targeting this unit
+|Evidence |authored unit with no direct derived runtime/code evidence yet
 |===
 
 
@@ -769,11 +776,8 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
 
 
 ===== Checkout Handling Deployment Story
@@ -786,10 +790,12 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Inputs |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Outputs |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Failure modes |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+|Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Consumes |none
+|Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Depends on |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Threats |<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 |===
 
 
@@ -797,11 +803,8 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
 
 
 ===== Payment Authorization Deployment Story
@@ -814,10 +817,12 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Inputs |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Outputs |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Failure modes |<<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+|Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Consumes |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+|Produces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Depends on |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Threats |<<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+|Evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 |===
 
 
@@ -827,9 +832,6 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day1
 
-Cluster provisioning creates the runtime substrate used by all application workloads.
-It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
-This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 ===== Cluster Provisioning Deployment Story
@@ -842,10 +844,12 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
-|Inputs |inferred from mapped interactions and runtime context
-|Outputs |derived unit outcomes from authored mappings
-|Dependencies |none
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |no explicit authored requirement trigger
+|Consumes |none
+|Produces |derived unit outcomes from authored mappings
+|Depends on |none
+|Threats |no explicit attack vector targeting this unit
+|Evidence |authored unit with no direct derived runtime/code evidence yet
 |===
 
 
@@ -855,9 +859,6 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day2
 
-GitOps operations continuously reconciles intended release state with actual runtime state.
-It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
-The unit provides safe and observable release behavior as an ongoing operational capability.
 
 
 ===== Gitops Operations Deployment Story
@@ -870,10 +871,12 @@ The unit provides safe and observable release behavior as an ongoing operational
 |===
 |Aspect |Value
 |What it owns |functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
-|Inputs |inferred from mapped interactions and runtime context
-|Outputs |derived unit outcomes from authored mappings
-|Dependencies |none
-|Failure modes |no explicit attack vector targeting this unit
+|Triggers |no explicit authored requirement trigger
+|Consumes |none
+|Produces |derived unit outcomes from authored mappings
+|Depends on |none
+|Threats |no explicit attack vector targeting this unit
+|Evidence |authored unit with no direct derived runtime/code evidence yet
 |===
 
 
@@ -964,12 +967,8 @@ flowchart TB
 ==== Payments (FG-PAYMENTS)
 
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
-Tags: 
 
-The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
-It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
-fraud and external bank capabilities.
+
 
 
 ===== Payments Code Ownership Story
@@ -981,11 +980,8 @@ fraud and external bank capabilities.
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-Tags: 
 
-The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
-It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
-escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
+
 
 
 ===== Fraud Evaluation Code Ownership Story
@@ -1002,11 +998,8 @@ ownership in <<REF_CATALOG_FG_FRAUD,fraud evaluation>> is organized by durable m
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
 
 
 ===== Risk Scoring Code Ownership Story
@@ -1016,21 +1009,20 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Inputs: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Threats: no explicit attack vector targeting this unit
+Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
 ==== Support Review (FU-SUPPORT-REVIEW)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
 
 
 ===== Support Review Code Ownership Story
@@ -1040,21 +1032,20 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Inputs: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
 
 
 ===== Checkout Handling Code Ownership Story
@@ -1064,21 +1055,20 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Failure modes: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: none
+Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
 
 
 ===== Payment Authorization Code Ownership Story
@@ -1088,10 +1078,12 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Failure modes: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Depends on: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Threats: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 
 
 
@@ -1197,12 +1189,8 @@ flowchart LR
 ==== Payments (FG-PAYMENTS)
 
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
-Tags: 
 
-The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
-It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
-fraud and external bank capabilities.
+
 
 
 ===== Payments Security Story
@@ -1214,11 +1202,8 @@ fraud and external bank capabilities.
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-Tags: 
 
-The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
-It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
-escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
+
 
 
 ===== Fraud Evaluation Security Story
@@ -1230,11 +1215,8 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-Tags: 
 
-The platform group provides the runtime and deployment foundation used by all product capabilities.
-It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
-The group enables safe delivery and reliable operations without owning payment business logic.
+
 
 
 ===== Platform Security Story
@@ -1251,11 +1233,8 @@ platform is the primary baseline security layer for the entire system. It must e
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
 
 
 ===== Risk Scoring Security Story
@@ -1265,21 +1244,20 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Inputs: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Depends on: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Threats: no explicit attack vector targeting this unit
+Evidence: runtime: <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
 
 ==== Support Review (FU-SUPPORT-REVIEW)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-Tags: 
 
-Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
 
 
 ===== Support Review Security Story
@@ -1289,21 +1267,20 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Inputs: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
 
 
 ===== Checkout Handling Security Story
@@ -1313,21 +1290,20 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Failure modes: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: none
+Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Depends on: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 
 
 
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-Tags: 
 
-Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
 
 
 ===== Payment Authorization Security Story
@@ -1337,10 +1313,12 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Inputs: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Outputs: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Failure modes: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Depends on: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Threats: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 
 
 
@@ -1349,9 +1327,6 @@ Failure modes: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day1
 
-Cluster provisioning creates the runtime substrate used by all application workloads.
-It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
-This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 ===== Cluster Provisioning Security Story
@@ -1361,10 +1336,12 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
-Inputs: inferred from mapped interactions and runtime context
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: no explicit authored requirement trigger
+Consumes: none
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
@@ -1373,9 +1350,6 @@ Failure modes: no explicit attack vector targeting this unit
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 Tags: day2
 
-GitOps operations continuously reconciles intended release state with actual runtime state.
-It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
-The unit provides safe and observable release behavior as an ongoing operational capability.
 
 
 ===== Gitops Operations Security Story
@@ -1385,14 +1359,21 @@ The unit provides safe and observable release behavior as an ongoing operational
 
 
 What it owns: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
-Inputs: inferred from mapped interactions and runtime context
-Outputs: derived unit outcomes from authored mappings
-Dependencies: none
-Failure modes: no explicit attack vector targeting this unit
+Triggers: no explicit authored requirement trigger
+Consumes: none
+Produces: derived unit outcomes from authored mappings
+Depends on: none
+Threats: no explicit attack vector targeting this unit
+Evidence: authored unit with no direct derived runtime/code evidence yet
 
 
 
 
+
+<<<
+== Generated Evidence Appendix
+
+This appendix contains generated traceability material and inferred-reference inventories.
 
 <<<
 == Requirement Alignment
@@ -2026,47 +2007,47 @@ Transaction state requiring manual support review before final disposition.
 ==== payments
 Kind: Runtime cluster
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/terraform/main.tf
+Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]
 ==== flux-system/payments-sample-source
 Kind: Runtime gitrepository
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
+Source: examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
 [[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]
 ==== payments/checkout-api
 Kind: Runtime helmrelease
 Owner: FU-CHECKOUT
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
+Source: examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
 [[REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE]]
 ==== payments/payment-engine
 Kind: Runtime helmrelease
 Owner: FU-PAYMENT-AUTHORIZATION
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
+Source: examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
 [[REF_RT_HELMRELEASE_RISK_RISK_SCORER]]
 ==== risk/risk-scorer
 Kind: Runtime helmrelease
 Owner: FU-RISK-SCORING
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
+Source: examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
 [[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]
 ==== flux-system/payments-apps
 Kind: Runtime kustomization
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
+Source: examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
 [[REF_RT_NAMESPACE_FLUX_SYSTEM]]
 ==== flux_system
 Kind: Runtime namespace
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/terraform/main.tf
+Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_PAYMENTS]]
 ==== payments
 Kind: Runtime namespace
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/terraform/main.tf
+Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_RISK]]
 ==== risk
 Kind: Runtime namespace
 Owner: unresolved
-Source: /mnt/c/Users/henri/Documents/ws/engineering-model-go/examples/payments-engineering-sample/infra/terraform/main.tf
+Source: examples/payments-engineering-sample/infra/terraform/main.tf
 
 === Inferred Code References
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]

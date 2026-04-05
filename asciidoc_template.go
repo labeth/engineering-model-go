@@ -207,10 +207,12 @@ type asciidocUnitSection struct {
 	Intro        string
 	Details      []asciidocDesignDetail
 	WhatOwns     string
-	Inputs       string
-	Outputs      string
-	Dependencies string
-	FailureModes string
+	Triggers     string
+	Consumes     string
+	Produces     string
+	DependsOn    string
+	Threats      string
+	Evidence     string
 }
 
 type asciidocRequirementSection struct {

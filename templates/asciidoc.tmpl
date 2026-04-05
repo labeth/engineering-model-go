@@ -1,6 +1,6 @@
 = {{ .Title }}
 :toc:
-:toclevels: 3
+:toclevels: 2
 :sectnums:
 
 == Introduction
@@ -98,9 +98,11 @@
 ==== {{ .Name }} ({{ .ID }})
 
 Description: {{ .Description }}
-Tags: {{ .Tags }}
+{{ if .Tags }}Tags: {{ .Tags }}{{ end }}
+{{ if eq $v.Kind "authored-functional" }}
 
 {{ .Intro }}
+{{ end }}
 
 {{ range .Details }}
 ===== {{ .Title }}
@@ -117,9 +119,11 @@ Tags: {{ .Tags }}
 ==== {{ .Name }} ({{ .ID }})
 
 Group: <<{{ .GroupAnchor }},{{ .Group }}>>
-Tags: {{ .Tags }}
+{{ if .Tags }}Tags: {{ .Tags }}{{ end }}
+{{ if eq $viewKind "authored-functional" }}
 
 {{ .Intro }}
+{{ end }}
 
 {{ range .Details }}
 ===== {{ .Title }}
@@ -132,21 +136,30 @@ Tags: {{ .Tags }}
 |===
 |Aspect |Value
 |What it owns |{{ .WhatOwns }}
-|Inputs |{{ .Inputs }}
-|Outputs |{{ .Outputs }}
-|Dependencies |{{ .Dependencies }}
-|Failure modes |{{ .FailureModes }}
+|Triggers |{{ .Triggers }}
+|Consumes |{{ .Consumes }}
+|Produces |{{ .Produces }}
+|Depends on |{{ .DependsOn }}
+|Threats |{{ .Threats }}
+|Evidence |{{ .Evidence }}
 |===
 {{ else }}
 What it owns: {{ .WhatOwns }}
-Inputs: {{ .Inputs }}
-Outputs: {{ .Outputs }}
-Dependencies: {{ .Dependencies }}
-Failure modes: {{ .FailureModes }}
+Triggers: {{ .Triggers }}
+Consumes: {{ .Consumes }}
+Produces: {{ .Produces }}
+Depends on: {{ .DependsOn }}
+Threats: {{ .Threats }}
+Evidence: {{ .Evidence }}
 {{ end }}
 
 {{ end }}
 {{ end }}
+
+<<<
+== Generated Evidence Appendix
+
+This appendix contains generated traceability material and inferred-reference inventories.
 
 <<<
 == Requirement Alignment

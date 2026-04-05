@@ -81,6 +81,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	inferredCode, codeDiags := inferCodeItems(bundle, options.CodeRoot)
 	diags = append(diags, runtimeDiags...)
 	diags = append(diags, codeDiags...)
+	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
 	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -106,15 +107,19 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		deps := unitDependencies(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
 		inputs := reqByUnit[u.ID]
 		if strings.TrimSpace(inputs) == "" {
-			inputs = "inferred from mapped interactions and runtime context"
+			inputs = "no explicit authored requirement trigger"
 		}
-		outputs := unitOutputs(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-		if strings.TrimSpace(outputs) == "" {
-			outputs = "derived unit outcomes from authored mappings"
+		consumes := unitConsumers(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
+		if strings.TrimSpace(consumes) == "" {
+			consumes = "none"
 		}
-		failureModes := attackByTarget[u.ID]
-		if strings.TrimSpace(failureModes) == "" {
-			failureModes = "no explicit attack vector targeting this unit"
+		produces := unitOutputs(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
+		if strings.TrimSpace(produces) == "" {
+			produces = "derived unit outcomes from authored mappings"
+		}
+		threats := attackByTarget[u.ID]
+		if strings.TrimSpace(threats) == "" {
+			threats = "no explicit attack vector targeting this unit"
 		}
 		intro := strings.TrimSpace(u.Prose)
 		fuSections = append(fuSections, asciidocUnitSection{
@@ -127,10 +132,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			Intro:        intro,
 			Details:      details,
 			WhatOwns:     unitOwnershipSummary(u, bundle.Architecture.AuthoredArchitecture.Mappings, reqByUnit, labelByID),
-			Inputs:       inputs,
-			Outputs:      outputs,
-			Dependencies: deps,
-			FailureModes: failureModes,
+			Triggers:     inputs,
+			Consumes:     consumes,
+			Produces:     produces,
+			DependsOn:    deps,
+			Threats:      threats,
+			Evidence:     nonEmpty(evidenceByOwner[u.ID], "authored unit with no direct derived runtime/code evidence yet"),
 		})
 	}
 	sort.SliceStable(fuSections, func(i, j int) bool {
@@ -177,10 +184,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 				Intro:        u.Intro,
 				Details:      []asciidocDesignDetail{detail},
 				WhatOwns:     u.WhatOwns,
-				Inputs:       u.Inputs,
-				Outputs:      u.Outputs,
-				Dependencies: u.Dependencies,
-				FailureModes: u.FailureModes,
+				Triggers:     u.Triggers,
+				Consumes:     u.Consumes,
+				Produces:     u.Produces,
+				DependsOn:    u.DependsOn,
+				Threats:      u.Threats,
+				Evidence:     u.Evidence,
 			})
 		}
 		viewSections[i].Groups = gs
@@ -238,10 +247,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		for j := range viewSections[i].Units {
 			viewSections[i].Units[j].Intro = linkifyText(viewSections[i].Units[j].Intro, linkTargets)
 			viewSections[i].Units[j].WhatOwns = linkifyText(viewSections[i].Units[j].WhatOwns, linkTargets)
-			viewSections[i].Units[j].Inputs = linkifyText(viewSections[i].Units[j].Inputs, linkTargets)
-			viewSections[i].Units[j].Outputs = linkifyText(viewSections[i].Units[j].Outputs, linkTargets)
-			viewSections[i].Units[j].Dependencies = linkifyText(viewSections[i].Units[j].Dependencies, linkTargets)
-			viewSections[i].Units[j].FailureModes = linkifyText(viewSections[i].Units[j].FailureModes, linkTargets)
+			viewSections[i].Units[j].Triggers = linkifyText(viewSections[i].Units[j].Triggers, linkTargets)
+			viewSections[i].Units[j].Consumes = linkifyText(viewSections[i].Units[j].Consumes, linkTargets)
+			viewSections[i].Units[j].Produces = linkifyText(viewSections[i].Units[j].Produces, linkTargets)
+			viewSections[i].Units[j].DependsOn = linkifyText(viewSections[i].Units[j].DependsOn, linkTargets)
+			viewSections[i].Units[j].Threats = linkifyText(viewSections[i].Units[j].Threats, linkTargets)
+			viewSections[i].Units[j].Evidence = linkifyText(viewSections[i].Units[j].Evidence, linkTargets)
 			for k := range viewSections[i].Units[j].Details {
 				viewSections[i].Units[j].Details[k].Narrative = linkifyText(viewSections[i].Units[j].Details[k].Narrative, linkTargets)
 			}
@@ -667,7 +678,7 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 			Name:        id,
 			Kind:        "Runtime " + kind,
 			Description: "Owner: " + nonEmpty(r.Owner, "unresolved"),
-			Source:      r.Source,
+			Source:      sanitizeSourcePath(r.Source),
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -698,7 +709,7 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 			Name:        id,
 			Kind:        "Code " + c.Kind,
 			Description: "Owner: " + nonEmpty(c.Owner, "unresolved"),
-			Source:      c.Source,
+			Source:      sanitizeSourcePath(c.Source),
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -994,6 +1005,20 @@ func unitDependencies(unitID string, mappings []model.Mapping, labels map[string
 	return strings.Join(out, ", ")
 }
 
+func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]string) string {
+	out := []string{}
+	for _, m := range mappings {
+		if m.Type == "depends_on" && m.To == unitID {
+			out = append(out, nonEmpty(labels[m.From], m.From))
+		}
+	}
+	out = uniqueSorted(out)
+	if len(out) == 0 {
+		return ""
+	}
+	return strings.Join(out, ", ")
+}
+
 func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
@@ -1110,6 +1135,74 @@ func uniqueSorted(in []string) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) map[string]string {
+	rtSet := map[string]map[string]bool{}
+	for _, r := range runtime {
+		owner := strings.TrimSpace(r.Owner)
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		if rtSet[owner] == nil {
+			rtSet[owner] = map[string]bool{}
+		}
+		rtSet[owner][nonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))] = true
+	}
+	codeSet := map[string]map[string]bool{}
+	for _, c := range code {
+		owner := strings.TrimSpace(c.Owner)
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		if c.Kind != "source_file" {
+			continue
+		}
+		if codeSet[owner] == nil {
+			codeSet[owner] = map[string]bool{}
+		}
+		codeSet[owner][moduleFromPath(codeItemPath(c))] = true
+	}
+
+	out := map[string]string{}
+	owners := map[string]bool{}
+	for o := range rtSet {
+		owners[o] = true
+	}
+	for o := range codeSet {
+		owners[o] = true
+	}
+	for owner := range owners {
+		rt := setToSortedSlice(rtSet[owner])
+		cm := setToSortedSlice(codeSet[owner])
+		parts := []string{}
+		if len(rt) > 0 {
+			parts = append(parts, "runtime: "+strings.Join(rt, ", "))
+		}
+		if len(cm) > 0 {
+			parts = append(parts, "code modules: "+strings.Join(cm, ", "))
+		}
+		if len(parts) > 0 {
+			out[owner] = strings.Join(parts, " | ")
+		}
+	}
+	return out
+}
+
+func sanitizeSourcePath(in string) string {
+	s := filepath.ToSlash(strings.TrimSpace(in))
+	if s == "" {
+		return s
+	}
+	for _, marker := range []string{"/examples/", "/infra/", "/src/", "/tmp/"} {
+		if idx := strings.Index(strings.ToLower(s), marker); idx >= 0 {
+			return s[idx+1:]
+		}
+	}
+	if filepath.IsAbs(s) {
+		return filepath.Base(s)
+	}
+	return s
 }
 
 func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string) string {
