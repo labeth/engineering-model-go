@@ -193,7 +193,6 @@ flowchart LR
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
 
 
-
 The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
 It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
 declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
@@ -212,7 +211,6 @@ fraud and external bank capabilities.
 Description: Risk scoring and fraud audit domain.
 
 
-
 The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
 It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
 escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
@@ -228,7 +226,6 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-
 
 
 The platform group provides the runtime and deployment foundation used by all product capabilities.
@@ -251,7 +248,6 @@ platform provides the execution foundation and delivery control needed by <<REF_
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
 
 
 Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
@@ -281,7 +277,6 @@ Evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RIS
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
-
 Support review handles manual decisions for escalated or ambiguous payment cases.
 It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
 The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
@@ -307,7 +302,6 @@ Evidence: authored unit with no direct derived runtime/code evidence yet
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
 
 
 Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
@@ -337,7 +331,6 @@ Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PA
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
-
 Payment authorization orchestrates the final transaction decision path.
 It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
 The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
@@ -363,7 +356,6 @@ Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment
 ==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day1
 
 
 Cluster provisioning creates the runtime substrate used by all application workloads.
@@ -391,7 +383,6 @@ Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
 ==== GitOps Operations (FU-GITOPS-OPERATIONS)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day2
 
 
 GitOps operations continuously reconciles intended release state with actual runtime state.
@@ -444,7 +435,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 
 
-
 ===== Payments Runtime Story
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> runs the customer-facing ingress and transaction orchestration path. Runtime behavior keeps <<REF_CATALOG_DATA_PAYMENT_ID,payment id>> context through service calls so operators can follow one transaction across components. The group must <<REF_CATALOG_ACT_SUPPORT,support>> low-latency customer responses while still waiting for <<REF_RT_NAMESPACE_RISK,risk>> and external dependency signals.
@@ -454,7 +444,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-
 
 
 
@@ -472,7 +461,6 @@ Description: Risk scoring and fraud audit domain.
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
 
 
 
@@ -502,7 +490,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-
 ===== Support Review Runtime Story
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime favors operator clarity and auditability over raw throughput. It should maintain strong linkage between escalation events and operator actions. Runtime transitions must be explicit and reversible where policy allows.
@@ -529,7 +516,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-
 ===== Checkout Handling Runtime Story
 
 <<REF_CATALOG_FU_CHECKOUT,checkout handling>> serves as the ingress runtime path and forwards normalized requests to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>. It must preserve <<REF_CATALOG_DATA_PAYMENT_ID,payment id>> context and produce stable request contracts under load. Runtime behavior is intentionally thin in decision policy to keep boundaries clean.
@@ -553,7 +539,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
 
 
 
@@ -637,7 +622,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 
 
-
 ===== Payments Deployment Story
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> is deployed as independent release paths for <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> to reduce rollout blast radius. This allows customer-interface changes and authorization-policy changes to move at different speeds without breaking contracts. Deployment readiness depends on <<REF_CATALOG_STATE_BANK_LINK_UP,bank link is available>> and healthy fraud dependencies.
@@ -650,7 +634,6 @@ Description: Risk scoring and fraud audit domain.
 
 
 
-
 ===== Fraud Evaluation Deployment Story
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> is deployed as dedicated runtime units so scoring policy and review workflow can be released with targeted controls. Separate deployment paths let teams stage changes to scoring behavior before broad rollout. Operational deployment decisions are guided by <<REF_RT_NAMESPACE_RISK,risk>> sensitivity rather than pure throughput.
@@ -660,7 +643,6 @@ Description: Risk scoring and fraud audit domain.
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-
 
 
 
@@ -678,7 +660,6 @@ platform deployment establishes and governs cluster, namespace, and release-cont
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
 
 
 
@@ -708,7 +689,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-
 ===== Support Review Deployment Story
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> deployment should isolate privileged workflows from public-facing ingress components. Release strategy must preserve in-flight review sessions during upgrades. Operational monitoring should focus on queue health and review completion latency.
@@ -732,7 +712,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
 
 
 
@@ -762,7 +741,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-
 ===== Payment Authorization Deployment Story
 
 <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> is deployed separately from <<REF_CATALOG_FU_CHECKOUT,checkout handling>> so policy changes can be staged carefully. Deployment readiness includes dependency health checks and rollback confidence. Releases should protect transaction continuity during rollout windows.
@@ -786,7 +764,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 ==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day1
 
 
 
@@ -813,7 +790,6 @@ Tags: day1
 ==== GitOps Operations (FU-GITOPS-OPERATIONS)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day2
 
 
 
@@ -887,7 +863,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 
 
-
 ===== Payments Code Ownership Story
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> ownership is coarse and stable at module boundaries, not function boundaries. Teams own <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> code areas as long-lived architecture responsibilities, while individual symbols only <<REF_CATALOG_ACT_SUPPORT,support>> requirement evidence. This keeps architecture ownership stable even when internal implementation changes.
@@ -897,7 +872,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 ==== Fraud Evaluation (FG-FRAUD)
 
 Description: Risk scoring and fraud audit domain.
-
 
 
 
@@ -915,7 +889,6 @@ ownership in <<REF_CATALOG_FG_FRAUD,fraud evaluation>> is organized by durable m
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
 
 
 
@@ -941,7 +914,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-
 ===== Support Review Code Ownership Story
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> ownership is kept at module boundary for review workflow and notification logic. Shared utilities may exist, but ownership of decision workflow remains explicit. This prevents ambiguous accountability for manual outcomes.
@@ -964,7 +936,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-
 ===== Checkout Handling Code Ownership Story
 
 <<REF_CATALOG_FU_CHECKOUT,checkout handling>> ownership is anchored at module and package level in the <<REF_CATALOG_FU_CHECKOUT,checkout>> code boundary. Teams can refactor methods without changing architecture ownership because ownership is not symbol-based. Requirement traces remain at symbol level only for evidence.
@@ -984,7 +955,6 @@ Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PA
 ==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
 
 
 
@@ -1063,7 +1033,6 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 
 
-
 ===== Payments Security Story
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> protects the most exposed trust boundaries in the system. The group must defend against <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,malicious api request>> and <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,replayed authorization callback>> while preserving safe behavior when external responses are degraded. Security controls prioritize validation, idempotency, and predictable failure handling.
@@ -1076,7 +1045,6 @@ Description: Risk scoring and fraud audit domain.
 
 
 
-
 ===== Fraud Evaluation Security Story
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> protects decision integrity and review integrity. It must resist <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,compromised dependency>> influence, malformed <<REF_RT_NAMESPACE_RISK,risk>> inputs, and unauthorized manual overrides. Security policy requires traceable review actions and trustworthy score lineage.
@@ -1086,7 +1054,6 @@ Description: Risk scoring and fraud audit domain.
 ==== Platform (FG-PLATFORM)
 
 Description: Cluster provisioning and GitOps operations domain.
-
 
 
 
@@ -1104,7 +1071,6 @@ platform is the primary baseline security layer for the entire system. It must e
 ==== Risk Scoring (FU-RISK-SCORING)
 
 Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
 
 
 
@@ -1130,7 +1096,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-
 ===== Support Review Security Story
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator authentication, least privilege, and non-repudiable action logging. Unauthorized override and hidden edits must be prevented by design. Every decision should remain auditable end to end.
@@ -1150,7 +1115,6 @@ Evidence: authored unit with no direct derived runtime/code evidence yet
 ==== Checkout Handling (FU-CHECKOUT)
 
 Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
 
 
 
@@ -1176,7 +1140,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-
 ===== Payment Authorization Security Story
 
 <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> must prevent <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,replayed authorization callback>> abuse and protect integrity of decision transitions. It should normalize external errors so attackers cannot infer sensitive policy details. Security controls also require auditable decision provenance.
@@ -1196,7 +1159,6 @@ Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment
 ==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day1
 
 
 
@@ -1219,7 +1181,6 @@ Evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
 ==== GitOps Operations (FU-GITOPS-OPERATIONS)
 
 Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-Tags: day2
 
 
 

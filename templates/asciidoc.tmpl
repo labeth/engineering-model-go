@@ -129,7 +129,6 @@ Read in this order:
 ==== {{ .Name }} ({{ .ID }})
 
 Description: {{ .Description }}
-{{ if .Tags }}Tags: {{ .Tags }}{{ end }}
 {{ if eq $v.Kind "authored-functional" }}
 
 {{ .Intro }}
@@ -150,7 +149,6 @@ Description: {{ .Description }}
 ==== {{ .Name }} ({{ .ID }})
 
 Group: <<{{ .GroupAnchor }},{{ .Group }}>>
-{{ if .Tags }}Tags: {{ .Tags }}{{ end }}
 {{ if eq $viewKind "authored-functional" }}
 
 {{ .Intro }}
