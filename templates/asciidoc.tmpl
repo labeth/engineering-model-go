@@ -29,14 +29,15 @@ Read in this order:
 
 == Document Health Snapshot
 
-[cols="3,1,1,1",options="header"]
+[cols="3,1,1,1,1",options="header"]
 |===
-|View |Units in Scope |Direct Evidence Coverage |Gap Count
+|View |Units in Scope |Direct Evidence Coverage |Gap Count |Confidence
 {{- range .HealthRows }}
 |{{ .ViewHeading }} (`{{ .ViewID }}`)
 |{{ .UnitsInScope }}
 |{{ .WithEvidence }}
 |{{ .GapCount }}
+|{{ .Confidence }}
 {{- end }}
 |===
 

@@ -593,15 +593,32 @@ func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
 		if gapCount == 1 && strings.Contains(strings.ToLower(strings.TrimSpace(v.CoverageGaps[0])), "no major coverage gaps") {
 			gapCount = 0
 		}
+		withEvidence := viewWithEvidenceCount(v.Kind, v.Units)
 		rows = append(rows, asciidocHealthRow{
 			ViewID:       v.ID,
 			ViewHeading:  v.Heading,
 			UnitsInScope: len(v.Units),
-			WithEvidence: viewWithEvidenceCount(v.Kind, v.Units),
+			WithEvidence: withEvidence,
 			GapCount:     gapCount,
+			Confidence:   viewCoverageConfidence(len(v.Units), withEvidence),
 		})
 	}
 	return rows
+}
+
+func viewCoverageConfidence(total, covered int) string {
+	if total <= 0 {
+		return "n/a"
+	}
+	ratio := float64(covered) / float64(total)
+	switch {
+	case ratio >= 0.80:
+		return "high"
+	case ratio >= 0.50:
+		return "medium"
+	default:
+		return "low"
+	}
 }
 
 func viewNextActions(kind string, gaps []string) []string {

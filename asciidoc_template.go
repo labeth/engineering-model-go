@@ -45,6 +45,7 @@ type asciidocHealthRow struct {
 	UnitsInScope int
 	WithEvidence int
 	GapCount     int
+	Confidence   string
 }
 
 type asciidocTerm struct {

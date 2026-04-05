@@ -31,29 +31,34 @@ Read in this order:
 
 == Document Health Snapshot
 
-[cols="3,1,1,1",options="header"]
+[cols="3,1,1,1,1",options="header"]
 |===
-|View |Units in Scope |Direct Evidence Coverage |Gap Count
+|View |Units in Scope |Direct Evidence Coverage |Gap Count |Confidence
 |Functional View (`VIEW-FUNCTIONAL`)
 |6
 |6
 |0
+|high
 |Runtime View (`VIEW-RUNTIME`)
 |4
 |3
 |1
+|medium
 |Deployment View (`VIEW-DEPLOYMENT`)
 |6
 |5
 |1
+|high
 |Realization View (`VIEW-CODE-OWNERSHIP`)
 |4
 |3
 |1
+|medium
 |Security View (`VIEW-SECURITY`)
 |6
 |2
 |4
+|low
 |===
 
 == Terms and Definitions
