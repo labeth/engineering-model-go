@@ -8,14 +8,17 @@ type CatalogEntry struct {
 }
 
 type CatalogGroups struct {
-	Systems    []CatalogEntry `yaml:"systems"`
-	Actors     []CatalogEntry `yaml:"actors"`
-	Events     []CatalogEntry `yaml:"events"`
-	States     []CatalogEntry `yaml:"states"`
-	Features   []CatalogEntry `yaml:"features"`
-	Modes      []CatalogEntry `yaml:"modes"`
-	Conditions []CatalogEntry `yaml:"conditions"`
-	DataTerms  []CatalogEntry `yaml:"dataTerms"`
+	FunctionalGroups   []CatalogEntry `yaml:"functionalGroups"`
+	FunctionalUnits    []CatalogEntry `yaml:"functionalUnits"`
+	ReferencedElements []CatalogEntry `yaml:"referencedElements"`
+	Actors             []CatalogEntry `yaml:"actors"`
+	AttackVectors      []CatalogEntry `yaml:"attackVectors"`
+	Events             []CatalogEntry `yaml:"events"`
+	States             []CatalogEntry `yaml:"states"`
+	Features           []CatalogEntry `yaml:"features"`
+	Modes              []CatalogEntry `yaml:"modes"`
+	Conditions         []CatalogEntry `yaml:"conditions"`
+	DataTerms          []CatalogEntry `yaml:"dataTerms"`
 }
 
 type CatalogDocument struct {
@@ -30,9 +33,10 @@ type LintRun struct {
 }
 
 type Requirement struct {
-	ID    string `yaml:"id"`
-	Text  string `yaml:"text"`
-	Notes string `yaml:"notes"`
+	ID        string   `yaml:"id"`
+	Text      string   `yaml:"text"`
+	Notes     string   `yaml:"notes"`
+	AppliesTo []string `yaml:"appliesTo"`
 }
 
 type RequirementsDocument struct {
@@ -46,18 +50,27 @@ type Expected struct {
 	Pattern string `yaml:"pattern"`
 }
 
-type DesignChapter struct {
-	ID          string   `yaml:"id"`
-	Title       string   `yaml:"title"`
-	Narrative   string   `yaml:"narrative"`
-	CatalogRefs []string `yaml:"catalogRefs"`
+type DesignView struct {
+	Title     string `yaml:"title"`
+	Narrative string `yaml:"narrative"`
+}
+
+type DesignFunctionalGroup struct {
+	ID    string                `yaml:"id"`
+	Views map[string]DesignView `yaml:"views"`
+}
+
+type DesignFunctionalUnit struct {
+	ID    string                `yaml:"id"`
+	Group string                `yaml:"group"`
+	Views map[string]DesignView `yaml:"views"`
 }
 
 type DesignModel struct {
-	ID       string          `yaml:"id"`
-	Title    string          `yaml:"title"`
-	Views    []string        `yaml:"views"`
-	Chapters []DesignChapter `yaml:"chapters"`
+	ID               string                  `yaml:"id"`
+	Title            string                  `yaml:"title"`
+	FunctionalGroups []DesignFunctionalGroup `yaml:"functionalGroups"`
+	FunctionalUnits  []DesignFunctionalUnit  `yaml:"functionalUnits"`
 }
 
 type DesignDocument struct {
@@ -67,62 +80,79 @@ type DesignDocument struct {
 type ModelMeta struct {
 	ID             string `yaml:"id"`
 	Title          string `yaml:"title"`
+	Introduction   string `yaml:"introduction"`
 	BaseCatalogRef string `yaml:"baseCatalogRef"`
 }
 
-type Person struct {
+type FunctionalGroup struct {
+	ID          string   `yaml:"id"`
+	Name        string   `yaml:"name"`
+	Description string   `yaml:"description"`
+	Prose       string   `yaml:"prose"`
+	Tags        []string `yaml:"tags"`
+}
+
+type FunctionalUnit struct {
+	ID    string   `yaml:"id"`
+	Name  string   `yaml:"name"`
+	Group string   `yaml:"group"`
+	Tags  []string `yaml:"tags"`
+	Prose string   `yaml:"prose"`
+}
+
+type Actor struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
-type SoftwareSystem struct {
-	ID       string `yaml:"id"`
-	Kind     string `yaml:"kind"`
-	Name     string `yaml:"name"`
-	Boundary string `yaml:"boundary"`
+type AttackVector struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
 }
 
-type Container struct {
-	ID         string `yaml:"id"`
-	Name       string `yaml:"name"`
-	Technology string `yaml:"technology"`
-	PartOf     string `yaml:"partOf"`
+type ReferencedElement struct {
+	ID    string `yaml:"id"`
+	Kind  string `yaml:"kind"`
+	Layer string `yaml:"layer"`
+	Name  string `yaml:"name"`
 }
 
-type Component struct {
-	ID     string `yaml:"id"`
-	Name   string `yaml:"name"`
-	PartOf string `yaml:"partOf"`
+type Mapping struct {
+	Type        string `yaml:"type"`
+	From        string `yaml:"from"`
+	To          string `yaml:"to"`
+	Description string `yaml:"description"`
 }
 
-type C4 struct {
-	People          []Person         `yaml:"people"`
-	SoftwareSystems []SoftwareSystem `yaml:"softwareSystems"`
-	Containers      []Container      `yaml:"containers"`
-	Components      []Component      `yaml:"components"`
+type AuthoredArchitecture struct {
+	FunctionalGroups   []FunctionalGroup   `yaml:"functionalGroups"`
+	FunctionalUnits    []FunctionalUnit    `yaml:"functionalUnits"`
+	Actors             []Actor             `yaml:"actors"`
+	AttackVectors      []AttackVector      `yaml:"attackVectors"`
+	ReferencedElements []ReferencedElement `yaml:"referencedElements"`
+	Mappings           []Mapping           `yaml:"mappings"`
 }
 
-type Relationship struct {
-	Type        string   `yaml:"type"`
-	From        string   `yaml:"from"`
-	To          string   `yaml:"to"`
-	Description string   `yaml:"description"`
-	CatalogRefs []string `yaml:"catalogRefs"`
+type InferenceHints struct {
+	RuntimeSources           []string `yaml:"runtimeSources"`
+	CodeSources              []string `yaml:"codeSources"`
+	ExpectedRuntimeKinds     []string `yaml:"expectedRuntimeKinds"`
+	OwnershipResolutionOrder []string `yaml:"ownershipResolutionOrder"`
 }
 
-type Viewpoint struct {
-	ID               string   `yaml:"id"`
-	Kind             string   `yaml:"kind"`
-	Roots            []string `yaml:"roots"`
-	IncludeRelations []string `yaml:"includeRelations"`
+type View struct {
+	ID    string   `yaml:"id"`
+	Kind  string   `yaml:"kind"`
+	Roots []string `yaml:"roots"`
 }
 
 type ArchitectureDocument struct {
-	Model         ModelMeta      `yaml:"model"`
-	C4            C4             `yaml:"c4"`
-	Relationships []Relationship `yaml:"relationships"`
-	Viewpoints    []Viewpoint    `yaml:"viewpoints"`
+	Model                ModelMeta            `yaml:"model"`
+	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
+	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
+	Views                []View               `yaml:"views"`
 }
 
 type Bundle struct {

@@ -1,6 +1,15 @@
+// ENGMODEL-OWNER-UNIT: FU-RISK-SCORING
+import { z } from "zod";
+import { createAuditEnvelope } from "./support/audit_envelope";
+
 export class RiskScoringService {
   // TRACE-REQS: REQ-PAY-002
   calculateRiskScore(paymentId: string, amountCents: number): number {
+    const requestSchema = z.object({
+      paymentId: z.string().min(1),
+      amountCents: z.number().int().positive(),
+    });
+    requestSchema.parse({ paymentId, amountCents });
     console.log(
       `risk-scoring-service: calculate risk for ${paymentId} (${amountCents} cents)`
     );
@@ -25,8 +34,9 @@ export class RiskScoringService {
 export class FraudAuditService {
   // TRACE-REQS: REQ-PAY-005
   createAuditRecord(paymentId: string, riskScore: number): void {
+    const envelope = createAuditEnvelope(paymentId, riskScore);
     console.log(
-      `fraud-audit-service: persist audit record for ${paymentId} with risk ${riskScore}`
+      `fraud-audit-service: persist audit record for ${paymentId} with risk ${riskScore} (${envelope.recordType})`
     );
   }
 

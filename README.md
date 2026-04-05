@@ -4,7 +4,7 @@
 
 It combines:
 - architecture model loading and validation
-- viewpoint projection (context/container/deployment)
+- viewpoint projection (functional/runtime/deployment/code/security)
 - Mermaid rendering
 - design + requirement narrative generation to AsciiDoc
 - EARS requirement preflight linting
@@ -49,7 +49,7 @@ Primary entry points:
 Example:
 
 ```go
-res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/architecture.yml", "VIEW-CONTEXT")
+res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/architecture.yml", "VIEW-FUNCTIONAL")
 if err != nil {
     panic(err)
 }
@@ -59,6 +59,13 @@ for _, d := range res.Diagnostics {
     fmt.Printf("%s [%s] %s\n", d.Code, d.Severity, d.Message)
 }
 ```
+
+View IDs are free-form, but view `kind` must be one of:
+- `authored-functional`
+- `runtime`
+- `deployment`
+- `code-ownership`
+- `security`
 
 ## CLI Usage
 
@@ -81,6 +88,20 @@ go run ./cmd/engdoc \
   --code-root examples/payments-engineering-sample/src \
   --out examples/payments-engineering-sample/generated/ARCHITECTURE.adoc
 ```
+
+Render PDF with proven-docs:
+
+```bash
+proven-docs render \
+  examples/payments-engineering-sample/generated/ARCHITECTURE.adoc \
+  --output examples/payments-engineering-sample/generated/ARCHITECTURE.proven.pdf
+```
+
+The generated document starts with:
+- `Introduction` (from `model.introduction`)
+- `Terms and Definitions` as a compact `Term | Definition` table
+  - terms are sorted A-Z by term text
+  - term IDs are shown as `Term (ID)` in the term column
 
 ## Example Project
 

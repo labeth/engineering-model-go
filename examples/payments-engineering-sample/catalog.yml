@@ -1,17 +1,57 @@
 catalog:
-  systems:
-    - id: SYS-PAYMENTS
-      name: payments system
-      definition: Core platform that orchestrates checkout, authorization, and customer payment outcomes.
-      aliases: [payment platform]
-    - id: SYS-FRAUD
-      name: fraud detection system
-      definition: Service that evaluates transaction risk and classifies payments for approval or review.
-      aliases: [fraud service]
-    - id: EXT-BANK-GW
-      name: bank gateway
+  functionalGroups:
+    - id: FG-PAYMENTS
+      name: payments
+      definition: Functional group for checkout and authorization capabilities.
+      aliases: [payments domain, payments system]
+    - id: FG-FRAUD
+      name: fraud evaluation
+      definition: Functional group for risk scoring and fraud review capabilities.
+      aliases: [fraud domain, fraud detection system]
+    - id: FG-PLATFORM
+      name: platform
+      definition: Functional group for provisioning and platform operations capabilities.
+      aliases: [platform engineering]
+
+  functionalUnits:
+    - id: FU-CHECKOUT
+      name: checkout handling
+      definition: Handles checkout session start and customer-facing payment messaging.
+      aliases: [checkout]
+    - id: FU-PAYMENT-AUTHORIZATION
+      name: payment authorization
+      definition: Coordinates authorization flow and bank gateway interaction.
+      aliases: [auth]
+    - id: FU-RISK-SCORING
+      name: risk scoring
+      definition: Evaluates transaction risk and returns score classification.
+      aliases: [fraud scoring]
+    - id: FU-SUPPORT-REVIEW
+      name: support review
+      definition: Supports manual review and escalation handling for risky transactions.
+      aliases: [manual review]
+    - id: FU-CLUSTER-PROVISIONING
+      name: cluster provisioning
+      definition: Provides cluster-level platform setup and environment bootstrap.
+      aliases: [day1 provisioning]
+    - id: FU-GITOPS-OPERATIONS
+      name: gitops operations
+      definition: Operates declarative delivery and release management flows.
+      aliases: [day2 operations]
+
+  referencedElements:
+    - id: REF-BANK-GATEWAY-ENDPOINT
+      name: bank gateway endpoint
       definition: External banking endpoint used for card authorization and decline decisions.
       aliases: [bank API]
+    - id: REF-POSTGRES-DRIVER
+      name: postgresql client driver
+      definition: Third-party library used for application data persistence connectivity.
+      aliases: [postgres driver]
+    - id: REF-HELM-PLATFORM
+      name: helm platform
+      definition: Runtime packaging and deployment substrate for workloads.
+      aliases: [helm]
 
   actors:
     - id: ACT-CUSTOMER
@@ -22,6 +62,24 @@ catalog:
       name: support agent
       definition: Operations role that investigates declines and high-risk review cases.
       aliases: [support]
+    - id: ACT-PLATFORM-OPERATOR
+      name: platform operator
+      definition: Role responsible for GitOps and platform lifecycle operations.
+      aliases: [platform ops]
+
+  attackVectors:
+    - id: AV-MALICIOUS-API-REQUEST
+      name: malicious api request
+      definition: Crafted payload attempting to bypass validation or authorization logic.
+      aliases: [malicious request]
+    - id: AV-REPLAYED-AUTH-CALLBACK
+      name: replayed authorization callback
+      definition: Replay of a valid callback to induce duplicate or unauthorized state transitions.
+      aliases: [callback replay]
+    - id: AV-COMPROMISED-DEPENDENCY
+      name: compromised dependency
+      definition: Supply-chain compromise in runtime image or code dependency.
+      aliases: [dependency compromise]
 
   events:
     - id: EVT-PAYMENT-AUTH-REQUESTED

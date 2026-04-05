@@ -4,8 +4,7 @@ metadata:
   name: risk-scorer
   namespace: risk
   annotations:
-    trace.dev/managed-by: payments-apps
-    trace.dev/part-of: CONT-RISK-SCORER
+    engmodel.dev/owner-unit: FU-RISK-SCORING
 spec:
   interval: 5m
   chart:

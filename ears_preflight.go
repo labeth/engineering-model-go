@@ -49,7 +49,7 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 
 func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	return earslint.Catalog{
-		Systems:    toEarsEntries(doc.Catalog.Systems),
+		Systems:    append(toEarsEntries(doc.Catalog.FunctionalGroups), toEarsEntries(doc.Catalog.FunctionalUnits)...),
 		Actors:     toEarsEntries(doc.Catalog.Actors),
 		Events:     toEarsEntries(doc.Catalog.Events),
 		States:     toEarsEntries(doc.Catalog.States),

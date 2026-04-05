@@ -4,8 +4,7 @@ metadata:
   name: checkout-api
   namespace: payments
   annotations:
-    trace.dev/managed-by: payments-apps
-    trace.dev/part-of: CONT-CHECKOUT-API
+    engmodel.dev/owner-unit: FU-CHECKOUT
 spec:
   interval: 5m
   chart:

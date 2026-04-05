@@ -10,250 +10,130 @@ import (
 )
 
 type index struct {
-	people     map[string]model.Person
-	systems    map[string]model.SoftwareSystem
-	containers map[string]model.Container
-	components map[string]model.Component
-	catalog    map[string]string
+	groups     map[string]model.FunctionalGroup
+	units      map[string]model.FunctionalUnit
+	actors     map[string]model.Actor
+	vectors    map[string]model.AttackVector
+	references map[string]model.ReferencedElement
 }
 
-func Build(b model.Bundle, viewpointID string) (ProjectedView, []validate.Diagnostic) {
+func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
 	idx := buildIndex(b)
-	vp, ok := findViewpoint(b.Architecture.Viewpoints, viewpointID)
+	v, ok := findView(b.Architecture.Views, viewID)
 	if !ok {
 		return ProjectedView{}, []validate.Diagnostic{{
 			Code:     "view.not_found",
 			Severity: validate.SeverityError,
-			Message:  fmt.Sprintf("viewpoint %q not found", viewpointID),
-			Path:     "viewpoints",
+			Message:  fmt.Sprintf("view %q not found", viewID),
+			Path:     "views",
 		}}
 	}
 
-	switch vp.Kind {
-	case "system-context":
-		return buildSystemContext(vp, idx, b.Architecture.Relationships), nil
-	case "container":
-		return buildContainerView(vp, idx, b.Architecture.Relationships), nil
-	case "deployment":
-		return buildDeploymentView(vp, idx, b.Architecture.Relationships, b)
-	default:
-		return ProjectedView{}, []validate.Diagnostic{{
-			Code:     "view.unsupported_kind",
-			Severity: validate.SeverityError,
-			Message:  fmt.Sprintf("unsupported viewpoint kind %q", vp.Kind),
-			Path:     "viewpoints",
-		}}
+	included := map[string]bool{}
+	for _, root := range v.Roots {
+		if strings.TrimSpace(root) != "" {
+			included[root] = true
+		}
 	}
+
+	for changed := true; changed; {
+		changed = false
+		for _, m := range b.Architecture.AuthoredArchitecture.Mappings {
+			if included[m.From] || included[m.To] {
+				if !included[m.From] {
+					included[m.From] = true
+					changed = true
+				}
+				if !included[m.To] {
+					included[m.To] = true
+					changed = true
+				}
+			}
+		}
+	}
+
+	pv := ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}
+	for id := range included {
+		if v.Kind == "authored-functional" {
+			if _, isVector := idx.vectors[id]; isVector {
+				continue
+			}
+		}
+		pv.Nodes = append(pv.Nodes, toNode(id, idx))
+	}
+	for _, m := range b.Architecture.AuthoredArchitecture.Mappings {
+		if v.Kind == "authored-functional" {
+			if _, isVector := idx.vectors[m.From]; isVector {
+				continue
+			}
+			if _, isVector := idx.vectors[m.To]; isVector {
+				continue
+			}
+		}
+		if included[m.From] && included[m.To] {
+			label := strings.TrimSpace(m.Type)
+			if d := strings.TrimSpace(m.Description); d != "" {
+				label += ": " + d
+			}
+			pv.Edges = append(pv.Edges, Edge{From: m.From, To: m.To, Type: m.Type, Label: label})
+		}
+	}
+
+	return sortView(pv), nil
 }
 
 func buildIndex(b model.Bundle) index {
 	idx := index{
-		people:     map[string]model.Person{},
-		systems:    map[string]model.SoftwareSystem{},
-		containers: map[string]model.Container{},
-		components: map[string]model.Component{},
-		catalog:    map[string]string{},
+		groups:     map[string]model.FunctionalGroup{},
+		units:      map[string]model.FunctionalUnit{},
+		actors:     map[string]model.Actor{},
+		vectors:    map[string]model.AttackVector{},
+		references: map[string]model.ReferencedElement{},
 	}
-	for _, x := range b.Architecture.C4.People {
-		idx.people[x.ID] = x
+	for _, x := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
+		idx.groups[x.ID] = x
 	}
-	for _, x := range b.Architecture.C4.SoftwareSystems {
-		idx.systems[x.ID] = x
+	for _, x := range b.Architecture.AuthoredArchitecture.FunctionalUnits {
+		idx.units[x.ID] = x
 	}
-	for _, x := range b.Architecture.C4.Containers {
-		idx.containers[x.ID] = x
+	for _, x := range b.Architecture.AuthoredArchitecture.Actors {
+		idx.actors[x.ID] = x
 	}
-	for _, x := range b.Architecture.C4.Components {
-		idx.components[x.ID] = x
+	for _, x := range b.Architecture.AuthoredArchitecture.AttackVectors {
+		idx.vectors[x.ID] = x
 	}
-	addCatalog := func(entries []model.CatalogEntry) {
-		for _, e := range entries {
-			label := strings.TrimSpace(e.Name)
-			if label == "" {
-				label = e.ID
-			}
-			idx.catalog[e.ID] = label
-		}
+	for _, x := range b.Architecture.AuthoredArchitecture.ReferencedElements {
+		idx.references[x.ID] = x
 	}
-	addCatalog(b.Catalog.Catalog.Systems)
-	addCatalog(b.Catalog.Catalog.Actors)
-	addCatalog(b.Catalog.Catalog.Events)
-	addCatalog(b.Catalog.Catalog.States)
-	addCatalog(b.Catalog.Catalog.Features)
-	addCatalog(b.Catalog.Catalog.Modes)
-	addCatalog(b.Catalog.Catalog.Conditions)
-	addCatalog(b.Catalog.Catalog.DataTerms)
 	return idx
 }
 
-func findViewpoint(viewpoints []model.Viewpoint, id string) (model.Viewpoint, bool) {
-	for _, v := range viewpoints {
+func findView(views []model.View, id string) (model.View, bool) {
+	for _, v := range views {
 		if v.ID == id {
 			return v, true
 		}
 	}
-	return model.Viewpoint{}, false
-}
-
-func buildSystemContext(vp model.Viewpoint, idx index, relationships []model.Relationship) ProjectedView {
-	included := map[string]bool{}
-	allowed := relationSet(vp.IncludeRelations)
-
-	for _, root := range vp.Roots {
-		included[root] = true
-	}
-
-	// Include internal structure below root systems to seed context projection.
-	for _, c := range idx.containers {
-		if included[c.PartOf] {
-			included[c.ID] = true
-		}
-	}
-	for _, comp := range idx.components {
-		if included[comp.PartOf] {
-			included[comp.ID] = true
-		}
-	}
-
-	// Expand inclusion by allowed relations until stable.
-	for changed := true; changed; {
-		changed = false
-		for _, rel := range relationships {
-			if !allowed[rel.Type] {
-				continue
-			}
-			if included[rel.From] || included[rel.To] {
-				if !included[rel.From] {
-					included[rel.From] = true
-					changed = true
-				}
-				if !included[rel.To] {
-					included[rel.To] = true
-					changed = true
-				}
-			}
-		}
-	}
-
-	pv := ProjectedView{ID: vp.ID, Kind: vp.Kind, Title: vp.ID}
-	pv.Nodes = materializeNodes(included, idx)
-	for _, rel := range relationships {
-		if !allowed[rel.Type] {
-			continue
-		}
-		if included[rel.From] && included[rel.To] {
-			pv.Edges = append(pv.Edges, Edge{From: rel.From, To: rel.To, Type: rel.Type, Label: edgeLabel(rel, idx.catalog)})
-		}
-	}
-	return sortView(pv)
-}
-
-func buildContainerView(vp model.Viewpoint, idx index, relationships []model.Relationship) ProjectedView {
-	included := map[string]bool{}
-	allowed := relationSet(vp.IncludeRelations)
-	includePartOf := allowed["part_of"]
-
-	for _, root := range vp.Roots {
-		included[root] = true
-	}
-	for _, c := range idx.containers {
-		if included[c.PartOf] {
-			included[c.ID] = true
-		}
-	}
-
-	for changed := true; changed; {
-		changed = false
-		for _, rel := range relationships {
-			if !allowed[rel.Type] {
-				continue
-			}
-			if included[rel.From] || included[rel.To] {
-				if !included[rel.From] {
-					included[rel.From] = true
-					changed = true
-				}
-				if !included[rel.To] {
-					included[rel.To] = true
-					changed = true
-				}
-			}
-		}
-	}
-
-	pv := ProjectedView{ID: vp.ID, Kind: vp.Kind, Title: vp.ID}
-	pv.Nodes = materializeNodes(included, idx)
-	for _, rel := range relationships {
-		if !allowed[rel.Type] {
-			continue
-		}
-		if included[rel.From] && included[rel.To] {
-			pv.Edges = append(pv.Edges, Edge{From: rel.From, To: rel.To, Type: rel.Type, Label: edgeLabel(rel, idx.catalog)})
-		}
-	}
-	if includePartOf {
-		for _, c := range idx.containers {
-			if included[c.ID] && included[c.PartOf] {
-				pv.Edges = append(pv.Edges, Edge{From: c.ID, To: c.PartOf, Type: "part_of", Label: "part_of"})
-			}
-		}
-	}
-	return sortView(pv)
-}
-
-func relationSet(in []string) map[string]bool {
-	m := map[string]bool{}
-	for _, x := range in {
-		m[x] = true
-	}
-	return m
-}
-
-func materializeNodes(included map[string]bool, idx index) []Node {
-	nodes := make([]Node, 0, len(included))
-	for id := range included {
-		nodes = append(nodes, toNode(id, idx))
-	}
-	return nodes
+	return model.View{}, false
 }
 
 func toNode(id string, idx index) Node {
-	if p, ok := idx.people[id]; ok {
-		return Node{ID: id, Label: nonEmpty(p.Name, id), Kind: "person"}
+	if g, ok := idx.groups[id]; ok {
+		return Node{ID: id, Label: nonEmpty(g.Name, id), Kind: "functional_group"}
 	}
-	if s, ok := idx.systems[id]; ok {
-		kind := "system"
-		if strings.EqualFold(strings.TrimSpace(s.Kind), "external_system") {
-			kind = "external_system"
-		}
-		return Node{ID: id, Label: nonEmpty(s.Name, id), Kind: kind}
+	if u, ok := idx.units[id]; ok {
+		return Node{ID: id, Label: nonEmpty(u.Name, id), Kind: "functional_unit"}
 	}
-	if c, ok := idx.containers[id]; ok {
-		return Node{ID: id, Label: nonEmpty(c.Name, id), Kind: "container"}
+	if a, ok := idx.actors[id]; ok {
+		return Node{ID: id, Label: nonEmpty(a.Name, id), Kind: "actor"}
 	}
-	if c, ok := idx.components[id]; ok {
-		return Node{ID: id, Label: nonEmpty(c.Name, id), Kind: "component"}
+	if a, ok := idx.vectors[id]; ok {
+		return Node{ID: id, Label: nonEmpty(a.Name, id), Kind: "attack_vector"}
+	}
+	if r, ok := idx.references[id]; ok {
+		return Node{ID: id, Label: nonEmpty(r.Name, id), Kind: "referenced_element"}
 	}
 	return Node{ID: id, Label: id, Kind: "unknown"}
-}
-
-func edgeLabel(rel model.Relationship, catalog map[string]string) string {
-	label := rel.Type
-	if strings.TrimSpace(rel.Description) != "" {
-		label = rel.Type + ": " + strings.TrimSpace(rel.Description)
-	}
-	if len(rel.CatalogRefs) > 0 {
-		items := make([]string, 0, len(rel.CatalogRefs))
-		for _, ref := range rel.CatalogRefs {
-			if resolved, ok := catalog[ref]; ok && strings.TrimSpace(resolved) != "" {
-				items = append(items, resolved)
-				continue
-			}
-			items = append(items, ref)
-		}
-		label = label + " (catalog: " + strings.Join(items, ", ") + ")"
-	}
-	return label
 }
 
 func nonEmpty(v, fallback string) string {

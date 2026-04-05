@@ -4,7 +4,11 @@ flowchart LR
 {{ . }}
 {{- end }}
 {{- range .Edges }}
+{{- if .Label }}
 {{ .From }} -->|{{ .Label }}| {{ .To }}
+{{- else }}
+{{ .From }} --> {{ .To }}
+{{- end }}
 {{- end }}
 
 {{- range .ClassDefs }}

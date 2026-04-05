@@ -63,10 +63,7 @@ func Render(v view.ProjectedView) string {
 	})
 	edgeLines := make([]edgeLine, 0, len(edges))
 	for _, e := range edges {
-		label := strings.TrimSpace(e.Label)
-		if label == "" {
-			label = e.Type
-		}
+		label := compactEdgeLabel(e.Type, e.Label)
 		edgeLines = append(edgeLines, edgeLine{
 			From:  mermaidID(e.From),
 			Label: escapeLabel(label),
@@ -80,17 +77,11 @@ func Render(v view.ProjectedView) string {
 		Nodes:    nodeLines,
 		Edges:    edgeLines,
 		ClassDefs: []string{
-			"classDef person fill:#d8f3dc,stroke:#1b4332,stroke-width:1px;",
-			"classDef system fill:#e7f5ff,stroke:#1c7ed6,stroke-width:1px;",
-			"classDef external fill:#fff3bf,stroke:#f08c00,stroke-width:1px;",
-			"classDef container fill:#f1f3f5,stroke:#495057,stroke-width:1px;",
-			"classDef component fill:#f8f0fc,stroke:#862e9c,stroke-width:1px;",
-			"classDef environment fill:#e6fcf5,stroke:#099268,stroke-width:1px;",
-			"classDef cluster fill:#e7f5ff,stroke:#1971c2,stroke-width:1px;",
-			"classDef namespace fill:#fff9db,stroke:#f08c00,stroke-width:1px;",
-			"classDef flux fill:#f3f0ff,stroke:#7048e8,stroke-width:1px;",
-			"classDef helm fill:#fff0f6,stroke:#c2255c,stroke-width:1px;",
-			"classDef source fill:#f8f9fa,stroke:#495057,stroke-width:1px;",
+			"classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;",
+			"classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;",
+			"classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;",
+			"classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;",
+			"classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;",
 			"classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;",
 		},
 	}
@@ -107,30 +98,16 @@ func renderNode(n view.Node) string {
 	id := mermaidID(n.ID)
 	label := escapeLabel(n.Label)
 	switch n.Kind {
-	case "person":
-		return fmt.Sprintf("%s((\"%s\")):::person", id, label)
-	case "external_system":
-		return fmt.Sprintf("%s[[\"%s\"]]:::external", id, label)
-	case "system":
-		return fmt.Sprintf("%s[\"%s\"]:::system", id, label)
-	case "container":
-		return fmt.Sprintf("%s[\"%s\"]:::container", id, label)
-	case "component":
-		return fmt.Sprintf("%s[\"%s\"]:::component", id, label)
-	case "environment":
-		return fmt.Sprintf("%s[\"%s\"]:::environment", id, label)
-	case "cluster":
-		return fmt.Sprintf("%s[\"%s\"]:::cluster", id, label)
-	case "namespace":
-		return fmt.Sprintf("%s[\"%s\"]:::namespace", id, label)
-	case "flux_kustomization":
-		return fmt.Sprintf("%s[\"%s\"]:::flux", id, label)
-	case "helm_release":
-		return fmt.Sprintf("%s[\"%s\"]:::helm", id, label)
-	case "helm_chart":
-		return fmt.Sprintf("%s[\"%s\"]:::helm", id, label)
-	case "git_source":
-		return fmt.Sprintf("%s[\"%s\"]:::source", id, label)
+	case "functional_group":
+		return fmt.Sprintf("%s[\"%s\"]:::functional_group", id, label)
+	case "functional_unit":
+		return fmt.Sprintf("%s[\"%s\"]:::functional_unit", id, label)
+	case "actor":
+		return fmt.Sprintf("%s((\"%s\")):::actor", id, label)
+	case "attack_vector":
+		return fmt.Sprintf("%s[[\"%s\"]]:::attack_vector", id, label)
+	case "referenced_element":
+		return fmt.Sprintf("%s[\"%s\"]:::referenced_element", id, label)
 	default:
 		return fmt.Sprintf("%s[\"%s\"]:::unknown", id, label)
 	}
@@ -171,4 +148,12 @@ func escapeComment(s string) string {
 		return "-"
 	}
 	return s
+}
+
+func compactEdgeLabel(edgeType, fallback string) string {
+	// Keep the projected view graph compact for PDF readability.
+	// Detailed semantics are explained in the surrounding tables/sections.
+	_ = edgeType
+	_ = fallback
+	return ""
 }

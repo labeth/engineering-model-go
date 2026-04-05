@@ -11,10 +11,10 @@ func TestLoadBundle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load bundle failed: %v", err)
 	}
-	if b.Architecture.Model.ID != "sample-payments-system" {
+	if b.Architecture.Model.ID != "sample-payments-layered-model" {
 		t.Fatalf("unexpected model id: %q", b.Architecture.Model.ID)
 	}
-	if len(b.Architecture.Viewpoints) != 3 {
-		t.Fatalf("expected 3 viewpoints, got %d", len(b.Architecture.Viewpoints))
+	if len(b.Architecture.Views) != 5 {
+		t.Fatalf("expected 5 views, got %d", len(b.Architecture.Views))
 	}
 }

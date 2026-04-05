@@ -1,11 +1,8 @@
 flowchart LR
-%% view: VIEW-DEPLOYMENT (deployment)
+%% view: VIEW-FUNCTIONAL (authored-functional)
 N_ACT_CUSTOMER(("Customer")):::actor
 N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
 N_ACT_SUPPORT(("Support Agent")):::actor
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
 N_FG_FRAUD["Fraud Evaluation"]:::functional_group
 N_FG_PAYMENTS["Payments"]:::functional_group
 N_FG_PLATFORM["Platform"]:::functional_group
@@ -20,9 +17,6 @@ N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
 N_ACT_CUSTOMER --> N_FU_CHECKOUT
 N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
 N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
-N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
-N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
 N_FG_FRAUD --> N_FU_RISK_SCORING
 N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
 N_FG_PAYMENTS --> N_FU_CHECKOUT

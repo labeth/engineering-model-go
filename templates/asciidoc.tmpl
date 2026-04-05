@@ -5,132 +5,220 @@
 
 == Introduction
 
-This architecture description is generated from `architecture.yml`, `requirements.yml`, and `design.yml`.
-Each design chapter is anchored on catalog references, while architecture elements and requirement links are derived automatically.
+{{ .Introduction }}
 
-== Architectural Views
+== Terms and Definitions
 
-{{ range .Views }}
-=== {{ .ID }}
+[cols="3,7",options="header"]
+|===
+|Term |Definition
+{{- range .Terms }}
+|[[{{ .Anchor }}]]{{ .Name }}{{ if .ID }} ({{ .ID }}){{ end }}
+|{{ .Definition }}{{ if .Aliases }} Aliases: {{- range $i, $a := .Aliases }}{{ if gt $i 0 }}, {{ end }}{{ $a }}{{- end }}{{ end }}
+{{- end }}
+|===
 
-The following view is the full model projection for `{{ .ID }}`.
+{{- range $i, $v := .Views }}
+{{ if gt $i 0 }}
+<<<
+{{ end }}
+== {{ $v.Heading }}
+
+{{ $v.Inf }}
 
 [source,mermaid]
 ----
-{{ .Mermaid }}
+{{ $v.Mermaid }}
 ----
 
+{{- if $v.InferredGraph }}
+{{ if eq $v.Kind "code-ownership" }}
+=== Code Dependency Graph
+{{ else }}
+=== Inferred Data Graph
 {{ end }}
 
-== Design Chapters
+[source,mermaid]
+----
+{{ $v.InferredGraph }}
+----
+{{- end }}
 
-{{ range .Chapters }}
-[[{{ .Anchor }}]]
-=== {{ .Header }}
+{{- if $v.RuntimeAPIGraph }}
+=== Runtime API Dependency Graph
+
+[source,mermaid]
+----
+{{ $v.RuntimeAPIGraph }}
+----
+{{- end }}
+
+{{- if $v.DeploymentGraph }}
+=== Deployment Artifact Relationship Graph
+
+[source,mermaid]
+----
+{{ $v.DeploymentGraph }}
+----
+{{- end }}
+
+{{- if $v.PlatformOpsGraph }}
+=== Platform Operations Graph
+
+[source,mermaid]
+----
+{{ $v.PlatformOpsGraph }}
+----
+{{- end }}
+
+{{- if $v.SecurityGraph }}
+=== Attack Vector Path Graph
+
+[source,mermaid]
+----
+{{ $v.SecurityGraph }}
+----
+{{- end }}
+
+{{- if $v.SecurityObsRows }}
+=== Security Logging and Observability
+
+[cols="2,1,1,3",options="header"]
+|===
+|Signal |Layer |Owner |Evidence
+{{- range $v.SecurityObsRows }}
+|{{ .Signal }} |{{ .Layer }} |{{ .Owner }} |{{ .Evidence }}
+{{- end }}
+|===
+{{- end }}
+
+=== Functional Groups (View Scoped)
+
+{{ range $v.Groups }}
+==== {{ .Name }} ({{ .ID }})
+
+Description: {{ .Description }}
+Tags: {{ .Tags }}
+
+{{ .Intro }}
+
+{{ range .Details }}
+===== {{ .Title }}
 
 {{ .Narrative }}
+{{ end }}
 
-==== Chapter Scope Diagram
+{{ end }}
 
-{{ if .HasRelationships }}
-The following diagram shows only direct dependencies tagged by this chapter's catalog references.
+=== Functional Units (View Scoped)
+
+{{ $viewKind := $v.Kind }}
+{{ range $v.Units }}
+==== {{ .Name }} ({{ .ID }})
+
+Group: <<{{ .GroupAnchor }},{{ .Group }}>>
+Tags: {{ .Tags }}
+
+{{ .Intro }}
+
+{{ range .Details }}
+===== {{ .Title }}
+
+{{ .Narrative }}
+{{ end }}
+
+{{ if or (eq $viewKind "runtime") (eq $viewKind "deployment") }}
+[cols="1,3",options="header"]
+|===
+|Aspect |Value
+|What it owns |{{ .WhatOwns }}
+|Inputs |{{ .Inputs }}
+|Outputs |{{ .Outputs }}
+|Dependencies |{{ .Dependencies }}
+|Failure modes |{{ .FailureModes }}
+|===
+{{ else }}
+What it owns: {{ .WhatOwns }}
+Inputs: {{ .Inputs }}
+Outputs: {{ .Outputs }}
+Dependencies: {{ .Dependencies }}
+Failure modes: {{ .FailureModes }}
+{{ end }}
+
+{{ end }}
+{{ end }}
+
+<<<
+== Requirement Alignment
+
+Requirement-to-unit overview:
 
 [source,mermaid]
 ----
-{{ .Mermaid }}
+{{ .RequirementMermaid }}
 ----
 
-{{ else }}
-No direct dependencies are tagged for this chapter.
+{{ .RequirementInf }}
 
-{{ end }}
+=== Requirement Details
 
-==== Reference Map
-
-* Derived Architecture Refs: {{ .DerivedC4Refs }}
-* Derived Requirement Refs: {{ .DerivedRequirementRefs }}
-* Direct Relationships: {{ .DirectRelationships }}
-
-{{ end }}
-
-{{ if .HasReferenceIndex }}
-== Reference Index
-
-This section combines implementation elements and glossary terms in one place.
-
-{{ range .ReferenceSections }}
-=== {{ .KindTitle }}
-
-{{ range .Entries }}
+{{- range .Requirements }}
 [[{{ .Anchor }}]]
-==== {{ .Heading }} ({{ .ID }})
-
-{{ if .HasDefinition }}{{ .Definition }}{{ else }}_missing definition_{{ end }}
-
-Aliases: {{ .Aliases }}
-{{ if .HasParent }}
-Parent: {{ .ParentRef }}
-{{ end }}
-
-{{ end }}
-{{ end }}
-{{ end }}
-
-== Requirements Appendix
-
-{{ range .Requirements }}
-[[{{ .Anchor }}]]
-=== {{ .ID }}
+==== {{ .ID }}
 
 {{ .Text }}
 
-{{ if .HasNotes }}
+{{- if .Notes }}
 Notes: {{ .Notes }}
+{{- end }}
 
-{{ end }}
-{{ end }}
+{{- end }}
 
-{{ if .HasCodeMapping }}
-== Code Mapping
+<<<
+== Reference Index
 
-Code symbols are linked through trace markers.
-Mapping priority is: explicit `TRACE-PART-OF`, then inferred container mapping from traced requirements and chapter scope.
+=== Authored References
+{{- range .ReferenceIndex.Authored }}
+[[{{ .Anchor }}]]
+==== {{ .ID }}
+Kind: {{ .Kind }}
+Name: {{ .Name }}
+{{ if .TargetAnchor -}}
+Resolves to: <<{{ .TargetAnchor }},canonical>>
+{{- end }}
+{{ .Description }}
 
-{{ range .CodeContainers }}
-=== {{ .Label }} (`{{ .ID }}`)
+{{- end }}
 
-This section summarizes traced symbols mapped to this container.
+=== Catalog References
+{{- range .ReferenceIndex.Catalog }}
+[[{{ .Anchor }}]]
+==== {{ .ID }}
+Kind: {{ .Kind }}
+Name: {{ .Name }}
+{{ if .TargetAnchor -}}
+Resolves to: <<{{ .TargetAnchor }},canonical>>
+{{- end }}
+{{ .Description }}
 
-{{ range .Symbols }}
-==== `{{ .TraceID }}`
+{{- end }}
 
-Location: `{{ .PathLine }}`
+=== Inferred Runtime References
+{{- range .ReferenceIndex.Runtime }}
+[[{{ .Anchor }}]]
+==== {{ .ID }}
+Kind: {{ .Kind }}
+{{ .Description }}
+Source: {{ .Source }}
 
-{{ if .HasSignature }}
-Declaration:
+{{- end }}
 
-`{{ .Signature }}`
-{{ end }}
-{{ if .HasRequirements }}
-Linked requirements: {{ .Requirements }}
-{{ end }}
-{{ if .HasMapping }}
-Mapping source: {{ .MappingNote }} {{ .Mapping }}
-{{ else }}
-Mapping source: {{ .MappingNote }}
-{{ end }}
+=== Inferred Code References
+{{- range .ReferenceIndex.Code }}
+[[{{ .Anchor }}]]
+==== {{ .ID }}
+Kind: {{ .Kind }}
+{{ .Description }}
+Source: {{ .Source }}
 
-'''
-
-{{ end }}
-
-{{ end }}
-{{ if .HasUnmapped }}
-=== Unmapped Symbols
-
-{{ range .UnmappedSymbols }}
-* `{{ .TraceID }}` at `{{ .PathLine }}`
-{{ end }}
-
-{{ end }}
-{{ end }}
+{{- end }}

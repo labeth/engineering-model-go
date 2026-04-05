@@ -11,7 +11,7 @@ import (
 
 func TestGenerateFromFile_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	views := []string{"VIEW-CONTEXT", "VIEW-CONTAINER", "VIEW-DEPLOYMENT"}
+	views := []string{"VIEW-FUNCTIONAL", "VIEW-RUNTIME", "VIEW-DEPLOYMENT", "VIEW-CODE-OWNERSHIP", "VIEW-SECURITY"}
 
 	for _, v := range views {
 		v := v
@@ -35,7 +35,7 @@ func TestGenerateFromFile_EndToEnd(t *testing.T) {
 
 func TestCLI_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	cmd := exec.Command("go", "run", "./cmd/engview", "--model", modelPath, "--view", "VIEW-CONTEXT")
+	cmd := exec.Command("go", "run", "./cmd/engview", "--model", modelPath, "--view", "VIEW-FUNCTIONAL")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("cli failed: %v\noutput:\n%s", err, string(out))
@@ -44,7 +44,7 @@ func TestCLI_EndToEnd(t *testing.T) {
 	if !strings.Contains(text, "flowchart LR") {
 		t.Fatalf("cli output missing mermaid flowchart header")
 	}
-	if !strings.Contains(text, "VIEW-CONTEXT") {
+	if !strings.Contains(text, "VIEW-FUNCTIONAL") {
 		t.Fatalf("cli output missing expected view id marker")
 	}
 }

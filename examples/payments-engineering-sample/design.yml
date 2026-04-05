@@ -1,91 +1,218 @@
-design:
-  id: sample-payments-architecture
-  title: Sample Payments Architecture
-  views:
-    - VIEW-CONTEXT
-    - VIEW-CONTAINER
-    - VIEW-DEPLOYMENT
-  chapters:
-    - id: CH-PAYMENT-AUTH
-      title: Payment Authorization Flow
-      narrative: |
-        The payment authorization flow starts when a customer submits checkout data and the system raises
-        payment authorization is requested while checkout is active is true. Checkout API creates a payment
-        session key and forwards the authorization request to Payment Engine.
+﻿design:
+  id: sample-payments-layered-design
+  title: Sample Payments Layered Design
 
-        Payment Engine coordinates internal checks and sends the external authorization call to Bank Gateway
-        only when bank link is available is satisfied. The payment id term is carried end-to-end so every
-        service invocation and auditable decision can be correlated across logs, traces, and support tooling.
+  functionalGroups:
+    - id: FG-PAYMENTS
+      views:
+        functional:
+          title: Payments Functional Story
+          narrative: |
+            payments owns the business flow from customer intent to customer outcome. It coordinates checkout handling and payment authorization so payment authorization is requested consistently while checkout is active. The group is responsible for keeping outcomes deterministic when payment is declined or when bank link is unavailable.
+        runtime:
+          title: Payments Runtime Story
+          narrative: |
+            payments runs the customer-facing ingress and transaction orchestration path. Runtime behavior keeps payment id context through service calls so operators can follow one transaction across components. The group must support low-latency customer responses while still waiting for risk and external dependency signals.
+        deployment:
+          title: Payments Deployment Story
+          narrative: |
+            payments is deployed as independent release paths for checkout handling and payment authorization to reduce rollout blast radius. This allows customer-interface changes and authorization-policy changes to move at different speeds without breaking contracts. Deployment readiness depends on bank link is available and healthy fraud dependencies.
+        code_ownership:
+          title: Payments Code Ownership Story
+          narrative: |
+            payments ownership is coarse and stable at module boundaries, not function boundaries. Teams own checkout handling and payment authorization code areas as long-lived architecture responsibilities, while individual symbols only support requirement evidence. This keeps architecture ownership stable even when internal implementation changes.
+        security:
+          title: Payments Security Story
+          narrative: |
+            payments protects the most exposed trust boundaries in the system. The group must defend against malicious api request and replayed authorization callback while preserving safe behavior when external responses are degraded. Security controls prioritize validation, idempotency, and predictable failure handling.
 
-        This is the nominal happy-path before decline or review branches are considered.
-      catalogRefs:
-        - payment authorization is requested
-        - checkout is active
-        - bank link is available
-        - payment id
+    - id: FG-FRAUD
+      views:
+        functional:
+          title: Fraud Evaluation Functional Story
+          narrative: |
+            fraud evaluation turns uncertain transaction risk into actionable decisions for payment authorization. It provides risk scoring and support review so high-risk flows are handled as payment review is pending instead of forcing unsafe automatic outcomes. The group must preserve clear transitions from automated scoring to manual handling when support agent is notified.
+        runtime:
+          title: Fraud Evaluation Runtime Story
+          narrative: |
+            fraud evaluation runs scoring and escalation paths that sit directly on the authorization critical path. Runtime responses must be consistent and fast enough to avoid customer-facing instability while still preserving evidence for audit. The group emits clear high-risk signals when risk score is high.
+        deployment:
+          title: Fraud Evaluation Deployment Story
+          narrative: |
+            fraud evaluation is deployed as dedicated runtime units so scoring policy and review workflow can be released with targeted controls. Separate deployment paths let teams stage changes to scoring behavior before broad rollout. Operational deployment decisions are guided by risk sensitivity rather than pure throughput.
+        code_ownership:
+          title: Fraud Evaluation Code Ownership Story
+          narrative: |
+            ownership in fraud evaluation is organized by durable module boundaries for scoring and review responsibilities. Requirement-level traces remain fine-grained, but ownership stays at package and module scope so architecture does not churn. This keeps accountability clear when scoring logic evolves.
+        security:
+          title: Fraud Evaluation Security Story
+          narrative: |
+            fraud evaluation protects decision integrity and review integrity. It must resist compromised dependency influence, malformed risk inputs, and unauthorized manual overrides. Security policy requires traceable review actions and trustworthy score lineage.
 
-    - id: CH-FRAUD-CHECK
-      title: Fraud Check Integration
-      narrative: |
-        Fraud evaluation is a mandatory branch for transactions where fraud check is enabled is enabled. Payment
-        Engine calls Risk Scorer before final authorization, and the risk pipeline computes risk score
-        from request metadata, amount, and behavioral signals.
+    - id: FG-PLATFORM
+      views:
+        functional:
+          title: Platform Functional Story
+          narrative: |
+            platform provides the execution foundation and delivery control needed by payments and fraud evaluation. It includes cluster provisioning and gitops operations as explicit architecture capabilities, not background concerns. The group supports normal mode is active operations while enabling controlled lifecycle changes.
+        runtime:
+          title: Platform Runtime Story
+          narrative: |
+            platform supplies runtime boundaries where workloads execute and reconciliation loops that keep intended state and observed state aligned. It is responsible for making runtime containment and reliability predictable for application teams. Runtime clarity here reduces ambiguity during incidents.
+        deployment:
+          title: Platform Deployment Story
+          narrative: |
+            platform deployment establishes and governs cluster, namespace, and release-controller behavior before application rollouts proceed. Terraform and GitOps artifacts form the operational path that turns desired state into running systems. This deployment layer is the control surface for safe system evolution.
+        code_ownership:
+          title: Platform Code Ownership Story
+          narrative: |
+            platform ownership is centered on infrastructure and GitOps module boundaries rather than application source boundaries. This lets platform engineers evolve delivery and infrastructure policy without changing product-domain ownership. Ownership remains explicit and auditable over time.
+        security:
+          title: Platform Security Story
+          narrative: |
+            platform is the primary baseline security layer for the entire system. It must enforce hardened defaults, namespace isolation, and trusted reconciliation so downstream units inherit safer operating conditions. Security failures here are systemic, so controls must be preventative and continuously verified.
 
-        If the resulting score indicates risk score is high, the authorization path must transition away from
-        immediate approval and into controlled review handling. If the score remains below threshold, the
-        payment can continue through the normal bank authorization branch.
+  functionalUnits:
+    - id: FU-CHECKOUT
+      group: FG-PAYMENTS
+      views:
+        functional:
+          title: Checkout Handling Functional Story
+          narrative: |
+            checkout handling turns customer input into a valid payment initiation sequence. It keeps customer-facing messaging coherent across success, payment is declined, and bank link is unavailable outcomes. The unit is the main interaction surface for customer during checkout is active.
+        runtime:
+          title: Checkout Handling Runtime Story
+          narrative: |
+            checkout handling serves as the ingress runtime path and forwards normalized requests to payment authorization. It must preserve payment id context and produce stable request contracts under load. Runtime behavior is intentionally thin in decision policy to keep boundaries clean.
+        deployment:
+          title: Checkout Handling Deployment Story
+          narrative: |
+            checkout handling is deployed as an independently releasable workload so UX changes can ship safely. Rollouts should prioritize quick rollback and compatibility with existing authorization contracts. Deployment health is measured by request stability and clear fallback messaging.
+        code_ownership:
+          title: Checkout Handling Code Ownership Story
+          narrative: |
+            checkout handling ownership is anchored at module and package level in the checkout code boundary. Teams can refactor methods without changing architecture ownership because ownership is not symbol-based. Requirement traces remain at symbol level only for evidence.
+        security:
+          title: Checkout Handling Security Story
+          narrative: |
+            checkout handling must aggressively validate input and defend public ingress from malicious api request patterns. It should throttle abusive behavior without degrading legitimate customer flows. Security design emphasizes safe rejection and traceable decisions.
 
-        This chapter defines the boundary between fast-path processing and human-review escalation.
-      catalogRefs:
-        - fraud check is enabled
-        - risk score is high
-        - risk score
+    - id: FU-PAYMENT-AUTHORIZATION
+      group: FG-PAYMENTS
+      views:
+        functional:
+          title: Payment Authorization Functional Story
+          narrative: |
+            payment authorization is the policy orchestration core for transaction decisions. It receives payment authorization is requested, calls risk scoring, and evaluates external bank outcomes before returning a single decision path. The unit owns how review escalation and fallback are selected.
+        runtime:
+          title: Payment Authorization Runtime Story
+          narrative: |
+            payment authorization coordinates runtime dependencies to risk scoring and bank gateway endpoint. It must maintain deterministic ordering and idempotent behavior during retries and transient faults. Runtime observability should show which branch produced the final outcome.
+        deployment:
+          title: Payment Authorization Deployment Story
+          narrative: |
+            payment authorization is deployed separately from checkout handling so policy changes can be staged carefully. Deployment readiness includes dependency health checks and rollback confidence. Releases should protect transaction continuity during rollout windows.
+        code_ownership:
+          title: Payment Authorization Code Ownership Story
+          narrative: |
+            payment authorization ownership is maintained at the payment engine module boundary. Internal algorithms and helper functions can change frequently without changing ownership contracts. This preserves team accountability for orchestration behavior.
+        security:
+          title: Payment Authorization Security Story
+          narrative: |
+            payment authorization must prevent replayed authorization callback abuse and protect integrity of decision transitions. It should normalize external errors so attackers cannot infer sensitive policy details. Security controls also require auditable decision provenance.
 
-    - id: CH-DECLINE-HANDLING
-      title: Decline Handling And Support Flow
-      narrative: |
-        When payment is declined is produced, Payment Engine returns a decline payload to Checkout API
-        containing customer-safe messaging and decline reason details. Checkout API then renders clear
-        feedback and retry guidance so users can recover without ambiguous failure states.
+    - id: FU-RISK-SCORING
+      group: FG-FRAUD
+      views:
+        functional:
+          title: Risk Scoring Functional Story
+          narrative: |
+            risk scoring computes risk score and classification used by payment authorization decisions. It is responsible for consistent threshold behavior when fraud check is enabled. The unit should make risk logic explainable for operators and reviewers.
+        runtime:
+          title: Risk Scoring Runtime Story
+          narrative: |
+            risk scoring runs as a deterministic dependency service on the transaction path. It should return stable response shapes and clear error semantics so authorization can handle failures safely. Runtime performance must support customer-facing latency expectations.
+        deployment:
+          title: Risk Scoring Deployment Story
+          narrative: |
+            risk scoring is deployed with controlled rollout strategy because policy changes can impact approval rates immediately. Teams should stage and observe behavior before broad promotion. Deployment observability should capture score distribution and high-risk frequency.
+        code_ownership:
+          title: Risk Scoring Code Ownership Story
+          narrative: |
+            risk scoring ownership stays at module boundary to keep policy accountability intact. Fine-grained symbols map to requirements but do not define ownership. This allows model and rules refactoring without architecture instability.
+        security:
+          title: Risk Scoring Security Story
+          narrative: |
+            risk scoring must detect and resist manipulated or poisoned inputs that could lower risk decisions incorrectly. It should enforce strict validation and safe defaults on uncertain data. Security evidence must support post-incident reconstruction of score decisions.
 
-        support agent is linked to the same decline context to allow post-event triage, root-cause review, and
-        operational communication. This keeps user-facing behavior and support-facing diagnosis aligned to the
-        same canonical event and data terms.
+    - id: FU-SUPPORT-REVIEW
+      group: FG-FRAUD
+      views:
+        functional:
+          title: Support Review Functional Story
+          narrative: |
+            support review manages human decision flow for escalated transactions. When payment review is pending, it provides context and action paths for support agent to resolve risk outcomes safely. The unit ensures manual decisions remain controlled and consistent.
+        runtime:
+          title: Support Review Runtime Story
+          narrative: |
+            support review runtime favors operator clarity and auditability over raw throughput. It should maintain strong linkage between escalation events and operator actions. Runtime transitions must be explicit and reversible where policy allows.
+        deployment:
+          title: Support Review Deployment Story
+          narrative: |
+            support review deployment should isolate privileged workflows from public-facing ingress components. Release strategy must preserve in-flight review sessions during upgrades. Operational monitoring should focus on queue health and review completion latency.
+        code_ownership:
+          title: Support Review Code Ownership Story
+          narrative: |
+            support review ownership is kept at module boundary for review workflow and notification logic. Shared utilities may exist, but ownership of decision workflow remains explicit. This prevents ambiguous accountability for manual outcomes.
+        security:
+          title: Support Review Security Story
+          narrative: |
+            support review security requires strong operator authentication, least privilege, and non-repudiable action logging. Unauthorized override and hidden edits must be prevented by design. Every decision should remain auditable end to end.
 
-        The chapter covers both customer messaging and support-side operational follow-up.
-      catalogRefs:
-        - payment is declined
-        - support agent
-        - decline reason
+    - id: FU-CLUSTER-PROVISIONING
+      group: FG-PLATFORM
+      views:
+        functional:
+          title: Cluster Provisioning Functional Story
+          narrative: |
+            cluster provisioning creates the baseline environment where application workloads can run safely. It defines cluster and namespace structure needed for payments and fraud evaluation operation. The unit owns repeatable environment creation as a core capability.
+        runtime:
+          title: Cluster Provisioning Runtime Story
+          narrative: |
+            cluster provisioning shapes runtime containment and isolation even though it is not a customer-facing request path. Namespace boundaries and cluster configuration directly affect reliability and blast radius. Runtime architecture depends on this foundation being correct.
+        deployment:
+          title: Cluster Provisioning Deployment Story
+          narrative: |
+            cluster provisioning is deployed through controlled infrastructure changes and should include drift awareness and rollback planning. Deployment operations must be deterministic because mistakes propagate broadly. Safe change sequencing is a core requirement.
+        code_ownership:
+          title: Cluster Provisioning Code Ownership Story
+          narrative: |
+            cluster provisioning ownership belongs to infrastructure module boundaries and related provisioning definitions. Ownership must remain stable across provider and topology refactors. This keeps long-term platform accountability clear.
+        security:
+          title: Cluster Provisioning Security Story
+          narrative: |
+            cluster provisioning security establishes hardened defaults and isolation guarantees inherited by all other units. It should enforce secure baseline policies before workloads are admitted. Security drift at this layer must be detected quickly.
 
-    - id: CH-REVIEW-ESCALATION
-      title: High-Risk Review Escalation
-      narrative: |
-        Review escalation applies when risk logic determines the transaction cannot be auto-approved. Payment
-        Engine places the transaction into payment review is pending and emits support agent is notified so manual
-        intervention is guaranteed and auditable.
-
-        support agent receives enough context to decide whether to release, reject, or request additional
-        verification. This chapter intentionally describes a controlled pause state instead of a hard failure
-        so business workflows can continue safely under supervision.
-
-        Checkout API provides status visibility while support decisions are made.
-      catalogRefs:
-        - support agent is notified
-        - payment review is pending
-        - support agent
-
-    - id: CH-BANK-LINK-FALLBACK
-      title: Bank Link Fallback Behavior
-      narrative: |
-        Fallback behavior is activated when bank link is unavailable occurs during authorization. In this
-        condition Payment Engine must stop external authorization attempts and return a deterministic temporary
-        unavailable response to Checkout API.
-
-        Checkout API converts that response into user guidance that distinguishes transient infrastructure
-        failure from card or account decline. This prevents false negative messaging and reduces support load
-        caused by misleading decline prompts.
-
-        This complements, but does not replace, the normal bank-link-up authorization path.
-      catalogRefs:
-        - bank link is unavailable
+    - id: FU-GITOPS-OPERATIONS
+      group: FG-PLATFORM
+      views:
+        functional:
+          title: Gitops Operations Functional Story
+          narrative: |
+            gitops operations governs how declared release intent becomes running state. It owns reconciliation behavior that keeps system drift under control across environments. The unit is responsible for predictable delivery behavior over time.
+        runtime:
+          title: Gitops Operations Runtime Story
+          narrative: |
+            gitops operations runs continuous controllers that compare desired and actual state and apply corrections. Runtime behavior here influences deployment timing and recovery characteristics for all workloads. Clear signals are required so teams can understand reconciliation outcomes.
+        deployment:
+          title: Gitops Operations Deployment Story
+          narrative: |
+            gitops operations deployment defines the control plane used to release and reconcile application artifacts. It must support safe promotion, controlled rollback, and policy gates. Operational resilience depends on this path being reliable and observable.
+        code_ownership:
+          title: Gitops Operations Code Ownership Story
+          narrative: |
+            gitops operations ownership stays at GitOps configuration module boundaries. This preserves explicit accountability for delivery rules and release automation behavior. Architecture ownership remains stable even as specific manifests evolve.
+        security:
+          title: Gitops Operations Security Story
+          narrative: |
+            gitops operations security protects source trust, reconciliation authority, and rollout safety. It must prevent unauthorized changes from reaching runtime state and enforce policy before apply. This is a core defense against compromised dependency and supply-chain risk.

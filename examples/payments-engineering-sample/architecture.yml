@@ -1,111 +1,212 @@
 model:
-  id: sample-payments-system
-  title: Sample Payments System
+  id: sample-payments-layered-model
+  title: Sample Payments Layered Architecture
+  introduction: |
+    This document describes the payments architecture using authored functional design and inferred runtime/code realization.
+    It is intended to help product, platform, security, and implementation engineers reason about one shared model.
+    Functional design is kept stable while realization details are inferred from infrastructure and source artifacts.
   baseCatalogRef: ./catalog.yml
 
-c4:
-  people:
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-PAYMENTS
+      name: Payments
+      description: Core payment checkout and authorization domain.
+      prose: |
+        The payments group defines the product-facing payment journey from user intent to final payment outcome.
+        It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
+        declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
+        fraud and external bank capabilities.
+    - id: FG-FRAUD
+      name: Fraud Evaluation
+      description: Risk scoring and fraud audit domain.
+      prose: |
+        The fraud evaluation group exists to reduce unsafe approvals while preserving throughput for legitimate payments.
+        It combines automated risk scoring with manual support review so uncertain transactions move through a controlled
+        escalation path. The group ensures risk decisions are explainable, auditable, and operationally actionable.
+    - id: FG-PLATFORM
+      name: Platform
+      description: Cluster provisioning and GitOps operations domain.
+      prose: |
+        The platform group provides the runtime and deployment foundation used by all product capabilities.
+        It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
+        The group enables safe delivery and reliable operations without owning payment business logic.
+
+  functionalUnits:
+    - id: FU-CHECKOUT
+      name: Checkout Handling
+      group: FG-PAYMENTS
+      prose: |
+        Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+        It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+        It delegates decision logic to payment authorization while protecting the user experience boundary.
+    - id: FU-PAYMENT-AUTHORIZATION
+      name: Payment Authorization
+      group: FG-PAYMENTS
+      prose: |
+        Payment authorization orchestrates the final transaction decision path.
+        It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
+        The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+    - id: FU-RISK-SCORING
+      name: Risk Scoring
+      group: FG-FRAUD
+      prose: |
+        Risk scoring computes and classifies transaction risk before approval decisions are finalized.
+        It provides a stable scoring contract to authorization and supports audit context for later analysis.
+        The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+    - id: FU-SUPPORT-REVIEW
+      name: Support Review
+      group: FG-FRAUD
+      prose: |
+        Support review handles manual decisions for escalated or ambiguous payment cases.
+        It gives support operators context to approve, reject, or request additional verification in a controlled flow.
+        The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+    - id: FU-CLUSTER-PROVISIONING
+      name: Cluster Provisioning
+      group: FG-PLATFORM
+      tags: [day1]
+      prose: |
+        Cluster provisioning creates the runtime substrate used by all application workloads.
+        It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+        This unit is responsible for predictable, repeatable infrastructure foundations.
+    - id: FU-GITOPS-OPERATIONS
+      name: GitOps Operations
+      group: FG-PLATFORM
+      tags: [day2]
+      prose: |
+        GitOps operations continuously reconciles intended release state with actual runtime state.
+        It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+        The unit provides safe and observable release behavior as an ongoing operational capability.
+
+  actors:
     - id: ACT-CUSTOMER
       name: Customer
       description: Starts checkout and confirms payment.
     - id: ACT-SUPPORT
       name: Support Agent
-      description: Reviews failed-payment cases.
+      description: Reviews high-risk and declined-payment cases.
+    - id: ACT-PLATFORM-OPERATOR
+      name: Platform Operator
+      description: Operates GitOps and platform lifecycle.
 
-  softwareSystems:
-    - id: SYS-PAYMENTS
-      name: Payments System
-      boundary: internal
-    - id: SYS-FRAUD
-      name: Fraud Detection System
-      boundary: internal
-    - id: EXT-BANK-GW
-      kind: external_system
-      name: Bank Gateway
+  attackVectors:
+    - id: AV-MALICIOUS-API-REQUEST
+      name: Malicious API Request
+      description: Crafted payloads attempting to bypass authorization controls.
+    - id: AV-REPLAYED-AUTH-CALLBACK
+      name: Replayed Authorization Callback
+      description: Replay attack against external authorization callback flow.
+    - id: AV-COMPROMISED-DEPENDENCY
+      name: Compromised Dependency
+      description: Supply chain compromise in external SDK or image.
 
-  containers:
-    - id: CONT-CHECKOUT-API
-      name: Checkout API
-      technology: Go
-      partOf: SYS-PAYMENTS
-    - id: CONT-PAYMENT-ENGINE
-      name: Payment Engine
-      technology: Rust
-      partOf: SYS-PAYMENTS
-    - id: CONT-RISK-SCORER
-      name: Risk Scorer
-      technology: TypeScript
-      partOf: SYS-FRAUD
+  referencedElements:
+    - id: REF-BANK-GATEWAY-ENDPOINT
+      kind: external_service_endpoint
+      layer: runtime
+      name: Bank Gateway Endpoint
+    - id: REF-POSTGRES-DRIVER
+      kind: third_party_library
+      layer: code
+      name: PostgreSQL Client Driver
+    - id: REF-HELM-PLATFORM
+      kind: platform_service
+      layer: runtime
+      name: Helm Runtime Platform
 
-  components:
-    - id: COMP-AUTH-ORCHESTRATOR
-      name: Authorization Orchestrator
-      partOf: CONT-PAYMENT-ENGINE
-    - id: COMP-RULE-EVALUATOR
-      name: Rule Evaluator
-      partOf: CONT-RISK-SCORER
+  mappings:
+    - type: contains
+      from: FG-PAYMENTS
+      to: FU-CHECKOUT
+    - type: contains
+      from: FG-PAYMENTS
+      to: FU-PAYMENT-AUTHORIZATION
+    - type: contains
+      from: FG-FRAUD
+      to: FU-RISK-SCORING
+    - type: contains
+      from: FG-FRAUD
+      to: FU-SUPPORT-REVIEW
+    - type: contains
+      from: FG-PLATFORM
+      to: FU-CLUSTER-PROVISIONING
+    - type: contains
+      from: FG-PLATFORM
+      to: FU-GITOPS-OPERATIONS
 
-relationships:
-  - type: uses
-    from: ACT-CUSTOMER
-    to: CONT-CHECKOUT-API
-    description: Submits payment at checkout.
-    catalogRefs: [ACT-CUSTOMER, EVT-PAYMENT-AUTH-REQUESTED]
+    - type: interacts_with
+      from: ACT-CUSTOMER
+      to: FU-CHECKOUT
+      description: Submits payment at checkout.
+    - type: interacts_with
+      from: ACT-SUPPORT
+      to: FU-SUPPORT-REVIEW
+      description: Performs manual payment reviews.
+    - type: interacts_with
+      from: ACT-PLATFORM-OPERATOR
+      to: FU-GITOPS-OPERATIONS
+      description: Operates delivery and release workflows.
 
-  - type: depends_on
-    from: CONT-CHECKOUT-API
-    to: CONT-PAYMENT-ENGINE
-    description: Delegates payment authorization.
-    catalogRefs: [EVT-PAYMENT-AUTH-REQUESTED, STATE-CHECKOUT-ACTIVE]
+    - type: depends_on
+      from: FU-CHECKOUT
+      to: FU-PAYMENT-AUTHORIZATION
+      description: Delegates payment authorization.
+    - type: depends_on
+      from: FU-PAYMENT-AUTHORIZATION
+      to: FU-RISK-SCORING
+      description: Requests fraud scoring before final authorization.
+    - type: depends_on
+      from: FU-PAYMENT-AUTHORIZATION
+      to: REF-BANK-GATEWAY-ENDPOINT
+      description: Calls external bank authorization endpoint.
+    - type: depends_on
+      from: FU-PAYMENT-AUTHORIZATION
+      to: FU-SUPPORT-REVIEW
+      description: Escalates high-risk payments for manual review.
+    - type: depends_on
+      from: FU-RISK-SCORING
+      to: REF-POSTGRES-DRIVER
+      description: Uses external library for audit persistence.
 
-  - type: depends_on
-    from: CONT-PAYMENT-ENGINE
-    to: CONT-RISK-SCORER
-    description: Requests fraud scoring.
-    catalogRefs: [FEAT-FRAUD-CHECK, EVT-RISK-HIGH, DATA-RISK-SCORE]
+    - type: targets
+      from: AV-MALICIOUS-API-REQUEST
+      to: FU-CHECKOUT
+    - type: targets
+      from: AV-REPLAYED-AUTH-CALLBACK
+      to: FU-PAYMENT-AUTHORIZATION
+    - type: targets
+      from: AV-COMPROMISED-DEPENDENCY
+      to: REF-POSTGRES-DRIVER
 
-  - type: depends_on
-    from: CONT-PAYMENT-ENGINE
-    to: EXT-BANK-GW
-    description: Calls bank authorization API.
-    catalogRefs: [STATE-BANK-LINK-UP, EVT-PAYMENT-AUTH-REQUESTED]
+inferenceHints:
+  runtimeSources:
+    - ./infra/terraform
+    - ./infra/flux
+    - ./infra/helm
+  codeSources:
+    - ./src
+  expectedRuntimeKinds:
+    - cluster
+    - namespace
+    - workload
+  ownershipResolutionOrder:
+    - explicit_annotation
+    - path_convention
+    - unresolved_warning
 
-  - type: depends_on
-    from: CONT-PAYMENT-ENGINE
-    to: CONT-CHECKOUT-API
-    description: Returns decline outcome for customer messaging.
-    catalogRefs: [EVT-PAYMENT-DECLINED, DATA-DECLINE-REASON]
-
-  - type: uses
-    from: ACT-SUPPORT
-    to: CONT-CHECKOUT-API
-    description: Reviews declined payments.
-    catalogRefs: [ACT-SUPPORT, EVT-PAYMENT-DECLINED]
-
-  - type: depends_on
-    from: CONT-PAYMENT-ENGINE
-    to: ACT-SUPPORT
-    description: Sends high-risk review notification.
-    catalogRefs: [EVT-SUPPORT-NOTIFIED, STATE-REVIEW-PENDING, ACT-SUPPORT]
-
-  - type: depends_on
-    from: CONT-PAYMENT-ENGINE
-    to: CONT-CHECKOUT-API
-    description: Returns temporary unavailable response when bank link is down.
-    catalogRefs: [EVT-BANK-LINK-UNAVAILABLE]
-
-viewpoints:
-  - id: VIEW-CONTEXT
-    kind: system-context
-    roots: [SYS-PAYMENTS]
-    includeRelations: [uses, depends_on]
-
-  - id: VIEW-CONTAINER
-    kind: container
-    roots: [SYS-PAYMENTS]
-    includeRelations: [part_of, depends_on]
-
+views:
+  - id: VIEW-FUNCTIONAL
+    kind: authored-functional
+    roots: [FG-PAYMENTS, FG-FRAUD, FG-PLATFORM]
+  - id: VIEW-RUNTIME
+    kind: runtime
+    roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-SUPPORT-REVIEW]
   - id: VIEW-DEPLOYMENT
     kind: deployment
-    roots: [ENV-PROD]
-    includeRelations: [part_of, runs_in, manages, deploys, depends_on]
+    roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-GITOPS-OPERATIONS]
+  - id: VIEW-CODE-OWNERSHIP
+    kind: code-ownership
+    roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING]
+  - id: VIEW-SECURITY
+    kind: security
+    roots: [FG-PAYMENTS, FG-FRAUD, FG-PLATFORM, AV-MALICIOUS-API-REQUEST, AV-REPLAYED-AUTH-CALLBACK, AV-COMPROMISED-DEPENDENCY]

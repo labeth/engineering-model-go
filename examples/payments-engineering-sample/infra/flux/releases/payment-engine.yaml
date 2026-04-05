@@ -4,8 +4,7 @@ metadata:
   name: payment-engine
   namespace: payments
   annotations:
-    trace.dev/managed-by: payments-apps
-    trace.dev/part-of: CONT-PAYMENT-ENGINE
+    engmodel.dev/owner-unit: FU-PAYMENT-AUTHORIZATION
 spec:
   interval: 5m
   chart:

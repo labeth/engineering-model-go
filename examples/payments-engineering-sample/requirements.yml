@@ -8,23 +8,38 @@ requirements:
   - id: REQ-PAY-001
     text: "While checkout is active, when payment authorization is requested, the payments system shall create a payment session and request authorization from bank gateway."
     notes: "Core authorization path from checkout to bank gateway."
+    appliesTo:
+      - FU-CHECKOUT
+      - FU-PAYMENT-AUTHORIZATION
 
   - id: REQ-PAY-002
     text: "Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval."
     notes: "Fraud scoring gate before approval."
+    appliesTo:
+      - FU-RISK-SCORING
 
   - id: REQ-PAY-003
     text: "If payment is declined, then the payments system shall present a decline reason and a retry option to customer."
     notes: "Decline handling and customer feedback."
+    appliesTo:
+      - FU-CHECKOUT
 
   - id: REQ-PAY-004
     text: "While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in review pending state and notify support agent."
     notes: "Escalation flow for high-risk payments."
+    appliesTo:
+      - FU-PAYMENT-AUTHORIZATION
+      - FU-SUPPORT-REVIEW
 
   - id: REQ-PAY-005
     text: "Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id and risk score."
     notes: "Auditability for authorization decisions."
+    appliesTo:
+      - FU-RISK-SCORING
 
   - id: REQ-PAY-006
     text: "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer."
     notes: "Fallback behavior when external banking path is down."
+    appliesTo:
+      - FU-CHECKOUT
+      - FU-PAYMENT-AUTHORIZATION

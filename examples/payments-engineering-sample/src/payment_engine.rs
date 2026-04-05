@@ -1,9 +1,19 @@
+// ENGMODEL-OWNER-UNIT: FU-PAYMENT-AUTHORIZATION
+use crate::domain::events::PaymentEvent;
+use serde_json::json;
+
 pub struct AuthorizationEngine {}
 pub struct ReviewCoordinator {}
 
 impl AuthorizationEngine {
     // TRACE-REQS: REQ-PAY-001
     pub fn authorize_payment(&self, payment_id: &str, amount_cents: u64) -> bool {
+        let event = PaymentEvent::new(payment_id, amount_cents);
+        let _audit_line = json!({
+            "type": "authorization_attempt",
+            "payment_id": event.payment_id,
+            "amount_cents": event.amount_cents
+        });
         println!(
             "authorization-engine: authorize {} for {} cents",
             payment_id, amount_cents

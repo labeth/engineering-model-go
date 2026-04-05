@@ -27,6 +27,9 @@ resource "aws_eks_cluster" "payments" {
   name     = "payments-prod-eks"
   role_arn = "arn:aws:iam::123456789012:role/eks-cluster-role"
   version  = "1.30"
+  tags = {
+    "engmodel.dev/owner-unit" = "FU-CLUSTER-PROVISIONING"
+  }
 
   vpc_config {
     subnet_ids = ["subnet-aaaa1111", "subnet-bbbb2222"]
@@ -36,17 +39,26 @@ resource "aws_eks_cluster" "payments" {
 resource "kubernetes_namespace" "payments" {
   metadata {
     name = "payments"
+    annotations = {
+      "engmodel.dev/owner-unit" = "FU-CHECKOUT"
+    }
   }
 }
 
 resource "kubernetes_namespace" "risk" {
   metadata {
     name = "risk"
+    annotations = {
+      "engmodel.dev/owner-unit" = "FU-RISK-SCORING"
+    }
   }
 }
 
 resource "kubernetes_namespace" "flux_system" {
   metadata {
     name = "flux-system"
+    annotations = {
+      "engmodel.dev/owner-unit" = "FU-GITOPS-OPERATIONS"
+    }
   }
 }
