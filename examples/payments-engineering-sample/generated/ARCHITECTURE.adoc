@@ -9,6 +9,13 @@ This document describes the <<REF_RT_CLUSTER_PAYMENTS,payments>> architecture us
 It is intended to help product, platform, security, and implementation engineers reason about one shared model.
 Functional design is kept stable while realization details are inferred from infrastructure and source artifacts.
 
+=== Scope and Assumptions
+
+- Functional Groups and Functional Units are the stable authored design backbone.
+- Runtime and code realization are inferred from available IaC, deployment, and source artifacts.
+- Inferred coverage is evidence-driven and may be partial when source metadata is missing.
+- Requirement alignment and reference indexes are provided for traceability, not as primary narrative flow.
+
 == How To Read This Document
 
 This document is intentionally split into two layers:
