@@ -1330,7 +1330,7 @@ Notes: Fallback behavior when external banking path is down.
 <<<
 == Reference Index
 
-=== Authored References
+==== Authored References
 [[REF_IDX-ACTOR_ACT_CUSTOMER]]
 ==== ACT-CUSTOMER
 Kind: Actor
@@ -1488,7 +1488,7 @@ Name: REQ-PAY-006
 Resolves to: <<REF_REQ_REQ_PAY_006,canonical>>
 If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer.
 
-=== Catalog References
+==== Catalog References
 [[REF_IDX-CATALOG_ACT_CUSTOMER]]
 ==== ACT-CUSTOMER
 Kind: Catalog Actor
@@ -1886,7 +1886,7 @@ Name: payment review is pending
 Resolves to: <<REF_CATALOG_STATE_REVIEW_PENDING,canonical>>
 Transaction state requiring manual support review before final disposition.
 
-=== Inferred Runtime References
+==== Inferred Runtime References
 [[REF_RT_CLUSTER_PAYMENTS]]
 ==== payments
 Kind: Runtime cluster
@@ -1933,7 +1933,7 @@ Kind: Runtime namespace
 Owner: FU-RISK-SCORING
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 
-=== Inferred Code References
+==== Inferred Code References
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]
 ==== gopkg.in/yaml.v3
 Kind: Code library_external
