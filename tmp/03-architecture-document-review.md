@@ -170,3 +170,17 @@ Legend:
   - `Status`
   - `Commit hash`
   - short note on validation run (`go test ./... -v`, PDF render).
+
+### Increment Log (post-`a61fd5`)
+
+- `6d50d73`: Restored TOC depth to level 2 per readability decision.
+- `1a406c3`: Added implementation status tracker next to guidance.
+- `1da0768`: Removed repeated `Tags:` noise from generated views.
+- `3c44ebf`: Reduced repeated FG descriptions outside Functional view.
+- `58e4c2d`: Demoted reference-index subheadings to reduce navigation clutter.
+- `7d837d8`: Annotated tracker items with commit hashes and validation evidence.
+- `e42fad6`: Removed duplicated `What it owns` text from non-functional views.
+
+Validation note for the above increments:
+- Regenerated `ARCHITECTURE.adoc` and `ARCHITECTURE.proven.pdf`.
+- Ran `go test ./... -v` with passing results on each code/document generation increment.
