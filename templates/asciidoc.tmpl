@@ -65,6 +65,8 @@ Read in this order:
 {{- if $v.InferredGraph }}
 {{ if eq $v.Kind "code-ownership" }}
 === Code Dependency Graph
+
+NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
 {{ else }}
 === Inferred Data Graph
 {{ end }}

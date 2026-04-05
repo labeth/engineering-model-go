@@ -833,6 +833,8 @@ Show inferred implementation structure and dependencies mapped to authored archi
 
 === Code Dependency Graph
 
+NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
+
 
 [source,mermaid]
 ----
