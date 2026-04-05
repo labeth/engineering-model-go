@@ -190,7 +190,9 @@ flowchart LR
 
 ==== Payments (FG-PAYMENTS)
 
+
 Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+
 
 
 The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
@@ -208,7 +210,9 @@ fraud and external bank capabilities.
 
 ==== Fraud Evaluation (FG-FRAUD)
 
+
 Description: Risk scoring and fraud audit domain.
+
 
 
 The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
@@ -225,7 +229,9 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 
 ==== Platform (FG-PLATFORM)
 
+
 Description: Cluster provisioning and GitOps operations domain.
+
 
 
 The platform group provides the runtime and deployment foundation used by all product capabilities.
@@ -431,7 +437,7 @@ flowchart LR
 
 ==== Payments (FG-PAYMENTS)
 
-Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+
 
 
 
@@ -443,7 +449,7 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 ==== Fraud Evaluation (FG-FRAUD)
 
-Description: Risk scoring and fraud audit domain.
+
 
 
 
@@ -618,7 +624,7 @@ flowchart LR
 
 ==== Payments (FG-PAYMENTS)
 
-Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+
 
 
 
@@ -630,7 +636,7 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 ==== Fraud Evaluation (FG-FRAUD)
 
-Description: Risk scoring and fraud audit domain.
+
 
 
 
@@ -642,7 +648,7 @@ Description: Risk scoring and fraud audit domain.
 
 ==== Platform (FG-PLATFORM)
 
-Description: Cluster provisioning and GitOps operations domain.
+
 
 
 
@@ -859,7 +865,7 @@ flowchart TB
 
 ==== Payments (FG-PAYMENTS)
 
-Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+
 
 
 
@@ -871,7 +877,7 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 ==== Fraud Evaluation (FG-FRAUD)
 
-Description: Risk scoring and fraud audit domain.
+
 
 
 
@@ -1029,7 +1035,7 @@ flowchart LR
 
 ==== Payments (FG-PAYMENTS)
 
-Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+
 
 
 
@@ -1041,7 +1047,7 @@ Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization
 
 ==== Fraud Evaluation (FG-FRAUD)
 
-Description: Risk scoring and fraud audit domain.
+
 
 
 
@@ -1053,7 +1059,7 @@ Description: Risk scoring and fraud audit domain.
 
 ==== Platform (FG-PLATFORM)
 
-Description: Cluster provisioning and GitOps operations domain.
+
 
 
 

@@ -128,7 +128,9 @@ Read in this order:
 {{ range $v.Groups }}
 ==== {{ .Name }} ({{ .ID }})
 
+{{ if eq $v.Kind "authored-functional" }}
 Description: {{ .Description }}
+{{ end }}
 {{ if eq $v.Kind "authored-functional" }}
 
 {{ .Intro }}
