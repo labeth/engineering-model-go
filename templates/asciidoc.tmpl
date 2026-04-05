@@ -26,10 +26,14 @@
 
 {{ $v.Inf }}
 
+{{- if eq $v.Kind "authored-functional" }}
+=== Functional Scope Diagram
+
 [source,mermaid]
 ----
 {{ $v.Mermaid }}
 ----
+{{- end }}
 
 {{- if $v.InferredGraph }}
 {{ if eq $v.Kind "code-ownership" }}

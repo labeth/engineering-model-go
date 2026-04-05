@@ -441,13 +441,13 @@ func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
 func inferredDescription(kind string) string {
 	switch kind {
 	case "runtime":
-		return "Show inferred runtime interaction and containment mapped to authored unit boundaries."
+		return "Show inferred runtime interaction and containment mapped to authored unit boundaries. This is a derived runtime view and may be partial when runtime artifacts are missing."
 	case "deployment":
-		return "Show inferred deployment artifacts and ownership mapping to authored units."
+		return "Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations."
 	case "code-ownership":
-		return "Show inferred implementation structure and dependencies mapped to authored architecture."
+		return "Show inferred implementation structure and dependencies mapped to authored architecture. This is a realization-oriented code evidence view."
 	case "security":
-		return "Show inferred exposure and dependency risk points aligned to unit boundaries."
+		return "Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence."
 	default:
 		return "Show authored architecture scope for this view."
 	}

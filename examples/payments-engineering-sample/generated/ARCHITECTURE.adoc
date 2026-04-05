@@ -105,6 +105,7 @@ Functional design is kept stable while realization details are inferred from inf
 == Functional View
 
 Show authored architecture scope for this view.
+=== Functional Scope Diagram
 
 [source,mermaid]
 ----
@@ -383,46 +384,7 @@ Evidence: authored unit with no direct derived runtime/code evidence yet
 
 == Runtime View
 
-Show inferred runtime interaction and containment mapped to authored unit boundaries.
-
-[source,mermaid]
-----
-flowchart LR
-%% view: VIEW-RUNTIME (runtime)
-N_ACT_CUSTOMER(("Customer")):::actor
-N_ACT_SUPPORT(("Support Agent")):::actor
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
-N_FG_FRAUD["Fraud Evaluation"]:::functional_group
-N_FG_PAYMENTS["Payments"]:::functional_group
-N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_ACT_CUSTOMER --> N_FU_CHECKOUT
-N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
-N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
-N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
-N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
-N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
-----
+Show inferred runtime interaction and containment mapped to authored unit boundaries. This is a derived runtime view and may be partial when runtime artifacts are missing.
 === Runtime API Dependency Graph
 
 [source,mermaid]
@@ -583,53 +545,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 == Deployment View
 
-Show inferred deployment artifacts and ownership mapping to authored units.
-
-[source,mermaid]
-----
-flowchart LR
-%% view: VIEW-DEPLOYMENT (deployment)
-N_ACT_CUSTOMER(("Customer")):::actor
-N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
-N_ACT_SUPPORT(("Support Agent")):::actor
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
-N_FG_FRAUD["Fraud Evaluation"]:::functional_group
-N_FG_PAYMENTS["Payments"]:::functional_group
-N_FG_PLATFORM["Platform"]:::functional_group
-N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
-N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
-N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_ACT_CUSTOMER --> N_FU_CHECKOUT
-N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
-N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
-N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
-N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
-N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
-N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
-N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
-N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
-----
+Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations.
 === Deployment Artifact Relationship Graph
 
 [source,mermaid]
@@ -887,46 +803,7 @@ Tags: day2
 
 == Realization View
 
-Show inferred implementation structure and dependencies mapped to authored architecture.
-
-[source,mermaid]
-----
-flowchart LR
-%% view: VIEW-CODE-OWNERSHIP (code-ownership)
-N_ACT_CUSTOMER(("Customer")):::actor
-N_ACT_SUPPORT(("Support Agent")):::actor
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
-N_FG_FRAUD["Fraud Evaluation"]:::functional_group
-N_FG_PAYMENTS["Payments"]:::functional_group
-N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_ACT_CUSTOMER --> N_FU_CHECKOUT
-N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
-N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
-N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
-N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
-N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
-----
+Show inferred implementation structure and dependencies mapped to authored architecture. This is a realization-oriented code evidence view.
 
 === Code Dependency Graph
 
@@ -1093,53 +970,7 @@ Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment
 
 == Security View
 
-Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points aligned to unit boundaries.
-
-[source,mermaid]
-----
-flowchart LR
-%% view: VIEW-SECURITY (security)
-N_ACT_CUSTOMER(("Customer")):::actor
-N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
-N_ACT_SUPPORT(("Support Agent")):::actor
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
-N_FG_FRAUD["Fraud Evaluation"]:::functional_group
-N_FG_PAYMENTS["Payments"]:::functional_group
-N_FG_PLATFORM["Platform"]:::functional_group
-N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
-N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
-N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_ACT_CUSTOMER --> N_FU_CHECKOUT
-N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
-N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
-N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
-N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
-N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
-N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
-N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
-N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
-----
+Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security evidence.
 === Attack Vector Path Graph
 
 [source,mermaid]
