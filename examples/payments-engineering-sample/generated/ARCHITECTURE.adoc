@@ -1,6 +1,6 @@
 = Sample Payments Layered Design
 :toc:
-:toclevels: 2
+:toclevels: 1
 :sectnums:
 
 == Introduction
