@@ -1334,60 +1334,70 @@ Notes: Fallback behavior when external banking path is down.
 
 === Authored References
 [[REF_IDX-ACTOR_ACT_CUSTOMER]]
+[discrete]
 ==== ACT-CUSTOMER
 Kind: Actor
 Name: Customer
 
 Starts checkout and confirms payment.
 [[REF_IDX-ACTOR_ACT_PLATFORM_OPERATOR]]
+[discrete]
 ==== ACT-PLATFORM-OPERATOR
 Kind: Actor
 Name: Platform Operator
 
 Operates GitOps and platform lifecycle.
 [[REF_IDX-ACTOR_ACT_SUPPORT]]
+[discrete]
 ==== ACT-SUPPORT
 Kind: Actor
 Name: Support Agent
 
 Reviews high-risk and declined-payment cases.
 [[REF_IDX-ATTACK_AV_COMPROMISED_DEPENDENCY]]
+[discrete]
 ==== AV-COMPROMISED-DEPENDENCY
 Kind: Attack Vector
 Name: Compromised Dependency
 
 Supply chain compromise in external SDK or image.
 [[REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST]]
+[discrete]
 ==== AV-MALICIOUS-API-REQUEST
 Kind: Attack Vector
 Name: Malicious API Request
 
 Crafted payloads attempting to bypass authorization controls.
 [[REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK]]
+[discrete]
 ==== AV-REPLAYED-AUTH-CALLBACK
 Kind: Attack Vector
 Name: Replayed Authorization Callback
 
 Replay attack against external authorization callback flow.
 [[REF_IDX-FG_FG_FRAUD]]
+[discrete]
 ==== FG-FRAUD
 Kind: Functional Group
 Name: Fraud Evaluation
 
 Risk scoring and fraud audit domain.
 [[REF_IDX-FG_FG_PAYMENTS]]
+[discrete]
 ==== FG-PAYMENTS
 Kind: Functional Group
 Name: Payments
 
 Core payment checkout and authorization domain.
 [[REF_IDX-FG_FG_PLATFORM]]
+[discrete]
 ==== FG-PLATFORM
 Kind: Functional Group
 Name: Platform
 
 Cluster provisioning and GitOps operations domain.
 [[REF_IDX-FU_FU_CHECKOUT]]
+[discrete]
 ==== FU-CHECKOUT
 Kind: Functional Unit
 Name: Checkout Handling
@@ -1396,6 +1406,7 @@ Checkout handling is the user-facing entrypoint where payment requests are initi
 It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
 It delegates decision logic to payment authorization while protecting the user experience boundary.
 [[REF_IDX-FU_FU_CLUSTER_PROVISIONING]]
+[discrete]
 ==== FU-CLUSTER-PROVISIONING
 Kind: Functional Unit
 Name: Cluster Provisioning
@@ -1404,6 +1415,7 @@ Cluster provisioning creates the runtime substrate used by all application workl
 It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
 This unit is responsible for predictable, repeatable infrastructure foundations.
 [[REF_IDX-FU_FU_GITOPS_OPERATIONS]]
+[discrete]
 ==== FU-GITOPS-OPERATIONS
 Kind: Functional Unit
 Name: GitOps Operations
@@ -1412,6 +1424,7 @@ GitOps operations continuously reconciles intended release state with actual run
 It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
 The unit provides safe and observable release behavior as an ongoing operational capability.
 [[REF_IDX-FU_FU_PAYMENT_AUTHORIZATION]]
+[discrete]
 ==== FU-PAYMENT-AUTHORIZATION
 Kind: Functional Unit
 Name: Payment Authorization
@@ -1420,6 +1433,7 @@ Payment authorization orchestrates the final transaction decision path.
 It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
 The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
 [[REF_IDX-FU_FU_RISK_SCORING]]
+[discrete]
 ==== FU-RISK-SCORING
 Kind: Functional Unit
 Name: Risk Scoring
@@ -1428,6 +1442,7 @@ Risk scoring computes and classifies transaction risk before approval decisions 
 It provides a stable scoring contract to authorization and supports audit context for later analysis.
 The unit is focused on decision quality, consistency, and policy-driven classification behavior.
 [[REF_IDX-FU_FU_SUPPORT_REVIEW]]
+[discrete]
 ==== FU-SUPPORT-REVIEW
 Kind: Functional Unit
 Name: Support Review
@@ -1436,54 +1451,63 @@ Support review handles manual decisions for escalated or ambiguous payment cases
 It gives support operators context to approve, reject, or request additional verification in a controlled flow.
 The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
 [[REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT]]
+[discrete]
 ==== REF-BANK-GATEWAY-ENDPOINT
 Kind: Referenced Element
 Name: Bank Gateway Endpoint
 
 external_service_endpoint / runtime
 [[REF_IDX-REF_REF_HELM_PLATFORM]]
+[discrete]
 ==== REF-HELM-PLATFORM
 Kind: Referenced Element
 Name: Helm Runtime Platform
 
 platform_service / runtime
 [[REF_IDX-REF_REF_POSTGRES_DRIVER]]
+[discrete]
 ==== REF-POSTGRES-DRIVER
 Kind: Referenced Element
 Name: PostgreSQL Client Driver
 
 third_party_library / code
 [[REF_IDX-REQ_REQ_PAY_001]]
+[discrete]
 ==== REQ-PAY-001
 Kind: Requirement
 Name: REQ-PAY-001
 Resolves to: <<REF_REQ_REQ_PAY_001,canonical>>
 While checkout is active, when payment authorization is requested, the payments system shall create a payment session and request authorization from bank gateway.
 [[REF_IDX-REQ_REQ_PAY_002]]
+[discrete]
 ==== REQ-PAY-002
 Kind: Requirement
 Name: REQ-PAY-002
 Resolves to: <<REF_REQ_REQ_PAY_002,canonical>>
 Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval.
 [[REF_IDX-REQ_REQ_PAY_003]]
+[discrete]
 ==== REQ-PAY-003
 Kind: Requirement
 Name: REQ-PAY-003
 Resolves to: <<REF_REQ_REQ_PAY_003,canonical>>
 If payment is declined, then the payments system shall present a decline reason and a retry option to customer.
 [[REF_IDX-REQ_REQ_PAY_004]]
+[discrete]
 ==== REQ-PAY-004
 Kind: Requirement
 Name: REQ-PAY-004
 Resolves to: <<REF_REQ_REQ_PAY_004,canonical>>
 While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in review pending state and notify support agent.
 [[REF_IDX-REQ_REQ_PAY_005]]
+[discrete]
 ==== REQ-PAY-005
 Kind: Requirement
 Name: REQ-PAY-005
 Resolves to: <<REF_REQ_REQ_PAY_005,canonical>>
 Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id and risk score.
 [[REF_IDX-REQ_REQ_PAY_006]]
+[discrete]
 ==== REQ-PAY-006
 Kind: Requirement
 Name: REQ-PAY-006
@@ -1492,396 +1516,462 @@ If bank link is unavailable, then the payments system shall present a temporary 
 
 === Catalog References
 [[REF_IDX-CATALOG_ACT_CUSTOMER]]
+[discrete]
 ==== ACT-CUSTOMER
 Kind: Catalog Actor
 Name: customer
 Resolves to: <<REF_CATALOG_ACT_CUSTOMER,canonical>>
 End user submitting payment details during checkout.
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
+[discrete]
 ==== ACT-PLATFORM-OPERATOR
 Kind: Catalog Actor
 Name: platform operator
 Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
 Role responsible for GitOps and platform lifecycle operations.
 [[REF_IDX-CATALOG_ACT_SUPPORT]]
+[discrete]
 ==== ACT-SUPPORT
 Kind: Catalog Actor
 Name: support agent
 Resolves to: <<REF_CATALOG_ACT_SUPPORT,canonical>>
 Operations role that investigates declines and high-risk review cases.
 [[REF_CATALOG-ALIAS_COND_3DS_REQUIRED_3DS_REQUIRED]]
+[discrete]
 ==== 3DS required
 Kind: Catalog Alias
 Name: 3DS verification is required
 Resolves to: <<REF_CATALOG_COND_3DS_REQUIRED,canonical>>
 Alias of COND-3DS-REQUIRED
 [[REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH]]
+[discrete]
 ==== auth
 Kind: Catalog Alias
 Name: payment authorization
 Resolves to: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,canonical>>
 Alias of FU-PAYMENT-AUTHORIZATION
 [[REF_CATALOG-ALIAS_REF_BANK_GATEWAY_ENDPOINT_BANK_API]]
+[discrete]
 ==== bank API
 Kind: Catalog Alias
 Name: bank gateway endpoint
 Resolves to: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,canonical>>
 Alias of REF-BANK-GATEWAY-ENDPOINT
 [[REF_CATALOG-ALIAS_EVT_BANK_LINK_UNAVAILABLE_BANK_LINK_DOWN]]
+[discrete]
 ==== bank link down
 Kind: Catalog Alias
 Name: bank link is unavailable
 Resolves to: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,canonical>>
 Alias of EVT-BANK-LINK-UNAVAILABLE
 [[REF_CATALOG-ALIAS_STATE_BANK_LINK_UP_BANK_LINK_UP]]
+[discrete]
 ==== bank link up
 Kind: Catalog Alias
 Name: bank link is available
 Resolves to: <<REF_CATALOG_STATE_BANK_LINK_UP,canonical>>
 Alias of STATE-BANK-LINK-UP
 [[REF_CATALOG-ALIAS_ACT_CUSTOMER_BUYER]]
+[discrete]
 ==== buyer
 Kind: Catalog Alias
 Name: customer
 Resolves to: <<REF_CATALOG_ACT_CUSTOMER,canonical>>
 Alias of ACT-CUSTOMER
 [[REF_CATALOG-ALIAS_AV_REPLAYED_AUTH_CALLBACK_CALLBACK_REPLAY]]
+[discrete]
 ==== callback replay
 Kind: Catalog Alias
 Name: replayed authorization callback
 Resolves to: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,canonical>>
 Alias of AV-REPLAYED-AUTH-CALLBACK
 [[REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT]]
+[discrete]
 ==== checkout
 Kind: Catalog Alias
 Name: checkout handling
 Resolves to: <<REF_CATALOG_FU_CHECKOUT,canonical>>
 Alias of FU-CHECKOUT
 [[REF_CATALOG-ALIAS_STATE_CHECKOUT_ACTIVE_CHECKOUT_ACTIVE]]
+[discrete]
 ==== checkout active
 Kind: Catalog Alias
 Name: checkout is active
 Resolves to: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,canonical>>
 Alias of STATE-CHECKOUT-ACTIVE
 [[REF_CATALOG-ALIAS_FU_CLUSTER_PROVISIONING_DAY1_PROVISIONING]]
+[discrete]
 ==== day1 provisioning
 Kind: Catalog Alias
 Name: cluster provisioning
 Resolves to: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,canonical>>
 Alias of FU-CLUSTER-PROVISIONING
 [[REF_CATALOG-ALIAS_FU_GITOPS_OPERATIONS_DAY2_OPERATIONS]]
+[discrete]
 ==== day2 operations
 Kind: Catalog Alias
 Name: gitops operations
 Resolves to: <<REF_CATALOG_FU_GITOPS_OPERATIONS,canonical>>
 Alias of FU-GITOPS-OPERATIONS
 [[REF_CATALOG-ALIAS_DATA_DECLINE_REASON_DECLINE_CODE]]
+[discrete]
 ==== decline code
 Kind: Catalog Alias
 Name: decline reason
 Resolves to: <<REF_CATALOG_DATA_DECLINE_REASON,canonical>>
 Alias of DATA-DECLINE-REASON
 [[REF_CATALOG-ALIAS_AV_COMPROMISED_DEPENDENCY_DEPENDENCY_COMPROMISE]]
+[discrete]
 ==== dependency compromise
 Kind: Catalog Alias
 Name: compromised dependency
 Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
 Alias of AV-COMPROMISED-DEPENDENCY
 [[REF_CATALOG-ALIAS_FEAT_FRAUD_CHECK_FRAUD_CHECK]]
+[discrete]
 ==== fraud check
 Kind: Catalog Alias
 Name: fraud check is enabled
 Resolves to: <<REF_CATALOG_FEAT_FRAUD_CHECK,canonical>>
 Alias of FEAT-FRAUD-CHECK
 [[REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM]]
+[discrete]
 ==== fraud detection system
 Kind: Catalog Alias
 Name: fraud evaluation
 Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
 Alias of FG-FRAUD
 [[REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DOMAIN]]
+[discrete]
 ==== fraud domain
 Kind: Catalog Alias
 Name: fraud evaluation
 Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
 Alias of FG-FRAUD
 [[REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING]]
+[discrete]
 ==== fraud scoring
 Kind: Catalog Alias
 Name: risk scoring
 Resolves to: <<REF_CATALOG_FU_RISK_SCORING,canonical>>
 Alias of FU-RISK-SCORING
 [[REF_CATALOG-ALIAS_REF_HELM_PLATFORM_HELM]]
+[discrete]
 ==== helm
 Kind: Catalog Alias
 Name: helm platform
 Resolves to: <<REF_CATALOG_REF_HELM_PLATFORM,canonical>>
 Alias of REF-HELM-PLATFORM
 [[REF_CATALOG-ALIAS_EVT_RISK_HIGH_HIGH_RISK]]
+[discrete]
 ==== high risk
 Kind: Catalog Alias
 Name: risk score is high
 Resolves to: <<REF_CATALOG_EVT_RISK_HIGH,canonical>>
 Alias of EVT-RISK-HIGH
 [[REF_CATALOG-ALIAS_AV_MALICIOUS_API_REQUEST_MALICIOUS_REQUEST]]
+[discrete]
 ==== malicious request
 Kind: Catalog Alias
 Name: malicious api request
 Resolves to: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,canonical>>
 Alias of AV-MALICIOUS-API-REQUEST
 [[REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW]]
+[discrete]
 ==== manual review
 Kind: Catalog Alias
 Name: support review
 Resolves to: <<REF_CATALOG_FU_SUPPORT_REVIEW,canonical>>
 Alias of FU-SUPPORT-REVIEW
 [[REF_CATALOG-ALIAS_MODE_NORMAL_NORMAL_MODE]]
+[discrete]
 ==== normal mode
 Kind: Catalog Alias
 Name: normal mode is active
 Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
 Alias of MODE-NORMAL
 [[REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED]]
+[discrete]
 ==== payment auth requested
 Kind: Catalog Alias
 Name: payment authorization is requested
 Resolves to: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,canonical>>
 Alias of EVT-PAYMENT-AUTH-REQUESTED
 [[REF_CATALOG-ALIAS_EVT_PAYMENT_DECLINED_PAYMENT_DECLINED]]
+[discrete]
 ==== payment declined
 Kind: Catalog Alias
 Name: payment is declined
 Resolves to: <<REF_CATALOG_EVT_PAYMENT_DECLINED,canonical>>
 Alias of EVT-PAYMENT-DECLINED
 [[REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN]]
+[discrete]
 ==== payments domain
 Kind: Catalog Alias
 Name: payments
 Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
 Alias of FG-PAYMENTS
 [[REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM]]
+[discrete]
 ==== payments system
 Kind: Catalog Alias
 Name: payments
 Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
 Alias of FG-PAYMENTS
 [[REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING]]
+[discrete]
 ==== platform engineering
 Kind: Catalog Alias
 Name: platform
 Resolves to: <<REF_CATALOG_FG_PLATFORM,canonical>>
 Alias of FG-PLATFORM
 [[REF_CATALOG-ALIAS_ACT_PLATFORM_OPERATOR_PLATFORM_OPS]]
+[discrete]
 ==== platform ops
 Kind: Catalog Alias
 Name: platform operator
 Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
 Alias of ACT-PLATFORM-OPERATOR
 [[REF_CATALOG-ALIAS_REF_POSTGRES_DRIVER_POSTGRES_DRIVER]]
+[discrete]
 ==== postgres driver
 Kind: Catalog Alias
 Name: postgresql client driver
 Resolves to: <<REF_CATALOG_REF_POSTGRES_DRIVER,canonical>>
 Alias of REF-POSTGRES-DRIVER
 [[REF_CATALOG-ALIAS_STATE_REVIEW_PENDING_REVIEW_PENDING]]
+[discrete]
 ==== review pending
 Kind: Catalog Alias
 Name: payment review is pending
 Resolves to: <<REF_CATALOG_STATE_REVIEW_PENDING,canonical>>
 Alias of STATE-REVIEW-PENDING
 [[REF_CATALOG-ALIAS_COND_RISK_THRESHOLD_EXCEEDED_RISK_ABOVE_THRESHOLD]]
+[discrete]
 ==== risk above threshold
 Kind: Catalog Alias
 Name: risk threshold is exceeded
 Resolves to: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,canonical>>
 Alias of COND-RISK-THRESHOLD-EXCEEDED
 [[REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT]]
+[discrete]
 ==== support
 Kind: Catalog Alias
 Name: support agent
 Resolves to: <<REF_CATALOG_ACT_SUPPORT,canonical>>
 Alias of ACT-SUPPORT
 [[REF_CATALOG-ALIAS_EVT_SUPPORT_NOTIFIED_SUPPORT_NOTIFIED]]
+[discrete]
 ==== support notified
 Kind: Catalog Alias
 Name: support agent is notified
 Resolves to: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,canonical>>
 Alias of EVT-SUPPORT-NOTIFIED
 [[REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY]]
+[discrete]
 ==== AV-COMPROMISED-DEPENDENCY
 Kind: Catalog Attack Vector
 Name: compromised dependency
 Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
 Supply-chain compromise in runtime image or code dependency.
 [[REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST]]
+[discrete]
 ==== AV-MALICIOUS-API-REQUEST
 Kind: Catalog Attack Vector
 Name: malicious api request
 Resolves to: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,canonical>>
 Crafted payload attempting to bypass validation or authorization logic.
 [[REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK]]
+[discrete]
 ==== AV-REPLAYED-AUTH-CALLBACK
 Kind: Catalog Attack Vector
 Name: replayed authorization callback
 Resolves to: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,canonical>>
 Replay of a valid callback to induce duplicate or unauthorized state transitions.
 [[REF_IDX-CATALOG_COND_3DS_REQUIRED]]
+[discrete]
 ==== COND-3DS-REQUIRED
 Kind: Catalog Condition
 Name: 3DS verification is required
 Resolves to: <<REF_CATALOG_COND_3DS_REQUIRED,canonical>>
 Condition indicating strong customer authentication must be performed.
 [[REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]
+[discrete]
 ==== COND-RISK-THRESHOLD-EXCEEDED
 Kind: Catalog Condition
 Name: risk threshold is exceeded
 Resolves to: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,canonical>>
 Condition indicating risk score crossed a policy threshold for escalation.
 [[REF_IDX-CATALOG_DATA_DECLINE_REASON]]
+[discrete]
 ==== DATA-DECLINE-REASON
 Kind: Catalog Data Term
 Name: decline reason
 Resolves to: <<REF_CATALOG_DATA_DECLINE_REASON,canonical>>
 Structured reason code or message explaining why authorization failed.
 [[REF_IDX-CATALOG_DATA_PAYMENT_ID]]
+[discrete]
 ==== DATA-PAYMENT-ID
 Kind: Catalog Data Term
 Name: payment id
 Resolves to: <<REF_CATALOG_DATA_PAYMENT_ID,canonical>>
 Stable identifier used to correlate a payment across services and records.
 [[REF_IDX-CATALOG_DATA_RISK_SCORE]]
+[discrete]
 ==== DATA-RISK-SCORE
 Kind: Catalog Data Term
 Name: risk score
 Resolves to: <<REF_CATALOG_DATA_RISK_SCORE,canonical>>
 Numeric fraud score produced by risk evaluation logic.
 [[REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE]]
+[discrete]
 ==== EVT-BANK-LINK-UNAVAILABLE
 Kind: Catalog Event
 Name: bank link is unavailable
 Resolves to: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,canonical>>
 Event raised when payment engine cannot reach the external bank gateway.
 [[REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED]]
+[discrete]
 ==== EVT-PAYMENT-AUTH-REQUESTED
 Kind: Catalog Event
 Name: payment authorization is requested
 Resolves to: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,canonical>>
 Event raised when checkout asks payment engine to authorize a transaction.
 [[REF_IDX-CATALOG_EVT_PAYMENT_DECLINED]]
+[discrete]
 ==== EVT-PAYMENT-DECLINED
 Kind: Catalog Event
 Name: payment is declined
 Resolves to: <<REF_CATALOG_EVT_PAYMENT_DECLINED,canonical>>
 Event indicating authorization was rejected and customer decline handling must execute.
 [[REF_IDX-CATALOG_EVT_RISK_HIGH]]
+[discrete]
 ==== EVT-RISK-HIGH
 Kind: Catalog Event
 Name: risk score is high
 Resolves to: <<REF_CATALOG_EVT_RISK_HIGH,canonical>>
 Event emitted when computed fraud risk exceeds the configured high-risk threshold.
 [[REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED]]
+[discrete]
 ==== EVT-SUPPORT-NOTIFIED
 Kind: Catalog Event
 Name: support agent is notified
 Resolves to: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,canonical>>
 Event indicating manual review notification was sent to support operations.
 [[REF_IDX-CATALOG_FEAT_FRAUD_CHECK]]
+[discrete]
 ==== FEAT-FRAUD-CHECK
 Kind: Catalog Feature
 Name: fraud check is enabled
 Resolves to: <<REF_CATALOG_FEAT_FRAUD_CHECK,canonical>>
 Feature flag controlling whether risk scoring is required before authorization.
 [[REF_IDX-CATALOG_FG_FRAUD]]
+[discrete]
 ==== FG-FRAUD
 Kind: Catalog Functional Group
 Name: fraud evaluation
 Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
 Functional group for risk scoring and fraud review capabilities.
 [[REF_IDX-CATALOG_FG_PAYMENTS]]
+[discrete]
 ==== FG-PAYMENTS
 Kind: Catalog Functional Group
 Name: payments
 Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
 Functional group for checkout and authorization capabilities.
 [[REF_IDX-CATALOG_FG_PLATFORM]]
+[discrete]
 ==== FG-PLATFORM
 Kind: Catalog Functional Group
 Name: platform
 Resolves to: <<REF_CATALOG_FG_PLATFORM,canonical>>
 Functional group for provisioning and platform operations capabilities.
 [[REF_IDX-CATALOG_FU_CHECKOUT]]
+[discrete]
 ==== FU-CHECKOUT
 Kind: Catalog Functional Unit
 Name: checkout handling
 Resolves to: <<REF_CATALOG_FU_CHECKOUT,canonical>>
 Handles checkout session start and customer-facing payment messaging.
 [[REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING]]
+[discrete]
 ==== FU-CLUSTER-PROVISIONING
 Kind: Catalog Functional Unit
 Name: cluster provisioning
 Resolves to: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,canonical>>
 Provides cluster-level platform setup and environment bootstrap.
 [[REF_IDX-CATALOG_FU_GITOPS_OPERATIONS]]
+[discrete]
 ==== FU-GITOPS-OPERATIONS
 Kind: Catalog Functional Unit
 Name: gitops operations
 Resolves to: <<REF_CATALOG_FU_GITOPS_OPERATIONS,canonical>>
 Operates declarative delivery and release management flows.
 [[REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION]]
+[discrete]
 ==== FU-PAYMENT-AUTHORIZATION
 Kind: Catalog Functional Unit
 Name: payment authorization
 Resolves to: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,canonical>>
 Coordinates authorization flow and bank gateway interaction.
 [[REF_IDX-CATALOG_FU_RISK_SCORING]]
+[discrete]
 ==== FU-RISK-SCORING
 Kind: Catalog Functional Unit
 Name: risk scoring
 Resolves to: <<REF_CATALOG_FU_RISK_SCORING,canonical>>
 Evaluates transaction risk and returns score classification.
 [[REF_IDX-CATALOG_FU_SUPPORT_REVIEW]]
+[discrete]
 ==== FU-SUPPORT-REVIEW
 Kind: Catalog Functional Unit
 Name: support review
 Resolves to: <<REF_CATALOG_FU_SUPPORT_REVIEW,canonical>>
 Supports manual review and escalation handling for risky transactions.
 [[REF_IDX-CATALOG_MODE_NORMAL]]
+[discrete]
 ==== MODE-NORMAL
 Kind: Catalog Mode
 Name: normal mode is active
 Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
 Standard operating mode with full external dependency usage enabled.
 [[REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT]]
+[discrete]
 ==== REF-BANK-GATEWAY-ENDPOINT
 Kind: Catalog Referenced Element
 Name: bank gateway endpoint
 Resolves to: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,canonical>>
 External banking endpoint used for card authorization and decline decisions.
 [[REF_IDX-CATALOG_REF_HELM_PLATFORM]]
+[discrete]
 ==== REF-HELM-PLATFORM
 Kind: Catalog Referenced Element
 Name: helm platform
 Resolves to: <<REF_CATALOG_REF_HELM_PLATFORM,canonical>>
 Runtime packaging and deployment substrate for workloads.
 [[REF_IDX-CATALOG_REF_POSTGRES_DRIVER]]
+[discrete]
 ==== REF-POSTGRES-DRIVER
 Kind: Catalog Referenced Element
 Name: postgresql client driver
 Resolves to: <<REF_CATALOG_REF_POSTGRES_DRIVER,canonical>>
 Third-party library used for application data persistence connectivity.
 [[REF_IDX-CATALOG_STATE_BANK_LINK_UP]]
+[discrete]
 ==== STATE-BANK-LINK-UP
 Kind: Catalog State
 Name: bank link is available
 Resolves to: <<REF_CATALOG_STATE_BANK_LINK_UP,canonical>>
 Connectivity state showing bank gateway communication is currently healthy.
 [[REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE]]
+[discrete]
 ==== STATE-CHECKOUT-ACTIVE
 Kind: Catalog State
 Name: checkout is active
 Resolves to: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,canonical>>
 Processing state where the user is actively submitting or confirming payment.
 [[REF_IDX-CATALOG_STATE_REVIEW_PENDING]]
+[discrete]
 ==== STATE-REVIEW-PENDING
 Kind: Catalog State
 Name: payment review is pending
@@ -1890,46 +1980,55 @@ Transaction state requiring manual support review before final disposition.
 
 === Inferred Runtime References
 [[REF_RT_CLUSTER_PAYMENTS]]
+[discrete]
 ==== payments
 Kind: Runtime cluster
 Owner: FU-CLUSTER-PROVISIONING
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]
+[discrete]
 ==== flux-system/payments-sample-source
 Kind: Runtime gitrepository
 Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
 [[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]
+[discrete]
 ==== payments/checkout-api
 Kind: Runtime helmrelease
 Owner: FU-CHECKOUT
 Source: examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
 [[REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE]]
+[discrete]
 ==== payments/payment-engine
 Kind: Runtime helmrelease
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
 [[REF_RT_HELMRELEASE_RISK_RISK_SCORER]]
+[discrete]
 ==== risk/risk-scorer
 Kind: Runtime helmrelease
 Owner: FU-RISK-SCORING
 Source: examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
 [[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]
+[discrete]
 ==== flux-system/payments-apps
 Kind: Runtime kustomization
 Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
 [[REF_RT_NAMESPACE_FLUX_SYSTEM]]
+[discrete]
 ==== flux_system
 Kind: Runtime namespace
 Owner: FU-GITOPS-OPERATIONS
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_PAYMENTS]]
+[discrete]
 ==== payments
 Kind: Runtime namespace
 Owner: FU-CHECKOUT
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 [[REF_RT_NAMESPACE_RISK]]
+[discrete]
 ==== risk
 Kind: Runtime namespace
 Owner: FU-RISK-SCORING
@@ -1937,151 +2036,181 @@ Source: examples/payments-engineering-sample/infra/terraform/main.tf
 
 === Inferred Code References
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]
+[discrete]
 ==== gopkg.in/yaml.v3
 Kind: Code library_external
 Owner: FU-CHECKOUT
 Source: checkout_api.go
 [[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]
+[discrete]
 ==== serde_json::json
 Kind: Code library_external
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs
 [[REF_CODE_LIBRARY_EXTERNAL_ZOD]]
+[discrete]
 ==== zod
 Kind: Code library_external
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts
 [[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE]]
+[discrete]
 ==== ./support/audit_envelope
 Kind: Code library_first_party
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts
 [[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT]]
+[discrete]
 ==== crate::domain::events::PaymentEvent
 Kind: Code library_first_party
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs
 [[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE]]
+[discrete]
 ==== github.com/labeth/engineering-model-go/validate
 Kind: Code library_first_party
 Owner: FU-CHECKOUT
 Source: checkout_api.go
 [[REF_CODE_LIBRARY_STDLIB_FMT]]
+[discrete]
 ==== fmt
 Kind: Code library_stdlib
 Owner: FU-CHECKOUT
 Source: checkout_api.go
 [[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO]]
+[discrete]
 ==== checkout_api.go
 Kind: Code source_file
 Owner: FU-CHECKOUT
 Source: checkout_api.go
 [[REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS]]
+[discrete]
 ==== domain/events.rs
 Kind: Code source_file
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: domain/events.rs
 [[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS]]
+[discrete]
 ==== payment_engine.rs
 Kind: Code source_file
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs
 [[REF_CODE_SOURCE_FILE_RISK_SCORER_TS]]
+[discrete]
 ==== risk_scorer.ts
 Kind: Code source_file
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts
 [[REF_CODE_SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS]]
+[discrete]
 ==== support/audit_envelope.ts
 Kind: Code source_file
 Owner: FU-RISK-SCORING
 Source: support/audit_envelope.ts
 [[REF_CODE_SYMBOL_CODE_AUTHORIZEPAYMENT]]
+[discrete]
 ==== CODE-AUTHORIZEPAYMENT
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:10
 [[REF_CODE_SYMBOL_CODE_BUILDREVIEWREASON]]
+[discrete]
 ==== CODE-BUILDREVIEWREASON
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:49
 [[REF_CODE_SYMBOL_CODE_CALCULATERISKSCORE]]
+[discrete]
 ==== CODE-CALCULATERISKSCORE
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:7
 [[REF_CODE_SYMBOL_CODE_CLASSIFYRISK]]
+[discrete]
 ==== CODE-CLASSIFYRISK
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:20
 [[REF_CODE_SYMBOL_CODE_CREATEAUDITRECORD]]
+[discrete]
 ==== CODE-CREATEAUDITRECORD
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:36
 [[REF_CODE_SYMBOL_CODE_ENRICHAUDITMETADATA]]
+[discrete]
 ==== CODE-ENRICHAUDITMETADATA
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:44
 [[REF_CODE_SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE]]
+[discrete]
 ==== CODE-HANDLEBANKLINKUNAVAILABLE
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:33
 [[REF_CODE_SYMBOL_CODE_HANDLEBANKUNAVAILABLE]]
+[discrete]
 ==== CODE-HANDLEBANKUNAVAILABLE
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:31
 [[REF_CODE_SYMBOL_CODE_ISHIGHRISK]]
+[discrete]
 ==== CODE-ISHIGHRISK
 Kind: Code symbol
 Owner: FU-RISK-SCORING
 Source: risk_scorer.ts:28
 [[REF_CODE_SYMBOL_CODE_NOTIFYSUPPORT]]
+[discrete]
 ==== CODE-NOTIFYSUPPORT
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:51
 [[REF_CODE_SYMBOL_CODE_PERSISTAUDITRECORD]]
+[discrete]
 ==== CODE-PERSISTAUDITRECORD
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:59
 [[REF_CODE_SYMBOL_CODE_PLACEINREVIEW]]
+[discrete]
 ==== CODE-PLACEINREVIEW
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:43
 [[REF_CODE_SYMBOL_CODE_REQUESTBANKAUTHORIZATION]]
+[discrete]
 ==== CODE-REQUESTBANKAUTHORIZATION
 Kind: Code symbol
 Owner: FU-PAYMENT-AUTHORIZATION
 Source: payment_engine.rs:25
 [[REF_CODE_SYMBOL_CODE_SHOWDECLINEREASON]]
+[discrete]
 ==== CODE-SHOWDECLINEREASON
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:36
 [[REF_CODE_SYMBOL_CODE_SHOWRETRYOPTION]]
+[discrete]
 ==== CODE-SHOWRETRYOPTION
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:41
 [[REF_CODE_SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE]]
+[discrete]
 ==== CODE-SHOWTEMPORARYUNAVAILABLE
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:46
 [[REF_CODE_SYMBOL_CODE_STARTSESSION]]
+[discrete]
 ==== CODE-STARTSESSION
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:15
 [[REF_CODE_SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST]]
+[discrete]
 ==== CODE-SUBMITAUTHORIZATIONREQUEST
 Kind: Code symbol
 Owner: FU-CHECKOUT

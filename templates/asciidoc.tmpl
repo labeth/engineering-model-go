@@ -232,6 +232,7 @@ Notes: {{ .Notes }}
 === Authored References
 {{- range .ReferenceIndex.Authored }}
 [[{{ .Anchor }}]]
+[discrete]
 ==== {{ .ID }}
 Kind: {{ .Kind }}
 Name: {{ .Name }}
@@ -245,6 +246,7 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 === Catalog References
 {{- range .ReferenceIndex.Catalog }}
 [[{{ .Anchor }}]]
+[discrete]
 ==== {{ .ID }}
 Kind: {{ .Kind }}
 Name: {{ .Name }}
@@ -258,6 +260,7 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 === Inferred Runtime References
 {{- range .ReferenceIndex.Runtime }}
 [[{{ .Anchor }}]]
+[discrete]
 ==== {{ .ID }}
 Kind: {{ .Kind }}
 {{ .Description }}
@@ -268,6 +271,7 @@ Source: {{ .Source }}
 === Inferred Code References
 {{- range .ReferenceIndex.Code }}
 [[{{ .Anchor }}]]
+[discrete]
 ==== {{ .ID }}
 Kind: {{ .Kind }}
 {{ .Description }}
