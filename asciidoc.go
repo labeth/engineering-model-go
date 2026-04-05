@@ -196,6 +196,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		viewSections[i].Groups = gs
 		viewSections[i].Units = us
 		viewSections[i].CoverageGaps = viewCoverageGaps(v.Kind, us)
+		viewSections[i].CoverageSummary = viewCoverageSummary(v.Kind, us)
 		switch v.Kind {
 		case "authored-functional":
 			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
@@ -273,6 +274,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		for j := range viewSections[i].CoverageGaps {
 			viewSections[i].CoverageGaps[j] = linkifyText(viewSections[i].CoverageGaps[j], linkTargets)
 		}
+		viewSections[i].CoverageSummary = linkifyText(viewSections[i].CoverageSummary, linkTargets)
 	}
 	for i := range reqSections {
 		reqSections[i].Text = linkifyText(reqSections[i].Text, linkTargets)
@@ -526,6 +528,33 @@ func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
 	}
 	sort.Strings(gaps)
 	return gaps
+}
+
+func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
+	if len(units) == 0 {
+		return "No functional units are in scope for this view."
+	}
+	withEvidence := 0
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "runtime", "deployment":
+			if strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "code-ownership":
+			if strings.Contains(evidence, "code modules:") {
+				withEvidence++
+			}
+		case "security":
+			if !strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				withEvidence++
+			}
+		default:
+			withEvidence++
+		}
+	}
+	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
 }
 
 func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGroup {

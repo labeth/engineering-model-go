@@ -132,6 +132,8 @@ Show authored architecture scope for this view.
 - Which collaborations define the primary system behavior?
 
 === Coverage Gaps
+
+Coverage summary: 6/6 units have direct evidence coverage in this view.
 - No major coverage gaps detected from current authored and inferred inputs.
 === Functional Context Diagram
 
@@ -454,6 +456,8 @@ Show inferred runtime interaction and containment mapped to authored unit bounda
 - Where is direct runtime evidence still missing?
 
 === Coverage Gaps
+
+Coverage summary: 3/4 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 === Runtime API Dependency Graph
 
@@ -615,6 +619,8 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 - Which units still lack deployment/runtime artifact evidence?
 
 === Coverage Gaps
+
+Coverage summary: 5/6 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 === Deployment Artifact Relationship Graph
 
@@ -872,6 +878,8 @@ Show inferred implementation structure and dependencies mapped to authored archi
 - Which units still lack direct code evidence?
 
 === Coverage Gaps
+
+Coverage summary: 3/4 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred code ownership evidence yet.
 
 === Code Dependency Graph
@@ -1043,6 +1051,8 @@ Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points alig
 - Where is explicit threat mapping incomplete?
 
 === Coverage Gaps
+
+Coverage summary: 2/6 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> has no explicit authored attack-vector mapping yet.
 - <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no explicit authored attack-vector mapping yet.
 - <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> has no explicit authored attack-vector mapping yet.
