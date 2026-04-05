@@ -550,23 +550,23 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   DP_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]
   DP_PAYMENTS_APPS["payments-apps"]
-  DP_PAYMENTS_SAMPLE_SOURCE -->|source drives kustomization reconciliation| DP_PAYMENTS_APPS
+  DP_PAYMENTS_SAMPLE_SOURCE -->|reconciles| DP_PAYMENTS_APPS
   DP_CHECKOUT_API["checkout-api"]
-  DP_PAYMENTS_APPS -->|kustomization applies helm release| DP_CHECKOUT_API
+  DP_PAYMENTS_APPS -->|applies| DP_CHECKOUT_API
   DP_PAYMENT_ENGINE["payment-engine"]
-  DP_PAYMENTS_APPS -->|kustomization applies helm release| DP_PAYMENT_ENGINE
+  DP_PAYMENTS_APPS -->|applies| DP_PAYMENT_ENGINE
   DP_RISK_SCORER["risk-scorer"]
-  DP_PAYMENTS_APPS -->|kustomization applies helm release| DP_RISK_SCORER
+  DP_PAYMENTS_APPS -->|applies| DP_RISK_SCORER
   DP_RISK["risk"]
-  DP_RISK_SCORER -->|release targets namespace| DP_RISK
+  DP_RISK_SCORER -->|targets| DP_RISK
   DP_FLUX_SYSTEM["flux_system"]
   DP_PAYMENTS["payments"]
-  DP_FLUX_SYSTEM -->|namespace part of cluster| DP_PAYMENTS
-  DP_PAYMENTS -->|namespace part of cluster| DP_PAYMENTS
-  DP_RISK -->|namespace part of cluster| DP_PAYMENTS
+  DP_FLUX_SYSTEM -->|part_of| DP_PAYMENTS
+  DP_PAYMENTS -->|part_of| DP_PAYMENTS
+  DP_RISK -->|part_of| DP_PAYMENTS
 ----
 === Platform Operations Graph
 

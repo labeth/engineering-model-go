@@ -170,6 +170,8 @@ func inferOwnerByConvention(kind, name string) string {
 	switch {
 	case k == "cluster":
 		return "FU-CLUSTER-PROVISIONING"
+	case k == "gitrepository" || k == "kustomization":
+		return "FU-GITOPS-OPERATIONS"
 	case k == "namespace" && (n == "flux-system" || n == "flux_system"):
 		return "FU-GITOPS-OPERATIONS"
 	case (k == "gitrepository" || k == "kustomization") && strings.HasPrefix(n, "flux-system/"):

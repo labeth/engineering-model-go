@@ -1694,37 +1694,37 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 
 	out := []asciidocDeploymentRow{}
 	if sourceName != "" && kustomName != "" {
-		out = append(out, asciidocDeploymentRow{From: sourceName, To: kustomName, How: "source drives kustomization reconciliation"})
+		out = append(out, asciidocDeploymentRow{From: sourceName, To: kustomName, How: "reconciles"})
 	}
 	for _, r := range releases {
 		if kustomName != "" {
-			out = append(out, asciidocDeploymentRow{From: kustomName, To: r, How: "kustomization applies helm release"})
+			out = append(out, asciidocDeploymentRow{From: kustomName, To: r, How: "applies"})
 		}
 	}
 	for _, r := range releases {
 		for _, w := range workloads {
 			if strings.Contains(strings.ToLower(w), strings.ToLower(r)) {
-				out = append(out, asciidocDeploymentRow{From: r, To: w, How: "release deploys runtime workload"})
+				out = append(out, asciidocDeploymentRow{From: r, To: w, How: "deploys"})
 			}
 		}
 	}
 	for _, r := range releases {
 		for _, ns := range namespaces {
 			if strings.Contains(strings.ToLower(r), strings.ToLower(ns)) {
-				out = append(out, asciidocDeploymentRow{From: r, To: ns, How: "release targets namespace"})
+				out = append(out, asciidocDeploymentRow{From: r, To: ns, How: "targets"})
 			}
 		}
 	}
 	if clusterName != "" {
 		for _, ns := range namespaces {
-			out = append(out, asciidocDeploymentRow{From: ns, To: clusterName, How: "namespace part of cluster"})
+			out = append(out, asciidocDeploymentRow{From: ns, To: clusterName, How: "part_of"})
 		}
 	}
 	return out
 }
 
 func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
-	lines := []string{"flowchart LR"}
+	lines := []string{"flowchart TB"}
 	for _, r := range rows {
 		fn := "DP_" + sanitizeNode(r.From)
 		tn := "DP_" + sanitizeNode(r.To)
