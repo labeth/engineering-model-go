@@ -129,23 +129,39 @@ Legend:
 
 - [x] **Split concept flow vs generated evidence appendix**
   - `Generated Evidence Appendix` exists and contains trace/index material.
+  - Commit(s): `5d02024`
+  - Validation: `go test ./... -v` pass, PDF regenerated with proven-docs.
 - [x] **Fix unit summary schema**
   - Replaced older `Inputs/Outputs/Failure modes` usage with `Triggers/Consumes/Produces/Depends on/Threats/Evidence`.
+  - Commit(s): `5d02024`
+  - Validation: `go test ./... -v` pass.
 - [x] **Make derived-evidence gaps explicit**
   - Added explicit text: `authored unit with no direct derived runtime/code evidence yet`.
+  - Commit(s): `5d02024`
+  - Validation: generated `ARCHITECTURE.adoc` contains explicit gap evidence text.
 - [x] **Make views distinct**
   - Functional view split into focused diagrams; runtime/deployment/security use view-specific diagrams instead of one repeated mixed graph.
+  - Commit(s): `0b464c7`, `db813de`, `3c44ebf`
+  - Validation: rendered output shows separate functional context/decomposition/collaboration and reduced repeated non-functional content.
 - [x] **Reduce generated noise**
   - TOC compressed (currently level 2 by decision), source paths sanitized, repeated/empty noise reduced.
+  - Commit(s): `6d50d73`, `1da0768`, `58e4c2d`
+  - Validation: TOC level restored to 2 per decision; repeated tags removed; reference index subheadings demoted.
 
 ### Additional guidance status
 
 - [x] **Cross-layer requirement coverage**
   - `Cross-Layer Coverage` section added (`Requirement -> Functional Unit -> Runtime/Code evidence`).
+  - Commit(s): `d5fb758`
+  - Validation: section present in generated document.
 - [x] **Runtime API quality improved**
   - Runtime API edges infer service port from HelmRelease values where available.
+  - Commit(s): `5c67d36`
+  - Validation: runtime graph labels include inferred port/protocol values where detected.
 - [~] **Ownership resolution completeness**
   - Improved with annotations/conventions, but some inferred ownership still depends on available source metadata.
+  - Commit(s): `5c67d36`, `b83d911`
+  - Validation: ownership improved; keep monitoring unresolved cases as data quality evolves.
 
 ### Notes for next iterations
 
