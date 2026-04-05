@@ -180,6 +180,10 @@ Legend:
 - `58e4c2d`: Demoted reference-index subheadings to reduce navigation clutter.
 - `7d837d8`: Annotated tracker items with commit hashes and validation evidence.
 - `e42fad6`: Removed duplicated `What it owns` text from non-functional views.
+- `3968ed7`: Switched reference entry headings to discrete blocks to keep appendix entries readable.
+- `aeee1af`: Added Runtime view note that inferred API graph can be partial.
+- `5b63017`: Added Realization view note clarifying inferred ownership/library scope vs full call graph.
+- `f2be9d2`: Added Deployment view notes clarifying inferred graph scope and partiality.
 
 Validation note for the above increments:
 - Regenerated `ARCHITECTURE.adoc` and `ARCHITECTURE.proven.pdf`.
