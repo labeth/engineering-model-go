@@ -60,6 +60,12 @@ Coverage summary: {{ $v.CoverageSummary }}
 - {{ . }}
 {{- end }}
 
+=== Recommended Next Evidence Additions
+
+{{- range $v.NextActions }}
+- {{ . }}
+{{- end }}
+
 {{- if eq $v.Kind "authored-functional" }}
 === Functional Context Diagram
 

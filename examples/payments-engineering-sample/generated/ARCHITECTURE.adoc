@@ -135,6 +135,9 @@ Show authored architecture scope for this view.
 
 Coverage summary: 6/6 units have direct evidence coverage in this view.
 - No major coverage gaps detected from current authored and inferred inputs.
+
+=== Recommended Next Evidence Additions
+- No immediate evidence additions are required for this view.
 === Functional Context Diagram
 
 [source,mermaid]
@@ -459,6 +462,11 @@ Show inferred runtime interaction and containment mapped to authored unit bounda
 
 Coverage summary: 3/4 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
+
+=== Recommended Next Evidence Additions
+- Add explicit owner annotations on runtime/deployment artifacts (for example `engineering-model.dev/owner-unit: FU-*`).
+- Expose service protocol/port metadata in Helm or manifest values to enrich API-edge inference.
+- Capture missing runtime units by adding discoverable workload artifacts under the scanned IaC/runtime roots.
 === Runtime API Dependency Graph
 
 NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
@@ -622,6 +630,11 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 Coverage summary: 5/6 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
+
+=== Recommended Next Evidence Additions
+- Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.
+- Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.
+- Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.
 === Deployment Artifact Relationship Graph
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
@@ -882,6 +895,11 @@ Show inferred implementation structure and dependencies mapped to authored archi
 Coverage summary: 3/4 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred code ownership evidence yet.
 
+=== Recommended Next Evidence Additions
+- Add coarse package/module ownership annotations or ownership mappings for units lacking code evidence.
+- Ensure source roots include all first-party modules that realize authored units.
+- Add dependency metadata (manifests/imports) where missing to improve library usage evidence.
+
 === Code Dependency Graph
 
 NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
@@ -1057,6 +1075,11 @@ Coverage summary: 2/6 units have direct evidence coverage in this view.
 - <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no explicit authored attack-vector mapping yet.
 - <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> has no explicit authored attack-vector mapping yet.
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no explicit authored attack-vector mapping yet.
+
+=== Recommended Next Evidence Additions
+- Add explicit authored attack-vector mappings for units currently marked without threat linkage.
+- Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.
+- Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.
 === Attack Vector Path Graph
 
 NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.

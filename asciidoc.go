@@ -197,6 +197,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		viewSections[i].Units = us
 		viewSections[i].CoverageGaps = viewCoverageGaps(v.Kind, us)
 		viewSections[i].CoverageSummary = viewCoverageSummary(v.Kind, us)
+		viewSections[i].NextActions = viewNextActions(v.Kind, viewSections[i].CoverageGaps)
 		switch v.Kind {
 		case "authored-functional":
 			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
@@ -273,6 +274,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 		for j := range viewSections[i].CoverageGaps {
 			viewSections[i].CoverageGaps[j] = linkifyText(viewSections[i].CoverageGaps[j], linkTargets)
+		}
+		for j := range viewSections[i].NextActions {
+			viewSections[i].NextActions[j] = linkifyText(viewSections[i].NextActions[j], linkTargets)
 		}
 		viewSections[i].CoverageSummary = linkifyText(viewSections[i].CoverageSummary, linkTargets)
 	}
@@ -555,6 +559,42 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 		}
 	}
 	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
+}
+
+func viewNextActions(kind string, gaps []string) []string {
+	if len(gaps) == 0 || (len(gaps) == 1 && strings.Contains(strings.ToLower(gaps[0]), "no major coverage gaps")) {
+		return []string{"No immediate evidence additions are required for this view."}
+	}
+	switch kind {
+	case "runtime":
+		return []string{
+			"Add explicit owner annotations on runtime/deployment artifacts (for example `engineering-model.dev/owner-unit: FU-*`).",
+			"Expose service protocol/port metadata in Helm or manifest values to enrich API-edge inference.",
+			"Capture missing runtime units by adding discoverable workload artifacts under the scanned IaC/runtime roots.",
+		}
+	case "deployment":
+		return []string{
+			"Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.",
+			"Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.",
+			"Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.",
+		}
+	case "code-ownership":
+		return []string{
+			"Add coarse package/module ownership annotations or ownership mappings for units lacking code evidence.",
+			"Ensure source roots include all first-party modules that realize authored units.",
+			"Add dependency metadata (manifests/imports) where missing to improve library usage evidence.",
+		}
+	case "security":
+		return []string{
+			"Add explicit authored attack-vector mappings for units currently marked without threat linkage.",
+			"Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.",
+			"Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.",
+		}
+	default:
+		return []string{
+			"Review listed gaps and add missing authored or inferred evidence so this view reflects intended reality.",
+		}
+	}
 }
 
 func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGroup {
