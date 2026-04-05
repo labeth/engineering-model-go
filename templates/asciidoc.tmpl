@@ -91,6 +91,8 @@ NOTE: This graph is inferred from available deployment/runtime artifacts and may
 {{- if $v.DeploymentGraph }}
 === Deployment Artifact Relationship Graph
 
+NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
+
 [source,mermaid]
 ----
 {{ $v.DeploymentGraph }}
@@ -99,6 +101,8 @@ NOTE: This graph is inferred from available deployment/runtime artifacts and may
 
 {{- if $v.PlatformOpsGraph }}
 === Platform Operations Graph
+
+NOTE: Platform operations links are inferred from authored actor mappings plus discovered deployment control-plane artifacts.
 
 [source,mermaid]
 ----

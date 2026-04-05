@@ -587,6 +587,8 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations.
 === Deployment Artifact Relationship Graph
 
+NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
+
 [source,mermaid]
 ----
 flowchart TB
@@ -608,6 +610,8 @@ flowchart TB
   DP_RISK -->|part_of| DP_PAYMENTS
 ----
 === Platform Operations Graph
+
+NOTE: Platform operations links are inferred from authored actor mappings plus discovered deployment control-plane artifacts.
 
 [source,mermaid]
 ----
