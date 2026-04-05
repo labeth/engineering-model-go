@@ -434,6 +434,8 @@ Evidence: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/
 Show inferred runtime interaction and containment mapped to authored unit boundaries. This is a derived runtime view and may be partial when runtime artifacts are missing.
 === Runtime API Dependency Graph
 
+NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
+
 [source,mermaid]
 ----
 flowchart LR

@@ -78,6 +78,8 @@ Read in this order:
 {{- if $v.RuntimeAPIGraph }}
 === Runtime API Dependency Graph
 
+NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
+
 [source,mermaid]
 ----
 {{ $v.RuntimeAPIGraph }}
