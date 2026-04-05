@@ -217,28 +217,27 @@ Group: <<{{ .GroupAnchor }},{{ .Group }}>>
 [cols="1,3",options="header"]
 |===
 |Runtime Aspect |View-Scoped Detail
-|Ownership boundary |{{ .WhatOwns }}
 |Runtime interactions |Consumes: {{ .Consumes }}; Produces: {{ .Produces }}
 |Runtime dependencies |{{ .DependsOn }}
-|Runtime risk signals |{{ .Threats }}
 |Inferred runtime evidence |{{ .Evidence }}
 |===
 {{ else if eq $viewKind "deployment" }}
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Ownership boundary |{{ .WhatOwns }}
 |Deployment trigger context |{{ .Triggers }}
 |Deployment dependencies |{{ .DependsOn }}
-|Control-plane and rollout risks |{{ .Threats }}
 |Inferred deployment evidence |{{ .Evidence }}
 |===
 {{ else if eq $viewKind "code-ownership" }}
 Realization ownership boundary: {{ .WhatOwns }}
+Implementation trigger context: {{ .Triggers }}
+Implementation inputs/outputs: Consumes {{ .Consumes }}; Produces {{ .Produces }}
 Implementation dependencies: {{ .DependsOn }}
 Realization evidence: {{ .Evidence }}
 {{ else if eq $viewKind "security" }}
 Threat model focus: {{ .Threats }}
+Security trigger context: {{ .Triggers }}
 Security-relevant dependencies: {{ .DependsOn }}
 Security evidence: {{ .Evidence }}
 {{ else }}
