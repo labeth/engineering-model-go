@@ -13,29 +13,29 @@ var asciidocTemplateText string
 var asciidocTemplate = template.Must(template.New("asciidoc").Parse(asciidocTemplateText))
 
 type asciidocTemplateData struct {
-	Title              string
-	Introduction       string
-	Terms              []asciidocTerm
-	Purpose            string
-	ReaderTracks       []string
-	Legend             []string
-	ModelMeta          asciidocModelMeta
-	LintRun            asciidocLintRun
-	ViewConfig         []asciidocViewConfig
-	InferenceHints     asciidocInferenceHints
-	Actors             []asciidocActorSection
-	AttackVectors      []asciidocAttackVectorSection
-	ReferencedElements []asciidocReferencedSection
-	Mappings           []asciidocMappingSection
-	InferredRuntime    []asciidocInferredRow
-	InferredCode       []asciidocInferredRow
-	Summary            asciidocSummary
-	Views              []asciidocViewSection
-	RequirementMermaid string
+	Title                      string
+	Introduction               string
+	Terms                      []asciidocTerm
+	Purpose                    string
+	ReaderTracks               []string
+	Legend                     []string
+	ModelMeta                  asciidocModelMeta
+	LintRun                    asciidocLintRun
+	ViewConfig                 []asciidocViewConfig
+	InferenceHints             asciidocInferenceHints
+	Actors                     []asciidocActorSection
+	AttackVectors              []asciidocAttackVectorSection
+	ReferencedElements         []asciidocReferencedSection
+	Mappings                   []asciidocMappingSection
+	InferredRuntime            []asciidocInferredRow
+	InferredCode               []asciidocInferredRow
+	Summary                    asciidocSummary
+	Views                      []asciidocViewSection
+	RequirementMermaid         string
 	RequirementCoverageMermaid string
-	RequirementInf     string
-	Requirements       []asciidocRequirementSection
-	ReferenceIndex     asciidocReferenceIndex
+	RequirementInf             string
+	Requirements               []asciidocRequirementSection
+	ReferenceIndex             asciidocReferenceIndex
 }
 
 type asciidocTerm struct {
@@ -166,6 +166,8 @@ type asciidocViewSection struct {
 	Kind             string
 	Heading          string
 	Inf              string
+	ViewQuestions    []string
+	CoverageGaps     []string
 	Mermaid          string
 	FuncContextGraph string
 	FuncDecompGraph  string
@@ -202,21 +204,21 @@ type asciidocEntitySection struct {
 }
 
 type asciidocUnitSection struct {
-	Anchor       string
-	GroupAnchor  string
-	ID           string
-	Name         string
-	Group        string
-	Tags         string
-	Intro        string
-	Details      []asciidocDesignDetail
-	WhatOwns     string
-	Triggers     string
-	Consumes     string
-	Produces     string
-	DependsOn    string
-	Threats      string
-	Evidence     string
+	Anchor      string
+	GroupAnchor string
+	ID          string
+	Name        string
+	Group       string
+	Tags        string
+	Intro       string
+	Details     []asciidocDesignDetail
+	WhatOwns    string
+	Triggers    string
+	Consumes    string
+	Produces    string
+	DependsOn   string
+	Threats     string
+	Evidence    string
 }
 
 type asciidocRequirementSection struct {

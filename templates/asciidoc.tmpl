@@ -46,6 +46,18 @@ Read in this order:
 
 {{ $v.Inf }}
 
+=== What This View Answers
+
+{{- range $v.ViewQuestions }}
+- {{ . }}
+{{- end }}
+
+=== Coverage Gaps
+
+{{- range $v.CoverageGaps }}
+- {{ . }}
+{{- end }}
+
 {{- if eq $v.Kind "authored-functional" }}
 === Functional Context Diagram
 
@@ -119,6 +131,8 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 
 {{- if $v.SecurityGraph }}
 === Attack Vector Path Graph
+
+NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.
 
 [source,mermaid]
 ----

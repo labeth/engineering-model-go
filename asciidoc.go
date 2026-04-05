@@ -62,11 +62,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("generate view %s: %w", viewID, err)
 		}
 		viewSections = append(viewSections, asciidocViewSection{
-			ID:      viewID,
-			Kind:    res.View.Kind,
-			Heading: viewHeading(res.View.Kind),
-			Mermaid: strings.TrimSpace(res.Mermaid),
-			Inf:     inferredDescription(res.View.Kind),
+			ID:            viewID,
+			Kind:          res.View.Kind,
+			Heading:       viewHeading(res.View.Kind),
+			Mermaid:       strings.TrimSpace(res.Mermaid),
+			Inf:           inferredDescription(res.View.Kind),
+			ViewQuestions: viewQuestions(res.View.Kind),
 		})
 		nodes := map[string]bool{}
 		for _, n := range res.View.Nodes {
@@ -123,21 +124,21 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 		intro := strings.TrimSpace(u.Prose)
 		fuSections = append(fuSections, asciidocUnitSection{
-			Anchor:       referenceAnchor("idx-fu", u.ID),
-			GroupAnchor:  referenceAnchor("idx-fg", u.Group),
-			ID:           u.ID,
-			Name:         nonEmpty(u.Name, u.ID),
-			Group:        u.Group,
-			Tags:         strings.Join(u.Tags, ", "),
-			Intro:        intro,
-			Details:      details,
-			WhatOwns:     unitOwnershipSummary(u, bundle.Architecture.AuthoredArchitecture.Mappings, reqByUnit, labelByID),
-			Triggers:     inputs,
-			Consumes:     consumes,
-			Produces:     produces,
-			DependsOn:    deps,
-			Threats:      threats,
-			Evidence:     nonEmpty(evidenceByOwner[u.ID], "authored unit with no direct derived runtime/code evidence yet"),
+			Anchor:      referenceAnchor("idx-fu", u.ID),
+			GroupAnchor: referenceAnchor("idx-fg", u.Group),
+			ID:          u.ID,
+			Name:        nonEmpty(u.Name, u.ID),
+			Group:       u.Group,
+			Tags:        strings.Join(u.Tags, ", "),
+			Intro:       intro,
+			Details:     details,
+			WhatOwns:    unitOwnershipSummary(u, bundle.Architecture.AuthoredArchitecture.Mappings, reqByUnit, labelByID),
+			Triggers:    inputs,
+			Consumes:    consumes,
+			Produces:    produces,
+			DependsOn:   deps,
+			Threats:     threats,
+			Evidence:    nonEmpty(evidenceByOwner[u.ID], "authored unit with no direct derived runtime/code evidence yet"),
 		})
 	}
 	sort.SliceStable(fuSections, func(i, j int) bool {
@@ -175,25 +176,26 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			}
 			detail := detailForView(u.Details, v.ID)
 			us = append(us, asciidocUnitSection{
-				Anchor:       u.Anchor,
-				GroupAnchor:  u.GroupAnchor,
-				ID:           u.ID,
-				Name:         u.Name,
-				Group:        u.Group,
-				Tags:         u.Tags,
-				Intro:        u.Intro,
-				Details:      []asciidocDesignDetail{detail},
-				WhatOwns:     u.WhatOwns,
-				Triggers:     u.Triggers,
-				Consumes:     u.Consumes,
-				Produces:     u.Produces,
-				DependsOn:    u.DependsOn,
-				Threats:      u.Threats,
-				Evidence:     u.Evidence,
+				Anchor:      u.Anchor,
+				GroupAnchor: u.GroupAnchor,
+				ID:          u.ID,
+				Name:        u.Name,
+				Group:       u.Group,
+				Tags:        u.Tags,
+				Intro:       u.Intro,
+				Details:     []asciidocDesignDetail{detail},
+				WhatOwns:    u.WhatOwns,
+				Triggers:    u.Triggers,
+				Consumes:    u.Consumes,
+				Produces:    u.Produces,
+				DependsOn:   u.DependsOn,
+				Threats:     u.Threats,
+				Evidence:    u.Evidence,
 			})
 		}
 		viewSections[i].Groups = gs
 		viewSections[i].Units = us
+		viewSections[i].CoverageGaps = viewCoverageGaps(v.Kind, us)
 		switch v.Kind {
 		case "authored-functional":
 			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
@@ -265,6 +267,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		if viewSections[i].Inf != "" {
 			viewSections[i].Inf = linkifyText(viewSections[i].Inf, linkTargets)
 		}
+		for j := range viewSections[i].ViewQuestions {
+			viewSections[i].ViewQuestions[j] = linkifyText(viewSections[i].ViewQuestions[j], linkTargets)
+		}
+		for j := range viewSections[i].CoverageGaps {
+			viewSections[i].CoverageGaps[j] = linkifyText(viewSections[i].CoverageGaps[j], linkTargets)
+		}
 	}
 	for i := range reqSections {
 		reqSections[i].Text = linkifyText(reqSections[i].Text, linkTargets)
@@ -309,12 +317,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			AttackVectors:      listNamesVectors(bundle.Architecture.AuthoredArchitecture.AttackVectors),
 			ReferencedElements: listNamesRefs(bundle.Architecture.AuthoredArchitecture.ReferencedElements),
 		},
-		Views:              viewSections,
-		RequirementMermaid: reqMermaid,
+		Views:                      viewSections,
+		RequirementMermaid:         reqMermaid,
 		RequirementCoverageMermaid: reqCoverageMermaid,
-		RequirementInf:     "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
-		Requirements:       reqSections,
-		ReferenceIndex:     refIndex,
+		RequirementInf:             "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
+		Requirements:               reqSections,
+		ReferenceIndex:             refIndex,
 	})
 	if err != nil {
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
@@ -455,6 +463,69 @@ func inferredDescription(kind string) string {
 	default:
 		return "Show authored architecture scope for this view."
 	}
+}
+
+func viewQuestions(kind string) []string {
+	switch kind {
+	case "authored-functional":
+		return []string{
+			"What capability areas and responsibilities are intentionally designed?",
+			"How do actors interact with functional units and key dependencies?",
+			"Which collaborations define the primary system behavior?",
+		}
+	case "runtime":
+		return []string{
+			"Which runtime elements interact on the request path?",
+			"What API edges and ports are currently evidenced?",
+			"Where is direct runtime evidence still missing?",
+		}
+	case "deployment":
+		return []string{
+			"How are deployment artifacts linked from source to runtime targets?",
+			"What platform operations connect actors to deployment control points?",
+			"Which units still lack deployment/runtime artifact evidence?",
+		}
+	case "code-ownership":
+		return []string{
+			"Which code ownership boundaries map to functional units?",
+			"What first-party and external libraries are evidenced?",
+			"Which units still lack direct code evidence?",
+		}
+	case "security":
+		return []string{
+			"Which attack vectors currently target authored units and dependencies?",
+			"What security-relevant observability evidence is present?",
+			"Where is explicit threat mapping incomplete?",
+		}
+	default:
+		return []string{"What does this view show?"}
+	}
+}
+
+func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
+	gaps := []string{}
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "runtime", "deployment":
+			if !strings.Contains(evidence, "runtime:") {
+				gaps = append(gaps, fmt.Sprintf("%s has no direct inferred runtime/deployment evidence yet.", u.Name))
+			}
+		case "code-ownership":
+			if !strings.Contains(evidence, "code modules:") {
+				gaps = append(gaps, fmt.Sprintf("%s has no direct inferred code ownership evidence yet.", u.Name))
+			}
+		case "security":
+			if strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				gaps = append(gaps, fmt.Sprintf("%s has no explicit authored attack-vector mapping yet.", u.Name))
+			}
+		}
+	}
+	if len(gaps) == 0 {
+		return []string{"No major coverage gaps detected from current authored and inferred inputs."}
+	}
+	sort.Strings(gaps)
+	return gaps
 }
 
 func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGroup {

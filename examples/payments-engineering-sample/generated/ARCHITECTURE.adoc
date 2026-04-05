@@ -125,6 +125,14 @@ Read in this order:
 == Functional View
 
 Show authored architecture scope for this view.
+
+=== What This View Answers
+- What capability areas and responsibilities are intentionally designed?
+- How do actors interact with functional units and key dependencies?
+- Which collaborations define the primary system behavior?
+
+=== Coverage Gaps
+- No major coverage gaps detected from current authored and inferred inputs.
 === Functional Context Diagram
 
 [source,mermaid]
@@ -439,6 +447,14 @@ Evidence: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/
 == Runtime View
 
 Show inferred runtime interaction and containment mapped to authored unit boundaries. This is a derived runtime view and may be partial when runtime artifacts are missing.
+
+=== What This View Answers
+- Which runtime elements interact on the request path?
+- What API edges and ports are currently evidenced?
+- Where is direct runtime evidence still missing?
+
+=== Coverage Gaps
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 === Runtime API Dependency Graph
 
 NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
@@ -592,6 +608,14 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 == Deployment View
 
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations.
+
+=== What This View Answers
+- How are deployment artifacts linked from source to runtime targets?
+- What platform operations connect actors to deployment control points?
+- Which units still lack deployment/runtime artifact evidence?
+
+=== Coverage Gaps
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 === Deployment Artifact Relationship Graph
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
@@ -842,6 +866,14 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 Show inferred implementation structure and dependencies mapped to authored architecture. This is a realization-oriented code evidence view.
 
+=== What This View Answers
+- Which code ownership boundaries map to functional units?
+- What first-party and external libraries are evidenced?
+- Which units still lack direct code evidence?
+
+=== Coverage Gaps
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred code ownership evidence yet.
+
 === Code Dependency Graph
 
 NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
@@ -1004,7 +1036,20 @@ Evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment
 == Security View
 
 Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security evidence.
+
+=== What This View Answers
+- Which attack vectors currently target authored units and dependencies?
+- What security-relevant observability evidence is present?
+- Where is explicit threat mapping incomplete?
+
+=== Coverage Gaps
+- <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> has no explicit authored attack-vector mapping yet.
+- <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no explicit authored attack-vector mapping yet.
+- <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> has no explicit authored attack-vector mapping yet.
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no explicit authored attack-vector mapping yet.
 === Attack Vector Path Graph
+
+NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.
 
 [source,mermaid]
 ----
