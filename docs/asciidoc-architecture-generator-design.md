@@ -2,120 +2,80 @@
 
 ## Purpose
 
-Generate an architecture document in AsciiDoc from:
+Generate a deterministic architecture document (AsciiDoc/PDF) from:
 
-- architecture model (`architecture.yml`)
+- authored architecture (`architecture.yml`)
 - requirements (`requirements.yml`)
-- design mapping (`design.yml`)
-- shared catalog (`catalog.yml`, referenced by `architecture.yml`)
-- optional code tree with trace markers (`TRACE-ID`, `TRACE-PART-OF`, `TRACE-IMPLEMENTS`)
-- optional code tree with trace markers (minimal: `TRACE-REQS`)
+- view-scoped design narratives (`design.yml`)
+- catalog terms (`catalog.yml`, referenced by `architecture.yml`)
+- inferred runtime/code evidence from IaC and source trees
 
-The generator must keep catalog IDs as the semantic anchor and automatically derive:
+## Current Model
 
-- requirement links
-- chapter-local direct-dependency scope in the architecture model
+The generator is view-centric and layered:
 
-## Scope
-
-In scope:
-
-- generate deterministic AsciiDoc output
-- embed Mermaid view blocks for selected viewpoints
-- connect design chapters to catalog IDs
-- derive chapter-local architecture connections from relationship `catalogRefs`
-- auto-link requirements by matching requirement text against catalog term name and aliases
-- map traced code symbols to architecture elements via `TRACE-PART-OF`
-- if `TRACE-PART-OF` is omitted, infer container mapping from traced requirements
-
-Out of scope:
-
-- free-text NLP or semantic inference beyond deterministic phrase matching
-- repo/workflow management
-- runtime-state/operations modeling
+- Authored layer: Functional Groups + Functional Units
+- Inferred layer: Runtime + Code evidence
+- Traceability layer: requirements, references, inferred indexes
 
 ## Inputs
 
 ### `architecture.yml`
 
-- architecture model (`model`, `c4`, `relationships`, `viewpoints`)
-- relationships may contain `catalogRefs`
+- model metadata and introduction
+- authored architecture entities and mappings
+- inference hints (runtime/code roots and ownership resolution order)
+- views (kinds and roots)
 
 ### `requirements.yml`
 
-- requirement list (`id`, `text`, optional notes)
+- requirements used for alignment and coverage generation
 
 ### `design.yml`
 
-```yaml
-design:
-  id: string
-  title: string
-  views: [VIEW-ID, ...]   # optional default view list
-  chapters:
-    - id: string
-      title: string
-      narrative: string
-      catalogRefs: [CATALOG-ID, ...]   # required
-```
-
-## Validation Rules
-
-### Existing model validation
-
-- c4 IDs are unique
-- relationship endpoints resolve
-- view kinds and roots are valid
-- c4 people and systems map to catalog actors/systems
-- relationship `catalogRefs` resolve to catalog IDs
-
-### Design-document validation
-
-- each chapter has unique `id`
-- each chapter has one or more `catalogRefs`
-- each `catalogRef` resolves to catalog
+- per-Functional Group and per-Functional Unit narratives for each view kind:
+  - `functional`
+  - `runtime`
+  - `deployment`
+  - `code_ownership`
+  - `security`
 
 ## Generation Pipeline
 
-1. Load `architecture.yml`, `requirements.yml`, `design.yml`.
-2. Validate model/catalog mapping and design mapping.
-3. Resolve target views:
-   - CLI `--view` list if provided
-   - else `design.views`
-   - else all views from `architecture.yml`
-4. Generate Mermaid for each selected view.
-5. For each design chapter:
-   - resolve chapter catalog terms from `catalogRefs`
-   - derive direct architecture scope:
-     - select relationships where `relationship.catalogRefs` intersects chapter `catalogRefs`
-     - derive involved architecture IDs from relationship endpoints (`from`, `to`)
-   - auto-link requirements:
-     - normalize text (lowercase, collapse punctuation to spaces)
-     - match catalog canonical names + aliases as exact normalized phrase containment
-   - generate chapter scope diagram:
-     - Mermaid graph with only direct derived relationships (no transitive expansion)
-6. Render final AsciiDoc sections:
-   - introduction
-   - full views (`[source,mermaid]` blocks)
-   - design chapters with:
-     - narrative
-     - chapter scope diagram
-     - derived reference map
-   - requirements appendix with anchors for cross-reference links
-7. Optional code mapping:
-   - scan source tree for trace markers
-   - parse declarations with Tree-sitter (Go, TypeScript/TSX, Rust)
-   - generate symbol IDs from declaration names when `TRACE-ID` is omitted
-   - map traced symbols to architecture elements:
-     - explicit: `TRACE-PART-OF`
-     - inferred: traced requirements -> chapter derived container scope
-   - render `Code Mapping` chapter grouped by architecture element
+1. Load/validate authored architecture, requirements, design, and catalog.
+2. Infer runtime/code evidence from configured roots.
+3. Build selected views and Mermaid blocks.
+4. Build view-scoped FG/FU sections from design narratives.
+5. Compute view guidance and quality signals:
+   - What This View Answers
+   - Coverage Summary
+   - Coverage Gaps
+   - Recommended Next Evidence Additions
+6. Build `Document Health Snapshot` across all views.
+7. Build requirement alignment + cross-layer coverage.
+8. Build reference index (authored, catalog, inferred runtime, inferred code).
+9. Render AsciiDoc template deterministically.
+
+## Output Structure
+
+The generated document includes:
+
+- Introduction
+- Scope and Assumptions
+- How To Read This Document
+- Document Health Snapshot
+- Terms and Definitions
+- View chapters (Functional/Runtime/Deployment/Realization/Security)
+- Generated Evidence Appendix
+  - Requirement Alignment
+  - Cross-Layer Coverage
+  - Reference Index
 
 ## Output Contract
 
-- deterministic section ordering
-- stable requirement and relationship ordering (sorted by IDs)
-- machine-generated and reproducible from same inputs
+- deterministic ordering
+- stable IDs/anchors for linkability
+- reproducible artifacts for the same input set
 
 ## CLI
 
@@ -125,7 +85,7 @@ design:
 engdoc --model architecture.yml --requirements requirements.yml --design design.yml [--view VIEW-ID ...] [--out architecture.adoc]
 ```
 
-With code mapping:
+With source evidence inference:
 
 ```bash
 engdoc --model architecture.yml --requirements requirements.yml --design design.yml --code-root ./src --out architecture.adoc

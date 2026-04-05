@@ -99,9 +99,17 @@ proven-docs render \
 
 The generated document starts with:
 - `Introduction` (from `model.introduction`)
+- `Scope and Assumptions`
+- `How To Read This Document`
+- `Document Health Snapshot` (per-view coverage and confidence)
 - `Terms and Definitions` as a compact `Term | Definition` table
   - terms are sorted A-Z by term text
   - term IDs are shown as `Term (ID)` in the term column
+
+Each generated view includes:
+- `What This View Answers`
+- `Coverage Gaps` and `Recommended Next Evidence Additions`
+- view-scoped FG/FU narratives from `design.yml`
 
 ## Example Project
 
