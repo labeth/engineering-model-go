@@ -268,7 +268,9 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+
 Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
@@ -295,7 +297,9 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+
 Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: derived unit outcomes from authored mappings
@@ -322,7 +326,9 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -349,7 +355,9 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
 Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
@@ -376,7 +384,9 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
+
 Triggers: no explicit authored requirement trigger
 Consumes: none
 Produces: derived unit outcomes from authored mappings
@@ -403,7 +413,9 @@ The unit provides safe and observable release behavior as an ongoing operational
 
 
 
+
 What it owns: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
+
 Triggers: no explicit authored requirement trigger
 Consumes: none
 Produces: derived unit outcomes from authored mappings
@@ -479,7 +491,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |Triggers |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
@@ -505,7 +516,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |Triggers |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Produces |derived unit outcomes from authored mappings
@@ -531,7 +541,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Consumes |none
 |Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -557,7 +566,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Consumes |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
@@ -678,7 +686,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |Triggers |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
@@ -704,7 +711,6 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |Triggers |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |Consumes |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 |Produces |derived unit outcomes from authored mappings
@@ -730,7 +736,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Consumes |none
 |Produces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -756,7 +761,6 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Triggers |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |Consumes |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
 |Produces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
@@ -782,7 +786,6 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
 |Triggers |no explicit authored requirement trigger
 |Consumes |none
 |Produces |derived unit outcomes from authored mappings
@@ -808,7 +811,6 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
 |Triggers |no explicit authored requirement trigger
 |Consumes |none
 |Produces |derived unit outcomes from authored mappings
@@ -904,7 +906,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+
 Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
@@ -926,7 +928,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+
 Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: derived unit outcomes from authored mappings
@@ -948,7 +950,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -970,7 +972,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
 Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
@@ -1086,7 +1088,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+
 Triggers: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
@@ -1108,7 +1110,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+
 Triggers: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 Produces: derived unit outcomes from authored mappings
@@ -1130,7 +1132,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: none
 Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -1152,7 +1154,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
 Triggers: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
 Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
@@ -1174,7 +1176,7 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
+
 Triggers: no explicit authored requirement trigger
 Consumes: none
 Produces: derived unit outcomes from authored mappings
@@ -1196,7 +1198,7 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
+
 Triggers: no explicit authored requirement trigger
 Consumes: none
 Produces: derived unit outcomes from authored mappings
@@ -1330,7 +1332,7 @@ Notes: Fallback behavior when external banking path is down.
 <<<
 == Reference Index
 
-==== Authored References
+=== Authored References
 [[REF_IDX-ACTOR_ACT_CUSTOMER]]
 ==== ACT-CUSTOMER
 Kind: Actor
@@ -1488,7 +1490,7 @@ Name: REQ-PAY-006
 Resolves to: <<REF_REQ_REQ_PAY_006,canonical>>
 If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer.
 
-==== Catalog References
+=== Catalog References
 [[REF_IDX-CATALOG_ACT_CUSTOMER]]
 ==== ACT-CUSTOMER
 Kind: Catalog Actor
@@ -1886,7 +1888,7 @@ Name: payment review is pending
 Resolves to: <<REF_CATALOG_STATE_REVIEW_PENDING,canonical>>
 Transaction state requiring manual support review before final disposition.
 
-==== Inferred Runtime References
+=== Inferred Runtime References
 [[REF_RT_CLUSTER_PAYMENTS]]
 ==== payments
 Kind: Runtime cluster
@@ -1933,7 +1935,7 @@ Kind: Runtime namespace
 Owner: FU-RISK-SCORING
 Source: examples/payments-engineering-sample/infra/terraform/main.tf
 
-==== Inferred Code References
+=== Inferred Code References
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]
 ==== gopkg.in/yaml.v3
 Kind: Code library_external

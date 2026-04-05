@@ -166,7 +166,6 @@ Group: <<{{ .GroupAnchor }},{{ .Group }}>>
 [cols="1,3",options="header"]
 |===
 |Aspect |Value
-|What it owns |{{ .WhatOwns }}
 |Triggers |{{ .Triggers }}
 |Consumes |{{ .Consumes }}
 |Produces |{{ .Produces }}
@@ -175,7 +174,9 @@ Group: <<{{ .GroupAnchor }},{{ .Group }}>>
 |Evidence |{{ .Evidence }}
 |===
 {{ else }}
+{{ if eq $viewKind "authored-functional" }}
 What it owns: {{ .WhatOwns }}
+{{ end }}
 Triggers: {{ .Triggers }}
 Consumes: {{ .Consumes }}
 Produces: {{ .Produces }}
@@ -228,7 +229,7 @@ Notes: {{ .Notes }}
 <<<
 == Reference Index
 
-==== Authored References
+=== Authored References
 {{- range .ReferenceIndex.Authored }}
 [[{{ .Anchor }}]]
 ==== {{ .ID }}
@@ -241,7 +242,7 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 
 {{- end }}
 
-==== Catalog References
+=== Catalog References
 {{- range .ReferenceIndex.Catalog }}
 [[{{ .Anchor }}]]
 ==== {{ .ID }}
@@ -254,7 +255,7 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 
 {{- end }}
 
-==== Inferred Runtime References
+=== Inferred Runtime References
 {{- range .ReferenceIndex.Runtime }}
 [[{{ .Anchor }}]]
 ==== {{ .ID }}
@@ -264,7 +265,7 @@ Source: {{ .Source }}
 
 {{- end }}
 
-==== Inferred Code References
+=== Inferred Code References
 {{- range .ReferenceIndex.Code }}
 [[{{ .Anchor }}]]
 ==== {{ .ID }}
