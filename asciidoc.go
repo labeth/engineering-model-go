@@ -224,6 +224,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	}
 	sort.SliceStable(reqSections, func(i, j int) bool { return reqSections[i].ID < reqSections[j].ID })
 	reqMermaid := buildRequirementAlignmentMermaid(requirements.Requirements, labelByID)
+	reqCoverageMermaid := buildRequirementCoverageMermaid(requirements.Requirements, inferredRuntime, inferredCode, labelByID)
 	refIndex := buildReferenceIndex(bundle, requirements, inferredRuntime, inferredCode)
 	linkTargets := buildLinkTargets(refIndex)
 	terms := buildTermsFromCatalog(bundle.Catalog)
@@ -306,6 +307,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		},
 		Views:              viewSections,
 		RequirementMermaid: reqMermaid,
+		RequirementCoverageMermaid: reqCoverageMermaid,
 		RequirementInf:     "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
 		Requirements:       reqSections,
 		ReferenceIndex:     refIndex,
@@ -1218,6 +1220,49 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 		}
 	}
 	return strings.Join(lines, "\n")
+}
+
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, labels map[string]string) string {
+	lines := []string{"flowchart LR"}
+	rtByOwner := map[string][]string{}
+	for _, r := range runtime {
+		owner := strings.TrimSpace(r.Owner)
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		rtByOwner[owner] = append(rtByOwner[owner], nonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind)))
+	}
+	codeByOwner := map[string][]string{}
+	for _, c := range code {
+		owner := strings.TrimSpace(c.Owner)
+		if owner == "" || owner == "unresolved" || c.Kind != "source_file" {
+			continue
+		}
+		codeByOwner[owner] = append(codeByOwner[owner], moduleFromPath(codeItemPath(c)))
+	}
+
+	for _, r := range reqs {
+		reqNode := "REQC_" + sanitizeNode(r.ID)
+		lines = append(lines, "  "+reqNode+"[\""+escapeMermaidLabel(r.ID)+"\"]")
+		for _, fu := range uniqueSorted(r.AppliesTo) {
+			fuNode := "FU_" + sanitizeNode(fu)
+			fuLabel := nonEmpty(labels[fu], fu)
+			lines = append(lines, "  "+fuNode+"[\""+escapeMermaidLabel(fuLabel)+"\"]")
+			lines = append(lines, "  "+reqNode+" --> "+fuNode)
+
+			for _, rt := range uniqueSorted(rtByOwner[fu]) {
+				rtNode := "RTC_" + sanitizeNode(fu+"-"+rt)
+				lines = append(lines, "  "+rtNode+"[\""+escapeMermaidLabel(rt)+"\"]")
+				lines = append(lines, "  "+fuNode+" -->|runtime evidence| "+rtNode)
+			}
+			for _, cm := range uniqueSorted(codeByOwner[fu]) {
+				cmNode := "CDC_" + sanitizeNode(fu+"-"+cm)
+				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(cm)+"\"]")
+				lines = append(lines, "  "+fuNode+" -->|code evidence| "+cmNode)
+			}
+		}
+	}
+	return strings.Join(uniquePreserve(lines), "\n")
 }
 
 func sanitizeNode(s string) string {

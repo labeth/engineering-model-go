@@ -32,6 +32,7 @@ type asciidocTemplateData struct {
 	Summary            asciidocSummary
 	Views              []asciidocViewSection
 	RequirementMermaid string
+	RequirementCoverageMermaid string
 	RequirementInf     string
 	Requirements       []asciidocRequirementSection
 	ReferenceIndex     asciidocReferenceIndex
