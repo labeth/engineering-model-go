@@ -1,4 +1,4 @@
-﻿design:
+design:
   id: sample-payments-layered-design
   title: Sample Payments Layered Design
 
@@ -6,213 +6,275 @@
     - id: FG-PAYMENTS
       views:
         functional:
-          title: Payments Functional Story
+          title: Payments Functional Design
           narrative: |
-            payments owns the business flow from customer intent to customer outcome. It coordinates checkout handling and payment authorization so payment authorization is requested consistently while checkout is active. The group is responsible for keeping outcomes deterministic when payment is declined or when bank link is unavailable.
+            payments defines the business capability that turns customer intent into a clear payment outcome.
+            It sets the responsibilities between checkout handling and payment authorization, and defines where
+            approval, decline, and fallback decisions are made.
         runtime:
-          title: Payments Runtime Story
+          title: Payments Runtime Design
           narrative: |
-            payments runs the customer-facing ingress and transaction orchestration path. Runtime behavior keeps payment id context through service calls so operators can follow one transaction across components. The group must support low-latency customer responses while still waiting for risk and external dependency signals.
+            payments runs the public request path and keeps transaction context intact across runtime hops.
+            The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
+            signals when dependencies slow down or fail.
         deployment:
-          title: Payments Deployment Story
+          title: Payments Deployment Design
           narrative: |
-            payments is deployed as independent release paths for checkout handling and payment authorization to reduce rollout blast radius. This allows customer-interface changes and authorization-policy changes to move at different speeds without breaking contracts. Deployment readiness depends on bank link is available and healthy fraud dependencies.
+            payments is deployed so checkout and authorization can roll independently with minimal blast radius.
+            Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
+            policy-impacting releases are exposed.
         code_ownership:
-          title: Payments Code Ownership Story
+          title: Payments Realization Ownership Design
           narrative: |
-            payments ownership is coarse and stable at module boundaries, not function boundaries. Teams own checkout handling and payment authorization code areas as long-lived architecture responsibilities, while individual symbols only support requirement evidence. This keeps architecture ownership stable even when internal implementation changes.
+            payments ownership is defined at package and module boundaries for long-term architectural stability.
+            Internal symbols can evolve rapidly, but ownership remains aligned to functional units for predictable
+            accountability and maintainable change ownership.
         security:
-          title: Payments Security Story
+          title: Payments Security Design
           narrative: |
-            payments protects the most exposed trust boundaries in the system. The group must defend against malicious api request and replayed authorization callback while preserving safe behavior when external responses are degraded. Security controls prioritize validation, idempotency, and predictable failure handling.
+            payments protects public trust boundaries where untrusted input and external callbacks enter the system.
+            Security design focuses on strict validation, replay resistance, and safe failure behavior that preserves
+            customer trust during degraded dependency conditions.
 
     - id: FG-FRAUD
       views:
         functional:
-          title: Fraud Evaluation Functional Story
+          title: Fraud Evaluation Functional Design
           narrative: |
-            fraud evaluation turns uncertain transaction risk into actionable decisions for payment authorization. It provides risk scoring and support review so high-risk flows are handled as payment review is pending instead of forcing unsafe automatic outcomes. The group must preserve clear transitions from automated scoring to manual handling when support agent is notified.
+            fraud evaluation defines how risk evidence is transformed into actionable payment decisions.
+            It separates automated risk scoring from human support review so escalation paths are explicit,
+            explainable, and policy-constrained.
         runtime:
-          title: Fraud Evaluation Runtime Story
+          title: Fraud Evaluation Runtime Design
           narrative: |
-            fraud evaluation runs scoring and escalation paths that sit directly on the authorization critical path. Runtime responses must be consistent and fast enough to avoid customer-facing instability while still preserving evidence for audit. The group emits clear high-risk signals when risk score is high.
+            fraud evaluation runs as a critical dependency on the authorization path.
+            Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
+            diagnosis and audit when high-risk classifications occur.
         deployment:
-          title: Fraud Evaluation Deployment Story
+          title: Fraud Evaluation Deployment Design
           narrative: |
-            fraud evaluation is deployed as dedicated runtime units so scoring policy and review workflow can be released with targeted controls. Separate deployment paths let teams stage changes to scoring behavior before broad rollout. Operational deployment decisions are guided by risk sensitivity rather than pure throughput.
+            fraud evaluation deployment is tuned for cautious rollout because scoring changes can alter approval rates.
+            Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
         code_ownership:
-          title: Fraud Evaluation Code Ownership Story
+          title: Fraud Evaluation Realization Ownership Design
           narrative: |
-            ownership in fraud evaluation is organized by durable module boundaries for scoring and review responsibilities. Requirement-level traces remain fine-grained, but ownership stays at package and module scope so architecture does not churn. This keeps accountability clear when scoring logic evolves.
+            fraud evaluation ownership is anchored to scoring and review modules rather than symbol-level granularity.
+            This keeps policy accountability stable while enabling frequent implementation changes inside owned modules.
         security:
-          title: Fraud Evaluation Security Story
+          title: Fraud Evaluation Security Design
           narrative: |
-            fraud evaluation protects decision integrity and review integrity. It must resist compromised dependency influence, malformed risk inputs, and unauthorized manual overrides. Security policy requires traceable review actions and trustworthy score lineage.
+            fraud evaluation security focuses on decision integrity and review integrity.
+            The design assumes attempted manipulation of risk inputs, dependency trust, and manual review workflows,
+            and therefore requires strong evidence lineage and tamper-evident operator actions.
 
     - id: FG-PLATFORM
       views:
         functional:
-          title: Platform Functional Story
+          title: Platform Functional Design
           narrative: |
-            platform provides the execution foundation and delivery control needed by payments and fraud evaluation. It includes cluster provisioning and gitops operations as explicit architecture capabilities, not background concerns. The group supports normal mode is active operations while enabling controlled lifecycle changes.
+            platform provides the foundational capabilities required for all product workloads to run safely.
+            It intentionally models provisioning and reconciliation as first-class architecture responsibilities,
+            not background implementation detail.
         runtime:
-          title: Platform Runtime Story
+          title: Platform Runtime Design
           narrative: |
-            platform supplies runtime boundaries where workloads execute and reconciliation loops that keep intended state and observed state aligned. It is responsible for making runtime containment and reliability predictable for application teams. Runtime clarity here reduces ambiguity during incidents.
+            platform runtime design establishes containment and control-loop behavior for workload operation.
+            It defines how namespaces, clusters, and reconciler processes create predictable runtime boundaries
+            that reduce operational ambiguity during incidents.
         deployment:
-          title: Platform Deployment Story
+          title: Platform Deployment Design
           narrative: |
-            platform deployment establishes and governs cluster, namespace, and release-controller behavior before application rollouts proceed. Terraform and GitOps artifacts form the operational path that turns desired state into running systems. This deployment layer is the control surface for safe system evolution.
+            platform deployment design governs how infrastructure intent is applied and kept in sync over time.
+            It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
+            teams depend on new platform states.
         code_ownership:
-          title: Platform Code Ownership Story
+          title: Platform Realization Ownership Design
           narrative: |
-            platform ownership is centered on infrastructure and GitOps module boundaries rather than application source boundaries. This lets platform engineers evolve delivery and infrastructure policy without changing product-domain ownership. Ownership remains explicit and auditable over time.
+            platform ownership is centered on infrastructure and GitOps configuration boundaries.
+            This enables platform teams to evolve delivery mechanics independently while preserving explicit ownership
+            contracts for operational behavior.
         security:
-          title: Platform Security Story
+          title: Platform Security Design
           narrative: |
-            platform is the primary baseline security layer for the entire system. It must enforce hardened defaults, namespace isolation, and trusted reconciliation so downstream units inherit safer operating conditions. Security failures here are systemic, so controls must be preventative and continuously verified.
+            platform security design establishes baseline controls inherited by all higher-layer units.
+            It focuses on trusted reconciliation, isolation defaults, and policy enforcement points where compromise
+            would have broad systemic impact.
 
   functionalUnits:
     - id: FU-CHECKOUT
       group: FG-PAYMENTS
       views:
         functional:
-          title: Checkout Handling Functional Story
+          title: Checkout Handling Functional Design
           narrative: |
-            checkout handling turns customer input into a valid payment initiation sequence. It keeps customer-facing messaging coherent across success, payment is declined, and bank link is unavailable outcomes. The unit is the main interaction surface for customer during checkout is active.
+            checkout handling owns customer-facing request normalization and response semantics.
+            Functional design ensures the customer receives a coherent outcome regardless of approval, decline,
+            or temporary dependency failure conditions.
         runtime:
-          title: Checkout Handling Runtime Story
+          title: Checkout Handling Runtime Design
           narrative: |
-            checkout handling serves as the ingress runtime path and forwards normalized requests to payment authorization. It must preserve payment id context and produce stable request contracts under load. Runtime behavior is intentionally thin in decision policy to keep boundaries clean.
+            checkout handling is the ingress runtime boundary and forwards normalized requests downstream.
+            Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
+            burst traffic and partial downstream degradation.
         deployment:
-          title: Checkout Handling Deployment Story
+          title: Checkout Handling Deployment Design
           narrative: |
-            checkout handling is deployed as an independently releasable workload so UX changes can ship safely. Rollouts should prioritize quick rollback and compatibility with existing authorization contracts. Deployment health is measured by request stability and clear fallback messaging.
+            checkout handling is released independently to protect user-facing velocity without destabilizing policy logic.
+            Deployment design favors fast rollback and compatibility checks with the current authorization interface.
         code_ownership:
-          title: Checkout Handling Code Ownership Story
+          title: Checkout Handling Realization Ownership Design
           narrative: |
-            checkout handling ownership is anchored at module and package level in the checkout code boundary. Teams can refactor methods without changing architecture ownership because ownership is not symbol-based. Requirement traces remain at symbol level only for evidence.
+            checkout handling ownership is maintained at coarse package/module scope.
+            This keeps architecture ownership stable across internal refactors while preserving fine-grained symbol traces
+            for requirement evidence.
         security:
-          title: Checkout Handling Security Story
+          title: Checkout Handling Security Design
           narrative: |
-            checkout handling must aggressively validate input and defend public ingress from malicious api request patterns. It should throttle abusive behavior without degrading legitimate customer flows. Security design emphasizes safe rejection and traceable decisions.
+            checkout handling security protects the internet-facing ingress.
+            The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
+            are contained without harming legitimate customer flows.
 
     - id: FU-PAYMENT-AUTHORIZATION
       group: FG-PAYMENTS
       views:
         functional:
-          title: Payment Authorization Functional Story
+          title: Payment Authorization Functional Design
           narrative: |
-            payment authorization is the policy orchestration core for transaction decisions. It receives payment authorization is requested, calls risk scoring, and evaluates external bank outcomes before returning a single decision path. The unit owns how review escalation and fallback are selected.
+            payment authorization defines the decision policy orchestration for each transaction.
+            It combines fraud input, bank outcomes, and escalation rules into one deterministic business decision.
         runtime:
-          title: Payment Authorization Runtime Story
+          title: Payment Authorization Runtime Design
           narrative: |
-            payment authorization coordinates runtime dependencies to risk scoring and bank gateway endpoint. It must maintain deterministic ordering and idempotent behavior during retries and transient faults. Runtime observability should show which branch produced the final outcome.
+            payment authorization coordinates critical runtime dependencies and enforces decision-order determinism.
+            Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
         deployment:
-          title: Payment Authorization Deployment Story
+          title: Payment Authorization Deployment Design
           narrative: |
-            payment authorization is deployed separately from checkout handling so policy changes can be staged carefully. Deployment readiness includes dependency health checks and rollback confidence. Releases should protect transaction continuity during rollout windows.
+            payment authorization deployment is policy-sensitive and therefore rollout-cautious.
+            Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
         code_ownership:
-          title: Payment Authorization Code Ownership Story
+          title: Payment Authorization Realization Ownership Design
           narrative: |
-            payment authorization ownership is maintained at the payment engine module boundary. Internal algorithms and helper functions can change frequently without changing ownership contracts. This preserves team accountability for orchestration behavior.
+            payment authorization ownership resides at the payment engine orchestration boundary.
+            Teams may evolve internal algorithms, but ownership of orchestration behavior remains explicit and durable.
         security:
-          title: Payment Authorization Security Story
+          title: Payment Authorization Security Design
           narrative: |
-            payment authorization must prevent replayed authorization callback abuse and protect integrity of decision transitions. It should normalize external errors so attackers cannot infer sensitive policy details. Security controls also require auditable decision provenance.
+            payment authorization security protects decision integrity and callback integrity.
+            The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
     - id: FU-RISK-SCORING
       group: FG-FRAUD
       views:
         functional:
-          title: Risk Scoring Functional Story
+          title: Risk Scoring Functional Design
           narrative: |
-            risk scoring computes risk score and classification used by payment authorization decisions. It is responsible for consistent threshold behavior when fraud check is enabled. The unit should make risk logic explainable for operators and reviewers.
+            risk scoring produces risk classifications that are actionable for authorization policy.
+            Functional design requires predictable threshold behavior and explainable outputs for operators.
         runtime:
-          title: Risk Scoring Runtime Story
+          title: Risk Scoring Runtime Design
           narrative: |
-            risk scoring runs as a deterministic dependency service on the transaction path. It should return stable response shapes and clear error semantics so authorization can handle failures safely. Runtime performance must support customer-facing latency expectations.
+            risk scoring runs as a synchronous dependency with strict response-shape stability.
+            Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
         deployment:
-          title: Risk Scoring Deployment Story
+          title: Risk Scoring Deployment Design
           narrative: |
-            risk scoring is deployed with controlled rollout strategy because policy changes can impact approval rates immediately. Teams should stage and observe behavior before broad promotion. Deployment observability should capture score distribution and high-risk frequency.
+            risk scoring deployment uses staged rollout because scoring changes have immediate decision impact.
+            Deployment design includes observation windows for score distribution and escalation-rate changes.
         code_ownership:
-          title: Risk Scoring Code Ownership Story
+          title: Risk Scoring Realization Ownership Design
           narrative: |
-            risk scoring ownership stays at module boundary to keep policy accountability intact. Fine-grained symbols map to requirements but do not define ownership. This allows model and rules refactoring without architecture instability.
+            risk scoring ownership is kept at module/package boundary for policy accountability.
+            Fine-grained traces support requirements, but ownership remains coarse to avoid architectural churn.
         security:
-          title: Risk Scoring Security Story
+          title: Risk Scoring Security Design
           narrative: |
-            risk scoring must detect and resist manipulated or poisoned inputs that could lower risk decisions incorrectly. It should enforce strict validation and safe defaults on uncertain data. Security evidence must support post-incident reconstruction of score decisions.
+            risk scoring security assumes adversarial input attempts and model manipulation pressure.
+            Design controls enforce strict input handling and evidence capture for post-event investigation.
 
     - id: FU-SUPPORT-REVIEW
       group: FG-FRAUD
       views:
         functional:
-          title: Support Review Functional Story
+          title: Support Review Functional Design
           narrative: |
-            support review manages human decision flow for escalated transactions. When payment review is pending, it provides context and action paths for support agent to resolve risk outcomes safely. The unit ensures manual decisions remain controlled and consistent.
+            support review provides controlled human decision flow for escalated transactions.
+            Functional design ensures review actions are policy-bounded and outcome transitions are explicit.
         runtime:
-          title: Support Review Runtime Story
+          title: Support Review Runtime Design
           narrative: |
-            support review runtime favors operator clarity and auditability over raw throughput. It should maintain strong linkage between escalation events and operator actions. Runtime transitions must be explicit and reversible where policy allows.
+            support review runtime optimizes for operator clarity and decision traceability over throughput.
+            Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
         deployment:
-          title: Support Review Deployment Story
+          title: Support Review Deployment Design
           narrative: |
-            support review deployment should isolate privileged workflows from public-facing ingress components. Release strategy must preserve in-flight review sessions during upgrades. Operational monitoring should focus on queue health and review completion latency.
+            support review deployment isolates privileged workflows from public ingress components.
+            Deployment design must preserve active review sessions across upgrades and ensure queue/review latency visibility.
         code_ownership:
-          title: Support Review Code Ownership Story
+          title: Support Review Realization Ownership Design
           narrative: |
-            support review ownership is kept at module boundary for review workflow and notification logic. Shared utilities may exist, but ownership of decision workflow remains explicit. This prevents ambiguous accountability for manual outcomes.
+            support review ownership is maintained at workflow-module boundary.
+            Shared helper code may exist, but accountability for review flow and outcome transitions remains explicit.
         security:
-          title: Support Review Security Story
+          title: Support Review Security Design
           narrative: |
-            support review security requires strong operator authentication, least privilege, and non-repudiable action logging. Unauthorized override and hidden edits must be prevented by design. Every decision should remain auditable end to end.
+            support review security requires strong operator identity controls and tamper-evident audit trails.
+            The design prevents silent overrides and guarantees every manual decision is attributable.
 
     - id: FU-CLUSTER-PROVISIONING
       group: FG-PLATFORM
       views:
         functional:
-          title: Cluster Provisioning Functional Story
+          title: Cluster Provisioning Functional Design
           narrative: |
-            cluster provisioning creates the baseline environment where application workloads can run safely. It defines cluster and namespace structure needed for payments and fraud evaluation operation. The unit owns repeatable environment creation as a core capability.
+            cluster provisioning defines the repeatable environment baseline for all runtime workloads.
+            Functional design establishes deterministic creation of cluster and namespace structure.
         runtime:
-          title: Cluster Provisioning Runtime Story
+          title: Cluster Provisioning Runtime Design
           narrative: |
-            cluster provisioning shapes runtime containment and isolation even though it is not a customer-facing request path. Namespace boundaries and cluster configuration directly affect reliability and blast radius. Runtime architecture depends on this foundation being correct.
+            cluster provisioning influences runtime isolation and blast-radius boundaries indirectly but critically.
+            Runtime design ensures containment primitives are present before workload traffic depends on them.
         deployment:
-          title: Cluster Provisioning Deployment Story
+          title: Cluster Provisioning Deployment Design
           narrative: |
-            cluster provisioning is deployed through controlled infrastructure changes and should include drift awareness and rollback planning. Deployment operations must be deterministic because mistakes propagate broadly. Safe change sequencing is a core requirement.
+            cluster provisioning deployment is infrastructure-first and sequence-sensitive.
+            Deployment design requires deterministic change plans, drift awareness, and rollback strategy before apply.
         code_ownership:
-          title: Cluster Provisioning Code Ownership Story
+          title: Cluster Provisioning Realization Ownership Design
           narrative: |
-            cluster provisioning ownership belongs to infrastructure module boundaries and related provisioning definitions. Ownership must remain stable across provider and topology refactors. This keeps long-term platform accountability clear.
+            cluster provisioning ownership belongs to infrastructure code modules and provisioning definitions.
+            Ownership remains stable across provider changes to preserve platform accountability.
         security:
-          title: Cluster Provisioning Security Story
+          title: Cluster Provisioning Security Design
           narrative: |
-            cluster provisioning security establishes hardened defaults and isolation guarantees inherited by all other units. It should enforce secure baseline policies before workloads are admitted. Security drift at this layer must be detected quickly.
+            cluster provisioning security sets inherited baseline hardening and isolation defaults.
+            Design must detect and remediate security drift early because downstream controls depend on this layer.
 
     - id: FU-GITOPS-OPERATIONS
       group: FG-PLATFORM
       views:
         functional:
-          title: Gitops Operations Functional Story
+          title: GitOps Operations Functional Design
           narrative: |
-            gitops operations governs how declared release intent becomes running state. It owns reconciliation behavior that keeps system drift under control across environments. The unit is responsible for predictable delivery behavior over time.
+            gitops operations defines how declared release intent becomes enforced runtime state.
+            Functional design ensures delivery behavior is predictable and drift is corrected consistently.
         runtime:
-          title: Gitops Operations Runtime Story
+          title: GitOps Operations Runtime Design
           narrative: |
-            gitops operations runs continuous controllers that compare desired and actual state and apply corrections. Runtime behavior here influences deployment timing and recovery characteristics for all workloads. Clear signals are required so teams can understand reconciliation outcomes.
+            gitops operations runs reconciliation loops that continuously compare desired and observed state.
+            Runtime design requires clear reconciliation signals so teams can reason about rollout and recovery behavior.
         deployment:
-          title: Gitops Operations Deployment Story
+          title: GitOps Operations Deployment Design
           narrative: |
-            gitops operations deployment defines the control plane used to release and reconcile application artifacts. It must support safe promotion, controlled rollback, and policy gates. Operational resilience depends on this path being reliable and observable.
+            gitops operations deployment defines the release control plane for application artifacts.
+            Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
         code_ownership:
-          title: Gitops Operations Code Ownership Story
+          title: GitOps Operations Realization Ownership Design
           narrative: |
-            gitops operations ownership stays at GitOps configuration module boundaries. This preserves explicit accountability for delivery rules and release automation behavior. Architecture ownership remains stable even as specific manifests evolve.
+            gitops operations ownership is anchored at GitOps configuration and automation module boundaries.
+            This keeps delivery accountability explicit while allowing manifest-level iteration.
         security:
-          title: Gitops Operations Security Story
+          title: GitOps Operations Security Design
           narrative: |
-            gitops operations security protects source trust, reconciliation authority, and rollout safety. It must prevent unauthorized changes from reaching runtime state and enforce policy before apply. This is a core defense against compromised dependency and supply-chain risk.
+            gitops operations security protects source trust and reconciliation authority.
+            The design prevents unauthorized state changes and enforces policy before runtime apply occurs.

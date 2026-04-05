@@ -254,9 +254,11 @@ fraud and external bank capabilities.
 
 
 
-===== Payments Functional Story
+===== Payments Functional Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> owns the business flow from customer intent to customer outcome. It coordinates <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> so <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> consistently while <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>. The group is responsible for keeping outcomes deterministic when <<REF_CATALOG_EVT_PAYMENT_DECLINED,payment is declined>> or when <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>.
+<<REF_RT_CLUSTER_PAYMENTS,payments>> defines the business capability that turns customer intent into a clear payment outcome.
+It sets the responsibilities between <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>, and defines where
+approval, decline, and fallback decisions are made.
 
 
 
@@ -273,9 +275,11 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 
 
 
-===== Fraud Evaluation Functional Story
+===== Fraud Evaluation Functional Design
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> turns uncertain transaction <<REF_RT_NAMESPACE_RISK,risk>> into actionable decisions for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>. It provides <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> and <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so high-risk flows are handled as <<REF_CATALOG_STATE_REVIEW_PENDING,payment review is pending>> instead of forcing unsafe automatic outcomes. The group must preserve clear transitions from automated scoring to manual handling when <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,support agent is notified>>.
+<<REF_CATALOG_FG_FRAUD,fraud evaluation>> defines how <<REF_RT_NAMESPACE_RISK,risk>> evidence is transformed into actionable payment decisions.
+It separates automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> from human <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so escalation paths are explicit,
+explainable, and policy-constrained.
 
 
 
@@ -292,9 +296,11 @@ The group enables safe delivery and reliable operations without owning payment b
 
 
 
-===== Platform Functional Story
+===== Platform Functional Design
 
-platform provides the execution foundation and delivery control needed by <<REF_RT_CLUSTER_PAYMENTS,payments>> and <<REF_CATALOG_FG_FRAUD,fraud evaluation>>. It includes <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> and <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> as explicit architecture capabilities, not background concerns. The group supports <<REF_CATALOG_MODE_NORMAL,normal mode is active>> operations while enabling controlled lifecycle changes.
+platform provides the foundational capabilities required for all product workloads to run safely.
+It intentionally models provisioning and reconciliation as first-class architecture responsibilities,
+not background implementation detail.
 
 
 
@@ -314,9 +320,10 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 
-===== Risk Scoring Functional Story
+===== Risk Scoring Functional Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> computes <<REF_CATALOG_DATA_RISK_SCORE,risk score>> and classification used by <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> decisions. It is responsible for consistent threshold behavior when <<REF_CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>. The unit should make <<REF_RT_NAMESPACE_RISK,risk>> logic explainable for operators and reviewers.
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> produces <<REF_RT_NAMESPACE_RISK,risk>> classifications that are actionable for authorization policy.
+Functional design requires predictable threshold behavior and explainable outputs for operators.
 
 
 
@@ -343,9 +350,10 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 
-===== Support Review Functional Story
+===== Support Review Functional Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> manages human decision flow for escalated transactions. When <<REF_CATALOG_STATE_REVIEW_PENDING,payment review is pending>>, it provides context and action paths for <<REF_CATALOG_ACT_SUPPORT,support agent>> to resolve <<REF_RT_NAMESPACE_RISK,risk>> outcomes safely. The unit ensures manual decisions remain controlled and consistent.
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> provides controlled human decision flow for escalated transactions.
+Functional design ensures review actions are policy-bounded and outcome transitions are explicit.
 
 
 
@@ -372,9 +380,11 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 
-===== Checkout Handling Functional Story
+===== Checkout Handling Functional Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> turns customer input into a valid payment initiation sequence. It keeps customer-facing messaging coherent across success, <<REF_CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, and <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>> outcomes. The unit is the main interaction surface for customer during <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>.
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> owns customer-facing request normalization and response semantics.
+Functional design ensures the customer receives a coherent outcome regardless of approval, decline,
+or temporary dependency failure conditions.
 
 
 
@@ -401,9 +411,10 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 
-===== Payment Authorization Functional Story
+===== Payment Authorization Functional Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> is the policy orchestration core for transaction decisions. It receives <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, calls <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>, and evaluates external bank outcomes before returning a single decision path. The unit owns how review escalation and fallback are selected.
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> defines the decision policy orchestration for each transaction.
+It combines fraud input, bank outcomes, and escalation rules into one deterministic business decision.
 
 
 
@@ -430,9 +441,10 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 
-===== Cluster Provisioning Functional Story
+===== Cluster Provisioning Functional Design
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> creates the baseline environment where application workloads can run safely. It defines cluster and namespace structure needed for <<REF_RT_CLUSTER_PAYMENTS,payments>> and <<REF_CATALOG_FG_FRAUD,fraud evaluation>> operation. The unit owns repeatable environment creation as a core capability.
+<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> defines the repeatable environment baseline for all runtime workloads.
+Functional design establishes deterministic creation of cluster and namespace structure.
 
 
 
@@ -459,9 +471,10 @@ The unit provides safe and observable release behavior as an ongoing operational
 
 
 
-===== Gitops Operations Functional Story
+===== GitOps Operations Functional Design
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> governs how declared release intent becomes running state. It owns reconciliation behavior that keeps system drift under control across environments. The unit is responsible for predictable delivery behavior over time.
+<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> defines how declared release intent becomes enforced runtime state.
+Functional design ensures delivery behavior is predictable and drift is corrected consistently.
 
 
 
@@ -522,9 +535,11 @@ flowchart LR
 
 
 
-===== Payments Runtime Story
+===== Payments Runtime Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> runs the customer-facing ingress and transaction orchestration path. Runtime behavior keeps <<REF_CATALOG_DATA_PAYMENT_ID,payment id>> context through service calls so operators can follow one transaction across components. The group must <<REF_CATALOG_ACT_SUPPORT,support>> low-latency customer responses while still waiting for <<REF_RT_NAMESPACE_RISK,risk>> and external dependency signals.
+<<REF_RT_CLUSTER_PAYMENTS,payments>> runs the public request path and keeps transaction context intact across runtime hops.
+The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
+signals when dependencies slow down or fail.
 
 
 
@@ -534,9 +549,11 @@ flowchart LR
 
 
 
-===== Fraud Evaluation Runtime Story
+===== Fraud Evaluation Runtime Design
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> runs scoring and escalation paths that sit directly on the authorization critical path. Runtime responses must be consistent and fast enough to avoid customer-facing instability while still preserving evidence for audit. The group emits clear high-risk signals when <<REF_CATALOG_EVT_RISK_HIGH,risk score is high>>.
+<<REF_CATALOG_FG_FRAUD,fraud evaluation>> runs as a critical dependency on the authorization path.
+Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
+diagnosis and audit when high-risk classifications occur.
 
 
 
@@ -551,9 +568,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Runtime Story
+===== Risk Scoring Runtime Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> runs as a deterministic dependency service on the transaction path. It should return stable response shapes and clear error semantics so authorization can handle failures safely. Runtime performance must <<REF_CATALOG_ACT_SUPPORT,support>> customer-facing latency expectations.
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> runs as a synchronous dependency with strict response-shape stability.
+Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
 
 
 
@@ -573,9 +591,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Runtime Story
+===== Support Review Runtime Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime favors operator clarity and auditability over raw throughput. It should maintain strong linkage between escalation events and operator actions. Runtime transitions must be explicit and reversible where policy allows.
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime optimizes for operator clarity and decision traceability over throughput.
+Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
 
 
 
@@ -595,9 +614,11 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Runtime Story
+===== Checkout Handling Runtime Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> serves as the ingress runtime path and forwards normalized requests to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>. It must preserve <<REF_CATALOG_DATA_PAYMENT_ID,payment id>> context and produce stable request contracts under load. Runtime behavior is intentionally thin in decision policy to keep boundaries clean.
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
+Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
+burst traffic and partial downstream degradation.
 
 
 
@@ -617,9 +638,10 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Payment Authorization Runtime Story
+===== Payment Authorization Runtime Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates runtime dependencies to <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> and <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>>. It must maintain deterministic ordering and idempotent behavior during retries and transient faults. Runtime observability should show which branch produced the final outcome.
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
+Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
 
 
 
@@ -712,9 +734,11 @@ flowchart LR
 
 
 
-===== Payments Deployment Story
+===== Payments Deployment Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> is deployed as independent release paths for <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> to reduce rollout blast radius. This allows customer-interface changes and authorization-policy changes to move at different speeds without breaking contracts. Deployment readiness depends on <<REF_CATALOG_STATE_BANK_LINK_UP,bank link is available>> and healthy fraud dependencies.
+<<REF_RT_CLUSTER_PAYMENTS,payments>> is deployed so <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization can roll independently with minimal blast radius.
+Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
+policy-impacting releases are exposed.
 
 
 
@@ -724,9 +748,10 @@ flowchart LR
 
 
 
-===== Fraud Evaluation Deployment Story
+===== Fraud Evaluation Deployment Design
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> is deployed as dedicated runtime units so scoring policy and review workflow can be released with targeted controls. Separate deployment paths let teams stage changes to scoring behavior before broad rollout. Operational deployment decisions are guided by <<REF_RT_NAMESPACE_RISK,risk>> sensitivity rather than pure throughput.
+<<REF_CATALOG_FG_FRAUD,fraud evaluation>> deployment is tuned for cautious rollout because scoring changes can alter approval rates.
+Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
 
 
 
@@ -736,9 +761,11 @@ flowchart LR
 
 
 
-===== Platform Deployment Story
+===== Platform Deployment Design
 
-platform deployment establishes and governs cluster, namespace, and release-controller behavior before application rollouts proceed. Terraform and GitOps artifacts form the operational path that turns desired state into running systems. This deployment layer is the control surface for safe system evolution.
+platform deployment design governs how infrastructure intent is applied and kept in sync over time.
+It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
+teams depend on new platform states.
 
 
 
@@ -753,9 +780,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Deployment Story
+===== Risk Scoring Deployment Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> is deployed with controlled rollout strategy because policy changes can impact approval rates immediately. Teams should stage and observe behavior before broad promotion. Deployment observability should capture score distribution and high-risk frequency.
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> deployment uses staged rollout because scoring changes have immediate decision impact.
+Deployment design includes observation windows for score distribution and escalation-rate changes.
 
 
 
@@ -775,9 +803,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Deployment Story
+===== Support Review Deployment Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> deployment should isolate privileged workflows from public-facing ingress components. Release strategy must preserve in-flight review sessions during upgrades. Operational monitoring should focus on queue health and review completion latency.
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> deployment isolates privileged workflows from public ingress components.
+Deployment design must preserve active review sessions across upgrades and ensure queue/review latency visibility.
 
 
 
@@ -797,9 +826,10 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Deployment Story
+===== Checkout Handling Deployment Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is deployed as an independently releasable workload so UX changes can ship safely. Rollouts should prioritize quick rollback and compatibility with existing authorization contracts. Deployment health is measured by request stability and clear fallback messaging.
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
+Deployment design favors fast rollback and compatibility checks with the current authorization interface.
 
 
 
@@ -819,9 +849,10 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Payment Authorization Deployment Story
+===== Payment Authorization Deployment Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> is deployed separately from <<REF_CATALOG_FU_CHECKOUT,checkout handling>> so policy changes can be staged carefully. Deployment readiness includes dependency health checks and rollback confidence. Releases should protect transaction continuity during rollout windows.
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
+Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
 
 
 
@@ -841,9 +872,10 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-===== Cluster Provisioning Deployment Story
+===== Cluster Provisioning Deployment Design
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> is deployed through controlled infrastructure changes and should include drift awareness and rollback planning. Deployment operations must be deterministic because mistakes propagate broadly. Safe change sequencing is a core requirement.
+<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> deployment is infrastructure-first and sequence-sensitive.
+Deployment design requires deterministic change plans, drift awareness, and rollback strategy before apply.
 
 
 
@@ -863,9 +895,10 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-===== Gitops Operations Deployment Story
+===== GitOps Operations Deployment Design
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the control plane used to release and reconcile application artifacts. It must <<REF_CATALOG_ACT_SUPPORT,support>> safe promotion, controlled rollback, and policy gates. Operational resilience depends on this path being reliable and observable.
+<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the release control plane for application artifacts.
+Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
 
 
 
@@ -946,9 +979,11 @@ flowchart TB
 
 
 
-===== Payments Code Ownership Story
+===== Payments Realization Ownership Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> ownership is coarse and stable at module boundaries, not function boundaries. Teams own <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> code areas as long-lived architecture responsibilities, while individual symbols only <<REF_CATALOG_ACT_SUPPORT,support>> requirement evidence. This keeps architecture ownership stable even when internal implementation changes.
+<<REF_RT_CLUSTER_PAYMENTS,payments>> ownership is defined at package and module boundaries for long-term architectural stability.
+Internal symbols can evolve rapidly, but ownership remains aligned to functional units for predictable
+accountability and maintainable change ownership.
 
 
 
@@ -958,9 +993,10 @@ flowchart TB
 
 
 
-===== Fraud Evaluation Code Ownership Story
+===== Fraud Evaluation Realization Ownership Design
 
-ownership in <<REF_CATALOG_FG_FRAUD,fraud evaluation>> is organized by durable module boundaries for scoring and review responsibilities. Requirement-level traces remain fine-grained, but ownership stays at package and module scope so architecture does not churn. This keeps accountability clear when scoring logic evolves.
+<<REF_CATALOG_FG_FRAUD,fraud evaluation>> ownership is anchored to scoring and review modules rather than symbol-level granularity.
+This keeps policy accountability stable while enabling frequent implementation changes inside owned modules.
 
 
 
@@ -975,9 +1011,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Code Ownership Story
+===== Risk Scoring Realization Ownership Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> ownership stays at module boundary to keep policy accountability intact. Fine-grained symbols map to requirements but do not define ownership. This allows model and rules refactoring without architecture instability.
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> ownership is kept at module/package boundary for policy accountability.
+Fine-grained traces <<REF_CATALOG_ACT_SUPPORT,support>> requirements, but ownership remains coarse to avoid architectural churn.
 
 
 
@@ -995,9 +1032,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Code Ownership Story
+===== Support Review Realization Ownership Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> ownership is kept at module boundary for review workflow and notification logic. Shared utilities may exist, but ownership of decision workflow remains explicit. This prevents ambiguous accountability for manual outcomes.
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> ownership is maintained at workflow-module boundary.
+Shared helper code may exist, but accountability for review flow and outcome transitions remains explicit.
 
 
 
@@ -1015,9 +1053,11 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Code Ownership Story
+===== Checkout Handling Realization Ownership Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> ownership is anchored at module and package level in the <<REF_CATALOG_FU_CHECKOUT,checkout>> code boundary. Teams can refactor methods without changing architecture ownership because ownership is not symbol-based. Requirement traces remain at symbol level only for evidence.
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> ownership is maintained at coarse package/module scope.
+This keeps architecture ownership stable across internal refactors while preserving fine-grained symbol traces
+for requirement evidence.
 
 
 
@@ -1035,9 +1075,10 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Payment Authorization Code Ownership Story
+===== Payment Authorization Realization Ownership Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> ownership is maintained at the payment engine module boundary. Internal algorithms and helper functions can change frequently without changing ownership contracts. This preserves team accountability for orchestration behavior.
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> ownership resides at the payment engine orchestration boundary.
+Teams may evolve internal algorithms, but ownership of orchestration behavior remains explicit and durable.
 
 
 
@@ -1128,9 +1169,11 @@ flowchart LR
 
 
 
-===== Payments Security Story
+===== Payments Security Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> protects the most exposed trust boundaries in the system. The group must defend against <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,malicious api request>> and <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,replayed authorization callback>> while preserving safe behavior when external responses are degraded. Security controls prioritize validation, idempotency, and predictable failure handling.
+<<REF_RT_CLUSTER_PAYMENTS,payments>> protects public trust boundaries where untrusted input and external callbacks enter the system.
+Security design focuses on strict validation, replay resistance, and safe failure behavior that preserves
+customer trust during degraded dependency conditions.
 
 
 
@@ -1140,9 +1183,11 @@ flowchart LR
 
 
 
-===== Fraud Evaluation Security Story
+===== Fraud Evaluation Security Design
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> protects decision integrity and review integrity. It must resist <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,compromised dependency>> influence, malformed <<REF_RT_NAMESPACE_RISK,risk>> inputs, and unauthorized manual overrides. Security policy requires traceable review actions and trustworthy score lineage.
+<<REF_CATALOG_FG_FRAUD,fraud evaluation>> security focuses on decision integrity and review integrity.
+The design assumes attempted manipulation of <<REF_RT_NAMESPACE_RISK,risk>> inputs, dependency trust, and <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>> workflows,
+and therefore requires strong evidence lineage and tamper-evident operator actions.
 
 
 
@@ -1152,9 +1197,11 @@ flowchart LR
 
 
 
-===== Platform Security Story
+===== Platform Security Design
 
-platform is the primary baseline security layer for the entire system. It must enforce hardened defaults, namespace isolation, and trusted reconciliation so downstream units inherit safer operating conditions. Security failures here are systemic, so controls must be preventative and continuously verified.
+platform security design establishes baseline controls inherited by all higher-layer units.
+It focuses on trusted reconciliation, isolation defaults, and policy enforcement points where compromise
+would have broad systemic impact.
 
 
 
@@ -1169,9 +1216,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Security Story
+===== Risk Scoring Security Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> must detect and resist manipulated or poisoned inputs that could lower <<REF_RT_NAMESPACE_RISK,risk>> decisions incorrectly. It should enforce strict validation and safe defaults on uncertain data. Security evidence must <<REF_CATALOG_ACT_SUPPORT,support>> post-incident reconstruction of score decisions.
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
+Design controls enforce strict input handling and evidence capture for post-event investigation.
 
 
 
@@ -1188,9 +1236,10 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Security Story
+===== Support Review Security Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator authentication, least privilege, and non-repudiable action logging. Unauthorized override and hidden edits must be prevented by design. Every decision should remain auditable end to end.
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
+The design prevents silent overrides and guarantees every manual decision is attributable.
 
 
 
@@ -1207,9 +1256,11 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Security Story
+===== Checkout Handling Security Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> must aggressively validate input and defend public ingress from <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,malicious api request>> patterns. It should throttle abusive behavior without degrading legitimate customer flows. Security design emphasizes safe rejection and traceable decisions.
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
+The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
+are contained without harming legitimate customer flows.
 
 
 
@@ -1226,9 +1277,10 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Payment Authorization Security Story
+===== Payment Authorization Security Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> must prevent <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,replayed authorization callback>> abuse and protect integrity of decision transitions. It should normalize external errors so attackers cannot infer sensitive policy details. Security controls also require auditable decision provenance.
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
 
 
@@ -1245,9 +1297,10 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-===== Cluster Provisioning Security Story
+===== Cluster Provisioning Security Design
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> security establishes hardened defaults and isolation guarantees inherited by all other units. It should enforce secure baseline policies before workloads are admitted. Security drift at this layer must be detected quickly.
+<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> security sets inherited baseline hardening and isolation defaults.
+Design must detect and remediate security drift early because downstream controls depend on this layer.
 
 
 
@@ -1264,9 +1317,10 @@ Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-===== Gitops Operations Security Story
+===== GitOps Operations Security Design
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> security protects source trust, reconciliation authority, and rollout safety. It must prevent unauthorized changes from reaching runtime state and enforce policy before apply. This is a core defense against <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,compromised dependency>> and supply-chain <<REF_RT_NAMESPACE_RISK,risk>>.
+<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> security protects source trust and reconciliation authority.
+The design prevents unauthorized state changes and enforces policy before runtime apply occurs.
 
 
 
