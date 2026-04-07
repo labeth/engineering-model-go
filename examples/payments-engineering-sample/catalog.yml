@@ -72,6 +72,10 @@ catalog:
       name: malicious api request
       definition: Crafted payload attempting to bypass validation or authorization logic.
       aliases: [malicious request]
+    - id: AV-FRAUDULENT-TRANSACTION-PATTERN
+      name: fraudulent transaction pattern
+      definition: Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
+      aliases: [fraud abuse, payment fraud]
     - id: AV-REPLAYED-AUTH-CALLBACK
       name: replayed authorization callback
       definition: Replay of a valid callback to induce duplicate or unauthorized state transitions.

@@ -1,0 +1,3 @@
+<testsuite name="payments-unit" tests="1" failures="0" errors="0" skipped="0" time="0.03">
+  <testcase classname="checkout.decline" name="REQ-PAY-003" time="0.03"/>
+</testsuite>

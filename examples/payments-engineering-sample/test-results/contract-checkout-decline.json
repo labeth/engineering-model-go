@@ -1,0 +1,8 @@
+{
+  "suite": "payments-contract",
+  "runId": "run-2026-04-07-090300",
+  "results": [
+    {"requirement": "REQ-PAY-003", "status": "pass", "assertions": 3},
+    {"requirement": "REQ-PAY-006", "status": "pass", "assertions": 2}
+  ]
+}

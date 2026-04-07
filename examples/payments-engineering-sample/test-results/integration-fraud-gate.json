@@ -1,0 +1,8 @@
+{
+  "suite": "payments-integration",
+  "runId": "run-2026-04-07-090100",
+  "results": [
+    {"requirement": "REQ-PAY-002", "status": "pass", "assertions": 4},
+    {"requirement": "REQ-PAY-004", "status": "pass", "assertions": 5}
+  ]
+}

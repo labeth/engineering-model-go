@@ -2,6 +2,7 @@
 :toc:
 :toclevels: 2
 :sectnums:
+{{- $root := . }}
 
 == Introduction
 
@@ -23,21 +24,25 @@ This document is intentionally split into two layers:
 
 Read in this order:
 
-1. Functional View: authored architecture intent and responsibilities.
-2. Runtime/Deployment/Realization/Security Views: view-specific realization details.
-3. Generated Evidence Appendix: traceability and inferred references for audit/tooling.
+1. Architecture Intent View: stable authored architecture intent and ownership boundaries.
+2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
+3. Traceability View: requirement mapping, evidence coverage, and confidence.
+4. Reference Appendix: supporting reference IDs and inferred-source links.
 
 == Document Health Snapshot
 
-[cols="3,1,1,1,1",options="header"]
+[cols="2,1,3,1,1,1,1,4",options="header"]
 |===
-|View |Units in Scope |Direct Evidence Coverage |Gap Count |Confidence
+|View |Authored Status |Authored Status Explanation |Units in Scope |Direct Evidence Coverage |Gap Count |Heuristic Confidence |Heuristic Basis
 {{- range .HealthRows }}
 |{{ .ViewHeading }} (`{{ .ViewID }}`)
+|{{ .AuthoredStatus }}
+|{{ .AuthoredStatusExplanation }}
 |{{ .UnitsInScope }}
 |{{ .WithEvidence }}
 |{{ .GapCount }}
 |{{ .Confidence }}
+|{{ .HeuristicBasisExplanation }}
 {{- end }}
 |===
 
@@ -52,6 +57,51 @@ Read in this order:
 {{- end }}
 |===
 
+=== Diagram Color and Shape Legend
+
+This legend applies to all Mermaid diagrams in this document.
+
+[source,mermaid]
+----
+flowchart LR
+  SYS["System"]:::system_boundary
+  FG["Functional Group"]:::functional_group
+  FU["Functional Unit"]:::functional_unit
+  ACT(("Actor")):::actor
+  REF["Referenced Element"]:::referenced_element
+  AV(("Attack Vector")):::attack_vector
+  REQ["Requirement"]:::requirement
+  VER["Verification Check"]:::verification
+  RT["Runtime Element"]:::runtime_element
+  DEP["Deployment Element"]:::deployment_element
+  CODE["Code Element"]:::code_element
+
+  SYS --> FG
+  FG --> FU
+  ACT --> FU
+  FU --> REF
+  REQ -->|applies_to| FU
+  VER -->|verifies| REQ
+  VER -->|implemented_by| CODE
+  FU -->|realizes| RT
+  DEP --> RT
+  AV --> FU
+  RT -->|implemented_by| CODE
+  REQ -->|code_trace| CODE
+
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
 {{- range $i, $v := .Views }}
 {{ if gt $i 0 }}
 <<<
@@ -62,40 +112,56 @@ Read in this order:
 
 === What This View Answers
 
-{{- range $v.ViewQuestions }}
+{{ range $v.ViewQuestions }}
 - {{ . }}
-{{- end }}
+{{ end }}
 
+{{- if ne $v.Kind "architecture-intent" }}
 === Coverage Gaps
 
 Coverage summary: {{ $v.CoverageSummary }}
 
-{{- range $v.CoverageGaps }}
+{{ range $v.CoverageGaps }}
 - {{ . }}
-{{- end }}
+{{ end }}
 
 === Recommended Next Evidence Additions
 
-{{- range $v.NextActions }}
+{{ range $v.NextActions }}
 - {{ . }}
+{{ end }}
 {{- end }}
 
-{{- if eq $v.Kind "authored-functional" }}
-=== Functional Context Diagram
+{{- if eq $v.Kind "architecture-intent" }}
+=== System Boundary Diagram
+
+What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
 
 [source,mermaid]
 ----
 {{ $v.FuncContextGraph }}
 ----
 
-=== Functional Decomposition Diagram
+=== System Decomposition Diagram
+
+What this diagram shows: stable capability decomposition from functional groups into functional units.
 
 [source,mermaid]
 ----
 {{ $v.FuncDecompGraph }}
 ----
 
-=== Functional Collaboration Diagram
+<<<
+=== Functional Group Manhattan Matrix
+
+What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
+
+{{ $v.FuncMatrixTable }}
+
+=== Functional Unit Dependency Diagram
+
+What this diagram shows: dependency paths between functional units (grouped in Functional Group containers) and key referenced elements.
+Arrow meaning: `A -->|depends_on| B` means unit `A` requires behavior or data from `B` to fulfill its responsibility.
 
 [source,mermaid]
 ----
@@ -104,12 +170,16 @@ Coverage summary: {{ $v.CoverageSummary }}
 {{- end }}
 
 {{- if $v.InferredGraph }}
-{{ if eq $v.Kind "code-ownership" }}
-=== Code Dependency Graph
+{{ if eq $v.Kind "traceability" }}
+=== Traceability Evidence Graph
 
-NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
+What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
+
+NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
 {{ else }}
 === Inferred Data Graph
+
+What this diagram shows: inferred relationships for this view based on available runtime/code evidence.
 {{ end }}
 
 [source,mermaid]
@@ -119,9 +189,11 @@ NOTE: This view focuses on inferred ownership and library-usage realization evid
 {{- end }}
 
 {{- if $v.RuntimeAPIGraph }}
-=== Runtime API Dependency Graph
+=== Communication Path Graph
 
-NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
+What this diagram shows: inferred unit-to-unit request/call flow, including available interface/port labels.
+
+NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or interface details indicate missing derived communication evidence, not necessarily missing behavior.
 
 [source,mermaid]
 ----
@@ -131,6 +203,8 @@ NOTE: This graph is inferred from available deployment/runtime artifacts and may
 
 {{- if $v.DeploymentGraph }}
 === Deployment Artifact Relationship Graph
+
+What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
 
@@ -143,6 +217,8 @@ NOTE: This graph is inferred from available deployment artifacts (for example Te
 {{- if $v.PlatformOpsGraph }}
 === Platform Operations Graph
 
+What this diagram shows: which platform actors operate which platform units and the control-plane targets they influence.
+
 NOTE: Platform operations links are inferred from authored actor mappings plus discovered deployment control-plane artifacts.
 
 [source,mermaid]
@@ -152,9 +228,12 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 {{- end }}
 
 {{- if $v.SecurityGraph }}
-=== Attack Vector Path Graph
+=== Attack Path Diagram
+
+What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
 NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.
+NOTE: Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
 
 [source,mermaid]
 ----
@@ -174,15 +253,16 @@ NOTE: Security relationships shown here are explicitly modeled or inferred from 
 |===
 {{- end }}
 
+{{- if ne $v.Kind "traceability" }}
 === Functional Groups (View Scoped)
 
 {{ range $v.Groups }}
 ==== {{ .Name }} ({{ .ID }})
 
-{{ if eq $v.Kind "authored-functional" }}
+{{ if eq $v.Kind "architecture-intent" }}
 Description: {{ .Description }}
 {{ end }}
-{{ if eq $v.Kind "authored-functional" }}
+{{ if eq $v.Kind "architecture-intent" }}
 
 {{ .Intro }}
 {{ end }}
@@ -202,7 +282,7 @@ Description: {{ .Description }}
 ==== {{ .Name }} ({{ .ID }})
 
 Group: <<{{ .GroupAnchor }},{{ .Group }}>>
-{{ if eq $viewKind "authored-functional" }}
+{{ if eq $viewKind "architecture-intent" }}
 
 {{ .Intro }}
 {{ end }}
@@ -213,13 +293,17 @@ Group: <<{{ .GroupAnchor }},{{ .Group }}>>
 {{ .Narrative }}
 {{ end }}
 
-{{ if eq $viewKind "runtime" }}
+{{ if eq $viewKind "communication" }}
 [cols="1,3",options="header"]
 |===
-|Runtime Aspect |View-Scoped Detail
-|Runtime interactions |Consumes: {{ .Consumes }}; Produces: {{ .Produces }}
-|Runtime dependencies |{{ .DependsOn }}
-|Inferred runtime evidence |{{ .Evidence }}
+|Communication Aspect |View-Scoped Detail
+|Inbound interfaces |{{ .Consumes }}
+|Outbound interfaces |{{ .Produces }}
+|Messages/events consumed |{{ .Triggers }}
+|Messages/events produced |{{ .Produces }}
+|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
+|Timeout/failure behavior |{{ .DependsOn }}
+|Communication evidence |{{ .Evidence }}
 |===
 {{ else if eq $viewKind "deployment" }}
 [cols="1,3",options="header"]
@@ -229,55 +313,58 @@ Group: <<{{ .GroupAnchor }},{{ .Group }}>>
 |Deployment dependencies |{{ .DependsOn }}
 |Inferred deployment evidence |{{ .Evidence }}
 |===
-{{ else if eq $viewKind "code-ownership" }}
-Realization ownership boundary: {{ .WhatOwns }}
-Implementation trigger context: {{ .Triggers }}
-Implementation inputs/outputs: Consumes {{ .Consumes }}; Produces {{ .Produces }}
-Implementation dependencies: {{ .DependsOn }}
-Realization evidence: {{ .Evidence }}
+{{ else if eq $viewKind "state-lifecycle" }}
+Lifecycle triggers: {{ .Triggers }}
+Lifecycle collaborators: {{ .DependsOn }}
+Lifecycle evidence: {{ .Evidence }}
 {{ else if eq $viewKind "security" }}
-Threat model focus: {{ .Threats }}
-Security trigger context: {{ .Triggers }}
+Attack surface: {{ .Threats }}
+Main threats: {{ .Threats }}
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: {{ .DependsOn }}
-Security evidence: {{ .Evidence }}
+Security evidence present: {{ .Evidence }}
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 {{ else }}
-{{ if eq $viewKind "authored-functional" }}
-What it owns: {{ .WhatOwns }}
-Requirement trigger scope: {{ .Triggers }}
-Upstream inputs: {{ .Consumes }}
-Downstream outcomes: {{ .Produces }}
-Primary dependencies: {{ .DependsOn }}
-Primary threat linkage: {{ .Threats }}
-Evidence status: {{ .Evidence }}
+{{ if eq $viewKind "architecture-intent" }}
+Purpose: {{ .Intro }}
+Owned responsibility: {{ .WhatOwns }}
+Key collaborators: {{ .DependsOn }}
+Owned decisions: {{ .Triggers }}
+Key inputs and outputs: consumes {{ .Consumes }}; produces {{ .Produces }}
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 {{ end }}
 {{ end }}
 
 {{ end }}
 {{ end }}
+{{ end }}
 
-<<<
-== Generated Evidence Appendix
+{{- range $i, $v := .Views }}
+{{- if eq $v.Kind "traceability" }}
+=== Requirement-to-Unit Mapping
 
-This appendix contains generated traceability material and inferred-reference inventories.
-
-<<<
-== Requirement Alignment
-
-Requirement-to-unit overview:
+What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
 
 [source,mermaid]
 ----
-{{ .RequirementMermaid }}
+{{ $root.RequirementMermaid }}
 ----
 
-{{ .RequirementInf }}
+=== Requirement-to-Unit-to-Evidence Coverage
 
-=== Cross-Layer Coverage
+What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
 
 [source,mermaid]
 ----
-{{ .RequirementCoverageMermaid }}
+{{ $root.RequirementCoverageMermaid }}
 ----
+
+{{ $root.RequirementInf }}
+{{- end }}
+{{- end }}
+
+<<<
+== Traceability Appendix
 
 === Requirement Details
 
@@ -292,6 +379,52 @@ Notes: {{ .Notes }}
 {{- end }}
 
 {{- end }}
+
+=== Verification Inventory
+
+What this section shows: verification checks inferred from test artifacts, linked to test code elements and mapped to verified requirements.
+
+{{ range .Verifications }}
+[[{{ .Anchor }}]]
+==== {{ .Name }}
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+{{ if .IndexAnchor -}}
+|ID |<<{{ .IndexAnchor }},{{ .ID }}>>
+{{- else -}}
+|ID |{{ .ID }}
+{{- end }}
+|Kind |{{ .Kind }}
+|Status |{{ .Status }}
+|Verifies Requirements |{{ .Verifies }}
+|Test Code Elements |{{ .TestCode }}
+|Derived Functional Owners |{{ .DerivedOwners }}
+|Result Summary |{{ .ResultSummary }}
+|Evidence |{{ .Evidence }}
+{{ if .Description }}
+|Notes |{{ .Description }}
+{{ end }}
+|===
+
+{{ end }}
+
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+{{- range .VerificationResults }}
+|{{ .CheckID }}
+|{{ .Requirement }}
+|{{ .Status }}
+|{{ .Evidence }}{{ if .Notes }} + 
+{{ .Notes }}{{ end }}
+{{- end }}
+|===
 
 <<<
 == Reference Index
@@ -343,5 +476,19 @@ Source: {{ .Source }}
 Kind: {{ .Kind }}
 {{ .Description }}
 Source: {{ .Source }}
+
+{{- end }}
+
+=== Verification References
+{{- range .ReferenceIndex.Verification }}
+[[{{ .Anchor }}]]
+[discrete]
+==== {{ .ID }}
+Kind: {{ .Kind }}
+Name: {{ .Name }}
+{{ if .TargetAnchor -}}
+Resolves to: <<{{ .TargetAnchor }},canonical>>
+{{- end }}
+{{ .Description }}
 
 {{- end }}

@@ -5,14 +5,14 @@ design:
   functionalGroups:
     - id: FG-PAYMENTS
       views:
-        functional:
-          title: Payments Functional Design
+        architecture_intent:
+          title: Payments Architecture Intent Design
           narrative: |
             payments defines the business capability that turns customer intent into a clear payment outcome.
             It sets the responsibilities between checkout handling and payment authorization, and defines where
             approval, decline, and fallback decisions are made.
-        runtime:
-          title: Payments Runtime Design
+        communication:
+          title: Payments Communication Design
           narrative: |
             payments runs the public request path and keeps transaction context intact across runtime hops.
             The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
@@ -23,8 +23,8 @@ design:
             payments is deployed so checkout and authorization can roll independently with minimal blast radius.
             Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
             policy-impacting releases are exposed.
-        code_ownership:
-          title: Payments Realization Ownership Design
+        traceability:
+          title: Payments Traceability Design
           narrative: |
             payments ownership is defined at package and module boundaries for long-term architectural stability.
             Internal symbols can evolve rapidly, but ownership remains aligned to functional units for predictable
@@ -38,14 +38,14 @@ design:
 
     - id: FG-FRAUD
       views:
-        functional:
-          title: Fraud Evaluation Functional Design
+        architecture_intent:
+          title: Fraud Evaluation Architecture Intent Design
           narrative: |
             fraud evaluation defines how risk evidence is transformed into actionable payment decisions.
             It separates automated risk scoring from human support review so escalation paths are explicit,
             explainable, and policy-constrained.
-        runtime:
-          title: Fraud Evaluation Runtime Design
+        communication:
+          title: Fraud Evaluation Communication Design
           narrative: |
             fraud evaluation runs as a critical dependency on the authorization path.
             Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
@@ -55,8 +55,8 @@ design:
           narrative: |
             fraud evaluation deployment is tuned for cautious rollout because scoring changes can alter approval rates.
             Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
-        code_ownership:
-          title: Fraud Evaluation Realization Ownership Design
+        traceability:
+          title: Fraud Evaluation Traceability Design
           narrative: |
             fraud evaluation ownership is anchored to scoring and review modules rather than symbol-level granularity.
             This keeps policy accountability stable while enabling frequent implementation changes inside owned modules.
@@ -69,14 +69,14 @@ design:
 
     - id: FG-PLATFORM
       views:
-        functional:
-          title: Platform Functional Design
+        architecture_intent:
+          title: Platform Architecture Intent Design
           narrative: |
             platform provides the foundational capabilities required for all product workloads to run safely.
             It intentionally models provisioning and reconciliation as first-class architecture responsibilities,
             not background implementation detail.
-        runtime:
-          title: Platform Runtime Design
+        communication:
+          title: Platform Communication Design
           narrative: |
             platform runtime design establishes containment and control-loop behavior for workload operation.
             It defines how namespaces, clusters, and reconciler processes create predictable runtime boundaries
@@ -87,8 +87,8 @@ design:
             platform deployment design governs how infrastructure intent is applied and kept in sync over time.
             It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
             teams depend on new platform states.
-        code_ownership:
-          title: Platform Realization Ownership Design
+        traceability:
+          title: Platform Traceability Design
           narrative: |
             platform ownership is centered on infrastructure and GitOps configuration boundaries.
             This enables platform teams to evolve delivery mechanics independently while preserving explicit ownership
@@ -104,14 +104,14 @@ design:
     - id: FU-CHECKOUT
       group: FG-PAYMENTS
       views:
-        functional:
-          title: Checkout Handling Functional Design
+        architecture_intent:
+          title: Checkout Handling Architecture Intent Design
           narrative: |
             checkout handling owns customer-facing request normalization and response semantics.
             Functional design ensures the customer receives a coherent outcome regardless of approval, decline,
             or temporary dependency failure conditions.
-        runtime:
-          title: Checkout Handling Runtime Design
+        communication:
+          title: Checkout Handling Communication Design
           narrative: |
             checkout handling is the ingress runtime boundary and forwards normalized requests downstream.
             Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
@@ -121,8 +121,8 @@ design:
           narrative: |
             checkout handling is released independently to protect user-facing velocity without destabilizing policy logic.
             Deployment design favors fast rollback and compatibility checks with the current authorization interface.
-        code_ownership:
-          title: Checkout Handling Realization Ownership Design
+        traceability:
+          title: Checkout Handling Traceability Design
           narrative: |
             checkout handling ownership is maintained at coarse package/module scope.
             This keeps architecture ownership stable across internal refactors while preserving fine-grained symbol traces
@@ -137,13 +137,13 @@ design:
     - id: FU-PAYMENT-AUTHORIZATION
       group: FG-PAYMENTS
       views:
-        functional:
-          title: Payment Authorization Functional Design
+        architecture_intent:
+          title: Payment Authorization Architecture Intent Design
           narrative: |
             payment authorization defines the decision policy orchestration for each transaction.
             It combines fraud input, bank outcomes, and escalation rules into one deterministic business decision.
-        runtime:
-          title: Payment Authorization Runtime Design
+        communication:
+          title: Payment Authorization Communication Design
           narrative: |
             payment authorization coordinates critical runtime dependencies and enforces decision-order determinism.
             Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
@@ -152,8 +152,8 @@ design:
           narrative: |
             payment authorization deployment is policy-sensitive and therefore rollout-cautious.
             Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
-        code_ownership:
-          title: Payment Authorization Realization Ownership Design
+        traceability:
+          title: Payment Authorization Traceability Design
           narrative: |
             payment authorization ownership resides at the payment engine orchestration boundary.
             Teams may evolve internal algorithms, but ownership of orchestration behavior remains explicit and durable.
@@ -166,13 +166,13 @@ design:
     - id: FU-RISK-SCORING
       group: FG-FRAUD
       views:
-        functional:
-          title: Risk Scoring Functional Design
+        architecture_intent:
+          title: Risk Scoring Architecture Intent Design
           narrative: |
             risk scoring produces risk classifications that are actionable for authorization policy.
             Functional design requires predictable threshold behavior and explainable outputs for operators.
-        runtime:
-          title: Risk Scoring Runtime Design
+        communication:
+          title: Risk Scoring Communication Design
           narrative: |
             risk scoring runs as a synchronous dependency with strict response-shape stability.
             Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
@@ -181,8 +181,8 @@ design:
           narrative: |
             risk scoring deployment uses staged rollout because scoring changes have immediate decision impact.
             Deployment design includes observation windows for score distribution and escalation-rate changes.
-        code_ownership:
-          title: Risk Scoring Realization Ownership Design
+        traceability:
+          title: Risk Scoring Traceability Design
           narrative: |
             risk scoring ownership is kept at module/package boundary for policy accountability.
             Fine-grained traces support requirements, but ownership remains coarse to avoid architectural churn.
@@ -195,13 +195,13 @@ design:
     - id: FU-SUPPORT-REVIEW
       group: FG-FRAUD
       views:
-        functional:
-          title: Support Review Functional Design
+        architecture_intent:
+          title: Support Review Architecture Intent Design
           narrative: |
             support review provides controlled human decision flow for escalated transactions.
             Functional design ensures review actions are policy-bounded and outcome transitions are explicit.
-        runtime:
-          title: Support Review Runtime Design
+        communication:
+          title: Support Review Communication Design
           narrative: |
             support review runtime optimizes for operator clarity and decision traceability over throughput.
             Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
@@ -210,8 +210,8 @@ design:
           narrative: |
             support review deployment isolates privileged workflows from public ingress components.
             Deployment design must preserve active review sessions across upgrades and ensure queue/review latency visibility.
-        code_ownership:
-          title: Support Review Realization Ownership Design
+        traceability:
+          title: Support Review Traceability Design
           narrative: |
             support review ownership is maintained at workflow-module boundary.
             Shared helper code may exist, but accountability for review flow and outcome transitions remains explicit.
@@ -224,13 +224,13 @@ design:
     - id: FU-CLUSTER-PROVISIONING
       group: FG-PLATFORM
       views:
-        functional:
-          title: Cluster Provisioning Functional Design
+        architecture_intent:
+          title: Cluster Provisioning Architecture Intent Design
           narrative: |
             cluster provisioning defines the repeatable environment baseline for all runtime workloads.
             Functional design establishes deterministic creation of cluster and namespace structure.
-        runtime:
-          title: Cluster Provisioning Runtime Design
+        communication:
+          title: Cluster Provisioning Communication Design
           narrative: |
             cluster provisioning influences runtime isolation and blast-radius boundaries indirectly but critically.
             Runtime design ensures containment primitives are present before workload traffic depends on them.
@@ -239,8 +239,8 @@ design:
           narrative: |
             cluster provisioning deployment is infrastructure-first and sequence-sensitive.
             Deployment design requires deterministic change plans, drift awareness, and rollback strategy before apply.
-        code_ownership:
-          title: Cluster Provisioning Realization Ownership Design
+        traceability:
+          title: Cluster Provisioning Traceability Design
           narrative: |
             cluster provisioning ownership belongs to infrastructure code modules and provisioning definitions.
             Ownership remains stable across provider changes to preserve platform accountability.
@@ -253,13 +253,13 @@ design:
     - id: FU-GITOPS-OPERATIONS
       group: FG-PLATFORM
       views:
-        functional:
-          title: GitOps Operations Functional Design
+        architecture_intent:
+          title: GitOps Operations Architecture Intent Design
           narrative: |
             gitops operations defines how declared release intent becomes enforced runtime state.
             Functional design ensures delivery behavior is predictable and drift is corrected consistently.
-        runtime:
-          title: GitOps Operations Runtime Design
+        communication:
+          title: GitOps Operations Communication Design
           narrative: |
             gitops operations runs reconciliation loops that continuously compare desired and observed state.
             Runtime design requires clear reconciliation signals so teams can reason about rollout and recovery behavior.
@@ -268,8 +268,8 @@ design:
           narrative: |
             gitops operations deployment defines the release control plane for application artifacts.
             Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
-        code_ownership:
-          title: GitOps Operations Realization Ownership Design
+        traceability:
+          title: GitOps Operations Traceability Design
           narrative: |
             gitops operations ownership is anchored at GitOps configuration and automation module boundaries.
             This keeps delivery accountability explicit while allowing manifest-level iteration.

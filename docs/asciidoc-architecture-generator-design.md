@@ -16,7 +16,12 @@ The generator is view-centric and layered:
 
 - Authored layer: Functional Groups + Functional Units
 - Inferred layer: Runtime + Code evidence
-- Traceability layer: requirements, references, inferred indexes
+- Traceability layer: requirements, verification (test code -> requirement), references, inferred indexes
+
+Verification ownership semantics:
+- primary: verification check to test code elements
+- primary: verification check to requirements
+- derived context: functional owners inferred from requirement ownership
 
 ## Inputs
 
@@ -26,6 +31,9 @@ The generator is view-centric and layered:
 - authored architecture entities and mappings
 - inference hints (runtime/code roots and ownership resolution order)
 - views (kinds and roots)
+  - optional view publication metadata:
+    - `authoredStatus`
+    - `authoredStatusExplanation`
 
 ### `requirements.yml`
 
@@ -34,11 +42,12 @@ The generator is view-centric and layered:
 ### `design.yml`
 
 - per-Functional Group and per-Functional Unit narratives for each view kind:
-  - `functional`
-  - `runtime`
+  - `architecture_intent`
+  - `communication`
   - `deployment`
-  - `code_ownership`
   - `security`
+  - `traceability`
+  - `state_lifecycle` (optional)
 
 ## Generation Pipeline
 
@@ -65,11 +74,12 @@ The generated document includes:
 - How To Read This Document
 - Document Health Snapshot
 - Terms and Definitions
-- View chapters (Functional/Runtime/Deployment/Realization/Security)
-- Generated Evidence Appendix
-  - Requirement Alignment
-  - Cross-Layer Coverage
-  - Reference Index
+- View chapters (Architecture Intent/Communication/Deployment/Security/Traceability)
+- Traceability Appendix
+  - Requirement Details
+  - Verification Inventory (test code elements + requirement mapping)
+  - Verification Result Mapping
+- Reference Index
 
 ## Output Contract
 

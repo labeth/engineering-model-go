@@ -8,11 +8,12 @@ import (
 )
 
 var allowedViewKinds = map[string]bool{
-	"authored-functional": true,
-	"runtime":             true,
+	"architecture-intent": true,
+	"communication":       true,
 	"deployment":          true,
-	"code-ownership":      true,
 	"security":            true,
+	"traceability":        true,
+	"state-lifecycle":     true,
 }
 
 var allowedMappingTypes = map[string]bool{

@@ -36,16 +36,21 @@ type asciidocTemplateData struct {
 	RequirementCoverageMermaid string
 	RequirementInf             string
 	Requirements               []asciidocRequirementSection
+	Verifications              []asciidocVerificationSection
+	VerificationResults        []asciidocVerificationResultRow
 	ReferenceIndex             asciidocReferenceIndex
 }
 
 type asciidocHealthRow struct {
-	ViewID       string
-	ViewHeading  string
-	UnitsInScope int
-	WithEvidence int
-	GapCount     int
-	Confidence   string
+	ViewID                    string
+	ViewHeading               string
+	AuthoredStatus            string
+	AuthoredStatusExplanation string
+	UnitsInScope              int
+	WithEvidence              int
+	GapCount                  int
+	Confidence                string
+	HeuristicBasisExplanation string
 }
 
 type asciidocTerm struct {
@@ -57,10 +62,11 @@ type asciidocTerm struct {
 }
 
 type asciidocReferenceIndex struct {
-	Authored []asciidocReferenceEntry
-	Catalog  []asciidocReferenceEntry
-	Runtime  []asciidocReferenceEntry
-	Code     []asciidocReferenceEntry
+	Authored     []asciidocReferenceEntry
+	Catalog      []asciidocReferenceEntry
+	Runtime      []asciidocReferenceEntry
+	Code         []asciidocReferenceEntry
+	Verification []asciidocReferenceEntry
 }
 
 type asciidocReferenceEntry struct {
@@ -172,31 +178,34 @@ type asciidocSecurityObsRow struct {
 }
 
 type asciidocViewSection struct {
-	ID               string
-	Kind             string
-	Heading          string
-	Inf              string
-	ViewQuestions    []string
-	CoverageSummary  string
-	CoverageGaps     []string
-	NextActions      []string
-	Mermaid          string
-	FuncContextGraph string
-	FuncDecompGraph  string
-	FuncCollabGraph  string
-	Groups           []asciidocEntitySection
-	Units            []asciidocUnitSection
-	InferredGraph    string
-	InferredRows     []asciidocInferredRow
-	RuntimeAPIGraph  string
-	RuntimeAPIRows   []asciidocRuntimeAPIRow
-	DeploymentGraph  string
-	DeploymentRows   []asciidocDeploymentRow
-	PlatformOpsGraph string
-	PlatformOpsRows  []asciidocPlatformOpRow
-	SecurityGraph    string
-	SecurityRows     []asciidocSecurityPathRow
-	SecurityObsRows  []asciidocSecurityObsRow
+	ID                        string
+	Kind                      string
+	Heading                   string
+	AuthoredStatus            string
+	AuthoredStatusExplanation string
+	Inf                       string
+	ViewQuestions             []string
+	CoverageSummary           string
+	CoverageGaps              []string
+	NextActions               []string
+	Mermaid                   string
+	FuncContextGraph          string
+	FuncDecompGraph           string
+	FuncMatrixTable           string
+	FuncCollabGraph           string
+	Groups                    []asciidocEntitySection
+	Units                     []asciidocUnitSection
+	InferredGraph             string
+	InferredRows              []asciidocInferredRow
+	RuntimeAPIGraph           string
+	RuntimeAPIRows            []asciidocRuntimeAPIRow
+	DeploymentGraph           string
+	DeploymentRows            []asciidocDeploymentRow
+	PlatformOpsGraph          string
+	PlatformOpsRows           []asciidocPlatformOpRow
+	SecurityGraph             string
+	SecurityRows              []asciidocSecurityPathRow
+	SecurityObsRows           []asciidocSecurityObsRow
 }
 
 type asciidocDesignDetail struct {
@@ -238,6 +247,30 @@ type asciidocRequirementSection struct {
 	ID     string
 	Text   string
 	Notes  string
+}
+
+type asciidocVerificationSection struct {
+	Anchor        string
+	IndexAnchor   string
+	ID            string
+	Name          string
+	Kind          string
+	Status        string
+	Verifies      string
+	TestCode      string
+	DerivedOwners string
+	Evidence      string
+	ResultSummary string
+	Description   string
+}
+
+type asciidocVerificationResultRow struct {
+	CheckID     string
+	CheckName   string
+	Requirement string
+	Status      string
+	Evidence    string
+	Notes       string
 }
 
 func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {

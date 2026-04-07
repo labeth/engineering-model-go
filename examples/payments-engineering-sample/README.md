@@ -16,6 +16,7 @@ Inferred layers are represented by example ownership and runtime hints:
 - Runtime inferred from `infra/terraform`, `infra/flux`, `infra/helm`
 - Code ownership inferred from package/module-level owner annotations in `src/`
 - Fine-grained requirement traces from `TRACE-REQS` markers in code
+- Verification mappings and outcomes inferred from `tests/` and `test-results/` artifacts
 
 The implementation files are intentionally dummy but believable:
 
@@ -41,11 +42,13 @@ Story highlights:
 - `infra/flux/...`
 - `infra/helm/...`
 - `src/...`
+- `tests/...` (sample e2e/integration/contract verification fixtures)
+- `tests/unit/...` (sample code-level unit verification fixtures)
+- `test-results/...` (sample run artifacts mapped to requirements)
 
 Note:
-- This example now follows the proposed new conceptual model.
-- Existing generator implementation may not parse this format yet.
-- The sample is intentionally updated first to validate target structure and terminology.
+- This example is intentionally synthetic and focuses on documentation/traceability behavior.
+- Verification artifacts are sample fixtures intended to demonstrate requirement-to-test-to-result mapping.
 
 ## Upstream References
 

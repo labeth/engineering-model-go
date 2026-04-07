@@ -4,7 +4,7 @@
 
 It combines:
 - architecture model loading and validation
-- viewpoint projection (functional/runtime/deployment/code/security)
+- viewpoint projection (architecture-intent/communication/deployment/security/traceability)
 - Mermaid rendering
 - design + requirement narrative generation to AsciiDoc
 - EARS requirement preflight linting
@@ -49,7 +49,7 @@ Primary entry points:
 Example:
 
 ```go
-res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/architecture.yml", "VIEW-FUNCTIONAL")
+res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/architecture.yml", "VIEW-ARCHITECTURE-INTENT")
 if err != nil {
     panic(err)
 }
@@ -61,11 +61,23 @@ for _, d := range res.Diagnostics {
 ```
 
 View IDs are free-form, but view `kind` must be one of:
-- `authored-functional`
-- `runtime`
+- `architecture-intent`
+- `communication`
 - `deployment`
-- `code-ownership`
 - `security`
+- `traceability`
+- `state-lifecycle` (optional)
+
+Optional per-view publication metadata (in `architecture.yml`):
+- `authoredStatus` (for example `draft`, `in-review`, `stable`)
+- `authoredStatusExplanation` (short rationale shown in Document Health Snapshot)
+
+Verification metadata is inferred from test artifacts (not authored in `architecture.yml`):
+- test sources under `tests/` (for inferred verification checks and test code element links)
+- result artifacts under `test-results/` (for inferred requirement-level outcomes)
+- requirement IDs are inferred by matching `REQ-*` tokens in test and result artifacts
+- published verification chain is `Verification Check -> Test Code Element -> Requirement`
+- functional ownership in verification tables is shown as derived context from requirement ownership
 
 ## CLI Usage
 
@@ -85,7 +97,7 @@ go run ./cmd/engdoc \
   --model examples/payments-engineering-sample/architecture.yml \
   --requirements examples/payments-engineering-sample/requirements.yml \
   --design examples/payments-engineering-sample/design.yml \
-  --code-root examples/payments-engineering-sample/src \
+  --code-root ./src \
   --out examples/payments-engineering-sample/generated/ARCHITECTURE.adoc
 ```
 
@@ -110,6 +122,11 @@ Each generated view includes:
 - `What This View Answers`
 - `Coverage Gaps` and `Recommended Next Evidence Additions`
 - view-scoped FG/FU narratives from `design.yml`
+
+The traceability appendix includes:
+- `Requirement Details`
+- `Verification Inventory` (inferred test/check mappings to test code elements and requirements)
+- `Verification Result Mapping` (inferred per-requirement outcomes)
 
 ## Example Project
 

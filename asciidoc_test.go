@@ -37,6 +37,24 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if !strings.Contains(res.Document, "=== Functional Units (View Scoped)") {
 		t.Fatalf("missing view-scoped functional units section")
 	}
+	if !strings.Contains(res.Document, "=== Verification Inventory") {
+		t.Fatalf("missing verification inventory section")
+	}
+	if !strings.Contains(res.Document, "VER-INF-") {
+		t.Fatalf("missing inferred verification check content")
+	}
+	if !strings.Contains(res.Document, "tests/e2e/authorized_checkout_flow.yaml") {
+		t.Fatalf("missing inferred verification evidence path")
+	}
+	if !strings.Contains(res.Document, "=== Verification Result Mapping") {
+		t.Fatalf("missing verification result mapping section")
+	}
+	if !strings.Contains(res.Document, "=== Verification References") {
+		t.Fatalf("missing verification references section")
+	}
+	if !strings.Contains(res.Document, "REQ-PAY-005") || !strings.Contains(res.Document, "partial") {
+		t.Fatalf("missing verification result rows")
+	}
 }
 
 func TestEngdocCLI_EndToEnd(t *testing.T) {
@@ -54,8 +72,8 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))
 	}
 	text := string(out)
-	if !strings.Contains(text, "== Functional View") {
-		t.Fatalf("cli output missing functional view chapter")
+	if !strings.Contains(text, "== Architecture Intent View") {
+		t.Fatalf("cli output missing architecture intent view chapter")
 	}
 	if !strings.Contains(text, "== Deployment View") {
 		t.Fatalf("cli output missing deployment view chapter")

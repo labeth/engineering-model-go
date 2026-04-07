@@ -1,0 +1,14 @@
+name: authorized-checkout-flow
+suite: payments-e2e
+requirements:
+  - REQ-PAY-001
+steps:
+  - call: POST /checkout/authorize
+    expect:
+      status: 200
+      fields:
+        - paymentId
+        - authorizationId
+        - outcome
+  - assert:
+      outcome: authorized

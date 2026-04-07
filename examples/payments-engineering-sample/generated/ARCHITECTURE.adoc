@@ -25,40 +25,56 @@ This document is intentionally split into two layers:
 
 Read in this order:
 
-1. Functional View: authored architecture intent and responsibilities.
-2. Runtime/Deployment/Realization/Security Views: view-specific realization details.
-3. Generated Evidence Appendix: traceability and inferred references for audit/tooling.
+1. Architecture Intent View: stable authored architecture intent and ownership boundaries.
+2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
+3. Traceability View: requirement mapping, evidence coverage, and confidence.
+4. Reference Appendix: supporting reference IDs and inferred-source links.
 
 == Document Health Snapshot
 
-[cols="3,1,1,1,1",options="header"]
+[cols="2,1,3,1,1,1,1,4",options="header"]
 |===
-|View |Units in Scope |Direct Evidence Coverage |Gap Count |Confidence
-|Functional View (`VIEW-FUNCTIONAL`)
+|View |Authored Status |Authored Status Explanation |Units in Scope |Direct Evidence Coverage |Gap Count |Heuristic Confidence |Heuristic Basis
+|Architecture Intent View (`VIEW-ARCHITECTURE-INTENT`)
+|stable
+|Stable authored capability boundaries and ownership split; changes are intentional and infrequent.
 |6
 |6
 |0
 |high
-|Runtime View (`VIEW-RUNTIME`)
+|Defaults authored units to covered; use authoredStatus as the primary publication signal.
+|Communication View (`VIEW-COMMUNICATION`)
+|in-review
+|Communication semantics are partially inferred and still being refined with explicit protocol and interaction metadata.
 |4
 |3
 |1
 |medium
+|Counts a unit as covered when direct inferred runtime evidence exists.
 |Deployment View (`VIEW-DEPLOYMENT`)
+|in-review
+|Deployment chain and control-plane mapping are mostly present, but ownership evidence remains incomplete for some units.
 |6
 |5
 |1
 |high
-|Realization View (`VIEW-CODE-OWNERSHIP`)
-|4
-|3
-|1
-|medium
+|Counts a unit as covered when direct inferred runtime evidence exists.
 |Security View (`VIEW-SECURITY`)
+|draft
+|Threat mapping is present for key vectors, but control expectations and coverage breadth are still evolving.
 |6
-|2
 |4
-|low
+|2
+|medium
+|Counts a unit as covered when explicit authored attack-vector mapping exists.
+|Traceability View (`VIEW-TRACEABILITY`)
+|in-review
+|Requirement-to-unit linkage is present; cross-layer ownership consistency still needs tightening.
+|6
+|5
+|4
+|high
+|Counts a unit as covered when direct inferred runtime or code evidence exists.
 |===
 
 == Terms and Definitions
@@ -98,6 +114,8 @@ Read in this order:
 |Feature flag controlling whether risk scoring is required before authorization. Aliases:fraud check
 |[[REF_CATALOG_FG_FRAUD]]fraud evaluation (FG-FRAUD)
 |Functional group for risk scoring and fraud review capabilities. Aliases:fraud detection system, fraud domain
+|[[REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]fraudulent transaction pattern (AV-FRAUDULENT-TRANSACTION-PATTERN)
+|Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals. Aliases:fraud abuse, payment fraud
 |[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]functional group (EM-FUNCTIONAL-GROUP)
 |A major authored capability area that groups related functional units.
 |[[REF_ENGMODEL_EM_FUNCTIONAL_UNIT]]functional unit (EM-FUNCTIONAL-UNIT)
@@ -154,89 +172,224 @@ Read in this order:
 |Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
 |===
 
-== Functional View
+=== Diagram Color and Shape Legend
 
-Show authored architecture scope for this view.
-
-=== What This View Answers
-- What capability areas and responsibilities are intentionally designed?
-- How do actors interact with functional units and key dependencies?
-- Which collaborations define the primary system behavior?
-
-=== Coverage Gaps
-
-Coverage summary: 6/6 units have direct evidence coverage in this view.
-- No major coverage gaps detected from current authored and inferred inputs.
-
-=== Recommended Next Evidence Additions
-- No immediate evidence additions are required for this view.
-=== Functional Context Diagram
+This legend applies to all Mermaid diagrams in this document.
 
 [source,mermaid]
 ----
 flowchart LR
-  ACT_ACT_CUSTOMER(("Customer"))
-  ACT_ACT_SUPPORT(("Support Agent"))
-  ACT_ACT_PLATFORM_OPERATOR(("Platform Operator"))
-  FU_FU_CHECKOUT["Checkout Handling"]
-  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
-  FU_FU_RISK_SCORING["Risk Scoring"]
-  FU_FU_SUPPORT_REVIEW["Support Review"]
-  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
-  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
-  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]
-  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]
-  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]
-  ACT_ACT_CUSTOMER --> FU_FU_CHECKOUT
-  ACT_ACT_SUPPORT --> FU_FU_SUPPORT_REVIEW
-  ACT_ACT_PLATFORM_OPERATOR --> FU_FU_GITOPS_OPERATIONS
-  FU_FU_PAYMENT_AUTHORIZATION --> REF_REF_BANK_GATEWAY_ENDPOINT
-  FU_FU_RISK_SCORING --> REF_REF_POSTGRES_DRIVER
+  SYS["System"]:::system_boundary
+  FG["Functional Group"]:::functional_group
+  FU["Functional Unit"]:::functional_unit
+  ACT(("Actor")):::actor
+  REF["Referenced Element"]:::referenced_element
+  AV(("Attack Vector")):::attack_vector
+  REQ["Requirement"]:::requirement
+  VER["Verification Check"]:::verification
+  RT["Runtime Element"]:::runtime_element
+  DEP["Deployment Element"]:::deployment_element
+  CODE["Code Element"]:::code_element
+
+  SYS --> FG
+  FG --> FU
+  ACT --> FU
+  FU --> REF
+  REQ -->|applies_to| FU
+  VER -->|verifies| REQ
+  VER -->|implemented_by| CODE
+  FU -->|realizes| RT
+  DEP --> RT
+  AV --> FU
+  RT -->|implemented_by| CODE
+  REQ -->|code_trace| CODE
+
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
-=== Functional Decomposition Diagram
+== Architecture Intent View
+
+Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
+
+=== What This View Answers
+
+
+- What are the main capability areas?
+
+- What are the stable units of responsibility and what does each unit own?
+
+- How are responsibilities intentionally split?
+
+=== System Boundary Diagram
+
+What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
+
+[source,mermaid]
+----
+flowchart LR
+  ACT_ACT_CUSTOMER(("Customer")):::actor
+  ACT_ACT_SUPPORT(("Support Agent")):::actor
+  ACT_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
+  subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
+    direction TB
+    subgraph FGCTX_FG_PAYMENTS["Payments"]
+      direction TB
+      FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+      FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+    end
+    style FGCTX_FG_PAYMENTS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+    subgraph FGCTX_FG_FRAUD["Fraud Evaluation"]
+      direction TB
+      FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+      FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+    end
+    style FGCTX_FG_FRAUD fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+    subgraph FGCTX_FG_PLATFORM["Platform"]
+      direction TB
+      FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+      FU_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+    end
+    style FGCTX_FG_PLATFORM fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  end
+  style SYSTEM_BOUNDARY fill:#f5f5f5,stroke:#424242,stroke-width:1px;
+  ACT_ACT_CUSTOMER -->|Submits payment at checkout.| FU_FU_CHECKOUT
+  ACT_ACT_SUPPORT -->|Performs manual payment reviews.| FU_FU_SUPPORT_REVIEW
+  ACT_ACT_PLATFORM_OPERATOR -->|Operates delivery and release workflows.| FU_FU_GITOPS_OPERATIONS
+  ACT_ACT_PLATFORM_OPERATOR -->|Maintains cluster baseline and environment setup.| FU_FU_CLUSTER_PROVISIONING
+  FU_FU_PAYMENT_AUTHORIZATION -->|Calls external bank authorization endpoint.| REF_REF_BANK_GATEWAY_ENDPOINT
+  FU_FU_RISK_SCORING -->|Uses external library for audit persistence.| REF_REF_POSTGRES_DRIVER
+  FU_FU_GITOPS_OPERATIONS -->|Uses Helm runtime platform for release orchestration.| REF_REF_HELM_PLATFORM
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+=== System Decomposition Diagram
+
+What this diagram shows: stable capability decomposition from functional groups into functional units.
 
 [source,mermaid]
 ----
 flowchart TB
-  FG_FG_PAYMENTS["Payments"]
-  FG_FG_FRAUD["Fraud Evaluation"]
-  FG_FG_PLATFORM["Platform"]
-  FU_FU_CHECKOUT["Checkout Handling"]
+  SYS["System"]:::system_boundary
+  FG_FG_PAYMENTS["Payments"]:::functional_group
+  SYS -->|contains| FG_FG_PAYMENTS
+  FG_FG_FRAUD["Fraud Evaluation"]:::functional_group
+  SYS -->|contains| FG_FG_FRAUD
+  FG_FG_PLATFORM["Platform"]:::functional_group
+  SYS -->|contains| FG_FG_PLATFORM
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   FG_FG_PAYMENTS -->|contains| FU_FU_CHECKOUT
-  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   FG_FG_PAYMENTS -->|contains| FU_FU_PAYMENT_AUTHORIZATION
-  FU_FU_RISK_SCORING["Risk Scoring"]
+  FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   FG_FG_FRAUD -->|contains| FU_FU_RISK_SCORING
-  FU_FU_SUPPORT_REVIEW["Support Review"]
+  FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   FG_FG_FRAUD -->|contains| FU_FU_SUPPORT_REVIEW
-  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
+  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
   FG_FG_PLATFORM -->|contains| FU_FU_CLUSTER_PROVISIONING
-  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
+  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
   FG_FG_PLATFORM -->|contains| FU_FU_GITOPS_OPERATIONS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
-=== Functional Collaboration Diagram
+<<<
+=== Functional Group Manhattan Matrix
+
+What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
+
+[cols="1,1,1",frame=none,grid=none]
+|===
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Checkout Handling</div>]
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Risk Scoring</div>]
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Cluster Provisioning</div>]
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Payment Authorization</div>]
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Support Review</div>]
+|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">GitOps Operations</div>]
+|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Payments</div>]
+|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Fraud Evaluation</div>]
+|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Platform</div>]
+|===
+
+=== Functional Unit Dependency Diagram
+
+What this diagram shows: dependency paths between functional units (grouped in Functional Group containers) and key referenced elements.
+Arrow meaning: `A -->|depends_on| B` means unit `A` requires behavior or data from `B` to fulfill its responsibility.
 
 [source,mermaid]
 ----
 flowchart LR
-  FU_FU_CHECKOUT["Checkout Handling"]
-  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
-  FU_FU_RISK_SCORING["Risk Scoring"]
-  FU_FU_SUPPORT_REVIEW["Support Review"]
-  FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]
-  FU_FU_GITOPS_OPERATIONS["GitOps Operations"]
-  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]
-  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]
-  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]
-  FU_FU_CHECKOUT --> FU_FU_PAYMENT_AUTHORIZATION
-  FU_FU_PAYMENT_AUTHORIZATION --> FU_FU_RISK_SCORING
-  FU_FU_PAYMENT_AUTHORIZATION --> REF_REF_BANK_GATEWAY_ENDPOINT
-  FU_FU_PAYMENT_AUTHORIZATION --> FU_FU_SUPPORT_REVIEW
-  FU_FU_RISK_SCORING --> REF_REF_POSTGRES_DRIVER
+  subgraph FGBOX_FG_PAYMENTS["Payments"]
+    direction TB
+    FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+    FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  end
+  style FGBOX_FG_PAYMENTS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  subgraph FGBOX_FG_FRAUD["Fraud Evaluation"]
+    direction TB
+    FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+    FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  end
+  style FGBOX_FG_FRAUD fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  subgraph FGBOX_FG_PLATFORM["Platform"]
+    direction TB
+    FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+    FU_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+  end
+  style FGBOX_FG_PLATFORM fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  REF_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+  REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+  REF_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
+  FU_FU_CHECKOUT -->|depends_on| FU_FU_PAYMENT_AUTHORIZATION
+  FU_FU_PAYMENT_AUTHORIZATION -->|depends_on| FU_FU_RISK_SCORING
+  FU_FU_PAYMENT_AUTHORIZATION -->|depends_on| REF_REF_BANK_GATEWAY_ENDPOINT
+  FU_FU_PAYMENT_AUTHORIZATION -->|depends_on| FU_FU_SUPPORT_REVIEW
+  FU_FU_RISK_SCORING -->|depends_on| REF_REF_POSTGRES_DRIVER
+  FU_FU_GITOPS_OPERATIONS -->|depends_on| FU_FU_CLUSTER_PROVISIONING
+  FU_FU_GITOPS_OPERATIONS -->|depends_on| REF_REF_HELM_PLATFORM
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
 === Functional Groups (View Scoped)
 
 
@@ -254,7 +407,7 @@ fraud and external bank capabilities.
 
 
 
-===== Payments Functional Design
+===== Payments Architecture Intent Design
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> defines the business capability that turns customer intent into a clear payment outcome.
 It sets the responsibilities between <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>, and defines where
@@ -275,7 +428,7 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 
 
 
-===== Fraud Evaluation Functional Design
+===== Fraud Evaluation Architecture Intent Design
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> defines how <<REF_RT_NAMESPACE_RISK,risk>> evidence is transformed into actionable payment decisions.
 It separates automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> from human <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so escalation paths are explicit,
@@ -296,7 +449,7 @@ The group enables safe delivery and reliable operations without owning payment b
 
 
 
-===== Platform Functional Design
+===== Platform Architecture Intent Design
 
 platform provides the foundational capabilities required for all product workloads to run safely.
 It intentionally models provisioning and reconciliation as first-class architecture responsibilities,
@@ -320,7 +473,7 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 
 
 
-===== Risk Scoring Functional Design
+===== Risk Scoring Architecture Intent Design
 
 <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> produces <<REF_RT_NAMESPACE_RISK,risk>> classifications that are actionable for authorization policy.
 Functional design requires predictable threshold behavior and explainable outputs for operators.
@@ -328,13 +481,14 @@ Functional design requires predictable threshold behavior and explainable output
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Requirement trigger scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Upstream inputs: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Downstream outcomes: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Primary dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Primary threat linkage: no explicit attack vector targeting this unit
-Evidence status: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Purpose: Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
+It provides a stable scoring contract to authorization and supports audit context for later analysis.
+The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Key collaborators: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Owned decisions: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Key inputs and outputs: consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; produces depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -350,7 +504,7 @@ The unit ensures manual intervention remains auditable, policy-constrained, and 
 
 
 
-===== Support Review Functional Design
+===== Support Review Architecture Intent Design
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> provides controlled human decision flow for escalated transactions.
 Functional design ensures review actions are policy-bounded and outcome transitions are explicit.
@@ -358,13 +512,14 @@ Functional design ensures review actions are policy-bounded and outcome transiti
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Requirement trigger scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Upstream inputs: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Downstream outcomes: derived unit outcomes from authored mappings
-Primary dependencies: none
-Primary threat linkage: no explicit attack vector targeting this unit
-Evidence status: authored unit with no direct derived runtime/code evidence yet
+Purpose: Support review handles manual decisions for escalated or ambiguous payment cases.
+It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
+The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Key collaborators: none
+Owned decisions: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Key inputs and outputs: consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; produces derived unit outcomes from authored mappings
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -380,7 +535,7 @@ It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment au
 
 
 
-===== Checkout Handling Functional Design
+===== Checkout Handling Architecture Intent Design
 
 <<REF_CATALOG_FU_CHECKOUT,checkout handling>> owns customer-facing request normalization and response semantics.
 Functional design ensures the customer receives a coherent outcome regardless of approval, decline,
@@ -389,13 +544,14 @@ or temporary dependency failure conditions.
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Requirement trigger scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Upstream inputs: none
-Downstream outcomes: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Primary dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Primary threat linkage: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Evidence status: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Purpose: Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Key collaborators: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Owned decisions: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Key inputs and outputs: consumes none; produces depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -411,7 +567,7 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 
 
 
-===== Payment Authorization Functional Design
+===== Payment Authorization Architecture Intent Design
 
 <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> defines the decision policy orchestration for each transaction.
 It combines fraud input, bank outcomes, and escalation rules into one deterministic business decision.
@@ -419,13 +575,14 @@ It combines fraud input, bank outcomes, and escalation rules into one determinis
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Requirement trigger scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Upstream inputs: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
-Downstream outcomes: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Primary dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Primary threat linkage: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-Evidence status: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
+Purpose: Payment authorization orchestrates the final transaction decision path.
+It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
+The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Key collaborators: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Owned decisions: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Key inputs and outputs: consumes <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>; produces depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -441,7 +598,7 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 
 
 
-===== Cluster Provisioning Functional Design
+===== Cluster Provisioning Architecture Intent Design
 
 <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> defines the repeatable environment baseline for all runtime workloads.
 Functional design establishes deterministic creation of cluster and namespace structure.
@@ -449,13 +606,14 @@ Functional design establishes deterministic creation of cluster and namespace st
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
-Requirement trigger scope: no explicit authored requirement trigger
-Upstream inputs: none
-Downstream outcomes: derived unit outcomes from authored mappings
-Primary dependencies: none
-Primary threat linkage: no explicit attack vector targeting this unit
-Evidence status: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+Purpose: Cluster provisioning creates the runtime substrate used by all application workloads.
+It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+This unit is responsible for predictable, repeatable infrastructure foundations.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
+Key collaborators: none
+Owned decisions: no explicit authored requirement trigger
+Key inputs and outputs: consumes <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>>; produces derived unit outcomes from authored mappings
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -471,7 +629,7 @@ The unit provides safe and observable release behavior as an ongoing operational
 
 
 
-===== GitOps Operations Functional Design
+===== GitOps Operations Architecture Intent Design
 
 <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> defines how declared release intent becomes enforced runtime state.
 Functional design ensures delivery behavior is predictable and drift is corrected consistently.
@@ -479,13 +637,15 @@ Functional design ensures delivery behavior is predictable and drift is correcte
 
 
 
-What it owns: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>
-Requirement trigger scope: no explicit authored requirement trigger
-Upstream inputs: none
-Downstream outcomes: derived unit outcomes from authored mappings
-Primary dependencies: none
-Primary threat linkage: no explicit attack vector targeting this unit
-Evidence status: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
+Purpose: GitOps operations continuously reconciles intended release state with actual runtime state.
+It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+The unit provides safe and observable release behavior as an ongoing operational capability.
+Owned responsibility: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+Key collaborators: <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+Owned decisions: no explicit authored requirement trigger
+Key inputs and outputs: consumes none; produces depends_on -> <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>; depends_on -> <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
+
 
 
 
@@ -494,38 +654,62 @@ Evidence status: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-
 
 <<<
 
-== Runtime View
+== Communication View
 
-Show inferred runtime interaction and containment mapped to authored unit boundaries. This is a derived runtime view and may be partial when runtime artifacts are missing.
+Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
 
 === What This View Answers
-- Which runtime elements interact on the request path?
-- What API edges and ports are currently evidenced?
-- Where is direct runtime evidence still missing?
+
+
+- Who talks to whom and over which interfaces?
+
+- Which edges are synchronous, asynchronous, event-driven, or callback-oriented?
+
+- Which communication paths are critical to the main request flow?
 
 === Coverage Gaps
 
 Coverage summary: 3/4 units have direct evidence coverage in this view.
+
+
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 
-=== Recommended Next Evidence Additions
-- Add explicit owner annotations on runtime/deployment artifacts (for example `engineering-model.dev/owner-unit: FU-*`).
-- Expose service protocol/port metadata in Helm or manifest values to enrich API-edge inference.
-- Capture missing runtime units by adding discoverable workload artifacts under the scanned IaC/runtime roots.
-=== Runtime API Dependency Graph
 
-NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or protocol details indicate missing derived evidence, not necessarily missing runtime behavior.
+=== Recommended Next Evidence Additions
+
+
+- Add explicit communication metadata (protocol, sync/async/event/callback) to authored mappings where currently implicit.
+
+- Expose service protocol/port metadata in Helm or manifest values to enrich interface-edge inference.
+
+- Capture missing communicating runtime units by adding discoverable workload artifacts under scanned inference roots.
+
+=== Communication Path Graph
+
+What this diagram shows: inferred unit-to-unit request/call flow, including available interface/port labels.
+
+NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or interface details indicate missing derived communication evidence, not necessarily missing behavior.
 
 [source,mermaid]
 ----
 flowchart LR
-  RT_CHECKOUT_API["checkout-api"]
-  RT_PAYMENT_ENGINE["payment-engine"]
+  RT_CHECKOUT_API["checkout-api"]:::runtime_element
+  RT_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   RT_CHECKOUT_API -->|API 8081/TCP| RT_PAYMENT_ENGINE
-  RT_RISK_SCORER["risk-scorer"]
+  RT_RISK_SCORER["risk-scorer"]:::runtime_element
   RT_PAYMENT_ENGINE -->|API 8082/TCP| RT_RISK_SCORER
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
 === Functional Groups (View Scoped)
 
 
@@ -535,7 +719,7 @@ flowchart LR
 
 
 
-===== Payments Runtime Design
+===== Payments Communication Design
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> runs the public request path and keeps transaction context intact across runtime hops.
 The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
@@ -549,7 +733,7 @@ signals when dependencies slow down or fail.
 
 
 
-===== Fraud Evaluation Runtime Design
+===== Fraud Evaluation Communication Design
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> runs as a critical dependency on the authorization path.
 Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
@@ -568,7 +752,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Runtime Design
+===== Risk Scoring Communication Design
 
 <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> runs as a synchronous dependency with strict response-shape stability.
 Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
@@ -577,10 +761,14 @@ Runtime design favors deterministic outputs, bounded latency, and clear degradat
 
 [cols="1,3",options="header"]
 |===
-|Runtime Aspect |View-Scoped Detail
-|Runtime interactions |Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; Produces: depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Runtime dependencies |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Inferred runtime evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Communication Aspect |View-Scoped Detail
+|Inbound interfaces |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Outbound interfaces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Messages/events consumed |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Messages/events produced |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
+|Timeout/failure behavior |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+|Communication evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -591,7 +779,7 @@ Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Runtime Design
+===== Support Review Communication Design
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime optimizes for operator clarity and decision traceability over throughput.
 Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
@@ -600,10 +788,14 @@ Runtime design emphasizes state visibility, reversible transitions where allowed
 
 [cols="1,3",options="header"]
 |===
-|Runtime Aspect |View-Scoped Detail
-|Runtime interactions |Consumes: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; Produces: derived unit outcomes from authored mappings
-|Runtime dependencies |none
-|Inferred runtime evidence |authored unit with no direct derived runtime/code evidence yet
+|Communication Aspect |View-Scoped Detail
+|Inbound interfaces |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Outbound interfaces |derived unit outcomes from authored mappings
+|Messages/events consumed |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Messages/events produced |derived unit outcomes from authored mappings
+|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
+|Timeout/failure behavior |none
+|Communication evidence |authored unit with no direct derived runtime/code evidence yet
 |===
 
 
@@ -614,7 +806,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Runtime Design
+===== Checkout Handling Communication Design
 
 <<REF_CATALOG_FU_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
 Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
@@ -624,10 +816,14 @@ burst traffic and partial downstream degradation.
 
 [cols="1,3",options="header"]
 |===
-|Runtime Aspect |View-Scoped Detail
-|Runtime interactions |Consumes: none; Produces: depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Runtime dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Inferred runtime evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+|Communication Aspect |View-Scoped Detail
+|Inbound interfaces |none
+|Outbound interfaces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Messages/events consumed |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Messages/events produced |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
+|Timeout/failure behavior |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Communication evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
 |===
 
 
@@ -638,7 +834,7 @@ Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Payment Authorization Runtime Design
+===== Payment Authorization Communication Design
 
 <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
 Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
@@ -647,11 +843,16 @@ Runtime design prioritizes idempotent transitions, explicit branch visibility, a
 
 [cols="1,3",options="header"]
 |===
-|Runtime Aspect |View-Scoped Detail
-|Runtime interactions |Consumes: <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>; Produces: depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Runtime dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Inferred runtime evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
+|Communication Aspect |View-Scoped Detail
+|Inbound interfaces |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
+|Outbound interfaces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Messages/events consumed |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Messages/events produced |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
+|Timeout/failure behavior |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Communication evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 |===
+
 
 
 
@@ -664,67 +865,111 @@ Runtime design prioritizes idempotent transitions, explicit branch visibility, a
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations.
 
 === What This View Answers
-- How are deployment artifacts linked from source to runtime targets?
-- What platform operations connect actors to deployment control points?
-- Which units still lack deployment/runtime artifact evidence?
+
+
+- How does authored intent become deployed runtime?
+
+- What control-plane objects manage deployable units?
+
+- Where are platform ownership boundaries and missing ownership signals?
 
 === Coverage Gaps
 
 Coverage summary: 5/6 units have direct evidence coverage in this view.
+
+
 - <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime/deployment evidence yet.
 
+
 === Recommended Next Evidence Additions
+
+
 - Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.
+
 - Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.
+
 - Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.
+
 === Deployment Artifact Relationship Graph
+
+What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
 
 [source,mermaid]
 ----
 flowchart TB
-  DP_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]
-  DP_PAYMENTS_APPS["payments-apps"]
+  DP_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]:::deployment_element
+  DP_PAYMENTS_APPS["payments-apps"]:::deployment_element
   DP_PAYMENTS_SAMPLE_SOURCE -->|reconciles| DP_PAYMENTS_APPS
-  DP_CHECKOUT_API["checkout-api"]
+  DP_CHECKOUT_API["checkout-api"]:::deployment_element
   DP_PAYMENTS_APPS -->|applies| DP_CHECKOUT_API
-  DP_PAYMENT_ENGINE["payment-engine"]
+  DP_PAYMENT_ENGINE["payment-engine"]:::deployment_element
   DP_PAYMENTS_APPS -->|applies| DP_PAYMENT_ENGINE
-  DP_RISK_SCORER["risk-scorer"]
+  DP_RISK_SCORER["risk-scorer"]:::deployment_element
   DP_PAYMENTS_APPS -->|applies| DP_RISK_SCORER
-  DP_RISK["risk"]
+  DP_RISK["risk"]:::deployment_element
   DP_RISK_SCORER -->|targets| DP_RISK
-  DP_FLUX_SYSTEM["flux_system"]
-  DP_PAYMENTS["payments"]
+  DP_FLUX_SYSTEM["flux_system"]:::deployment_element
+  DP_PAYMENTS["payments"]:::deployment_element
   DP_FLUX_SYSTEM -->|part_of| DP_PAYMENTS
   DP_PAYMENTS -->|part_of| DP_PAYMENTS
   DP_RISK -->|part_of| DP_PAYMENTS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 === Platform Operations Graph
+
+What this diagram shows: which platform actors operate which platform units and the control-plane targets they influence.
 
 NOTE: Platform operations links are inferred from authored actor mappings plus discovered deployment control-plane artifacts.
 
 [source,mermaid]
 ----
 flowchart LR
-  ACT_PLATFORM_OPERATOR(("Platform Operator"))
-  PFU_GITOPS_OPERATIONS["GitOps Operations"]
-  TGT_CHECKOUT_API["checkout-api"]
+  ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+  PFU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+  TGT_CHECKOUT_API["checkout-api"]:::deployment_element
   ACT_PLATFORM_OPERATOR --> PFU_GITOPS_OPERATIONS
   PFU_GITOPS_OPERATIONS --> TGT_CHECKOUT_API
-  TGT_FLUX_SYSTEM["flux_system"]
+  TGT_FLUX_SYSTEM["flux_system"]:::deployment_element
   PFU_GITOPS_OPERATIONS --> TGT_FLUX_SYSTEM
-  TGT_PAYMENT_ENGINE["payment-engine"]
+  TGT_PAYMENT_ENGINE["payment-engine"]:::deployment_element
   PFU_GITOPS_OPERATIONS --> TGT_PAYMENT_ENGINE
-  TGT_PAYMENTS_APPS["payments-apps"]
+  TGT_PAYMENTS_APPS["payments-apps"]:::deployment_element
   PFU_GITOPS_OPERATIONS --> TGT_PAYMENTS_APPS
-  TGT_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]
+  TGT_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]:::deployment_element
   PFU_GITOPS_OPERATIONS --> TGT_PAYMENTS_SAMPLE_SOURCE
-  TGT_RISK_SCORER["risk-scorer"]
+  TGT_RISK_SCORER["risk-scorer"]:::deployment_element
   PFU_GITOPS_OPERATIONS --> TGT_RISK_SCORER
+  PFU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+  ACT_PLATFORM_OPERATOR --> PFU_CLUSTER_PROVISIONING
+  PFU_CLUSTER_PROVISIONING --> TGT_FLUX_SYSTEM
+  TGT_PAYMENTS["payments"]:::deployment_element
+  PFU_CLUSTER_PROVISIONING --> TGT_PAYMENTS
+  TGT_RISK["risk"]:::deployment_element
+  PFU_CLUSTER_PROVISIONING --> TGT_RISK
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
 === Functional Groups (View Scoped)
 
 
@@ -906,187 +1151,10 @@ Deployment design prioritizes policy gates, controlled promotion, and resilient 
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |no explicit authored requirement trigger
-|Deployment dependencies |none
+|Deployment dependencies |<<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 |Inferred deployment evidence |runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 |===
 
-
-
-
-
-<<<
-
-== Realization View
-
-Show inferred implementation structure and dependencies mapped to authored architecture. This is a realization-oriented code evidence view.
-
-=== What This View Answers
-- Which code ownership boundaries map to functional units?
-- What first-party and external libraries are evidenced?
-- Which units still lack direct code evidence?
-
-=== Coverage Gaps
-
-Coverage summary: 3/4 units have direct evidence coverage in this view.
-- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred code ownership evidence yet.
-
-=== Recommended Next Evidence Additions
-- Add coarse package/module ownership annotations or ownership mappings for units lacking code evidence.
-- Ensure source roots include all first-party modules that realize authored units.
-- Add dependency metadata (manifests/imports) where missing to improve library usage evidence.
-
-=== Code Dependency Graph
-
-NOTE: This view focuses on inferred ownership and library-usage realization evidence. It is not a full source-level call graph.
-
-
-[source,mermaid]
-----
-flowchart TB
-  FU_FU_CHECKOUT["FU-CHECKOUT"]:::functional_unit
-  FG_FG_PAYMENTS["Payments"]:::functional_group
-  FG_FG_PAYMENTS -->|contains| FU_FU_CHECKOUT
-  LIB_GOPKG_IN_YAML_V3["gopkg.in/yaml.v3"]:::referenced_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_GOPKG_IN_YAML_V3
-  LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE["engineering-model-go/validate"]:::referenced_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
-  LIB_FMT["fmt"]:::referenced_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_FMT
-  FU_FU_PAYMENT_AUTHORIZATION["FU-PAYMENT-AUTHORIZATION"]:::functional_unit
-  FG_FG_PAYMENTS -->|contains| FU_FU_PAYMENT_AUTHORIZATION
-  LIB_SERDE_JSON__JSON["serde_json::json"]:::referenced_element
-  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_SERDE_JSON__JSON
-  LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT["domain::events::PaymentEvent"]:::referenced_element
-  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT
-  FU_FU_RISK_SCORING["FU-RISK-SCORING"]:::functional_unit
-  FG_FG_FRAUD["Fraud Evaluation"]:::functional_group
-  FG_FG_FRAUD -->|contains| FU_FU_RISK_SCORING
-  LIB_ZOD["zod"]:::referenced_element
-  FU_FU_RISK_SCORING -->|uses_library| LIB_ZOD
-  LIB___SUPPORT_AUDIT_ENVELOPE["support/audit_envelope"]:::referenced_element
-  FU_FU_RISK_SCORING -->|uses_library| LIB___SUPPORT_AUDIT_ENVELOPE
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-----
-
-=== Functional Groups (View Scoped)
-
-
-==== Payments (FG-PAYMENTS)
-
-
-
-
-
-===== Payments Realization Ownership Design
-
-<<REF_RT_CLUSTER_PAYMENTS,payments>> ownership is defined at package and module boundaries for long-term architectural stability.
-Internal symbols can evolve rapidly, but ownership remains aligned to functional units for predictable
-accountability and maintainable change ownership.
-
-
-
-==== Fraud Evaluation (FG-FRAUD)
-
-
-
-
-
-===== Fraud Evaluation Realization Ownership Design
-
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> ownership is anchored to scoring and review modules rather than symbol-level granularity.
-This keeps policy accountability stable while enabling frequent implementation changes inside owned modules.
-
-
-
-
-=== Functional Units (View Scoped)
-
-
-
-==== Risk Scoring (FU-RISK-SCORING)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-
-===== Risk Scoring Realization Ownership Design
-
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> ownership is kept at module/package boundary for policy accountability.
-Fine-grained traces <<REF_CATALOG_ACT_SUPPORT,support>> requirements, but ownership remains coarse to avoid architectural churn.
-
-
-
-Realization ownership boundary: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Implementation trigger context: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Implementation inputs/outputs: Consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; Produces depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Implementation dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Realization evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
-
-
-
-==== Support Review (FU-SUPPORT-REVIEW)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-
-===== Support Review Realization Ownership Design
-
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> ownership is maintained at workflow-module boundary.
-Shared helper code may exist, but accountability for review flow and outcome transitions remains explicit.
-
-
-
-Realization ownership boundary: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Implementation trigger context: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Implementation inputs/outputs: Consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; Produces derived unit outcomes from authored mappings
-Implementation dependencies: none
-Realization evidence: authored unit with no direct derived runtime/code evidence yet
-
-
-
-==== Checkout Handling (FU-CHECKOUT)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Checkout Handling Realization Ownership Design
-
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> ownership is maintained at coarse package/module scope.
-This keeps architecture ownership stable across internal refactors while preserving fine-grained symbol traces
-for requirement evidence.
-
-
-
-Realization ownership boundary: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Implementation trigger context: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Implementation inputs/outputs: Consumes none; Produces depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Implementation dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Realization evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
-
-
-
-==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Payment Authorization Realization Ownership Design
-
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> ownership resides at the payment engine orchestration boundary.
-Teams may evolve internal algorithms, but ownership of orchestration behavior remains explicit and durable.
-
-
-
-Realization ownership boundary: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Implementation trigger context: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Implementation inputs/outputs: Consumes <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>; Produces depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Implementation dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Realization evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
 
 
 
@@ -1099,46 +1167,79 @@ Realization evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,paym
 Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security evidence.
 
 === What This View Answers
-- Which attack vectors currently target authored units and dependencies?
-- What security-relevant observability evidence is present?
-- Where is explicit threat mapping incomplete?
+
+
+- What are the main trust boundaries and attack paths?
+
+- Which units are exposed and what security evidence exists?
+
+- Where is the threat model incomplete?
 
 === Coverage Gaps
 
-Coverage summary: 2/6 units have direct evidence coverage in this view.
-- <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> has no explicit authored attack-vector mapping yet.
-- <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no explicit authored attack-vector mapping yet.
-- <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> has no explicit authored attack-vector mapping yet.
-- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no explicit authored attack-vector mapping yet.
+Coverage summary: 4/6 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+
+- <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+
 
 === Recommended Next Evidence Additions
+
+
 - Add explicit authored attack-vector mappings for units currently marked without threat linkage.
+
 - Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.
+
 - Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.
-=== Attack Vector Path Graph
+
+=== Attack Path Diagram
+
+What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
 NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.
+NOTE: Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
 
 [source,mermaid]
 ----
 flowchart LR
-  AV_COMPROMISED_DEPENDENCY(("Compromised Dependency"))
-  SEC_TGT_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]
+  AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
+  SEC_TGT_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::functional_unit
   AV_COMPROMISED_DEPENDENCY -->|targets| SEC_TGT_POSTGRESQL_CLIENT_DRIVER
-  AV_MALICIOUS_API_REQUEST(("Malicious API Request"))
-  SEC_TGT_CHECKOUT_HANDLING["Checkout Handling"]
-  AV_MALICIOUS_API_REQUEST -->|targets| SEC_TGT_CHECKOUT_HANDLING
-  SEC_DEP_PAYMENT_AUTHORIZATION["Payment Authorization"]
-  SEC_TGT_CHECKOUT_HANDLING -->|depends_on| SEC_DEP_PAYMENT_AUTHORIZATION
-  AV_REPLAYED_AUTHORIZATION_CALLBACK(("Replayed Authorization Callback"))
-  SEC_TGT_PAYMENT_AUTHORIZATION["Payment Authorization"]
-  AV_REPLAYED_AUTHORIZATION_CALLBACK -->|targets| SEC_TGT_PAYMENT_AUTHORIZATION
-  SEC_DEP_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]
+  AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
+  SEC_TGT_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_PAYMENT_AUTHORIZATION
+  SEC_DEP_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
   SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_BANK_GATEWAY_ENDPOINT
-  SEC_DEP_RISK_SCORING["Risk Scoring"]
+  SEC_DEP_RISK_SCORING["Risk Scoring"]:::referenced_element
   SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_RISK_SCORING
-  SEC_DEP_SUPPORT_REVIEW["Support Review"]
+  SEC_DEP_SUPPORT_REVIEW["Support Review"]:::referenced_element
   SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
+  SEC_TGT_RISK_SCORING["Risk Scoring"]:::functional_unit
+  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_RISK_SCORING
+  SEC_DEP_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+  SEC_TGT_RISK_SCORING -->|depends_on| SEC_DEP_POSTGRESQL_CLIENT_DRIVER
+  SEC_TGT_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_SUPPORT_REVIEW
+  AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
+  SEC_TGT_CHECKOUT_HANDLING["Checkout Handling"]:::functional_unit
+  AV_MALICIOUS_API_REQUEST -->|targets| SEC_TGT_CHECKOUT_HANDLING
+  SEC_DEP_PAYMENT_AUTHORIZATION["Payment Authorization"]:::referenced_element
+  SEC_TGT_CHECKOUT_HANDLING -->|depends_on| SEC_DEP_PAYMENT_AUTHORIZATION
+  AV_REPLAYED_AUTHORIZATION_CALLBACK(("Replayed Authorization Callback")):::attack_vector
+  AV_REPLAYED_AUTHORIZATION_CALLBACK -->|targets| SEC_TGT_PAYMENT_AUTHORIZATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 === Security Logging and Observability
 
@@ -1159,7 +1260,6 @@ flowchart LR
 |abuse and fraud decision logs |runtime |FU-RISK-SCORING |helmrelease risk-scorer
 |abuse and fraud decision logs |runtime |FU-RISK-SCORING |namespace risk
 |===
-
 === Functional Groups (View Scoped)
 
 
@@ -1223,10 +1323,12 @@ Design controls enforce strict input handling and evidence capture for post-even
 
 
 
-Threat model focus: no explicit attack vector targeting this unit
-Security trigger context: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Security evidence: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Security evidence present: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
@@ -1243,10 +1345,12 @@ The design prevents silent overrides and guarantees every manual decision is att
 
 
 
-Threat model focus: no explicit attack vector targeting this unit
-Security trigger context: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: none
-Security evidence: authored unit with no direct derived runtime/code evidence yet
+Security evidence present: authored unit with no direct derived runtime/code evidence yet
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
@@ -1264,10 +1368,12 @@ are contained without harming legitimate customer flows.
 
 
 
-Threat model focus: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Security trigger context: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Attack surface: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Main threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Security evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Security evidence present: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
@@ -1284,10 +1390,12 @@ The design defends against replay, policy probing, and ambiguous error channels 
 
 
 
-Threat model focus: <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-Security trigger context: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Security evidence: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
+Security evidence present: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
@@ -1304,10 +1412,12 @@ Design must detect and remediate security drift early because downstream control
 
 
 
-Threat model focus: no explicit attack vector targeting this unit
-Security trigger context: no explicit authored requirement trigger
+Attack surface: no explicit attack vector targeting this unit
+Main threats: no explicit attack vector targeting this unit
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
 Security-relevant dependencies: none
-Security evidence: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+Security evidence present: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
@@ -1324,101 +1434,222 @@ The design prevents unauthorized state changes and enforces policy before runtim
 
 
 
-Threat model focus: no explicit attack vector targeting this unit
-Security trigger context: no explicit authored requirement trigger
-Security-relevant dependencies: none
-Security evidence: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
+Attack surface: no explicit attack vector targeting this unit
+Main threats: no explicit attack vector targeting this unit
+Expected controls: define control expectations in authored security narratives and mapped dependencies.
+Security-relevant dependencies: <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+Security evidence present: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
+Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
 
 
-<<<
-== Generated Evidence Appendix
-
-This appendix contains generated traceability material and inferred-reference inventories.
 
 <<<
-== Requirement Alignment
 
-Requirement-to-unit overview:
+== Traceability View
+
+Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
+
+=== What This View Answers
+
+
+- Which requirements map to which units?
+
+- Which authored units have runtime/code evidence and which do not?
+
+- Where are confidence or completeness gaps in trace coverage?
+
+=== Coverage Gaps
+
+Coverage summary: 5/6 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> has no direct inferred code evidence yet.
+
+- <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>> has no direct inferred code evidence yet.
+
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred code evidence yet.
+
+- <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> has no direct inferred runtime evidence yet.
+
+
+=== Recommended Next Evidence Additions
+
+
+- Add explicit requirement-to-owner mappings where requirement scope is currently broad or ambiguous.
+
+- Add ownership annotations for runtime and code artifacts where coverage is still unresolved.
+
+- Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
+
+
+=== Traceability Evidence Graph
+
+What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
+
+NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
+
+
+[source,mermaid]
+----
+flowchart TB
+  FU_FU_CHECKOUT["FU-CHECKOUT"]:::functional_unit
+  FG_FG_PAYMENTS["Payments"]:::functional_group
+  FG_FG_PAYMENTS -->|contains| FU_FU_CHECKOUT
+  LIB_GOPKG_IN_YAML_V3["gopkg.in/yaml.v3"]:::code_element
+  FU_FU_CHECKOUT -->|uses_library| LIB_GOPKG_IN_YAML_V3
+  LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE["engineering-model-go/validate"]:::code_element
+  FU_FU_CHECKOUT -->|uses_library| LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
+  LIB_FMT["fmt"]:::code_element
+  FU_FU_CHECKOUT -->|uses_library| LIB_FMT
+  FU_FU_PAYMENT_AUTHORIZATION["FU-PAYMENT-AUTHORIZATION"]:::functional_unit
+  FG_FG_PAYMENTS -->|contains| FU_FU_PAYMENT_AUTHORIZATION
+  LIB_SERDE_JSON__JSON["serde_json::json"]:::code_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_SERDE_JSON__JSON
+  LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT["domain::events::PaymentEvent"]:::code_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT
+  FU_FU_RISK_SCORING["FU-RISK-SCORING"]:::functional_unit
+  FG_FG_FRAUD["Fraud Evaluation"]:::functional_group
+  FG_FG_FRAUD -->|contains| FU_FU_RISK_SCORING
+  LIB_ZOD["zod"]:::code_element
+  FU_FU_RISK_SCORING -->|uses_library| LIB_ZOD
+  LIB___SUPPORT_AUDIT_ENVELOPE["support/audit_envelope"]:::code_element
+  FU_FU_RISK_SCORING -->|uses_library| LIB___SUPPORT_AUDIT_ENVELOPE
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+=== Requirement-to-Unit Mapping
+
+What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
 
 [source,mermaid]
 ----
 flowchart LR
-  REQ_REQ_PAY_001["REQ-PAY-001"]
-  UNIT_FU_CHECKOUT["Checkout Handling"]
+  REQ_REQ_PAY_001["REQ-PAY-001"]:::requirement
+  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQ_REQ_PAY_001 --> UNIT_FU_CHECKOUT
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQ_REQ_PAY_001 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  REQ_REQ_PAY_002["REQ-PAY-002"]
-  UNIT_FU_RISK_SCORING["Risk Scoring"]
+  REQ_REQ_PAY_002["REQ-PAY-002"]:::requirement
+  UNIT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQ_REQ_PAY_002 --> UNIT_FU_RISK_SCORING
-  REQ_REQ_PAY_003["REQ-PAY-003"]
-  UNIT_FU_CHECKOUT["Checkout Handling"]
+  REQ_REQ_PAY_003["REQ-PAY-003"]:::requirement
+  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQ_REQ_PAY_003 --> UNIT_FU_CHECKOUT
-  REQ_REQ_PAY_004["REQ-PAY-004"]
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  REQ_REQ_PAY_004["REQ-PAY-004"]:::requirement
+  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQ_REQ_PAY_004 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  UNIT_FU_SUPPORT_REVIEW["Support Review"]
+  UNIT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQ_REQ_PAY_004 --> UNIT_FU_SUPPORT_REVIEW
-  REQ_REQ_PAY_005["REQ-PAY-005"]
-  UNIT_FU_RISK_SCORING["Risk Scoring"]
+  REQ_REQ_PAY_005["REQ-PAY-005"]:::requirement
+  UNIT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQ_REQ_PAY_005 --> UNIT_FU_RISK_SCORING
-  REQ_REQ_PAY_006["REQ-PAY-006"]
-  UNIT_FU_CHECKOUT["Checkout Handling"]
+  REQ_REQ_PAY_006["REQ-PAY-006"]:::requirement
+  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQ_REQ_PAY_006 --> UNIT_FU_CHECKOUT
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
+  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQ_REQ_PAY_006 --> UNIT_FU_PAYMENT_AUTHORIZATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+=== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_PAY_001["REQ-PAY-001"]:::requirement
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+  REQC_REQ_PAY_001 -->|applies_to| FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
+  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
+  REQC_REQ_PAY_001 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  REQC_REQ_PAY_001 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  REQC_REQ_PAY_001 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  REQC_REQ_PAY_001 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  REQC_REQ_PAY_002["REQ-PAY-002"]:::requirement
+  FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+  REQC_REQ_PAY_002 -->|applies_to| FU_FU_RISK_SCORING
+  RTC_FU_RISK_SCORING_RISK["risk"]:::runtime_element
+  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
+  RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
+  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
+  CDC_FU_RISK_SCORING_RISK_SCORER["risk_scorer"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_RISK_SCORER
+  REQC_REQ_PAY_002 -->|code trace| CDC_FU_RISK_SCORING_RISK_SCORER
+  CDC_FU_RISK_SCORING_SUPPORT["support"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_SUPPORT
+  REQC_REQ_PAY_002 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
+  REQC_REQ_PAY_003["REQ-PAY-003"]:::requirement
+  REQC_REQ_PAY_003 -->|applies_to| FU_FU_CHECKOUT
+  REQC_REQ_PAY_003 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  REQC_REQ_PAY_004["REQ-PAY-004"]:::requirement
+  REQC_REQ_PAY_004 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  REQC_REQ_PAY_004 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  REQC_REQ_PAY_004 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  REQC_REQ_PAY_004 -->|applies_to| FU_FU_SUPPORT_REVIEW
+  REQC_REQ_PAY_005["REQ-PAY-005"]:::requirement
+  REQC_REQ_PAY_005 -->|applies_to| FU_FU_RISK_SCORING
+  REQC_REQ_PAY_005 -->|code trace| CDC_FU_RISK_SCORING_RISK_SCORER
+  REQC_REQ_PAY_005 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
+  REQC_REQ_PAY_006["REQ-PAY-006"]:::requirement
+  REQC_REQ_PAY_006 -->|applies_to| FU_FU_CHECKOUT
+  REQC_REQ_PAY_006 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  REQC_REQ_PAY_006 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  REQC_REQ_PAY_006 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  REQC_REQ_PAY_006 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
 Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.
 
-=== Cross-Layer Coverage
-
-[source,mermaid]
-----
-flowchart LR
-  REQC_REQ_PAY_001["REQ-PAY-001"]
-  FU_FU_CHECKOUT["Checkout Handling"]
-  REQC_REQ_PAY_001 --> FU_FU_CHECKOUT
-  RTC_FU_CHECKOUT_PAYMENTS["payments"]
-  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
-  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]
-  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
-  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]
-  FU_FU_CHECKOUT -->|code evidence| CDC_FU_CHECKOUT_CHECKOUT_API
-  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]
-  REQC_REQ_PAY_001 --> FU_FU_PAYMENT_AUTHORIZATION
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]
-  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
-  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]
-  FU_FU_PAYMENT_AUTHORIZATION -->|code evidence| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
-  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]
-  FU_FU_PAYMENT_AUTHORIZATION -->|code evidence| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  REQC_REQ_PAY_002["REQ-PAY-002"]
-  FU_FU_RISK_SCORING["Risk Scoring"]
-  REQC_REQ_PAY_002 --> FU_FU_RISK_SCORING
-  RTC_FU_RISK_SCORING_RISK["risk"]
-  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
-  RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]
-  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
-  CDC_FU_RISK_SCORING_RISK_SCORER["risk_scorer"]
-  FU_FU_RISK_SCORING -->|code evidence| CDC_FU_RISK_SCORING_RISK_SCORER
-  CDC_FU_RISK_SCORING_SUPPORT["support"]
-  FU_FU_RISK_SCORING -->|code evidence| CDC_FU_RISK_SCORING_SUPPORT
-  REQC_REQ_PAY_003["REQ-PAY-003"]
-  REQC_REQ_PAY_003 --> FU_FU_CHECKOUT
-  REQC_REQ_PAY_004["REQ-PAY-004"]
-  REQC_REQ_PAY_004 --> FU_FU_PAYMENT_AUTHORIZATION
-  FU_FU_SUPPORT_REVIEW["Support Review"]
-  REQC_REQ_PAY_004 --> FU_FU_SUPPORT_REVIEW
-  REQC_REQ_PAY_005["REQ-PAY-005"]
-  REQC_REQ_PAY_005 --> FU_FU_RISK_SCORING
-  REQC_REQ_PAY_006["REQ-PAY-006"]
-  REQC_REQ_PAY_006 --> FU_FU_CHECKOUT
-  REQC_REQ_PAY_006 --> FU_FU_PAYMENT_AUTHORIZATION
-----
+<<<
+== Traceability Appendix
 
 === Requirement Details
 [[REF_REQ_REQ_PAY_001]]
@@ -1452,6 +1683,126 @@ Notes: Auditability for authorization decisions.
 If <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall present a temporary unavailable message to customer.
 Notes: Fallback behavior when external banking path is down.
 
+=== Verification Inventory
+
+What this section shows: verification checks inferred from test artifacts, linked to test code elements and mapped to verified requirements.
+
+
+[[REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597]]
+==== Authorized Checkout Flow
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
+|Kind |e2e
+|Status |not-run
+|Verifies Requirements |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
+|Test Code Elements |tests/e2e/authorized_checkout_flow.yaml
+|Derived Functional Owners |<<REF_IDX-FU_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
+|Result Summary |not-run:1
+|Evidence |tests/e2e/authorized_checkout_flow.yaml
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
+==== Audit Record Persistence Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
+|Kind |integration
+|Status |partial
+|Verifies Requirements |<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Test Code Elements |tests/integration/audit_record_persistence_test.ts
+|Derived Functional Owners |<<REF_IDX-FU_FU_RISK_SCORING,FU-RISK-SCORING>>
+|Result Summary |partial:1
+|Evidence |test-results/audit-persistence-report.md, tests/integration/audit_record_persistence_test.ts
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
+==== Fraud Gate Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|Kind |integration
+|Status |pass
+|Verifies Requirements |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Test Code Elements |tests/integration/fraud_gate_test.rs
+|Derived Functional Owners |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>, <<REF_IDX-FU_FU_RISK_SCORING,FU-RISK-SCORING>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
+|Result Summary |pass:2
+|Evidence |test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
+==== Contract Checkout Decline
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|Kind |test
+|Status |pass
+|Verifies Requirements |<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Test Code Elements |none
+|Derived Functional Owners |<<REF_IDX-FU_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
+|Result Summary |pass:2
+|Evidence |test-results/contract-checkout-decline.json
+
+|Notes |Inferred from test result artifact.
+
+|===
+
+
+
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+|<<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
+|<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
+|not-run
+|none + 
+No parsed test-result artifact for this requirement yet.
+|<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>
+|pass
+|test-results/integration-fraud-gate.json
+|<<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>
+|pass
+|test-results/contract-checkout-decline.json
+|<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|pass
+|test-results/integration-fraud-gate.json
+|<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
+|<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|partial
+|test-results/audit-persistence-report.md
+|<<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|pass
+|test-results/contract-checkout-decline.json
+|===
+
 <<<
 == Reference Index
 
@@ -1484,6 +1835,13 @@ Kind: Attack Vector
 Name: Compromised Dependency
 
 Supply chain compromise in external SDK or image.
+[[REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN]]
+[discrete]
+==== AV-FRAUDULENT-TRANSACTION-PATTERN
+Kind: Attack Vector
+Name: Fraudulent Transaction Pattern
+
+Coordinated abuse pattern using synthetic identities, stolen instruments, and velocity anomalies to seek unauthorized approvals.
 [[REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST]]
 [discrete]
 ==== AV-MALICIOUS-API-REQUEST
@@ -1750,6 +2108,13 @@ Kind: Catalog Alias
 Name: compromised dependency
 Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
 Alias of AV-COMPROMISED-DEPENDENCY
+[[REF_CATALOG-ALIAS_AV_FRAUDULENT_TRANSACTION_PATTERN_FRAUD_ABUSE]]
+[discrete]
+==== fraud abuse
+Kind: Catalog Alias
+Name: fraudulent transaction pattern
+Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
+Alias of AV-FRAUDULENT-TRANSACTION-PATTERN
 [[REF_CATALOG-ALIAS_FEAT_FRAUD_CHECK_FRAUD_CHECK]]
 [discrete]
 ==== fraud check
@@ -1827,6 +2192,13 @@ Kind: Catalog Alias
 Name: payment is declined
 Resolves to: <<REF_CATALOG_EVT_PAYMENT_DECLINED,canonical>>
 Alias of EVT-PAYMENT-DECLINED
+[[REF_CATALOG-ALIAS_AV_FRAUDULENT_TRANSACTION_PATTERN_PAYMENT_FRAUD]]
+[discrete]
+==== payment fraud
+Kind: Catalog Alias
+Name: fraudulent transaction pattern
+Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
+Alias of AV-FRAUDULENT-TRANSACTION-PATTERN
 [[REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN]]
 [discrete]
 ==== payments domain
@@ -1897,6 +2269,13 @@ Kind: Catalog Attack Vector
 Name: compromised dependency
 Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
 Supply-chain compromise in runtime image or code dependency.
+[[REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]
+[discrete]
+==== AV-FRAUDULENT-TRANSACTION-PATTERN
+Kind: Catalog Attack Vector
+Name: fraudulent transaction pattern
+Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
+Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
 [[REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST]]
 [discrete]
 ==== AV-MALICIOUS-API-REQUEST
@@ -2338,3 +2717,33 @@ Source: checkout_api.go:15
 Kind: Code symbol
 Owner: FU-CHECKOUT
 Source: checkout_api.go:26
+
+=== Verification References
+[[REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597]]
+[discrete]
+==== VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
+Kind: Verification Check
+Name: Authorized Checkout Flow
+Resolves to: <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,canonical>>
+Kind: e2e; Status: not-run; Evidence: tests/e2e/authorized_checkout_flow.yaml
+[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
+[discrete]
+==== VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+Kind: Verification Check
+Name: Audit Record Persistence Test
+Resolves to: <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,canonical>>
+Kind: integration; Status: partial; Evidence: test-results/audit-persistence-report.md, tests/integration/audit_record_persistence_test.ts
+[[REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
+[discrete]
+==== VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+Kind: Verification Check
+Name: Fraud Gate Test
+Resolves to: <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,canonical>>
+Kind: integration; Status: pass; Evidence: test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
+[[REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
+[discrete]
+==== VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+Kind: Verification Check
+Name: Contract Checkout Decline
+Resolves to: <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,canonical>>
+Kind: test; Status: pass; Evidence: test-results/contract-checkout-decline.json

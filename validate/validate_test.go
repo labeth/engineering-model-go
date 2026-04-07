@@ -31,7 +31,7 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 
 	// Free-form IDs should be accepted as long as kind is supported.
 	b.Architecture.Views[0].ID = "run"
-	b.Architecture.Views[0].Kind = "runtime"
+	b.Architecture.Views[0].Kind = "communication"
 	diags := Bundle(b)
 	if HasErrors(diags) {
 		t.Fatalf("expected no errors for free-form view id with valid kind, got: %+v", diags)

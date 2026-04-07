@@ -54,7 +54,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 
 	pv := ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}
 	for id := range included {
-		if v.Kind == "authored-functional" {
+		if v.Kind == "architecture-intent" {
 			if _, isVector := idx.vectors[id]; isVector {
 				continue
 			}
@@ -62,7 +62,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 		pv.Nodes = append(pv.Nodes, toNode(id, idx))
 	}
 	for _, m := range b.Architecture.AuthoredArchitecture.Mappings {
-		if v.Kind == "authored-functional" {
+		if v.Kind == "architecture-intent" {
 			if _, isVector := idx.vectors[m.From]; isVector {
 				continue
 			}

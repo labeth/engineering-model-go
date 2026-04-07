@@ -93,6 +93,9 @@ authoredArchitecture:
     - id: AV-MALICIOUS-API-REQUEST
       name: Malicious API Request
       description: Crafted payloads attempting to bypass authorization controls.
+    - id: AV-FRAUDULENT-TRANSACTION-PATTERN
+      name: Fraudulent Transaction Pattern
+      description: Coordinated abuse pattern using synthetic identities, stolen instruments, and velocity anomalies to seek unauthorized approvals.
     - id: AV-REPLAYED-AUTH-CALLBACK
       name: Replayed Authorization Callback
       description: Replay attack against external authorization callback flow.
@@ -146,6 +149,10 @@ authoredArchitecture:
       from: ACT-PLATFORM-OPERATOR
       to: FU-GITOPS-OPERATIONS
       description: Operates delivery and release workflows.
+    - type: interacts_with
+      from: ACT-PLATFORM-OPERATOR
+      to: FU-CLUSTER-PROVISIONING
+      description: Maintains cluster baseline and environment setup.
 
     - type: depends_on
       from: FU-CHECKOUT
@@ -167,10 +174,27 @@ authoredArchitecture:
       from: FU-RISK-SCORING
       to: REF-POSTGRES-DRIVER
       description: Uses external library for audit persistence.
+    - type: depends_on
+      from: FU-GITOPS-OPERATIONS
+      to: FU-CLUSTER-PROVISIONING
+      description: Relies on provisioned cluster and namespace baseline.
+    - type: depends_on
+      from: FU-GITOPS-OPERATIONS
+      to: REF-HELM-PLATFORM
+      description: Uses Helm runtime platform for release orchestration.
 
     - type: targets
       from: AV-MALICIOUS-API-REQUEST
       to: FU-CHECKOUT
+    - type: targets
+      from: AV-FRAUDULENT-TRANSACTION-PATTERN
+      to: FU-RISK-SCORING
+    - type: targets
+      from: AV-FRAUDULENT-TRANSACTION-PATTERN
+      to: FU-PAYMENT-AUTHORIZATION
+    - type: targets
+      from: AV-FRAUDULENT-TRANSACTION-PATTERN
+      to: FU-SUPPORT-REVIEW
     - type: targets
       from: AV-REPLAYED-AUTH-CALLBACK
       to: FU-PAYMENT-AUTHORIZATION
@@ -195,18 +219,28 @@ inferenceHints:
     - unresolved_warning
 
 views:
-  - id: VIEW-FUNCTIONAL
-    kind: authored-functional
+  - id: VIEW-ARCHITECTURE-INTENT
+    kind: architecture-intent
     roots: [FG-PAYMENTS, FG-FRAUD, FG-PLATFORM]
-  - id: VIEW-RUNTIME
-    kind: runtime
+    authoredStatus: stable
+    authoredStatusExplanation: Stable authored capability boundaries and ownership split; changes are intentional and infrequent.
+  - id: VIEW-COMMUNICATION
+    kind: communication
     roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-SUPPORT-REVIEW]
+    authoredStatus: in-review
+    authoredStatusExplanation: Communication semantics are partially inferred and still being refined with explicit protocol and interaction metadata.
   - id: VIEW-DEPLOYMENT
     kind: deployment
     roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-GITOPS-OPERATIONS]
-  - id: VIEW-CODE-OWNERSHIP
-    kind: code-ownership
-    roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING]
+    authoredStatus: in-review
+    authoredStatusExplanation: Deployment chain and control-plane mapping are mostly present, but ownership evidence remains incomplete for some units.
   - id: VIEW-SECURITY
     kind: security
-    roots: [FG-PAYMENTS, FG-FRAUD, FG-PLATFORM, AV-MALICIOUS-API-REQUEST, AV-REPLAYED-AUTH-CALLBACK, AV-COMPROMISED-DEPENDENCY]
+    roots: [FG-PAYMENTS, FG-FRAUD, FG-PLATFORM, AV-MALICIOUS-API-REQUEST, AV-FRAUDULENT-TRANSACTION-PATTERN, AV-REPLAYED-AUTH-CALLBACK, AV-COMPROMISED-DEPENDENCY]
+    authoredStatus: draft
+    authoredStatusExplanation: Threat mapping is present for key vectors, but control expectations and coverage breadth are still evolving.
+  - id: VIEW-TRACEABILITY
+    kind: traceability
+    roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-SUPPORT-REVIEW, FU-CLUSTER-PROVISIONING, FU-GITOPS-OPERATIONS]
+    authoredStatus: in-review
+    authoredStatusExplanation: Requirement-to-unit linkage is present; cross-layer ownership consistency still needs tightening.

@@ -143,9 +143,11 @@ type InferenceHints struct {
 }
 
 type View struct {
-	ID    string   `yaml:"id"`
-	Kind  string   `yaml:"kind"`
-	Roots []string `yaml:"roots"`
+	ID                        string   `yaml:"id"`
+	Kind                      string   `yaml:"kind"`
+	Roots                     []string `yaml:"roots"`
+	AuthoredStatus            string   `yaml:"authoredStatus"`
+	AuthoredStatusExplanation string   `yaml:"authoredStatusExplanation"`
 }
 
 type ArchitectureDocument struct {
