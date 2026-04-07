@@ -1,0 +1,8 @@
+{
+  "contract": {
+    "name": "github-checkrun",
+    "requirement": "REQ-PRR-005",
+    "status": "pass",
+    "notes": "check run payload includes summary and neutral conclusion"
+  }
+}

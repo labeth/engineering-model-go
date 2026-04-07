@@ -1,0 +1,58 @@
+lintRun:
+  id: sample-pr-review-lint
+  mode: guided
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-PRR-001
+    text: "While pull request review is active, when pull request synchronize event is received, the pr review system shall verify webhook signature before processing review workflow."
+    notes: "Webhook trust boundary validation."
+    appliesTo:
+      - FU-GITHUB-WEBHOOK-INGRESS
+
+  - id: REQ-PRR-002
+    text: "While pull request review is active, when pull request opened event is received, the pr review system shall fetch changed files and construct diff context for review execution."
+    notes: "Context ingestion from GitHub API."
+    appliesTo:
+      - FU-PR-CONTEXT-ASSEMBLY
+
+  - id: REQ-PRR-003
+    text: "Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for security, architecture, and maintainability findings."
+    notes: "AI-assisted review path."
+    appliesTo:
+      - FU-REVIEW-ORCHESTRATION
+
+  - id: REQ-PRR-004
+    text: "Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure, infrastructure risk, and dependency changes."
+    notes: "Deterministic non-LLM review checks."
+    appliesTo:
+      - FU-POLICY-CHECKS
+
+  - id: REQ-PRR-005
+    text: "While pull request review is active, when review findings are generated, the pr review system shall publish check run summary and inline comments to repository maintainer."
+    notes: "Result publication contract."
+    appliesTo:
+      - FU-REVIEW-PUBLICATION
+
+  - id: REQ-PRR-006
+    text: "If bedrock runtime is unavailable, then the pr review system shall publish deterministic policy-only review outcome."
+    notes: "Graceful degradation requirement."
+    appliesTo:
+      - FU-REVIEW-ORCHESTRATION
+      - FU-POLICY-CHECKS
+      - FU-REVIEW-PUBLICATION
+
+  - id: REQ-PRR-007
+    text: "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted prompt and result metadata for audit traceability."
+    notes: "Evidence and audit lineage."
+    appliesTo:
+      - FU-REVIEW-PUBLICATION
+      - FU-SECRETS-CONFIGURATION
+
+  - id: REQ-PRR-008
+    text: "If review request rate limit is exceeded, then the pr review system shall defer processing and notify repository maintainer."
+    notes: "Abuse and capacity protection behavior."
+    appliesTo:
+      - FU-GITHUB-WEBHOOK-INGRESS
+      - FU-REVIEW-PUBLICATION

@@ -1,0 +1,8 @@
+<testsuites>
+  <testsuite name="pr-review-e2e">
+    <testcase name="REQ-PRR-001 signature verified" classname="webhook" />
+    <testcase name="REQ-PRR-002 context fetched" classname="context" />
+    <testcase name="REQ-PRR-003 bedrock review requested" classname="orchestrator" />
+    <testcase name="REQ-PRR-005 checkrun published" classname="publication" />
+  </testsuite>
+</testsuites>

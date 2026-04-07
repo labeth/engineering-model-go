@@ -169,9 +169,9 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 	cell := func(text, bg, border, fg string) string {
 		escaped := html.EscapeString(strings.TrimSpace(text))
 		if escaped == "" {
-			escaped = "&nbsp;"
+			return `<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>`
 		}
-		return fmt.Sprintf(`pass:[<div style="background:%s;border:1px solid %s;color:%s;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">%s</div>]`, bg, border, fg, escaped)
+		return fmt.Sprintf(`<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:%s;border:1px solid %s;color:%s;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">%s</div></td>`, bg, border, fg, escaped)
 	}
 
 	renderBand := func(band []fgColumn) string {
@@ -181,28 +181,30 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 				maxRows = len(c.Units)
 			}
 		}
-		colSpec := make([]string, 0, len(band))
-		for range band {
-			colSpec = append(colSpec, "1")
-		}
-
 		lines := []string{
-			fmt.Sprintf(`[cols="%s",frame=none,grid=none]`, strings.Join(colSpec, ",")),
-			"|===",
+			"++++",
+			`<div style="background:#f5f5f5;padding:12px;">`,
+			`<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">`,
 		}
 		for row := 0; row < maxRows; row++ {
+			lines = append(lines, "<tr>")
 			for _, c := range band {
 				label := ""
-				if row < len(c.Units) {
-					label = nonEmpty(strings.TrimSpace(c.Units[row].Name), strings.TrimSpace(c.Units[row].ID))
+				// Bottom-align units within each FG column so the lowest FU row is populated first.
+				offset := maxRows - len(c.Units)
+				unitIdx := row - offset
+				if unitIdx >= 0 && unitIdx < len(c.Units) {
+					label = nonEmpty(strings.TrimSpace(c.Units[unitIdx].Name), strings.TrimSpace(c.Units[unitIdx].ID))
 				}
-				lines = append(lines, "|"+cell(label, "#e3f2fd", "#0d47a1", "#0d47a1"))
+				lines = append(lines, cell(label, "#e3f2fd", "#0d47a1", "#0d47a1"))
 			}
+			lines = append(lines, "</tr>")
 		}
+		lines = append(lines, "<tr>")
 		for _, c := range band {
-			lines = append(lines, "|"+cell(c.Name, "#e8f5e9", "#1b5e20", "#1b5e20"))
+			lines = append(lines, cell(c.Name, "#e8f5e9", "#1b5e20", "#1b5e20"))
 		}
-		lines = append(lines, "|===")
+		lines = append(lines, "</tr>", "</table>", "</div>", "++++")
 		return strings.Join(lines, "\n")
 	}
 

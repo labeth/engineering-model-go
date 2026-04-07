@@ -1,0 +1,308 @@
+model:
+  id: sample-bedrock-pr-review-model
+  title: Bedrock Lambda GitHub PR Review App Architecture
+  introduction: |
+    This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.
+    The authored functional architecture remains stable while deployment/runtime/code evidence is inferred
+    from infrastructure manifests, source files, and verification artifacts.
+  baseCatalogRef: ./catalog.yml
+
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-PR-INTEGRATION
+      name: PR Integration
+      description: Ingress and context assembly for GitHub pull request events.
+      prose: |
+        PR Integration owns webhook trust boundaries and pull request context intake.
+        It converts incoming GitHub events into normalized review work with clear boundaries.
+    - id: FG-REVIEW-INTELLIGENCE
+      name: Review Intelligence
+      description: AI and deterministic review analysis with result publication.
+      prose: |
+        Review Intelligence owns generated findings, deterministic checks, and final publication behavior.
+        It combines Bedrock reasoning with predictable policy checks and emits auditable review outputs.
+    - id: FG-PLATFORM-OPERATIONS
+      name: Platform Operations
+      description: Lambda deployment lifecycle, runtime operations, and secrets/configuration.
+      prose: |
+        Platform Operations owns safe deployment, runtime controls, and secret/config lifecycle for the app.
+        It enables dependable review operation without owning business-level review policy semantics.
+
+  functionalUnits:
+    - id: FU-GITHUB-WEBHOOK-INGRESS
+      name: GitHub Webhook Ingress
+      group: FG-PR-INTEGRATION
+      prose: |
+        Verifies webhook signatures, validates event type, and starts review workflow routing.
+    - id: FU-PR-CONTEXT-ASSEMBLY
+      name: PR Context Assembly
+      group: FG-PR-INTEGRATION
+      prose: |
+        Fetches changed files and diff metadata and prepares bounded review context payloads.
+    - id: FU-REVIEW-ORCHESTRATION
+      name: Review Orchestration
+      group: FG-REVIEW-INTELLIGENCE
+      prose: |
+        Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.
+    - id: FU-POLICY-CHECKS
+      name: Policy Checks
+      group: FG-REVIEW-INTELLIGENCE
+      prose: |
+        Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+    - id: FU-REVIEW-PUBLICATION
+      name: Review Publication
+      group: FG-REVIEW-INTELLIGENCE
+      prose: |
+        Publishes check-run summaries and inline comments back to GitHub pull requests.
+    - id: FU-LAMBDA-RUNTIME-OPERATIONS
+      name: Lambda Runtime Operations
+      group: FG-PLATFORM-OPERATIONS
+      prose: |
+        Manages Lambda packaging/deployment lifecycle and operational health guardrails.
+    - id: FU-SECRETS-CONFIGURATION
+      name: Secrets and Configuration
+      group: FG-PLATFORM-OPERATIONS
+      prose: |
+        Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.
+
+  actors:
+    - id: ACT-DEVELOPER
+      name: Developer
+      description: Opens pull requests and receives review feedback.
+    - id: ACT-SECURITY-ENGINEER
+      name: Security Engineer
+      description: Curates policy checks and triages security findings.
+    - id: ACT-PLATFORM-OPERATOR
+      name: Platform Operator
+      description: Operates Lambda deployment and runtime controls.
+    - id: ACT-REPOSITORY-MAINTAINER
+      name: Repository Maintainer
+      description: Owns merge decisions and repository-level quality gates.
+
+  attackVectors:
+    - id: AV-SPOOFED-GITHUB-WEBHOOK
+      name: Spoofed GitHub Webhook
+      description: Forged webhook payload attempting unauthorized review execution.
+    - id: AV-PROMPT-INJECTION-IN-DIFF
+      name: Prompt Injection in Diff
+      description: Malicious prompt-like content embedded in pull request diffs.
+    - id: AV-SECRET-LEAKAGE-IN-REVIEW
+      name: Secret Leakage in Review Output
+      description: Generated findings accidentally exposing secrets/tokens in comments.
+    - id: AV-PR-SPAM-ABUSE
+      name: Pull Request Spam Abuse
+      description: High-rate PR event flooding that can exhaust review capacity.
+
+  referencedElements:
+    - id: REF-GITHUB-APP-API
+      kind: external_service_endpoint
+      layer: runtime
+      name: GitHub App API
+    - id: REF-AWS-BEDROCK-RUNTIME
+      kind: external_service_endpoint
+      layer: runtime
+      name: AWS Bedrock Runtime API
+    - id: REF-AWS-SECRETS-MANAGER
+      kind: platform_service
+      layer: runtime
+      name: AWS Secrets Manager
+    - id: REF-GITHUB-REST-SDK
+      kind: third_party_library
+      layer: code
+      name: GitHub REST SDK
+    - id: REF-AWS-SDK-GO
+      kind: third_party_library
+      layer: code
+      name: AWS SDK for Go
+    - id: REF-POLICY-RULESET
+      kind: policy_bundle
+      layer: code
+      name: Review Policy Ruleset
+
+  mappings:
+    - type: contains
+      from: FG-PR-INTEGRATION
+      to: FU-GITHUB-WEBHOOK-INGRESS
+    - type: contains
+      from: FG-PR-INTEGRATION
+      to: FU-PR-CONTEXT-ASSEMBLY
+    - type: contains
+      from: FG-REVIEW-INTELLIGENCE
+      to: FU-REVIEW-ORCHESTRATION
+    - type: contains
+      from: FG-REVIEW-INTELLIGENCE
+      to: FU-POLICY-CHECKS
+    - type: contains
+      from: FG-REVIEW-INTELLIGENCE
+      to: FU-REVIEW-PUBLICATION
+    - type: contains
+      from: FG-PLATFORM-OPERATIONS
+      to: FU-LAMBDA-RUNTIME-OPERATIONS
+    - type: contains
+      from: FG-PLATFORM-OPERATIONS
+      to: FU-SECRETS-CONFIGURATION
+
+    - type: interacts_with
+      from: ACT-DEVELOPER
+      to: FU-GITHUB-WEBHOOK-INGRESS
+      description: Developer push/update activity triggers pull request webhook events.
+    - type: interacts_with
+      from: ACT-SECURITY-ENGINEER
+      to: FU-POLICY-CHECKS
+      description: Maintains and evolves deterministic security checks.
+    - type: interacts_with
+      from: ACT-PLATFORM-OPERATOR
+      to: FU-LAMBDA-RUNTIME-OPERATIONS
+      description: Operates deployments, scaling controls, and runtime observability.
+    - type: interacts_with
+      from: ACT-PLATFORM-OPERATOR
+      to: FU-SECRETS-CONFIGURATION
+      description: Rotates credentials and manages secure configuration lifecycle.
+    - type: interacts_with
+      from: ACT-REPOSITORY-MAINTAINER
+      to: FU-REVIEW-PUBLICATION
+      description: Reviews findings and gate decisions before merge.
+
+    - type: depends_on
+      from: FU-GITHUB-WEBHOOK-INGRESS
+      to: FU-PR-CONTEXT-ASSEMBLY
+      description: Forwards authenticated PR events for context assembly.
+    - type: depends_on
+      from: FU-PR-CONTEXT-ASSEMBLY
+      to: REF-GITHUB-APP-API
+      description: Fetches pull request files and metadata.
+    - type: depends_on
+      from: FU-PR-CONTEXT-ASSEMBLY
+      to: FU-REVIEW-ORCHESTRATION
+      description: Sends normalized review context.
+    - type: depends_on
+      from: FU-REVIEW-ORCHESTRATION
+      to: REF-AWS-BEDROCK-RUNTIME
+      description: Requests model analysis for code review findings.
+    - type: depends_on
+      from: FU-REVIEW-ORCHESTRATION
+      to: FU-POLICY-CHECKS
+      description: Merges deterministic policy findings with model output.
+    - type: depends_on
+      from: FU-REVIEW-ORCHESTRATION
+      to: FU-REVIEW-PUBLICATION
+      description: Submits final findings for publication.
+    - type: depends_on
+      from: FU-POLICY-CHECKS
+      to: REF-POLICY-RULESET
+      description: Evaluates repository policy and risk rules.
+    - type: depends_on
+      from: FU-REVIEW-PUBLICATION
+      to: REF-GITHUB-APP-API
+      description: Publishes check runs and inline review comments.
+    - type: depends_on
+      from: FU-REVIEW-PUBLICATION
+      to: FU-SECRETS-CONFIGURATION
+      description: Retrieves app credentials and redaction rules.
+    - type: depends_on
+      from: FU-REVIEW-ORCHESTRATION
+      to: FU-SECRETS-CONFIGURATION
+      description: Retrieves model configuration and safety settings.
+    - type: depends_on
+      from: FU-LAMBDA-RUNTIME-OPERATIONS
+      to: FU-SECRETS-CONFIGURATION
+      description: Requires secure runtime configuration and credential access.
+    - type: depends_on
+      from: FU-LAMBDA-RUNTIME-OPERATIONS
+      to: REF-AWS-SECRETS-MANAGER
+      description: Uses managed secret store for runtime credentials.
+
+    - type: targets
+      from: AV-SPOOFED-GITHUB-WEBHOOK
+      to: FU-GITHUB-WEBHOOK-INGRESS
+    - type: targets
+      from: AV-PROMPT-INJECTION-IN-DIFF
+      to: FU-PR-CONTEXT-ASSEMBLY
+    - type: targets
+      from: AV-PROMPT-INJECTION-IN-DIFF
+      to: FU-REVIEW-ORCHESTRATION
+    - type: targets
+      from: AV-SECRET-LEAKAGE-IN-REVIEW
+      to: FU-REVIEW-PUBLICATION
+    - type: targets
+      from: AV-SECRET-LEAKAGE-IN-REVIEW
+      to: FU-SECRETS-CONFIGURATION
+    - type: targets
+      from: AV-PR-SPAM-ABUSE
+      to: FU-GITHUB-WEBHOOK-INGRESS
+    - type: targets
+      from: AV-PR-SPAM-ABUSE
+      to: FU-REVIEW-ORCHESTRATION
+
+inferenceHints:
+  runtimeSources:
+    - ./infra/terraform
+  codeSources:
+    - ./src
+  expectedRuntimeKinds:
+    - terraform_resource
+    - lambda_function
+  ownershipResolutionOrder:
+    - explicit_annotation
+    - path_convention
+    - unresolved_warning
+
+views:
+  - id: VIEW-ARCHITECTURE-INTENT
+    kind: architecture-intent
+    roots:
+      - FG-PR-INTEGRATION
+      - FG-REVIEW-INTELLIGENCE
+      - FG-PLATFORM-OPERATIONS
+    authoredStatus: stable
+    authoredStatusExplanation: Authored capability boundaries and ownership responsibilities are stable for this release.
+
+  - id: VIEW-COMMUNICATION
+    kind: communication
+    roots:
+      - FU-GITHUB-WEBHOOK-INGRESS
+      - FU-PR-CONTEXT-ASSEMBLY
+      - FU-REVIEW-ORCHESTRATION
+      - FU-POLICY-CHECKS
+      - FU-REVIEW-PUBLICATION
+    authoredStatus: in-review
+    authoredStatusExplanation: Communication sequencing is defined, while protocol-level metadata is still being expanded.
+
+  - id: VIEW-DEPLOYMENT
+    kind: deployment
+    roots:
+      - FU-GITHUB-WEBHOOK-INGRESS
+      - FU-PR-CONTEXT-ASSEMBLY
+      - FU-REVIEW-ORCHESTRATION
+      - FU-POLICY-CHECKS
+      - FU-REVIEW-PUBLICATION
+      - FU-LAMBDA-RUNTIME-OPERATIONS
+      - FU-SECRETS-CONFIGURATION
+    authoredStatus: in-review
+    authoredStatusExplanation: Deployment and runtime mapping are present; observability and ownership evidence are still evolving.
+
+  - id: VIEW-SECURITY
+    kind: security
+    roots:
+      - FG-PR-INTEGRATION
+      - FG-REVIEW-INTELLIGENCE
+      - FG-PLATFORM-OPERATIONS
+      - AV-SPOOFED-GITHUB-WEBHOOK
+      - AV-PROMPT-INJECTION-IN-DIFF
+      - AV-SECRET-LEAKAGE-IN-REVIEW
+      - AV-PR-SPAM-ABUSE
+    authoredStatus: draft
+    authoredStatusExplanation: Core threats are modeled; control-depth and detection mappings are still being expanded.
+
+  - id: VIEW-TRACEABILITY
+    kind: traceability
+    roots:
+      - FU-GITHUB-WEBHOOK-INGRESS
+      - FU-PR-CONTEXT-ASSEMBLY
+      - FU-REVIEW-ORCHESTRATION
+      - FU-POLICY-CHECKS
+      - FU-REVIEW-PUBLICATION
+      - FU-LAMBDA-RUNTIME-OPERATIONS
+      - FU-SECRETS-CONFIGURATION
+    authoredStatus: in-review
+    authoredStatusExplanation: Requirement mappings exist; evidence completeness and consistency are still being hardened.

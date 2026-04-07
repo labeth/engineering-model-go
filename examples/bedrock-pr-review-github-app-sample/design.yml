@@ -1,0 +1,242 @@
+design:
+  id: sample-bedrock-pr-review-design
+  title: Bedrock Lambda GitHub PR Review App Design
+
+  functionalGroups:
+    - id: FG-PR-INTEGRATION
+      views:
+        architecture_intent:
+          title: PR Integration Architecture Intent
+          narrative: |
+            PR Integration defines trusted ingestion boundaries and normalized PR context assembly for downstream review units.
+        communication:
+          title: PR Integration Communication
+          narrative: |
+            PR Integration receives webhook events and forwards normalized review context to orchestration with explicit handoff semantics.
+        deployment:
+          title: PR Integration Deployment
+          narrative: |
+            PR Integration functions deploy independently to isolate webhook ingress from context-fetch implementation changes.
+        security:
+          title: PR Integration Security
+          narrative: |
+            PR Integration protects signature verification and hostile-diff ingress paths to reduce spoofing and prompt injection risk.
+        traceability:
+          title: PR Integration Traceability
+          narrative: |
+            PR Integration ownership is maintained at ingress and context modules with requirement-level trace markers.
+
+    - id: FG-REVIEW-INTELLIGENCE
+      views:
+        architecture_intent:
+          title: Review Intelligence Architecture Intent
+          narrative: |
+            Review Intelligence defines how AI and deterministic signals are combined and published as actionable PR feedback.
+        communication:
+          title: Review Intelligence Communication
+          narrative: |
+            Review Intelligence coordinates Bedrock calls, policy evaluation, and publication sequencing for deterministic outcomes.
+        deployment:
+          title: Review Intelligence Deployment
+          narrative: |
+            Review Intelligence units roll independently to preserve availability and reduce blast radius during model or rule updates.
+        security:
+          title: Review Intelligence Security
+          narrative: |
+            Review Intelligence emphasizes prompt hardening, output redaction, and secure publication boundaries.
+        traceability:
+          title: Review Intelligence Traceability
+          narrative: |
+            Review Intelligence traces AI findings and deterministic checks back to requirements and evidence sources.
+
+    - id: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Platform Operations Architecture Intent
+          narrative: |
+            Platform Operations owns deployability, runtime controls, and secure configuration boundaries for the review app.
+        communication:
+          title: Platform Operations Communication
+          narrative: |
+            Platform Operations coordinates runtime controls with app units via deployment and secret/config integration interfaces.
+        deployment:
+          title: Platform Operations Deployment
+          narrative: |
+            Platform Operations governs release orchestration and runtime placement to keep review capacity stable.
+        security:
+          title: Platform Operations Security
+          narrative: |
+            Platform Operations secures credential paths and operational controls across Lambda deployment lifecycle.
+        traceability:
+          title: Platform Operations Traceability
+          narrative: |
+            Platform Operations records ownership and evidence for deployment and secret-management behavior.
+
+  functionalUnits:
+    - id: FU-GITHUB-WEBHOOK-INGRESS
+      group: FG-PR-INTEGRATION
+      views:
+        architecture_intent:
+          title: GitHub Webhook Ingress Intent
+          narrative: |
+            Accepts and verifies GitHub webhook events before any review processing.
+        communication:
+          title: GitHub Webhook Ingress Communication
+          narrative: |
+            Receives webhook payloads, validates them, and routes authorized events to context assembly.
+        deployment:
+          title: GitHub Webhook Ingress Deployment
+          narrative: |
+            Deploys as an independently managed Lambda runtime boundary.
+        security:
+          title: GitHub Webhook Ingress Security
+          narrative: |
+            Enforces signature verification and rejects spoofed or malformed events.
+        traceability:
+          title: GitHub Webhook Ingress Traceability
+          narrative: |
+            Requirement traces capture ingress validation and abuse-protection behavior.
+
+    - id: FU-PR-CONTEXT-ASSEMBLY
+      group: FG-PR-INTEGRATION
+      views:
+        architecture_intent:
+          title: PR Context Assembly Intent
+          narrative: |
+            Builds bounded, review-ready context from pull request files and metadata.
+        communication:
+          title: PR Context Assembly Communication
+          narrative: |
+            Calls GitHub APIs and forwards normalized context to orchestration.
+        deployment:
+          title: PR Context Assembly Deployment
+          narrative: |
+            Deployed separately to allow context shaping changes without ingress disruption.
+        security:
+          title: PR Context Assembly Security
+          narrative: |
+            Applies contextual sanitization to reduce prompt injection risk from diffs.
+        traceability:
+          title: PR Context Assembly Traceability
+          narrative: |
+            Traces context fetch and preparation logic to requirement evidence.
+
+    - id: FU-REVIEW-ORCHESTRATION
+      group: FG-REVIEW-INTELLIGENCE
+      views:
+        architecture_intent:
+          title: Review Orchestration Intent
+          narrative: |
+            Coordinates model inference and deterministic checks into one review outcome.
+        communication:
+          title: Review Orchestration Communication
+          narrative: |
+            Integrates context input, Bedrock calls, and publication output in a deterministic sequence.
+        deployment:
+          title: Review Orchestration Deployment
+          narrative: |
+            Isolated deployment enables cautious model/config rollout and fallback control.
+        security:
+          title: Review Orchestration Security
+          narrative: |
+            Enforces safe prompt construction and bounded output handling under adversarial input.
+        traceability:
+          title: Review Orchestration Traceability
+          narrative: |
+            Traces model-request and fallback behavior to requirements and evidence artifacts.
+
+    - id: FU-POLICY-CHECKS
+      group: FG-REVIEW-INTELLIGENCE
+      views:
+        architecture_intent:
+          title: Policy Checks Intent
+          narrative: |
+            Performs deterministic repository checks independent of model output.
+        communication:
+          title: Policy Checks Communication
+          narrative: |
+            Exchanges policy findings with orchestration for final result composition.
+        deployment:
+          title: Policy Checks Deployment
+          narrative: |
+            Deployed independently to evolve policy logic without model coupling.
+        security:
+          title: Policy Checks Security
+          narrative: |
+            Provides deterministic controls for secrets and risky infrastructure changes.
+        traceability:
+          title: Policy Checks Traceability
+          narrative: |
+            Traces each deterministic finding category to requirement ownership.
+
+    - id: FU-REVIEW-PUBLICATION
+      group: FG-REVIEW-INTELLIGENCE
+      views:
+        architecture_intent:
+          title: Review Publication Intent
+          narrative: |
+            Publishes review findings to GitHub checks and comments with clear merge-gate signals.
+        communication:
+          title: Review Publication Communication
+          narrative: |
+            Posts summaries and inline annotations through GitHub App APIs.
+        deployment:
+          title: Review Publication Deployment
+          narrative: |
+            Release isolation protects publication reliability during other unit rollouts.
+        security:
+          title: Review Publication Security
+          narrative: |
+            Applies redaction and policy-aware output filtering before publishing findings.
+        traceability:
+          title: Review Publication Traceability
+          narrative: |
+            Maps published outcomes and audit metadata to requirement-level evidence.
+
+    - id: FU-LAMBDA-RUNTIME-OPERATIONS
+      group: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Lambda Runtime Operations Intent
+          narrative: |
+            Owns runtime deployment sequencing, control-plane continuity, and operational safety.
+        communication:
+          title: Lambda Runtime Operations Communication
+          narrative: |
+            Operates deployment and runtime controls that indirectly shape request-path reliability.
+        deployment:
+          title: Lambda Runtime Operations Deployment
+          narrative: |
+            Governs source-to-release pipeline behavior and runtime placement boundaries.
+        security:
+          title: Lambda Runtime Operations Security
+          narrative: |
+            Hardens operational control loops and protects deployment trust boundaries.
+        traceability:
+          title: Lambda Runtime Operations Traceability
+          narrative: |
+            Captures deployment/runtime evidence linking operational ownership to architecture intent.
+
+    - id: FU-SECRETS-CONFIGURATION
+      group: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Secrets and Configuration Intent
+          narrative: |
+            Owns credentials and runtime configuration contracts used by review units.
+        communication:
+          title: Secrets and Configuration Communication
+          narrative: |
+            Provides secure config retrieval contracts to orchestration and publication units.
+        deployment:
+          title: Secrets and Configuration Deployment
+          narrative: |
+            Managed as a shared operational boundary with controlled rotation and rollout flow.
+        security:
+          title: Secrets and Configuration Security
+          narrative: |
+            Enforces credential isolation, least-privilege access, and redaction-safe metadata handling.
+        traceability:
+          title: Secrets and Configuration Traceability
+          narrative: |
+            Traces credential and redaction controls to audit and publication requirements.

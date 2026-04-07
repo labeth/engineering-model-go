@@ -132,6 +132,7 @@ The traceability appendix includes:
 
 End-to-end sample inputs and generated outputs are under:
 - `examples/payments-engineering-sample`
+- `examples/bedrock-pr-review-github-app-sample`
 
 Core files:
 - `catalog.yml`
@@ -139,8 +140,6 @@ Core files:
 - `requirements.yml`
 - `design.yml`
 - `infra/terraform`
-- `infra/flux`
-- `infra/helm`
 - `src` (Go/Rust/TypeScript traced code)
 
 ## Development

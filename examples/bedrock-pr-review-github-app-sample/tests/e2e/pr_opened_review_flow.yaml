@@ -1,0 +1,5 @@
+name: e2e-pr-opened-review-flow
+steps:
+  - given: pull request opened event is received
+  - when: pull request review is active
+  - then: verify REQ-PRR-001 and REQ-PRR-002 and REQ-PRR-003 and REQ-PRR-005

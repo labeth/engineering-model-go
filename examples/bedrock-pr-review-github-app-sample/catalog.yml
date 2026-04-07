@@ -1,0 +1,190 @@
+catalog:
+  functionalGroups:
+    - id: FG-PR-INTEGRATION
+      name: pr integration
+      definition: Functional group for webhook ingress and pull request context intake.
+      aliases: [github integration]
+    - id: FG-REVIEW-INTELLIGENCE
+      name: review intelligence
+      definition: Functional group for AI and deterministic review analysis and publication.
+      aliases: [pr review system]
+    - id: FG-PLATFORM-OPERATIONS
+      name: platform operations
+      definition: Functional group for deployment lifecycle and secret/config controls.
+      aliases: [runtime operations]
+
+  functionalUnits:
+    - id: FU-GITHUB-WEBHOOK-INGRESS
+      name: github webhook ingress
+      definition: Validates webhook signatures and routes trusted pull request events.
+      aliases: [webhook ingress]
+    - id: FU-PR-CONTEXT-ASSEMBLY
+      name: pr context assembly
+      definition: Fetches changed files and prepares bounded review context payloads.
+      aliases: [context assembly]
+    - id: FU-REVIEW-ORCHESTRATION
+      name: review orchestration
+      definition: Coordinates Bedrock analysis with deterministic checks and fallback logic.
+      aliases: [orchestration]
+    - id: FU-POLICY-CHECKS
+      name: policy checks
+      definition: Evaluates deterministic repository policy checks.
+      aliases: [deterministic checks]
+    - id: FU-REVIEW-PUBLICATION
+      name: review publication
+      definition: Publishes review findings to GitHub checks and comments.
+      aliases: [publication]
+    - id: FU-LAMBDA-RUNTIME-OPERATIONS
+      name: lambda runtime operations
+      definition: Manages runtime deployment and operational controls.
+      aliases: [lambda ops]
+    - id: FU-SECRETS-CONFIGURATION
+      name: secrets and configuration
+      definition: Manages credentials and secure runtime configuration.
+      aliases: [secret config]
+
+  referencedElements:
+    - id: REF-GITHUB-APP-API
+      name: github app api
+      definition: External GitHub API used for pull request metadata and review publication.
+      aliases: [github api]
+    - id: REF-AWS-BEDROCK-RUNTIME
+      name: bedrock runtime
+      definition: External Bedrock runtime endpoint used for model inference.
+      aliases: [bedrock api]
+    - id: REF-AWS-SECRETS-MANAGER
+      name: aws secrets manager
+      definition: Managed secret store for application credentials and config values.
+      aliases: [secrets manager]
+    - id: REF-GITHUB-REST-SDK
+      name: github rest sdk
+      definition: SDK dependency used for GitHub App REST interactions.
+      aliases: [github sdk]
+    - id: REF-AWS-SDK-GO
+      name: aws sdk for go
+      definition: SDK dependency used for AWS runtime integrations.
+      aliases: [aws sdk]
+    - id: REF-POLICY-RULESET
+      name: policy ruleset
+      definition: Deterministic review policy bundle used during analysis.
+      aliases: [policy bundle]
+
+  actors:
+    - id: ACT-DEVELOPER
+      name: developer
+      definition: Engineer opening and updating pull requests.
+      aliases: [pr author]
+    - id: ACT-SECURITY-ENGINEER
+      name: security engineer
+      definition: Owner of security policy checks and finding triage.
+      aliases: [security reviewer]
+    - id: ACT-PLATFORM-OPERATOR
+      name: platform operator
+      definition: Owner of deployment/runtime operations and reliability controls.
+      aliases: [platform ops]
+    - id: ACT-REPOSITORY-MAINTAINER
+      name: repository maintainer
+      definition: Owner of merge decisions and repository quality gates.
+      aliases: [maintainer]
+
+  attackVectors:
+    - id: AV-SPOOFED-GITHUB-WEBHOOK
+      name: spoofed github webhook
+      definition: Forged webhook request attempting unauthorized review execution.
+      aliases: [webhook spoofing]
+    - id: AV-PROMPT-INJECTION-IN-DIFF
+      name: prompt injection in diff
+      definition: Malicious prompt-like content embedded in pull request code changes.
+      aliases: [prompt injection]
+    - id: AV-SECRET-LEAKAGE-IN-REVIEW
+      name: secret leakage in review output
+      definition: Unintended credential disclosure in generated review findings.
+      aliases: [secret leakage]
+    - id: AV-PR-SPAM-ABUSE
+      name: pull request spam abuse
+      definition: High-volume event abuse causing review capacity exhaustion.
+      aliases: [pr spam]
+
+  events:
+    - id: EVT-PR-OPENED
+      name: pull request opened event is received
+      definition: Event raised when a new pull request is opened.
+      aliases: [pr opened]
+    - id: EVT-PR-SYNCHRONIZE
+      name: pull request synchronize event is received
+      definition: Event raised when new commits are pushed to an open pull request.
+      aliases: [pr synchronize]
+    - id: EVT-CONTEXT-PREPARED
+      name: diff context is prepared
+      definition: Event indicating context assembly completed and is ready for analysis.
+      aliases: [context prepared]
+    - id: EVT-FINDINGS-GENERATED
+      name: review findings are generated
+      definition: Event indicating analysis output is ready for publication.
+      aliases: [findings generated]
+    - id: EVT-FINDINGS-PUBLISHED
+      name: review findings are published
+      definition: Event indicating review output has been published to GitHub checks/comments.
+      aliases: [findings published]
+    - id: EVT-BEDROCK-UNAVAILABLE
+      name: bedrock runtime is unavailable
+      definition: Event raised when Bedrock inference path is degraded.
+      aliases: [bedrock unavailable]
+    - id: EVT-RATE-LIMIT-EXCEEDED
+      name: review request rate limit is exceeded
+      definition: Event raised when PR review rate guardrails are hit.
+      aliases: [rate limit exceeded]
+
+  states:
+    - id: STATE-PR-REVIEW-ACTIVE
+      name: pull request review is active
+      definition: State where review processing is currently active for a pull request.
+      aliases: [review active]
+
+  features:
+    - id: FEAT-AI-REVIEW
+      name: ai review is enabled
+      definition: Feature flag enabling model-assisted review.
+      aliases: [ai review enabled]
+    - id: FEAT-POLICY-CHECKS
+      name: policy checks are enabled
+      definition: Feature flag enabling deterministic policy checks.
+      aliases: [policy checks enabled]
+    - id: FEAT-AUDIT-LOGGING
+      name: audit logging is enabled
+      definition: Feature flag enabling audit metadata persistence.
+      aliases: [audit enabled]
+
+  modes:
+    - id: MODE-NORMAL
+      name: normal mode is active
+      definition: Default operating mode using AI plus deterministic checks.
+      aliases: [normal mode]
+
+  conditions:
+    - id: COND-WEBHOOK-SIGNATURE-VALID
+      name: webhook signature is valid
+      definition: Condition indicating webhook HMAC verification succeeded.
+      aliases: [signature valid]
+
+  dataTerms:
+    - id: DATA-WEBHOOK-SIGNATURE
+      name: webhook signature
+      definition: Signature used to verify webhook authenticity.
+      aliases: []
+    - id: DATA-DIFF-CONTEXT
+      name: diff context
+      definition: Pull request file changes and metadata prepared for analysis.
+      aliases: []
+    - id: DATA-CHECKRUN-SUMMARY
+      name: check run summary
+      definition: Aggregated review result posted as a GitHub check run.
+      aliases: []
+    - id: DATA-REDACTED-AUDIT-METADATA
+      name: redacted audit metadata
+      definition: Sanitized prompt and finding metadata retained for audit.
+      aliases: []
+    - id: DATA-RESULT-METADATA
+      name: result metadata
+      definition: Metadata describing review output characteristics for audit and reporting.
+      aliases: []

@@ -329,18 +329,27 @@ flowchart TB
 
 What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
 
-[cols="1,1,1",frame=none,grid=none]
-|===
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Checkout Handling</div>]
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Risk Scoring</div>]
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Cluster Provisioning</div>]
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Payment Authorization</div>]
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Support Review</div>]
-|pass:[<div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">GitOps Operations</div>]
-|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Payments</div>]
-|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Fraud Evaluation</div>]
-|pass:[<div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:6px;text-align:center;min-height:16px;font-size:0.85em;line-height:1.15;">Platform</div>]
-|===
+++++
+<div style="background:#f5f5f5;padding:12px;">
+<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Checkout Handling</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Risk Scoring</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cluster Provisioning</div></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Payment Authorization</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Support Review</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">GitOps Operations</div></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Payments</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fraud Evaluation</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Platform</div></td>
+</tr>
+</table>
+</div>
+++++
 
 === Functional Unit Dependency Diagram
 

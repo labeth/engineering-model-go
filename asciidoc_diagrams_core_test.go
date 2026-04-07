@@ -17,8 +17,8 @@ func TestBuildFunctionalManhattanTable_SingleBand(t *testing.T) {
 	if strings.Contains(out, "*FG Columns ") {
 		t.Fatalf("single-band layout should not include band headings")
 	}
-	if got := strings.Count(out, `[cols="1,1,1,1",frame=none,grid=none]`); got != 1 {
-		t.Fatalf("expected exactly one 4-column table, got %d", got)
+	if got := strings.Count(out, `<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;`); got != 1 {
+		t.Fatalf("expected exactly one html table, got %d", got)
 	}
 	for i := 1; i <= 4; i++ {
 		label := fmt.Sprintf("Capability FG-%02d", i)
@@ -45,11 +45,8 @@ func TestBuildFunctionalManhattanTable_MultiBandIncludesAllColumnsAndUnits(t *te
 	if !strings.Contains(out, "*FG Columns 11-19*") {
 		t.Fatalf("missing second multi-band heading")
 	}
-	if got := strings.Count(out, `[cols="1,1,1,1,1,1,1,1,1,1",frame=none,grid=none]`); got != 1 {
-		t.Fatalf("expected one 10-column band table, got %d", got)
-	}
-	if got := strings.Count(out, `[cols="1,1,1,1,1,1,1,1,1",frame=none,grid=none]`); got != 1 {
-		t.Fatalf("expected one 9-column band table, got %d", got)
+	if got := strings.Count(out, `<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;`); got != 2 {
+		t.Fatalf("expected two html band tables, got %d", got)
 	}
 
 	for i := 1; i <= 19; i++ {
@@ -91,6 +88,36 @@ func TestBuildFunctionalManhattanTable_RandomizedCoverage(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestBuildFunctionalManhattanTable_BottomAlignedAndNoRenderedEmptyBlocks(t *testing.T) {
+	a := model.AuthoredArchitecture{
+		FunctionalGroups: []model.FunctionalGroup{
+			{ID: "FG-A", Name: "Capability A"},
+			{ID: "FG-B", Name: "Capability B"},
+		},
+		FunctionalUnits: []model.FunctionalUnit{
+			{ID: "FU-A1", Name: "Unit A1", Group: "FG-A"},
+			{ID: "FU-B1", Name: "Unit B1", Group: "FG-B"},
+			{ID: "FU-B2", Name: "Unit B2", Group: "FG-B"},
+			{ID: "FU-B3", Name: "Unit B3", Group: "FG-B"},
+		},
+	}
+
+	out := buildFunctionalManhattanTable(a)
+
+	if strings.Contains(out, "&nbsp;") {
+		t.Fatalf("did not expect styled placeholder blocks for empty Manhattan cells")
+	}
+	idxA1 := strings.Index(out, "Unit A1")
+	idxB1 := strings.Index(out, "Unit B1")
+	idxB2 := strings.Index(out, "Unit B2")
+	if idxA1 < 0 || idxB1 < 0 || idxB2 < 0 {
+		t.Fatalf("expected all unit labels to exist in output")
+	}
+	if idxA1 < idxB1 || idxA1 < idxB2 {
+		t.Fatalf("expected short column unit to be bottom-aligned below higher-column upper rows")
 	}
 }
 

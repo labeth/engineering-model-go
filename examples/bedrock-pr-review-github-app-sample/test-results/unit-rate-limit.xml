@@ -1,0 +1,5 @@
+<testsuites>
+  <testsuite name="unit-rate-limit">
+    <testcase name="REQ-PRR-008 defers and notifies maintainer" classname="webhook" />
+  </testsuite>
+</testsuites>

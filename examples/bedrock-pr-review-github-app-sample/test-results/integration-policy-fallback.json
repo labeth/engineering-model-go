@@ -1,0 +1,6 @@
+{
+  "results": [
+    {"requirement": "REQ-PRR-004", "status": "pass", "notes": "deterministic policy checks executed"},
+    {"requirement": "REQ-PRR-006", "status": "pass", "notes": "policy-only fallback published"}
+  ]
+}
