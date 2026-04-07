@@ -895,26 +895,42 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
+NOTE: Namespace and cluster boundaries are rendered as containers when target/placement relationships are inferred.
+NOTE: Node labels include role hints (for example Source, Kustomization, Release, Workload, ns/...) to make similarly named elements easier to distinguish.
 
 [source,mermaid]
 ----
 flowchart TB
-  DP_PAYMENTS_SAMPLE_SOURCE["payments-sample-source"]:::deployment_element
-  DP_PAYMENTS_APPS["payments-apps"]:::deployment_element
+  subgraph CLUSTER_PAYMENTS["Cluster: payments"]
+    direction TB
+    subgraph NS_FLUX_SYSTEM["Namespace: flux_system"]
+      direction TB
+      DP_FLUX_SYSTEM["ns/flux_system"]:::deployment_element
+    end
+    subgraph NS_PAYMENTS["Namespace: payments"]
+      direction TB
+      DP_PAYMENTS["ns/payments"]:::deployment_element
+      DP_PAYMENTS_CHECKOUT_API["Release: payments/checkout-api"]:::deployment_element
+      DP_PAYMENTS_PAYMENT_ENGINE["Release: payments/payment-engine"]:::deployment_element
+    end
+    subgraph NS_RISK["Namespace: risk"]
+      direction TB
+      DP_RISK["ns/risk"]:::deployment_element
+      DP_RISK_RISK_SCORER["Release: risk/risk-scorer"]:::deployment_element
+    end
+  end
+  subgraph CONTROL_PLANE["Control Plane"]
+    direction TB
+    DP_PAYMENTS_APPS["Kustomization: payments-apps"]:::deployment_element
+    DP_PAYMENTS_SAMPLE_SOURCE["Source: payments-sample-source"]:::deployment_element
+  end
   DP_PAYMENTS_SAMPLE_SOURCE -->|reconciles| DP_PAYMENTS_APPS
-  DP_CHECKOUT_API["checkout-api"]:::deployment_element
-  DP_PAYMENTS_APPS -->|applies| DP_CHECKOUT_API
-  DP_PAYMENT_ENGINE["payment-engine"]:::deployment_element
-  DP_PAYMENTS_APPS -->|applies| DP_PAYMENT_ENGINE
-  DP_RISK_SCORER["risk-scorer"]:::deployment_element
-  DP_PAYMENTS_APPS -->|applies| DP_RISK_SCORER
-  DP_RISK["risk"]:::deployment_element
-  DP_RISK_SCORER -->|targets| DP_RISK
-  DP_FLUX_SYSTEM["flux_system"]:::deployment_element
-  DP_PAYMENTS["payments"]:::deployment_element
-  DP_FLUX_SYSTEM -->|part_of| DP_PAYMENTS
-  DP_PAYMENTS -->|part_of| DP_PAYMENTS
-  DP_RISK -->|part_of| DP_PAYMENTS
+  DP_PAYMENTS_APPS -->|applies| DP_PAYMENTS_CHECKOUT_API
+  DP_PAYMENTS_APPS -->|applies| DP_PAYMENTS_PAYMENT_ENGINE
+  DP_PAYMENTS_APPS -->|applies| DP_RISK_RISK_SCORER
+  DP_PAYMENTS_CHECKOUT_API -->|targets| DP_PAYMENTS
+  DP_PAYMENTS_PAYMENT_ENGINE -->|targets| DP_PAYMENTS
+  DP_RISK_RISK_SCORER -->|targets| DP_RISK
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;

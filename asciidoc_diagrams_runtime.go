@@ -84,13 +84,14 @@ func runtimeShortName(s string) string {
 }
 
 func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow {
-	var sourceName, kustomName, clusterName string
+	var sourceName, kustomName string
 	releases := []string{}
 	workloads := []string{}
 	namespaces := []string{}
+	clusters := []string{}
 
 	for _, r := range runtime {
-		n := runtimeShortName(r.Name)
+		n := deploymentNodeName(r)
 		switch r.Kind {
 		case "gitrepository":
 			if sourceName == "" {
@@ -107,14 +108,13 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 		case "namespace":
 			namespaces = append(namespaces, n)
 		case "cluster":
-			if clusterName == "" {
-				clusterName = n
-			}
+			clusters = append(clusters, n)
 		}
 	}
 	releases = uniqueSorted(releases)
 	workloads = uniqueSorted(workloads)
 	namespaces = uniqueSorted(namespaces)
+	clusters = uniqueSorted(clusters)
 
 	out := []asciidocDeploymentRow{}
 	if sourceName != "" && kustomName != "" {
@@ -139,7 +139,8 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 			}
 		}
 	}
-	if clusterName != "" {
+	if len(clusters) > 0 {
+		clusterName := clusters[0]
 		for _, ns := range namespaces {
 			out = append(out, asciidocDeploymentRow{From: ns, To: clusterName, How: "part_of"})
 		}
@@ -149,11 +150,29 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 
 func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 	lines := []string{"flowchart TB"}
+
+	type edge struct {
+		From string
+		To   string
+		How  string
+	}
+	edges := make([]edge, 0, len(rows))
+
 	nodeClass := map[string]string{}
 	classRank := map[string]int{
 		"deployment_element": 1,
 		"runtime_element":    2,
 	}
+	sourceSet := map[string]bool{}
+	kustomSet := map[string]bool{}
+	releaseSet := map[string]bool{}
+	workloadSet := map[string]bool{}
+	nsSet := map[string]bool{}
+	clusterSet := map[string]bool{}
+	releaseTargets := map[string]map[string]bool{}
+	releaseDeploys := map[string]map[string]bool{}
+	nsCluster := map[string]string{}
+
 	setClass := func(node, class string) {
 		if existing, ok := nodeClass[node]; ok {
 			if classRank[class] <= classRank[existing] {
@@ -163,21 +182,282 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 		nodeClass[node] = class
 	}
 	for _, r := range rows {
+		if strings.TrimSpace(r.From) == "" || strings.TrimSpace(r.To) == "" || strings.TrimSpace(r.How) == "" {
+			continue
+		}
+		edges = append(edges, edge{From: r.From, To: r.To, How: r.How})
 		setClass(r.From, "deployment_element")
 		setClass(r.To, "deployment_element")
-		if r.How == "deploys" {
+		switch r.How {
+		case "reconciles":
+			sourceSet[r.From] = true
+			kustomSet[r.To] = true
+		case "applies":
+			kustomSet[r.From] = true
+			releaseSet[r.To] = true
+		case "deploys":
+			releaseSet[r.From] = true
+			workloadSet[r.To] = true
 			setClass(r.To, "runtime_element")
+			if releaseDeploys[r.From] == nil {
+				releaseDeploys[r.From] = map[string]bool{}
+			}
+			releaseDeploys[r.From][r.To] = true
+		case "targets":
+			releaseSet[r.From] = true
+			nsSet[r.To] = true
+			if releaseTargets[r.From] == nil {
+				releaseTargets[r.From] = map[string]bool{}
+			}
+			releaseTargets[r.From][r.To] = true
+		case "part_of":
+			nsSet[r.From] = true
+			clusterSet[r.To] = true
+			if strings.TrimSpace(nsCluster[r.From]) == "" {
+				nsCluster[r.From] = r.To
+			}
 		}
 	}
-	for _, r := range rows {
-		fn := "DP_" + sanitizeNode(r.From)
-		tn := "DP_" + sanitizeNode(r.To)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::%s", fn, escapeMermaidLabel(r.From), nodeClass[r.From]))
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::%s", tn, escapeMermaidLabel(r.To), nodeClass[r.To]))
-		lines = append(lines, fmt.Sprintf("  %s -->|%s| %s", fn, escapeMermaidLabel(r.How), tn))
+
+	releasePrimaryNS := map[string]string{}
+	for release, targets := range releaseTargets {
+		names := make([]string, 0, len(targets))
+		for ns := range targets {
+			names = append(names, ns)
+		}
+		sort.Strings(names)
+		if len(names) > 0 {
+			releasePrimaryNS[release] = names[0]
+		}
+	}
+	nsReleases := map[string][]string{}
+	for release, ns := range releasePrimaryNS {
+		nsReleases[ns] = append(nsReleases[ns], release)
+	}
+	for ns := range nsReleases {
+		sort.Strings(nsReleases[ns])
+	}
+
+	workloadNamespaces := map[string]map[string]bool{}
+	for release, targets := range releaseTargets {
+		for ns := range targets {
+			for workload := range releaseDeploys[release] {
+				if workloadNamespaces[workload] == nil {
+					workloadNamespaces[workload] = map[string]bool{}
+				}
+				workloadNamespaces[workload][ns] = true
+			}
+		}
+	}
+	workloadPrimaryNS := map[string]string{}
+	for workload, nsCandidates := range workloadNamespaces {
+		names := make([]string, 0, len(nsCandidates))
+		for ns := range nsCandidates {
+			names = append(names, ns)
+		}
+		sort.Strings(names)
+		if len(names) > 0 {
+			workloadPrimaryNS[workload] = names[0]
+		}
+	}
+	nsWorkloads := map[string][]string{}
+	for workload, ns := range workloadPrimaryNS {
+		nsWorkloads[ns] = append(nsWorkloads[ns], workload)
+	}
+	for ns := range nsWorkloads {
+		sort.Strings(nsWorkloads[ns])
+	}
+
+	nodeRole := map[string]string{}
+	for x := range sourceSet {
+		nodeRole[x] = "source"
+	}
+	for x := range kustomSet {
+		nodeRole[x] = "kustomization"
+	}
+	for x := range releaseSet {
+		nodeRole[x] = "release"
+	}
+	for x := range workloadSet {
+		nodeRole[x] = "workload"
+	}
+	for x := range nsSet {
+		nodeRole[x] = "namespace"
+	}
+	for x := range clusterSet {
+		if nsSet[x] {
+			continue
+		}
+		nodeRole[x] = "cluster"
+	}
+
+	nodeID := func(name string) string {
+		return "DP_" + sanitizeNode(name)
+	}
+	nodeLabel := func(name string) string {
+		switch nodeRole[name] {
+		case "source":
+			return "Source: " + name
+		case "kustomization":
+			return "Kustomization: " + name
+		case "release":
+			return "Release: " + name
+		case "workload":
+			return "Workload: " + name
+		case "namespace":
+			return "ns/" + runtimeShortName(name)
+		case "cluster":
+			return "cluster/" + runtimeShortName(name)
+		default:
+			return name
+		}
+	}
+	nodeDecl := func(name string) string {
+		class := nodeClass[name]
+		if strings.TrimSpace(class) == "" {
+			class = "deployment_element"
+		}
+		return fmt.Sprintf("%s[\"%s\"]:::%s", nodeID(name), escapeMermaidLabel(nodeLabel(name)), class)
+	}
+	sortedNodeNames := func(set map[string]bool) []string {
+		out := make([]string, 0, len(set))
+		for k := range set {
+			out = append(out, k)
+		}
+		sort.Strings(out)
+		return out
+	}
+	emitted := map[string]bool{}
+	emitStandalone := func(name string) {
+		if emitted[name] {
+			return
+		}
+		lines = append(lines, "  "+nodeDecl(name))
+		emitted[name] = true
+	}
+
+	namespaces := sortedNodeNames(nsSet)
+	if len(namespaces) > 0 {
+		clusteredNamespaces := map[string][]string{}
+		unclusteredNamespaces := []string{}
+		for _, ns := range namespaces {
+			cluster := strings.TrimSpace(nsCluster[ns])
+			if cluster == "" {
+				unclusteredNamespaces = append(unclusteredNamespaces, ns)
+				continue
+			}
+			clusteredNamespaces[cluster] = append(clusteredNamespaces[cluster], ns)
+		}
+		for cluster := range clusteredNamespaces {
+			sort.Strings(clusteredNamespaces[cluster])
+		}
+		sort.Strings(unclusteredNamespaces)
+
+		emitNamespaceSubgraph := func(indent, ns string) {
+			subgraphID := "NS_" + sanitizeNode(ns)
+			lines = append(lines, fmt.Sprintf("%ssubgraph %s[\"Namespace: %s\"]", indent, subgraphID, escapeMermaidLabel(ns)))
+			lines = append(lines, indent+"  direction TB")
+			lines = append(lines, indent+"  "+nodeDecl(ns))
+			emitted[ns] = true
+			for _, release := range nsReleases[ns] {
+				lines = append(lines, indent+"  "+nodeDecl(release))
+				emitted[release] = true
+			}
+			for _, workload := range nsWorkloads[ns] {
+				lines = append(lines, indent+"  "+nodeDecl(workload))
+				emitted[workload] = true
+			}
+			lines = append(lines, indent+"end")
+		}
+
+		clusterNames := sortedNodeNames(clusterSet)
+		for _, cluster := range clusterNames {
+			namesInCluster := clusteredNamespaces[cluster]
+			if len(namesInCluster) == 0 {
+				continue
+			}
+			clusterID := "CLUSTER_" + sanitizeNode(cluster)
+			lines = append(lines, fmt.Sprintf("  subgraph %s[\"Cluster: %s\"]", clusterID, escapeMermaidLabel(cluster)))
+			lines = append(lines, "    direction TB")
+			for _, ns := range namesInCluster {
+				emitNamespaceSubgraph("    ", ns)
+			}
+			lines = append(lines, "  end")
+		}
+		for _, ns := range unclusteredNamespaces {
+			emitNamespaceSubgraph("  ", ns)
+		}
+	}
+
+	controlPlaneNodes := map[string]bool{}
+	for n := range sourceSet {
+		controlPlaneNodes[n] = true
+	}
+	for n := range kustomSet {
+		controlPlaneNodes[n] = true
+	}
+	for n := range releaseSet {
+		if strings.TrimSpace(releasePrimaryNS[n]) == "" {
+			controlPlaneNodes[n] = true
+		}
+	}
+	if len(controlPlaneNodes) > 0 {
+		lines = append(lines, `  subgraph CONTROL_PLANE["Control Plane"]`)
+		lines = append(lines, "    direction TB")
+		for _, n := range sortedNodeNames(controlPlaneNodes) {
+			if emitted[n] {
+				continue
+			}
+			lines = append(lines, "    "+nodeDecl(n))
+			emitted[n] = true
+		}
+		lines = append(lines, "  end")
+	}
+
+	allNodes := map[string]bool{}
+	for n := range nodeClass {
+		allNodes[n] = true
+	}
+	for _, n := range sortedNodeNames(allNodes) {
+		if clusterSet[n] {
+			continue
+		}
+		emitStandalone(n)
+	}
+	for _, cluster := range sortedNodeNames(clusterSet) {
+		hasNamespace := false
+		for _, c := range nsCluster {
+			if strings.TrimSpace(c) == strings.TrimSpace(cluster) {
+				hasNamespace = true
+				break
+			}
+		}
+		if !hasNamespace {
+			emitStandalone(cluster)
+		}
+	}
+
+	for _, r := range edges {
+		if r.How == "part_of" {
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("  %s -->|%s| %s", nodeID(r.From), escapeMermaidLabel(r.How), nodeID(r.To)))
 	}
 	lines = appendMermaidClassDefs(lines)
-	return strings.Join(uniquePreserve(lines), "\n")
+	return strings.Join(lines, "\n")
+}
+
+func deploymentNodeName(r inferredRuntimeItem) string {
+	name := strings.TrimSpace(strings.ReplaceAll(r.Name, "\\", "/"))
+	if name == "" {
+		return name
+	}
+	switch strings.ToLower(strings.TrimSpace(r.Kind)) {
+	case "helmrelease", "deployment", "workload", "service":
+		return name
+	default:
+		return runtimeShortName(name)
+	}
 }
 
 func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntimeItem) []asciidocPlatformOpRow {

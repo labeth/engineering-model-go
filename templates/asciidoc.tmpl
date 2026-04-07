@@ -207,6 +207,8 @@ NOTE: This graph is inferred from available deployment/runtime artifacts and may
 What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
 
 NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
+NOTE: Namespace and cluster boundaries are rendered as containers when target/placement relationships are inferred.
+NOTE: Node labels include role hints (for example Source, Kustomization, Release, Workload, ns/...) to make similarly named elements easier to distinguish.
 
 [source,mermaid]
 ----
