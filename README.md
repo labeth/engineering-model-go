@@ -151,6 +151,7 @@ AI-first export includes:
 
 Use these docs to drive AI-agent development workflows and tagging conventions:
 
+- OpenCode-ready skill (auto-discoverable by `opencode debug skill`): `.opencode/skills/engineering-model-architecture-ai/SKILL.md`
 - framework-neutral workflow and tagging contract: `docs/skills/architecture-ai-workflow.md`
 - OpenCode adapter prompt: `docs/skills/adapters/opencode-skill-prompt.md`
 - generic adapter prompt for other frameworks: `docs/skills/adapters/generic-agent-prompt.md`
