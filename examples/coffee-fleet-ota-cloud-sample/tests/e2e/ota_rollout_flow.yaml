@@ -1,0 +1,8 @@
+scenario: ota rollout
+requirements:
+  - REQ-COF-003
+  - REQ-COF-005
+steps:
+  - schedule campaign
+  - validate firmware signature
+  - apply or rollback and report status

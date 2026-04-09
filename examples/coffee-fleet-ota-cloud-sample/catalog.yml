@@ -1,0 +1,174 @@
+catalog:
+  functionalGroups:
+    - id: FG-MACHINE-EDGE
+      name: machine edge
+      definition: Capability area for device-local telemetry and OTA execution behavior.
+      aliases: [coffee machine edge]
+    - id: FG-CLOUD-CONTROL
+      name: cloud control
+      definition: Capability area for fleet ingestion, campaign orchestration, and cloud reporting.
+      aliases: [central cloud site]
+    - id: FG-PLATFORM-OPERATIONS
+      name: platform operations
+      definition: Capability area for runtime operations and device identity/secrets lifecycle.
+      aliases: [fleet platform operations]
+
+  functionalUnits:
+    - id: FU-MACHINE-TELEMETRY-COLLECTION
+      name: machine telemetry collection
+      definition: Collects brew/device telemetry and publishes cloud-bound payloads.
+      aliases: [telemetry collection]
+    - id: FU-OTA-UPDATE-AGENT
+      name: ota update agent
+      definition: Downloads, validates, and applies signed firmware updates on machines.
+      aliases: [device update agent]
+    - id: FU-FLEET-INGESTION-API
+      name: fleet ingestion api
+      definition: Ingests telemetry and machine status from edge devices.
+      aliases: [ingestion api]
+    - id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      name: update campaign orchestration
+      definition: Selects target machine groups and coordinates OTA rollout phases.
+      aliases: [campaign orchestration]
+    - id: FU-FLEET-OBSERVABILITY-REPORTING
+      name: fleet observability reporting
+      definition: Aggregates telemetry and update outcomes into operational and audit signals.
+      aliases: [observability reporting]
+    - id: FU-CLOUD-RUNTIME-OPERATIONS
+      name: cloud runtime operations
+      definition: Operates cloud runtime deployment and scaling controls.
+      aliases: [runtime operations]
+    - id: FU-DEVICE-IDENTITY-SECRETS
+      name: device identity and secrets
+      definition: Manages device identity material and secure configuration.
+      aliases: [device secrets]
+
+  referencedElements:
+    - id: REF-IOT-INGEST-ENDPOINT
+      name: iot ingest endpoint
+      definition: Cloud endpoint for receiving telemetry and status from devices.
+      aliases: [iot endpoint]
+    - id: REF-FIRMWARE-BUNDLE-STORE
+      name: firmware bundle store
+      definition: Object store containing signed OTA firmware bundles.
+      aliases: [firmware store]
+    - id: REF-CLOUD-LOGGING-SERVICE
+      name: cloud logging service
+      definition: Managed log and metrics service used for fleet observability.
+      aliases: [logging service]
+    - id: REF-FIRMWARE-SIGNER-SERVICE
+      name: firmware signer service
+      definition: Service that signs firmware artifacts before OTA rollout.
+      aliases: [signer service]
+    - id: REF-MQTT-DEVICE-SDK
+      name: mqtt device sdk
+      definition: SDK used by edge components for telemetry and command transport.
+      aliases: [mqtt sdk]
+    - id: REF-CLOUD-RUNTIME-SDK
+      name: cloud runtime sdk
+      definition: SDK used by cloud units for runtime integrations.
+      aliases: [cloud sdk]
+
+  actors:
+    - id: ACT-BARISTA
+      name: barista
+      definition: Operates coffee machines and observes local machine health.
+      aliases: [store operator]
+    - id: ACT-FLEET-OPERATOR
+      name: fleet operator
+      definition: Owns OTA rollout campaigns and fleet-level reliability.
+      aliases: [fleet admin]
+    - id: ACT-PLATFORM-OPERATOR
+      name: platform operator
+      definition: Owns runtime deployment and operational controls.
+      aliases: [platform ops]
+    - id: ACT-SECURITY-ANALYST
+      name: security analyst
+      definition: Reviews identity, firmware integrity, and logging controls.
+      aliases: [security reviewer]
+
+  attackVectors:
+    - id: AV-MALICIOUS-FIRMWARE-BUNDLE
+      name: malicious firmware bundle
+      definition: Tampered firmware payload attempts to execute on devices.
+      aliases: [firmware tampering]
+    - id: AV-SPOOFED-DEVICE-IDENTITY
+      name: spoofed device identity
+      definition: Unauthorized actor impersonates a machine identity.
+      aliases: [device spoofing]
+    - id: AV-TELEMETRY-REPLAY-ABUSE
+      name: telemetry replay abuse
+      definition: Replayed telemetry floods ingestion and distorts reporting.
+      aliases: [telemetry replay]
+    - id: AV-LOG-TAMPERING
+      name: log tampering
+      definition: Attempts to suppress or alter security/operational log records.
+      aliases: [audit tampering]
+
+  events:
+    - id: EVT-BREW-CYCLE-COMPLETED
+      name: brew cycle completed event is received
+      definition: Event raised when a coffee machine completes a brew cycle.
+      aliases: [brew completed]
+    - id: EVT-OTA-CAMPAIGN-SCHEDULED
+      name: ota campaign scheduled event is received
+      definition: Event raised when a fleet OTA campaign is scheduled.
+      aliases: [campaign scheduled]
+    - id: EVT-FIRMWARE-VALIDATION-FAILED
+      name: firmware validation failed event is received
+      definition: Event raised when signature/hash validation fails on firmware.
+      aliases: [validation failed]
+    - id: EVT-TELEMETRY-INGESTED
+      name: telemetry ingested event is received
+      definition: Event raised when cloud ingestion accepts telemetry.
+      aliases: [telemetry ingested]
+    - id: EVT-OTA-STATUS-REPORTED
+      name: ota status reported event is received
+      definition: Event raised when device reports OTA apply status.
+      aliases: [ota status reported]
+
+  states:
+    - id: STATE-FLEET-OPERATION-ACTIVE
+      name: coffee machine fleet operation is active
+      definition: State where machines and central cloud are actively serving operations.
+      aliases: [fleet operation active]
+
+  features:
+    - id: FEAT-OTA-CAMPAIGN
+      name: ota campaign is enabled
+      definition: Feature flag enabling centralized OTA rollout behavior.
+      aliases: [ota enabled]
+    - id: FEAT-AUDIT-LOGGING
+      name: audit logging is enabled
+      definition: Feature flag enabling audit-grade log persistence.
+      aliases: [audit enabled]
+
+  modes:
+    - id: MODE-NORMAL
+      name: normal mode is active
+      definition: Default operation mode for telemetry and OTA behavior.
+      aliases: [normal mode]
+
+  conditions:
+    - id: COND-FIRMWARE-SIGNATURE-VALID
+      name: firmware signature is valid
+      definition: Condition indicating firmware signature verification succeeded.
+      aliases: [signature valid]
+
+  dataTerms:
+    - id: DATA-BREW-TELEMETRY
+      name: brew telemetry
+      definition: Machine telemetry including brew duration, temperature, and status metadata.
+      aliases: []
+    - id: DATA-OTA-CAMPAIGN-POLICY
+      name: ota campaign policy
+      definition: Policy describing rollout cohorts, windows, and rollback criteria.
+      aliases: []
+    - id: DATA-OTA-STATUS
+      name: ota status
+      definition: Device-level status for firmware download, apply, and rollback outcomes.
+      aliases: []
+    - id: DATA-AUDIT-LOG-RECORD
+      name: audit log record
+      definition: Immutable log record for security and compliance analysis.
+      aliases: []

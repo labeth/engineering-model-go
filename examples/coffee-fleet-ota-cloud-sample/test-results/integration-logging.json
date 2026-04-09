@@ -1,0 +1,8 @@
+{
+  "integration": {
+    "name": "fleet-logging-pipeline",
+    "requirement": "REQ-COF-007",
+    "status": "pass",
+    "notes": "audit log record persisted with redacted machine identity"
+  }
+}

@@ -45,6 +45,7 @@ Primary entry points:
 - `GenerateFromFile(architecturePath, viewID)`
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
+- `GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath, options)`
 
 Example:
 
@@ -101,6 +102,19 @@ go run ./cmd/engdoc \
   --out examples/payments-engineering-sample/generated/ARCHITECTURE.adoc
 ```
 
+Generate AI-first artifacts (normalized JSON, derived markdown, dense edge stream):
+
+```bash
+go run ./cmd/engdoc \
+  --model examples/bedrock-pr-review-github-app-sample/architecture.yml \
+  --requirements examples/bedrock-pr-review-github-app-sample/requirements.yml \
+  --design examples/bedrock-pr-review-github-app-sample/design.yml \
+  --code-root /abs/path/to/examples/bedrock-pr-review-github-app-sample/src \
+  --ai-json-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.json \
+  --ai-md-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.md \
+  --ai-edges-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.edges.ndjson
+```
+
 Render PDF with proven-docs:
 
 ```bash
@@ -128,11 +142,25 @@ The traceability appendix includes:
 - `Verification Inventory` (inferred test/check mappings to test code elements and requirements)
 - `Verification Result Mapping` (inferred per-requirement outcomes)
 
+AI-first export includes:
+- `architecture.ai.json` style normalized machine artifact (`--ai-json-out`)
+- optional derived audit markdown (`--ai-md-out`)
+- optional dense edge stream for graph indexing (`--ai-edges-out`)
+
+## Agent Skills
+
+Use these docs to drive AI-agent development workflows and tagging conventions:
+
+- framework-neutral workflow and tagging contract: `docs/skills/architecture-ai-workflow.md`
+- OpenCode adapter prompt: `docs/skills/adapters/opencode-skill-prompt.md`
+- generic adapter prompt for other frameworks: `docs/skills/adapters/generic-agent-prompt.md`
+
 ## Example Project
 
 End-to-end sample inputs and generated outputs are under:
 - `examples/payments-engineering-sample`
 - `examples/bedrock-pr-review-github-app-sample`
+- `examples/coffee-fleet-ota-cloud-sample`
 
 Core files:
 - `catalog.yml`

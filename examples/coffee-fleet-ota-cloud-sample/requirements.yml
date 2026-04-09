@@ -1,0 +1,64 @@
+lintRun:
+  id: sample-coffee-fleet-lint
+  mode: guided
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-COF-001
+    text: "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api."
+    notes: "Primary machine-to-cloud telemetry contract."
+    appliesTo:
+      - FU-MACHINE-TELEMETRY-COLLECTION
+      - FU-FLEET-INGESTION-API
+
+  - id: REQ-COF-002
+    text: "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics and logging records for fleet operator."
+    notes: "Operational observability requirement."
+    appliesTo:
+      - FU-FLEET-INGESTION-API
+      - FU-FLEET-OBSERVABILITY-REPORTING
+
+  - id: REQ-COF-003
+    text: "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort."
+    notes: "OTA rollout behavior from central cloud control."
+    appliesTo:
+      - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      - FU-OTA-UPDATE-AGENT
+
+  - id: REQ-COF-004
+    text: "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid."
+    notes: "Firmware integrity and trust boundary control."
+    appliesTo:
+      - FU-OTA-UPDATE-AGENT
+      - FU-DEVICE-IDENTITY-SECRETS
+
+  - id: REQ-COF-005
+    text: "If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply and report ota status to update campaign orchestration."
+    notes: "Rollback and failure signaling path."
+    appliesTo:
+      - FU-OTA-UPDATE-AGENT
+      - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      - FU-FLEET-OBSERVABILITY-REPORTING
+
+  - id: REQ-COF-006
+    text: "If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry and flush when normal mode is active."
+    notes: "Resilience for temporary cloud outage."
+    appliesTo:
+      - FU-MACHINE-TELEMETRY-COLLECTION
+      - FU-FLEET-INGESTION-API
+
+  - id: REQ-COF-007
+    text: "Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record including machine identity and campaign id."
+    notes: "Audit/compliance logging requirement."
+    appliesTo:
+      - FU-FLEET-OBSERVABILITY-REPORTING
+      - FU-DEVICE-IDENTITY-SECRETS
+
+  - id: REQ-COF-008
+    text: "If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry and notify security analyst."
+    notes: "Abuse control and security response requirement."
+    appliesTo:
+      - FU-FLEET-INGESTION-API
+      - FU-FLEET-OBSERVABILITY-REPORTING
+      - FU-CLOUD-RUNTIME-OPERATIONS

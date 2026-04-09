@@ -169,7 +169,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 					overlap++
 				}
 			}
-			if overlap > bestOverlap {
+			if overlap > bestOverlap || (overlap == bestOverlap && overlap > 0 && (bestID == "" || id < bestID)) {
 				bestOverlap = overlap
 				bestID = id
 			}

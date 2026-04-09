@@ -31,11 +31,8 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if strings.Contains(res.Document, "MERMAID:") || strings.Contains(res.Document, "INF:") {
 		t.Fatalf("did not expect helper markers in final document")
 	}
-	if !strings.Contains(res.Document, "=== Functional Groups (View Scoped)") {
-		t.Fatalf("missing view-scoped functional groups section")
-	}
-	if !strings.Contains(res.Document, "=== Functional Units (View Scoped)") {
-		t.Fatalf("missing view-scoped functional units section")
+	if !strings.Contains(res.Document, "=== Functional Groups and Units (View Scoped)") {
+		t.Fatalf("missing view-scoped functional groups/units section")
 	}
 	if !strings.Contains(res.Document, "=== Verification Inventory") {
 		t.Fatalf("missing verification inventory section")

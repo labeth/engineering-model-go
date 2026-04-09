@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -52,6 +53,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 				tfItems, tfDiags := parseTerraformRuntime(path)
 				diags = append(diags, tfDiags...)
 				for _, it := range tfItems {
+					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
 					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
 					if !seen[key] {
 						seen[key] = true
@@ -62,6 +64,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 				yItems, yDiags := parseManifestRuntime(path)
 				diags = append(diags, yDiags...)
 				for _, it := range yItems {
+					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
 					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
 					if !seen[key] {
 						seen[key] = true
@@ -151,6 +154,16 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 func normalizeTerraformKind(resourceType string) string {
 	t := strings.TrimSpace(strings.ToLower(resourceType))
 	switch {
+	case strings.Contains(t, "lambda_function"):
+		return "lambda_function"
+	case strings.Contains(t, "cloudwatch_event_rule") || strings.Contains(t, "eventbridge_rule"):
+		return "eventbridge_rule"
+	case strings.Contains(t, "cloudwatch_event_target") || strings.Contains(t, "eventbridge_target"):
+		return "eventbridge_target"
+	case strings.Contains(t, "sqs_queue"):
+		return "queue"
+	case strings.Contains(t, "sns_topic"):
+		return "topic"
 	case strings.Contains(t, "eks") && strings.Contains(t, "cluster"):
 		return "cluster"
 	case strings.Contains(t, "namespace"):
@@ -179,6 +192,113 @@ func inferOwnerByConvention(kind, name string) string {
 	default:
 		return "unresolved"
 	}
+}
+
+func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit) string {
+	owner := strings.TrimSpace(item.Owner)
+	if owner != "" && owner != "unresolved" {
+		return owner
+	}
+
+	owner = inferOwnerByConvention(item.Kind, item.Name)
+	if owner != "unresolved" {
+		return owner
+	}
+
+	owner = inferOwnerByFunctionalUnits(item.Name, units)
+	if owner != "" {
+		return owner
+	}
+	return "unresolved"
+}
+
+func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) string {
+	nameTokens := normalizeOwnerTokens(name)
+	if len(nameTokens) == 0 {
+		return ""
+	}
+
+	bestID := ""
+	bestScore := 0
+	bestTokenCount := 0
+	for _, fu := range units {
+		candidateTokens := normalizeOwnerTokens(fu.ID + " " + fu.Name)
+		if len(candidateTokens) == 0 {
+			continue
+		}
+		score := tokenMatchScore(nameTokens, candidateTokens)
+		if score < 2 {
+			continue
+		}
+		if score > bestScore || (score == bestScore && len(candidateTokens) > bestTokenCount) || (score == bestScore && len(candidateTokens) == bestTokenCount && strings.TrimSpace(fu.ID) < bestID) {
+			bestID = strings.TrimSpace(fu.ID)
+			bestScore = score
+			bestTokenCount = len(candidateTokens)
+		}
+	}
+	return bestID
+}
+
+func tokenMatchScore(left, right []string) int {
+	score := 0
+	for _, l := range left {
+		for _, r := range right {
+			if l == r {
+				score += 2
+				break
+			}
+			if len(l) >= 5 && len(r) >= 5 && (strings.HasPrefix(l, r) || strings.HasPrefix(r, l)) {
+				score++
+				break
+			}
+		}
+	}
+	return score
+}
+
+func normalizeOwnerTokens(s string) []string {
+	parts := strings.FieldsFunc(strings.ToLower(strings.TrimSpace(s)), func(r rune) bool {
+		return !(unicode.IsLetter(r) || unicode.IsDigit(r))
+	})
+	out := make([]string, 0, len(parts))
+	seen := map[string]bool{}
+	for _, part := range parts {
+		token := normalizeOwnerToken(part)
+		if token == "" {
+			continue
+		}
+		if seen[token] {
+			continue
+		}
+		seen[token] = true
+		out = append(out, token)
+	}
+	return out
+}
+
+func normalizeOwnerToken(token string) string {
+	x := strings.TrimSpace(token)
+	if len(x) < 3 {
+		return ""
+	}
+
+	switch {
+	case strings.HasPrefix(x, "publicat"), strings.HasPrefix(x, "publish"):
+		x = "publish"
+	case strings.HasPrefix(x, "orchestrat"):
+		x = "orchestr"
+	case strings.HasPrefix(x, "configur"), strings.HasPrefix(x, "config"), strings.HasPrefix(x, "cfg"):
+		x = "config"
+	}
+
+	suffixes := []string{"ation", "ition", "tion", "sion", "ment", "ness", "izer", "iser", "ized", "ised", "ing", "ers", "ors", "er", "or", "ed", "es", "s"}
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(x, suffix) && len(x)-len(suffix) >= 4 {
+			x = strings.TrimSuffix(x, suffix)
+			break
+		}
+	}
+	return x
 }
 
 type manifestMetadata struct {

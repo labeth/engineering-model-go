@@ -1,0 +1,242 @@
+design:
+  id: sample-coffee-fleet-design
+  title: Coffee Fleet OTA + Cloud Design
+
+  functionalGroups:
+    - id: FG-MACHINE-EDGE
+      views:
+        architecture_intent:
+          title: Machine Edge Architecture Intent
+          narrative: |
+            Machine Edge defines stable device-local responsibilities for telemetry capture and OTA execution.
+        communication:
+          title: Machine Edge Communication
+          narrative: |
+            Machine Edge sends telemetry upstream, receives OTA commands, and reports apply/rollback status.
+        deployment:
+          title: Machine Edge Deployment
+          narrative: |
+            Machine-edge software artifacts are rolled independently from cloud control to isolate device risk.
+        security:
+          title: Machine Edge Security
+          narrative: |
+            Machine Edge enforces firmware trust and authenticated telemetry at the device boundary.
+        traceability:
+          title: Machine Edge Traceability
+          narrative: |
+            Machine-edge behavior is traced from telemetry and OTA requirements to code and verification.
+
+    - id: FG-CLOUD-CONTROL
+      views:
+        architecture_intent:
+          title: Cloud Control Architecture Intent
+          narrative: |
+            Cloud Control owns centralized ingestion, OTA campaign planning, and fleet-level reporting behavior.
+        communication:
+          title: Cloud Control Communication
+          narrative: |
+            Cloud Control coordinates telemetry intake, campaign commands, and observability event fanout.
+        deployment:
+          title: Cloud Control Deployment
+          narrative: |
+            Cloud-control units deploy independently to reduce blast radius during campaign logic changes.
+        security:
+          title: Cloud Control Security
+          narrative: |
+            Cloud Control focuses on replay detection, campaign authorization, and audit integrity.
+        traceability:
+          title: Cloud Control Traceability
+          narrative: |
+            Requirement mappings align cloud control behavior with inferred runtime/code evidence.
+
+    - id: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Platform Operations Architecture Intent
+          narrative: |
+            Platform Operations owns runtime reliability and identity/secret controls for device-cloud trust.
+        communication:
+          title: Platform Operations Communication
+          narrative: |
+            Platform operations coordinates runtime controls and secret distribution contracts with dependent units.
+        deployment:
+          title: Platform Operations Deployment
+          narrative: |
+            Platform operations governs release sequencing, runtime placement, and operational guardrails.
+        security:
+          title: Platform Operations Security
+          narrative: |
+            Platform operations hardens identity, key rotation, and log integrity boundaries.
+        traceability:
+          title: Platform Operations Traceability
+          narrative: |
+            Runtime and identity evidence is linked back to platform-owned requirements and controls.
+
+  functionalUnits:
+    - id: FU-MACHINE-TELEMETRY-COLLECTION
+      group: FG-MACHINE-EDGE
+      views:
+        architecture_intent:
+          title: Machine Telemetry Collection Intent
+          narrative: |
+            Captures machine telemetry and publishes cloud-bound telemetry records.
+        communication:
+          title: Machine Telemetry Collection Communication
+          narrative: |
+            Sends telemetry over authenticated channels and retries during endpoint outage windows.
+        deployment:
+          title: Machine Telemetry Collection Deployment
+          narrative: |
+            Deployed as edge software component with independent release cadence.
+        security:
+          title: Machine Telemetry Collection Security
+          narrative: |
+            Protects telemetry authenticity and defends against replay abuse patterns.
+        traceability:
+          title: Machine Telemetry Collection Traceability
+          narrative: |
+            Telemetry and resilience requirements map to trace-marked ingestion code paths.
+
+    - id: FU-OTA-UPDATE-AGENT
+      group: FG-MACHINE-EDGE
+      views:
+        architecture_intent:
+          title: OTA Update Agent Intent
+          narrative: |
+            Applies signed firmware updates and manages safe rollback behavior.
+        communication:
+          title: OTA Update Agent Communication
+          narrative: |
+            Receives campaign commands and reports update/rollback status back to cloud control.
+        deployment:
+          title: OTA Update Agent Deployment
+          narrative: |
+            Versioned and rolled independently from telemetry pipeline components.
+        security:
+          title: OTA Update Agent Security
+          narrative: |
+            Enforces signature validation and rejects untrusted firmware bundles.
+        traceability:
+          title: OTA Update Agent Traceability
+          narrative: |
+            OTA and rollback requirements are linked to update-agent code and verification evidence.
+
+    - id: FU-FLEET-INGESTION-API
+      group: FG-CLOUD-CONTROL
+      views:
+        architecture_intent:
+          title: Fleet Ingestion API Intent
+          narrative: |
+            Ingests telemetry/status and emits validated fleet events.
+        communication:
+          title: Fleet Ingestion API Communication
+          narrative: |
+            Accepts machine telemetry and forwards normalized records to observability reporting.
+        deployment:
+          title: Fleet Ingestion API Deployment
+          narrative: |
+            Deployed as independent cloud ingestion boundary to isolate scaling concerns.
+        security:
+          title: Fleet Ingestion API Security
+          narrative: |
+            Applies identity checks and replay throttling for ingest requests.
+        traceability:
+          title: Fleet Ingestion API Traceability
+          narrative: |
+            Ingestion requirements map to trace markers and verification artifacts.
+
+    - id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      group: FG-CLOUD-CONTROL
+      views:
+        architecture_intent:
+          title: Update Campaign Orchestration Intent
+          narrative: |
+            Coordinates fleet OTA rollout cohorts and rollback decisions.
+        communication:
+          title: Update Campaign Orchestration Communication
+          narrative: |
+            Sends OTA commands to update agents and ingests status feedback for campaign control.
+        deployment:
+          title: Update Campaign Orchestration Deployment
+          narrative: |
+            Isolated deployment supports safe OTA policy evolution.
+        security:
+          title: Update Campaign Orchestration Security
+          narrative: |
+            Enforces signed-firmware policy and campaign authorization boundaries.
+        traceability:
+          title: Update Campaign Orchestration Traceability
+          narrative: |
+            Campaign requirements connect to orchestration code and verification checks.
+
+    - id: FU-FLEET-OBSERVABILITY-REPORTING
+      group: FG-CLOUD-CONTROL
+      views:
+        architecture_intent:
+          title: Fleet Observability Reporting Intent
+          narrative: |
+            Aggregates telemetry/update outcomes into operational and audit records.
+        communication:
+          title: Fleet Observability Reporting Communication
+          narrative: |
+            Consumes telemetry and OTA outcomes and emits dashboards/alerts/log events.
+        deployment:
+          title: Fleet Observability Reporting Deployment
+          narrative: |
+            Deployed as reporting plane with independent scaling and retention controls.
+        security:
+          title: Fleet Observability Reporting Security
+          narrative: |
+            Preserves audit integrity and protects sensitive identifiers in persisted records.
+        traceability:
+          title: Fleet Observability Reporting Traceability
+          narrative: |
+            Logging and abuse requirements link to reporting modules and test evidence.
+
+    - id: FU-CLOUD-RUNTIME-OPERATIONS
+      group: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Cloud Runtime Operations Intent
+          narrative: |
+            Governs runtime deployment and reliability operations for central cloud services.
+        communication:
+          title: Cloud Runtime Operations Communication
+          narrative: |
+            Coordinates deployment/runtime controls that shape fleet service availability.
+        deployment:
+          title: Cloud Runtime Operations Deployment
+          narrative: |
+            Owns source-to-runtime release controls and rollback guardrails.
+        security:
+          title: Cloud Runtime Operations Security
+          narrative: |
+            Enforces operational hardening and security escalation signaling.
+        traceability:
+          title: Cloud Runtime Operations Traceability
+          narrative: |
+            Platform reliability requirements map to operational code paths and checks.
+
+    - id: FU-DEVICE-IDENTITY-SECRETS
+      group: FG-PLATFORM-OPERATIONS
+      views:
+        architecture_intent:
+          title: Device Identity and Secrets Intent
+          narrative: |
+            Manages device identity, trust roots, and secret/config distribution.
+        communication:
+          title: Device Identity and Secrets Communication
+          narrative: |
+            Provides identity validation and secure config interfaces to edge and cloud units.
+        deployment:
+          title: Device Identity and Secrets Deployment
+          narrative: |
+            Managed as shared control-plane boundary with controlled key rotation.
+        security:
+          title: Device Identity and Secrets Security
+          narrative: |
+            Protects credential lifecycle and enforces least-privilege access patterns.
+        traceability:
+          title: Device Identity and Secrets Traceability
+          narrative: |
+            Identity and audit requirements trace to secrets/config handling code and tests.

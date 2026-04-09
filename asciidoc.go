@@ -120,7 +120,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 		produces := unitOutputs(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
 		if strings.TrimSpace(produces) == "" {
-			produces = "derived unit outcomes from authored mappings"
+			produces = "none"
 		}
 		threats := attackByTarget[u.ID]
 		if strings.TrimSpace(threats) == "" {
@@ -196,6 +196,13 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 				Threats:     u.Threats,
 				Evidence:    u.Evidence,
 			})
+		}
+		if v.Kind == "communication" {
+			for j := range us {
+				us[j].Consumes = unitInboundInterfacesDetailed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
+				us[j].Produces = unitOutboundInterfacesDetailed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
+				us[j].Triggers = unitMessagesConsumed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
+			}
 		}
 		viewSections[i].Groups = gs
 		viewSections[i].Units = us

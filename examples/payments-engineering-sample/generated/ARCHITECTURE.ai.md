@@ -1,0 +1,684 @@
+# AI View
+
+Schema: `ai-view/v1`
+
+## Model
+
+- ID: `sample-payments-layered-model`
+- Title: Sample Payments Layered Architecture
+- Counts: FG=3, FU=6, REQ=6, RT=9, CODE=30, VER=4, VIEWS=5
+
+## Entry Points
+
+### EP-FU-EVIDENCE
+
+- Kind: `functional_units`
+- Title: Functional units with runtime/code/verification evidence
+- Entities: FU-CHECKOUT, FU-CLUSTER-PROVISIONING, FU-GITOPS-OPERATIONS, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-SUPPORT-REVIEW
+
+### EP-LOW-CONFIDENCE-INFERRED
+
+- Kind: `inferred`
+- Title: Low-confidence inferred entities
+- Entities: 
+
+### EP-REQ-COVERAGE
+
+- Kind: `requirements`
+- Title: Requirements with direct support paths
+- Entities: REQ-PAY-001, REQ-PAY-002, REQ-PAY-003, REQ-PAY-004, REQ-PAY-005, REQ-PAY-006
+
+### EP-REQ-GAPS
+
+- Kind: `requirements`
+- Title: Requirements with low-confidence support
+- Entities: 
+
+### EP-VERIFICATION-FAILURES
+
+- Kind: `verification`
+- Title: Verification checks with failing/partial status
+- Entities: VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+
+## Support Paths
+
+- `PATH-REQ_PAY_001`: REQ-PAY-001 -> FU-CHECKOUT -> RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858 -> CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C -> VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597 (confidence: high)
+- `PATH-REQ_PAY_002`: REQ-PAY-002 -> FU-RISK-SCORING -> RT-HELMRELEASE_RISK_RISK_SCORER_A06799 -> CODE-LIBRARY_EXTERNAL_ZOD_B6E604 -> VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (confidence: high)
+- `PATH-REQ_PAY_003`: REQ-PAY-003 -> FU-CHECKOUT -> RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858 -> CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C -> VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (confidence: high)
+- `PATH-REQ_PAY_004`: REQ-PAY-004 -> FU-PAYMENT-AUTHORIZATION -> RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944 -> CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD -> VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (confidence: high)
+- `PATH-REQ_PAY_005`: REQ-PAY-005 -> FU-RISK-SCORING -> RT-HELMRELEASE_RISK_RISK_SCORER_A06799 -> CODE-LIBRARY_EXTERNAL_ZOD_B6E604 -> VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2 (confidence: high)
+- `PATH-REQ_PAY_006`: REQ-PAY-006 -> FU-CHECKOUT -> RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858 -> CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C -> VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (confidence: high)
+
+## Entities
+
+### FG-FRAUD
+
+- Kind: `functional_group`
+- Origin: `authored`
+- Status: `stable`
+- Title: Fraud Evaluation
+- Summary: Risk scoring and fraud audit domain.
+- Source Refs: SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_20_A2BB9C
+
+### FG-PAYMENTS
+
+- Kind: `functional_group`
+- Origin: `authored`
+- Status: `stable`
+- Title: Payments
+- Summary: Core payment checkout and authorization domain.
+- Source Refs: SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_12_6F3D73
+
+### FG-PLATFORM
+
+- Kind: `functional_group`
+- Origin: `authored`
+- Status: `stable`
+- Title: Platform
+- Summary: Cluster provisioning and GitOps operations domain.
+- Source Refs: SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_27_81E020
+
+### FU-CHECKOUT
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: Checkout Handling
+- Summary: Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+It delegates decision logic to payment authorization while protecting the user experience boundary.
+- Requirements: REQ-PAY-001, REQ-PAY-003, REQ-PAY-006
+- Runtime: RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858, RT-NAMESPACE_PAYMENTS_407A87
+- Code: CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C, CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C, CODE-LIBRARY_STDLIB_FMT_A9639C, CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C, CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F, CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D, CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9, CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1, CODE-SYMBOL_CODE_STARTSESSION_7EF4AB, CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB
+- Verification: VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597, VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6
+
+### FU-CLUSTER-PROVISIONING
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: Cluster Provisioning
+- Summary: Cluster provisioning creates the runtime substrate used by all application workloads.
+It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+This unit is responsible for predictable, repeatable infrastructure foundations.
+- Runtime: RT-CLUSTER_PAYMENTS_407A87
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_64_1902C9, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834
+
+### FU-GITOPS-OPERATIONS
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: GitOps Operations
+- Summary: GitOps operations continuously reconciles intended release state with actual runtime state.
+It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+The unit provides safe and observable release behavior as an ongoing operational capability.
+- Runtime: RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F, RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E, RT-NAMESPACE_FLUX_SYSTEM_407A87
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_72_F94CDD, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548
+
+### FU-PAYMENT-AUTHORIZATION
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: Payment Authorization
+- Summary: Payment authorization orchestrates the final transaction decision path.
+It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
+The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+- Requirements: REQ-PAY-001, REQ-PAY-004, REQ-PAY-006
+- Runtime: RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944
+- Code: CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD, CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD, CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04, CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD, CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8, CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50, CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4, CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7, CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625, CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F
+- Verification: VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597, VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD, VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_43_F0410C, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319
+
+### FU-RISK-SCORING
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: Risk Scoring
+- Summary: Risk scoring computes and classifies transaction risk before approval decisions are finalized.
+It provides a stable scoring contract to authorization and supports audit context for later analysis.
+The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+- Requirements: REQ-PAY-002, REQ-PAY-005
+- Runtime: RT-HELMRELEASE_RISK_RISK_SCORER_A06799, RT-NAMESPACE_RISK_407A87
+- Code: CODE-LIBRARY_EXTERNAL_ZOD_B6E604, CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604, CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604, CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4, CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57, CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6, CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73, CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8, CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68, CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66
+- Verification: VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2, VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09, SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3, SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534
+
+### FU-SUPPORT-REVIEW
+
+- Kind: `functional_unit`
+- Origin: `authored`
+- Status: `stable`
+- Title: Support Review
+- Summary: Support review handles manual decisions for escalated or ambiguous payment cases.
+It gives support operators context to approve, reject, or request additional verification in a controlled flow.
+The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+- Requirements: REQ-PAY-004
+- Verification: VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+- Source Refs: SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_57_FC1077
+
+### REQ-PAY-001
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-001
+- Summary: While checkout is active, when payment authorization is requested, the payments system shall create a payment session and request authorization from bank gateway.
+- Verification: VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_8_A95B03, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5
+
+### REQ-PAY-002
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-002
+- Summary: Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval.
+- Verification: VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_15_3D42D6, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647
+
+### REQ-PAY-003
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-003
+- Summary: If payment is declined, then the payments system shall present a decline reason and a retry option to customer.
+- Verification: VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_21_9A34C1, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA
+
+### REQ-PAY-004
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-004
+- Summary: While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in review pending state and notify support agent.
+- Verification: VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_27_6F0F82, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647
+
+### REQ-PAY-005
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-005
+- Summary: Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id and risk score.
+- Verification: VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_34_AD3304, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762
+
+### REQ-PAY-006
+
+- Kind: `requirement`
+- Origin: `authored`
+- Status: `stable`
+- Title: REQ-PAY-006
+- Summary: If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer.
+- Verification: VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+- Source Refs: SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_40_610935, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA
+
+### RT-CLUSTER_PAYMENTS_407A87
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: payments
+- Summary: Inferred runtime cluster owned by FU-CLUSTER-PROVISIONING
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834
+
+### RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: flux-system/payments-sample-source
+- Summary: Inferred runtime gitrepository owned by FU-GITOPS-OPERATIONS
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961
+
+### RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: payments/checkout-api
+- Summary: Inferred runtime helmrelease owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE
+
+### RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: payments/payment-engine
+- Summary: Inferred runtime helmrelease owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319
+
+### RT-HELMRELEASE_RISK_RISK_SCORER_A06799
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: risk/risk-scorer
+- Summary: Inferred runtime helmrelease owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3
+
+### RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: flux-system/payments-apps
+- Summary: Inferred runtime kustomization owned by FU-GITOPS-OPERATIONS
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01
+
+### RT-NAMESPACE_FLUX_SYSTEM_407A87
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: flux_system
+- Summary: Inferred runtime namespace owned by FU-GITOPS-OPERATIONS
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548
+
+### RT-NAMESPACE_PAYMENTS_407A87
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: payments
+- Summary: Inferred runtime namespace owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6
+
+### RT-NAMESPACE_RISK_407A87
+
+- Kind: `runtime_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: risk
+- Summary: Inferred runtime namespace owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534
+
+### CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: gopkg.in/yaml.v3
+- Summary: Inferred code library_external owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00
+
+### CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: serde_json::json
+- Summary: Inferred code library_external owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9
+
+### CODE-LIBRARY_EXTERNAL_ZOD_B6E604
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: zod
+- Summary: Inferred code library_external owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1
+
+### CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: crate::domain::events::PaymentEvent
+- Summary: Inferred code library_first_party owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF
+
+### CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: github.com/labeth/engineering-model-go/validate
+- Summary: Inferred code library_first_party owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358
+
+### CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: ./support/audit_envelope
+- Summary: Inferred code library_first_party owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C
+
+### CODE-LIBRARY_STDLIB_FMT_A9639C
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: fmt
+- Summary: Inferred code library_stdlib owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59
+
+### CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: checkout_api.go
+- Summary: Inferred code source_file owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7
+
+### CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: domain/events.rs
+- Summary: Inferred code source_file owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6
+
+### CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: payment_engine.rs
+- Summary: Inferred code source_file owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A
+
+### CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: risk_scorer.ts
+- Summary: Inferred code source_file owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84
+
+### CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: support/audit_envelope.ts
+- Summary: Inferred code source_file owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33
+
+### CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-AUTHORIZEPAYMENT
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8
+
+### CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-BUILDREVIEWREASON
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E
+
+### CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-CALCULATERISKSCORE
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09
+
+### CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-CLASSIFYRISK
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280
+
+### CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-CREATEAUDITRECORD
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7
+
+### CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-ENRICHAUDITMETADATA
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD
+
+### CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-HANDLEBANKLINKUNAVAILABLE
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607
+
+### CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-HANDLEBANKUNAVAILABLE
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80
+
+### CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-ISHIGHRISK
+- Summary: Inferred code symbol owned by FU-RISK-SCORING
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454
+
+### CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-NOTIFYSUPPORT
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD
+
+### CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-PERSISTAUDITRECORD
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE
+
+### CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-PLACEINREVIEW
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A
+
+### CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-REQUESTBANKAUTHORIZATION
+- Summary: Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5
+
+### CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-SHOWDECLINEREASON
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743
+
+### CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-SHOWRETRYOPTION
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4
+
+### CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-SHOWTEMPORARYUNAVAILABLE
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B
+
+### CODE-SYMBOL_CODE_STARTSESSION_7EF4AB
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-STARTSESSION
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D
+
+### CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB
+
+- Kind: `code_element`
+- Origin: `inferred`
+- Status: `inferred`
+- Title: CODE-SUBMITAUTHORIZATIONREQUEST
+- Summary: Inferred code symbol owned by FU-CHECKOUT
+- Source Refs: SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50
+
+### VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
+
+- Kind: `verification`
+- Origin: `verification`
+- Status: `not-run`
+- Title: Authorized Checkout Flow
+- Summary: Inferred from test source artifact.
+- Requirements: REQ-PAY-001
+- Source Refs: SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5
+
+### VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+
+- Kind: `verification`
+- Origin: `verification`
+- Status: `partial`
+- Title: Audit Record Persistence Test
+- Summary: Inferred from test source artifact.
+- Requirements: REQ-PAY-005
+- Source Refs: SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762
+
+### VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+
+- Kind: `verification`
+- Origin: `verification`
+- Status: `pass`
+- Title: Fraud Gate Test
+- Summary: Inferred from test source artifact.
+- Requirements: REQ-PAY-002, REQ-PAY-004
+- Source Refs: SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192, SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647
+
+### VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+
+- Kind: `verification`
+- Origin: `verification`
+- Status: `pass`
+- Title: Contract Checkout Decline
+- Summary: Inferred from test result artifact.
+- Requirements: REQ-PAY-003, REQ-PAY-006
+- Source Refs: SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA
+
+## Source Blocks
+
+- `SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_12_6F3D73` examples/payments-engineering-sample/architecture.yml:12 [functional_group] entities=FG-PAYMENTS
+- `SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_20_A2BB9C` examples/payments-engineering-sample/architecture.yml:20 [functional_group] entities=FG-FRAUD
+- `SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_27_81E020` examples/payments-engineering-sample/architecture.yml:27 [functional_group] entities=FG-PLATFORM
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B` examples/payments-engineering-sample/architecture.yml:36 [functional_unit] entities=FU-CHECKOUT
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_43_F0410C` examples/payments-engineering-sample/architecture.yml:43 [functional_unit] entities=FU-PAYMENT-AUTHORIZATION
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811` examples/payments-engineering-sample/architecture.yml:50 [functional_unit] entities=FU-RISK-SCORING
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_57_FC1077` examples/payments-engineering-sample/architecture.yml:57 [functional_unit] entities=FU-SUPPORT-REVIEW
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_64_1902C9` examples/payments-engineering-sample/architecture.yml:64 [functional_unit] entities=FU-CLUSTER-PROVISIONING
+- `SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_72_F94CDD` examples/payments-engineering-sample/architecture.yml:72 [functional_unit] entities=FU-GITOPS-OPERATIONS
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_6_6D37C3` examples/payments-engineering-sample/design.yml:6 [design_yaml] entities=FG-PAYMENTS
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_39_89B173` examples/payments-engineering-sample/design.yml:39 [design_yaml] entities=FG-FRAUD
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_70_C60C95` examples/payments-engineering-sample/design.yml:70 [design_yaml] entities=FG-PLATFORM
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_104_70B98C` examples/payments-engineering-sample/design.yml:104 [design_yaml] entities=FU-CHECKOUT
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_137_C7139D` examples/payments-engineering-sample/design.yml:137 [design_yaml] entities=FU-PAYMENT-AUTHORIZATION
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_166_F6C0E4` examples/payments-engineering-sample/design.yml:166 [design_yaml] entities=FU-RISK-SCORING
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_195_E0FF70` examples/payments-engineering-sample/design.yml:195 [design_yaml] entities=FU-SUPPORT-REVIEW
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_224_5DA374` examples/payments-engineering-sample/design.yml:224 [design_yaml] entities=FU-CLUSTER-PROVISIONING
+- `SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_253_193DF1` examples/payments-engineering-sample/design.yml:253 [design_yaml] entities=FU-GITOPS-OPERATIONS
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01` examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml [inferred_runtime] entities=RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE` examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml [inferred_runtime] entities=RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319` examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml [inferred_runtime] entities=RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3` examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml [inferred_runtime] entities=RT-HELMRELEASE_RISK_RISK_SCORER_A06799
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961` examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml [inferred_runtime] entities=RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6` examples/payments-engineering-sample/infra/terraform/main.tf:22 [inferred_runtime] entities=RT-NAMESPACE_PAYMENTS_407A87
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834` examples/payments-engineering-sample/infra/terraform/main.tf:22 [inferred_runtime] entities=RT-CLUSTER_PAYMENTS_407A87
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534` examples/payments-engineering-sample/infra/terraform/main.tf:48 [inferred_runtime] entities=RT-NAMESPACE_RISK_407A87
+- `SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548` examples/payments-engineering-sample/infra/terraform/main.tf:57 [inferred_runtime] entities=RT-NAMESPACE_FLUX_SYSTEM_407A87
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_8_A95B03` examples/payments-engineering-sample/requirements.yml:8 [requirement] entities=REQ-PAY-001
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_15_3D42D6` examples/payments-engineering-sample/requirements.yml:15 [requirement] entities=REQ-PAY-002
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_21_9A34C1` examples/payments-engineering-sample/requirements.yml:21 [requirement] entities=REQ-PAY-003
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_27_6F0F82` examples/payments-engineering-sample/requirements.yml:27 [requirement] entities=REQ-PAY-004
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_34_AD3304` examples/payments-engineering-sample/requirements.yml:34 [requirement] entities=REQ-PAY-005
+- `SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_40_610935` examples/payments-engineering-sample/requirements.yml:40 [requirement] entities=REQ-PAY-006
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7` examples/payments-engineering-sample/src/checkout_api.go [inferred_code] entities=CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59` examples/payments-engineering-sample/src/checkout_api.go:5 [inferred_code] entities=CODE-LIBRARY_STDLIB_FMT_A9639C
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358` examples/payments-engineering-sample/src/checkout_api.go:7 [inferred_code] entities=CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00` examples/payments-engineering-sample/src/checkout_api.go:8 [inferred_code] entities=CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D` examples/payments-engineering-sample/src/checkout_api.go:15 [inferred_code] entities=CODE-SYMBOL_CODE_STARTSESSION_7EF4AB
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50` examples/payments-engineering-sample/src/checkout_api.go:26 [inferred_code] entities=CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80` examples/payments-engineering-sample/src/checkout_api.go:31 [inferred_code] entities=CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743` examples/payments-engineering-sample/src/checkout_api.go:36 [inferred_code] entities=CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4` examples/payments-engineering-sample/src/checkout_api.go:41 [inferred_code] entities=CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B` examples/payments-engineering-sample/src/checkout_api.go:46 [inferred_code] entities=CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6` examples/payments-engineering-sample/src/domain/events.rs [inferred_code] entities=CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A` examples/payments-engineering-sample/src/payment_engine.rs [inferred_code] entities=CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF` examples/payments-engineering-sample/src/payment_engine.rs:2 [inferred_code] entities=CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9` examples/payments-engineering-sample/src/payment_engine.rs:3 [inferred_code] entities=CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8` examples/payments-engineering-sample/src/payment_engine.rs:10 [inferred_code] entities=CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5` examples/payments-engineering-sample/src/payment_engine.rs:25 [inferred_code] entities=CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607` examples/payments-engineering-sample/src/payment_engine.rs:33 [inferred_code] entities=CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A` examples/payments-engineering-sample/src/payment_engine.rs:43 [inferred_code] entities=CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD` examples/payments-engineering-sample/src/payment_engine.rs:51 [inferred_code] entities=CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE` examples/payments-engineering-sample/src/payment_engine.rs:59 [inferred_code] entities=CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84` examples/payments-engineering-sample/src/risk_scorer.ts [inferred_code] entities=CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1` examples/payments-engineering-sample/src/risk_scorer.ts:2 [inferred_code] entities=CODE-LIBRARY_EXTERNAL_ZOD_B6E604
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C` examples/payments-engineering-sample/src/risk_scorer.ts:3 [inferred_code] entities=CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09` examples/payments-engineering-sample/src/risk_scorer.ts:7 [inferred_code] entities=CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280` examples/payments-engineering-sample/src/risk_scorer.ts:20 [inferred_code] entities=CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454` examples/payments-engineering-sample/src/risk_scorer.ts:28 [inferred_code] entities=CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7` examples/payments-engineering-sample/src/risk_scorer.ts:36 [inferred_code] entities=CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD` examples/payments-engineering-sample/src/risk_scorer.ts:44 [inferred_code] entities=CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E` examples/payments-engineering-sample/src/risk_scorer.ts:49 [inferred_code] entities=CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57
+- `SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33` examples/payments-engineering-sample/src/support/audit_envelope.ts [inferred_code] entities=CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762` examples/payments-engineering-sample/test-results/audit-persistence-report.md [verification_artifact] entities=VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA` examples/payments-engineering-sample/test-results/contract-checkout-decline.json [verification_artifact] entities=VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647` examples/payments-engineering-sample/test-results/integration-fraud-gate.json [verification_artifact] entities=VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5` examples/payments-engineering-sample/tests/e2e/authorized_checkout_flow.yaml [verification_artifact] entities=VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48` examples/payments-engineering-sample/tests/integration/audit_record_persistence_test.ts [verification_artifact] entities=VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+- `SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192` examples/payments-engineering-sample/tests/integration/fraud_gate_test.rs [verification_artifact] entities=VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD

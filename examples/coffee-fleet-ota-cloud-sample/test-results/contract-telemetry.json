@@ -1,0 +1,8 @@
+{
+  "contract": {
+    "name": "telemetry-ingest",
+    "requirement": "REQ-COF-001",
+    "status": "pass",
+    "notes": "ingest payload accepted with machine identity and telemetry fields"
+  }
+}

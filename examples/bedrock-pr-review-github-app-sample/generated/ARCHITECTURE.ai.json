@@ -1,0 +1,3079 @@
+{
+  "schema_version": "ai-view/v1",
+  "model": {
+    "id": "sample-bedrock-pr-review-model",
+    "title": "Bedrock Lambda GitHub PR Review App Architecture",
+    "counts": {
+      "fg": 3,
+      "fu": 7,
+      "req": 8,
+      "rt": 3,
+      "code": 28,
+      "verification": 5,
+      "views": 5
+    },
+    "entry_point_ids": [
+      "EP-FU-EVIDENCE",
+      "EP-LOW-CONFIDENCE-INFERRED",
+      "EP-REQ-COVERAGE",
+      "EP-REQ-GAPS",
+      "EP-VERIFICATION-FAILURES"
+    ]
+  },
+  "entry_points": [
+    {
+      "id": "EP-FU-EVIDENCE",
+      "kind": "functional_units",
+      "title": "Functional units with runtime/code/verification evidence",
+      "entity_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-LAMBDA-RUNTIME-OPERATIONS",
+        "FU-POLICY-CHECKS",
+        "FU-PR-CONTEXT-ASSEMBLY",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION",
+        "FU-SECRETS-CONFIGURATION"
+      ]
+    },
+    {
+      "id": "EP-LOW-CONFIDENCE-INFERRED",
+      "kind": "inferred",
+      "title": "Low-confidence inferred entities",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-REQ-COVERAGE",
+      "kind": "requirements",
+      "title": "Requirements with direct support paths",
+      "entity_ids": [
+        "REQ-PRR-001",
+        "REQ-PRR-002",
+        "REQ-PRR-003",
+        "REQ-PRR-004",
+        "REQ-PRR-005",
+        "REQ-PRR-006",
+        "REQ-PRR-007",
+        "REQ-PRR-008"
+      ]
+    },
+    {
+      "id": "EP-REQ-GAPS",
+      "kind": "requirements",
+      "title": "Requirements with low-confidence support",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-VERIFICATION-FAILURES",
+      "kind": "verification",
+      "title": "Verification checks with failing/partial status",
+      "entity_ids": []
+    }
+  ],
+  "entity_index": {
+    "fg_ids": [
+      "FG-PLATFORM-OPERATIONS",
+      "FG-PR-INTEGRATION",
+      "FG-REVIEW-INTELLIGENCE"
+    ],
+    "fu_ids": [
+      "FU-GITHUB-WEBHOOK-INGRESS",
+      "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "FU-POLICY-CHECKS",
+      "FU-PR-CONTEXT-ASSEMBLY",
+      "FU-REVIEW-ORCHESTRATION",
+      "FU-REVIEW-PUBLICATION",
+      "FU-SECRETS-CONFIGURATION"
+    ],
+    "req_ids": [
+      "REQ-PRR-001",
+      "REQ-PRR-002",
+      "REQ-PRR-003",
+      "REQ-PRR-004",
+      "REQ-PRR-005",
+      "REQ-PRR-006",
+      "REQ-PRR-007",
+      "REQ-PRR-008"
+    ],
+    "rt_ids": [
+      "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587",
+      "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+      "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587"
+    ],
+    "code_ids": [
+      "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A",
+      "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D",
+      "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+      "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446",
+      "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709",
+      "CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709",
+      "CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709",
+      "CODE-LIBRARY_STDLIB_FMT_F17709",
+      "CODE-LIBRARY_STDLIB_LOG_B3F8CB",
+      "CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB",
+      "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3",
+      "CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D",
+      "CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446",
+      "CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D",
+      "CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A",
+      "CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709",
+      "CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787",
+      "CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F",
+      "CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799",
+      "CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA",
+      "CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4",
+      "CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63",
+      "CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD",
+      "CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF",
+      "CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D",
+      "CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2",
+      "CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84",
+      "CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B"
+    ],
+    "verification_ids": [
+      "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+      "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1",
+      "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A",
+      "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6",
+      "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+    ],
+    "lookup": [
+      {
+        "id": "FG-PLATFORM-OPERATIONS",
+        "kind": "functional_group",
+        "title": "Platform Operations"
+      },
+      {
+        "id": "FG-PR-INTEGRATION",
+        "kind": "functional_group",
+        "title": "PR Integration"
+      },
+      {
+        "id": "FG-REVIEW-INTELLIGENCE",
+        "kind": "functional_group",
+        "title": "Review Intelligence"
+      },
+      {
+        "id": "FU-GITHUB-WEBHOOK-INGRESS",
+        "kind": "functional_unit",
+        "title": "GitHub Webhook Ingress"
+      },
+      {
+        "id": "FU-LAMBDA-RUNTIME-OPERATIONS",
+        "kind": "functional_unit",
+        "title": "Lambda Runtime Operations"
+      },
+      {
+        "id": "FU-POLICY-CHECKS",
+        "kind": "functional_unit",
+        "title": "Policy Checks"
+      },
+      {
+        "id": "FU-PR-CONTEXT-ASSEMBLY",
+        "kind": "functional_unit",
+        "title": "PR Context Assembly"
+      },
+      {
+        "id": "FU-REVIEW-ORCHESTRATION",
+        "kind": "functional_unit",
+        "title": "Review Orchestration"
+      },
+      {
+        "id": "FU-REVIEW-PUBLICATION",
+        "kind": "functional_unit",
+        "title": "Review Publication"
+      },
+      {
+        "id": "FU-SECRETS-CONFIGURATION",
+        "kind": "functional_unit",
+        "title": "Secrets and Configuration"
+      },
+      {
+        "id": "REQ-PRR-001",
+        "kind": "requirement",
+        "title": "REQ-PRR-001"
+      },
+      {
+        "id": "REQ-PRR-002",
+        "kind": "requirement",
+        "title": "REQ-PRR-002"
+      },
+      {
+        "id": "REQ-PRR-003",
+        "kind": "requirement",
+        "title": "REQ-PRR-003"
+      },
+      {
+        "id": "REQ-PRR-004",
+        "kind": "requirement",
+        "title": "REQ-PRR-004"
+      },
+      {
+        "id": "REQ-PRR-005",
+        "kind": "requirement",
+        "title": "REQ-PRR-005"
+      },
+      {
+        "id": "REQ-PRR-006",
+        "kind": "requirement",
+        "title": "REQ-PRR-006"
+      },
+      {
+        "id": "REQ-PRR-007",
+        "kind": "requirement",
+        "title": "REQ-PRR-007"
+      },
+      {
+        "id": "REQ-PRR-008",
+        "kind": "requirement",
+        "title": "REQ-PRR-008"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587",
+        "kind": "runtime_element",
+        "title": "review_orchestrator"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+        "kind": "runtime_element",
+        "title": "review_publisher"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587",
+        "kind": "runtime_element",
+        "title": "webhook_ingress"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A",
+        "kind": "code_element",
+        "title": "aws-sdk-go-v2/secretsmanager"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D",
+        "kind": "code_element",
+        "title": "github-rest-sdk"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+        "kind": "code_element",
+        "title": "github-rest-sdk/publication-client"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446",
+        "kind": "code_element",
+        "title": "serde_json::json"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709",
+        "kind": "code_element",
+        "title": "crypto/hmac"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709",
+        "kind": "code_element",
+        "title": "crypto/sha256"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709",
+        "kind": "code_element",
+        "title": "encoding/hex"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_FMT_F17709",
+        "kind": "code_element",
+        "title": "fmt"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_LOG_B3F8CB",
+        "kind": "code_element",
+        "title": "log"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB",
+        "kind": "code_element",
+        "title": "lambda_runtime_ops.go"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3",
+        "kind": "code_element",
+        "title": "policy_checks.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D",
+        "kind": "code_element",
+        "title": "pr_context_assembly.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446",
+        "kind": "code_element",
+        "title": "review_orchestrator.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D",
+        "kind": "code_element",
+        "title": "review_publication.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A",
+        "kind": "code_element",
+        "title": "secrets_configuration.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709",
+        "kind": "code_element",
+        "title": "webhook_ingress.go"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787",
+        "kind": "code_element",
+        "title": "CODE-BUILDDIFFCONTEXT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F",
+        "kind": "code_element",
+        "title": "CODE-FALLBACKPOLICYONLY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799",
+        "kind": "code_element",
+        "title": "CODE-FETCHCHANGEDFILES"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA",
+        "kind": "code_element",
+        "title": "CODE-GETGITHUBAPPPRIVATEKEY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4",
+        "kind": "code_element",
+        "title": "CODE-NOTIFYMAINTAINERDEFERRAL"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63",
+        "kind": "code_element",
+        "title": "CODE-POLICYONLYSUMMARY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD",
+        "kind": "code_element",
+        "title": "CODE-PUBLISHCHECKRUN"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF",
+        "kind": "code_element",
+        "title": "CODE-RECORDREDACTEDAUDITMETADATA"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D",
+        "kind": "code_element",
+        "title": "CODE-REQUESTBEDROCKREVIEW"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2",
+        "kind": "code_element",
+        "title": "CODE-ROUTEPULLREQUESTEVENT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84",
+        "kind": "code_element",
+        "title": "CODE-RUNDETERMINISTICCHECKS"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B",
+        "kind": "code_element",
+        "title": "CODE-VERIFYSIGNATURE"
+      },
+      {
+        "id": "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "kind": "verification",
+        "title": "Pr Opened Review Flow"
+      },
+      {
+        "id": "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1",
+        "kind": "verification",
+        "title": "Audit Redaction Test"
+      },
+      {
+        "id": "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A",
+        "kind": "verification",
+        "title": "Policy Only Fallback Test"
+      },
+      {
+        "id": "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6",
+        "kind": "verification",
+        "title": "Github Check Run Contract Test"
+      },
+      {
+        "id": "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2",
+        "kind": "verification",
+        "title": "Rate Limit Deferral Test"
+      }
+    ]
+  },
+  "support_paths": [
+    {
+      "id": "PATH-REQ_PRR_001",
+      "from_id": "REQ-PRR-001",
+      "to_verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "path": [
+        "REQ-PRR-001",
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587",
+        "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709",
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "Support path for REQ-PRR-001 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_32_605622",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_8_F6F0F8",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_002",
+      "from_id": "REQ-PRR-002",
+      "to_verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "path": [
+        "REQ-PRR-002",
+        "FU-PR-CONTEXT-ASSEMBLY",
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D",
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "Support path for REQ-PRR-002 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_37_C00E35",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_14_897DAB",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_003",
+      "from_id": "REQ-PRR-003",
+      "to_verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "path": [
+        "REQ-PRR-003",
+        "FU-REVIEW-ORCHESTRATION",
+        "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587",
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446",
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "Support path for REQ-PRR-003 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_42_AE049F",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_20_9EF879",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_004",
+      "from_id": "REQ-PRR-004",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "path": [
+        "REQ-PRR-004",
+        "FU-POLICY-CHECKS",
+        "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3",
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "summary": "Support path for REQ-PRR-004 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_47_56E6D4",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_26_3C2FB3",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_005",
+      "from_id": "REQ-PRR-005",
+      "to_verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+      ],
+      "path": [
+        "REQ-PRR-005",
+        "FU-REVIEW-PUBLICATION",
+        "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "Support path for REQ-PRR-005 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_52_2159CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_32_9D384D",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_006",
+      "from_id": "REQ-PRR-006",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "path": [
+        "REQ-PRR-006",
+        "FU-POLICY-CHECKS",
+        "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587",
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "summary": "Support path for REQ-PRR-006 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_47_56E6D4",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_38_B029C6",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_007",
+      "from_id": "REQ-PRR-007",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "path": [
+        "REQ-PRR-007",
+        "FU-REVIEW-PUBLICATION",
+        "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+        "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A",
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "summary": "Support path for REQ-PRR-007 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_52_2159CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_46_BE34CF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PRR_008",
+      "from_id": "REQ-PRR-008",
+      "to_verification_ids": [
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "path": [
+        "REQ-PRR-008",
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "summary": "Support path for REQ-PRR-008 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_32_605622",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA",
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_53_C149AA",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "FG-PLATFORM-OPERATIONS",
+      "kind": "functional_group",
+      "title": "Platform Operations",
+      "summary": "Lambda deployment lifecycle, runtime operations, and secrets/configuration.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS",
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_24_7E3231"
+      ]
+    },
+    {
+      "id": "FG-PR-INTEGRATION",
+      "kind": "functional_group",
+      "title": "PR Integration",
+      "summary": "Ingress and context assembly for GitHub pull request events.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_12_605C0B"
+      ]
+    },
+    {
+      "id": "FG-REVIEW-INTELLIGENCE",
+      "kind": "functional_group",
+      "title": "Review Intelligence",
+      "summary": "AI and deterministic review analysis with result publication.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-POLICY-CHECKS",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_18_2B9AC8"
+      ]
+    },
+    {
+      "id": "FU-GITHUB-WEBHOOK-INGRESS",
+      "kind": "functional_unit",
+      "title": "GitHub Webhook Ingress",
+      "summary": "Verifies webhook signatures, validates event type, and starts review workflow routing.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PR-INTEGRATION",
+      "requirement_ids": [
+        "REQ-PRR-001",
+        "REQ-PRR-008"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709",
+        "CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709",
+        "CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709",
+        "CODE-LIBRARY_STDLIB_FMT_F17709",
+        "CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709",
+        "CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2",
+        "CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "related_ids": [
+        "FG-PR-INTEGRATION",
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-001",
+          "REQ-PRR-008"
+        ],
+        "consumes": [
+          "FU-PR-CONTEXT-ASSEMBLY"
+        ],
+        "produces": [
+          "depends_on:FU-PR-CONTEXT-ASSEMBLY"
+        ],
+        "threats": [
+          "Pull Request Spam Abuse",
+          "Spoofed GitHub Webhook"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_32_605622",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA"
+      ]
+    },
+    {
+      "id": "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "kind": "functional_unit",
+      "title": "Lambda Runtime Operations",
+      "summary": "Manages Lambda packaging/deployment lifecycle and operational health guardrails.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM-OPERATIONS",
+      "code_ids": [
+        "CODE-LIBRARY_STDLIB_LOG_B3F8CB",
+        "CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB"
+      ],
+      "related_ids": [
+        "FG-PLATFORM-OPERATIONS",
+        "FU-SECRETS-CONFIGURATION",
+        "REF-AWS-SECRETS-MANAGER"
+      ],
+      "fields": {
+        "consumes": [
+          "FU-SECRETS-CONFIGURATION",
+          "REF-AWS-SECRETS-MANAGER"
+        ],
+        "produces": [
+          "depends_on:FU-SECRETS-CONFIGURATION",
+          "depends_on:REF-AWS-SECRETS-MANAGER"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_0_FBC6E4",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_4_81C436"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_57_4F6562",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_0_FBC6E4",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_4_81C436"
+      ]
+    },
+    {
+      "id": "FU-POLICY-CHECKS",
+      "kind": "functional_unit",
+      "title": "Policy Checks",
+      "summary": "Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-REVIEW-INTELLIGENCE",
+      "requirement_ids": [
+        "REQ-PRR-004",
+        "REQ-PRR-006"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3",
+        "CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63",
+        "CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "related_ids": [
+        "FG-REVIEW-INTELLIGENCE",
+        "REF-POLICY-RULESET"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-004",
+          "REQ-PRR-006"
+        ],
+        "consumes": [
+          "REF-POLICY-RULESET"
+        ],
+        "produces": [
+          "depends_on:REF-POLICY-RULESET"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_47_56E6D4",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7"
+      ]
+    },
+    {
+      "id": "FU-PR-CONTEXT-ASSEMBLY",
+      "kind": "functional_unit",
+      "title": "PR Context Assembly",
+      "summary": "Fetches changed files and diff metadata and prepares bounded review context payloads.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PR-INTEGRATION",
+      "requirement_ids": [
+        "REQ-PRR-002"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D",
+        "CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D",
+        "CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787",
+        "CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "related_ids": [
+        "FG-PR-INTEGRATION",
+        "FU-REVIEW-ORCHESTRATION",
+        "REF-GITHUB-APP-API"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-002"
+        ],
+        "consumes": [
+          "FU-REVIEW-ORCHESTRATION",
+          "REF-GITHUB-APP-API"
+        ],
+        "produces": [
+          "depends_on:FU-REVIEW-ORCHESTRATION",
+          "depends_on:REF-GITHUB-APP-API"
+        ],
+        "threats": [
+          "Prompt Injection in Diff"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_37_C00E35",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49"
+      ]
+    },
+    {
+      "id": "FU-REVIEW-ORCHESTRATION",
+      "kind": "functional_unit",
+      "title": "Review Orchestration",
+      "summary": "Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-REVIEW-INTELLIGENCE",
+      "requirement_ids": [
+        "REQ-PRR-003",
+        "REQ-PRR-006"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446",
+        "CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446",
+        "CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F",
+        "CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "related_ids": [
+        "FG-REVIEW-INTELLIGENCE",
+        "FU-POLICY-CHECKS",
+        "FU-REVIEW-PUBLICATION",
+        "FU-SECRETS-CONFIGURATION",
+        "REF-AWS-BEDROCK-RUNTIME"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-003",
+          "REQ-PRR-006"
+        ],
+        "consumes": [
+          "FU-POLICY-CHECKS",
+          "FU-REVIEW-PUBLICATION",
+          "FU-SECRETS-CONFIGURATION",
+          "REF-AWS-BEDROCK-RUNTIME"
+        ],
+        "produces": [
+          "depends_on:FU-POLICY-CHECKS",
+          "depends_on:FU-REVIEW-PUBLICATION",
+          "depends_on:FU-SECRETS-CONFIGURATION",
+          "depends_on:REF-AWS-BEDROCK-RUNTIME"
+        ],
+        "threats": [
+          "Prompt Injection in Diff",
+          "Pull Request Spam Abuse"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_42_AE049F",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF"
+      ]
+    },
+    {
+      "id": "FU-REVIEW-PUBLICATION",
+      "kind": "functional_unit",
+      "title": "Review Publication",
+      "summary": "Publishes check-run summaries and inline comments back to GitHub pull requests.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-REVIEW-INTELLIGENCE",
+      "requirement_ids": [
+        "REQ-PRR-005",
+        "REQ-PRR-006",
+        "REQ-PRR-007",
+        "REQ-PRR-008"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+        "CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D",
+        "CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4",
+        "CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD",
+        "CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1",
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A",
+        "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6",
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "related_ids": [
+        "FG-REVIEW-INTELLIGENCE",
+        "FU-SECRETS-CONFIGURATION",
+        "REF-GITHUB-APP-API"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-005",
+          "REQ-PRR-006",
+          "REQ-PRR-007",
+          "REQ-PRR-008"
+        ],
+        "consumes": [
+          "FU-SECRETS-CONFIGURATION",
+          "REF-GITHUB-APP-API"
+        ],
+        "produces": [
+          "depends_on:FU-SECRETS-CONFIGURATION",
+          "depends_on:REF-GITHUB-APP-API"
+        ],
+        "threats": [
+          "Secret Leakage in Review Output"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_52_2159CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B"
+      ]
+    },
+    {
+      "id": "FU-SECRETS-CONFIGURATION",
+      "kind": "functional_unit",
+      "title": "Secrets and Configuration",
+      "summary": "Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM-OPERATIONS",
+      "requirement_ids": [
+        "REQ-PRR-007"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A",
+        "CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A",
+        "CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "related_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PRR-007"
+        ],
+        "threats": [
+          "Secret Leakage in Review Output"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_0_1F2546",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_2_8154BE",
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_8_DC449D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_62_321995",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_0_1F2546",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_2_8154BE",
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_8_DC449D"
+      ]
+    },
+    {
+      "id": "REQ-PRR-001",
+      "kind": "requirement",
+      "title": "REQ-PRR-001",
+      "summary": "While pull request review is active, when pull request synchronize event is received, the pr review system shall verify webhook signature before processing review workflow.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_8_F6F0F8",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "REQ-PRR-002",
+      "kind": "requirement",
+      "title": "REQ-PRR-002",
+      "summary": "While pull request review is active, when pull request opened event is received, the pr review system shall fetch changed files and construct diff context for review execution.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "related_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_14_897DAB",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "REQ-PRR-003",
+      "kind": "requirement",
+      "title": "REQ-PRR-003",
+      "summary": "Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for security, architecture, and maintainability findings.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_20_9EF879",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "REQ-PRR-004",
+      "kind": "requirement",
+      "title": "REQ-PRR-004",
+      "summary": "Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure, infrastructure risk, and dependency changes.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "related_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_26_3C2FB3",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+      ]
+    },
+    {
+      "id": "REQ-PRR-005",
+      "kind": "requirement",
+      "title": "REQ-PRR-005",
+      "summary": "While pull request review is active, when review findings are generated, the pr review system shall publish check run summary and inline comments to repository maintainer.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+      ],
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_32_9D384D",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "REQ-PRR-006",
+      "kind": "requirement",
+      "title": "REQ-PRR-006",
+      "summary": "If bedrock runtime is unavailable, then the pr review system shall publish deterministic policy-only review outcome.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "related_ids": [
+        "FU-POLICY-CHECKS",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_38_B029C6",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+      ]
+    },
+    {
+      "id": "REQ-PRR-007",
+      "kind": "requirement",
+      "title": "REQ-PRR-007",
+      "summary": "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted prompt and result metadata for audit traceability.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION",
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_46_BE34CF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562"
+      ]
+    },
+    {
+      "id": "REQ-PRR-008",
+      "kind": "requirement",
+      "title": "REQ-PRR-008",
+      "summary": "If review request rate limit is exceeded, then the pr review system shall defer processing and notify repository maintainer.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_53_C149AA",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587",
+      "kind": "runtime_element",
+      "title": "review_orchestrator",
+      "summary": "Inferred runtime lambda_function owned by FU-REVIEW-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587",
+      "kind": "runtime_element",
+      "title": "review_publisher",
+      "summary": "Inferred runtime lambda_function owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587",
+      "kind": "runtime_element",
+      "title": "webhook_ingress",
+      "summary": "Inferred runtime lambda_function owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A",
+      "kind": "code_element",
+      "title": "aws-sdk-go-v2/secretsmanager",
+      "summary": "Inferred code library_external owned by FU-SECRETS-CONFIGURATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_2_8154BE"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_2_8154BE"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D",
+      "kind": "code_element",
+      "title": "github-rest-sdk",
+      "summary": "Inferred code library_external owned by FU-PR-CONTEXT-ASSEMBLY",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D",
+      "kind": "code_element",
+      "title": "github-rest-sdk/publication-client",
+      "summary": "Inferred code library_external owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446",
+      "kind": "code_element",
+      "title": "serde_json::json",
+      "summary": "Inferred code library_external owned by FU-REVIEW-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709",
+      "kind": "code_element",
+      "title": "crypto/hmac",
+      "summary": "Inferred code library_stdlib owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709",
+      "kind": "code_element",
+      "title": "crypto/sha256",
+      "summary": "Inferred code library_stdlib owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709",
+      "kind": "code_element",
+      "title": "encoding/hex",
+      "summary": "Inferred code library_stdlib owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_FMT_F17709",
+      "kind": "code_element",
+      "title": "fmt",
+      "summary": "Inferred code library_stdlib owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_LOG_B3F8CB",
+      "kind": "code_element",
+      "title": "log",
+      "summary": "Inferred code library_stdlib owned by FU-LAMBDA-RUNTIME-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_4_81C436"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_4_81C436"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB",
+      "kind": "code_element",
+      "title": "lambda_runtime_ops.go",
+      "summary": "Inferred code source_file owned by FU-LAMBDA-RUNTIME-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_0_FBC6E4"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_0_FBC6E4"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3",
+      "kind": "code_element",
+      "title": "policy_checks.rs",
+      "summary": "Inferred code source_file owned by FU-POLICY-CHECKS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D",
+      "kind": "code_element",
+      "title": "pr_context_assembly.ts",
+      "summary": "Inferred code source_file owned by FU-PR-CONTEXT-ASSEMBLY",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446",
+      "kind": "code_element",
+      "title": "review_orchestrator.rs",
+      "summary": "Inferred code source_file owned by FU-REVIEW-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D",
+      "kind": "code_element",
+      "title": "review_publication.ts",
+      "summary": "Inferred code source_file owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A",
+      "kind": "code_element",
+      "title": "secrets_configuration.ts",
+      "summary": "Inferred code source_file owned by FU-SECRETS-CONFIGURATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_0_1F2546"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_0_1F2546"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709",
+      "kind": "code_element",
+      "title": "webhook_ingress.go",
+      "summary": "Inferred code source_file owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787",
+      "kind": "code_element",
+      "title": "CODE-BUILDDIFFCONTEXT",
+      "summary": "Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F",
+      "kind": "code_element",
+      "title": "CODE-FALLBACKPOLICYONLY",
+      "summary": "Inferred code symbol owned by FU-REVIEW-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799",
+      "kind": "code_element",
+      "title": "CODE-FETCHCHANGEDFILES",
+      "summary": "Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA",
+      "kind": "code_element",
+      "title": "CODE-GETGITHUBAPPPRIVATEKEY",
+      "summary": "Inferred code symbol owned by FU-SECRETS-CONFIGURATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_8_DC449D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_8_DC449D"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4",
+      "kind": "code_element",
+      "title": "CODE-NOTIFYMAINTAINERDEFERRAL",
+      "summary": "Inferred code symbol owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63",
+      "kind": "code_element",
+      "title": "CODE-POLICYONLYSUMMARY",
+      "summary": "Inferred code symbol owned by FU-POLICY-CHECKS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD",
+      "kind": "code_element",
+      "title": "CODE-PUBLISHCHECKRUN",
+      "summary": "Inferred code symbol owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF",
+      "kind": "code_element",
+      "title": "CODE-RECORDREDACTEDAUDITMETADATA",
+      "summary": "Inferred code symbol owned by FU-REVIEW-PUBLICATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D",
+      "kind": "code_element",
+      "title": "CODE-REQUESTBEDROCKREVIEW",
+      "summary": "Inferred code symbol owned by FU-REVIEW-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2",
+      "kind": "code_element",
+      "title": "CODE-ROUTEPULLREQUESTEVENT",
+      "summary": "Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84",
+      "kind": "code_element",
+      "title": "CODE-RUNDETERMINISTICCHECKS",
+      "summary": "Inferred code symbol owned by FU-POLICY-CHECKS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B",
+      "kind": "code_element",
+      "title": "CODE-VERIFYSIGNATURE",
+      "summary": "Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14"
+      ]
+    },
+    {
+      "id": "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+      "kind": "verification",
+      "title": "Pr Opened Review Flow",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PRR-001",
+        "REQ-PRR-002",
+        "REQ-PRR-003",
+        "REQ-PRR-005"
+      ],
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-PR-CONTEXT-ASSEMBLY",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6"
+      ]
+    },
+    {
+      "id": "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1",
+      "kind": "verification",
+      "title": "Audit Redaction Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PRR-007"
+      ],
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION",
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562"
+      ]
+    },
+    {
+      "id": "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A",
+      "kind": "verification",
+      "title": "Policy Only Fallback Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PRR-004",
+        "REQ-PRR-006"
+      ],
+      "related_ids": [
+        "FU-POLICY-CHECKS",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392"
+      ]
+    },
+    {
+      "id": "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6",
+      "kind": "verification",
+      "title": "Github Check Run Contract Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "not-run",
+      "requirement_ids": [
+        "REQ-PRR-005"
+      ],
+      "related_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "low",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F"
+      ]
+    },
+    {
+      "id": "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2",
+      "kind": "verification",
+      "title": "Rate Limit Deferral Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PRR-008"
+      ],
+      "related_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965"
+      ]
+    }
+  ],
+  "source_blocks": [
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_12_605C0B",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 12,
+      "line_end": 12,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-PR-INTEGRATION"
+      ],
+      "summary": "authored functional group FG-PR-INTEGRATION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_18_2B9AC8",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 18,
+      "line_end": 18,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-REVIEW-INTELLIGENCE"
+      ],
+      "summary": "authored functional group FG-REVIEW-INTELLIGENCE"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_24_7E3231",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 24,
+      "line_end": 24,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "summary": "authored functional group FG-PLATFORM-OPERATIONS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_32_605622",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 32,
+      "line_end": 32,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "summary": "authored functional unit FU-GITHUB-WEBHOOK-INGRESS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_37_C00E35",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 37,
+      "line_end": 37,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "summary": "authored functional unit FU-PR-CONTEXT-ASSEMBLY"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_42_AE049F",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 42,
+      "line_end": 42,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "summary": "authored functional unit FU-REVIEW-ORCHESTRATION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_47_56E6D4",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 47,
+      "line_end": 47,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "summary": "authored functional unit FU-POLICY-CHECKS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_52_2159CD",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 52,
+      "line_end": 52,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "summary": "authored functional unit FU-REVIEW-PUBLICATION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_57_4F6562",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 57,
+      "line_end": 57,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS"
+      ],
+      "summary": "authored functional unit FU-LAMBDA-RUNTIME-OPERATIONS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_ARCHITECTURE_YML_62_321995",
+      "path": "examples/bedrock-pr-review-github-app-sample/architecture.yml",
+      "line_start": 62,
+      "line_end": 62,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "summary": "authored functional unit FU-SECRETS-CONFIGURATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_6_4AF60D",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 6,
+      "line_end": 6,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-PR-INTEGRATION"
+      ],
+      "summary": "design narrative for FG-PR-INTEGRATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_29_F2E358",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 29,
+      "line_end": 29,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-REVIEW-INTELLIGENCE"
+      ],
+      "summary": "design narrative for FG-REVIEW-INTELLIGENCE"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_52_F26E48",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 52,
+      "line_end": 52,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "summary": "design narrative for FG-PLATFORM-OPERATIONS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_76_D6323B",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 76,
+      "line_end": 76,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "summary": "design narrative for FU-GITHUB-WEBHOOK-INGRESS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_100_EA2ACB",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 100,
+      "line_end": 100,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "summary": "design narrative for FU-PR-CONTEXT-ASSEMBLY"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_124_B4332D",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 124,
+      "line_end": 124,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "summary": "design narrative for FU-REVIEW-ORCHESTRATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_148_335A0D",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 148,
+      "line_end": 148,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-POLICY-CHECKS"
+      ],
+      "summary": "design narrative for FU-POLICY-CHECKS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_172_642A7E",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 172,
+      "line_end": 172,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "summary": "design narrative for FU-REVIEW-PUBLICATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_196_533704",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 196,
+      "line_end": 196,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS"
+      ],
+      "summary": "design narrative for FU-LAMBDA-RUNTIME-OPERATIONS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_DESIGN_YML_220_D71CAA",
+      "path": "examples/bedrock-pr-review-github-app-sample/design.yml",
+      "line_start": 220,
+      "line_end": 220,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "summary": "design narrative for FU-SECRETS-CONFIGURATION"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4798DA",
+      "path": "examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf",
+      "line_start": 5,
+      "line_end": 5,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_WEBHOOK_INGRESS_FA4587"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_DFF6BF",
+      "path": "examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf",
+      "line_start": 12,
+      "line_end": 12,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR_FA4587"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_38B29B",
+      "path": "examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf",
+      "line_start": 19,
+      "line_end": 19,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_REVIEW_PUBLISHER_FA4587"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_8_F6F0F8",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-001"
+      ],
+      "summary": "authored requirement REQ-PRR-001"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_14_897DAB",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 14,
+      "line_end": 14,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-002"
+      ],
+      "summary": "authored requirement REQ-PRR-002"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_20_9EF879",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 20,
+      "line_end": 20,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-003"
+      ],
+      "summary": "authored requirement REQ-PRR-003"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_26_3C2FB3",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 26,
+      "line_end": 26,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-004"
+      ],
+      "summary": "authored requirement REQ-PRR-004"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_32_9D384D",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 32,
+      "line_end": 32,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-005"
+      ],
+      "summary": "authored requirement REQ-PRR-005"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_38_B029C6",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 38,
+      "line_end": 38,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-006"
+      ],
+      "summary": "authored requirement REQ-PRR-006"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_46_BE34CF",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 46,
+      "line_end": 46,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-007"
+      ],
+      "summary": "authored requirement REQ-PRR-007"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_REQUIREMENTS_YML_53_C149AA",
+      "path": "examples/bedrock-pr-review-github-app-sample/requirements.yml",
+      "line_start": 53,
+      "line_end": 53,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PRR-008"
+      ],
+      "summary": "authored requirement REQ-PRR-008"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_0_FBC6E4",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/lambda_runtime_ops.go",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_B3F8CB"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_LAMBDA_RUNTIME_OPS_GO_4_81C436",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/lambda_runtime_ops.go",
+      "line_start": 4,
+      "line_end": 4,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_LOG_B3F8CB"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_LOG_B3F8CB"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_0_9D8C08",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/policy_checks.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_POLICY_CHECKS_RS_6329C3"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_6_431BE7",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/policy_checks.rs",
+      "line_start": 6,
+      "line_end": 6,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_RUNDETERMINISTICCHECKS_504C84"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_POLICY_CHECKS_RS_20_B6D897",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/policy_checks.rs",
+      "line_start": 20,
+      "line_end": 20,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_POLICYONLYSUMMARY_226A63"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_0_14C6FD",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/pr_context_assembly.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_F1735D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_2_EB56D1",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/pr_context_assembly.ts",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_F1735D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_8_EA1F49",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/pr_context_assembly.ts",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_FETCHCHANGEDFILES_7BA799"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_PR_CONTEXT_ASSEMBLY_TS_14_F706FF",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/pr_context_assembly.ts",
+      "line_start": 14,
+      "line_end": 14,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_BUILDDIFFCONTEXT_E7E787"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_0_968A78",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_orchestrator.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_FAE446"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_2_A97804",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_orchestrator.rs",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FAE446"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_8_7E7E14",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_orchestrator.rs",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_REQUESTBEDROCKREVIEW_3CF99D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_ORCHESTRATOR_RS_18_6C42DB",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_orchestrator.rs",
+      "line_start": 18,
+      "line_end": 18,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_FALLBACKPOLICYONLY_E6E08F"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_0_B3AEB0",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_REVIEW_PUBLICATION_TS_1D583D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_2_2026CD",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT_1D583D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_8_2E22FC",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PUBLISHCHECKRUN_5084AD"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_21_68640B",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+      "line_start": 21,
+      "line_end": 21,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA_FCEBBF"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_REVIEW_PUBLICATION_TS_26_4A1137",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+      "line_start": 26,
+      "line_end": 26,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL_FFEBC4"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_0_1F2546",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/secrets_configuration.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_SECRETS_CONFIGURATION_TS_77951A"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_2_8154BE",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/secrets_configuration.ts",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER_77951A"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_SECRETS_CONFIGURATION_TS_8_DC449D",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/secrets_configuration.ts",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY_8EE4BA"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_0_A44B3C",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_WEBHOOK_INGRESS_GO_F17709"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_5_6A3EB3",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 5,
+      "line_end": 5,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_CRYPTO_HMAC_F17709"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_6_B448B1",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 6,
+      "line_end": 6,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_CRYPTO_SHA256_F17709"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_7_CAA155",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 7,
+      "line_end": 7,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_ENCODING_HEX_F17709"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_8_26EDA3",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_FMT_F17709"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_FMT_F17709"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_14_75BF14",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 14,
+      "line_end": 14,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_VERIFYSIGNATURE_20DC9B"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_SRC_WEBHOOK_INGRESS_GO_24_43FD5F",
+      "path": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+      "line_start": 24,
+      "line_end": 24,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_ROUTEPULLREQUESTEVENT_EDEBE2"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_AUDIT_REDACTION_REPORT_MD_0_6B5562",
+      "path": "examples/bedrock-pr-review-github-app-sample/test-results/audit-redaction-report.md",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_CONTRACT_CHECKRUN_JSON_0_B4275A",
+      "path": "examples/bedrock-pr-review-github-app-sample/test-results/contract-checkrun.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_E2E_PR_OPENED_REVIEW_XML_0_DF9FE6",
+      "path": "examples/bedrock-pr-review-github-app-sample/test-results/e2e-pr-opened-review.xml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_INTEGRATION_POLICY_FALLBACK_JSON_0_421392",
+      "path": "examples/bedrock-pr-review-github-app-sample/test-results/integration-policy-fallback.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TEST_RESULTS_UNIT_RATE_LIMIT_XML_0_CA7965",
+      "path": "examples/bedrock-pr-review-github-app-sample/test-results/unit-rate-limit.xml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "summary": "verification evidence for VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_0_BD478F",
+      "path": "examples/bedrock-pr-review-github-app-sample/tests/contract/github_check_run_contract_test.go",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+      ],
+      "summary": "verification evidence for VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML_0_6E5CC7",
+      "path": "examples/bedrock-pr-review-github-app-sample/tests/e2e/pr_opened_review_flow.yaml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_0_C492D7",
+      "path": "examples/bedrock-pr-review-github-app-sample/tests/integration/audit_redaction_test.ts",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_0_F2F42C",
+      "path": "examples/bedrock-pr-review-github-app-sample/tests/integration/policy_only_fallback_test.rs",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_BEDROCK_PR_REVIEW_GITHUB_APP_SAMPLE_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_0_637A1A",
+      "path": "examples/bedrock-pr-review-github-app-sample/tests/unit/rate_limit_deferral_test.go",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "summary": "verification evidence for VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+    }
+  ]
+}

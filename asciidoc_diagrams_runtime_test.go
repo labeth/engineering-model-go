@@ -3,6 +3,8 @@ package engmodel
 import (
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/model"
 )
 
 func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) {
@@ -39,5 +41,26 @@ func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) 
 	}
 	if strings.Contains(out, "|part_of|") {
 		t.Fatalf("did not expect explicit part_of edges when using cluster containers")
+	}
+}
+
+func TestBuildRuntimeAPIRows_UsesLambdaInferenceOwnership(t *testing.T) {
+	runtime := []inferredRuntimeItem{
+		{Name: "webhook_ingress", Kind: "lambda_function", Owner: "FU-GITHUB-WEBHOOK-INGRESS"},
+		{Name: "review_orchestrator", Kind: "lambda_function", Owner: "FU-REVIEW-ORCHESTRATION"},
+	}
+	mappings := []model.Mapping{
+		{Type: "depends_on", From: "FU-GITHUB-WEBHOOK-INGRESS", To: "FU-REVIEW-ORCHESTRATION"},
+	}
+
+	rows := buildRuntimeAPIRows(runtime, mappings)
+	if len(rows) != 1 {
+		t.Fatalf("expected one runtime api row, got %d", len(rows))
+	}
+	if rows[0].Consumer != "webhook_ingress" {
+		t.Fatalf("expected consumer webhook_ingress, got %q", rows[0].Consumer)
+	}
+	if rows[0].Provider != "review_orchestrator" {
+		t.Fatalf("expected provider review_orchestrator, got %q", rows[0].Provider)
 	}
 }

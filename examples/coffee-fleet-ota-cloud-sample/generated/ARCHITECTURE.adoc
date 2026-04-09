@@ -1,0 +1,3263 @@
+= Coffee Fleet OTA + Cloud Design
+:toc:
+:toclevels: 2
+:sectnums:
+
+== Introduction
+
+This document models connected coffee machines that send telemetry to a <<REF_CATALOG_FG_CLOUD_CONTROL,central cloud site>>,
+receive OTA firmware updates, and produce operational and audit logging evidence.
+Authored functional architecture remains stable while runtime, code, and verification layers
+are inferred from infrastructure, source, and test artifacts.
+
+=== Scope and Assumptions
+
+- Functional Groups and Functional Units are the stable authored design backbone.
+- Runtime and code realization are inferred from available IaC, deployment, and source artifacts.
+- Inferred coverage is evidence-driven and may be partial when source metadata is missing.
+- Requirement alignment and reference indexes are provided for traceability, not as primary narrative flow.
+
+== How To Read This Document
+
+This document is intentionally split into two layers:
+
+1. Concept layer: functional and view-specific architecture narratives for human understanding.
+2. Evidence layer: generated requirement traceability and inferred reference indexes.
+
+Read in this order:
+
+1. Architecture Intent View: stable authored architecture intent and ownership boundaries.
+2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
+3. Traceability View: requirement mapping, evidence coverage, and confidence.
+4. Reference Appendix: supporting reference IDs and inferred-source links.
+
+== Document Health Snapshot
+
+[cols="2,1,3,1,1,1,1,4",options="header"]
+|===
+|View |Authored Status |Authored Status Explanation |Units in Scope |Direct Evidence Coverage |Gap Count |Heuristic Confidence |Heuristic Basis
+|Architecture Intent View (`VIEW-ARCHITECTURE-INTENT`)
+|stable
+|Stable authored capability boundaries and responsibility ownership.
+|7
+|7
+|0
+|high
+|Defaults authored units to covered; use authoredStatus as the primary publication signal.
+|Communication View (`VIEW-COMMUNICATION`)
+|in-review
+|Communication handoffs are mapped; protocol detail remains partially inferred.
+|7
+|5
+|2
+|medium
+|Counts a unit as covered when direct inferred runtime evidence exists.
+|Deployment View (`VIEW-DEPLOYMENT`)
+|in-review
+|Deployment/runtime mapping is present with evolving control-plane evidence depth.
+|7
+|5
+|2
+|medium
+|Counts a unit as covered when direct inferred runtime evidence exists.
+|Security View (`VIEW-SECURITY`)
+|draft
+|Core threats are modeled while additional control evidence is being expanded.
+|7
+|6
+|1
+|high
+|Counts a unit as covered when explicit authored attack-vector mapping exists.
+|Traceability View (`VIEW-TRACEABILITY`)
+|in-review
+|Requirement mappings exist; verification and evidence coverage continue to be hardened.
+|7
+|7
+|2
+|high
+|Counts a unit as covered when direct inferred runtime or code evidence exists.
+|===
+
+== Terms and Definitions
+
+[cols="3,7",options="header"]
+|===
+|Term |Definition
+|[[REF_ENGMODEL_EM_ACTOR]]actor (EM-ACTOR)
+|A person or operational role that interacts with functional units.
+|[[REF_ENGMODEL_EM_ATTACK_VECTOR]]attack vector (EM-ATTACK-VECTOR)
+|A technical misuse or attack path that targets functional, referenced, or runtime elements.
+|[[REF_CATALOG_DATA_AUDIT_LOG_RECORD]]audit log record (DATA-AUDIT-LOG-RECORD)
+|Immutable log record for security and compliance analysis.
+|[[REF_CATALOG_FEAT_AUDIT_LOGGING]]audit logging is enabled (FEAT-AUDIT-LOGGING)
+|Feature flag enabling audit-grade log persistence. Aliases:audit enabled
+|[[REF_ENGMODEL_EM_AUTHORED_MAPPING]]authored mapping (EM-AUTHORED-MAPPING)
+|An explicit relationship declared in architecture inputs between authored or referenced elements.
+|[[REF_CATALOG_ACT_BARISTA]]barista (ACT-BARISTA)
+|Operates coffee machines and observes local machine health. Aliases:store operator
+|[[REF_CATALOG_EVT_BREW_CYCLE_COMPLETED]]brew cycle completed event is received (EVT-BREW-CYCLE-COMPLETED)
+|Event raised when a coffee machine completes a brew cycle. Aliases:brew completed
+|[[REF_CATALOG_DATA_BREW_TELEMETRY]]brew telemetry (DATA-BREW-TELEMETRY)
+|Machine telemetry including brew duration, temperature, and status metadata.
+|[[REF_CATALOG_FG_CLOUD_CONTROL]]cloud control (FG-CLOUD-CONTROL)
+|Capability area for fleet ingestion, campaign orchestration, and cloud reporting. Aliases:central cloud site
+|[[REF_CATALOG_REF_CLOUD_LOGGING_SERVICE]]cloud logging service (REF-CLOUD-LOGGING-SERVICE)
+|Managed log and metrics service used for fleet observability. Aliases:logging service
+|[[REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS]]cloud runtime operations (FU-CLOUD-RUNTIME-OPERATIONS)
+|Operates cloud runtime deployment and scaling controls. Aliases:runtime operations
+|[[REF_CATALOG_REF_CLOUD_RUNTIME_SDK]]cloud runtime sdk (REF-CLOUD-RUNTIME-SDK)
+|SDK used by cloud units for runtime integrations. Aliases:cloud sdk
+|[[REF_ENGMODEL_EM_CODE_ELEMENT]]code element (EM-CODE-ELEMENT)
+|An inferred code structure or ownership element discovered from source trees and build metadata.
+|[[REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE]]coffee machine fleet operation is active (STATE-FLEET-OPERATION-ACTIVE)
+|State where machines and central cloud are actively serving operations. Aliases:fleet operation active
+|[[REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS]]device identity and secrets (FU-DEVICE-IDENTITY-SECRETS)
+|Manages device identity material and secure configuration. Aliases:device secrets
+|[[REF_CATALOG_REF_FIRMWARE_BUNDLE_STORE]]firmware bundle store (REF-FIRMWARE-BUNDLE-STORE)
+|Object store containing signed OTA firmware bundles. Aliases:firmware store
+|[[REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID]]firmware signature is valid (COND-FIRMWARE-SIGNATURE-VALID)
+|Condition indicating firmware signature verification succeeded. Aliases:signature valid
+|[[REF_CATALOG_REF_FIRMWARE_SIGNER_SERVICE]]firmware signer service (REF-FIRMWARE-SIGNER-SERVICE)
+|Service that signs firmware artifacts before OTA rollout. Aliases:signer service
+|[[REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED]]firmware validation failed event is received (EVT-FIRMWARE-VALIDATION-FAILED)
+|Event raised when signature/hash validation fails on firmware. Aliases:validation failed
+|[[REF_CATALOG_FU_FLEET_INGESTION_API]]fleet ingestion api (FU-FLEET-INGESTION-API)
+|Ingests telemetry and machine status from edge devices. Aliases:ingestion api
+|[[REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING]]fleet observability reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+|Aggregates telemetry and update outcomes into operational and audit signals. Aliases:observability reporting
+|[[REF_CATALOG_ACT_FLEET_OPERATOR]]fleet operator (ACT-FLEET-OPERATOR)
+|Owns OTA rollout campaigns and fleet-level reliability. Aliases:fleet admin
+|[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]functional group (EM-FUNCTIONAL-GROUP)
+|A major authored capability area that groups related functional units.
+|[[REF_ENGMODEL_EM_FUNCTIONAL_UNIT]]functional unit (EM-FUNCTIONAL-UNIT)
+|An authored working unit inside a functional group that owns specific behavior.
+|[[REF_ENGMODEL_EM_INFERRED_MAPPING]]inferred mapping (EM-INFERRED-MAPPING)
+|A discovered relationship that links inferred runtime/code elements upward to authored design.
+|[[REF_CATALOG_REF_IOT_INGEST_ENDPOINT]]iot ingest endpoint (REF-IOT-INGEST-ENDPOINT)
+|Cloud endpoint for receiving telemetry and status from devices. Aliases:iot endpoint
+|[[REF_CATALOG_AV_LOG_TAMPERING]]log tampering (AV-LOG-TAMPERING)
+|Attempts to suppress or alter security/operational log records. Aliases:audit tampering
+|[[REF_CATALOG_FG_MACHINE_EDGE]]machine edge (FG-MACHINE-EDGE)
+|Capability area for device-local telemetry and OTA execution behavior. Aliases:coffee machine edge
+|[[REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION]]machine telemetry collection (FU-MACHINE-TELEMETRY-COLLECTION)
+|Collects brew/device telemetry and publishes cloud-bound payloads. Aliases:telemetry collection
+|[[REF_CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE]]malicious firmware bundle (AV-MALICIOUS-FIRMWARE-BUNDLE)
+|Tampered firmware payload attempts to execute on devices. Aliases:firmware tampering
+|[[REF_CATALOG_REF_MQTT_DEVICE_SDK]]mqtt device sdk (REF-MQTT-DEVICE-SDK)
+|SDK used by edge components for telemetry and command transport. Aliases:mqtt sdk
+|[[REF_CATALOG_MODE_NORMAL]]normal mode is active (MODE-NORMAL)
+|Default operation mode for telemetry and OTA behavior. Aliases:normal mode
+|[[REF_CATALOG_FEAT_OTA_CAMPAIGN]]ota campaign is enabled (FEAT-OTA-CAMPAIGN)
+|Feature flag enabling centralized OTA rollout behavior. Aliases:ota enabled
+|[[REF_CATALOG_DATA_OTA_CAMPAIGN_POLICY]]ota campaign policy (DATA-OTA-CAMPAIGN-POLICY)
+|Policy describing rollout cohorts, windows, and rollback criteria.
+|[[REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED]]ota campaign scheduled event is received (EVT-OTA-CAMPAIGN-SCHEDULED)
+|Event raised when a fleet OTA campaign is scheduled. Aliases:campaign scheduled
+|[[REF_CATALOG_DATA_OTA_STATUS]]ota status (DATA-OTA-STATUS)
+|Device-level status for firmware download, apply, and rollback outcomes.
+|[[REF_CATALOG_EVT_OTA_STATUS_REPORTED]]ota status reported event is received (EVT-OTA-STATUS-REPORTED)
+|Event raised when device reports OTA apply status. Aliases:ota status reported
+|[[REF_CATALOG_FU_OTA_UPDATE_AGENT]]ota update agent (FU-OTA-UPDATE-AGENT)
+|Downloads, validates, and applies signed firmware updates on machines. Aliases:device update agent
+|[[REF_CATALOG_FG_PLATFORM_OPERATIONS]]platform operations (FG-PLATFORM-OPERATIONS)
+|Capability area for runtime operations and device identity/secrets lifecycle. Aliases:fleet platform operations
+|[[REF_CATALOG_ACT_PLATFORM_OPERATOR]]platform operator (ACT-PLATFORM-OPERATOR)
+|Owns runtime deployment and operational controls. Aliases:platform ops
+|[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]referenced element (EM-REFERENCED-ELEMENT)
+|An architecture-relevant external, platform, or third-party dependency represented by role.
+|[[REF_ENGMODEL_EM_RUNTIME_ELEMENT]]runtime element (EM-RUNTIME-ELEMENT)
+|An inferred runtime realization element discovered from infrastructure and deployment sources.
+|[[REF_CATALOG_ACT_SECURITY_ANALYST]]security analyst (ACT-SECURITY-ANALYST)
+|Reviews identity, firmware integrity, and logging controls. Aliases:security reviewer
+|[[REF_CATALOG_AV_SPOOFED_DEVICE_IDENTITY]]spoofed device identity (AV-SPOOFED-DEVICE-IDENTITY)
+|Unauthorized actor impersonates a machine identity. Aliases:device spoofing
+|[[REF_CATALOG_EVT_TELEMETRY_INGESTED]]telemetry ingested event is received (EVT-TELEMETRY-INGESTED)
+|Event raised when cloud ingestion accepts telemetry. Aliases:telemetry ingested
+|[[REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE]]telemetry replay abuse (AV-TELEMETRY-REPLAY-ABUSE)
+|Replayed telemetry floods ingestion and distorts reporting. Aliases:telemetry replay
+|[[REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]update campaign orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+|Selects target machine groups and coordinates OTA rollout phases. Aliases:campaign orchestration
+|[[REF_ENGMODEL_EM_UPWARD_LINKING]]upward linking (EM-UPWARD-LINKING)
+|Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
+|===
+
+=== Diagram Color and Shape Legend
+
+This legend applies to all Mermaid diagrams in this document.
+
+[source,mermaid]
+----
+flowchart LR
+  SYS["System"]:::system_boundary
+  FG["Functional Group"]:::functional_group
+  FU["Functional Unit"]:::functional_unit
+  ACT(("Actor")):::actor
+  REF["Referenced Element"]:::referenced_element
+  AV(("Attack Vector")):::attack_vector
+  REQ["Requirement"]:::requirement
+  VER["Verification Check"]:::verification
+  RT["Runtime Element"]:::runtime_element
+  DEP["Deployment Element"]:::deployment_element
+  CODE["Code Element"]:::code_element
+
+  SYS --> FG
+  FG --> FU
+  ACT --> FU
+  FU --> REF
+  REQ -->|applies_to| FU
+  VER -->|verifies| REQ
+  VER -->|implemented_by| CODE
+  FU -->|realizes| RT
+  DEP --> RT
+  AV --> FU
+  RT -->|implemented_by| CODE
+  REQ -->|code_trace| CODE
+
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+== Architecture Intent View
+
+Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
+
+=== What This View Answers
+
+
+- What are the main capability areas?
+
+- What are the stable units of responsibility and what does each unit own?
+
+- How are responsibilities intentionally split?
+
+=== System Boundary Diagram
+
+What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
+
+[source,mermaid]
+----
+flowchart LR
+  ACT_ACT_BARISTA(("Barista")):::actor
+  ACT_ACT_FLEET_OPERATOR(("Fleet Operator")):::actor
+  ACT_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+  ACT_ACT_SECURITY_ANALYST(("Security Analyst")):::actor
+  REF_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+  REF_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+  REF_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+  REF_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+  REF_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+  REF_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+  subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
+    direction TB
+    subgraph FGCTX_FG_MACHINE_EDGE["Machine Edge"]
+      direction TB
+      FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+      FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+    end
+    style FGCTX_FG_MACHINE_EDGE fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+    subgraph FGCTX_FG_CLOUD_CONTROL["Cloud Control"]
+      direction TB
+      FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+      FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+      FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+    end
+    style FGCTX_FG_CLOUD_CONTROL fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+    subgraph FGCTX_FG_PLATFORM_OPERATIONS["Platform Operations"]
+      direction TB
+      FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+      FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+    end
+    style FGCTX_FG_PLATFORM_OPERATIONS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  end
+  style SYSTEM_BOUNDARY fill:#f5f5f5,stroke:#424242,stroke-width:1px;
+  ACT_ACT_BARISTA -->|Daily machine operation produces brew and status telemetry.| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  ACT_ACT_FLEET_OPERATOR -->|Defines OTA target cohorts and rollout windows.| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  ACT_ACT_PLATFORM_OPERATOR -->|Operates deployment and runtime controls.| FU_FU_CLOUD_RUNTIME_OPERATIONS
+  ACT_ACT_SECURITY_ANALYST -->|Audits identity trust and secret rotation controls.| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|Publishes telemetry payloads to cloud ingestion.| REF_REF_IOT_INGEST_ENDPOINT
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|Uses MQTT client for edge publish and command channels.| REF_REF_MQTT_DEVICE_SDK
+  FU_FU_OTA_UPDATE_AGENT -->|Downloads signed firmware bundle.| REF_REF_FIRMWARE_BUNDLE_STORE
+  FU_FU_FLEET_INGESTION_API -->|Uses cloud SDK clients for ingest and routing operations.| REF_REF_CLOUD_RUNTIME_SDK
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|Verifies firmware artifact signature metadata.| REF_REF_FIRMWARE_SIGNER_SERVICE
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|Persists telemetry, OTA outcomes, and audit records.| REF_REF_CLOUD_LOGGING_SERVICE
+  FU_FU_CLOUD_RUNTIME_OPERATIONS -->|Emits platform operation and deployment events.| REF_REF_CLOUD_LOGGING_SERVICE
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+=== System Decomposition Diagram
+
+What this diagram shows: stable capability decomposition from functional groups into functional units.
+
+[source,mermaid]
+----
+flowchart TB
+  SYS["System"]:::system_boundary
+  FG_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
+  SYS -->|contains| FG_FG_MACHINE_EDGE
+  FG_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
+  SYS -->|contains| FG_FG_CLOUD_CONTROL
+  FG_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
+  SYS -->|contains| FG_FG_PLATFORM_OPERATIONS
+  FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  FG_FG_MACHINE_EDGE -->|contains| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  FG_FG_MACHINE_EDGE -->|contains| FU_FU_OTA_UPDATE_AGENT
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  FG_FG_CLOUD_CONTROL -->|contains| FU_FU_FLEET_INGESTION_API
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  FG_FG_CLOUD_CONTROL -->|contains| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  FG_FG_CLOUD_CONTROL -->|contains| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+  FG_FG_PLATFORM_OPERATIONS -->|contains| FU_FU_CLOUD_RUNTIME_OPERATIONS
+  FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  FG_FG_PLATFORM_OPERATIONS -->|contains| FU_FU_DEVICE_IDENTITY_SECRETS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+<<<
+=== Functional Group Manhattan Matrix
+
+What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
+
+++++
+<div style="background:#f5f5f5;padding:12px;">
+<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fleet Ingestion API</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Machine Telemetry Collection</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fleet Observability Reporting</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cloud Runtime Operations</div></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">OTA Update Agent</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Update Campaign Orchestration</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Device Identity and Secrets</div></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Machine Edge</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cloud Control</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Platform Operations</div></td>
+</tr>
+</table>
+</div>
+++++
+
+=== Functional Unit Dependency Diagram
+
+What this diagram shows: dependency paths between functional units (grouped in Functional Group containers) and key referenced elements.
+Arrow meaning: `A -->|depends_on| B` means unit `A` requires behavior or data from `B` to fulfill its responsibility.
+
+[source,mermaid]
+----
+flowchart LR
+  subgraph FGBOX_FG_MACHINE_EDGE["Machine Edge"]
+    direction TB
+    FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+    FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  end
+  style FGBOX_FG_MACHINE_EDGE fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  subgraph FGBOX_FG_CLOUD_CONTROL["Cloud Control"]
+    direction TB
+    FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+    FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+    FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  end
+  style FGBOX_FG_CLOUD_CONTROL fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  subgraph FGBOX_FG_PLATFORM_OPERATIONS["Platform Operations"]
+    direction TB
+    FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+    FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  end
+  style FGBOX_FG_PLATFORM_OPERATIONS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  REF_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+  REF_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+  REF_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+  REF_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+  REF_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+  REF_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| REF_REF_IOT_INGEST_ENDPOINT
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| FU_FU_FLEET_INGESTION_API
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| REF_REF_MQTT_DEVICE_SDK
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_OTA_UPDATE_AGENT -->|depends_on| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  FU_FU_OTA_UPDATE_AGENT -->|depends_on| REF_REF_FIRMWARE_BUNDLE_STORE
+  FU_FU_OTA_UPDATE_AGENT -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_FLEET_INGESTION_API -->|depends_on| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  FU_FU_FLEET_INGESTION_API -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_FLEET_INGESTION_API -->|depends_on| REF_REF_CLOUD_RUNTIME_SDK
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| REF_REF_FIRMWARE_SIGNER_SERVICE
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| REF_REF_CLOUD_LOGGING_SERVICE
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on| FU_FU_DEVICE_IDENTITY_SECRETS
+  FU_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on| REF_REF_CLOUD_LOGGING_SERVICE
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Functional Groups and Units (View Scoped)
+
+
+
+==== Machine Edge (FG-MACHINE-EDGE)
+
+
+Device-local telemetry and OTA execution responsibilities.
+
+
+
+<<REF_IDX-FG_FG_MACHINE_EDGE,Machine Edge>> owns behavior that executes directly on coffee machines.
+It gathers telemetry, applies OTA updates, and reports local status to cloud boundaries.
+
+
+
+
+
+
+
+
+
+
+
+
+===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
+
+
+
+
+
+Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,machine telemetry collection>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> and decision and orchestration flow to <<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-REF_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-REF_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>
+
+
+
+
+
+
+===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
+
+
+
+
+
+Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_OTA_UPDATE_AGENT,ota update agent>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> and decision and orchestration flow to <<REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>
+
+
+
+
+
+
+
+
+
+
+==== Cloud Control (FG-CLOUD-CONTROL)
+
+
+Central cloud ingestion, campaign control, and fleet reporting.
+
+
+
+<<REF_IDX-FG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet telemetry and OTA rollouts.
+It provides global fleet visibility and deterministic rollout decisions.
+
+
+
+
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+
+
+
+Receives telemetry and machine status, applies validation, and emits ingestion events.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_FLEET_INGESTION_API,fleet ingestion api>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>> and decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-REF_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>
+
+
+
+
+
+
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+
+
+
+Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,fleet observability reporting>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>> and decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>
+
+
+
+
+
+
+===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+
+
+
+
+
+Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,update campaign orchestration>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> and decision and orchestration flow to <<REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==== Platform Operations (FG-PLATFORM-OPERATIONS)
+
+
+Cloud <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,runtime operations>> plus identity and secret-management controls.
+
+
+
+<<REF_IDX-FG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns deployability, runtime guardrails, and secure identity/config lifecycle.
+It ensures cloud and device trust boundaries remain enforceable over time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===== Cloud Runtime Operations (FU-CLOUD-RUNTIME-OPERATIONS)
+
+
+
+
+
+Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,cloud runtime operations>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>> and decision and orchestration flow to <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_008,REQ-COF-008>>
+
+
+
+
+
+
+===== Device Identity and Secrets (FU-DEVICE-IDENTITY-SECRETS)
+
+
+
+
+
+Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS,device identity and secrets>>
+
+[discrete]
+====== Key Collaborators
+
+none
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>
+
+
+
+
+
+
+
+
+<<<
+
+== Communication View
+
+Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
+
+=== What This View Answers
+
+
+- Who talks to whom and over which interfaces?
+
+- Which edges are synchronous, asynchronous, event-driven, or callback-oriented?
+
+- Which communication paths are critical to the main request flow?
+
+=== Coverage Gaps
+
+Coverage summary: 5/7 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS,Cloud Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
+
+- <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> has no direct inferred runtime/deployment evidence yet.
+
+
+=== Recommended Next Evidence Additions
+
+
+- Add explicit communication metadata (protocol, sync/async/event/callback) to authored mappings where currently implicit.
+
+- Expose service protocol/port metadata in Helm or manifest values to enrich interface-edge inference.
+
+- Capture missing communicating runtime units by adding discoverable workload artifacts under scanned inference roots.
+
+=== Communication Path Graph
+
+What this diagram shows: inferred unit-to-unit request/call flow, including available interface/port labels.
+
+NOTE: This graph is inferred from available deployment/runtime artifacts and may be partial. Missing edges or interface details indicate missing derived communication evidence, not necessarily missing behavior.
+
+[source,mermaid]
+----
+flowchart LR
+  RT_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
+  RT_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  RT_TELEMETRY_RETRY_QUEUE -->|API unknown| RT_FLEET_INGESTION_API
+  RT_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  RT_FLEET_INGESTION_API -->|API unknown| RT_FLEET_OBSERVABILITY_REPORTING
+  RT_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
+  RT_UPDATE_CAMPAIGN_ORCHESTRATION -->|API unknown| RT_FLEET_OBSERVABILITY_REPORTING
+  RT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  RT_OTA_CAMPAIGN_SCHEDULE -->|API unknown| RT_UPDATE_CAMPAIGN_ORCHESTRATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Functional Groups and Units (View Scoped)
+
+
+
+==== Machine Edge (FG-MACHINE-EDGE)
+
+
+
+
+
+
+<<REF_IDX-FG_FG_MACHINE_EDGE,Machine Edge>> sends telemetry upstream, receives OTA commands, and reports apply/rollback status.
+
+
+
+
+
+
+
+
+
+
+
+===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
+
+
+
+
+Sends telemetry over authenticated channels and retries during endpoint outage windows.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-ACTOR_ACT_BARISTA,Barista>> |Daily machine operation produces brew and status telemetry.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Uses machine identity material for authenticated publish.
+|<<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>> |Sends normalized telemetry records to ingestion API.
+|<<REF_IDX-REF_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>> |Publishes telemetry payloads to cloud ingestion.
+|<<REF_IDX-REF_REF_MQTT_DEVICE_SDK,MQTT Device SDK>> |Uses MQTT client for edge publish and command channels.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS,machine_telemetry>>
+
+
+
+
+
+===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
+
+
+
+
+Receives campaign commands and reports update/rollback status back to <<REF_CATALOG_FG_CLOUD_CONTROL,cloud control>>.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+none
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Uses trust anchors for firmware and endpoint authentication.
+|<<REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>> |Downloads signed firmware bundle.
+|<<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>> |Receives OTA rollout commands and policy constraints.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>> | code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+
+
+
+
+
+
+
+
+
+==== Cloud Control (FG-CLOUD-CONTROL)
+
+
+
+
+
+
+<<REF_IDX-FG_FG_CLOUD_CONTROL,Cloud Control>> coordinates telemetry intake, campaign commands, and observability event fanout.
+
+
+
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+
+
+Accepts machine telemetry and forwards normalized records to <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,observability reporting>>.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_MACHINE_TELEMETRY_COLLECTION,Machine Telemetry Collection>> |Sends normalized telemetry records to ingestion API.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-REF_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>> |Uses cloud SDK clients for ingest and routing operations.
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Validates device identity and token claims.
+|<<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>> |Forwards validated telemetry and machine status events.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+
+
+
+
+
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+
+
+Consumes telemetry and OTA outcomes and emits dashboards/alerts/log events.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>> |Forwards validated telemetry and machine status events.
+|<<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>> |Emits OTA rollout and rollback events for fleet visibility.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>> |Persists telemetry, OTA outcomes, and audit records.
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Uses controlled credentials for audit-log writes.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+
+
+
+
+
+===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+
+
+
+
+Sends OTA commands to update agents and ingests status feedback for campaign control.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-ACTOR_ACT_FLEET_OPERATOR,Fleet Operator>> |Defines OTA target cohorts and rollout windows.
+|<<REF_IDX-FU_FU_OTA_UPDATE_AGENT,OTA Update Agent>> |Receives OTA rollout commands and policy constraints.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Uses trusted control-plane credentials.
+|<<REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>> |Verifies firmware artifact signature metadata.
+|<<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>> |Emits OTA rollout and rollback events for fleet visibility.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+
+
+
+
+
+
+
+
+
+
+
+
+
+==== Platform Operations (FG-PLATFORM-OPERATIONS)
+
+
+
+
+
+
+Platform operations coordinates runtime controls and secret distribution contracts with dependent units.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===== Cloud Runtime Operations (FU-CLOUD-RUNTIME-OPERATIONS)
+
+
+
+
+Coordinates deployment/runtime controls that shape fleet service availability.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-ACTOR_ACT_PLATFORM_OPERATOR,Platform Operator>> |Operates deployment and runtime controls.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>> |Emits platform operation and deployment events.
+|<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> |Requires runtime credentials and encrypted config.
+|===
+
+[discrete]
+====== Communication Evidence
+
+code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
+
+
+
+
+
+===== Device Identity and Secrets (FU-DEVICE-IDENTITY-SECRETS)
+
+
+
+
+Provides identity validation and secure config interfaces to edge and cloud units.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS,Cloud Runtime Operations>> |Requires runtime credentials and encrypted config.
+|<<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>> |Validates device identity and token claims.
+|<<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>> |Uses controlled credentials for audit-log writes.
+|<<REF_IDX-FU_FU_MACHINE_TELEMETRY_COLLECTION,Machine Telemetry Collection>> |Uses machine identity material for authenticated publish.
+|<<REF_IDX-FU_FU_OTA_UPDATE_AGENT,OTA Update Agent>> |Uses trust anchors for firmware and endpoint authentication.
+|<<REF_IDX-ACTOR_ACT_SECURITY_ANALYST,Security Analyst>> |Audits identity trust and secret rotation controls.
+|<<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>> |Uses trusted control-plane credentials.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+none
+
+[discrete]
+====== Communication Evidence
+
+code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
+
+
+
+
+
+
+
+<<<
+
+== Deployment View
+
+Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
+
+=== What This View Answers
+
+
+- How does authored intent become deployed runtime?
+
+- What control-plane objects manage deployable units?
+
+- Where are platform ownership boundaries and missing ownership signals?
+
+=== Coverage Gaps
+
+Coverage summary: 5/7 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS,Cloud Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
+
+- <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> has no direct inferred runtime/deployment evidence yet.
+
+
+=== Recommended Next Evidence Additions
+
+
+- Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.
+
+- Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.
+
+- Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.
+
+=== Deployment Artifact Relationship Graph
+
+What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
+
+NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete. Namespace and cluster boundaries are rendered as containers when target/placement relationships are inferred. Node labels include role hints (for example `Source`, `Kustomization`, `Release`, `Workload`, `ns/...`) to distinguish similarly named elements.
+
+[source,mermaid]
+----
+flowchart TB
+  subgraph CONTROL_PLANE["Control Plane"]
+    direction TB
+    DP_MAIN_TF["Release: main.tf"]:::deployment_element
+  end
+  DP_FLEET_EVENT_TOPIC["Workload: fleet_event_topic"]:::runtime_element
+  DP_FLEET_INGESTION_API["Workload: fleet_ingestion_api"]:::runtime_element
+  DP_FLEET_OBSERVABILITY_REPORTING["Workload: fleet_observability_reporting"]:::runtime_element
+  DP_OTA_CAMPAIGN_SCHEDULE["Workload: ota_campaign_schedule"]:::runtime_element
+  DP_OTA_CAMPAIGN_TARGET["Workload: ota_campaign_target"]:::runtime_element
+  DP_TELEMETRY_RETRY_QUEUE["Workload: telemetry_retry_queue"]:::runtime_element
+  DP_UPDATE_CAMPAIGN_ORCHESTRATION["Workload: update_campaign_orchestration"]:::runtime_element
+  DP_MAIN_TF -->|deploys| DP_FLEET_EVENT_TOPIC
+  DP_MAIN_TF -->|deploys| DP_FLEET_INGESTION_API
+  DP_MAIN_TF -->|deploys| DP_FLEET_OBSERVABILITY_REPORTING
+  DP_MAIN_TF -->|deploys| DP_OTA_CAMPAIGN_SCHEDULE
+  DP_MAIN_TF -->|deploys| DP_OTA_CAMPAIGN_TARGET
+  DP_MAIN_TF -->|deploys| DP_TELEMETRY_RETRY_QUEUE
+  DP_MAIN_TF -->|deploys| DP_UPDATE_CAMPAIGN_ORCHESTRATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Platform Operations Graph
+
+What this diagram shows: which platform actors operate which platform units and the control-plane targets they influence.
+
+NOTE: Platform operations links are inferred from authored actor mappings plus discovered deployment control-plane artifacts.
+
+[source,mermaid]
+----
+flowchart LR
+  ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+  PFU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+  TGT_PLATFORM_CONTROL_OPERATIONS["platform control operations"]:::deployment_element
+  ACT_PLATFORM_OPERATOR --> PFU_CLOUD_RUNTIME_OPERATIONS
+  PFU_CLOUD_RUNTIME_OPERATIONS --> TGT_PLATFORM_CONTROL_OPERATIONS
+  ACT_SECURITY_ANALYST(("Security Analyst")):::actor
+  PFU_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::functional_unit
+  ACT_SECURITY_ANALYST --> PFU_DEVICE_IDENTITY_AND_SECRETS
+  PFU_DEVICE_IDENTITY_AND_SECRETS --> TGT_PLATFORM_CONTROL_OPERATIONS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Functional Groups and Units (View Scoped)
+
+
+
+==== Machine Edge (FG-MACHINE-EDGE)
+
+
+
+
+
+
+Machine-edge software artifacts are rolled independently from <<REF_CATALOG_FG_CLOUD_CONTROL,cloud control>> to isolate device risk.
+
+
+
+
+
+
+
+
+
+
+
+===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
+
+
+
+
+====== Machine Telemetry Collection Deployment
+
+Deployed as edge software component with independent release cadence.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>
+|Deployment dependencies |<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-REF_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-REF_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
+|Inferred deployment evidence |runtime: <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS,machine_telemetry>>
+|===
+
+
+
+
+
+===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
+
+
+
+
+====== OTA Update Agent Deployment
+
+Versioned and rolled independently from telemetry pipeline components.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>
+|Deployment dependencies |<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
+|Inferred deployment evidence |runtime: <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>> | code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+|===
+
+
+
+
+
+
+
+
+
+==== Cloud Control (FG-CLOUD-CONTROL)
+
+
+
+
+
+
+Cloud-control units deploy independently to reduce blast radius during campaign logic changes.
+
+
+
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+
+
+====== Fleet Ingestion API Deployment
+
+Deployed as independent cloud ingestion boundary to isolate scaling concerns.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>
+|Deployment dependencies |<<REF_IDX-REF_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+|Inferred deployment evidence |runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+|===
+
+
+
+
+
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+
+
+====== Fleet Observability Reporting Deployment
+
+Deployed as reporting plane with independent scaling and retention controls.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>
+|Deployment dependencies |<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+|===
+
+
+
+
+
+===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+
+
+
+
+====== Update Campaign Orchestration Deployment
+
+Isolated deployment supports safe OTA policy evolution.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>
+|Deployment dependencies |<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+|===
+
+
+
+
+
+
+
+
+
+
+
+
+
+==== Platform Operations (FG-PLATFORM-OPERATIONS)
+
+
+
+
+
+
+Platform operations governs release sequencing, runtime placement, and operational guardrails.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===== Cloud Runtime Operations (FU-CLOUD-RUNTIME-OPERATIONS)
+
+
+
+
+====== Cloud Runtime Operations Deployment
+
+Owns source-to-runtime release controls and rollback guardrails.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_008,REQ-COF-008>>
+|Deployment dependencies |<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
+|===
+
+
+
+
+
+===== Device Identity and Secrets (FU-DEVICE-IDENTITY-SECRETS)
+
+
+
+
+====== Device Identity and Secrets Deployment
+
+Managed as shared control-plane boundary with controlled key rotation.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>
+|Deployment dependencies |none
+|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
+|===
+
+
+
+
+
+
+
+<<<
+
+== Security View
+
+Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence.
+
+=== What This View Answers
+
+
+- What are the main trust boundaries and attack paths?
+
+- Which units are exposed and what security evidence exists?
+
+- Where is the threat model incomplete?
+
+=== Coverage Gaps
+
+Coverage summary: 6/7 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS,Cloud Runtime Operations>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+
+
+=== Recommended Next Evidence Additions
+
+
+- Add explicit authored attack-vector mappings for units currently marked without threat linkage.
+
+- Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.
+
+- Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.
+
+=== Attack Path Diagram
+
+What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
+
+NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
+
+[source,mermaid]
+----
+flowchart LR
+  AV_LOG_TAMPERING(("Log Tampering")):::attack_vector
+  SEC_TGT_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::functional_unit
+  AV_LOG_TAMPERING -->|targets| SEC_TGT_DEVICE_IDENTITY_AND_SECRETS
+  SEC_TGT_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  AV_LOG_TAMPERING -->|targets| SEC_TGT_FLEET_OBSERVABILITY_REPORTING
+  SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+  SEC_TGT_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_CLOUD_LOGGING_SERVICE
+  SEC_DEP_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::referenced_element
+  SEC_TGT_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  AV_MALICIOUS_FIRMWARE_BUNDLE(("Malicious Firmware Bundle")):::attack_vector
+  SEC_TGT_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_OTA_UPDATE_AGENT
+  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_FIRMWARE_BUNDLE_STORE
+  SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::referenced_element
+  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION
+  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION
+  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FIRMWARE_SIGNER_SERVICE
+  SEC_DEP_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::referenced_element
+  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
+  AV_SPOOFED_DEVICE_IDENTITY(("Spoofed Device Identity")):::attack_vector
+  SEC_TGT_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FLEET_INGESTION_API
+  SEC_DEP_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_CLOUD_RUNTIME_SDK
+  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
+  SEC_TGT_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_MACHINE_TELEMETRY_COLLECTION
+  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FLEET_INGESTION_API["Fleet Ingestion API"]:::referenced_element
+  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_FLEET_INGESTION_API
+  SEC_DEP_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_IOT_INGEST_ENDPOINT
+  SEC_DEP_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_MQTT_DEVICE_SDK
+  AV_TELEMETRY_REPLAY_ABUSE(("Telemetry Replay Abuse")):::attack_vector
+  AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FLEET_INGESTION_API
+  AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Functional Groups and Units (View Scoped)
+
+
+
+==== Machine Edge (FG-MACHINE-EDGE)
+
+
+
+
+
+
+<<REF_IDX-FG_FG_MACHINE_EDGE,Machine Edge>> enforces firmware trust and authenticated telemetry at the device boundary.
+
+
+
+
+
+
+
+
+
+
+
+===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
+
+
+
+
+Protects telemetry authenticity and defends against replay abuse patterns.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-REF_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-REF_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS,machine_telemetry>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
+
+
+
+
+Enforces <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,signature valid>>ation and rejects untrusted firmware bundles.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>> | code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+
+
+
+
+==== Cloud Control (FG-CLOUD-CONTROL)
+
+
+
+
+
+
+<<REF_IDX-FG_FG_CLOUD_CONTROL,Cloud Control>> focuses on replay detection, campaign authorization, and audit integrity.
+
+
+
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+
+
+Applies identity checks and replay throttling for ingest requests.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-REF_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>>, <<REF_IDX-ATTACK_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+
+
+Preserves audit integrity and protects sensitive identifiers in persisted records.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_LOG_TAMPERING,Log Tampering>>, <<REF_IDX-ATTACK_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+
+
+
+
+Enforces signed-firmware policy and campaign authorization boundaries.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+
+
+
+
+
+
+
+
+==== Platform Operations (FG-PLATFORM-OPERATIONS)
+
+
+
+
+
+
+Platform operations hardens identity, key rotation, and log integrity boundaries.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===== Cloud Runtime Operations (FU-CLOUD-RUNTIME-OPERATIONS)
+
+
+
+
+Enforces operational hardening and security escalation signaling.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Main Threats
+
+no explicit attack vector targeting this unit
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== Device Identity and Secrets (FU-DEVICE-IDENTITY-SECRETS)
+
+
+
+
+Protects credential lifecycle and enforces least-privilege access patterns.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+none
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_LOG_TAMPERING,Log Tampering>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+
+
+<<<
+
+== Traceability View
+
+Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
+
+=== What This View Answers
+
+
+- Which requirements map to which units?
+
+- Which authored units have runtime/code evidence and which do not?
+
+- Where are confidence or completeness gaps in trace coverage?
+
+=== Coverage Gaps
+
+Coverage summary: 7/7 units have direct evidence coverage in this view.
+
+
+- <<REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS,Cloud Runtime Operations>> has no direct inferred runtime evidence yet.
+
+- <<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>> has no direct inferred runtime evidence yet.
+
+
+=== Recommended Next Evidence Additions
+
+
+- Add explicit requirement-to-owner mappings where requirement scope is currently broad or ambiguous.
+
+- Add ownership annotations for runtime and code artifacts where coverage is still unresolved.
+
+- Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
+
+
+=== Traceability Evidence Graph
+
+What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
+
+NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
+
+
+[source,mermaid]
+----
+flowchart TB
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+=== Requirement-to-Unit Mapping
+
+What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
+
+[source,mermaid]
+----
+flowchart LR
+  REQ_REQ_COF_001["REQ-COF-001"]:::requirement
+  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  REQ_REQ_COF_001 --> UNIT_FU_FLEET_INGESTION_API
+  UNIT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  REQ_REQ_COF_001 --> UNIT_FU_MACHINE_TELEMETRY_COLLECTION
+  REQ_REQ_COF_002["REQ-COF-002"]:::requirement
+  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  REQ_REQ_COF_002 --> UNIT_FU_FLEET_INGESTION_API
+  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  REQ_REQ_COF_002 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
+  REQ_REQ_COF_003["REQ-COF-003"]:::requirement
+  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  REQ_REQ_COF_003 --> UNIT_FU_OTA_UPDATE_AGENT
+  UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  REQ_REQ_COF_003 --> UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  REQ_REQ_COF_004["REQ-COF-004"]:::requirement
+  UNIT_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  REQ_REQ_COF_004 --> UNIT_FU_DEVICE_IDENTITY_SECRETS
+  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  REQ_REQ_COF_004 --> UNIT_FU_OTA_UPDATE_AGENT
+  REQ_REQ_COF_005["REQ-COF-005"]:::requirement
+  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  REQ_REQ_COF_005 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
+  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  REQ_REQ_COF_005 --> UNIT_FU_OTA_UPDATE_AGENT
+  UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  REQ_REQ_COF_005 --> UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  REQ_REQ_COF_006["REQ-COF-006"]:::requirement
+  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  REQ_REQ_COF_006 --> UNIT_FU_FLEET_INGESTION_API
+  UNIT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  REQ_REQ_COF_006 --> UNIT_FU_MACHINE_TELEMETRY_COLLECTION
+  REQ_REQ_COF_007["REQ-COF-007"]:::requirement
+  UNIT_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  REQ_REQ_COF_007 --> UNIT_FU_DEVICE_IDENTITY_SECRETS
+  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  REQ_REQ_COF_007 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
+  REQ_REQ_COF_008["REQ-COF-008"]:::requirement
+  UNIT_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+  REQ_REQ_COF_008 --> UNIT_FU_CLOUD_RUNTIME_OPERATIONS
+  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  REQ_REQ_COF_008 --> UNIT_FU_FLEET_INGESTION_API
+  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  REQ_REQ_COF_008 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+=== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_COF_001["REQ-COF-001"]:::requirement
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  REQC_REQ_COF_001 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  REQC_REQ_COF_001 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  REQC_REQ_COF_001 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE
+  CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY["machine_telemetry"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE -->|implemented_by| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  REQC_REQ_COF_001 -->|code trace| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  REQC_REQ_COF_002["REQ-COF-002"]:::requirement
+  REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  REQC_REQ_COF_002 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_002 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_003["REQ-COF-003"]:::requirement
+  FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  REQC_REQ_COF_003 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET["ota_campaign_target"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET
+  CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT["ota_update_agent"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE -->|implemented_by| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  REQC_REQ_COF_003 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  REQC_REQ_COF_003 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
+  CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  REQC_REQ_COF_003 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  REQC_REQ_COF_004["REQ-COF-004"]:::requirement
+  FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  REQC_REQ_COF_004 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
+  FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
+  CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS["device_identity_secrets"]:::code_element
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  REQC_REQ_COF_004 -->|code trace| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  REQC_REQ_COF_004 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  REQC_REQ_COF_004 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  REQC_REQ_COF_005["REQ-COF-005"]:::requirement
+  REQC_REQ_COF_005 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_005 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_005 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  REQC_REQ_COF_005 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  REQC_REQ_COF_005 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  REQC_REQ_COF_005 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  REQC_REQ_COF_006["REQ-COF-006"]:::requirement
+  REQC_REQ_COF_006 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  REQC_REQ_COF_006 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  REQC_REQ_COF_006 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  REQC_REQ_COF_006 -->|code trace| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  REQC_REQ_COF_007["REQ-COF-007"]:::requirement
+  REQC_REQ_COF_007 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
+  REQC_REQ_COF_007 -->|code trace| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  REQC_REQ_COF_007 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_007 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_008["REQ-COF-008"]:::requirement
+  FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+  REQC_REQ_COF_008 -->|applies_to| FU_FU_CLOUD_RUNTIME_OPERATIONS
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME["Cloud Runtime Operations runtime (inferred)"]:::runtime_element
+  FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME
+  CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS["cloud_runtime_ops"]:::code_element
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
+  REQC_REQ_COF_008 -->|code trace| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
+  REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  REQC_REQ_COF_008 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  REQC_REQ_COF_008 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.
+
+<<<
+== Traceability Appendix
+
+=== Requirement Details
+[[REF_REQ_REQ_COF_001]]
+==== REQ-COF-001
+
+While <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_CATALOG_EVT_BREW_CYCLE_COMPLETED,brew cycle completed event is received>>, the coffee fleet system shall publish <<REF_CATALOG_DATA_BREW_TELEMETRY,brew telemetry>> to <<REF_CATALOG_FU_FLEET_INGESTION_API,fleet ingestion api>>.
+Notes: Primary machine-to-cloud telemetry contract.
+[[REF_REQ_REQ_COF_002]]
+==== REQ-COF-002
+
+While <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, the coffee fleet system shall persist fleet telemetry metrics and logging records for <<REF_CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
+Notes: Operational observability requirement.
+[[REF_REQ_REQ_COF_003]]
+==== REQ-COF-003
+
+Where <<REF_CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort.
+Notes: OTA rollout behavior from central <<REF_CATALOG_FG_CLOUD_CONTROL,cloud control>>.
+[[REF_REQ_REQ_COF_004]]
+==== REQ-COF-004
+
+Where <<REF_CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, the coffee fleet system shall gate firmware apply on <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,firmware signature is valid>>.
+Notes: Firmware integrity and trust boundary control.
+[[REF_REQ_REQ_COF_005]]
+==== REQ-COF-005
+
+If <<REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then the coffee fleet system shall rollback firmware apply and report <<REF_CATALOG_DATA_OTA_STATUS,ota status>> to <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,update campaign orchestration>>.
+Notes: Rollback and failure signaling path.
+[[REF_REQ_REQ_COF_006]]
+==== REQ-COF-006
+
+If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry and flush when <<REF_CATALOG_MODE_NORMAL,normal mode is active>>.
+Notes: Resilience for temporary cloud outage.
+[[REF_REQ_REQ_COF_007]]
+==== REQ-COF-007
+
+Where <<REF_CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_CATALOG_EVT_OTA_STATUS_REPORTED,ota status reported event is received>>, the coffee fleet system shall persist redacted <<REF_CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> including machine identity and campaign id.
+Notes: Audit/compliance logging requirement.
+[[REF_REQ_REQ_COF_008]]
+==== REQ-COF-008
+
+If <<REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE,telemetry replay abuse>> is detected, then the coffee fleet system shall throttle duplicate telemetry and notify <<REF_CATALOG_ACT_SECURITY_ANALYST,security analyst>>.
+Notes: Abuse control and security response requirement.
+
+=== Verification Inventory
+
+What this section shows: verification checks inferred from test artifacts, linked to test code elements and mapped to verified requirements.
+
+
+[[REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC]]
+==== Ota Rollout Flow
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
+|Kind |e2e
+|Status |partial
+|Verifies Requirements |<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>
+|Test Code Elements |tests/e2e/ota_rollout_flow.yaml
+|Derived Functional Owners |<<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,FU-FLEET-OBSERVABILITY-REPORTING>>, <<REF_IDX-FU_FU_OTA_UPDATE_AGENT,FU-OTA-UPDATE-AGENT>>, <<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,FU-UPDATE-CAMPAIGN-ORCHESTRATION>>
+|Result Summary |not-run:1, partial:1
+|Evidence |test-results/ota-rollback-report.md, tests/e2e/ota_rollout_flow.yaml
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]
+==== Logging Pipeline Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
+|Kind |integration
+|Status |not-run
+|Verifies Requirements |<<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>
+|Test Code Elements |tests/integration/logging_pipeline_test.ts
+|Derived Functional Owners |<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,FU-DEVICE-IDENTITY-SECRETS>>, <<REF_IDX-FU_FU_FLEET_INGESTION_API,FU-FLEET-INGESTION-API>>, <<REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING,FU-FLEET-OBSERVABILITY-REPORTING>>
+|Result Summary |not-run:1, pass:1
+|Evidence |test-results/integration-logging.json, tests/integration/logging_pipeline_test.ts
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794]]
+==== Telemetry Ingest Contract Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794>>
+|Kind |test
+|Status |pass
+|Verifies Requirements |<<REF_REQ_REQ_COF_001,REQ-COF-001>>
+|Test Code Elements |tests/contract/telemetry_ingest_contract_test.go
+|Derived Functional Owners |<<REF_IDX-FU_FU_FLEET_INGESTION_API,FU-FLEET-INGESTION-API>>, <<REF_IDX-FU_FU_MACHINE_TELEMETRY_COLLECTION,FU-MACHINE-TELEMETRY-COLLECTION>>
+|Result Summary |pass:1
+|Evidence |test-results/contract-telemetry.json, tests/contract/telemetry_ingest_contract_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8]]
+==== Ota Campaign Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
+|Kind |unit
+|Status |pass
+|Verifies Requirements |<<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>
+|Test Code Elements |tests/unit/ota_campaign_test.go
+|Derived Functional Owners |<<REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS,FU-DEVICE-IDENTITY-SECRETS>>, <<REF_IDX-FU_FU_OTA_UPDATE_AGENT,FU-OTA-UPDATE-AGENT>>, <<REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION,FU-UPDATE-CAMPAIGN-ORCHESTRATION>>
+|Result Summary |pass:2
+|Evidence |test-results/unit-ota.xml, tests/unit/ota_campaign_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+|<<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794>>
+|<<REF_REQ_REQ_COF_001,REQ-COF-001>>
+|pass
+|test-results/contract-telemetry.json + 
+ingest payload accepted with machine identity and telemetry fields
+|<<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
+|<<REF_REQ_REQ_COF_002,REQ-COF-002>>
+|not-run
+|none + 
+No parsed test-result artifact for this requirement yet.
+|<<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
+|<<REF_REQ_REQ_COF_003,REQ-COF-003>>
+|not-run
+|none + 
+No parsed test-result artifact for this requirement yet.
+|<<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
+|<<REF_REQ_REQ_COF_003,REQ-COF-003>>
+|pass
+|test-results/unit-ota.xml
+|<<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
+|<<REF_REQ_REQ_COF_004,REQ-COF-004>>
+|pass
+|test-results/unit-ota.xml
+|<<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
+|<<REF_REQ_REQ_COF_005,REQ-COF-005>>
+|partial
+|test-results/ota-rollback-report.md
+|<<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
+|<<REF_REQ_REQ_COF_007,REQ-COF-007>>
+|pass
+|test-results/integration-logging.json + 
+<<REF_CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> persisted with redacted machine identity
+|===
+
+<<<
+== Reference Index
+
+=== Authored References
+[[REF_IDX-ACTOR_ACT_BARISTA]]
+[discrete]
+==== ACT-BARISTA
+Kind: Actor
+Name: Barista
+
+Operates coffee machines and observes local device status.
+[[REF_IDX-ACTOR_ACT_FLEET_OPERATOR]]
+[discrete]
+==== ACT-FLEET-OPERATOR
+Kind: Actor
+Name: Fleet Operator
+
+Manages OTA campaigns and fleet-wide operational decisions.
+[[REF_IDX-ACTOR_ACT_PLATFORM_OPERATOR]]
+[discrete]
+==== ACT-PLATFORM-OPERATOR
+Kind: Actor
+Name: Platform Operator
+
+Operates cloud runtime, deployment, and reliability controls.
+[[REF_IDX-ACTOR_ACT_SECURITY_ANALYST]]
+[discrete]
+==== ACT-SECURITY-ANALYST
+Kind: Actor
+Name: Security Analyst
+
+Reviews firmware integrity, identity controls, and audit logging.
+[[REF_IDX-ATTACK_AV_LOG_TAMPERING]]
+[discrete]
+==== AV-LOG-TAMPERING
+Kind: Attack Vector
+Name: Log Tampering
+
+Attempts to suppress or alter audit/operational logs.
+[[REF_IDX-ATTACK_AV_MALICIOUS_FIRMWARE_BUNDLE]]
+[discrete]
+==== AV-MALICIOUS-FIRMWARE-BUNDLE
+Kind: Attack Vector
+Name: Malicious Firmware Bundle
+
+Tampered OTA payload targeting update agent execution.
+[[REF_IDX-ATTACK_AV_SPOOFED_DEVICE_IDENTITY]]
+[discrete]
+==== AV-SPOOFED-DEVICE-IDENTITY
+Kind: Attack Vector
+Name: Spoofed Device Identity
+
+Unauthorized identity attempting telemetry/command access.
+[[REF_IDX-ATTACK_AV_TELEMETRY_REPLAY_ABUSE]]
+[discrete]
+==== AV-TELEMETRY-REPLAY-ABUSE
+Kind: Attack Vector
+Name: Telemetry Replay Abuse
+
+Replayed telemetry intended to overload ingestion and corrupt insights.
+[[REF_IDX-FG_FG_CLOUD_CONTROL]]
+[discrete]
+==== FG-CLOUD-CONTROL
+Kind: Functional Group
+Name: Cloud Control
+
+Central cloud ingestion, campaign control, and fleet reporting.
+[[REF_IDX-FG_FG_MACHINE_EDGE]]
+[discrete]
+==== FG-MACHINE-EDGE
+Kind: Functional Group
+Name: Machine Edge
+
+Device-local telemetry and OTA execution responsibilities.
+[[REF_IDX-FG_FG_PLATFORM_OPERATIONS]]
+[discrete]
+==== FG-PLATFORM-OPERATIONS
+Kind: Functional Group
+Name: Platform Operations
+
+Cloud runtime operations plus identity and secret-management controls.
+[[REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS]]
+[discrete]
+==== FU-CLOUD-RUNTIME-OPERATIONS
+Kind: Functional Unit
+Name: Cloud Runtime Operations
+
+Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+[[REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS]]
+[discrete]
+==== FU-DEVICE-IDENTITY-SECRETS
+Kind: Functional Unit
+Name: Device Identity and Secrets
+
+Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+[[REF_IDX-FU_FU_FLEET_INGESTION_API]]
+[discrete]
+==== FU-FLEET-INGESTION-API
+Kind: Functional Unit
+Name: Fleet Ingestion API
+
+Receives telemetry and machine status, applies validation, and emits ingestion events.
+[[REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING]]
+[discrete]
+==== FU-FLEET-OBSERVABILITY-REPORTING
+Kind: Functional Unit
+Name: Fleet Observability Reporting
+
+Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+[[REF_IDX-FU_FU_MACHINE_TELEMETRY_COLLECTION]]
+[discrete]
+==== FU-MACHINE-TELEMETRY-COLLECTION
+Kind: Functional Unit
+Name: Machine Telemetry Collection
+
+Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+[[REF_IDX-FU_FU_OTA_UPDATE_AGENT]]
+[discrete]
+==== FU-OTA-UPDATE-AGENT
+Kind: Functional Unit
+Name: OTA Update Agent
+
+Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+[[REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
+[discrete]
+==== FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Kind: Functional Unit
+Name: Update Campaign Orchestration
+
+Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+[[REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE]]
+[discrete]
+==== REF-CLOUD-LOGGING-SERVICE
+Kind: Referenced Element
+Name: Cloud Logging Service
+
+platform_service / runtime
+[[REF_IDX-REF_REF_CLOUD_RUNTIME_SDK]]
+[discrete]
+==== REF-CLOUD-RUNTIME-SDK
+Kind: Referenced Element
+Name: Cloud Runtime SDK
+
+third_party_library / code
+[[REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE]]
+[discrete]
+==== REF-FIRMWARE-BUNDLE-STORE
+Kind: Referenced Element
+Name: Firmware Bundle Store
+
+object_store / runtime
+[[REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE]]
+[discrete]
+==== REF-FIRMWARE-SIGNER-SERVICE
+Kind: Referenced Element
+Name: Firmware Signer Service
+
+signing_service / runtime
+[[REF_IDX-REF_REF_IOT_INGEST_ENDPOINT]]
+[discrete]
+==== REF-IOT-INGEST-ENDPOINT
+Kind: Referenced Element
+Name: IoT Ingest Endpoint
+
+external_service_endpoint / runtime
+[[REF_IDX-REF_REF_MQTT_DEVICE_SDK]]
+[discrete]
+==== REF-MQTT-DEVICE-SDK
+Kind: Referenced Element
+Name: MQTT Device SDK
+
+third_party_library / code
+[[REF_IDX-REQ_REQ_COF_001]]
+[discrete]
+==== REQ-COF-001
+Kind: Requirement
+Name: REQ-COF-001
+Resolves to: <<REF_REQ_REQ_COF_001,canonical>>
+While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api.
+[[REF_IDX-REQ_REQ_COF_002]]
+[discrete]
+==== REQ-COF-002
+Kind: Requirement
+Name: REQ-COF-002
+Resolves to: <<REF_REQ_REQ_COF_002,canonical>>
+While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics and logging records for fleet operator.
+[[REF_IDX-REQ_REQ_COF_003]]
+[discrete]
+==== REQ-COF-003
+Kind: Requirement
+Name: REQ-COF-003
+Resolves to: <<REF_REQ_REQ_COF_003,canonical>>
+Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort.
+[[REF_IDX-REQ_REQ_COF_004]]
+[discrete]
+==== REQ-COF-004
+Kind: Requirement
+Name: REQ-COF-004
+Resolves to: <<REF_REQ_REQ_COF_004,canonical>>
+Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid.
+[[REF_IDX-REQ_REQ_COF_005]]
+[discrete]
+==== REQ-COF-005
+Kind: Requirement
+Name: REQ-COF-005
+Resolves to: <<REF_REQ_REQ_COF_005,canonical>>
+If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply and report ota status to update campaign orchestration.
+[[REF_IDX-REQ_REQ_COF_006]]
+[discrete]
+==== REQ-COF-006
+Kind: Requirement
+Name: REQ-COF-006
+Resolves to: <<REF_REQ_REQ_COF_006,canonical>>
+If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry and flush when normal mode is active.
+[[REF_IDX-REQ_REQ_COF_007]]
+[discrete]
+==== REQ-COF-007
+Kind: Requirement
+Name: REQ-COF-007
+Resolves to: <<REF_REQ_REQ_COF_007,canonical>>
+Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record including machine identity and campaign id.
+[[REF_IDX-REQ_REQ_COF_008]]
+[discrete]
+==== REQ-COF-008
+Kind: Requirement
+Name: REQ-COF-008
+Resolves to: <<REF_REQ_REQ_COF_008,canonical>>
+If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry and notify security analyst.
+
+=== Catalog References
+[[REF_IDX-CATALOG_ACT_BARISTA]]
+[discrete]
+==== ACT-BARISTA
+Kind: Catalog Actor
+Name: barista
+Resolves to: <<REF_CATALOG_ACT_BARISTA,canonical>>
+Operates coffee machines and observes local machine health.
+[[REF_IDX-CATALOG_ACT_FLEET_OPERATOR]]
+[discrete]
+==== ACT-FLEET-OPERATOR
+Kind: Catalog Actor
+Name: fleet operator
+Resolves to: <<REF_CATALOG_ACT_FLEET_OPERATOR,canonical>>
+Owns OTA rollout campaigns and fleet-level reliability.
+[[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
+[discrete]
+==== ACT-PLATFORM-OPERATOR
+Kind: Catalog Actor
+Name: platform operator
+Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
+Owns runtime deployment and operational controls.
+[[REF_IDX-CATALOG_ACT_SECURITY_ANALYST]]
+[discrete]
+==== ACT-SECURITY-ANALYST
+Kind: Catalog Actor
+Name: security analyst
+Resolves to: <<REF_CATALOG_ACT_SECURITY_ANALYST,canonical>>
+Reviews identity, firmware integrity, and logging controls.
+[[REF_CATALOG-ALIAS_FEAT_AUDIT_LOGGING_AUDIT_ENABLED]]
+[discrete]
+==== audit enabled
+Kind: Catalog Alias
+Name: audit logging is enabled
+Resolves to: <<REF_CATALOG_FEAT_AUDIT_LOGGING,canonical>>
+Alias of FEAT-AUDIT-LOGGING
+[[REF_CATALOG-ALIAS_AV_LOG_TAMPERING_AUDIT_TAMPERING]]
+[discrete]
+==== audit tampering
+Kind: Catalog Alias
+Name: log tampering
+Resolves to: <<REF_CATALOG_AV_LOG_TAMPERING,canonical>>
+Alias of AV-LOG-TAMPERING
+[[REF_CATALOG-ALIAS_EVT_BREW_CYCLE_COMPLETED_BREW_COMPLETED]]
+[discrete]
+==== brew completed
+Kind: Catalog Alias
+Name: brew cycle completed event is received
+Resolves to: <<REF_CATALOG_EVT_BREW_CYCLE_COMPLETED,canonical>>
+Alias of EVT-BREW-CYCLE-COMPLETED
+[[REF_CATALOG-ALIAS_FU_UPDATE_CAMPAIGN_ORCHESTRATION_CAMPAIGN_ORCHESTRATION]]
+[discrete]
+==== campaign orchestration
+Kind: Catalog Alias
+Name: update campaign orchestration
+Resolves to: <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,canonical>>
+Alias of FU-UPDATE-CAMPAIGN-ORCHESTRATION
+[[REF_CATALOG-ALIAS_EVT_OTA_CAMPAIGN_SCHEDULED_CAMPAIGN_SCHEDULED]]
+[discrete]
+==== campaign scheduled
+Kind: Catalog Alias
+Name: ota campaign scheduled event is received
+Resolves to: <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,canonical>>
+Alias of EVT-OTA-CAMPAIGN-SCHEDULED
+[[REF_CATALOG-ALIAS_FG_CLOUD_CONTROL_CENTRAL_CLOUD_SITE]]
+[discrete]
+==== central cloud site
+Kind: Catalog Alias
+Name: cloud control
+Resolves to: <<REF_CATALOG_FG_CLOUD_CONTROL,canonical>>
+Alias of FG-CLOUD-CONTROL
+[[REF_CATALOG-ALIAS_REF_CLOUD_RUNTIME_SDK_CLOUD_SDK]]
+[discrete]
+==== cloud sdk
+Kind: Catalog Alias
+Name: cloud runtime sdk
+Resolves to: <<REF_CATALOG_REF_CLOUD_RUNTIME_SDK,canonical>>
+Alias of REF-CLOUD-RUNTIME-SDK
+[[REF_CATALOG-ALIAS_FG_MACHINE_EDGE_COFFEE_MACHINE_EDGE]]
+[discrete]
+==== coffee machine edge
+Kind: Catalog Alias
+Name: machine edge
+Resolves to: <<REF_CATALOG_FG_MACHINE_EDGE,canonical>>
+Alias of FG-MACHINE-EDGE
+[[REF_CATALOG-ALIAS_FU_DEVICE_IDENTITY_SECRETS_DEVICE_SECRETS]]
+[discrete]
+==== device secrets
+Kind: Catalog Alias
+Name: device identity and secrets
+Resolves to: <<REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS,canonical>>
+Alias of FU-DEVICE-IDENTITY-SECRETS
+[[REF_CATALOG-ALIAS_AV_SPOOFED_DEVICE_IDENTITY_DEVICE_SPOOFING]]
+[discrete]
+==== device spoofing
+Kind: Catalog Alias
+Name: spoofed device identity
+Resolves to: <<REF_CATALOG_AV_SPOOFED_DEVICE_IDENTITY,canonical>>
+Alias of AV-SPOOFED-DEVICE-IDENTITY
+[[REF_CATALOG-ALIAS_FU_OTA_UPDATE_AGENT_DEVICE_UPDATE_AGENT]]
+[discrete]
+==== device update agent
+Kind: Catalog Alias
+Name: ota update agent
+Resolves to: <<REF_CATALOG_FU_OTA_UPDATE_AGENT,canonical>>
+Alias of FU-OTA-UPDATE-AGENT
+[[REF_CATALOG-ALIAS_REF_FIRMWARE_BUNDLE_STORE_FIRMWARE_STORE]]
+[discrete]
+==== firmware store
+Kind: Catalog Alias
+Name: firmware bundle store
+Resolves to: <<REF_CATALOG_REF_FIRMWARE_BUNDLE_STORE,canonical>>
+Alias of REF-FIRMWARE-BUNDLE-STORE
+[[REF_CATALOG-ALIAS_AV_MALICIOUS_FIRMWARE_BUNDLE_FIRMWARE_TAMPERING]]
+[discrete]
+==== firmware tampering
+Kind: Catalog Alias
+Name: malicious firmware bundle
+Resolves to: <<REF_CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,canonical>>
+Alias of AV-MALICIOUS-FIRMWARE-BUNDLE
+[[REF_CATALOG-ALIAS_ACT_FLEET_OPERATOR_FLEET_ADMIN]]
+[discrete]
+==== fleet admin
+Kind: Catalog Alias
+Name: fleet operator
+Resolves to: <<REF_CATALOG_ACT_FLEET_OPERATOR,canonical>>
+Alias of ACT-FLEET-OPERATOR
+[[REF_CATALOG-ALIAS_STATE_FLEET_OPERATION_ACTIVE_FLEET_OPERATION_ACTIVE]]
+[discrete]
+==== fleet operation active
+Kind: Catalog Alias
+Name: coffee machine fleet operation is active
+Resolves to: <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,canonical>>
+Alias of STATE-FLEET-OPERATION-ACTIVE
+[[REF_CATALOG-ALIAS_FG_PLATFORM_OPERATIONS_FLEET_PLATFORM_OPERATIONS]]
+[discrete]
+==== fleet platform operations
+Kind: Catalog Alias
+Name: platform operations
+Resolves to: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,canonical>>
+Alias of FG-PLATFORM-OPERATIONS
+[[REF_CATALOG-ALIAS_FU_FLEET_INGESTION_API_INGESTION_API]]
+[discrete]
+==== ingestion api
+Kind: Catalog Alias
+Name: fleet ingestion api
+Resolves to: <<REF_CATALOG_FU_FLEET_INGESTION_API,canonical>>
+Alias of FU-FLEET-INGESTION-API
+[[REF_CATALOG-ALIAS_REF_IOT_INGEST_ENDPOINT_IOT_ENDPOINT]]
+[discrete]
+==== iot endpoint
+Kind: Catalog Alias
+Name: iot ingest endpoint
+Resolves to: <<REF_CATALOG_REF_IOT_INGEST_ENDPOINT,canonical>>
+Alias of REF-IOT-INGEST-ENDPOINT
+[[REF_CATALOG-ALIAS_REF_CLOUD_LOGGING_SERVICE_LOGGING_SERVICE]]
+[discrete]
+==== logging service
+Kind: Catalog Alias
+Name: cloud logging service
+Resolves to: <<REF_CATALOG_REF_CLOUD_LOGGING_SERVICE,canonical>>
+Alias of REF-CLOUD-LOGGING-SERVICE
+[[REF_CATALOG-ALIAS_REF_MQTT_DEVICE_SDK_MQTT_SDK]]
+[discrete]
+==== mqtt sdk
+Kind: Catalog Alias
+Name: mqtt device sdk
+Resolves to: <<REF_CATALOG_REF_MQTT_DEVICE_SDK,canonical>>
+Alias of REF-MQTT-DEVICE-SDK
+[[REF_CATALOG-ALIAS_MODE_NORMAL_NORMAL_MODE]]
+[discrete]
+==== normal mode
+Kind: Catalog Alias
+Name: normal mode is active
+Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
+Alias of MODE-NORMAL
+[[REF_CATALOG-ALIAS_FU_FLEET_OBSERVABILITY_REPORTING_OBSERVABILITY_REPORTING]]
+[discrete]
+==== observability reporting
+Kind: Catalog Alias
+Name: fleet observability reporting
+Resolves to: <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,canonical>>
+Alias of FU-FLEET-OBSERVABILITY-REPORTING
+[[REF_CATALOG-ALIAS_FEAT_OTA_CAMPAIGN_OTA_ENABLED]]
+[discrete]
+==== ota enabled
+Kind: Catalog Alias
+Name: ota campaign is enabled
+Resolves to: <<REF_CATALOG_FEAT_OTA_CAMPAIGN,canonical>>
+Alias of FEAT-OTA-CAMPAIGN
+[[REF_CATALOG-ALIAS_EVT_OTA_STATUS_REPORTED_OTA_STATUS_REPORTED]]
+[discrete]
+==== ota status reported
+Kind: Catalog Alias
+Name: ota status reported event is received
+Resolves to: <<REF_CATALOG_EVT_OTA_STATUS_REPORTED,canonical>>
+Alias of EVT-OTA-STATUS-REPORTED
+[[REF_CATALOG-ALIAS_ACT_PLATFORM_OPERATOR_PLATFORM_OPS]]
+[discrete]
+==== platform ops
+Kind: Catalog Alias
+Name: platform operator
+Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
+Alias of ACT-PLATFORM-OPERATOR
+[[REF_CATALOG-ALIAS_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME_OPERATIONS]]
+[discrete]
+==== runtime operations
+Kind: Catalog Alias
+Name: cloud runtime operations
+Resolves to: <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,canonical>>
+Alias of FU-CLOUD-RUNTIME-OPERATIONS
+[[REF_CATALOG-ALIAS_ACT_SECURITY_ANALYST_SECURITY_REVIEWER]]
+[discrete]
+==== security reviewer
+Kind: Catalog Alias
+Name: security analyst
+Resolves to: <<REF_CATALOG_ACT_SECURITY_ANALYST,canonical>>
+Alias of ACT-SECURITY-ANALYST
+[[REF_CATALOG-ALIAS_COND_FIRMWARE_SIGNATURE_VALID_SIGNATURE_VALID]]
+[discrete]
+==== signature valid
+Kind: Catalog Alias
+Name: firmware signature is valid
+Resolves to: <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,canonical>>
+Alias of COND-FIRMWARE-SIGNATURE-VALID
+[[REF_CATALOG-ALIAS_REF_FIRMWARE_SIGNER_SERVICE_SIGNER_SERVICE]]
+[discrete]
+==== signer service
+Kind: Catalog Alias
+Name: firmware signer service
+Resolves to: <<REF_CATALOG_REF_FIRMWARE_SIGNER_SERVICE,canonical>>
+Alias of REF-FIRMWARE-SIGNER-SERVICE
+[[REF_CATALOG-ALIAS_ACT_BARISTA_STORE_OPERATOR]]
+[discrete]
+==== store operator
+Kind: Catalog Alias
+Name: barista
+Resolves to: <<REF_CATALOG_ACT_BARISTA,canonical>>
+Alias of ACT-BARISTA
+[[REF_CATALOG-ALIAS_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_COLLECTION]]
+[discrete]
+==== telemetry collection
+Kind: Catalog Alias
+Name: machine telemetry collection
+Resolves to: <<REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,canonical>>
+Alias of FU-MACHINE-TELEMETRY-COLLECTION
+[[REF_CATALOG-ALIAS_EVT_TELEMETRY_INGESTED_TELEMETRY_INGESTED]]
+[discrete]
+==== telemetry ingested
+Kind: Catalog Alias
+Name: telemetry ingested event is received
+Resolves to: <<REF_CATALOG_EVT_TELEMETRY_INGESTED,canonical>>
+Alias of EVT-TELEMETRY-INGESTED
+[[REF_CATALOG-ALIAS_AV_TELEMETRY_REPLAY_ABUSE_TELEMETRY_REPLAY]]
+[discrete]
+==== telemetry replay
+Kind: Catalog Alias
+Name: telemetry replay abuse
+Resolves to: <<REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE,canonical>>
+Alias of AV-TELEMETRY-REPLAY-ABUSE
+[[REF_CATALOG-ALIAS_EVT_FIRMWARE_VALIDATION_FAILED_VALIDATION_FAILED]]
+[discrete]
+==== validation failed
+Kind: Catalog Alias
+Name: firmware validation failed event is received
+Resolves to: <<REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,canonical>>
+Alias of EVT-FIRMWARE-VALIDATION-FAILED
+[[REF_IDX-CATALOG_AV_LOG_TAMPERING]]
+[discrete]
+==== AV-LOG-TAMPERING
+Kind: Catalog Attack Vector
+Name: log tampering
+Resolves to: <<REF_CATALOG_AV_LOG_TAMPERING,canonical>>
+Attempts to suppress or alter security/operational log records.
+[[REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE]]
+[discrete]
+==== AV-MALICIOUS-FIRMWARE-BUNDLE
+Kind: Catalog Attack Vector
+Name: malicious firmware bundle
+Resolves to: <<REF_CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,canonical>>
+Tampered firmware payload attempts to execute on devices.
+[[REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY]]
+[discrete]
+==== AV-SPOOFED-DEVICE-IDENTITY
+Kind: Catalog Attack Vector
+Name: spoofed device identity
+Resolves to: <<REF_CATALOG_AV_SPOOFED_DEVICE_IDENTITY,canonical>>
+Unauthorized actor impersonates a machine identity.
+[[REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE]]
+[discrete]
+==== AV-TELEMETRY-REPLAY-ABUSE
+Kind: Catalog Attack Vector
+Name: telemetry replay abuse
+Resolves to: <<REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE,canonical>>
+Replayed telemetry floods ingestion and distorts reporting.
+[[REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID]]
+[discrete]
+==== COND-FIRMWARE-SIGNATURE-VALID
+Kind: Catalog Condition
+Name: firmware signature is valid
+Resolves to: <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,canonical>>
+Condition indicating firmware signature verification succeeded.
+[[REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD]]
+[discrete]
+==== DATA-AUDIT-LOG-RECORD
+Kind: Catalog Data Term
+Name: audit log record
+Resolves to: <<REF_CATALOG_DATA_AUDIT_LOG_RECORD,canonical>>
+Immutable log record for security and compliance analysis.
+[[REF_IDX-CATALOG_DATA_BREW_TELEMETRY]]
+[discrete]
+==== DATA-BREW-TELEMETRY
+Kind: Catalog Data Term
+Name: brew telemetry
+Resolves to: <<REF_CATALOG_DATA_BREW_TELEMETRY,canonical>>
+Machine telemetry including brew duration, temperature, and status metadata.
+[[REF_IDX-CATALOG_DATA_OTA_CAMPAIGN_POLICY]]
+[discrete]
+==== DATA-OTA-CAMPAIGN-POLICY
+Kind: Catalog Data Term
+Name: ota campaign policy
+Resolves to: <<REF_CATALOG_DATA_OTA_CAMPAIGN_POLICY,canonical>>
+Policy describing rollout cohorts, windows, and rollback criteria.
+[[REF_IDX-CATALOG_DATA_OTA_STATUS]]
+[discrete]
+==== DATA-OTA-STATUS
+Kind: Catalog Data Term
+Name: ota status
+Resolves to: <<REF_CATALOG_DATA_OTA_STATUS,canonical>>
+Device-level status for firmware download, apply, and rollback outcomes.
+[[REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED]]
+[discrete]
+==== EVT-BREW-CYCLE-COMPLETED
+Kind: Catalog Event
+Name: brew cycle completed event is received
+Resolves to: <<REF_CATALOG_EVT_BREW_CYCLE_COMPLETED,canonical>>
+Event raised when a coffee machine completes a brew cycle.
+[[REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED]]
+[discrete]
+==== EVT-FIRMWARE-VALIDATION-FAILED
+Kind: Catalog Event
+Name: firmware validation failed event is received
+Resolves to: <<REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,canonical>>
+Event raised when signature/hash validation fails on firmware.
+[[REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED]]
+[discrete]
+==== EVT-OTA-CAMPAIGN-SCHEDULED
+Kind: Catalog Event
+Name: ota campaign scheduled event is received
+Resolves to: <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,canonical>>
+Event raised when a fleet OTA campaign is scheduled.
+[[REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED]]
+[discrete]
+==== EVT-OTA-STATUS-REPORTED
+Kind: Catalog Event
+Name: ota status reported event is received
+Resolves to: <<REF_CATALOG_EVT_OTA_STATUS_REPORTED,canonical>>
+Event raised when device reports OTA apply status.
+[[REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED]]
+[discrete]
+==== EVT-TELEMETRY-INGESTED
+Kind: Catalog Event
+Name: telemetry ingested event is received
+Resolves to: <<REF_CATALOG_EVT_TELEMETRY_INGESTED,canonical>>
+Event raised when cloud ingestion accepts telemetry.
+[[REF_IDX-CATALOG_FEAT_AUDIT_LOGGING]]
+[discrete]
+==== FEAT-AUDIT-LOGGING
+Kind: Catalog Feature
+Name: audit logging is enabled
+Resolves to: <<REF_CATALOG_FEAT_AUDIT_LOGGING,canonical>>
+Feature flag enabling audit-grade log persistence.
+[[REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN]]
+[discrete]
+==== FEAT-OTA-CAMPAIGN
+Kind: Catalog Feature
+Name: ota campaign is enabled
+Resolves to: <<REF_CATALOG_FEAT_OTA_CAMPAIGN,canonical>>
+Feature flag enabling centralized OTA rollout behavior.
+[[REF_IDX-CATALOG_FG_CLOUD_CONTROL]]
+[discrete]
+==== FG-CLOUD-CONTROL
+Kind: Catalog Functional Group
+Name: cloud control
+Resolves to: <<REF_CATALOG_FG_CLOUD_CONTROL,canonical>>
+Capability area for fleet ingestion, campaign orchestration, and cloud reporting.
+[[REF_IDX-CATALOG_FG_MACHINE_EDGE]]
+[discrete]
+==== FG-MACHINE-EDGE
+Kind: Catalog Functional Group
+Name: machine edge
+Resolves to: <<REF_CATALOG_FG_MACHINE_EDGE,canonical>>
+Capability area for device-local telemetry and OTA execution behavior.
+[[REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS]]
+[discrete]
+==== FG-PLATFORM-OPERATIONS
+Kind: Catalog Functional Group
+Name: platform operations
+Resolves to: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,canonical>>
+Capability area for runtime operations and device identity/secrets lifecycle.
+[[REF_IDX-CATALOG_FU_CLOUD_RUNTIME_OPERATIONS]]
+[discrete]
+==== FU-CLOUD-RUNTIME-OPERATIONS
+Kind: Catalog Functional Unit
+Name: cloud runtime operations
+Resolves to: <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,canonical>>
+Operates cloud runtime deployment and scaling controls.
+[[REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS]]
+[discrete]
+==== FU-DEVICE-IDENTITY-SECRETS
+Kind: Catalog Functional Unit
+Name: device identity and secrets
+Resolves to: <<REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS,canonical>>
+Manages device identity material and secure configuration.
+[[REF_IDX-CATALOG_FU_FLEET_INGESTION_API]]
+[discrete]
+==== FU-FLEET-INGESTION-API
+Kind: Catalog Functional Unit
+Name: fleet ingestion api
+Resolves to: <<REF_CATALOG_FU_FLEET_INGESTION_API,canonical>>
+Ingests telemetry and machine status from edge devices.
+[[REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING]]
+[discrete]
+==== FU-FLEET-OBSERVABILITY-REPORTING
+Kind: Catalog Functional Unit
+Name: fleet observability reporting
+Resolves to: <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,canonical>>
+Aggregates telemetry and update outcomes into operational and audit signals.
+[[REF_IDX-CATALOG_FU_MACHINE_TELEMETRY_COLLECTION]]
+[discrete]
+==== FU-MACHINE-TELEMETRY-COLLECTION
+Kind: Catalog Functional Unit
+Name: machine telemetry collection
+Resolves to: <<REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,canonical>>
+Collects brew/device telemetry and publishes cloud-bound payloads.
+[[REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT]]
+[discrete]
+==== FU-OTA-UPDATE-AGENT
+Kind: Catalog Functional Unit
+Name: ota update agent
+Resolves to: <<REF_CATALOG_FU_OTA_UPDATE_AGENT,canonical>>
+Downloads, validates, and applies signed firmware updates on machines.
+[[REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
+[discrete]
+==== FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Kind: Catalog Functional Unit
+Name: update campaign orchestration
+Resolves to: <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,canonical>>
+Selects target machine groups and coordinates OTA rollout phases.
+[[REF_IDX-CATALOG_MODE_NORMAL]]
+[discrete]
+==== MODE-NORMAL
+Kind: Catalog Mode
+Name: normal mode is active
+Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
+Default operation mode for telemetry and OTA behavior.
+[[REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE]]
+[discrete]
+==== REF-CLOUD-LOGGING-SERVICE
+Kind: Catalog Referenced Element
+Name: cloud logging service
+Resolves to: <<REF_CATALOG_REF_CLOUD_LOGGING_SERVICE,canonical>>
+Managed log and metrics service used for fleet observability.
+[[REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK]]
+[discrete]
+==== REF-CLOUD-RUNTIME-SDK
+Kind: Catalog Referenced Element
+Name: cloud runtime sdk
+Resolves to: <<REF_CATALOG_REF_CLOUD_RUNTIME_SDK,canonical>>
+SDK used by cloud units for runtime integrations.
+[[REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE]]
+[discrete]
+==== REF-FIRMWARE-BUNDLE-STORE
+Kind: Catalog Referenced Element
+Name: firmware bundle store
+Resolves to: <<REF_CATALOG_REF_FIRMWARE_BUNDLE_STORE,canonical>>
+Object store containing signed OTA firmware bundles.
+[[REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE]]
+[discrete]
+==== REF-FIRMWARE-SIGNER-SERVICE
+Kind: Catalog Referenced Element
+Name: firmware signer service
+Resolves to: <<REF_CATALOG_REF_FIRMWARE_SIGNER_SERVICE,canonical>>
+Service that signs firmware artifacts before OTA rollout.
+[[REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT]]
+[discrete]
+==== REF-IOT-INGEST-ENDPOINT
+Kind: Catalog Referenced Element
+Name: iot ingest endpoint
+Resolves to: <<REF_CATALOG_REF_IOT_INGEST_ENDPOINT,canonical>>
+Cloud endpoint for receiving telemetry and status from devices.
+[[REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK]]
+[discrete]
+==== REF-MQTT-DEVICE-SDK
+Kind: Catalog Referenced Element
+Name: mqtt device sdk
+Resolves to: <<REF_CATALOG_REF_MQTT_DEVICE_SDK,canonical>>
+SDK used by edge components for telemetry and command transport.
+[[REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE]]
+[discrete]
+==== STATE-FLEET-OPERATION-ACTIVE
+Kind: Catalog State
+Name: coffee machine fleet operation is active
+Resolves to: <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,canonical>>
+State where machines and central cloud are actively serving operations.
+
+=== Inferred Runtime References
+[[REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE]]
+[discrete]
+==== ota_campaign_schedule
+Kind: Runtime eventbridge_rule
+Owner: FU-OTA-UPDATE-AGENT
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET]]
+[discrete]
+==== ota_campaign_target
+Kind: Runtime eventbridge_target
+Owner: FU-OTA-UPDATE-AGENT
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API]]
+[discrete]
+==== fleet_ingestion_api
+Kind: Runtime lambda_function
+Owner: FU-FLEET-INGESTION-API
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING]]
+[discrete]
+==== fleet_observability_reporting
+Kind: Runtime lambda_function
+Owner: FU-FLEET-OBSERVABILITY-REPORTING
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION]]
+[discrete]
+==== update_campaign_orchestration
+Kind: Runtime lambda_function
+Owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE]]
+[discrete]
+==== telemetry_retry_queue
+Kind: Runtime queue
+Owner: FU-MACHINE-TELEMETRY-COLLECTION
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+[[REF_RT_TOPIC_FLEET_EVENT_TOPIC]]
+[discrete]
+==== fleet_event_topic
+Kind: Runtime topic
+Owner: FU-FLEET-INGESTION-API
+Source: examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+
+=== Inferred Code References
+[[REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO]]
+[discrete]
+==== cloud_runtime_ops.go
+Kind: Code source_file
+Owner: FU-CLOUD-RUNTIME-OPERATIONS
+Source: cloud_runtime_ops.go
+[[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS]]
+[discrete]
+==== device_identity_secrets.ts
+Kind: Code source_file
+Owner: FU-DEVICE-IDENTITY-SECRETS
+Source: device_identity_secrets.ts
+[[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO]]
+[discrete]
+==== fleet_ingestion_api.go
+Kind: Code source_file
+Owner: FU-FLEET-INGESTION-API
+Source: fleet_ingestion_api.go
+[[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS]]
+[discrete]
+==== fleet_observability_reporting.ts
+Kind: Code source_file
+Owner: FU-FLEET-OBSERVABILITY-REPORTING
+Source: fleet_observability_reporting.ts
+[[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS]]
+[discrete]
+==== machine_telemetry.rs
+Kind: Code source_file
+Owner: FU-MACHINE-TELEMETRY-COLLECTION
+Source: machine_telemetry.rs
+[[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS]]
+[discrete]
+==== ota_update_agent.rs
+Kind: Code source_file
+Owner: FU-OTA-UPDATE-AGENT
+Source: ota_update_agent.rs
+[[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]
+[discrete]
+==== update_campaign_orchestrator.ts
+Kind: Code source_file
+Owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Source: update_campaign_orchestrator.ts
+[[REF_CODE_SYMBOL_CODE_HANDLEROLLBACK]]
+[discrete]
+==== CODE-HANDLEROLLBACK
+Kind: Code symbol
+Owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Source: update_campaign_orchestrator.ts:9
+[[REF_CODE_SYMBOL_CODE_INGESTTELEMETRY]]
+[discrete]
+==== CODE-INGESTTELEMETRY
+Kind: Code symbol
+Owner: FU-FLEET-INGESTION-API
+Source: fleet_ingestion_api.go:10
+[[REF_CODE_SYMBOL_CODE_NOTIFYREPLAYABUSE]]
+[discrete]
+==== CODE-NOTIFYREPLAYABUSE
+Kind: Code symbol
+Owner: FU-FLEET-OBSERVABILITY-REPORTING
+Source: fleet_observability_reporting.ts:14
+[[REF_CODE_SYMBOL_CODE_PERSISTAUDITLOG]]
+[discrete]
+==== CODE-PERSISTAUDITLOG
+Kind: Code symbol
+Owner: FU-FLEET-OBSERVABILITY-REPORTING
+Source: fleet_observability_reporting.ts:9
+[[REF_CODE_SYMBOL_CODE_PERSISTTELEMETRYMETRIC]]
+[discrete]
+==== CODE-PERSISTTELEMETRYMETRIC
+Kind: Code symbol
+Owner: FU-FLEET-OBSERVABILITY-REPORTING
+Source: fleet_observability_reporting.ts:4
+[[REF_CODE_SYMBOL_CODE_PLANCAMPAIGN]]
+[discrete]
+==== CODE-PLANCAMPAIGN
+Kind: Code symbol
+Owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+Source: update_campaign_orchestrator.ts:4
+[[REF_CODE_SYMBOL_CODE_PUBLISHBREWTELEMETRY]]
+[discrete]
+==== CODE-PUBLISHBREWTELEMETRY
+Kind: Code symbol
+Owner: FU-MACHINE-TELEMETRY-COLLECTION
+Source: machine_telemetry.rs:9
+[[REF_CODE_SYMBOL_CODE_QUEUEFORRETRY]]
+[discrete]
+==== CODE-QUEUEFORRETRY
+Kind: Code symbol
+Owner: FU-MACHINE-TELEMETRY-COLLECTION
+Source: machine_telemetry.rs:14
+[[REF_CODE_SYMBOL_CODE_RAISESECURITYNOTIFICATION]]
+[discrete]
+==== CODE-RAISESECURITYNOTIFICATION
+Kind: Code symbol
+Owner: FU-CLOUD-RUNTIME-OPERATIONS
+Source: cloud_runtime_ops.go:5
+[[REF_CODE_SYMBOL_CODE_REDACTIDENTITYFORAUDIT]]
+[discrete]
+==== CODE-REDACTIDENTITYFORAUDIT
+Kind: Code symbol
+Owner: FU-DEVICE-IDENTITY-SECRETS
+Source: device_identity_secrets.ts:9
+[[REF_CODE_SYMBOL_CODE_REJECTREPLAY]]
+[discrete]
+==== CODE-REJECTREPLAY
+Kind: Code symbol
+Owner: FU-FLEET-INGESTION-API
+Source: fleet_ingestion_api.go:15
+[[REF_CODE_SYMBOL_CODE_ROLLBACKANDREPORT]]
+[discrete]
+==== CODE-ROLLBACKANDREPORT
+Kind: Code symbol
+Owner: FU-OTA-UPDATE-AGENT
+Source: ota_update_agent.rs:13
+[[REF_CODE_SYMBOL_CODE_VALIDATEANDAPPLY]]
+[discrete]
+==== CODE-VALIDATEANDAPPLY
+Kind: Code symbol
+Owner: FU-OTA-UPDATE-AGENT
+Source: ota_update_agent.rs:4
+[[REF_CODE_SYMBOL_CODE_VERIFYFIRMWARESIGNATURE]]
+[discrete]
+==== CODE-VERIFYFIRMWARESIGNATURE
+Kind: Code symbol
+Owner: FU-DEVICE-IDENTITY-SECRETS
+Source: device_identity_secrets.ts:4
+
+=== Verification References
+[[REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC]]
+[discrete]
+==== VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC
+Kind: Verification Check
+Name: Ota Rollout Flow
+Resolves to: <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,canonical>>
+Kind: e2e; Status: partial; Evidence: test-results/ota-rollback-report.md, tests/e2e/ota_rollout_flow.yaml
+[[REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]
+[discrete]
+==== VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF
+Kind: Verification Check
+Name: Logging Pipeline Test
+Resolves to: <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,canonical>>
+Kind: integration; Status: not-run; Evidence: test-results/integration-logging.json, tests/integration/logging_pipeline_test.ts
+[[REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794]]
+[discrete]
+==== VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794
+Kind: Verification Check
+Name: Telemetry Ingest Contract Test
+Resolves to: <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,canonical>>
+Kind: test; Status: pass; Evidence: test-results/contract-telemetry.json, tests/contract/telemetry_ingest_contract_test.go
+[[REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8]]
+[discrete]
+==== VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8
+Kind: Verification Check
+Name: Ota Campaign Test
+Resolves to: <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,canonical>>
+Kind: unit; Status: pass; Evidence: test-results/unit-ota.xml, tests/unit/ota_campaign_test.go

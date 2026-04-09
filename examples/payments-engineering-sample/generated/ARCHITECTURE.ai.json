@@ -1,0 +1,3096 @@
+{
+  "schema_version": "ai-view/v1",
+  "model": {
+    "id": "sample-payments-layered-model",
+    "title": "Sample Payments Layered Architecture",
+    "counts": {
+      "fg": 3,
+      "fu": 6,
+      "req": 6,
+      "rt": 9,
+      "code": 30,
+      "verification": 4,
+      "views": 5
+    },
+    "entry_point_ids": [
+      "EP-FU-EVIDENCE",
+      "EP-LOW-CONFIDENCE-INFERRED",
+      "EP-REQ-COVERAGE",
+      "EP-REQ-GAPS",
+      "EP-VERIFICATION-FAILURES"
+    ]
+  },
+  "entry_points": [
+    {
+      "id": "EP-FU-EVIDENCE",
+      "kind": "functional_units",
+      "title": "Functional units with runtime/code/verification evidence",
+      "entity_ids": [
+        "FU-CHECKOUT",
+        "FU-CLUSTER-PROVISIONING",
+        "FU-GITOPS-OPERATIONS",
+        "FU-PAYMENT-AUTHORIZATION",
+        "FU-RISK-SCORING",
+        "FU-SUPPORT-REVIEW"
+      ]
+    },
+    {
+      "id": "EP-LOW-CONFIDENCE-INFERRED",
+      "kind": "inferred",
+      "title": "Low-confidence inferred entities",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-REQ-COVERAGE",
+      "kind": "requirements",
+      "title": "Requirements with direct support paths",
+      "entity_ids": [
+        "REQ-PAY-001",
+        "REQ-PAY-002",
+        "REQ-PAY-003",
+        "REQ-PAY-004",
+        "REQ-PAY-005",
+        "REQ-PAY-006"
+      ]
+    },
+    {
+      "id": "EP-REQ-GAPS",
+      "kind": "requirements",
+      "title": "Requirements with low-confidence support",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-VERIFICATION-FAILURES",
+      "kind": "verification",
+      "title": "Verification checks with failing/partial status",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ]
+    }
+  ],
+  "entity_index": {
+    "fg_ids": [
+      "FG-FRAUD",
+      "FG-PAYMENTS",
+      "FG-PLATFORM"
+    ],
+    "fu_ids": [
+      "FU-CHECKOUT",
+      "FU-CLUSTER-PROVISIONING",
+      "FU-GITOPS-OPERATIONS",
+      "FU-PAYMENT-AUTHORIZATION",
+      "FU-RISK-SCORING",
+      "FU-SUPPORT-REVIEW"
+    ],
+    "req_ids": [
+      "REQ-PAY-001",
+      "REQ-PAY-002",
+      "REQ-PAY-003",
+      "REQ-PAY-004",
+      "REQ-PAY-005",
+      "REQ-PAY-006"
+    ],
+    "rt_ids": [
+      "RT-CLUSTER_PAYMENTS_407A87",
+      "RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F",
+      "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+      "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944",
+      "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+      "RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E",
+      "RT-NAMESPACE_FLUX_SYSTEM_407A87",
+      "RT-NAMESPACE_PAYMENTS_407A87",
+      "RT-NAMESPACE_RISK_407A87"
+    ],
+    "code_ids": [
+      "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+      "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD",
+      "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+      "CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD",
+      "CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C",
+      "CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604",
+      "CODE-LIBRARY_STDLIB_FMT_A9639C",
+      "CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C",
+      "CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04",
+      "CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD",
+      "CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604",
+      "CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4",
+      "CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8",
+      "CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57",
+      "CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6",
+      "CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73",
+      "CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8",
+      "CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68",
+      "CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50",
+      "CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F",
+      "CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66",
+      "CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4",
+      "CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7",
+      "CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625",
+      "CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F",
+      "CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D",
+      "CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9",
+      "CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1",
+      "CODE-SYMBOL_CODE_STARTSESSION_7EF4AB",
+      "CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB"
+    ],
+    "verification_ids": [
+      "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+      "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2",
+      "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD",
+      "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+    ],
+    "lookup": [
+      {
+        "id": "FG-FRAUD",
+        "kind": "functional_group",
+        "title": "Fraud Evaluation"
+      },
+      {
+        "id": "FG-PAYMENTS",
+        "kind": "functional_group",
+        "title": "Payments"
+      },
+      {
+        "id": "FG-PLATFORM",
+        "kind": "functional_group",
+        "title": "Platform"
+      },
+      {
+        "id": "FU-CHECKOUT",
+        "kind": "functional_unit",
+        "title": "Checkout Handling"
+      },
+      {
+        "id": "FU-CLUSTER-PROVISIONING",
+        "kind": "functional_unit",
+        "title": "Cluster Provisioning"
+      },
+      {
+        "id": "FU-GITOPS-OPERATIONS",
+        "kind": "functional_unit",
+        "title": "GitOps Operations"
+      },
+      {
+        "id": "FU-PAYMENT-AUTHORIZATION",
+        "kind": "functional_unit",
+        "title": "Payment Authorization"
+      },
+      {
+        "id": "FU-RISK-SCORING",
+        "kind": "functional_unit",
+        "title": "Risk Scoring"
+      },
+      {
+        "id": "FU-SUPPORT-REVIEW",
+        "kind": "functional_unit",
+        "title": "Support Review"
+      },
+      {
+        "id": "REQ-PAY-001",
+        "kind": "requirement",
+        "title": "REQ-PAY-001"
+      },
+      {
+        "id": "REQ-PAY-002",
+        "kind": "requirement",
+        "title": "REQ-PAY-002"
+      },
+      {
+        "id": "REQ-PAY-003",
+        "kind": "requirement",
+        "title": "REQ-PAY-003"
+      },
+      {
+        "id": "REQ-PAY-004",
+        "kind": "requirement",
+        "title": "REQ-PAY-004"
+      },
+      {
+        "id": "REQ-PAY-005",
+        "kind": "requirement",
+        "title": "REQ-PAY-005"
+      },
+      {
+        "id": "REQ-PAY-006",
+        "kind": "requirement",
+        "title": "REQ-PAY-006"
+      },
+      {
+        "id": "RT-CLUSTER_PAYMENTS_407A87",
+        "kind": "runtime_element",
+        "title": "payments"
+      },
+      {
+        "id": "RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F",
+        "kind": "runtime_element",
+        "title": "flux-system/payments-sample-source"
+      },
+      {
+        "id": "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+        "kind": "runtime_element",
+        "title": "payments/checkout-api"
+      },
+      {
+        "id": "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944",
+        "kind": "runtime_element",
+        "title": "payments/payment-engine"
+      },
+      {
+        "id": "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+        "kind": "runtime_element",
+        "title": "risk/risk-scorer"
+      },
+      {
+        "id": "RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E",
+        "kind": "runtime_element",
+        "title": "flux-system/payments-apps"
+      },
+      {
+        "id": "RT-NAMESPACE_FLUX_SYSTEM_407A87",
+        "kind": "runtime_element",
+        "title": "flux_system"
+      },
+      {
+        "id": "RT-NAMESPACE_PAYMENTS_407A87",
+        "kind": "runtime_element",
+        "title": "payments"
+      },
+      {
+        "id": "RT-NAMESPACE_RISK_407A87",
+        "kind": "runtime_element",
+        "title": "risk"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+        "kind": "code_element",
+        "title": "gopkg.in/yaml.v3"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD",
+        "kind": "code_element",
+        "title": "serde_json::json"
+      },
+      {
+        "id": "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+        "kind": "code_element",
+        "title": "zod"
+      },
+      {
+        "id": "CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD",
+        "kind": "code_element",
+        "title": "crate::domain::events::PaymentEvent"
+      },
+      {
+        "id": "CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C",
+        "kind": "code_element",
+        "title": "github.com/labeth/engineering-model-go/validate"
+      },
+      {
+        "id": "CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604",
+        "kind": "code_element",
+        "title": "./support/audit_envelope"
+      },
+      {
+        "id": "CODE-LIBRARY_STDLIB_FMT_A9639C",
+        "kind": "code_element",
+        "title": "fmt"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C",
+        "kind": "code_element",
+        "title": "checkout_api.go"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04",
+        "kind": "code_element",
+        "title": "domain/events.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD",
+        "kind": "code_element",
+        "title": "payment_engine.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604",
+        "kind": "code_element",
+        "title": "risk_scorer.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4",
+        "kind": "code_element",
+        "title": "support/audit_envelope.ts"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8",
+        "kind": "code_element",
+        "title": "CODE-AUTHORIZEPAYMENT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57",
+        "kind": "code_element",
+        "title": "CODE-BUILDREVIEWREASON"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6",
+        "kind": "code_element",
+        "title": "CODE-CALCULATERISKSCORE"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73",
+        "kind": "code_element",
+        "title": "CODE-CLASSIFYRISK"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8",
+        "kind": "code_element",
+        "title": "CODE-CREATEAUDITRECORD"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68",
+        "kind": "code_element",
+        "title": "CODE-ENRICHAUDITMETADATA"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50",
+        "kind": "code_element",
+        "title": "CODE-HANDLEBANKLINKUNAVAILABLE"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F",
+        "kind": "code_element",
+        "title": "CODE-HANDLEBANKUNAVAILABLE"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66",
+        "kind": "code_element",
+        "title": "CODE-ISHIGHRISK"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4",
+        "kind": "code_element",
+        "title": "CODE-NOTIFYSUPPORT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7",
+        "kind": "code_element",
+        "title": "CODE-PERSISTAUDITRECORD"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625",
+        "kind": "code_element",
+        "title": "CODE-PLACEINREVIEW"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F",
+        "kind": "code_element",
+        "title": "CODE-REQUESTBANKAUTHORIZATION"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D",
+        "kind": "code_element",
+        "title": "CODE-SHOWDECLINEREASON"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9",
+        "kind": "code_element",
+        "title": "CODE-SHOWRETRYOPTION"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1",
+        "kind": "code_element",
+        "title": "CODE-SHOWTEMPORARYUNAVAILABLE"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_STARTSESSION_7EF4AB",
+        "kind": "code_element",
+        "title": "CODE-STARTSESSION"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB",
+        "kind": "code_element",
+        "title": "CODE-SUBMITAUTHORIZATIONREQUEST"
+      },
+      {
+        "id": "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+        "kind": "verification",
+        "title": "Authorized Checkout Flow"
+      },
+      {
+        "id": "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2",
+        "kind": "verification",
+        "title": "Audit Record Persistence Test"
+      },
+      {
+        "id": "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD",
+        "kind": "verification",
+        "title": "Fraud Gate Test"
+      },
+      {
+        "id": "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26",
+        "kind": "verification",
+        "title": "Contract Checkout Decline"
+      }
+    ]
+  },
+  "support_paths": [
+    {
+      "id": "PATH-REQ_PAY_001",
+      "from_id": "REQ-PAY-001",
+      "to_verification_ids": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+      ],
+      "path": [
+        "REQ-PAY-001",
+        "FU-CHECKOUT",
+        "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+        "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+      ],
+      "summary": "Support path for REQ-PAY-001 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_8_A95B03",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PAY_002",
+      "from_id": "REQ-PAY-002",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "path": [
+        "REQ-PAY-002",
+        "FU-RISK-SCORING",
+        "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+        "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "summary": "Support path for REQ-PAY-002 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_15_3D42D6",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PAY_003",
+      "from_id": "REQ-PAY-003",
+      "to_verification_ids": [
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "path": [
+        "REQ-PAY-003",
+        "FU-CHECKOUT",
+        "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+        "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "summary": "Support path for REQ-PAY-003 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_21_9A34C1",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PAY_004",
+      "from_id": "REQ-PAY-004",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "path": [
+        "REQ-PAY-004",
+        "FU-PAYMENT-AUTHORIZATION",
+        "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944",
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD",
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "summary": "Support path for REQ-PAY-004 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_43_F0410C",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_27_6F0F82",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PAY_005",
+      "from_id": "REQ-PAY-005",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "path": [
+        "REQ-PAY-005",
+        "FU-RISK-SCORING",
+        "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+        "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "summary": "Support path for REQ-PAY-005 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_34_AD3304",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762"
+      ]
+    },
+    {
+      "id": "PATH-REQ_PAY_006",
+      "from_id": "REQ-PAY-006",
+      "to_verification_ids": [
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "path": [
+        "REQ-PAY-006",
+        "FU-CHECKOUT",
+        "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+        "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "summary": "Support path for REQ-PAY-006 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6",
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_40_610935",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "FG-FRAUD",
+      "kind": "functional_group",
+      "title": "Fraud Evaluation",
+      "summary": "Risk scoring and fraud audit domain.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-RISK-SCORING",
+        "FU-SUPPORT-REVIEW"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_20_A2BB9C"
+      ]
+    },
+    {
+      "id": "FG-PAYMENTS",
+      "kind": "functional_group",
+      "title": "Payments",
+      "summary": "Core payment checkout and authorization domain.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_12_6F3D73"
+      ]
+    },
+    {
+      "id": "FG-PLATFORM",
+      "kind": "functional_group",
+      "title": "Platform",
+      "summary": "Cluster provisioning and GitOps operations domain.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-CLUSTER-PROVISIONING",
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_27_81E020"
+      ]
+    },
+    {
+      "id": "FU-CHECKOUT",
+      "kind": "functional_unit",
+      "title": "Checkout Handling",
+      "summary": "Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.\nIt validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.\nIt delegates decision logic to payment authorization while protecting the user experience boundary.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PAYMENTS",
+      "requirement_ids": [
+        "REQ-PAY-001",
+        "REQ-PAY-003",
+        "REQ-PAY-006"
+      ],
+      "runtime_ids": [
+        "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+        "RT-NAMESPACE_PAYMENTS_407A87"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+        "CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C",
+        "CODE-LIBRARY_STDLIB_FMT_A9639C",
+        "CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C",
+        "CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F",
+        "CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D",
+        "CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9",
+        "CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1",
+        "CODE-SYMBOL_CODE_STARTSESSION_7EF4AB",
+        "CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "related_ids": [
+        "FG-PAYMENTS",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PAY-001",
+          "REQ-PAY-003",
+          "REQ-PAY-006"
+        ],
+        "consumes": [
+          "FU-PAYMENT-AUTHORIZATION"
+        ],
+        "produces": [
+          "depends_on:FU-PAYMENT-AUTHORIZATION"
+        ],
+        "threats": [
+          "Malicious API Request"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6"
+      ]
+    },
+    {
+      "id": "FU-CLUSTER-PROVISIONING",
+      "kind": "functional_unit",
+      "title": "Cluster Provisioning",
+      "summary": "Cluster provisioning creates the runtime substrate used by all application workloads.\nIt establishes cluster and namespace structure, baseline controls, and environment-level readiness.\nThis unit is responsible for predictable, repeatable infrastructure foundations.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM",
+      "runtime_ids": [
+        "RT-CLUSTER_PAYMENTS_407A87"
+      ],
+      "related_ids": [
+        "FG-PLATFORM"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_64_1902C9",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834"
+      ]
+    },
+    {
+      "id": "FU-GITOPS-OPERATIONS",
+      "kind": "functional_unit",
+      "title": "GitOps Operations",
+      "summary": "GitOps operations continuously reconciles intended release state with actual runtime state.\nIt governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.\nThe unit provides safe and observable release behavior as an ongoing operational capability.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM",
+      "runtime_ids": [
+        "RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F",
+        "RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E",
+        "RT-NAMESPACE_FLUX_SYSTEM_407A87"
+      ],
+      "related_ids": [
+        "FG-PLATFORM",
+        "FU-CLUSTER-PROVISIONING",
+        "REF-HELM-PLATFORM"
+      ],
+      "fields": {
+        "consumes": [
+          "FU-CLUSTER-PROVISIONING",
+          "REF-HELM-PLATFORM"
+        ],
+        "produces": [
+          "depends_on:FU-CLUSTER-PROVISIONING",
+          "depends_on:REF-HELM-PLATFORM"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_72_F94CDD",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548"
+      ]
+    },
+    {
+      "id": "FU-PAYMENT-AUTHORIZATION",
+      "kind": "functional_unit",
+      "title": "Payment Authorization",
+      "summary": "Payment authorization orchestrates the final transaction decision path.\nIt coordinates fraud scoring, external bank interactions, and escalation to support review when needed.\nThe unit returns deterministic outcomes so downstream behavior remains consistent and testable.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PAYMENTS",
+      "requirement_ids": [
+        "REQ-PAY-001",
+        "REQ-PAY-004",
+        "REQ-PAY-006"
+      ],
+      "runtime_ids": [
+        "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD",
+        "CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD",
+        "CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04",
+        "CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD",
+        "CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8",
+        "CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50",
+        "CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4",
+        "CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7",
+        "CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625",
+        "CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD",
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "related_ids": [
+        "FG-PAYMENTS",
+        "FU-RISK-SCORING",
+        "FU-SUPPORT-REVIEW",
+        "REF-BANK-GATEWAY-ENDPOINT"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PAY-001",
+          "REQ-PAY-004",
+          "REQ-PAY-006"
+        ],
+        "consumes": [
+          "FU-RISK-SCORING",
+          "FU-SUPPORT-REVIEW",
+          "REF-BANK-GATEWAY-ENDPOINT"
+        ],
+        "produces": [
+          "depends_on:FU-RISK-SCORING",
+          "depends_on:FU-SUPPORT-REVIEW",
+          "depends_on:REF-BANK-GATEWAY-ENDPOINT"
+        ],
+        "threats": [
+          "Fraudulent Transaction Pattern",
+          "Replayed Authorization Callback"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_43_F0410C",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319"
+      ]
+    },
+    {
+      "id": "FU-RISK-SCORING",
+      "kind": "functional_unit",
+      "title": "Risk Scoring",
+      "summary": "Risk scoring computes and classifies transaction risk before approval decisions are finalized.\nIt provides a stable scoring contract to authorization and supports audit context for later analysis.\nThe unit is focused on decision quality, consistency, and policy-driven classification behavior.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-FRAUD",
+      "requirement_ids": [
+        "REQ-PAY-002",
+        "REQ-PAY-005"
+      ],
+      "runtime_ids": [
+        "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+        "RT-NAMESPACE_RISK_407A87"
+      ],
+      "code_ids": [
+        "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+        "CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604",
+        "CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604",
+        "CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4",
+        "CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57",
+        "CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6",
+        "CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73",
+        "CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8",
+        "CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68",
+        "CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2",
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "related_ids": [
+        "FG-FRAUD",
+        "REF-POSTGRES-DRIVER"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PAY-002",
+          "REQ-PAY-005"
+        ],
+        "consumes": [
+          "REF-POSTGRES-DRIVER"
+        ],
+        "produces": [
+          "depends_on:REF-POSTGRES-DRIVER"
+        ],
+        "threats": [
+          "Fraudulent Transaction Pattern"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09",
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09",
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534"
+      ]
+    },
+    {
+      "id": "FU-SUPPORT-REVIEW",
+      "kind": "functional_unit",
+      "title": "Support Review",
+      "summary": "Support review handles manual decisions for escalated or ambiguous payment cases.\nIt gives support operators context to approve, reject, or request additional verification in a controlled flow.\nThe unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-FRAUD",
+      "requirement_ids": [
+        "REQ-PAY-004"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "related_ids": [
+        "FG-FRAUD"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-PAY-004"
+        ],
+        "threats": [
+          "Fraudulent Transaction Pattern"
+        ]
+      },
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_57_FC1077"
+      ]
+    },
+    {
+      "id": "REQ-PAY-001",
+      "kind": "requirement",
+      "title": "REQ-PAY-001",
+      "summary": "While checkout is active, when payment authorization is requested, the payments system shall create a payment session and request authorization from bank gateway.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+      ],
+      "related_ids": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_8_A95B03",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5"
+      ]
+    },
+    {
+      "id": "REQ-PAY-002",
+      "kind": "requirement",
+      "title": "REQ-PAY-002",
+      "summary": "Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_15_3D42D6",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+      ]
+    },
+    {
+      "id": "REQ-PAY-003",
+      "kind": "requirement",
+      "title": "REQ-PAY-003",
+      "summary": "If payment is declined, then the payments system shall present a decline reason and a retry option to customer.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_21_9A34C1",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+      ]
+    },
+    {
+      "id": "REQ-PAY-004",
+      "kind": "requirement",
+      "title": "REQ-PAY-004",
+      "summary": "While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in review pending state and notify support agent.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION",
+        "FU-SUPPORT-REVIEW"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_27_6F0F82",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+      ]
+    },
+    {
+      "id": "REQ-PAY-005",
+      "kind": "requirement",
+      "title": "REQ-PAY-005",
+      "summary": "Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id and risk score.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_34_AD3304",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762"
+      ]
+    },
+    {
+      "id": "REQ-PAY-006",
+      "kind": "requirement",
+      "title": "REQ-PAY-006",
+      "summary": "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "related_ids": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_40_610935",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+      ]
+    },
+    {
+      "id": "RT-CLUSTER_PAYMENTS_407A87",
+      "kind": "runtime_element",
+      "title": "payments",
+      "summary": "Inferred runtime cluster owned by FU-CLUSTER-PROVISIONING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CLUSTER-PROVISIONING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834"
+      ]
+    },
+    {
+      "id": "RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F",
+      "kind": "runtime_element",
+      "title": "flux-system/payments-sample-source",
+      "summary": "Inferred runtime gitrepository owned by FU-GITOPS-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961"
+      ]
+    },
+    {
+      "id": "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858",
+      "kind": "runtime_element",
+      "title": "payments/checkout-api",
+      "summary": "Inferred runtime helmrelease owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE"
+      ]
+    },
+    {
+      "id": "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944",
+      "kind": "runtime_element",
+      "title": "payments/payment-engine",
+      "summary": "Inferred runtime helmrelease owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319"
+      ]
+    },
+    {
+      "id": "RT-HELMRELEASE_RISK_RISK_SCORER_A06799",
+      "kind": "runtime_element",
+      "title": "risk/risk-scorer",
+      "summary": "Inferred runtime helmrelease owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3"
+      ]
+    },
+    {
+      "id": "RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E",
+      "kind": "runtime_element",
+      "title": "flux-system/payments-apps",
+      "summary": "Inferred runtime kustomization owned by FU-GITOPS-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01"
+      ]
+    },
+    {
+      "id": "RT-NAMESPACE_FLUX_SYSTEM_407A87",
+      "kind": "runtime_element",
+      "title": "flux_system",
+      "summary": "Inferred runtime namespace owned by FU-GITOPS-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548"
+      ]
+    },
+    {
+      "id": "RT-NAMESPACE_PAYMENTS_407A87",
+      "kind": "runtime_element",
+      "title": "payments",
+      "summary": "Inferred runtime namespace owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6"
+      ]
+    },
+    {
+      "id": "RT-NAMESPACE_RISK_407A87",
+      "kind": "runtime_element",
+      "title": "risk",
+      "summary": "Inferred runtime namespace owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C",
+      "kind": "code_element",
+      "title": "gopkg.in/yaml.v3",
+      "summary": "Inferred code library_external owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD",
+      "kind": "code_element",
+      "title": "serde_json::json",
+      "summary": "Inferred code library_external owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_EXTERNAL_ZOD_B6E604",
+      "kind": "code_element",
+      "title": "zod",
+      "summary": "Inferred code library_external owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD",
+      "kind": "code_element",
+      "title": "crate::domain::events::PaymentEvent",
+      "summary": "Inferred code library_first_party owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C",
+      "kind": "code_element",
+      "title": "github.com/labeth/engineering-model-go/validate",
+      "summary": "Inferred code library_first_party owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604",
+      "kind": "code_element",
+      "title": "./support/audit_envelope",
+      "summary": "Inferred code library_first_party owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C"
+      ]
+    },
+    {
+      "id": "CODE-LIBRARY_STDLIB_FMT_A9639C",
+      "kind": "code_element",
+      "title": "fmt",
+      "summary": "Inferred code library_stdlib owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C",
+      "kind": "code_element",
+      "title": "checkout_api.go",
+      "summary": "Inferred code source_file owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04",
+      "kind": "code_element",
+      "title": "domain/events.rs",
+      "summary": "Inferred code source_file owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD",
+      "kind": "code_element",
+      "title": "payment_engine.rs",
+      "summary": "Inferred code source_file owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604",
+      "kind": "code_element",
+      "title": "risk_scorer.ts",
+      "summary": "Inferred code source_file owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4",
+      "kind": "code_element",
+      "title": "support/audit_envelope.ts",
+      "summary": "Inferred code source_file owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8",
+      "kind": "code_element",
+      "title": "CODE-AUTHORIZEPAYMENT",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57",
+      "kind": "code_element",
+      "title": "CODE-BUILDREVIEWREASON",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6",
+      "kind": "code_element",
+      "title": "CODE-CALCULATERISKSCORE",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73",
+      "kind": "code_element",
+      "title": "CODE-CLASSIFYRISK",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8",
+      "kind": "code_element",
+      "title": "CODE-CREATEAUDITRECORD",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68",
+      "kind": "code_element",
+      "title": "CODE-ENRICHAUDITMETADATA",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50",
+      "kind": "code_element",
+      "title": "CODE-HANDLEBANKLINKUNAVAILABLE",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F",
+      "kind": "code_element",
+      "title": "CODE-HANDLEBANKUNAVAILABLE",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66",
+      "kind": "code_element",
+      "title": "CODE-ISHIGHRISK",
+      "summary": "Inferred code symbol owned by FU-RISK-SCORING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4",
+      "kind": "code_element",
+      "title": "CODE-NOTIFYSUPPORT",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7",
+      "kind": "code_element",
+      "title": "CODE-PERSISTAUDITRECORD",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625",
+      "kind": "code_element",
+      "title": "CODE-PLACEINREVIEW",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F",
+      "kind": "code_element",
+      "title": "CODE-REQUESTBANKAUTHORIZATION",
+      "summary": "Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D",
+      "kind": "code_element",
+      "title": "CODE-SHOWDECLINEREASON",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9",
+      "kind": "code_element",
+      "title": "CODE-SHOWRETRYOPTION",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1",
+      "kind": "code_element",
+      "title": "CODE-SHOWTEMPORARYUNAVAILABLE",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_STARTSESSION_7EF4AB",
+      "kind": "code_element",
+      "title": "CODE-STARTSESSION",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB",
+      "kind": "code_element",
+      "title": "CODE-SUBMITAUTHORIZATIONREQUEST",
+      "summary": "Inferred code symbol owned by FU-CHECKOUT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CHECKOUT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50"
+      ]
+    },
+    {
+      "id": "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+      "kind": "verification",
+      "title": "Authorized Checkout Flow",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "not-run",
+      "requirement_ids": [
+        "REQ-PAY-001"
+      ],
+      "related_ids": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "low",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5"
+      ]
+    },
+    {
+      "id": "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2",
+      "kind": "verification",
+      "title": "Audit Record Persistence Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "partial",
+      "requirement_ids": [
+        "REQ-PAY-005"
+      ],
+      "related_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762"
+      ]
+    },
+    {
+      "id": "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD",
+      "kind": "verification",
+      "title": "Fraud Gate Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PAY-002",
+        "REQ-PAY-004"
+      ],
+      "related_ids": [
+        "FU-PAYMENT-AUTHORIZATION",
+        "FU-RISK-SCORING",
+        "FU-SUPPORT-REVIEW"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647"
+      ]
+    },
+    {
+      "id": "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26",
+      "kind": "verification",
+      "title": "Contract Checkout Decline",
+      "summary": "Inferred from test result artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-PAY-003",
+        "REQ-PAY-006"
+      ],
+      "related_ids": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA"
+      ]
+    }
+  ],
+  "source_blocks": [
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_12_6F3D73",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 12,
+      "line_end": 12,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-PAYMENTS"
+      ],
+      "summary": "authored functional group FG-PAYMENTS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_20_A2BB9C",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 20,
+      "line_end": 20,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-FRAUD"
+      ],
+      "summary": "authored functional group FG-FRAUD"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_27_81E020",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 27,
+      "line_end": 27,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-PLATFORM"
+      ],
+      "summary": "authored functional group FG-PLATFORM"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_36_3C830B",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 36,
+      "line_end": 36,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-CHECKOUT"
+      ],
+      "summary": "authored functional unit FU-CHECKOUT"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_43_F0410C",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 43,
+      "line_end": 43,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "summary": "authored functional unit FU-PAYMENT-AUTHORIZATION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_50_524811",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 50,
+      "line_end": 50,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "summary": "authored functional unit FU-RISK-SCORING"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_57_FC1077",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 57,
+      "line_end": 57,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-SUPPORT-REVIEW"
+      ],
+      "summary": "authored functional unit FU-SUPPORT-REVIEW"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_64_1902C9",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 64,
+      "line_end": 64,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-CLUSTER-PROVISIONING"
+      ],
+      "summary": "authored functional unit FU-CLUSTER-PROVISIONING"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_ARCHITECTURE_YML_72_F94CDD",
+      "path": "examples/payments-engineering-sample/architecture.yml",
+      "line_start": 72,
+      "line_end": 72,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "summary": "authored functional unit FU-GITOPS-OPERATIONS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_6_6D37C3",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 6,
+      "line_end": 6,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-PAYMENTS"
+      ],
+      "summary": "design narrative for FG-PAYMENTS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_39_89B173",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 39,
+      "line_end": 39,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-FRAUD"
+      ],
+      "summary": "design narrative for FG-FRAUD"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_70_C60C95",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 70,
+      "line_end": 70,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-PLATFORM"
+      ],
+      "summary": "design narrative for FG-PLATFORM"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_104_70B98C",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 104,
+      "line_end": 104,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-CHECKOUT"
+      ],
+      "summary": "design narrative for FU-CHECKOUT"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_137_C7139D",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 137,
+      "line_end": 137,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "summary": "design narrative for FU-PAYMENT-AUTHORIZATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_166_F6C0E4",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 166,
+      "line_end": 166,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-RISK-SCORING"
+      ],
+      "summary": "design narrative for FU-RISK-SCORING"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_195_E0FF70",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 195,
+      "line_end": 195,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-SUPPORT-REVIEW"
+      ],
+      "summary": "design narrative for FU-SUPPORT-REVIEW"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_224_5DA374",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 224,
+      "line_end": 224,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-CLUSTER-PROVISIONING"
+      ],
+      "summary": "design narrative for FU-CLUSTER-PROVISIONING"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_DESIGN_YML_253_193DF1",
+      "path": "examples/payments-engineering-sample/design.yml",
+      "line_start": 253,
+      "line_end": 253,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-GITOPS-OPERATIONS"
+      ],
+      "summary": "design narrative for FU-GITOPS-OPERATIONS"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_KUSTOMIZATIONS_PAYMENTS_APPS_YAML_0_DEDB01",
+      "path": "examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml",
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E"
+      ],
+      "summary": "runtime evidence for RT-KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS_E94D9E"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_CHECKOUT_API_YAML_0_B014BE",
+      "path": "examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml",
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858"
+      ],
+      "summary": "runtime evidence for RT-HELMRELEASE_PAYMENTS_CHECKOUT_API_C0C858"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_PAYMENT_ENGINE_YAML_0_F4D319",
+      "path": "examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml",
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944"
+      ],
+      "summary": "runtime evidence for RT-HELMRELEASE_PAYMENTS_PAYMENT_ENGINE_C79944"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_RELEASES_RISK_SCORER_YAML_0_FD05D3",
+      "path": "examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml",
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-HELMRELEASE_RISK_RISK_SCORER_A06799"
+      ],
+      "summary": "runtime evidence for RT-HELMRELEASE_RISK_RISK_SCORER_A06799"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_FLUX_SOURCES_PAYMENTS_SOURCE_YAML_0_11D961",
+      "path": "examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml",
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F"
+      ],
+      "summary": "runtime evidence for RT-GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE_BFF14F"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_1D93E6",
+      "path": "examples/payments-engineering-sample/infra/terraform/main.tf",
+      "line_start": 22,
+      "line_end": 22,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-NAMESPACE_PAYMENTS_407A87"
+      ],
+      "summary": "runtime evidence for RT-NAMESPACE_PAYMENTS_407A87"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_22_A48834",
+      "path": "examples/payments-engineering-sample/infra/terraform/main.tf",
+      "line_start": 22,
+      "line_end": 22,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-CLUSTER_PAYMENTS_407A87"
+      ],
+      "summary": "runtime evidence for RT-CLUSTER_PAYMENTS_407A87"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_48_2E4534",
+      "path": "examples/payments-engineering-sample/infra/terraform/main.tf",
+      "line_start": 48,
+      "line_end": 48,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-NAMESPACE_RISK_407A87"
+      ],
+      "summary": "runtime evidence for RT-NAMESPACE_RISK_407A87"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_INFRA_TERRAFORM_MAIN_TF_57_D9A548",
+      "path": "examples/payments-engineering-sample/infra/terraform/main.tf",
+      "line_start": 57,
+      "line_end": 57,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-NAMESPACE_FLUX_SYSTEM_407A87"
+      ],
+      "summary": "runtime evidence for RT-NAMESPACE_FLUX_SYSTEM_407A87"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_8_A95B03",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-001"
+      ],
+      "summary": "authored requirement REQ-PAY-001"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_15_3D42D6",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 15,
+      "line_end": 15,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-002"
+      ],
+      "summary": "authored requirement REQ-PAY-002"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_21_9A34C1",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 21,
+      "line_end": 21,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-003"
+      ],
+      "summary": "authored requirement REQ-PAY-003"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_27_6F0F82",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 27,
+      "line_end": 27,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-004"
+      ],
+      "summary": "authored requirement REQ-PAY-004"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_34_AD3304",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 34,
+      "line_end": 34,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-005"
+      ],
+      "summary": "authored requirement REQ-PAY-005"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_REQUIREMENTS_YML_40_610935",
+      "path": "examples/payments-engineering-sample/requirements.yml",
+      "line_start": 40,
+      "line_end": 40,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-PAY-006"
+      ],
+      "summary": "authored requirement REQ-PAY-006"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_0_B8EDF7",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_CHECKOUT_API_GO_A9639C"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_5_E27A59",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 5,
+      "line_end": 5,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_STDLIB_FMT_A9639C"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_STDLIB_FMT_A9639C"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_7_5E2358",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 7,
+      "line_end": 7,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE_A9639C"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_8_B46A00",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3_A9639C"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_15_A8E60D",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 15,
+      "line_end": 15,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_STARTSESSION_7EF4AB"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_STARTSESSION_7EF4AB"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_26_B29A50",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 26,
+      "line_end": 26,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST_6BF6CB"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_31_F2CA80",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 31,
+      "line_end": 31,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_HANDLEBANKUNAVAILABLE_6EF90F"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_36_DE8743",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 36,
+      "line_end": 36,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_SHOWDECLINEREASON_6DF90D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_41_9035A4",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 41,
+      "line_end": 41,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_SHOWRETRYOPTION_66E7B9"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_CHECKOUT_API_GO_46_14E72B",
+      "path": "examples/payments-engineering-sample/src/checkout_api.go",
+      "line_start": 46,
+      "line_end": 46,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE_6BE7C1"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_DOMAIN_EVENTS_RS_0_D181B6",
+      "path": "examples/payments-engineering-sample/src/domain/events.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_DOMAIN_EVENTS_RS_A76A04"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_0_267B7A",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_PAYMENT_ENGINE_RS_FBE0BD"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_2_5FB2BF",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT_FBE0BD"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_3_B10CC9",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 3,
+      "line_end": 3,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_SERDE_JSON__JSON_FBE0BD"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_10_1E9EE8",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 10,
+      "line_end": 10,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_AUTHORIZEPAYMENT_54B9F8"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_25_DC9DD5",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 25,
+      "line_end": 25,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_REQUESTBANKAUTHORIZATION_E9C19F"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_33_8E2607",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 33,
+      "line_end": 33,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE_DFBF50"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_43_1EAA8A",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 43,
+      "line_end": 43,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PLACEINREVIEW_EFC625"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_51_7B7BBD",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 51,
+      "line_end": 51,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_NOTIFYSUPPORT_EDC3E4"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_PAYMENT_ENGINE_RS_59_5D31BE",
+      "path": "examples/payments-engineering-sample/src/payment_engine.rs",
+      "line_start": 59,
+      "line_end": 59,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PERSISTAUDITRECORD_E5C3D7"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_0_144B84",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_RISK_SCORER_TS_B6E604"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_2_25F8D1",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 2,
+      "line_end": 2,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_EXTERNAL_ZOD_B6E604"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_EXTERNAL_ZOD_B6E604"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_3_73770C",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 3,
+      "line_end": 3,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604"
+      ],
+      "summary": "code evidence for CODE-LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE_B6E604"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_7_C7DC09",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 7,
+      "line_end": 7,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_CALCULATERISKSCORE_F325A6"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_20_1A5280",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 20,
+      "line_end": 20,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_CLASSIFYRISK_A74C73"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_28_8BB454",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 28,
+      "line_end": 28,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_ISHIGHRISK_9F4C66"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_36_E2FEE7",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 36,
+      "line_end": 36,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_CREATEAUDITRECORD_AB4EB8"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_44_960EFD",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 44,
+      "line_end": 44,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_ENRICHAUDITMETADATA_A73D68"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_RISK_SCORER_TS_49_EE8B6E",
+      "path": "examples/payments-engineering-sample/src/risk_scorer.ts",
+      "line_start": 49,
+      "line_end": 49,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_BUILDREVIEWREASON_9C3D57"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_SRC_SUPPORT_AUDIT_ENVELOPE_TS_0_E91E33",
+      "path": "examples/payments-engineering-sample/src/support/audit_envelope.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS_5249D4"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_AUDIT_PERSISTENCE_REPORT_MD_0_42B762",
+      "path": "examples/payments-engineering-sample/test-results/audit-persistence-report.md",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_CONTRACT_CHECKOUT_DECLINE_JSON_0_D46FCA",
+      "path": "examples/payments-engineering-sample/test-results/contract-checkout-decline.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+      ],
+      "summary": "verification evidence for VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TEST_RESULTS_INTEGRATION_FRAUD_GATE_JSON_0_200647",
+      "path": "examples/payments-engineering-sample/test-results/integration-fraud-gate.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML_0_BB6CE5",
+      "path": "examples/payments-engineering-sample/tests/e2e/authorized_checkout_flow.yaml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_0_591C48",
+      "path": "examples/payments-engineering-sample/tests/integration/audit_record_persistence_test.ts",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_PAYMENTS_ENGINEERING_SAMPLE_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_0_825192",
+      "path": "examples/payments-engineering-sample/tests/integration/fraud_gate_test.rs",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+    }
+  ]
+}

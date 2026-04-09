@@ -11,9 +11,17 @@ import (
 func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
 	fuToRuntime := map[string]string{}
 	servicePorts := map[string]string{}
+	isRuntimeEndpoint := func(kind string) bool {
+		switch strings.TrimSpace(strings.ToLower(kind)) {
+		case "helmrelease", "deployment", "workload", "service", "lambda_function", "terraform_resource", "eventbridge_rule", "eventbridge_target", "queue", "topic":
+			return true
+		default:
+			return false
+		}
+	}
 	for _, r := range runtime {
 		name := runtimeShortName(r.Name)
-		if strings.TrimSpace(r.Owner) != "" && strings.TrimSpace(r.Owner) != "unresolved" && (r.Kind == "helmrelease" || r.Kind == "deployment" || r.Kind == "workload") {
+		if strings.TrimSpace(r.Owner) != "" && strings.TrimSpace(r.Owner) != "unresolved" && isRuntimeEndpoint(r.Kind) {
 			if _, ok := fuToRuntime[r.Owner]; !ok {
 				fuToRuntime[r.Owner] = name
 			}
@@ -59,6 +67,9 @@ func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping
 }
 
 func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
+	if len(rows) == 0 {
+		return ""
+	}
 	lines := []string{"flowchart LR"}
 	for _, r := range rows {
 		cn := "RT_" + sanitizeNode(r.Consumer)
@@ -89,6 +100,22 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 	workloads := []string{}
 	namespaces := []string{}
 	clusters := []string{}
+	out := []asciidocDeploymentRow{}
+	seen := map[string]bool{}
+	addRow := func(from, to, how string) {
+		from = strings.TrimSpace(from)
+		to = strings.TrimSpace(to)
+		how = strings.TrimSpace(how)
+		if from == "" || to == "" || how == "" {
+			return
+		}
+		key := from + "|" + to + "|" + how
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		out = append(out, asciidocDeploymentRow{From: from, To: to, How: how})
+	}
 
 	for _, r := range runtime {
 		n := deploymentNodeName(r)
@@ -103,8 +130,10 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 			}
 		case "helmrelease":
 			releases = append(releases, n)
-		case "deployment", "workload":
+		case "deployment", "workload", "lambda_function", "service", "queue", "topic", "eventbridge_target":
 			workloads = append(workloads, n)
+		case "eventbridge_rule", "terraform_resource":
+			releases = append(releases, n)
 		case "namespace":
 			namespaces = append(namespaces, n)
 		case "cluster":
@@ -116,35 +145,60 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 	namespaces = uniqueSorted(namespaces)
 	clusters = uniqueSorted(clusters)
 
-	out := []asciidocDeploymentRow{}
 	if sourceName != "" && kustomName != "" {
-		out = append(out, asciidocDeploymentRow{From: sourceName, To: kustomName, How: "reconciles"})
+		addRow(sourceName, kustomName, "reconciles")
 	}
 	for _, r := range releases {
 		if kustomName != "" {
-			out = append(out, asciidocDeploymentRow{From: kustomName, To: r, How: "applies"})
+			addRow(kustomName, r, "applies")
 		}
 	}
 	for _, r := range releases {
 		for _, w := range workloads {
 			if strings.Contains(strings.ToLower(w), strings.ToLower(r)) {
-				out = append(out, asciidocDeploymentRow{From: r, To: w, How: "deploys"})
+				addRow(r, w, "deploys")
 			}
 		}
 	}
 	for _, r := range releases {
 		for _, ns := range namespaces {
 			if strings.Contains(strings.ToLower(r), strings.ToLower(ns)) {
-				out = append(out, asciidocDeploymentRow{From: r, To: ns, How: "targets"})
+				addRow(r, ns, "targets")
 			}
 		}
 	}
 	if len(clusters) > 0 {
 		clusterName := clusters[0]
 		for _, ns := range namespaces {
-			out = append(out, asciidocDeploymentRow{From: ns, To: clusterName, How: "part_of"})
+			addRow(ns, clusterName, "part_of")
 		}
 	}
+
+	// Fallback for runtime sets that do not naturally match the release/namespace
+	// heuristics above (for example Terraform Lambda/EventBridge-only samples).
+	if len(out) == 0 {
+		for _, r := range runtime {
+			target := deploymentNodeName(r)
+			if target == "" {
+				continue
+			}
+			source := runtimeShortName(strings.ReplaceAll(strings.TrimSpace(r.Source), "\\", "/"))
+			if source == "" {
+				source = "inferred-runtime-source"
+			}
+			addRow(source, target, "deploys")
+		}
+	}
+
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].From != out[j].From {
+			return out[i].From < out[j].From
+		}
+		if out[i].To != out[j].To {
+			return out[i].To < out[j].To
+		}
+		return out[i].How < out[j].How
+	})
 	return out
 }
 
@@ -463,7 +517,8 @@ func deploymentNodeName(r inferredRuntimeItem) string {
 func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntimeItem) []asciidocPlatformOpRow {
 	platformUnits := map[string]string{}
 	for _, u := range a.FunctionalUnits {
-		if strings.TrimSpace(u.Group) == "FG-PLATFORM" {
+		groupID := strings.TrimSpace(strings.ToUpper(u.Group))
+		if groupID == "FG-PLATFORM" || groupID == "FG-PLATFORM-OPERATIONS" {
 			platformUnits[u.ID] = nonEmpty(u.Name, u.ID)
 		}
 	}

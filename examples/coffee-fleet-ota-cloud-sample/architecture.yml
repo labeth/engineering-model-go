@@ -1,0 +1,337 @@
+model:
+  id: sample-coffee-fleet-ota-cloud-model
+  title: Connected Coffee Fleet OTA + Cloud Architecture
+  introduction: |
+    This document models connected coffee machines that send telemetry to a central cloud site,
+    receive OTA firmware updates, and produce operational and audit logging evidence.
+    Authored functional architecture remains stable while runtime, code, and verification layers
+    are inferred from infrastructure, source, and test artifacts.
+  baseCatalogRef: ./catalog.yml
+
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-MACHINE-EDGE
+      name: Machine Edge
+      description: Device-local telemetry and OTA execution responsibilities.
+      prose: |
+        Machine Edge owns behavior that executes directly on coffee machines.
+        It gathers telemetry, applies OTA updates, and reports local status to cloud boundaries.
+    - id: FG-CLOUD-CONTROL
+      name: Cloud Control
+      description: Central cloud ingestion, campaign control, and fleet reporting.
+      prose: |
+        Cloud Control owns central APIs and coordination logic for fleet telemetry and OTA rollouts.
+        It provides global fleet visibility and deterministic rollout decisions.
+    - id: FG-PLATFORM-OPERATIONS
+      name: Platform Operations
+      description: Cloud runtime operations plus identity and secret-management controls.
+      prose: |
+        Platform Operations owns deployability, runtime guardrails, and secure identity/config lifecycle.
+        It ensures cloud and device trust boundaries remain enforceable over time.
+
+  functionalUnits:
+    - id: FU-MACHINE-TELEMETRY-COLLECTION
+      name: Machine Telemetry Collection
+      group: FG-MACHINE-EDGE
+      prose: |
+        Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+    - id: FU-OTA-UPDATE-AGENT
+      name: OTA Update Agent
+      group: FG-MACHINE-EDGE
+      prose: |
+        Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+    - id: FU-FLEET-INGESTION-API
+      name: Fleet Ingestion API
+      group: FG-CLOUD-CONTROL
+      prose: |
+        Receives telemetry and machine status, applies validation, and emits ingestion events.
+    - id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      name: Update Campaign Orchestration
+      group: FG-CLOUD-CONTROL
+      prose: |
+        Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+    - id: FU-FLEET-OBSERVABILITY-REPORTING
+      name: Fleet Observability Reporting
+      group: FG-CLOUD-CONTROL
+      prose: |
+        Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+    - id: FU-CLOUD-RUNTIME-OPERATIONS
+      name: Cloud Runtime Operations
+      group: FG-PLATFORM-OPERATIONS
+      prose: |
+        Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+    - id: FU-DEVICE-IDENTITY-SECRETS
+      name: Device Identity and Secrets
+      group: FG-PLATFORM-OPERATIONS
+      prose: |
+        Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+
+  actors:
+    - id: ACT-BARISTA
+      name: Barista
+      description: Operates coffee machines and observes local device status.
+    - id: ACT-FLEET-OPERATOR
+      name: Fleet Operator
+      description: Manages OTA campaigns and fleet-wide operational decisions.
+    - id: ACT-PLATFORM-OPERATOR
+      name: Platform Operator
+      description: Operates cloud runtime, deployment, and reliability controls.
+    - id: ACT-SECURITY-ANALYST
+      name: Security Analyst
+      description: Reviews firmware integrity, identity controls, and audit logging.
+
+  attackVectors:
+    - id: AV-MALICIOUS-FIRMWARE-BUNDLE
+      name: Malicious Firmware Bundle
+      description: Tampered OTA payload targeting update agent execution.
+    - id: AV-SPOOFED-DEVICE-IDENTITY
+      name: Spoofed Device Identity
+      description: Unauthorized identity attempting telemetry/command access.
+    - id: AV-TELEMETRY-REPLAY-ABUSE
+      name: Telemetry Replay Abuse
+      description: Replayed telemetry intended to overload ingestion and corrupt insights.
+    - id: AV-LOG-TAMPERING
+      name: Log Tampering
+      description: Attempts to suppress or alter audit/operational logs.
+
+  referencedElements:
+    - id: REF-IOT-INGEST-ENDPOINT
+      kind: external_service_endpoint
+      layer: runtime
+      name: IoT Ingest Endpoint
+    - id: REF-FIRMWARE-BUNDLE-STORE
+      kind: object_store
+      layer: runtime
+      name: Firmware Bundle Store
+    - id: REF-CLOUD-LOGGING-SERVICE
+      kind: platform_service
+      layer: runtime
+      name: Cloud Logging Service
+    - id: REF-FIRMWARE-SIGNER-SERVICE
+      kind: signing_service
+      layer: runtime
+      name: Firmware Signer Service
+    - id: REF-MQTT-DEVICE-SDK
+      kind: third_party_library
+      layer: code
+      name: MQTT Device SDK
+    - id: REF-CLOUD-RUNTIME-SDK
+      kind: third_party_library
+      layer: code
+      name: Cloud Runtime SDK
+
+  mappings:
+    - type: contains
+      from: FG-MACHINE-EDGE
+      to: FU-MACHINE-TELEMETRY-COLLECTION
+    - type: contains
+      from: FG-MACHINE-EDGE
+      to: FU-OTA-UPDATE-AGENT
+    - type: contains
+      from: FG-CLOUD-CONTROL
+      to: FU-FLEET-INGESTION-API
+    - type: contains
+      from: FG-CLOUD-CONTROL
+      to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    - type: contains
+      from: FG-CLOUD-CONTROL
+      to: FU-FLEET-OBSERVABILITY-REPORTING
+    - type: contains
+      from: FG-PLATFORM-OPERATIONS
+      to: FU-CLOUD-RUNTIME-OPERATIONS
+    - type: contains
+      from: FG-PLATFORM-OPERATIONS
+      to: FU-DEVICE-IDENTITY-SECRETS
+
+    - type: interacts_with
+      from: ACT-BARISTA
+      to: FU-MACHINE-TELEMETRY-COLLECTION
+      description: Daily machine operation produces brew and status telemetry.
+    - type: interacts_with
+      from: ACT-FLEET-OPERATOR
+      to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      description: Defines OTA target cohorts and rollout windows.
+    - type: interacts_with
+      from: ACT-PLATFORM-OPERATOR
+      to: FU-CLOUD-RUNTIME-OPERATIONS
+      description: Operates deployment and runtime controls.
+    - type: interacts_with
+      from: ACT-SECURITY-ANALYST
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Audits identity trust and secret rotation controls.
+
+    - type: depends_on
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: REF-IOT-INGEST-ENDPOINT
+      description: Publishes telemetry payloads to cloud ingestion.
+    - type: depends_on
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: FU-FLEET-INGESTION-API
+      description: Sends normalized telemetry records to ingestion API.
+    - type: depends_on
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: REF-MQTT-DEVICE-SDK
+      description: Uses MQTT client for edge publish and command channels.
+    - type: depends_on
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Uses machine identity material for authenticated publish.
+
+    - type: depends_on
+      from: FU-OTA-UPDATE-AGENT
+      to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      description: Receives OTA rollout commands and policy constraints.
+    - type: depends_on
+      from: FU-OTA-UPDATE-AGENT
+      to: REF-FIRMWARE-BUNDLE-STORE
+      description: Downloads signed firmware bundle.
+    - type: depends_on
+      from: FU-OTA-UPDATE-AGENT
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Uses trust anchors for firmware and endpoint authentication.
+
+    - type: depends_on
+      from: FU-FLEET-INGESTION-API
+      to: FU-FLEET-OBSERVABILITY-REPORTING
+      description: Forwards validated telemetry and machine status events.
+    - type: depends_on
+      from: FU-FLEET-INGESTION-API
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Validates device identity and token claims.
+    - type: depends_on
+      from: FU-FLEET-INGESTION-API
+      to: REF-CLOUD-RUNTIME-SDK
+      description: Uses cloud SDK clients for ingest and routing operations.
+
+    - type: depends_on
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: REF-FIRMWARE-SIGNER-SERVICE
+      description: Verifies firmware artifact signature metadata.
+    - type: depends_on
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: FU-FLEET-OBSERVABILITY-REPORTING
+      description: Emits OTA rollout and rollback events for fleet visibility.
+    - type: depends_on
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Uses trusted control-plane credentials.
+
+    - type: depends_on
+      from: FU-FLEET-OBSERVABILITY-REPORTING
+      to: REF-CLOUD-LOGGING-SERVICE
+      description: Persists telemetry, OTA outcomes, and audit records.
+    - type: depends_on
+      from: FU-FLEET-OBSERVABILITY-REPORTING
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Uses controlled credentials for audit-log writes.
+
+    - type: depends_on
+      from: FU-CLOUD-RUNTIME-OPERATIONS
+      to: FU-DEVICE-IDENTITY-SECRETS
+      description: Requires runtime credentials and encrypted config.
+    - type: depends_on
+      from: FU-CLOUD-RUNTIME-OPERATIONS
+      to: REF-CLOUD-LOGGING-SERVICE
+      description: Emits platform operation and deployment events.
+
+    - type: targets
+      from: AV-MALICIOUS-FIRMWARE-BUNDLE
+      to: FU-OTA-UPDATE-AGENT
+    - type: targets
+      from: AV-MALICIOUS-FIRMWARE-BUNDLE
+      to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    - type: targets
+      from: AV-SPOOFED-DEVICE-IDENTITY
+      to: FU-MACHINE-TELEMETRY-COLLECTION
+    - type: targets
+      from: AV-SPOOFED-DEVICE-IDENTITY
+      to: FU-FLEET-INGESTION-API
+    - type: targets
+      from: AV-TELEMETRY-REPLAY-ABUSE
+      to: FU-FLEET-INGESTION-API
+    - type: targets
+      from: AV-TELEMETRY-REPLAY-ABUSE
+      to: FU-FLEET-OBSERVABILITY-REPORTING
+    - type: targets
+      from: AV-LOG-TAMPERING
+      to: FU-FLEET-OBSERVABILITY-REPORTING
+    - type: targets
+      from: AV-LOG-TAMPERING
+      to: FU-DEVICE-IDENTITY-SECRETS
+
+inferenceHints:
+  runtimeSources:
+    - ./infra/terraform
+  codeSources:
+    - ./src
+  expectedRuntimeKinds:
+    - lambda_function
+    - eventbridge_rule
+    - eventbridge_target
+    - topic
+    - queue
+    - terraform_resource
+  ownershipResolutionOrder:
+    - explicit_annotation
+    - path_convention
+    - unresolved_warning
+
+views:
+  - id: VIEW-ARCHITECTURE-INTENT
+    kind: architecture-intent
+    roots:
+      - FG-MACHINE-EDGE
+      - FG-CLOUD-CONTROL
+      - FG-PLATFORM-OPERATIONS
+    authoredStatus: stable
+    authoredStatusExplanation: Stable authored capability boundaries and responsibility ownership.
+
+  - id: VIEW-COMMUNICATION
+    kind: communication
+    roots:
+      - FU-MACHINE-TELEMETRY-COLLECTION
+      - FU-OTA-UPDATE-AGENT
+      - FU-FLEET-INGESTION-API
+      - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      - FU-FLEET-OBSERVABILITY-REPORTING
+    authoredStatus: in-review
+    authoredStatusExplanation: Communication handoffs are mapped; protocol detail remains partially inferred.
+
+  - id: VIEW-DEPLOYMENT
+    kind: deployment
+    roots:
+      - FU-MACHINE-TELEMETRY-COLLECTION
+      - FU-OTA-UPDATE-AGENT
+      - FU-FLEET-INGESTION-API
+      - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      - FU-FLEET-OBSERVABILITY-REPORTING
+      - FU-CLOUD-RUNTIME-OPERATIONS
+      - FU-DEVICE-IDENTITY-SECRETS
+    authoredStatus: in-review
+    authoredStatusExplanation: Deployment/runtime mapping is present with evolving control-plane evidence depth.
+
+  - id: VIEW-SECURITY
+    kind: security
+    roots:
+      - FG-MACHINE-EDGE
+      - FG-CLOUD-CONTROL
+      - FG-PLATFORM-OPERATIONS
+      - AV-MALICIOUS-FIRMWARE-BUNDLE
+      - AV-SPOOFED-DEVICE-IDENTITY
+      - AV-TELEMETRY-REPLAY-ABUSE
+      - AV-LOG-TAMPERING
+    authoredStatus: draft
+    authoredStatusExplanation: Core threats are modeled while additional control evidence is being expanded.
+
+  - id: VIEW-TRACEABILITY
+    kind: traceability
+    roots:
+      - FU-MACHINE-TELEMETRY-COLLECTION
+      - FU-OTA-UPDATE-AGENT
+      - FU-FLEET-INGESTION-API
+      - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      - FU-FLEET-OBSERVABILITY-REPORTING
+      - FU-CLOUD-RUNTIME-OPERATIONS
+      - FU-DEVICE-IDENTITY-SECRETS
+    authoredStatus: in-review
+    authoredStatusExplanation: Requirement mappings exist; verification and evidence coverage continue to be hardened.

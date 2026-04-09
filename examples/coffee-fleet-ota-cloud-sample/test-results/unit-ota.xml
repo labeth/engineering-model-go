@@ -1,0 +1,6 @@
+<testsuites>
+  <testsuite name="unit-ota-campaign">
+    <testcase name="REQ-COF-003 distributes signed firmware" classname="ota_agent" />
+    <testcase name="REQ-COF-004 blocks invalid signature" classname="ota_agent" />
+  </testsuite>
+</testsuites>

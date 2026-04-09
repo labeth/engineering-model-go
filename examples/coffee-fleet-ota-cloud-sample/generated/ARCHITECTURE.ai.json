@@ -1,0 +1,2889 @@
+{
+  "schema_version": "ai-view/v1",
+  "model": {
+    "id": "sample-coffee-fleet-ota-cloud-model",
+    "title": "Connected Coffee Fleet OTA + Cloud Architecture",
+    "counts": {
+      "fg": 3,
+      "fu": 7,
+      "req": 8,
+      "rt": 7,
+      "code": 21,
+      "verification": 4,
+      "views": 5
+    },
+    "entry_point_ids": [
+      "EP-FU-EVIDENCE",
+      "EP-LOW-CONFIDENCE-INFERRED",
+      "EP-REQ-COVERAGE",
+      "EP-REQ-GAPS",
+      "EP-VERIFICATION-FAILURES"
+    ]
+  },
+  "entry_points": [
+    {
+      "id": "EP-FU-EVIDENCE",
+      "kind": "functional_units",
+      "title": "Functional units with runtime/code/verification evidence",
+      "entity_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-MACHINE-TELEMETRY-COLLECTION",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ]
+    },
+    {
+      "id": "EP-LOW-CONFIDENCE-INFERRED",
+      "kind": "inferred",
+      "title": "Low-confidence inferred entities",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-REQ-COVERAGE",
+      "kind": "requirements",
+      "title": "Requirements with direct support paths",
+      "entity_ids": [
+        "REQ-COF-001",
+        "REQ-COF-002",
+        "REQ-COF-003",
+        "REQ-COF-004",
+        "REQ-COF-005",
+        "REQ-COF-006",
+        "REQ-COF-007",
+        "REQ-COF-008"
+      ]
+    },
+    {
+      "id": "EP-REQ-GAPS",
+      "kind": "requirements",
+      "title": "Requirements with low-confidence support",
+      "entity_ids": []
+    },
+    {
+      "id": "EP-VERIFICATION-FAILURES",
+      "kind": "verification",
+      "title": "Verification checks with failing/partial status",
+      "entity_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ]
+    }
+  ],
+  "entity_index": {
+    "fg_ids": [
+      "FG-CLOUD-CONTROL",
+      "FG-MACHINE-EDGE",
+      "FG-PLATFORM-OPERATIONS"
+    ],
+    "fu_ids": [
+      "FU-CLOUD-RUNTIME-OPERATIONS",
+      "FU-DEVICE-IDENTITY-SECRETS",
+      "FU-FLEET-INGESTION-API",
+      "FU-FLEET-OBSERVABILITY-REPORTING",
+      "FU-MACHINE-TELEMETRY-COLLECTION",
+      "FU-OTA-UPDATE-AGENT",
+      "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+    ],
+    "req_ids": [
+      "REQ-COF-001",
+      "REQ-COF-002",
+      "REQ-COF-003",
+      "REQ-COF-004",
+      "REQ-COF-005",
+      "REQ-COF-006",
+      "REQ-COF-007",
+      "REQ-COF-008"
+    ],
+    "rt_ids": [
+      "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+      "RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322",
+      "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+      "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
+      "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322",
+      "RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322",
+      "RT-TOPIC_FLEET_EVENT_TOPIC_B15322"
+    ],
+    "code_ids": [
+      "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+      "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+      "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+      "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+      "CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F",
+      "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+      "CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A",
+      "CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE",
+      "CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B",
+      "CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF",
+      "CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33",
+      "CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B",
+      "CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9",
+      "CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5",
+      "CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F",
+      "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB",
+      "CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51",
+      "CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30",
+      "CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23",
+      "CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C",
+      "CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D"
+    ],
+    "verification_ids": [
+      "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+      "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
+      "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794",
+      "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+    ],
+    "lookup": [
+      {
+        "id": "FG-CLOUD-CONTROL",
+        "kind": "functional_group",
+        "title": "Cloud Control"
+      },
+      {
+        "id": "FG-MACHINE-EDGE",
+        "kind": "functional_group",
+        "title": "Machine Edge"
+      },
+      {
+        "id": "FG-PLATFORM-OPERATIONS",
+        "kind": "functional_group",
+        "title": "Platform Operations"
+      },
+      {
+        "id": "FU-CLOUD-RUNTIME-OPERATIONS",
+        "kind": "functional_unit",
+        "title": "Cloud Runtime Operations"
+      },
+      {
+        "id": "FU-DEVICE-IDENTITY-SECRETS",
+        "kind": "functional_unit",
+        "title": "Device Identity and Secrets"
+      },
+      {
+        "id": "FU-FLEET-INGESTION-API",
+        "kind": "functional_unit",
+        "title": "Fleet Ingestion API"
+      },
+      {
+        "id": "FU-FLEET-OBSERVABILITY-REPORTING",
+        "kind": "functional_unit",
+        "title": "Fleet Observability Reporting"
+      },
+      {
+        "id": "FU-MACHINE-TELEMETRY-COLLECTION",
+        "kind": "functional_unit",
+        "title": "Machine Telemetry Collection"
+      },
+      {
+        "id": "FU-OTA-UPDATE-AGENT",
+        "kind": "functional_unit",
+        "title": "OTA Update Agent"
+      },
+      {
+        "id": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+        "kind": "functional_unit",
+        "title": "Update Campaign Orchestration"
+      },
+      {
+        "id": "REQ-COF-001",
+        "kind": "requirement",
+        "title": "REQ-COF-001"
+      },
+      {
+        "id": "REQ-COF-002",
+        "kind": "requirement",
+        "title": "REQ-COF-002"
+      },
+      {
+        "id": "REQ-COF-003",
+        "kind": "requirement",
+        "title": "REQ-COF-003"
+      },
+      {
+        "id": "REQ-COF-004",
+        "kind": "requirement",
+        "title": "REQ-COF-004"
+      },
+      {
+        "id": "REQ-COF-005",
+        "kind": "requirement",
+        "title": "REQ-COF-005"
+      },
+      {
+        "id": "REQ-COF-006",
+        "kind": "requirement",
+        "title": "REQ-COF-006"
+      },
+      {
+        "id": "REQ-COF-007",
+        "kind": "requirement",
+        "title": "REQ-COF-007"
+      },
+      {
+        "id": "REQ-COF-008",
+        "kind": "requirement",
+        "title": "REQ-COF-008"
+      },
+      {
+        "id": "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+        "kind": "runtime_element",
+        "title": "ota_campaign_schedule"
+      },
+      {
+        "id": "RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322",
+        "kind": "runtime_element",
+        "title": "ota_campaign_target"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "kind": "runtime_element",
+        "title": "fleet_ingestion_api"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
+        "kind": "runtime_element",
+        "title": "fleet_observability_reporting"
+      },
+      {
+        "id": "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322",
+        "kind": "runtime_element",
+        "title": "update_campaign_orchestration"
+      },
+      {
+        "id": "RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322",
+        "kind": "runtime_element",
+        "title": "telemetry_retry_queue"
+      },
+      {
+        "id": "RT-TOPIC_FLEET_EVENT_TOPIC_B15322",
+        "kind": "runtime_element",
+        "title": "fleet_event_topic"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+        "kind": "code_element",
+        "title": "cloud_runtime_ops.go"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "kind": "code_element",
+        "title": "device_identity_secrets.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "kind": "code_element",
+        "title": "fleet_ingestion_api.go"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+        "kind": "code_element",
+        "title": "fleet_observability_reporting.ts"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F",
+        "kind": "code_element",
+        "title": "machine_telemetry.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+        "kind": "code_element",
+        "title": "ota_update_agent.rs"
+      },
+      {
+        "id": "CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A",
+        "kind": "code_element",
+        "title": "update_campaign_orchestrator.ts"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE",
+        "kind": "code_element",
+        "title": "CODE-HANDLEROLLBACK"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B",
+        "kind": "code_element",
+        "title": "CODE-INGESTTELEMETRY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF",
+        "kind": "code_element",
+        "title": "CODE-NOTIFYREPLAYABUSE"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33",
+        "kind": "code_element",
+        "title": "CODE-PERSISTAUDITLOG"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B",
+        "kind": "code_element",
+        "title": "CODE-PERSISTTELEMETRYMETRIC"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9",
+        "kind": "code_element",
+        "title": "CODE-PLANCAMPAIGN"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5",
+        "kind": "code_element",
+        "title": "CODE-PUBLISHBREWTELEMETRY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F",
+        "kind": "code_element",
+        "title": "CODE-QUEUEFORRETRY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB",
+        "kind": "code_element",
+        "title": "CODE-RAISESECURITYNOTIFICATION"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51",
+        "kind": "code_element",
+        "title": "CODE-REDACTIDENTITYFORAUDIT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30",
+        "kind": "code_element",
+        "title": "CODE-REJECTREPLAY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23",
+        "kind": "code_element",
+        "title": "CODE-ROLLBACKANDREPORT"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C",
+        "kind": "code_element",
+        "title": "CODE-VALIDATEANDAPPLY"
+      },
+      {
+        "id": "CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D",
+        "kind": "code_element",
+        "title": "CODE-VERIFYFIRMWARESIGNATURE"
+      },
+      {
+        "id": "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "kind": "verification",
+        "title": "Ota Rollout Flow"
+      },
+      {
+        "id": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
+        "kind": "verification",
+        "title": "Logging Pipeline Test"
+      },
+      {
+        "id": "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794",
+        "kind": "verification",
+        "title": "Telemetry Ingest Contract Test"
+      },
+      {
+        "id": "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8",
+        "kind": "verification",
+        "title": "Ota Campaign Test"
+      }
+    ]
+  },
+  "support_paths": [
+    {
+      "id": "PATH-REQ_COF_001",
+      "from_id": "REQ-COF-001",
+      "to_verification_ids": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "path": [
+        "REQ-COF-001",
+        "FU-FLEET-INGESTION-API",
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "summary": "Support path for REQ-COF-001 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_8_48E4EE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_002",
+      "from_id": "REQ-COF-002",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "path": [
+        "REQ-COF-002",
+        "FU-FLEET-INGESTION-API",
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "summary": "Support path for REQ-COF-002 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_15_566B32",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_003",
+      "from_id": "REQ-COF-003",
+      "to_verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "path": [
+        "REQ-COF-003",
+        "FU-OTA-UPDATE-AGENT",
+        "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+        "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "summary": "Support path for REQ-COF-003 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_38_28A8E2",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_22_78DF61",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_004",
+      "from_id": "REQ-COF-004",
+      "to_verification_ids": [
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "path": [
+        "REQ-COF-004",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+        "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "summary": "Support path for REQ-COF-004 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_63_47AC31",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_29_984EAE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_005",
+      "from_id": "REQ-COF-005",
+      "to_verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "path": [
+        "REQ-COF-005",
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+        "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "summary": "Support path for REQ-COF-005 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_36_FABC1F",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_006",
+      "from_id": "REQ-COF-006",
+      "to_verification_ids": [],
+      "path": [
+        "REQ-COF-006",
+        "FU-FLEET-INGESTION-API",
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+      ],
+      "summary": "Support path for REQ-COF-006 from authored scope to inferred evidence and verification.",
+      "confidence": "medium",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_44_B17D95"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_007",
+      "from_id": "REQ-COF-007",
+      "to_verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "path": [
+        "REQ-COF-007",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
+        "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "summary": "Support path for REQ-COF-007 from authored scope to inferred evidence and verification.",
+      "confidence": "high",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_63_47AC31",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_51_2453E1",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+      ]
+    },
+    {
+      "id": "PATH-REQ_COF_008",
+      "from_id": "REQ-COF-008",
+      "to_verification_ids": [],
+      "path": [
+        "REQ-COF-008",
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144"
+      ],
+      "summary": "Support path for REQ-COF-008 from authored scope to inferred evidence and verification.",
+      "confidence": "medium",
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_58_BE989E",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8",
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_58_528C86"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "FG-CLOUD-CONTROL",
+      "kind": "functional_group",
+      "title": "Cloud Control",
+      "summary": "Central cloud ingestion, campaign control, and fleet reporting.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_19_F9E762"
+      ]
+    },
+    {
+      "id": "FG-MACHINE-EDGE",
+      "kind": "functional_group",
+      "title": "Machine Edge",
+      "summary": "Device-local telemetry and OTA execution responsibilities.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION",
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_13_A950D1"
+      ]
+    },
+    {
+      "id": "FG-PLATFORM-OPERATIONS",
+      "kind": "functional_group",
+      "title": "Platform Operations",
+      "summary": "Cloud runtime operations plus identity and secret-management controls.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_25_93272C"
+      ]
+    },
+    {
+      "id": "FU-CLOUD-RUNTIME-OPERATIONS",
+      "kind": "functional_unit",
+      "title": "Cloud Runtime Operations",
+      "summary": "Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM-OPERATIONS",
+      "requirement_ids": [
+        "REQ-COF-008"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+        "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB"
+      ],
+      "related_ids": [
+        "FG-PLATFORM-OPERATIONS",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "REF-CLOUD-LOGGING-SERVICE"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-008"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "REF-CLOUD-LOGGING-SERVICE"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:REF-CLOUD-LOGGING-SERVICE"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_58_BE989E",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8"
+      ]
+    },
+    {
+      "id": "FU-DEVICE-IDENTITY-SECRETS",
+      "kind": "functional_unit",
+      "title": "Device Identity and Secrets",
+      "summary": "Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-PLATFORM-OPERATIONS",
+      "requirement_ids": [
+        "REQ-COF-004",
+        "REQ-COF-007"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51",
+        "CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "related_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-004",
+          "REQ-COF-007"
+        ],
+        "threats": [
+          "Log Tampering"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_63_47AC31",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D"
+      ]
+    },
+    {
+      "id": "FU-FLEET-INGESTION-API",
+      "kind": "functional_unit",
+      "title": "Fleet Ingestion API",
+      "summary": "Receives telemetry and machine status, applies validation, and emits ingestion events.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-CLOUD-CONTROL",
+      "requirement_ids": [
+        "REQ-COF-001",
+        "REQ-COF-002",
+        "REQ-COF-006",
+        "REQ-COF-008"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+        "RT-TOPIC_FLEET_EVENT_TOPIC_B15322"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B",
+        "CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30"
+      ],
+      "verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "related_ids": [
+        "FG-CLOUD-CONTROL",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "REF-CLOUD-RUNTIME-SDK"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-001",
+          "REQ-COF-002",
+          "REQ-COF-006",
+          "REQ-COF-008"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "FU-FLEET-OBSERVABILITY-REPORTING",
+          "REF-CLOUD-RUNTIME-SDK"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:FU-FLEET-OBSERVABILITY-REPORTING",
+          "depends_on:REF-CLOUD-RUNTIME-SDK"
+        ],
+        "threats": [
+          "Spoofed Device Identity",
+          "Telemetry Replay Abuse"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57"
+      ]
+    },
+    {
+      "id": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "kind": "functional_unit",
+      "title": "Fleet Observability Reporting",
+      "summary": "Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-CLOUD-CONTROL",
+      "requirement_ids": [
+        "REQ-COF-002",
+        "REQ-COF-005",
+        "REQ-COF-007",
+        "REQ-COF-008"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+        "CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF",
+        "CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33",
+        "CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "related_ids": [
+        "FG-CLOUD-CONTROL",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "REF-CLOUD-LOGGING-SERVICE"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-002",
+          "REQ-COF-005",
+          "REQ-COF-007",
+          "REQ-COF-008"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "REF-CLOUD-LOGGING-SERVICE"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:REF-CLOUD-LOGGING-SERVICE"
+        ],
+        "threats": [
+          "Log Tampering",
+          "Telemetry Replay Abuse"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8"
+      ]
+    },
+    {
+      "id": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "kind": "functional_unit",
+      "title": "Machine Telemetry Collection",
+      "summary": "Collects brew/device telemetry and transmits cloud-bound telemetry payloads.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-MACHINE-EDGE",
+      "requirement_ids": [
+        "REQ-COF-001",
+        "REQ-COF-006"
+      ],
+      "runtime_ids": [
+        "RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F",
+        "CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5",
+        "CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F"
+      ],
+      "verification_ids": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "related_ids": [
+        "FG-MACHINE-EDGE",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-INGESTION-API",
+        "REF-IOT-INGEST-ENDPOINT",
+        "REF-MQTT-DEVICE-SDK"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-001",
+          "REQ-COF-006"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "FU-FLEET-INGESTION-API",
+          "REF-IOT-INGEST-ENDPOINT",
+          "REF-MQTT-DEVICE-SDK"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:FU-FLEET-INGESTION-API",
+          "depends_on:REF-IOT-INGEST-ENDPOINT",
+          "depends_on:REF-MQTT-DEVICE-SDK"
+        ],
+        "threats": [
+          "Spoofed Device Identity"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_14_6639BA",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_9_17FD6C"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_40_9C0948"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_33_B27AF7",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_14_6639BA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_9_17FD6C",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_40_9C0948"
+      ]
+    },
+    {
+      "id": "FU-OTA-UPDATE-AGENT",
+      "kind": "functional_unit",
+      "title": "OTA Update Agent",
+      "summary": "Downloads signed firmware bundles, validates integrity, applies updates, and reports status.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-MACHINE-EDGE",
+      "requirement_ids": [
+        "REQ-COF-003",
+        "REQ-COF-004",
+        "REQ-COF-005"
+      ],
+      "runtime_ids": [
+        "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+        "RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+        "CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23",
+        "CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "related_ids": [
+        "FG-MACHINE-EDGE",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+        "REF-FIRMWARE-BUNDLE-STORE"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-003",
+          "REQ-COF-004",
+          "REQ-COF-005"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+          "REF-FIRMWARE-BUNDLE-STORE"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+          "depends_on:REF-FIRMWARE-BUNDLE-STORE"
+        ],
+        "threats": [
+          "Malicious Firmware Bundle"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676",
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_38_28A8E2",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8"
+      ]
+    },
+    {
+      "id": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "kind": "functional_unit",
+      "title": "Update Campaign Orchestration",
+      "summary": "Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.",
+      "origin": "authored",
+      "status": "stable",
+      "group_id": "FG-CLOUD-CONTROL",
+      "requirement_ids": [
+        "REQ-COF-003",
+        "REQ-COF-005"
+      ],
+      "runtime_ids": [
+        "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322"
+      ],
+      "code_ids": [
+        "CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A",
+        "CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE",
+        "CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9"
+      ],
+      "verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "related_ids": [
+        "FG-CLOUD-CONTROL",
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "REF-FIRMWARE-SIGNER-SERVICE"
+      ],
+      "fields": {
+        "triggers": [
+          "REQ-COF-003",
+          "REQ-COF-005"
+        ],
+        "consumes": [
+          "FU-DEVICE-IDENTITY-SECRETS",
+          "FU-FLEET-OBSERVABILITY-REPORTING",
+          "REF-FIRMWARE-SIGNER-SERVICE"
+        ],
+        "produces": [
+          "depends_on:FU-DEVICE-IDENTITY-SECRETS",
+          "depends_on:FU-FLEET-OBSERVABILITY-REPORTING",
+          "depends_on:REF-FIRMWARE-SIGNER-SERVICE"
+        ],
+        "threats": [
+          "Malicious Firmware Bundle"
+        ]
+      },
+      "field_provenance": [
+        {
+          "field": "code_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_4_659CDE",
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_9_DB7030"
+          ]
+        },
+        {
+          "field": "runtime_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_55847B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_48_626D83",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_4_659CDE",
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_9_DB7030",
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_55847B"
+      ]
+    },
+    {
+      "id": "REQ-COF-001",
+      "kind": "requirement",
+      "title": "REQ-COF-001",
+      "summary": "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_8_48E4EE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
+      ]
+    },
+    {
+      "id": "REQ-COF-002",
+      "kind": "requirement",
+      "title": "REQ-COF-002",
+      "summary": "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics and logging records for fleet operator.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_15_566B32",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+      ]
+    },
+    {
+      "id": "REQ-COF-003",
+      "kind": "requirement",
+      "title": "REQ-COF-003",
+      "summary": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_22_78DF61",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+      ]
+    },
+    {
+      "id": "REQ-COF-004",
+      "kind": "requirement",
+      "title": "REQ-COF-004",
+      "summary": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_29_984EAE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+      ]
+    },
+    {
+      "id": "REQ-COF-005",
+      "kind": "requirement",
+      "title": "REQ-COF-005",
+      "summary": "If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply and report ota status to update campaign orchestration.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_36_FABC1F",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB"
+      ]
+    },
+    {
+      "id": "REQ-COF-006",
+      "kind": "requirement",
+      "title": "REQ-COF-006",
+      "summary": "If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry and flush when normal mode is active.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_44_B17D95"
+      ]
+    },
+    {
+      "id": "REQ-COF-007",
+      "kind": "requirement",
+      "title": "REQ-COF-007",
+      "summary": "Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record including machine identity and campaign id.",
+      "origin": "authored",
+      "status": "stable",
+      "verification_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "verification_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_51_2453E1",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+      ]
+    },
+    {
+      "id": "REQ-COF-008",
+      "kind": "requirement",
+      "title": "REQ-COF-008",
+      "summary": "If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry and notify security analyst.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_58_528C86"
+      ]
+    },
+    {
+      "id": "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
+      "kind": "runtime_element",
+      "title": "ota_campaign_schedule",
+      "summary": "Inferred runtime eventbridge_rule owned by FU-OTA-UPDATE-AGENT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676"
+      ]
+    },
+    {
+      "id": "RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322",
+      "kind": "runtime_element",
+      "title": "ota_campaign_target",
+      "summary": "Inferred runtime eventbridge_target owned by FU-OTA-UPDATE-AGENT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
+      "kind": "runtime_element",
+      "title": "fleet_ingestion_api",
+      "summary": "Inferred runtime lambda_function owned by FU-FLEET-INGESTION-API",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
+      "kind": "runtime_element",
+      "title": "fleet_observability_reporting",
+      "summary": "Inferred runtime lambda_function owned by FU-FLEET-OBSERVABILITY-REPORTING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8"
+      ]
+    },
+    {
+      "id": "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322",
+      "kind": "runtime_element",
+      "title": "update_campaign_orchestration",
+      "summary": "Inferred runtime lambda_function owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_55847B"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_55847B"
+      ]
+    },
+    {
+      "id": "RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322",
+      "kind": "runtime_element",
+      "title": "telemetry_retry_queue",
+      "summary": "Inferred runtime queue owned by FU-MACHINE-TELEMETRY-COLLECTION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_40_9C0948"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_40_9C0948"
+      ]
+    },
+    {
+      "id": "RT-TOPIC_FLEET_EVENT_TOPIC_B15322",
+      "kind": "runtime_element",
+      "title": "fleet_event_topic",
+      "summary": "Inferred runtime topic owned by FU-FLEET-INGESTION-API",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+      "kind": "code_element",
+      "title": "cloud_runtime_ops.go",
+      "summary": "Inferred code source_file owned by FU-CLOUD-RUNTIME-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+      "kind": "code_element",
+      "title": "device_identity_secrets.ts",
+      "summary": "Inferred code source_file owned by FU-DEVICE-IDENTITY-SECRETS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+      "kind": "code_element",
+      "title": "fleet_ingestion_api.go",
+      "summary": "Inferred code source_file owned by FU-FLEET-INGESTION-API",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+      "kind": "code_element",
+      "title": "fleet_observability_reporting.ts",
+      "summary": "Inferred code source_file owned by FU-FLEET-OBSERVABILITY-REPORTING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F",
+      "kind": "code_element",
+      "title": "machine_telemetry.rs",
+      "summary": "Inferred code source_file owned by FU-MACHINE-TELEMETRY-COLLECTION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+      "kind": "code_element",
+      "title": "ota_update_agent.rs",
+      "summary": "Inferred code source_file owned by FU-OTA-UPDATE-AGENT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E"
+      ]
+    },
+    {
+      "id": "CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A",
+      "kind": "code_element",
+      "title": "update_campaign_orchestrator.ts",
+      "summary": "Inferred code source_file owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE",
+      "kind": "code_element",
+      "title": "CODE-HANDLEROLLBACK",
+      "summary": "Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_9_DB7030"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_9_DB7030"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B",
+      "kind": "code_element",
+      "title": "CODE-INGESTTELEMETRY",
+      "summary": "Inferred code symbol owned by FU-FLEET-INGESTION-API",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF",
+      "kind": "code_element",
+      "title": "CODE-NOTIFYREPLAYABUSE",
+      "summary": "Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33",
+      "kind": "code_element",
+      "title": "CODE-PERSISTAUDITLOG",
+      "summary": "Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B",
+      "kind": "code_element",
+      "title": "CODE-PERSISTTELEMETRYMETRIC",
+      "summary": "Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9",
+      "kind": "code_element",
+      "title": "CODE-PLANCAMPAIGN",
+      "summary": "Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_4_659CDE"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_4_659CDE"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5",
+      "kind": "code_element",
+      "title": "CODE-PUBLISHBREWTELEMETRY",
+      "summary": "Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_9_17FD6C"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_9_17FD6C"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F",
+      "kind": "code_element",
+      "title": "CODE-QUEUEFORRETRY",
+      "summary": "Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_14_6639BA"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_14_6639BA"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB",
+      "kind": "code_element",
+      "title": "CODE-RAISESECURITYNOTIFICATION",
+      "summary": "Inferred code symbol owned by FU-CLOUD-RUNTIME-OPERATIONS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51",
+      "kind": "code_element",
+      "title": "CODE-REDACTIDENTITYFORAUDIT",
+      "summary": "Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30",
+      "kind": "code_element",
+      "title": "CODE-REJECTREPLAY",
+      "summary": "Inferred code symbol owned by FU-FLEET-INGESTION-API",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23",
+      "kind": "code_element",
+      "title": "CODE-ROLLBACKANDREPORT",
+      "summary": "Inferred code symbol owned by FU-OTA-UPDATE-AGENT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C",
+      "kind": "code_element",
+      "title": "CODE-VALIDATEANDAPPLY",
+      "summary": "Inferred code symbol owned by FU-OTA-UPDATE-AGENT",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D"
+      ]
+    },
+    {
+      "id": "CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D",
+      "kind": "code_element",
+      "title": "CODE-VERIFYFIRMWARESIGNATURE",
+      "summary": "Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS",
+      "origin": "inferred",
+      "status": "inferred",
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "owner",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951"
+      ]
+    },
+    {
+      "id": "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+      "kind": "verification",
+      "title": "Ota Rollout Flow",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "partial",
+      "requirement_ids": [
+        "REQ-COF-003",
+        "REQ-COF-005"
+      ],
+      "related_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "medium",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB"
+      ]
+    },
+    {
+      "id": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
+      "kind": "verification",
+      "title": "Logging Pipeline Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "not-run",
+      "requirement_ids": [
+        "REQ-COF-002",
+        "REQ-COF-007"
+      ],
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "low",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
+      ]
+    },
+    {
+      "id": "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794",
+      "kind": "verification",
+      "title": "Telemetry Ingest Contract Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-COF-001"
+      ],
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
+      ]
+    },
+    {
+      "id": "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8",
+      "kind": "verification",
+      "title": "Ota Campaign Test",
+      "summary": "Inferred from test source artifact.",
+      "origin": "verification",
+      "status": "pass",
+      "requirement_ids": [
+        "REQ-COF-003",
+        "REQ-COF-004"
+      ],
+      "related_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "field_provenance": [
+        {
+          "field": "requirement_ids",
+          "origin": "inferred",
+          "confidence": "high",
+          "source_refs": [
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+            "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+          ]
+        }
+      ],
+      "source_refs": [
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+        "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A"
+      ]
+    }
+  ],
+  "source_blocks": [
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_13_A950D1",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 13,
+      "line_end": 13,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-MACHINE-EDGE"
+      ],
+      "summary": "authored functional group FG-MACHINE-EDGE"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_19_F9E762",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 19,
+      "line_end": 19,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-CLOUD-CONTROL"
+      ],
+      "summary": "authored functional group FG-CLOUD-CONTROL"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_25_93272C",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 25,
+      "line_end": 25,
+      "kind": "functional_group",
+      "entity_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "summary": "authored functional group FG-PLATFORM-OPERATIONS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_33_B27AF7",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 33,
+      "line_end": 33,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "summary": "authored functional unit FU-MACHINE-TELEMETRY-COLLECTION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_38_28A8E2",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 38,
+      "line_end": 38,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "summary": "authored functional unit FU-OTA-UPDATE-AGENT"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 43,
+      "line_end": 43,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "summary": "authored functional unit FU-FLEET-INGESTION-API"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_48_626D83",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 48,
+      "line_end": 48,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "summary": "authored functional unit FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 53,
+      "line_end": 53,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "summary": "authored functional unit FU-FLEET-OBSERVABILITY-REPORTING"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_58_BE989E",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 58,
+      "line_end": 58,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS"
+      ],
+      "summary": "authored functional unit FU-CLOUD-RUNTIME-OPERATIONS"
+    },
+    {
+      "id": "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_63_47AC31",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 63,
+      "line_end": 63,
+      "kind": "functional_unit",
+      "entity_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "summary": "authored functional unit FU-DEVICE-IDENTITY-SECRETS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_6_E70AC7",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 6,
+      "line_end": 6,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-MACHINE-EDGE"
+      ],
+      "summary": "design narrative for FG-MACHINE-EDGE"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_29_258E3F",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 29,
+      "line_end": 29,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-CLOUD-CONTROL"
+      ],
+      "summary": "design narrative for FG-CLOUD-CONTROL"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_52_14E754",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 52,
+      "line_end": 52,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FG-PLATFORM-OPERATIONS"
+      ],
+      "summary": "design narrative for FG-PLATFORM-OPERATIONS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_76_606E1C",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 76,
+      "line_end": 76,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "summary": "design narrative for FU-MACHINE-TELEMETRY-COLLECTION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_100_B065EC",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 100,
+      "line_end": 100,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "summary": "design narrative for FU-OTA-UPDATE-AGENT"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_124_AFD5B3",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 124,
+      "line_end": 124,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-FLEET-INGESTION-API"
+      ],
+      "summary": "design narrative for FU-FLEET-INGESTION-API"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_148_DC4B94",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 148,
+      "line_end": 148,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "summary": "design narrative for FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_172_B973EE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 172,
+      "line_end": 172,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "summary": "design narrative for FU-FLEET-OBSERVABILITY-REPORTING"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_196_9C9C00",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 196,
+      "line_end": 196,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS"
+      ],
+      "summary": "design narrative for FU-CLOUD-RUNTIME-OPERATIONS"
+    },
+    {
+      "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_220_5DB1EF",
+      "path": "examples/coffee-fleet-ota-cloud-sample/design.yml",
+      "line_start": 220,
+      "line_end": 220,
+      "kind": "design_yaml",
+      "entity_ids": [
+        "FU-DEVICE-IDENTITY-SECRETS"
+      ],
+      "summary": "design narrative for FU-DEVICE-IDENTITY-SECRETS"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_5_4D7C57",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 5,
+      "line_end": 5,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_12_55847B",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 12,
+      "line_end": 12,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_19_6B46A8",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 19,
+      "line_end": 19,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322"
+      ],
+      "summary": "runtime evidence for RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_26_1AD676",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 26,
+      "line_end": 26,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322"
+      ],
+      "summary": "runtime evidence for RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_31_8D9BD8",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 31,
+      "line_end": 31,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322"
+      ],
+      "summary": "runtime evidence for RT-EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_C1D951",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 36,
+      "line_end": 36,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-TOPIC_FLEET_EVENT_TOPIC_B15322"
+      ],
+      "summary": "runtime evidence for RT-TOPIC_FLEET_EVENT_TOPIC_B15322"
+    },
+    {
+      "id": "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_40_9C0948",
+      "path": "examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf",
+      "line_start": 40,
+      "line_end": 40,
+      "kind": "inferred_runtime",
+      "entity_ids": [
+        "RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322"
+      ],
+      "summary": "runtime evidence for RT-QUEUE_TELEMETRY_RETRY_QUEUE_B15322"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_8_48E4EE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 8,
+      "line_end": 8,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-001"
+      ],
+      "summary": "authored requirement REQ-COF-001"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_15_566B32",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 15,
+      "line_end": 15,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-002"
+      ],
+      "summary": "authored requirement REQ-COF-002"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_22_78DF61",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 22,
+      "line_end": 22,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-003"
+      ],
+      "summary": "authored requirement REQ-COF-003"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_29_984EAE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 29,
+      "line_end": 29,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-004"
+      ],
+      "summary": "authored requirement REQ-COF-004"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_36_FABC1F",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 36,
+      "line_end": 36,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-005"
+      ],
+      "summary": "authored requirement REQ-COF-005"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_44_B17D95",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 44,
+      "line_end": 44,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-006"
+      ],
+      "summary": "authored requirement REQ-COF-006"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_51_2453E1",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 51,
+      "line_end": 51,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-007"
+      ],
+      "summary": "authored requirement REQ-COF-007"
+    },
+    {
+      "id": "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_58_528C86",
+      "path": "examples/coffee-fleet-ota-cloud-sample/requirements.yml",
+      "line_start": 58,
+      "line_end": 58,
+      "kind": "requirement",
+      "entity_ids": [
+        "REQ-COF-008"
+      ],
+      "summary": "authored requirement REQ-COF-008"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_0_109772",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/cloud_runtime_ops.go",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_CLOUD_RUNTIME_OPS_GO_5_EC1DC8",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/cloud_runtime_ops.go",
+      "line_start": 5,
+      "line_end": 5,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2091CB"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_0_815CA4",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/device_identity_secrets.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_4_EC2951",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/device_identity_secrets.ts",
+      "line_start": 4,
+      "line_end": 4,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_VERIFYFIRMWARESIGNATURE_D3BF4D"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_DEVICE_IDENTITY_SECRETS_TS_9_4A045D",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/device_identity_secrets.ts",
+      "line_start": 9,
+      "line_end": 9,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_REDACTIDENTITYFORAUDIT_D6BF51"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_ingestion_api.go",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_10_D50960",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_ingestion_api.go",
+      "line_start": 10,
+      "line_end": 10,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_INGESTTELEMETRY_E1EE7B"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_15_F48647",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_ingestion_api.go",
+      "line_start": 15,
+      "line_end": 15,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_REJECTREPLAY_B1EE30"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_observability_reporting.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_4_8CDB68",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_observability_reporting.ts",
+      "line_start": 4,
+      "line_end": 4,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PERSISTTELEMETRYMETRIC_FE2D3B"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_9_D7AA3D",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_observability_reporting.ts",
+      "line_start": 9,
+      "line_end": 9,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PERSISTAUDITLOG_F92D33"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_14_1C6351",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/fleet_observability_reporting.ts",
+      "line_start": 14,
+      "line_end": 14,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_NOTIFYREPLAYABUSE_F83BEF"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/machine_telemetry.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_MACHINE_TELEMETRY_RS_8C890F"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_9_17FD6C",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/machine_telemetry.rs",
+      "line_start": 9,
+      "line_end": 9,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PUBLISHBREWTELEMETRY_95DED5"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_14_6639BA",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/machine_telemetry.rs",
+      "line_start": 14,
+      "line_end": 14,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_QUEUEFORRETRY_1BB60F"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/ota_update_agent.rs",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_4_CBBB4D",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/ota_update_agent.rs",
+      "line_start": 4,
+      "line_end": 4,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_VALIDATEANDAPPLY_EBDC5C"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_13_E5AEDE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/ota_update_agent.rs",
+      "line_start": 13,
+      "line_end": 13,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_ROLLBACKANDREPORT_52DE23"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/update_campaign_orchestrator.ts",
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A"
+      ],
+      "summary": "code evidence for CODE-SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_90CA2A"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_4_659CDE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/update_campaign_orchestrator.ts",
+      "line_start": 4,
+      "line_end": 4,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_PLANCAMPAIGN_4AA5C9"
+    },
+    {
+      "id": "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_9_DB7030",
+      "path": "examples/coffee-fleet-ota-cloud-sample/src/update_campaign_orchestrator.ts",
+      "line_start": 9,
+      "line_end": 9,
+      "kind": "inferred_code",
+      "entity_ids": [
+        "CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE"
+      ],
+      "summary": "code evidence for CODE-SYMBOL_CODE_HANDLEROLLBACK_4DA5CE"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C",
+      "path": "examples/coffee-fleet-ota-cloud-sample/test-results/contract-telemetry.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "summary": "verification evidence for VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC",
+      "path": "examples/coffee-fleet-ota-cloud-sample/test-results/integration-logging.json",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB",
+      "path": "examples/coffee-fleet-ota-cloud-sample/test-results/ota-rollback-report.md",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_UNIT_OTA_XML_0_D9184A",
+      "path": "examples/coffee-fleet-ota-cloud-sample/test-results/unit-ota.xml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "summary": "verification evidence for VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/tests/contract/telemetry_ingest_contract_test.go",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "summary": "verification evidence for VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
+      "path": "examples/coffee-fleet-ota-cloud-sample/tests/e2e/ota_rollout_flow.yaml",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "summary": "verification evidence for VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
+      "path": "examples/coffee-fleet-ota-cloud-sample/tests/integration/logging_pipeline_test.ts",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "summary": "verification evidence for VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+    },
+    {
+      "id": "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
+      "path": "examples/coffee-fleet-ota-cloud-sample/tests/unit/ota_campaign_test.go",
+      "kind": "verification_artifact",
+      "entity_ids": [
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "summary": "verification evidence for VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+    }
+  ]
+}

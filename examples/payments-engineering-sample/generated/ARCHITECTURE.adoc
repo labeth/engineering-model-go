@@ -399,13 +399,14 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Functional Groups (View Scoped)
+=== Functional Groups and Units (View Scoped)
+
 
 
 ==== Payments (FG-PAYMENTS)
 
 
-Description: Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
 
 
 
@@ -416,18 +417,81 @@ fraud and external bank capabilities.
 
 
 
-===== Payments Architecture Intent Design
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> defines the business capability that turns customer intent into a clear payment outcome.
-It sets the responsibilities between <<REF_CATALOG_FU_CHECKOUT,checkout handling>> and <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>, and defines where
-approval, decline, and fallback decisions are made.
+
+
+
+
+
+
+===== Checkout Handling (FU-CHECKOUT)
+
+
+
+
+
+Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
+
+
+
+
+
+===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
+
+
+
+
+
+Payment authorization orchestrates the final transaction decision path.
+It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
+The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+
+
+
+
+
+
+
 
 
 
 ==== Fraud Evaluation (FG-FRAUD)
 
 
-Description: Risk scoring and fraud audit domain.
+Risk scoring and fraud audit domain.
 
 
 
@@ -437,18 +501,81 @@ escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are 
 
 
 
-===== Fraud Evaluation Architecture Intent Design
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> defines how <<REF_RT_NAMESPACE_RISK,risk>> evidence is transformed into actionable payment decisions.
-It separates automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> from human <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so escalation paths are explicit,
-explainable, and policy-constrained.
+
+
+===== Risk Scoring (FU-RISK-SCORING)
+
+
+
+
+
+Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
+It provides a stable scoring contract to authorization and supports audit context for later analysis.
+The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+
+
+
+
+
+
+===== Support Review (FU-SUPPORT-REVIEW)
+
+
+
+
+
+Support review handles manual decisions for escalated or ambiguous payment cases.
+It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
+The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>
+
+[discrete]
+====== Key Collaborators
+
+none
+
+[discrete]
+====== Linked Requirements
+
+<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 ==== Platform (FG-PLATFORM)
 
 
-Description: Cluster provisioning and GitOps operations domain.
+Cluster provisioning and GitOps operations domain.
 
 
 
@@ -458,202 +585,72 @@ The group enables safe delivery and reliable operations without owning payment b
 
 
 
-===== Platform Architecture Intent Design
 
-platform provides the foundational capabilities required for all product workloads to run safely.
-It intentionally models provisioning and reconciliation as first-class architecture responsibilities,
-not background implementation detail.
 
 
 
 
-=== Functional Units (View Scoped)
 
 
 
-==== Risk Scoring (FU-RISK-SCORING)
 
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
-Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+===== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
 
 
 
-===== Risk Scoring Architecture Intent Design
-
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> produces <<REF_RT_NAMESPACE_RISK,risk>> classifications that are actionable for authorization policy.
-Functional design requires predictable threshold behavior and explainable outputs for operators.
-
-
-
-
-Purpose: Risk scoring computes and classifies transaction <<REF_RT_NAMESPACE_RISK,risk>> before approval decisions are finalized.
-It provides a stable scoring contract to authorization and supports audit context for later analysis.
-The unit is focused on decision quality, consistency, and policy-driven classification behavior.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>; primary requirement scope: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Key collaborators: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Owned decisions: <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-Key inputs and outputs: consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; produces depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
-
-
-
-
-==== Support Review (FU-SUPPORT-REVIEW)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
-
-
-
-===== Support Review Architecture Intent Design
-
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> provides controlled human decision flow for escalated transactions.
-Functional design ensures review actions are policy-bounded and outcome transitions are explicit.
-
-
-
-
-Purpose: Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
-The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>; primary requirement scope: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Key collaborators: none
-Owned decisions: <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-Key inputs and outputs: consumes <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; produces derived unit outcomes from authored mappings
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
-
-
-
-
-==== Checkout Handling (FU-CHECKOUT)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
-
-
-
-===== Checkout Handling Architecture Intent Design
-
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> owns customer-facing request normalization and response semantics.
-Functional design ensures the customer receives a coherent outcome regardless of approval, decline,
-or temporary dependency failure conditions.
-
-
-
-
-Purpose: Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Key collaborators: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Owned decisions: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Key inputs and outputs: consumes none; produces depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
-
-
-
-
-==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
-
-
-
-===== Payment Authorization Architecture Intent Design
-
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> defines the decision policy orchestration for each transaction.
-It combines fraud input, bank outcomes, and escalation rules into one deterministic business decision.
-
-
-
-
-Purpose: Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
-The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; primary requirement scope: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Key collaborators: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Owned decisions: <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-Key inputs and outputs: consumes <<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>; produces depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
-
-
-
-
-==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
-
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 Cluster provisioning creates the runtime substrate used by all application workloads.
 It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
 This unit is responsible for predictable, repeatable infrastructure foundations.
 
+[discrete]
+====== Owned Responsibility
 
+functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
 
-===== Cluster Provisioning Architecture Intent Design
+[discrete]
+====== Key Collaborators
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> defines the repeatable environment baseline for all runtime workloads.
-Functional design establishes deterministic creation of cluster and namespace structure.
+none
 
+[discrete]
+====== Linked Requirements
 
-
-
-Purpose: Cluster provisioning creates the runtime substrate used by all application workloads.
-It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
-This unit is responsible for predictable, repeatable infrastructure foundations.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
-Key collaborators: none
-Owned decisions: no explicit authored requirement trigger
-Key inputs and outputs: consumes <<REF_IDX-FU_FU_GITOPS_OPERATIONS,GitOps Operations>>; produces derived unit outcomes from authored mappings
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
+no explicit authored requirement trigger
 
 
 
 
-==== GitOps Operations (FU-GITOPS-OPERATIONS)
 
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
+
+===== GitOps Operations (FU-GITOPS-OPERATIONS)
+
+
+
 
 
 GitOps operations continuously reconciles intended release state with actual runtime state.
 It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
 The unit provides safe and observable release behavior as an ongoing operational capability.
 
+[discrete]
+====== Owned Responsibility
 
+functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 
-===== GitOps Operations Architecture Intent Design
+[discrete]
+====== Key Collaborators
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> defines how declared release intent becomes enforced runtime state.
-Functional design ensures delivery behavior is predictable and drift is corrected consistently.
+<<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 
+[discrete]
+====== Linked Requirements
 
+no explicit authored requirement trigger
 
-
-Purpose: GitOps operations continuously reconciles intended release state with actual runtime state.
-It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
-The unit provides safe and observable release behavior as an ongoing operational capability.
-Owned responsibility: functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
-Key collaborators: <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
-Owned decisions: no explicit authored requirement trigger
-Key inputs and outputs: consumes none; produces depends_on -> <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>; depends_on -> <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
-Non-goals / boundary notes: this unit boundary is intentionally scoped to authored responsibilities and explicit collaborator contracts.
 
 
 
@@ -719,7 +716,8 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Functional Groups (View Scoped)
+=== Functional Groups and Units (View Scoped)
+
 
 
 ==== Payments (FG-PAYMENTS)
@@ -728,11 +726,97 @@ flowchart LR
 
 
 
-===== Payments Communication Design
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> runs the public request path and keeps transaction context intact across runtime hops.
 The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
 signals when dependencies slow down or fail.
+
+
+
+
+
+
+
+
+
+===== Checkout Handling (FU-CHECKOUT)
+
+
+
+
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
+Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
+burst traffic and partial downstream degradation.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-ACTOR_ACT_CUSTOMER,Customer>> |Submits payment at <<REF_CATALOG_FU_CHECKOUT,checkout>>.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Delegates <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+
+
+
+
+
+===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
+
+
+
+
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
+Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
+
+
+
+
+
+[discrete]
+====== Inbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>> |Delegates <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>.
+|===
+
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> |Calls external bank authorization endpoint.
+|<<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> |Requests <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>> before final authorization.
+|<<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> |Escalates high-risk <<REF_RT_CLUSTER_PAYMENTS,payments>> for <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>>.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
+
+
 
 
 
@@ -742,7 +826,6 @@ signals when dependencies slow down or fail.
 
 
 
-===== Fraud Evaluation Communication Design
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> runs as a critical dependency on the authorization path.
 Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
@@ -751,116 +834,82 @@ diagnosis and audit when high-risk classifications occur.
 
 
 
-=== Functional Units (View Scoped)
+
+===== Risk Scoring (FU-RISK-SCORING)
 
 
 
-==== Risk Scoring (FU-RISK-SCORING)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-
-===== Risk Scoring Communication Design
 
 <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> runs as a synchronous dependency with strict response-shape stability.
 Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
 
 
 
+
+
+[discrete]
+====== Inbound Interfaces
+
 [cols="1,3",options="header"]
 |===
-|Communication Aspect |View-Scoped Detail
-|Inbound interfaces |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Outbound interfaces |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Messages/events consumed |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
-|Messages/events produced |depends_on -> <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
-|Timeout/failure behavior |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Communication evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Interface |Description
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Requests <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>> before final authorization.
 |===
 
+[discrete]
+====== Outbound Interfaces
+
+[cols="1,3",options="header"]
+|===
+|Interface |Description
+|<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>> |Uses external library for audit persistence.
+|===
+
+[discrete]
+====== Communication Evidence
+
+runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
 
 
-==== Support Review (FU-SUPPORT-REVIEW)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Support Review Communication Design
+===== Support Review (FU-SUPPORT-REVIEW)
+
+
+
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime optimizes for operator clarity and decision traceability over throughput.
 Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
 
 
 
-[cols="1,3",options="header"]
-|===
-|Communication Aspect |View-Scoped Detail
-|Inbound interfaces |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Outbound interfaces |derived unit outcomes from authored mappings
-|Messages/events consumed |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
-|Messages/events produced |derived unit outcomes from authored mappings
-|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
-|Timeout/failure behavior |none
-|Communication evidence |authored unit with no direct derived runtime/code evidence yet
-|===
 
 
-
-==== Checkout Handling (FU-CHECKOUT)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Checkout Handling Communication Design
-
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
-Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
-burst traffic and partial downstream degradation.
-
-
+[discrete]
+====== Inbound Interfaces
 
 [cols="1,3",options="header"]
 |===
-|Communication Aspect |View-Scoped Detail
-|Inbound interfaces |none
-|Outbound interfaces |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Messages/events consumed |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Messages/events produced |depends_on -> <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
-|Timeout/failure behavior |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Communication evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
+|Interface |Description
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Escalates high-risk <<REF_RT_CLUSTER_PAYMENTS,payments>> for <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>>.
+|<<REF_IDX-ACTOR_ACT_SUPPORT,Support Agent>> |Performs manual payment reviews.
 |===
 
+[discrete]
+====== Outbound Interfaces
 
+none
 
-==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
+[discrete]
+====== Communication Evidence
 
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Payment Authorization Communication Design
-
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
-Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
+authored unit with no direct derived runtime/code evidence yet
 
 
 
-[cols="1,3",options="header"]
-|===
-|Communication Aspect |View-Scoped Detail
-|Inbound interfaces |<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>>
-|Outbound interfaces |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Messages/events consumed |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Messages/events produced |depends_on -> <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>; depends_on -> <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>; depends_on -> <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Retry/idempotency expectations |Not explicitly modeled in authored mappings; define per interface contract as needed.
-|Timeout/failure behavior |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Communication evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
-|===
+
+
 
 
 
@@ -903,9 +952,7 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 
 What this diagram shows: how source/control-plane artifacts connect to releases, namespaces, workloads, and target cluster context.
 
-NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete.
-NOTE: Namespace and cluster boundaries are rendered as containers when target/placement relationships are inferred.
-NOTE: Node labels include role hints (for example Source, Kustomization, Release, Workload, ns/...) to make similarly named elements easier to distinguish.
+NOTE: This graph is inferred from available deployment artifacts (for example Terraform, Flux, Helm) and may be partial when source metadata is incomplete. Namespace and cluster boundaries are rendered as containers when target/placement relationships are inferred. Node labels include role hints (for example `Source`, `Kustomization`, `Release`, `Workload`, `ns/...`) to distinguish similarly named elements.
 
 [source,mermaid]
 ----
@@ -933,10 +980,10 @@ flowchart TB
     DP_PAYMENTS_APPS["Kustomization: payments-apps"]:::deployment_element
     DP_PAYMENTS_SAMPLE_SOURCE["Source: payments-sample-source"]:::deployment_element
   end
-  DP_PAYMENTS_SAMPLE_SOURCE -->|reconciles| DP_PAYMENTS_APPS
   DP_PAYMENTS_APPS -->|applies| DP_PAYMENTS_CHECKOUT_API
   DP_PAYMENTS_APPS -->|applies| DP_PAYMENTS_PAYMENT_ENGINE
   DP_PAYMENTS_APPS -->|applies| DP_RISK_RISK_SCORER
+  DP_PAYMENTS_SAMPLE_SOURCE -->|reconciles| DP_PAYMENTS_APPS
   DP_PAYMENTS_CHECKOUT_API -->|targets| DP_PAYMENTS
   DP_PAYMENTS_PAYMENT_ENGINE -->|targets| DP_PAYMENTS
   DP_RISK_RISK_SCORER -->|targets| DP_RISK
@@ -995,7 +1042,8 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Functional Groups (View Scoped)
+=== Functional Groups and Units (View Scoped)
+
 
 
 ==== Payments (FG-PAYMENTS)
@@ -1004,11 +1052,72 @@ flowchart LR
 
 
 
-===== Payments Deployment Design
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> is deployed so <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization can roll independently with minimal blast radius.
 Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
 policy-impacting releases are exposed.
+
+
+
+
+
+
+
+
+
+===== Checkout Handling (FU-CHECKOUT)
+
+
+
+
+====== Checkout Handling Deployment Design
+
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
+Deployment design favors fast rollback and compatibility checks with the current authorization interface.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Deployment dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Inferred deployment evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+|===
+
+
+
+
+
+===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
+
+
+
+
+====== Payment Authorization Deployment Design
+
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
+Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
+
+
+
+
+
+[cols="1,3",options="header"]
+|===
+|Deployment Aspect |View-Scoped Detail
+|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Deployment dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
+|===
+
+
+
+
+
+
 
 
 
@@ -1018,42 +1127,25 @@ policy-impacting releases are exposed.
 
 
 
-===== Fraud Evaluation Deployment Design
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> deployment is tuned for cautious rollout because scoring changes can alter approval rates.
 Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
 
 
 
-==== Platform (FG-PLATFORM)
+
+
+===== Risk Scoring (FU-RISK-SCORING)
 
 
 
 
-
-===== Platform Deployment Design
-
-platform deployment design governs how infrastructure intent is applied and kept in sync over time.
-It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
-teams depend on new platform states.
-
-
-
-
-=== Functional Units (View Scoped)
-
-
-
-==== Risk Scoring (FU-RISK-SCORING)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-
-===== Risk Scoring Deployment Design
+====== Risk Scoring Deployment Design
 
 <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> deployment uses staged rollout because scoring changes have immediate decision impact.
 Deployment design includes observation windows for score distribution and escalation-rate changes.
+
+
 
 
 
@@ -1062,21 +1154,24 @@ Deployment design includes observation windows for score distribution and escala
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |Deployment dependencies |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Inferred deployment evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Inferred deployment evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
 |===
 
 
 
-==== Support Review (FU-SUPPORT-REVIEW)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
+===== Support Review (FU-SUPPORT-REVIEW)
 
-===== Support Review Deployment Design
+
+
+
+====== Support Review Deployment Design
 
 <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> deployment isolates privileged workflows from public ingress components.
 Deployment design must preserve active review sessions across upgrades and ensure queue/review latency visibility.
+
+
 
 
 
@@ -1090,62 +1185,50 @@ Deployment design must preserve active review sessions across upgrades and ensur
 
 
 
-==== Checkout Handling (FU-CHECKOUT)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
 
 
 
-===== Checkout Handling Deployment Design
-
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
-Deployment design favors fast rollback and compatibility checks with the current authorization interface.
 
 
 
-[cols="1,3",options="header"]
-|===
-|Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Deployment dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Inferred deployment evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
-|===
 
 
 
-==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Payment Authorization Deployment Design
-
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
-Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
+==== Platform (FG-PLATFORM)
 
 
 
-[cols="1,3",options="header"]
-|===
-|Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
-|Deployment dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
-|===
 
 
 
-==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
+platform deployment design governs how infrastructure intent is applied and kept in sync over time.
+It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
+teams depend on new platform states.
 
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
 
-===== Cluster Provisioning Deployment Design
+
+
+
+
+
+
+
+
+
+===== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
+
+
+
+
+====== Cluster Provisioning Deployment Design
 
 <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> deployment is infrastructure-first and sequence-sensitive.
 Deployment design requires deterministic change plans, drift awareness, and rollback strategy before apply.
+
+
 
 
 
@@ -1159,16 +1242,19 @@ Deployment design requires deterministic change plans, drift awareness, and roll
 
 
 
-==== GitOps Operations (FU-GITOPS-OPERATIONS)
-
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
+===== GitOps Operations (FU-GITOPS-OPERATIONS)
 
-===== GitOps Operations Deployment Design
+
+
+
+====== GitOps Operations Deployment Design
 
 <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the release control plane for application artifacts.
 Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
+
+
 
 
 
@@ -1179,6 +1265,7 @@ Deployment design prioritizes policy gates, controlled promotion, and resilient 
 |Deployment dependencies |<<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 |Inferred deployment evidence |runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 |===
+
 
 
 
@@ -1215,7 +1302,7 @@ Coverage summary: 4/6 units have direct evidence coverage in this view.
 
 - Add explicit authored attack-vector mappings for units currently marked without threat linkage.
 
-- Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.
+- Add security signal ownership metadata (logs/alerts/<<REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS,events>>) for unresolved observability evidence.
 
 - Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.
 
@@ -1223,8 +1310,7 @@ Coverage summary: 4/6 units have direct evidence coverage in this view.
 
 What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
-NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk.
-NOTE: Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
+NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
 
 [source,mermaid]
 ----
@@ -1285,7 +1371,8 @@ flowchart LR
 |abuse and fraud decision logs |runtime |FU-RISK-SCORING |helmrelease risk-scorer
 |abuse and fraud decision logs |runtime |FU-RISK-SCORING |namespace risk
 |===
-=== Functional Groups (View Scoped)
+=== Functional Groups and Units (View Scoped)
+
 
 
 ==== Payments (FG-PAYMENTS)
@@ -1294,11 +1381,103 @@ flowchart LR
 
 
 
-===== Payments Security Design
 
 <<REF_RT_CLUSTER_PAYMENTS,payments>> protects public trust boundaries where untrusted input and external callbacks enter the system.
 Security design focuses on strict validation, replay resistance, and safe failure behavior that preserves
 customer trust during degraded dependency conditions.
+
+
+
+
+
+
+
+
+
+===== Checkout Handling (FU-CHECKOUT)
+
+
+
+
+<<REF_CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
+The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
+are contained without harming legitimate customer flows.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
+
+
+
+
+<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+The design defends against replay, policy probing, and ambiguous error channels that could be abused.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+
 
 
 
@@ -1308,11 +1487,102 @@ customer trust during degraded dependency conditions.
 
 
 
-===== Fraud Evaluation Security Design
 
 <<REF_CATALOG_FG_FRAUD,fraud evaluation>> security focuses on decision integrity and review integrity.
 The design assumes attempted manipulation of <<REF_RT_NAMESPACE_RISK,risk>> inputs, dependency trust, and <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>> workflows,
 and therefore requires strong evidence lineage and tamper-evident operator actions.
+
+
+
+
+
+===== Risk Scoring (FU-RISK-SCORING)
+
+
+
+
+<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
+Design controls enforce strict input handling and evidence capture for post-event investigation.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+===== Support Review (FU-SUPPORT-REVIEW)
+
+
+
+
+<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
+The design prevents silent overrides and guarantees every manual decision is attributable.
+
+
+
+
+
+[discrete]
+====== Attack Surface
+
+none
+
+[discrete]
+====== Main Threats
+
+<<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+authored unit with no direct derived runtime/code evidence yet
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1322,7 +1592,6 @@ and therefore requires strong evidence lineage and tamper-evident operator actio
 
 
 
-===== Platform Security Design
 
 platform security design establishes baseline controls inherited by all higher-layer units.
 It focuses on trusted reconciliation, isolation defaults, and policy enforcement points where compromise
@@ -1331,140 +1600,93 @@ would have broad systemic impact.
 
 
 
-=== Functional Units (View Scoped)
 
 
 
-==== Risk Scoring (FU-RISK-SCORING)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
 
 
 
-===== Risk Scoring Security Design
-
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
-Design controls enforce strict input handling and evidence capture for post-event investigation.
 
 
 
-Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-Security evidence present: runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: risk_scorer, <<REF_CATALOG_ACT_SUPPORT,support>>
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+===== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
 
 
 
-==== Support Review (FU-SUPPORT-REVIEW)
-
-Group: <<REF_IDX-FG_FG_FRAUD,FG-FRAUD>>
-
-
-
-===== Support Review Security Design
-
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
-The design prevents silent overrides and guarantees every manual decision is attributable.
-
-
-
-Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: none
-Security evidence present: authored unit with no direct derived runtime/code evidence yet
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-==== Checkout Handling (FU-CHECKOUT)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Checkout Handling Security Design
-
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
-The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
-are contained without harming legitimate customer flows.
-
-
-
-Attack surface: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Main threats: <<REF_IDX-ATTACK_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-Security evidence present: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: checkout_api
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-==== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
-
-Group: <<REF_IDX-FG_FG_PAYMENTS,FG-PAYMENTS>>
-
-
-
-===== Payment Authorization Security Design
-
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
-The design defends against replay, policy probing, and ambiguous error channels that could be abused.
-
-
-
-Attack surface: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-Main threats: <<REF_IDX-ATTACK_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-ATTACK_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
-Security evidence present: runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, payment_engine
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-==== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
-
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
-
-
-
-===== Cluster Provisioning Security Design
 
 <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> security sets inherited baseline hardening and isolation defaults.
 Design must detect and remediate security drift early because downstream controls depend on this layer.
 
 
 
-Attack surface: no explicit attack vector targeting this unit
-Main threats: no explicit attack vector targeting this unit
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: none
-Security evidence present: runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+[discrete]
+====== Attack Surface
+
+none
+
+[discrete]
+====== Main Threats
+
+no explicit attack vector targeting this unit
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
 
-==== GitOps Operations (FU-GITOPS-OPERATIONS)
-
-Group: <<REF_IDX-FG_FG_PLATFORM,FG-PLATFORM>>
 
 
+===== GitOps Operations (FU-GITOPS-OPERATIONS)
 
-===== GitOps Operations Security Design
+
+
 
 <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> security protects source trust and reconciliation authority.
 The design prevents unauthorized state changes and enforces policy before runtime apply occurs.
 
 
 
-Attack surface: no explicit attack vector targeting this unit
-Main threats: no explicit attack vector targeting this unit
-Expected controls: define control expectations in authored security narratives and mapped dependencies.
-Security-relevant dependencies: <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
-Security evidence present: runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
-Security evidence missing: close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+
+[discrete]
+====== Main Threats
+
+no explicit attack vector targeting this unit
+
+[discrete]
+====== Expected Controls
+
+Define control expectations in authored security narratives and mapped dependencies.
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
+
+[discrete]
+====== Security Evidence Missing
+
+Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+
 
 
 
@@ -1554,7 +1776,6 @@ flowchart TB
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
 === Requirement-to-Unit Mapping
 
 What this diagram shows: direct authored mapping from requirements to the functional units they apply to.

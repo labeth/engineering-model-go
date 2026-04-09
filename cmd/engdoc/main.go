@@ -31,36 +31,79 @@ func main() {
 	designPath := flag.String("design", "", "path to design mapping YAML")
 	codeRoot := flag.String("code-root", "", "optional source tree root for TRACE-* code mapping")
 	outPath := flag.String("out", "", "optional output .adoc path; defaults to stdout")
+	aiJSONOut := flag.String("ai-json-out", "", "optional output path for AI JSON export")
+	aiMarkdownOut := flag.String("ai-md-out", "", "optional output path for derived AI markdown export")
+	aiEdgesOut := flag.String("ai-edges-out", "", "optional output path for AI edge stream NDJSON export")
 	var views viewFlags
 	flag.Var(&views, "view", "optional viewpoint ID; repeat to include multiple views")
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*reqPath) == "" || strings.TrimSpace(*designPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engdoc --model <architecture.yml> --requirements <requirements.yml> --design <design.yml> [--code-root <dir>] [--view <id> ...] [--out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engdoc --model <architecture.yml> --requirements <requirements.yml> --design <design.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--ai-json-out <file>] [--ai-md-out <file>] [--ai-edges-out <file>]")
 		os.Exit(2)
 	}
 
-	res, err := engmodel.GenerateAsciiDocFromFiles(*modelPath, *reqPath, *designPath, engmodel.AsciiDocOptions{
-		ViewIDs:  views,
-		CodeRoot: strings.TrimSpace(*codeRoot),
-	})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		printDiagnostics(res.Diagnostics)
-		os.Exit(1)
-	}
+	useAI := strings.TrimSpace(*aiJSONOut) != "" || strings.TrimSpace(*aiMarkdownOut) != "" || strings.TrimSpace(*aiEdgesOut) != ""
+	useAsciiDoc := strings.TrimSpace(*outPath) != "" || !useAI
+	allDiagnostics := []validate.Diagnostic{}
 
-	if strings.TrimSpace(*outPath) == "" {
-		_, _ = os.Stdout.WriteString(res.Document)
-	} else {
-		if err := os.WriteFile(*outPath, []byte(res.Document), 0o644); err != nil {
-			fmt.Fprintln(os.Stderr, "error writing output:", err)
+	if useAsciiDoc {
+		res, err := engmodel.GenerateAsciiDocFromFiles(*modelPath, *reqPath, *designPath, engmodel.AsciiDocOptions{
+			ViewIDs:  views,
+			CodeRoot: strings.TrimSpace(*codeRoot),
+		})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error:", err)
+			printDiagnostics(res.Diagnostics)
 			os.Exit(1)
+		}
+		allDiagnostics = append(allDiagnostics, res.Diagnostics...)
+
+		if strings.TrimSpace(*outPath) == "" {
+			_, _ = os.Stdout.WriteString(res.Document)
+		} else {
+			if err := os.WriteFile(*outPath, []byte(res.Document), 0o644); err != nil {
+				fmt.Fprintln(os.Stderr, "error writing output:", err)
+				os.Exit(1)
+			}
 		}
 	}
 
-	printDiagnostics(res.Diagnostics)
-	if validate.HasErrors(res.Diagnostics) {
+	if useAI {
+		aiRes, err := engmodel.GenerateAIViewFromFiles(*modelPath, *reqPath, *designPath, engmodel.AIViewOptions{
+			ViewIDs:  views,
+			CodeRoot: strings.TrimSpace(*codeRoot),
+		})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error:", err)
+			printDiagnostics(aiRes.Diagnostics)
+			os.Exit(1)
+		}
+		allDiagnostics = append(allDiagnostics, aiRes.Diagnostics...)
+
+		if strings.TrimSpace(*aiJSONOut) != "" {
+			if err := os.WriteFile(*aiJSONOut, []byte(aiRes.JSON), 0o644); err != nil {
+				fmt.Fprintln(os.Stderr, "error writing ai json output:", err)
+				os.Exit(1)
+			}
+		}
+		if strings.TrimSpace(*aiMarkdownOut) != "" {
+			if err := os.WriteFile(*aiMarkdownOut, []byte(aiRes.Markdown), 0o644); err != nil {
+				fmt.Fprintln(os.Stderr, "error writing ai markdown output:", err)
+				os.Exit(1)
+			}
+		}
+		if strings.TrimSpace(*aiEdgesOut) != "" {
+			if err := os.WriteFile(*aiEdgesOut, []byte(aiRes.EdgesNDJSON), 0o644); err != nil {
+				fmt.Fprintln(os.Stderr, "error writing ai edges output:", err)
+				os.Exit(1)
+			}
+		}
+	}
+
+	allDiagnostics = validate.SortDiagnostics(allDiagnostics)
+	printDiagnostics(allDiagnostics)
+	if validate.HasErrors(allDiagnostics) {
 		os.Exit(1)
 	}
 }
