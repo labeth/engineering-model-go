@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-FLEET-INGESTION-API
+// ENGMODEL-CODE-DESCRIPTION: ingests device telemetry and emits normalized fleet ingestion events
 package src
 
 type IngestPayload struct {

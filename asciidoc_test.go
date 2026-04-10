@@ -106,3 +106,42 @@ func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 		t.Fatalf("expected error diagnostics, got: %+v", res.Diagnostics)
 	}
 }
+
+func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
+	designPath := filepath.Join("examples", "payments-engineering-sample", "design.yml")
+
+	bundle, err := model.LoadBundle(modelPath)
+	if err != nil {
+		t.Fatalf("load bundle failed: %v", err)
+	}
+	requirements, err := model.LoadRequirements(requirementsPath)
+	if err != nil {
+		t.Fatalf("load requirements failed: %v", err)
+	}
+	design, err := model.LoadDesign(designPath)
+	if err != nil {
+		t.Fatalf("load design failed: %v", err)
+	}
+
+	if len(bundle.Catalog.Catalog.FunctionalGroups) == 0 {
+		t.Fatalf("expected functionalGroups in sample catalog")
+	}
+	bundle.Catalog.Catalog.FunctionalGroups[0].Definition = ""
+
+	res, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	if err == nil {
+		t.Fatalf("expected validation failure for missing catalog description")
+	}
+	found := false
+	for _, d := range res.Diagnostics {
+		if d.Code == "catalog.missing_description" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected catalog.missing_description diagnostic, got: %+v", res.Diagnostics)
+	}
+}

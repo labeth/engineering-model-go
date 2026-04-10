@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-GITHUB-WEBHOOK-INGRESS
+// ENGMODEL-CODE-DESCRIPTION: validates GitHub webhook signatures and routes pull request events
 package sample
 
 import (

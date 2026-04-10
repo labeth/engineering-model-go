@@ -1,3 +1,4 @@
+# ENGMODEL-VERIFICATION-DESCRIPTION: executes authorized checkout flow from session start through payment authorization success
 name: authorized-checkout-flow
 suite: payments-e2e
 requirements:

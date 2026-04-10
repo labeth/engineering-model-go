@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-POLICY-CHECKS
+// ENGMODEL-CODE-DESCRIPTION: evaluates policy and style rules before review publication
 pub struct PolicyChecks;
 
 impl PolicyChecks {

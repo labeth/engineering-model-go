@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: validates checkout decline reason normalization and retry policy messaging
 package unit
 
 import "testing"

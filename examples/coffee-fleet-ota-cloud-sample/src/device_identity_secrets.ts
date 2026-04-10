@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-DEVICE-IDENTITY-SECRETS
+// ENGMODEL-CODE-DESCRIPTION: resolves device identity credentials and firmware verification secrets
 
 // TRACE-REQS: REQ-COF-004
 export function verifyFirmwareSignature(signatureValid: boolean): boolean {

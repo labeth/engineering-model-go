@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CHECKOUT
+// ENGMODEL-CODE-DESCRIPTION: accepts checkout requests and forwards payment authorization flow input
 package sample
 
 import (

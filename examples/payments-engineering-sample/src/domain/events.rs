@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-PAYMENT-AUTHORIZATION
+// ENGMODEL-CODE-DESCRIPTION: defines payment domain events used across authorization and risk paths
 pub struct PaymentEvent {
     pub payment_id: String,
     pub amount_cents: u64,

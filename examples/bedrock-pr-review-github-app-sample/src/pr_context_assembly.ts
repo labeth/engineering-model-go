@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-PR-CONTEXT-ASSEMBLY
+// ENGMODEL-CODE-DESCRIPTION: collects pull request diff context and prepares review input payloads
 import { Octokit } from "github-rest-sdk";
 
 export class PRContextAssembly {

@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-FLEET-OBSERVABILITY-REPORTING
+// ENGMODEL-CODE-DESCRIPTION: aggregates telemetry and OTA outcome signals for fleet observability reporting
 
 // TRACE-REQS: REQ-COF-002
 export function persistTelemetryMetric(machineId: string): string {

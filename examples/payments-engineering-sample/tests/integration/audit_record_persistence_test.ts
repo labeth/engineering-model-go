@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: checks audit record persistence includes payment id and computed risk score
 // Sample integration fixture for architecture verification mapping.
 // Verifies REQ-PAY-005.
 function validateAuditRecord(record: { paymentId: string; riskScore: number }) {

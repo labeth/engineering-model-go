@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-OTA-UPDATE-AGENT
+// ENGMODEL-CODE-DESCRIPTION: applies OTA campaign updates and reports rollout outcomes
 
 // TRACE-REQS: REQ-COF-003, REQ-COF-004
 pub fn validate_and_apply(signature_valid: bool) -> &'static str {

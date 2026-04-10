@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-RISK-SCORING
+// ENGMODEL-CODE-DESCRIPTION: computes fraud risk scores and decides review or decline outcomes
 import { z } from "zod";
 import { createAuditEnvelope } from "./support/audit_envelope";
 

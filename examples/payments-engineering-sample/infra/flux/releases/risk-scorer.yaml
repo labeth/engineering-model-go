@@ -5,6 +5,7 @@ metadata:
   namespace: risk
   annotations:
     engmodel.dev/owner-unit: FU-RISK-SCORING
+    engmodel.dev/runtime-description: computes fraud risk score signals and persists evidence used by authorization decisions
 spec:
   interval: 5m
   chart:

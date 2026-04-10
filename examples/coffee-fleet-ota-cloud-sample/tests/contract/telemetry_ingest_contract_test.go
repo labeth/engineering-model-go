@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: validates telemetry ingest contract fields and accepted request semantics
 package contract
 
 import "testing"

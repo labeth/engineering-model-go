@@ -1,6 +1,7 @@
 package engmodel
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -173,6 +174,16 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 
 func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
+	for _, term := range builtInEngineeringModelTerms() {
+		out = append(out, asciidocReferenceEntry{
+			Anchor:       referenceAnchor("idx-engmodel", term.ID),
+			TargetAnchor: term.Anchor,
+			ID:           term.ID,
+			Name:         term.Name,
+			Kind:         "Engineering Model Term",
+			Description:  strings.TrimSpace(term.Definition),
+		})
+	}
 	add := func(kind string, entries []model.CatalogEntry) {
 		for _, e := range entries {
 			canonical := referenceAnchor("catalog", e.ID)
@@ -195,12 +206,13 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 					ID:           alias,
 					Name:         nonEmpty(e.Name, e.ID),
 					Kind:         "Catalog Alias",
-					Description:  "Alias of " + e.ID,
+					Description:  aliasDescription(e),
 				})
 			}
 		}
 	}
 	c := doc.Catalog
+	add("System", c.Systems)
 	add("Functional Group", c.FunctionalGroups)
 	add("Functional Unit", c.FunctionalUnits)
 	add("Referenced Element", c.ReferencedElements)
@@ -221,6 +233,15 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 	return out
 }
 
+func aliasDescription(e model.CatalogEntry) string {
+	name := nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID))
+	def := strings.TrimSpace(e.Definition)
+	if def == "" {
+		return "Same meaning as " + name + "."
+	}
+	return def
+}
+
 func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
@@ -237,7 +258,8 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 			ID:          id,
 			Name:        id,
 			Kind:        "Runtime " + kind,
-			Description: "Owner: " + nonEmpty(r.Owner, "unresolved"),
+			Owner:       nonEmpty(strings.TrimSpace(r.Owner), "unresolved"),
+			Description: strings.TrimSpace(r.Description),
 			Source:      sanitizeSourcePath(r.Source),
 		})
 	}
@@ -268,7 +290,8 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 			ID:          id,
 			Name:        id,
 			Kind:        "Code " + c.Kind,
-			Description: "Owner: " + nonEmpty(c.Owner, "unresolved"),
+			Owner:       nonEmpty(strings.TrimSpace(c.Owner), "unresolved"),
+			Description: strings.TrimSpace(c.Description),
 			Source:      sanitizeSourcePath(c.Source),
 		})
 	}
@@ -293,17 +316,26 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 			continue
 		}
 		seen[id] = true
-		desc := "Kind: " + strings.TrimSpace(v.Kind) + "; Status: " + strings.TrimSpace(v.Status)
-		if e := strings.TrimSpace(strings.Join(v.Evidence, ", ")); e != "" {
-			desc = desc + "; Evidence: " + e
+		source := "n/a"
+		if len(v.Evidence) > 0 {
+			source = sanitizeSourcePath(strings.TrimSpace(v.Evidence[0]))
+		}
+		if len(v.Evidence) > 1 {
+			source = fmt.Sprintf("%s (+%d)", source, len(v.Evidence)-1)
+		}
+		desc := strings.TrimSpace(v.Description)
+		if desc == "" {
+			desc = "n/a"
 		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:       referenceAnchor("idx-ver", id),
 			TargetAnchor: referenceAnchor("verify", id),
 			ID:           id,
 			Name:         nonEmpty(strings.TrimSpace(v.Name), id),
-			Kind:         "Verification Check",
+			Kind:         nonEmpty(strings.TrimSpace(v.Kind), "test"),
+			Status:       nonEmpty(strings.TrimSpace(v.Status), "not-run"),
 			Description:  desc,
+			Source:       source,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -318,15 +350,17 @@ func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 	add := func(entries []model.CatalogEntry) {
 		for _, e := range entries {
 			out = append(out, asciidocTerm{
-				Anchor:     referenceAnchor("catalog", e.ID),
-				ID:         strings.TrimSpace(e.ID),
-				Name:       nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID)),
-				Definition: strings.TrimSpace(e.Definition),
-				Aliases:    uniqueSorted(e.Aliases),
+				Anchor:      referenceAnchor("catalog", e.ID),
+				IndexAnchor: referenceAnchor("idx-catalog", e.ID),
+				ID:          strings.TrimSpace(e.ID),
+				Name:        nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID)),
+				Definition:  strings.TrimSpace(e.Definition),
+				Aliases:     uniqueSorted(e.Aliases),
 			})
 		}
 	}
 	c := doc.Catalog
+	add(c.Systems)
 	add(c.FunctionalGroups)
 	add(c.FunctionalUnits)
 	add(c.ReferencedElements)
@@ -352,64 +386,88 @@ func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 func builtInEngineeringModelTerms() []asciidocTerm {
 	return []asciidocTerm{
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-FUNCTIONAL-GROUP"),
-			ID:         "EM-FUNCTIONAL-GROUP",
-			Name:       "functional group",
-			Definition: "A major authored capability area that groups related functional units.",
+			Anchor:      referenceAnchor("engmodel", "EM-FUNCTIONAL-GROUP"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FUNCTIONAL-GROUP"),
+			ID:          "EM-FUNCTIONAL-GROUP",
+			Name:        "functional group",
+			Definition:  "A major authored capability area that groups related functional units.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-FUNCTIONAL-UNIT"),
-			ID:         "EM-FUNCTIONAL-UNIT",
-			Name:       "functional unit",
-			Definition: "An authored working unit inside a functional group that owns specific behavior.",
+			Anchor:      referenceAnchor("engmodel", "EM-FUNCTIONAL-UNIT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FUNCTIONAL-UNIT"),
+			ID:          "EM-FUNCTIONAL-UNIT",
+			Name:        "functional unit",
+			Definition:  "An authored working unit inside a functional group that owns specific behavior.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-RUNTIME-ELEMENT"),
-			ID:         "EM-RUNTIME-ELEMENT",
-			Name:       "runtime element",
-			Definition: "An inferred runtime realization element discovered from infrastructure and deployment sources.",
+			Anchor:      referenceAnchor("engmodel", "EM-RUNTIME-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-RUNTIME-ELEMENT"),
+			ID:          "EM-RUNTIME-ELEMENT",
+			Name:        "runtime element",
+			Definition:  "An inferred runtime realization element discovered from infrastructure and deployment sources.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-CODE-ELEMENT"),
-			ID:         "EM-CODE-ELEMENT",
-			Name:       "code element",
-			Definition: "An inferred code structure or ownership element discovered from source trees and build metadata.",
+			Anchor:      referenceAnchor("engmodel", "EM-CODE-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CODE-ELEMENT"),
+			ID:          "EM-CODE-ELEMENT",
+			Name:        "code element",
+			Definition:  "An inferred code structure or ownership element discovered from source trees and build metadata.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-REFERENCED-ELEMENT"),
-			ID:         "EM-REFERENCED-ELEMENT",
-			Name:       "referenced element",
-			Definition: "An architecture-relevant external, platform, or third-party dependency represented by role.",
+			Anchor:      referenceAnchor("engmodel", "EM-REFERENCED-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REFERENCED-ELEMENT"),
+			ID:          "EM-REFERENCED-ELEMENT",
+			Name:        "referenced element",
+			Definition:  "An architecture-relevant external, platform, or third-party dependency represented by role.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-ACTOR"),
-			ID:         "EM-ACTOR",
-			Name:       "actor",
-			Definition: "A person or operational role that interacts with functional units.",
+			Anchor:      referenceAnchor("engmodel", "EM-ACTOR"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ACTOR"),
+			ID:          "EM-ACTOR",
+			Name:        "actor",
+			Definition:  "A person or operational role that interacts with functional units.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-ATTACK-VECTOR"),
-			ID:         "EM-ATTACK-VECTOR",
-			Name:       "attack vector",
-			Definition: "A technical misuse or attack path that targets functional, referenced, or runtime elements.",
+			Anchor:      referenceAnchor("engmodel", "EM-ATTACK-VECTOR"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ATTACK-VECTOR"),
+			ID:          "EM-ATTACK-VECTOR",
+			Name:        "attack vector",
+			Definition:  "A technical misuse or attack path that targets functional, referenced, or runtime elements.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-AUTHORED-MAPPING"),
-			ID:         "EM-AUTHORED-MAPPING",
-			Name:       "authored mapping",
-			Definition: "An explicit relationship declared in architecture inputs between authored or referenced elements.",
+			Anchor:      referenceAnchor("engmodel", "EM-AUTHORED-MAPPING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AUTHORED-MAPPING"),
+			ID:          "EM-AUTHORED-MAPPING",
+			Name:        "authored mapping",
+			Definition:  "An explicit relationship declared in architecture inputs between authored or referenced elements.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-INFERRED-MAPPING"),
-			ID:         "EM-INFERRED-MAPPING",
-			Name:       "inferred mapping",
-			Definition: "A discovered relationship that links inferred runtime/code elements upward to authored design.",
+			Anchor:      referenceAnchor("engmodel", "EM-INFERRED-MAPPING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-INFERRED-MAPPING"),
+			ID:          "EM-INFERRED-MAPPING",
+			Name:        "inferred mapping",
+			Definition:  "A discovered relationship that links inferred runtime/code elements upward to authored design.",
 		},
 		{
-			Anchor:     referenceAnchor("engmodel", "EM-UPWARD-LINKING"),
-			ID:         "EM-UPWARD-LINKING",
-			Name:       "upward linking",
-			Definition: "Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.",
+			Anchor:      referenceAnchor("engmodel", "EM-UPWARD-LINKING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-UPWARD-LINKING"),
+			ID:          "EM-UPWARD-LINKING",
+			Name:        "upward linking",
+			Definition:  "Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.",
+		},
+		{
+			Anchor:      referenceAnchor("engmodel", "EM-REQUIREMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REQUIREMENT"),
+			ID:          "EM-REQUIREMENT",
+			Name:        "requirement",
+			Definition:  "A structured requirement statement that defines expected system behavior and maps to functional ownership.",
+		},
+		{
+			Anchor:      referenceAnchor("engmodel", "EM-VERIFICATION-CHECK"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "EM-VERIFICATION-CHECK"),
+			ID:          "EM-VERIFICATION-CHECK",
+			Name:        "verification check",
+			Definition:  "An inferred or authored verification artifact that validates requirement behavior with test evidence.",
 		},
 	}
 }

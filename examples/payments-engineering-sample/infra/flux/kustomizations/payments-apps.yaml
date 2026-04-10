@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
   annotations:
     engmodel.dev/owner-unit: FU-GITOPS-OPERATIONS
+    engmodel.dev/runtime-description: applies and reconciles HelmRelease definitions for checkout, payment, and risk services
 spec:
   interval: 5m
   path: ./infra/flux/releases

@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-PAYMENT-AUTHORIZATION
+// ENGMODEL-CODE-DESCRIPTION: executes authorization decisions and persists payment-side audit records
 use crate::domain::events::PaymentEvent;
 use serde_json::json;
 

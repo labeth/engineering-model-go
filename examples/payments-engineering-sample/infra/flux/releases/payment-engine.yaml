@@ -5,6 +5,7 @@ metadata:
   namespace: payments
   annotations:
     engmodel.dev/owner-unit: FU-PAYMENT-AUTHORIZATION
+    engmodel.dev/runtime-description: executes payment authorization decisions and coordinates fraud checks plus bank callbacks
 spec:
   interval: 5m
   chart:

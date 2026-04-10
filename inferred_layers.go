@@ -1,11 +1,13 @@
 package engmodel
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -18,18 +20,20 @@ import (
 )
 
 type inferredRuntimeItem struct {
-	Name   string
-	Kind   string
-	Owner  string
-	Source string
-	Ports  []string
+	Name        string
+	Kind        string
+	Owner       string
+	Description string
+	Source      string
+	Ports       []string
 }
 
 type inferredCodeItem struct {
-	Element string
-	Kind    string
-	Owner   string
-	Source  string
+	Element     string
+	Kind        string
+	Owner       string
+	Description string
+	Source      string
 }
 
 func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.Diagnostic) {
@@ -97,6 +101,16 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 }
 
 func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
+	descHints, hintErr := parseTerraformRuntimeDescriptions(path)
+	if hintErr != nil {
+		return nil, []validate.Diagnostic{{
+			Code:     "runtime.terraform_description_parse_failed",
+			Severity: validate.SeverityWarning,
+			Message:  fmt.Sprintf("parse terraform runtime description hints: %v", hintErr),
+			Path:     path,
+		}}
+	}
+
 	parser := hclparse.NewParser()
 	file, diags := parser.ParseHCLFile(path)
 	if diags.HasErrors() {
@@ -142,11 +156,52 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 			name = rtype
 		}
 		out = append(out, inferredRuntimeItem{
-			Name:   name,
-			Kind:   kind,
-			Owner:  inferOwnerByConvention(kind, name),
-			Source: filepath.ToSlash(path),
+			Name:        name,
+			Kind:        kind,
+			Owner:       inferOwnerByConvention(kind, name),
+			Description: strings.TrimSpace(descHints[rtype+"|"+rname]),
+			Source:      filepath.ToSlash(path),
 		})
+	}
+	return out, nil
+}
+
+var terraformResourceLinePattern = regexp.MustCompile(`^\s*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{`)
+
+func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	out := map[string]string{}
+	scanner := bufio.NewScanner(f)
+	pending := ""
+	for scanner.Scan() {
+		line := scanner.Text()
+		if desc, ok := extractRuntimeDescriptionMarker(line); ok {
+			pending = desc
+			continue
+		}
+
+		m := terraformResourceLinePattern.FindStringSubmatch(line)
+		if len(m) == 3 {
+			if strings.TrimSpace(pending) != "" {
+				out[strings.TrimSpace(m[1])+"|"+strings.TrimSpace(m[2])] = strings.TrimSpace(pending)
+			}
+			pending = ""
+			continue
+		}
+
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "/*") || strings.HasPrefix(trimmed, "*") {
+			continue
+		}
+		pending = ""
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 	return out, nil
 }
@@ -376,20 +431,27 @@ func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagno
 			name = fmt.Sprintf("%s/%s", ns, name)
 		}
 		owner := "unresolved"
+		description := ""
 		if doc.Metadata.Annotations != nil {
 			if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/owner-unit"]); x != "" {
 				owner = x
+			}
+			if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/runtime-description"]); x != "" {
+				description = x
+			} else if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/description"]); x != "" {
+				description = x
 			}
 		}
 		if owner == "unresolved" {
 			owner = inferOwnerByConvention(strings.ToLower(kind), name)
 		}
 		out = append(out, inferredRuntimeItem{
-			Name:   name,
-			Kind:   strings.ToLower(kind),
-			Owner:  owner,
-			Source: filepath.ToSlash(path),
-			Ports:  ports,
+			Name:        name,
+			Kind:        strings.ToLower(kind),
+			Owner:       owner,
+			Description: description,
+			Source:      filepath.ToSlash(path),
+			Ports:       ports,
 		})
 	}
 	return out, nil
@@ -468,6 +530,24 @@ func extractMarkerValue(line, marker string) (string, bool) {
 	x = strings.TrimSpace(strings.TrimSuffix(x, "*/"))
 	if strings.HasPrefix(strings.ToUpper(x), strings.ToUpper(marker)) {
 		return strings.TrimSpace(x[len(marker):]), true
+	}
+	return "", false
+}
+
+func extractRuntimeDescriptionMarker(line string) (string, bool) {
+	markers := []string{
+		"engmodel:runtime-description:",
+		"engmodel:runtime-description",
+		"engmodel.runtime.description:",
+		"engmodel.runtime.description",
+	}
+	for _, marker := range markers {
+		if v, ok := extractMarkerValue(line, marker); ok {
+			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
+			if v != "" {
+				return v, true
+			}
+		}
 	}
 	return "", false
 }

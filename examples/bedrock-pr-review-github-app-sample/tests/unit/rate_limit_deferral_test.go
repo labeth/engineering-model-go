@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: verifies rate-limit deferral behavior for pull request review processing
 package unit
 
 import "testing"

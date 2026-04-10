@@ -45,6 +45,7 @@ func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument
 
 func generateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	diags := validate.Bundle(bundle)
+	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
 	if validate.HasErrors(diags) {
 		return AIViewResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

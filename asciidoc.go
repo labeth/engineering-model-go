@@ -42,6 +42,7 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 
 func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
 	diags := validate.Bundle(bundle)
+	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
 	if validate.HasErrors(diags) {
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

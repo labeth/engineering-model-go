@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-MACHINE-TELEMETRY-COLLECTION
+// ENGMODEL-CODE-DESCRIPTION: builds machine telemetry and status payloads at the edge
 
 pub struct TelemetryRecord {
     pub machine_id: String,

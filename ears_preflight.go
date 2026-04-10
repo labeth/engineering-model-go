@@ -36,9 +36,13 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 			if d.Span != nil {
 				path = fmt.Sprintf("%s@%d:%d", reqPath, d.Span.Start, d.Span.End)
 			}
+			severity := mapEarsSeverity(d.Severity)
+			if isBlockingCatalogDiagnostic(strings.TrimSpace(d.Code)) {
+				severity = validate.SeverityError
+			}
 			out = append(out, validate.Diagnostic{
 				Code:     d.Code,
-				Severity: mapEarsSeverity(d.Severity),
+				Severity: severity,
 				Message:  d.Message,
 				Path:     path,
 			})
@@ -48,8 +52,11 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 }
 
 func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
+	systems := append([]earslint.CatalogEntry{}, toEarsEntries(doc.Catalog.Systems)...)
+	systems = append(systems, toEarsEntries(doc.Catalog.FunctionalGroups)...)
+	systems = append(systems, toEarsEntries(doc.Catalog.FunctionalUnits)...)
 	return earslint.Catalog{
-		Systems:    append(toEarsEntries(doc.Catalog.FunctionalGroups), toEarsEntries(doc.Catalog.FunctionalUnits)...),
+		Systems:    dedupeEarsEntries(systems),
 		Actors:     toEarsEntries(doc.Catalog.Actors),
 		Events:     toEarsEntries(doc.Catalog.Events),
 		States:     toEarsEntries(doc.Catalog.States),
@@ -72,6 +79,28 @@ func toEarsEntries(in []model.CatalogEntry) []earslint.CatalogEntry {
 	return out
 }
 
+func dedupeEarsEntries(in []earslint.CatalogEntry) []earslint.CatalogEntry {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]earslint.CatalogEntry, 0, len(in))
+	seen := map[string]bool{}
+	for _, e := range in {
+		id := strings.TrimSpace(e.ID)
+		name := strings.TrimSpace(e.Name)
+		if id == "" && name == "" {
+			continue
+		}
+		key := strings.ToLower(id) + "|" + strings.ToLower(name)
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, e)
+	}
+	return out
+}
+
 func mapEarsSeverity(in earslint.Severity) validate.Severity {
 	switch in {
 	case earslint.SeverityError:
@@ -82,6 +111,13 @@ func mapEarsSeverity(in earslint.Severity) validate.Severity {
 		// Keep the host model binary (error/warning) severity scale.
 		return validate.SeverityWarning
 	}
+}
+
+func isBlockingCatalogDiagnostic(code string) bool {
+	if code == "expr.unknown_term" {
+		return true
+	}
+	return strings.HasPrefix(code, "catalog.") && strings.HasSuffix(code, "_unresolved")
 }
 
 func requirementPath(id string) string {

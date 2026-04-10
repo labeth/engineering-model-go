@@ -10,10 +10,10 @@
 
 === Scope and Assumptions
 
-- Functional Groups and Functional Units are the stable authored design backbone.
-- Runtime and code realization are inferred from available IaC, deployment, and source artifacts.
+- <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,Functional Groups>> and <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,Functional Units>> are the stable authored design backbone.
+- <<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,Runtime elements>> and <<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code elements>> are inferred from available IaC, deployment, and source artifacts.
 - Inferred coverage is evidence-driven and may be partial when source metadata is missing.
-- Requirement alignment and reference indexes are provided for traceability, not as primary narrative flow.
+- <<REF_IDX-ENGMODEL_EM_REQUIREMENT,Requirements>> and reference indexes are provided for traceability, not as primary narrative flow.
 
 == How To Read This Document
 
@@ -28,6 +28,19 @@ Read in this order:
 2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
 3. Traceability View: requirement mapping, evidence coverage, and confidence.
 4. Reference Appendix: supporting reference IDs and inferred-source links.
+
+++++
+<style>
+a.xref,
+a[href^="#REF_"] {
+  background: #f4f6f9;
+  border-radius: 3px;
+  padding: 0.03em 0.2em;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+}
+</style>
+++++
 
 == Document Health Snapshot
 
@@ -52,7 +65,7 @@ Read in this order:
 |===
 |Term |Definition
 {{- range .Terms }}
-|[[{{ .Anchor }}]]{{ .Name }}{{ if .ID }} ({{ .ID }}){{ end }}
+|[[{{ .Anchor }}]]{{ if .IndexAnchor }}<<{{ .IndexAnchor }},{{ .Name }}>>{{ else }}{{ .Name }}{{ end }}{{ if .ID }} ({{ .ID }}){{ end }}
 |{{ .Definition }}{{ if .Aliases }} Aliases: {{- range $i, $a := .Aliases }}{{ if gt $i 0 }}, {{ end }}{{ $a }}{{- end }}{{ end }}
 {{- end }}
 |===
@@ -478,48 +491,51 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 {{- range .ReferenceIndex.Catalog }}
 [[{{ .Anchor }}]]
 [discrete]
-==== {{ .ID }}
-Kind: {{ .Kind }}
-Name: {{ .Name }}
-{{ if .TargetAnchor -}}
-Resolves to: <<{{ .TargetAnchor }},canonical>>
-{{- end }}
+==== {{ if .Name }}{{ .Name }}{{ else }}{{ .ID }}{{ end }}
+
+{{- if .Description }}
 {{ .Description }}
+{{- end }}
+Canonical: {{ if .TargetAnchor }}<<{{ .TargetAnchor }},open>>{{ else }}n/a{{ end }}
 
 {{- end }}
 
 === Inferred Runtime References
+[cols="2,2,2,5,3",options="header"]
+|===
+|ID |Kind |Owner |Description |Source
 {{- range .ReferenceIndex.Runtime }}
-[[{{ .Anchor }}]]
-[discrete]
-==== {{ .ID }}
-Kind: {{ .Kind }}
-{{ .Description }}
-Source: {{ .Source }}
-
+|[[{{ .Anchor }}]]{{ .ID }}
+|{{ .Kind }}
+|{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
+|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
+|{{ .Source }}
 {{- end }}
+|===
 
 === Inferred Code References
+[cols="2,2,2,5,3",options="header"]
+|===
+|ID |Kind |Owner |Description |Source
 {{- range .ReferenceIndex.Code }}
-[[{{ .Anchor }}]]
-[discrete]
-==== {{ .ID }}
-Kind: {{ .Kind }}
-{{ .Description }}
-Source: {{ .Source }}
-
+|[[{{ .Anchor }}]]{{ .ID }}
+|{{ .Kind }}
+|{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
+|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
+|{{ .Source }}
 {{- end }}
+|===
 
 === Verification References
+[cols="2,2,1,5,3,2",options="header"]
+|===
+|ID |Kind |Status |Description |Source |Canonical
 {{- range .ReferenceIndex.Verification }}
-[[{{ .Anchor }}]]
-[discrete]
-==== {{ .ID }}
-Kind: {{ .Kind }}
-Name: {{ .Name }}
-{{ if .TargetAnchor -}}
-Resolves to: <<{{ .TargetAnchor }},canonical>>
+|[[{{ .Anchor }}]]{{ .ID }}
+|{{ .Kind }}
+|{{ if .Status }}{{ .Status }}{{ else }}n/a{{ end }}
+|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
+|{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|{{ if .TargetAnchor }}<<{{ .TargetAnchor }},canonical>>{{ else }}n/a{{ end }}
 {{- end }}
-{{ .Description }}
-
-{{- end }}
+|===

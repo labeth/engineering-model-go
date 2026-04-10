@@ -5,16 +5,16 @@
 
 == Introduction
 
-This document describes the <<REF_RT_CLUSTER_PAYMENTS,payments>> architecture using authored functional design and inferred runtime/code realization.
-It is intended to help product, platform, security, and implementation engineers reason about one shared model.
+This document describes the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> architecture using authored functional design and inferred runtime/code realization.
+It is intended to help product, <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>>, security, and implementation engineers reason about one shared model.
 Functional design is kept stable while realization details are inferred from infrastructure and source artifacts.
 
 === Scope and Assumptions
 
-- Functional Groups and Functional Units are the stable authored design backbone.
-- Runtime and code realization are inferred from available IaC, deployment, and source artifacts.
+- <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,Functional Groups>> and <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,Functional Units>> are the stable authored design backbone.
+- <<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,Runtime elements>> and <<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code elements>> are inferred from available IaC, deployment, and source artifacts.
 - Inferred coverage is evidence-driven and may be partial when source metadata is missing.
-- Requirement alignment and reference indexes are provided for traceability, not as primary narrative flow.
+- <<REF_IDX-ENGMODEL_EM_REQUIREMENT,Requirements>> and reference indexes are provided for traceability, not as primary narrative flow.
 
 == How To Read This Document
 
@@ -29,6 +29,19 @@ Read in this order:
 2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
 3. Traceability View: requirement mapping, evidence coverage, and confidence.
 4. Reference Appendix: supporting reference IDs and inferred-source links.
+
+++++
+<style>
+a.xref,
+a[href^="#REF_"] {
+  background: #f4f6f9;
+  border-radius: 3px;
+  padding: 0.03em 0.2em;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+}
+</style>
+++++
 
 == Document Health Snapshot
 
@@ -63,9 +76,9 @@ Read in this order:
 |draft
 |Threat mapping is present for key vectors, but control expectations and coverage breadth are still evolving.
 |6
-|4
+|6
 |2
-|medium
+|high
 |Counts a unit as covered when explicit authored attack-vector mapping exists.
 |Traceability View (`VIEW-TRACEABILITY`)
 |in-review
@@ -82,94 +95,98 @@ Read in this order:
 [cols="3,7",options="header"]
 |===
 |Term |Definition
-|[[REF_CATALOG_COND_3DS_REQUIRED]]3DS verification is required (COND-3DS-REQUIRED)
+|[[REF_CATALOG_COND_3DS_REQUIRED]]<<REF_IDX-CATALOG_COND_3DS_REQUIRED,3DS verification is required>> (COND-3DS-REQUIRED)
 |Condition indicating strong customer authentication must be performed. Aliases:3DS required
-|[[REF_ENGMODEL_EM_ACTOR]]actor (EM-ACTOR)
+|[[REF_ENGMODEL_EM_ACTOR]]<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> (EM-ACTOR)
 |A person or operational role that interacts with functional units.
-|[[REF_ENGMODEL_EM_ATTACK_VECTOR]]attack vector (EM-ATTACK-VECTOR)
+|[[REF_ENGMODEL_EM_ATTACK_VECTOR]]<<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> (EM-ATTACK-VECTOR)
 |A technical misuse or attack path that targets functional, referenced, or runtime elements.
-|[[REF_ENGMODEL_EM_AUTHORED_MAPPING]]authored mapping (EM-AUTHORED-MAPPING)
+|[[REF_ENGMODEL_EM_AUTHORED_MAPPING]]<<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mapping>> (EM-AUTHORED-MAPPING)
 |An explicit relationship declared in architecture inputs between authored or referenced elements.
-|[[REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT]]bank gateway endpoint (REF-BANK-GATEWAY-ENDPOINT)
+|[[REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT]]<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>> (REF-BANK-GATEWAY-ENDPOINT)
 |External banking endpoint used for card authorization and decline decisions. Aliases:bank API
-|[[REF_CATALOG_STATE_BANK_LINK_UP]]bank link is available (STATE-BANK-LINK-UP)
+|[[REF_CATALOG_STATE_BANK_LINK_UP]]<<REF_IDX-CATALOG_STATE_BANK_LINK_UP,bank link is available>> (STATE-BANK-LINK-UP)
 |Connectivity state showing bank gateway communication is currently healthy. Aliases:bank link up
-|[[REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE]]bank link is unavailable (EVT-BANK-LINK-UNAVAILABLE)
+|[[REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE]]<<REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>> (EVT-BANK-LINK-UNAVAILABLE)
 |Event raised when payment engine cannot reach the external bank gateway. Aliases:bank link down
-|[[REF_CATALOG_FU_CHECKOUT]]checkout handling (FU-CHECKOUT)
+|[[REF_CATALOG_FU_CHECKOUT]]<<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>> (FU-CHECKOUT)
 |Handles checkout session start and customer-facing payment messaging. Aliases:checkout
-|[[REF_CATALOG_STATE_CHECKOUT_ACTIVE]]checkout is active (STATE-CHECKOUT-ACTIVE)
+|[[REF_CATALOG_STATE_CHECKOUT_ACTIVE]]<<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>> (STATE-CHECKOUT-ACTIVE)
 |Processing state where the user is actively submitting or confirming payment. Aliases:checkout active
-|[[REF_CATALOG_FU_CLUSTER_PROVISIONING]]cluster provisioning (FU-CLUSTER-PROVISIONING)
+|[[REF_CATALOG_FU_CLUSTER_PROVISIONING]]<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> (FU-CLUSTER-PROVISIONING)
 |Provides cluster-level platform setup and environment bootstrap. Aliases:day1 provisioning
-|[[REF_ENGMODEL_EM_CODE_ELEMENT]]code element (EM-CODE-ELEMENT)
+|[[REF_ENGMODEL_EM_CODE_ELEMENT]]<<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code element>> (EM-CODE-ELEMENT)
 |An inferred code structure or ownership element discovered from source trees and build metadata.
-|[[REF_CATALOG_AV_COMPROMISED_DEPENDENCY]]compromised dependency (AV-COMPROMISED-DEPENDENCY)
+|[[REF_CATALOG_AV_COMPROMISED_DEPENDENCY]]<<REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY,compromised dependency>> (AV-COMPROMISED-DEPENDENCY)
 |Supply-chain compromise in runtime image or code dependency. Aliases:dependency compromise
-|[[REF_CATALOG_ACT_CUSTOMER]]customer (ACT-CUSTOMER)
+|[[REF_CATALOG_ACT_CUSTOMER]]<<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> (ACT-CUSTOMER)
 |End user submitting payment details during checkout. Aliases:buyer
-|[[REF_CATALOG_DATA_DECLINE_REASON]]decline reason (DATA-DECLINE-REASON)
+|[[REF_CATALOG_DATA_DECLINE_REASON]]<<REF_IDX-CATALOG_DATA_DECLINE_REASON,decline reason>> (DATA-DECLINE-REASON)
 |Structured reason code or message explaining why authorization failed. Aliases:decline code
-|[[REF_CATALOG_FEAT_FRAUD_CHECK]]fraud check is enabled (FEAT-FRAUD-CHECK)
+|[[REF_CATALOG_FEAT_FRAUD_CHECK]]<<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>> (FEAT-FRAUD-CHECK)
 |Feature flag controlling whether risk scoring is required before authorization. Aliases:fraud check
-|[[REF_CATALOG_FG_FRAUD]]fraud evaluation (FG-FRAUD)
+|[[REF_CATALOG_FG_FRAUD]]<<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> (FG-FRAUD)
 |Functional group for risk scoring and fraud review capabilities. Aliases:fraud detection system, fraud domain
-|[[REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]fraudulent transaction pattern (AV-FRAUDULENT-TRANSACTION-PATTERN)
+|[[REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,fraudulent transaction pattern>> (AV-FRAUDULENT-TRANSACTION-PATTERN)
 |Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals. Aliases:fraud abuse, payment fraud
-|[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]functional group (EM-FUNCTIONAL-GROUP)
+|[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,functional group>> (EM-FUNCTIONAL-GROUP)
 |A major authored capability area that groups related functional units.
-|[[REF_ENGMODEL_EM_FUNCTIONAL_UNIT]]functional unit (EM-FUNCTIONAL-UNIT)
+|[[REF_ENGMODEL_EM_FUNCTIONAL_UNIT]]<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional unit>> (EM-FUNCTIONAL-UNIT)
 |An authored working unit inside a functional group that owns specific behavior.
-|[[REF_CATALOG_FU_GITOPS_OPERATIONS]]gitops operations (FU-GITOPS-OPERATIONS)
+|[[REF_CATALOG_FU_GITOPS_OPERATIONS]]<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> (FU-GITOPS-OPERATIONS)
 |Operates declarative delivery and release management flows. Aliases:day2 operations
-|[[REF_CATALOG_REF_HELM_PLATFORM]]helm platform (REF-HELM-PLATFORM)
+|[[REF_CATALOG_REF_HELM_PLATFORM]]<<REF_IDX-CATALOG_REF_HELM_PLATFORM,helm platform>> (REF-HELM-PLATFORM)
 |Runtime packaging and deployment substrate for workloads. Aliases:helm
-|[[REF_ENGMODEL_EM_INFERRED_MAPPING]]inferred mapping (EM-INFERRED-MAPPING)
+|[[REF_ENGMODEL_EM_INFERRED_MAPPING]]<<REF_IDX-ENGMODEL_EM_INFERRED_MAPPING,inferred mapping>> (EM-INFERRED-MAPPING)
 |A discovered relationship that links inferred runtime/code elements upward to authored design.
-|[[REF_CATALOG_AV_MALICIOUS_API_REQUEST]]malicious api request (AV-MALICIOUS-API-REQUEST)
+|[[REF_CATALOG_AV_MALICIOUS_API_REQUEST]]<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,malicious api request>> (AV-MALICIOUS-API-REQUEST)
 |Crafted payload attempting to bypass validation or authorization logic. Aliases:malicious request
-|[[REF_CATALOG_MODE_NORMAL]]normal mode is active (MODE-NORMAL)
+|[[REF_CATALOG_MODE_NORMAL]]<<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>> (MODE-NORMAL)
 |Standard operating mode with full external dependency usage enabled. Aliases:normal mode
-|[[REF_CATALOG_FU_PAYMENT_AUTHORIZATION]]payment authorization (FU-PAYMENT-AUTHORIZATION)
+|[[REF_CATALOG_FU_PAYMENT_AUTHORIZATION]]<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> (FU-PAYMENT-AUTHORIZATION)
 |Coordinates authorization flow and bank gateway interaction. Aliases:auth
-|[[REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED]]payment authorization is requested (EVT-PAYMENT-AUTH-REQUESTED)
+|[[REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED]]<<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> (EVT-PAYMENT-AUTH-REQUESTED)
 |Event raised when checkout asks payment engine to authorize a transaction. Aliases:payment auth requested
-|[[REF_CATALOG_DATA_PAYMENT_ID]]payment id (DATA-PAYMENT-ID)
+|[[REF_CATALOG_DATA_PAYMENT_ID]]<<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> (DATA-PAYMENT-ID)
 |Stable identifier used to correlate a payment across services and records.
-|[[REF_CATALOG_EVT_PAYMENT_DECLINED]]payment is declined (EVT-PAYMENT-DECLINED)
+|[[REF_CATALOG_EVT_PAYMENT_DECLINED]]<<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,payment is declined>> (EVT-PAYMENT-DECLINED)
 |Event indicating authorization was rejected and customer decline handling must execute. Aliases:payment declined
-|[[REF_CATALOG_STATE_REVIEW_PENDING]]payment review is pending (STATE-REVIEW-PENDING)
+|[[REF_CATALOG_STATE_REVIEW_PENDING]]<<REF_IDX-CATALOG_STATE_REVIEW_PENDING,payment review is pending>> (STATE-REVIEW-PENDING)
 |Transaction state requiring manual support review before final disposition. Aliases:review pending
-|[[REF_CATALOG_FG_PAYMENTS]]payments (FG-PAYMENTS)
+|[[REF_CATALOG_FG_PAYMENTS]]<<REF_IDX-CATALOG_FG_PAYMENTS,payments>> (FG-PAYMENTS)
 |Functional group for checkout and authorization capabilities. Aliases:payments domain, payments system
-|[[REF_CATALOG_FG_PLATFORM]]platform (FG-PLATFORM)
+|[[REF_CATALOG_FG_PLATFORM]]<<REF_IDX-CATALOG_FG_PLATFORM,platform>> (FG-PLATFORM)
 |Functional group for provisioning and platform operations capabilities. Aliases:platform engineering
-|[[REF_CATALOG_ACT_PLATFORM_OPERATOR]]platform operator (ACT-PLATFORM-OPERATOR)
+|[[REF_CATALOG_ACT_PLATFORM_OPERATOR]]<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,platform operator>> (ACT-PLATFORM-OPERATOR)
 |Role responsible for GitOps and platform lifecycle operations. Aliases:platform ops
-|[[REF_CATALOG_REF_POSTGRES_DRIVER]]postgresql client driver (REF-POSTGRES-DRIVER)
+|[[REF_CATALOG_REF_POSTGRES_DRIVER]]<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,postgresql client driver>> (REF-POSTGRES-DRIVER)
 |Third-party library used for application data persistence connectivity. Aliases:postgres driver
-|[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]referenced element (EM-REFERENCED-ELEMENT)
+|[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT,referenced element>> (EM-REFERENCED-ELEMENT)
 |An architecture-relevant external, platform, or third-party dependency represented by role.
-|[[REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK]]replayed authorization callback (AV-REPLAYED-AUTH-CALLBACK)
+|[[REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK]]<<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,replayed authorization callback>> (AV-REPLAYED-AUTH-CALLBACK)
 |Replay of a valid callback to induce duplicate or unauthorized state transitions. Aliases:callback replay
-|[[REF_CATALOG_DATA_RISK_SCORE]]risk score (DATA-RISK-SCORE)
+|[[REF_ENGMODEL_EM_REQUIREMENT]]<<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> (EM-REQUIREMENT)
+|A structured requirement statement that defines expected system behavior and maps to functional ownership.
+|[[REF_CATALOG_DATA_RISK_SCORE]]<<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>> (DATA-RISK-SCORE)
 |Numeric fraud score produced by risk evaluation logic.
-|[[REF_CATALOG_EVT_RISK_HIGH]]risk score is high (EVT-RISK-HIGH)
+|[[REF_CATALOG_EVT_RISK_HIGH]]<<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>> (EVT-RISK-HIGH)
 |Event emitted when computed fraud risk exceeds the configured high-risk threshold. Aliases:high risk
-|[[REF_CATALOG_FU_RISK_SCORING]]risk scoring (FU-RISK-SCORING)
+|[[REF_CATALOG_FU_RISK_SCORING]]<<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>> (FU-RISK-SCORING)
 |Evaluates transaction risk and returns score classification. Aliases:fraud scoring
-|[[REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]risk threshold is exceeded (COND-RISK-THRESHOLD-EXCEEDED)
+|[[REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]<<REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED,risk threshold is exceeded>> (COND-RISK-THRESHOLD-EXCEEDED)
 |Condition indicating risk score crossed a policy threshold for escalation. Aliases:risk above threshold
-|[[REF_ENGMODEL_EM_RUNTIME_ELEMENT]]runtime element (EM-RUNTIME-ELEMENT)
+|[[REF_ENGMODEL_EM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,runtime element>> (EM-RUNTIME-ELEMENT)
 |An inferred runtime realization element discovered from infrastructure and deployment sources.
-|[[REF_CATALOG_ACT_SUPPORT]]support agent (ACT-SUPPORT)
+|[[REF_CATALOG_ACT_SUPPORT]]<<REF_IDX-CATALOG_ACT_SUPPORT,support agent>> (ACT-SUPPORT)
 |Operations role that investigates declines and high-risk review cases. Aliases:support
-|[[REF_CATALOG_EVT_SUPPORT_NOTIFIED]]support agent is notified (EVT-SUPPORT-NOTIFIED)
+|[[REF_CATALOG_EVT_SUPPORT_NOTIFIED]]<<REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED,support agent is notified>> (EVT-SUPPORT-NOTIFIED)
 |Event indicating manual review notification was sent to support operations. Aliases:support notified
-|[[REF_CATALOG_FU_SUPPORT_REVIEW]]support review (FU-SUPPORT-REVIEW)
+|[[REF_CATALOG_FU_SUPPORT_REVIEW]]<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> (FU-SUPPORT-REVIEW)
 |Supports manual review and escalation handling for risky transactions. Aliases:manual review
-|[[REF_ENGMODEL_EM_UPWARD_LINKING]]upward linking (EM-UPWARD-LINKING)
+|[[REF_ENGMODEL_EM_UPWARD_LINKING]]<<REF_IDX-ENGMODEL_EM_UPWARD_LINKING,upward linking>> (EM-UPWARD-LINKING)
 |Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
+|[[REF_ENGMODEL_EM_VERIFICATION_CHECK]]<<REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK,verification check>> (EM-VERIFICATION-CHECK)
+|An inferred or authored verification artifact that validates requirement behavior with test evidence.
 |===
 
 === Diagram Color and Shape Legend
@@ -406,13 +423,13 @@ flowchart LR
 ==== Payments (FG-PAYMENTS)
 
 
-Core payment <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization domain.
+Core payment <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout>> and authorization domain.
 
 
 
-The <<REF_RT_CLUSTER_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
-It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
+The <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
+It owns the consistency of <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> messaging and transaction decisions when a payment is attempted,
+declined, retried, or temporarily unavailable. The group keeps <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> flow stable while depending on
 fraud and external bank capabilities.
 
 
@@ -431,13 +448,13 @@ fraud and external bank capabilities.
 
 
 Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
-It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
-It delegates decision logic to <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+It validates request shape, preserves transaction context, and returns clear <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> feedback for each outcome.
+It delegates decision logic to <<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>> while protecting the user experience boundary.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 
 [discrete]
 ====== Key Collaborators
@@ -447,7 +464,7 @@ functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; inc
 [discrete]
 ====== Linked Requirements
 
-<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 
 
 
@@ -461,13 +478,13 @@ functional responsibility for <<REF_CATALOG_FU_CHECKOUT,checkout handling>>; inc
 
 
 Payment authorization orchestrates the final transaction decision path.
-It coordinates <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
+It coordinates <<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>> when needed.
 The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>
 
 [discrete]
 ====== Key Collaborators
@@ -477,7 +494,7 @@ functional responsibility for <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment aut
 [discrete]
 ====== Linked Requirements
 
-<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 
 
 
@@ -495,8 +512,8 @@ Risk scoring and fraud audit domain.
 
 
 
-The <<REF_CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_RT_CLUSTER_PAYMENTS,payments>>.
-It combines automated <<REF_CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
+The <<REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>.
+It combines automated <<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,risk scoring>> with manual <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>> so uncertain transactions move through a controlled
 escalation path. The group ensures <<REF_RT_NAMESPACE_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
 
 
@@ -517,7 +534,7 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 
 [discrete]
 ====== Key Collaborators
@@ -527,7 +544,7 @@ functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; incl
 [discrete]
 ====== Linked Requirements
 
-<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 
 
 
@@ -541,13 +558,13 @@ functional responsibility for <<REF_CATALOG_FU_RISK_SCORING,risk scoring>>; incl
 
 
 Support review handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
+It gives <<REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
 The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_SUPPORT_REVIEW,support review>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>>
 
 [discrete]
 ====== Key Collaborators
@@ -557,7 +574,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
 
 
 
@@ -579,7 +596,7 @@ Cluster provisioning and GitOps operations domain.
 
 
 
-The platform group provides the runtime and deployment foundation used by all product capabilities.
+The <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> group provides the runtime and deployment foundation used by all product capabilities.
 It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
 The group enables safe delivery and reliable operations without owning payment business logic.
 
@@ -609,7 +626,7 @@ This unit is responsible for predictable, repeatable infrastructure foundations.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_CLUSTER_PROVISIONING_DAY1_PROVISIONING,cluster provisioning>>
 
 [discrete]
 ====== Key Collaborators
@@ -619,7 +636,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-no explicit authored requirement trigger
+no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 
 
 
@@ -639,7 +656,7 @@ The unit provides safe and observable release behavior as an ongoing operational
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
+functional responsibility for <<REF_CATALOG-ALIAS_FU_GITOPS_OPERATIONS_DAY2_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 
 [discrete]
 ====== Key Collaborators
@@ -649,7 +666,7 @@ functional responsibility for <<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operatio
 [discrete]
 ====== Linked Requirements
 
-no explicit authored requirement trigger
+no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 
 
 
@@ -684,7 +701,7 @@ Coverage summary: 3/4 units have direct evidence coverage in this view.
 === Recommended Next Evidence Additions
 
 
-- Add explicit communication metadata (protocol, sync/async/event/callback) to authored mappings where currently implicit.
+- Add explicit communication metadata (protocol, sync/async/event/callback) to <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> where currently implicit.
 
 - Expose service protocol/port metadata in Helm or manifest values to enrich interface-edge inference.
 
@@ -727,7 +744,7 @@ flowchart LR
 
 
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> runs the public request path and keeps transaction context intact across runtime hops.
+<<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> runs the public request path and keeps transaction context intact across runtime hops.
 The runtime design emphasizes low latency, deterministic request sequencing, and clear operational
 signals when dependencies slow down or fail.
 
@@ -744,7 +761,7 @@ signals when dependencies slow down or fail.
 
 
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
+<<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout handling>> is the ingress runtime boundary and forwards normalized requests downstream.
 Runtime design emphasizes stable request contracts, context propagation, and graceful behavior under
 burst traffic and partial downstream degradation.
 
@@ -758,7 +775,7 @@ burst traffic and partial downstream degradation.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|<<REF_IDX-ACTOR_ACT_CUSTOMER,Customer>> |Submits payment at <<REF_CATALOG_FU_CHECKOUT,checkout>>.
+|<<REF_IDX-ACTOR_ACT_CUSTOMER,Customer>> |Submits payment at <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout>>.
 |===
 
 [discrete]
@@ -767,13 +784,13 @@ burst traffic and partial downstream degradation.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Delegates <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>.
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Delegates <<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>>.
 |===
 
 [discrete]
 ====== Communication Evidence
 
-runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+runtime: <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
 
 
 
@@ -784,7 +801,7 @@ runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHE
 
 
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
+<<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>> coordinates critical runtime dependencies and enforces decision-order determinism.
 Runtime design prioritizes idempotent transitions, explicit branch visibility, and controlled error normalization.
 
 
@@ -797,7 +814,7 @@ Runtime design prioritizes idempotent transitions, explicit branch visibility, a
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>> |Delegates <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>.
+|<<REF_IDX-FU_FU_CHECKOUT,Checkout Handling>> |Delegates <<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>>.
 |===
 
 [discrete]
@@ -807,8 +824,8 @@ Runtime design prioritizes idempotent transitions, explicit branch visibility, a
 |===
 |Interface |Description
 |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> |Calls external bank authorization endpoint.
-|<<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> |Requests <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>> before final authorization.
-|<<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> |Escalates high-risk <<REF_RT_CLUSTER_PAYMENTS,payments>> for <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>>.
+|<<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>> |Requests <<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,fraud scoring>> before final authorization.
+|<<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>> |Escalates high-risk <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> for <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,manual review>>.
 |===
 
 [discrete]
@@ -827,7 +844,7 @@ runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> 
 
 
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> runs as a critical dependency on the authorization path.
+<<REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM,fraud evaluation>> runs as a critical dependency on the authorization path.
 Runtime behavior must return stable contracts quickly while preserving enough evidence for operator
 diagnosis and audit when high-risk classifications occur.
 
@@ -840,7 +857,7 @@ diagnosis and audit when high-risk classifications occur.
 
 
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> runs as a synchronous dependency with strict response-shape stability.
+<<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,risk scoring>> runs as a synchronous dependency with strict response-shape stability.
 Runtime design favors deterministic outputs, bounded latency, and clear degradation semantics for callers.
 
 
@@ -853,7 +870,7 @@ Runtime design favors deterministic outputs, bounded latency, and clear degradat
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Requests <<REF_CATALOG_FU_RISK_SCORING,fraud scoring>> before final authorization.
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Requests <<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,fraud scoring>> before final authorization.
 |===
 
 [discrete]
@@ -868,7 +885,7 @@ Runtime design favors deterministic outputs, bounded latency, and clear degradat
 [discrete]
 ====== Communication Evidence
 
-runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
+runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT,support>>
 
 
 
@@ -879,7 +896,7 @@ runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,r
 
 
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> runtime optimizes for operator clarity and decision traceability over throughput.
+<<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>> runtime optimizes for operator clarity and decision traceability over throughput.
 Runtime design emphasizes state visibility, reversible transitions where allowed, and reliable action logging.
 
 
@@ -892,7 +909,7 @@ Runtime design emphasizes state visibility, reversible transitions where allowed
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Escalates high-risk <<REF_RT_CLUSTER_PAYMENTS,payments>> for <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>>.
+|<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Escalates high-risk <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> for <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,manual review>>.
 |<<REF_IDX-ACTOR_ACT_SUPPORT,Support Agent>> |Performs manual payment reviews.
 |===
 
@@ -920,7 +937,7 @@ authored unit with no direct derived runtime/code evidence yet
 
 == Deployment View
 
-Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations.
+Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> operations.
 
 === What This View Answers
 
@@ -929,7 +946,7 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 - What control-plane objects manage deployable units?
 
-- Where are platform ownership boundaries and missing ownership signals?
+- Where are <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> ownership boundaries and missing ownership signals?
 
 === Coverage Gaps
 
@@ -942,7 +959,7 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 === Recommended Next Evidence Additions
 
 
-- Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.
+- Add owner metadata to Flux/Kustomization/Helm objects for clearer <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> ownership mapping.
 
 - Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.
 
@@ -1053,7 +1070,7 @@ flowchart LR
 
 
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> is deployed so <<REF_CATALOG_FU_CHECKOUT,checkout>> and authorization can roll independently with minimal blast radius.
+<<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> is deployed so <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout>> and authorization can roll independently with minimal blast radius.
 Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
 policy-impacting releases are exposed.
 
@@ -1072,7 +1089,7 @@ policy-impacting releases are exposed.
 
 ====== Checkout Handling Deployment Design
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
+<<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
 Deployment design favors fast rollback and compatibility checks with the current authorization interface.
 
 
@@ -1082,9 +1099,9 @@ Deployment design favors fast rollback and compatibility checks with the current
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 |Deployment dependencies |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Inferred deployment evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+|Inferred deployment evidence |runtime: <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
 |===
 
 
@@ -1098,7 +1115,7 @@ Deployment design favors fast rollback and compatibility checks with the current
 
 ====== Payment Authorization Deployment Design
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
+<<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
 Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
 
 
@@ -1108,7 +1125,7 @@ Releases should stage gradually, verify dependency health, and preserve in-fligh
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 |Deployment dependencies |<<REF_IDX-REF_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-FU_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,Support Review>>
 |Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
 |===
@@ -1128,7 +1145,7 @@ Releases should stage gradually, verify dependency health, and preserve in-fligh
 
 
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> deployment is tuned for cautious rollout because scoring changes can alter approval rates.
+<<REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM,fraud evaluation>> deployment is tuned for cautious rollout because scoring changes can alter approval rates.
 Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
 
 
@@ -1142,7 +1159,7 @@ Deployment design favors staged promotions and rapid monitoring of scoring outco
 
 ====== Risk Scoring Deployment Design
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> deployment uses staged rollout because scoring changes have immediate decision impact.
+<<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,risk scoring>> deployment uses staged rollout because scoring changes have immediate decision impact.
 Deployment design includes observation windows for score distribution and escalation-rate changes.
 
 
@@ -1152,9 +1169,9 @@ Deployment design includes observation windows for score distribution and escala
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 |Deployment dependencies |<<REF_IDX-REF_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Inferred deployment evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
+|Inferred deployment evidence |runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT,support>>
 |===
 
 
@@ -1168,7 +1185,7 @@ Deployment design includes observation windows for score distribution and escala
 
 ====== Support Review Deployment Design
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> deployment isolates privileged workflows from public ingress components.
+<<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>> deployment isolates privileged workflows from public ingress components.
 Deployment design must preserve active review sessions across upgrades and ensure queue/review latency visibility.
 
 
@@ -1178,7 +1195,7 @@ Deployment design must preserve active review sessions across upgrades and ensur
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
 |Deployment dependencies |none
 |Inferred deployment evidence |authored unit with no direct derived runtime/code evidence yet
 |===
@@ -1202,9 +1219,9 @@ Deployment design must preserve active review sessions across upgrades and ensur
 
 
 
-platform deployment design governs how infrastructure intent is applied and kept in sync over time.
+<<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> deployment design governs how infrastructure intent is applied and kept in sync over time.
 It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
-teams depend on new platform states.
+teams depend on new <<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> states.
 
 
 
@@ -1225,7 +1242,7 @@ teams depend on new platform states.
 
 ====== Cluster Provisioning Deployment Design
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> deployment is infrastructure-first and sequence-sensitive.
+<<REF_CATALOG-ALIAS_FU_CLUSTER_PROVISIONING_DAY1_PROVISIONING,cluster provisioning>> deployment is infrastructure-first and sequence-sensitive.
 Deployment design requires deterministic change plans, drift awareness, and rollback strategy before apply.
 
 
@@ -1235,9 +1252,9 @@ Deployment design requires deterministic change plans, drift awareness, and roll
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |no explicit authored requirement trigger
+|Deployment trigger context |no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 |Deployment dependencies |none
-|Inferred deployment evidence |runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+|Inferred deployment evidence |runtime: <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>
 |===
 
 
@@ -1251,7 +1268,7 @@ Deployment design requires deterministic change plans, drift awareness, and roll
 
 ====== GitOps Operations Deployment Design
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the release control plane for application artifacts.
+<<REF_CATALOG-ALIAS_FU_GITOPS_OPERATIONS_DAY2_OPERATIONS,gitops operations>> deployment defines the release control plane for application artifacts.
 Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
 
 
@@ -1261,7 +1278,7 @@ Deployment design prioritizes policy gates, controlled promotion, and resilient 
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |no explicit authored requirement trigger
+|Deployment trigger context |no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 |Deployment dependencies |<<REF_IDX-FU_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-REF_REF_HELM_PLATFORM,Helm Runtime Platform>>
 |Inferred deployment evidence |runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
 |===
@@ -1304,7 +1321,7 @@ Coverage summary: 4/6 units have direct evidence coverage in this view.
 
 - Add security signal ownership metadata (logs/alerts/<<REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS,events>>) for unresolved observability evidence.
 
-- Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.
+- Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
 
 === Attack Path Diagram
 
@@ -1382,9 +1399,9 @@ flowchart LR
 
 
 
-<<REF_RT_CLUSTER_PAYMENTS,payments>> protects public trust boundaries where untrusted input and external callbacks enter the system.
+<<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>> protects public trust boundaries where untrusted input and external callbacks enter the system.
 Security design focuses on strict validation, replay resistance, and safe failure behavior that preserves
-customer trust during degraded dependency conditions.
+<<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> trust during degraded dependency conditions.
 
 
 
@@ -1399,9 +1416,9 @@ customer trust during degraded dependency conditions.
 
 
 
-<<REF_CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
+<<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
 The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
-are contained without harming legitimate customer flows.
+are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> flows.
 
 
 
@@ -1425,7 +1442,7 @@ Define control expectations in authored security narratives and mapped dependenc
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
+runtime: <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
 
 [discrete]
 ====== Security Evidence Missing
@@ -1441,7 +1458,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-<<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+<<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>> security protects decision integrity and callback integrity.
 The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
 
@@ -1488,8 +1505,8 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-<<REF_CATALOG_FG_FRAUD,fraud evaluation>> security focuses on decision integrity and review integrity.
-The design assumes attempted manipulation of <<REF_RT_NAMESPACE_RISK,risk>> inputs, dependency trust, and <<REF_CATALOG_FU_SUPPORT_REVIEW,manual review>> workflows,
+<<REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM,fraud evaluation>> security focuses on decision integrity and review integrity.
+The design assumes attempted manipulation of <<REF_RT_NAMESPACE_RISK,risk>> inputs, dependency trust, and <<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,manual review>> workflows,
 and therefore requires strong evidence lineage and tamper-evident operator actions.
 
 
@@ -1501,7 +1518,7 @@ and therefore requires strong evidence lineage and tamper-evident operator actio
 
 
 
-<<REF_CATALOG_FU_RISK_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
+<<REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
 Design controls enforce strict input handling and evidence capture for post-event investigation.
 
 
@@ -1526,7 +1543,7 @@ Define control expectations in authored security narratives and mapped dependenc
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG_ACT_SUPPORT,support>>
+runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT,support>>
 
 [discrete]
 ====== Security Evidence Missing
@@ -1542,7 +1559,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-<<REF_CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
+<<REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
 The design prevents silent overrides and guarantees every manual decision is attributable.
 
 
@@ -1593,7 +1610,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-platform security design establishes baseline controls inherited by all higher-layer units.
+<<REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING,platform>> security design establishes baseline controls inherited by all higher-layer units.
 It focuses on trusted reconciliation, isolation defaults, and policy enforcement points where compromise
 would have broad systemic impact.
 
@@ -1614,7 +1631,7 @@ would have broad systemic impact.
 
 
 
-<<REF_CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> security sets inherited baseline hardening and isolation defaults.
+<<REF_CATALOG-ALIAS_FU_CLUSTER_PROVISIONING_DAY1_PROVISIONING,cluster provisioning>> security sets inherited baseline hardening and isolation defaults.
 Design must detect and remediate security drift early because downstream controls depend on this layer.
 
 
@@ -1629,7 +1646,7 @@ none
 [discrete]
 ====== Main Threats
 
-no explicit attack vector targeting this unit
+no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
 
 [discrete]
 ====== Expected Controls
@@ -1639,7 +1656,7 @@ Define control expectations in authored security narratives and mapped dependenc
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_CLUSTER_PAYMENTS,payments>>
+runtime: <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>
 
 [discrete]
 ====== Security Evidence Missing
@@ -1655,7 +1672,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-<<REF_CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> security protects source trust and reconciliation authority.
+<<REF_CATALOG-ALIAS_FU_GITOPS_OPERATIONS_DAY2_OPERATIONS,gitops operations>> security protects source trust and reconciliation authority.
 The design prevents unauthorized state changes and enforces policy before runtime apply occurs.
 
 
@@ -1670,7 +1687,7 @@ The design prevents unauthorized state changes and enforces policy before runtim
 [discrete]
 ====== Main Threats
 
-no explicit attack vector targeting this unit
+no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
 
 [discrete]
 ====== Expected Controls
@@ -1702,7 +1719,7 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 === What This View Answers
 
 
-- Which requirements map to which units?
+- Which <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirements>> map to which units?
 
 - Which authored units have runtime/code evidence and which do not?
 
@@ -1725,7 +1742,7 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 === Recommended Next Evidence Additions
 
 
-- Add explicit requirement-to-owner mappings where requirement scope is currently broad or ambiguous.
+- Add explicit requirement-to-owner mappings where <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> scope is currently broad or ambiguous.
 
 - Add ownership annotations for runtime and code artifacts where coverage is still unresolved.
 
@@ -1901,32 +1918,32 @@ Show requirement-to-unit mappings inferred from appliesTo and authored architect
 [[REF_REQ_REQ_PAY_001]]
 ==== REQ-PAY-001
 
-While <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall create a payment session and request authorization from bank gateway.
-Notes: Core authorization path from <<REF_CATALOG_FU_CHECKOUT,checkout>> to bank gateway.
+While <<REF_CATALOG-ALIAS_STATE_CHECKOUT_ACTIVE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM,payments system>> shall create a payment session and request authorization from bank gateway.
+Notes: Core authorization path from <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout>> to bank gateway.
 [[REF_REQ_REQ_PAY_002]]
 ==== REQ-PAY-002
 
-Where <<REF_CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG_FG_FRAUD,fraud detection system>> shall calculate a <<REF_CATALOG_DATA_RISK_SCORE,risk score>> before approval.
+Where <<REF_CATALOG-ALIAS_FEAT_FRAUD_CHECK_FRAUD_CHECK,fraud check is enabled>>, when <<REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM,fraud detection system>> shall calculate a <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>> before approval.
 Notes: Fraud scoring gate before approval.
 [[REF_REQ_REQ_PAY_003]]
 ==== REQ-PAY-003
 
-If <<REF_CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, then the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall present a <<REF_CATALOG_DATA_DECLINE_REASON,decline reason>> and a retry option to customer.
-Notes: Decline handling and customer feedback.
+If <<REF_CATALOG-ALIAS_EVT_PAYMENT_DECLINED_PAYMENT_DECLINED,payment is declined>>, then the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM,payments system>> shall present a <<REF_CATALOG-ALIAS_DATA_DECLINE_REASON_DECLINE_CODE,decline reason>> and a retry option to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
+Notes: Decline handling and <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> feedback.
 [[REF_REQ_REQ_PAY_004]]
 ==== REQ-PAY-004
 
-While <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_CATALOG_EVT_RISK_HIGH,risk score is high>>, the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall place the payment in <<REF_CATALOG_STATE_REVIEW_PENDING,review pending>> state and notify <<REF_CATALOG_ACT_SUPPORT,support agent>>.
-Notes: Escalation flow for high-risk <<REF_RT_CLUSTER_PAYMENTS,payments>>.
+While <<REF_CATALOG-ALIAS_STATE_CHECKOUT_ACTIVE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_CATALOG-ALIAS_EVT_RISK_HIGH_HIGH_RISK,risk score is high>>, the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM,payments system>> shall place the payment in <<REF_CATALOG-ALIAS_STATE_REVIEW_PENDING_REVIEW_PENDING,review pending>> state and notify <<REF_IDX-CATALOG_ACT_SUPPORT,support agent>>.
+Notes: Escalation flow for high-risk <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN,payments>>.
 [[REF_REQ_REQ_PAY_005]]
 ==== REQ-PAY-005
 
-Where <<REF_CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall persist an audit record with <<REF_CATALOG_DATA_PAYMENT_ID,payment id>> and <<REF_CATALOG_DATA_RISK_SCORE,risk score>>.
+Where <<REF_CATALOG-ALIAS_FEAT_FRAUD_CHECK_FRAUD_CHECK,fraud check is enabled>>, when <<REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM,payments system>> shall persist an audit record with <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> and <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>.
 Notes: Auditability for authorization decisions.
 [[REF_REQ_REQ_PAY_006]]
 ==== REQ-PAY-006
 
-If <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then the <<REF_CATALOG_FG_PAYMENTS,payments system>> shall present a temporary unavailable message to customer.
+If <<REF_CATALOG-ALIAS_EVT_BANK_LINK_UNAVAILABLE_BANK_LINK_DOWN,bank link is unavailable>>, then the <<REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM,payments system>> shall present a temporary unavailable message to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
 Notes: Fallback behavior when external banking path is down.
 
 === Verification Inventory
@@ -1943,13 +1960,13 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
 |Kind |e2e
 |Status |not-run
-|Verifies Requirements |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
 |Test Code Elements |tests/e2e/authorized_checkout_flow.yaml
 |Derived Functional Owners |<<REF_IDX-FU_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 |Result Summary |not-run:1
 |Evidence |tests/e2e/authorized_checkout_flow.yaml
 
-|Notes |Inferred from test source artifact.
+|Notes |executes authorized <<REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT,checkout>> flow from session start through <<REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH,payment authorization>> success
 
 |===
 
@@ -1963,13 +1980,13 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
 |Kind |integration
 |Status |partial
-|Verifies Requirements |<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 |Test Code Elements |tests/integration/audit_record_persistence_test.ts
 |Derived Functional Owners |<<REF_IDX-FU_FU_RISK_SCORING,FU-RISK-SCORING>>
 |Result Summary |partial:1
 |Evidence |test-results/audit-persistence-report.md, tests/integration/audit_record_persistence_test.ts
 
-|Notes |Inferred from test source artifact.
+|Notes |checks audit record persistence includes <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> and computed <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>
 
 |===
 
@@ -1983,13 +2000,13 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
 |Kind |integration
 |Status |pass
-|Verifies Requirements |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
 |Test Code Elements |tests/integration/fraud_gate_test.rs
 |Derived Functional Owners |<<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>, <<REF_IDX-FU_FU_RISK_SCORING,FU-RISK-SCORING>>, <<REF_IDX-FU_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
 |Result Summary |pass:2
 |Evidence |test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
 
-|Notes |Inferred from test source artifact.
+|Notes |validates fraud gate escalation and block decisions before authorization completion
 
 |===
 
@@ -2003,7 +2020,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
 |Kind |test
 |Status |pass
-|Verifies Requirements |<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 |Test Code Elements |none
 |Derived Functional Owners |<<REF_IDX-FU_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-FU_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 |Result Summary |pass:2
@@ -2022,29 +2039,29 @@ What this section shows: per-requirement result mapping inferred from test-resul
 [cols="1,1,1,4",options="header"]
 |===
 |Check ID |Requirement |Result |Evidence / Notes
-|<<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
-|<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
+|<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
+|<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
 |not-run
 |none + 
-No parsed test-result artifact for this requirement yet.
-|<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
-|<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>
+No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>
 |pass
 |test-results/integration-fraud-gate.json
-|<<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
-|<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>
+|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>
 |pass
 |test-results/contract-checkout-decline.json
-|<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
-|<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
 |pass
 |test-results/integration-fraud-gate.json
-|<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
-|<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
+|<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 |partial
 |test-results/audit-persistence-report.md
-|<<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
-|<<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
+|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 |pass
 |test-results/contract-checkout-decline.json
 |===
@@ -2244,752 +2261,643 @@ If bank link is unavailable, then the payments system shall present a temporary 
 === Catalog References
 [[REF_IDX-CATALOG_ACT_CUSTOMER]]
 [discrete]
-==== ACT-CUSTOMER
-Kind: Catalog Actor
-Name: customer
-Resolves to: <<REF_CATALOG_ACT_CUSTOMER,canonical>>
+==== customer
 End user submitting payment details during checkout.
+Canonical: <<REF_CATALOG_ACT_CUSTOMER,open>>
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
-==== ACT-PLATFORM-OPERATOR
-Kind: Catalog Actor
-Name: platform operator
-Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
+==== platform operator
 Role responsible for GitOps and platform lifecycle operations.
+Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
 [[REF_IDX-CATALOG_ACT_SUPPORT]]
 [discrete]
-==== ACT-SUPPORT
-Kind: Catalog Actor
-Name: support agent
-Resolves to: <<REF_CATALOG_ACT_SUPPORT,canonical>>
+==== support agent
 Operations role that investigates declines and high-risk review cases.
+Canonical: <<REF_CATALOG_ACT_SUPPORT,open>>
 [[REF_CATALOG-ALIAS_COND_3DS_REQUIRED_3DS_REQUIRED]]
 [discrete]
-==== 3DS required
-Kind: Catalog Alias
-Name: 3DS verification is required
-Resolves to: <<REF_CATALOG_COND_3DS_REQUIRED,canonical>>
-Alias of COND-3DS-REQUIRED
+==== 3DS verification is required
+Condition indicating strong customer authentication must be performed.
+Canonical: <<REF_CATALOG_COND_3DS_REQUIRED,open>>
 [[REF_CATALOG-ALIAS_FU_PAYMENT_AUTHORIZATION_AUTH]]
 [discrete]
-==== auth
-Kind: Catalog Alias
-Name: payment authorization
-Resolves to: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,canonical>>
-Alias of FU-PAYMENT-AUTHORIZATION
+==== payment authorization
+Coordinates authorization flow and bank gateway interaction.
+Canonical: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,open>>
 [[REF_CATALOG-ALIAS_REF_BANK_GATEWAY_ENDPOINT_BANK_API]]
 [discrete]
-==== bank API
-Kind: Catalog Alias
-Name: bank gateway endpoint
-Resolves to: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,canonical>>
-Alias of REF-BANK-GATEWAY-ENDPOINT
+==== bank gateway endpoint
+External banking endpoint used for card authorization and decline decisions.
+Canonical: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,open>>
 [[REF_CATALOG-ALIAS_EVT_BANK_LINK_UNAVAILABLE_BANK_LINK_DOWN]]
 [discrete]
-==== bank link down
-Kind: Catalog Alias
-Name: bank link is unavailable
-Resolves to: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,canonical>>
-Alias of EVT-BANK-LINK-UNAVAILABLE
+==== bank link is unavailable
+Event raised when payment engine cannot reach the external bank gateway.
+Canonical: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,open>>
 [[REF_CATALOG-ALIAS_STATE_BANK_LINK_UP_BANK_LINK_UP]]
 [discrete]
-==== bank link up
-Kind: Catalog Alias
-Name: bank link is available
-Resolves to: <<REF_CATALOG_STATE_BANK_LINK_UP,canonical>>
-Alias of STATE-BANK-LINK-UP
+==== bank link is available
+Connectivity state showing bank gateway communication is currently healthy.
+Canonical: <<REF_CATALOG_STATE_BANK_LINK_UP,open>>
 [[REF_CATALOG-ALIAS_ACT_CUSTOMER_BUYER]]
 [discrete]
-==== buyer
-Kind: Catalog Alias
-Name: customer
-Resolves to: <<REF_CATALOG_ACT_CUSTOMER,canonical>>
-Alias of ACT-CUSTOMER
+==== customer
+End user submitting payment details during checkout.
+Canonical: <<REF_CATALOG_ACT_CUSTOMER,open>>
 [[REF_CATALOG-ALIAS_AV_REPLAYED_AUTH_CALLBACK_CALLBACK_REPLAY]]
 [discrete]
-==== callback replay
-Kind: Catalog Alias
-Name: replayed authorization callback
-Resolves to: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,canonical>>
-Alias of AV-REPLAYED-AUTH-CALLBACK
+==== replayed authorization callback
+Replay of a valid callback to induce duplicate or unauthorized state transitions.
+Canonical: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,open>>
 [[REF_CATALOG-ALIAS_FU_CHECKOUT_CHECKOUT]]
 [discrete]
-==== checkout
-Kind: Catalog Alias
-Name: checkout handling
-Resolves to: <<REF_CATALOG_FU_CHECKOUT,canonical>>
-Alias of FU-CHECKOUT
+==== checkout handling
+Handles checkout session start and customer-facing payment messaging.
+Canonical: <<REF_CATALOG_FU_CHECKOUT,open>>
 [[REF_CATALOG-ALIAS_STATE_CHECKOUT_ACTIVE_CHECKOUT_ACTIVE]]
 [discrete]
-==== checkout active
-Kind: Catalog Alias
-Name: checkout is active
-Resolves to: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,canonical>>
-Alias of STATE-CHECKOUT-ACTIVE
+==== checkout is active
+Processing state where the user is actively submitting or confirming payment.
+Canonical: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,open>>
 [[REF_CATALOG-ALIAS_FU_CLUSTER_PROVISIONING_DAY1_PROVISIONING]]
 [discrete]
-==== day1 provisioning
-Kind: Catalog Alias
-Name: cluster provisioning
-Resolves to: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,canonical>>
-Alias of FU-CLUSTER-PROVISIONING
+==== cluster provisioning
+Provides cluster-level platform setup and environment bootstrap.
+Canonical: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,open>>
 [[REF_CATALOG-ALIAS_FU_GITOPS_OPERATIONS_DAY2_OPERATIONS]]
 [discrete]
-==== day2 operations
-Kind: Catalog Alias
-Name: gitops operations
-Resolves to: <<REF_CATALOG_FU_GITOPS_OPERATIONS,canonical>>
-Alias of FU-GITOPS-OPERATIONS
+==== gitops operations
+Operates declarative delivery and release management flows.
+Canonical: <<REF_CATALOG_FU_GITOPS_OPERATIONS,open>>
 [[REF_CATALOG-ALIAS_DATA_DECLINE_REASON_DECLINE_CODE]]
 [discrete]
-==== decline code
-Kind: Catalog Alias
-Name: decline reason
-Resolves to: <<REF_CATALOG_DATA_DECLINE_REASON,canonical>>
-Alias of DATA-DECLINE-REASON
+==== decline reason
+Structured reason code or message explaining why authorization failed.
+Canonical: <<REF_CATALOG_DATA_DECLINE_REASON,open>>
 [[REF_CATALOG-ALIAS_AV_COMPROMISED_DEPENDENCY_DEPENDENCY_COMPROMISE]]
 [discrete]
-==== dependency compromise
-Kind: Catalog Alias
-Name: compromised dependency
-Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
-Alias of AV-COMPROMISED-DEPENDENCY
+==== compromised dependency
+Supply-chain compromise in runtime image or code dependency.
+Canonical: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,open>>
 [[REF_CATALOG-ALIAS_AV_FRAUDULENT_TRANSACTION_PATTERN_FRAUD_ABUSE]]
 [discrete]
-==== fraud abuse
-Kind: Catalog Alias
-Name: fraudulent transaction pattern
-Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
-Alias of AV-FRAUDULENT-TRANSACTION-PATTERN
+==== fraudulent transaction pattern
+Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
+Canonical: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,open>>
 [[REF_CATALOG-ALIAS_FEAT_FRAUD_CHECK_FRAUD_CHECK]]
 [discrete]
-==== fraud check
-Kind: Catalog Alias
-Name: fraud check is enabled
-Resolves to: <<REF_CATALOG_FEAT_FRAUD_CHECK,canonical>>
-Alias of FEAT-FRAUD-CHECK
+==== fraud check is enabled
+Feature flag controlling whether risk scoring is required before authorization.
+Canonical: <<REF_CATALOG_FEAT_FRAUD_CHECK,open>>
 [[REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DETECTION_SYSTEM]]
 [discrete]
-==== fraud detection system
-Kind: Catalog Alias
-Name: fraud evaluation
-Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
-Alias of FG-FRAUD
+==== fraud evaluation
+Functional group for risk scoring and fraud review capabilities.
+Canonical: <<REF_CATALOG_FG_FRAUD,open>>
 [[REF_CATALOG-ALIAS_FG_FRAUD_FRAUD_DOMAIN]]
 [discrete]
-==== fraud domain
-Kind: Catalog Alias
-Name: fraud evaluation
-Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
-Alias of FG-FRAUD
+==== fraud evaluation
+Functional group for risk scoring and fraud review capabilities.
+Canonical: <<REF_CATALOG_FG_FRAUD,open>>
 [[REF_CATALOG-ALIAS_FU_RISK_SCORING_FRAUD_SCORING]]
 [discrete]
-==== fraud scoring
-Kind: Catalog Alias
-Name: risk scoring
-Resolves to: <<REF_CATALOG_FU_RISK_SCORING,canonical>>
-Alias of FU-RISK-SCORING
+==== risk scoring
+Evaluates transaction risk and returns score classification.
+Canonical: <<REF_CATALOG_FU_RISK_SCORING,open>>
 [[REF_CATALOG-ALIAS_REF_HELM_PLATFORM_HELM]]
 [discrete]
-==== helm
-Kind: Catalog Alias
-Name: helm platform
-Resolves to: <<REF_CATALOG_REF_HELM_PLATFORM,canonical>>
-Alias of REF-HELM-PLATFORM
+==== helm platform
+Runtime packaging and deployment substrate for workloads.
+Canonical: <<REF_CATALOG_REF_HELM_PLATFORM,open>>
 [[REF_CATALOG-ALIAS_EVT_RISK_HIGH_HIGH_RISK]]
 [discrete]
-==== high risk
-Kind: Catalog Alias
-Name: risk score is high
-Resolves to: <<REF_CATALOG_EVT_RISK_HIGH,canonical>>
-Alias of EVT-RISK-HIGH
+==== risk score is high
+Event emitted when computed fraud risk exceeds the configured high-risk threshold.
+Canonical: <<REF_CATALOG_EVT_RISK_HIGH,open>>
 [[REF_CATALOG-ALIAS_AV_MALICIOUS_API_REQUEST_MALICIOUS_REQUEST]]
 [discrete]
-==== malicious request
-Kind: Catalog Alias
-Name: malicious api request
-Resolves to: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,canonical>>
-Alias of AV-MALICIOUS-API-REQUEST
+==== malicious api request
+Crafted payload attempting to bypass validation or authorization logic.
+Canonical: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,open>>
 [[REF_CATALOG-ALIAS_FU_SUPPORT_REVIEW_MANUAL_REVIEW]]
 [discrete]
-==== manual review
-Kind: Catalog Alias
-Name: support review
-Resolves to: <<REF_CATALOG_FU_SUPPORT_REVIEW,canonical>>
-Alias of FU-SUPPORT-REVIEW
+==== support review
+Supports manual review and escalation handling for risky transactions.
+Canonical: <<REF_CATALOG_FU_SUPPORT_REVIEW,open>>
 [[REF_CATALOG-ALIAS_MODE_NORMAL_NORMAL_MODE]]
 [discrete]
-==== normal mode
-Kind: Catalog Alias
-Name: normal mode is active
-Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
-Alias of MODE-NORMAL
+==== normal mode is active
+Standard operating mode with full external dependency usage enabled.
+Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
 [[REF_CATALOG-ALIAS_EVT_PAYMENT_AUTH_REQUESTED_PAYMENT_AUTH_REQUESTED]]
 [discrete]
-==== payment auth requested
-Kind: Catalog Alias
-Name: payment authorization is requested
-Resolves to: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,canonical>>
-Alias of EVT-PAYMENT-AUTH-REQUESTED
+==== payment authorization is requested
+Event raised when checkout asks payment engine to authorize a transaction.
+Canonical: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,open>>
 [[REF_CATALOG-ALIAS_EVT_PAYMENT_DECLINED_PAYMENT_DECLINED]]
 [discrete]
-==== payment declined
-Kind: Catalog Alias
-Name: payment is declined
-Resolves to: <<REF_CATALOG_EVT_PAYMENT_DECLINED,canonical>>
-Alias of EVT-PAYMENT-DECLINED
+==== payment is declined
+Event indicating authorization was rejected and customer decline handling must execute.
+Canonical: <<REF_CATALOG_EVT_PAYMENT_DECLINED,open>>
 [[REF_CATALOG-ALIAS_AV_FRAUDULENT_TRANSACTION_PATTERN_PAYMENT_FRAUD]]
 [discrete]
-==== payment fraud
-Kind: Catalog Alias
-Name: fraudulent transaction pattern
-Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
-Alias of AV-FRAUDULENT-TRANSACTION-PATTERN
+==== fraudulent transaction pattern
+Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
+Canonical: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,open>>
 [[REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_DOMAIN]]
 [discrete]
-==== payments domain
-Kind: Catalog Alias
-Name: payments
-Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
-Alias of FG-PAYMENTS
+==== payments
+Functional group for checkout and authorization capabilities.
+Canonical: <<REF_CATALOG_FG_PAYMENTS,open>>
 [[REF_CATALOG-ALIAS_FG_PAYMENTS_PAYMENTS_SYSTEM]]
 [discrete]
-==== payments system
-Kind: Catalog Alias
-Name: payments
-Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
-Alias of FG-PAYMENTS
+==== payments
+Functional group for checkout and authorization capabilities.
+Canonical: <<REF_CATALOG_FG_PAYMENTS,open>>
 [[REF_CATALOG-ALIAS_FG_PLATFORM_PLATFORM_ENGINEERING]]
 [discrete]
-==== platform engineering
-Kind: Catalog Alias
-Name: platform
-Resolves to: <<REF_CATALOG_FG_PLATFORM,canonical>>
-Alias of FG-PLATFORM
+==== platform
+Functional group for provisioning and platform operations capabilities.
+Canonical: <<REF_CATALOG_FG_PLATFORM,open>>
 [[REF_CATALOG-ALIAS_ACT_PLATFORM_OPERATOR_PLATFORM_OPS]]
 [discrete]
-==== platform ops
-Kind: Catalog Alias
-Name: platform operator
-Resolves to: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,canonical>>
-Alias of ACT-PLATFORM-OPERATOR
+==== platform operator
+Role responsible for GitOps and platform lifecycle operations.
+Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
 [[REF_CATALOG-ALIAS_REF_POSTGRES_DRIVER_POSTGRES_DRIVER]]
 [discrete]
-==== postgres driver
-Kind: Catalog Alias
-Name: postgresql client driver
-Resolves to: <<REF_CATALOG_REF_POSTGRES_DRIVER,canonical>>
-Alias of REF-POSTGRES-DRIVER
+==== postgresql client driver
+Third-party library used for application data persistence connectivity.
+Canonical: <<REF_CATALOG_REF_POSTGRES_DRIVER,open>>
 [[REF_CATALOG-ALIAS_STATE_REVIEW_PENDING_REVIEW_PENDING]]
 [discrete]
-==== review pending
-Kind: Catalog Alias
-Name: payment review is pending
-Resolves to: <<REF_CATALOG_STATE_REVIEW_PENDING,canonical>>
-Alias of STATE-REVIEW-PENDING
+==== payment review is pending
+Transaction state requiring manual support review before final disposition.
+Canonical: <<REF_CATALOG_STATE_REVIEW_PENDING,open>>
 [[REF_CATALOG-ALIAS_COND_RISK_THRESHOLD_EXCEEDED_RISK_ABOVE_THRESHOLD]]
 [discrete]
-==== risk above threshold
-Kind: Catalog Alias
-Name: risk threshold is exceeded
-Resolves to: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,canonical>>
-Alias of COND-RISK-THRESHOLD-EXCEEDED
+==== risk threshold is exceeded
+Condition indicating risk score crossed a policy threshold for escalation.
+Canonical: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,open>>
 [[REF_CATALOG-ALIAS_ACT_SUPPORT_SUPPORT]]
 [discrete]
-==== support
-Kind: Catalog Alias
-Name: support agent
-Resolves to: <<REF_CATALOG_ACT_SUPPORT,canonical>>
-Alias of ACT-SUPPORT
+==== support agent
+Operations role that investigates declines and high-risk review cases.
+Canonical: <<REF_CATALOG_ACT_SUPPORT,open>>
 [[REF_CATALOG-ALIAS_EVT_SUPPORT_NOTIFIED_SUPPORT_NOTIFIED]]
 [discrete]
-==== support notified
-Kind: Catalog Alias
-Name: support agent is notified
-Resolves to: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,canonical>>
-Alias of EVT-SUPPORT-NOTIFIED
+==== support agent is notified
+Event indicating manual review notification was sent to support operations.
+Canonical: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,open>>
 [[REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY]]
 [discrete]
-==== AV-COMPROMISED-DEPENDENCY
-Kind: Catalog Attack Vector
-Name: compromised dependency
-Resolves to: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,canonical>>
+==== compromised dependency
 Supply-chain compromise in runtime image or code dependency.
+Canonical: <<REF_CATALOG_AV_COMPROMISED_DEPENDENCY,open>>
 [[REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]
 [discrete]
-==== AV-FRAUDULENT-TRANSACTION-PATTERN
-Kind: Catalog Attack Vector
-Name: fraudulent transaction pattern
-Resolves to: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,canonical>>
+==== fraudulent transaction pattern
 Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
+Canonical: <<REF_CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,open>>
 [[REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST]]
 [discrete]
-==== AV-MALICIOUS-API-REQUEST
-Kind: Catalog Attack Vector
-Name: malicious api request
-Resolves to: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,canonical>>
+==== malicious api request
 Crafted payload attempting to bypass validation or authorization logic.
+Canonical: <<REF_CATALOG_AV_MALICIOUS_API_REQUEST,open>>
 [[REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK]]
 [discrete]
-==== AV-REPLAYED-AUTH-CALLBACK
-Kind: Catalog Attack Vector
-Name: replayed authorization callback
-Resolves to: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,canonical>>
+==== replayed authorization callback
 Replay of a valid callback to induce duplicate or unauthorized state transitions.
+Canonical: <<REF_CATALOG_AV_REPLAYED_AUTH_CALLBACK,open>>
 [[REF_IDX-CATALOG_COND_3DS_REQUIRED]]
 [discrete]
-==== COND-3DS-REQUIRED
-Kind: Catalog Condition
-Name: 3DS verification is required
-Resolves to: <<REF_CATALOG_COND_3DS_REQUIRED,canonical>>
+==== 3DS verification is required
 Condition indicating strong customer authentication must be performed.
+Canonical: <<REF_CATALOG_COND_3DS_REQUIRED,open>>
 [[REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]
 [discrete]
-==== COND-RISK-THRESHOLD-EXCEEDED
-Kind: Catalog Condition
-Name: risk threshold is exceeded
-Resolves to: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,canonical>>
+==== risk threshold is exceeded
 Condition indicating risk score crossed a policy threshold for escalation.
+Canonical: <<REF_CATALOG_COND_RISK_THRESHOLD_EXCEEDED,open>>
 [[REF_IDX-CATALOG_DATA_DECLINE_REASON]]
 [discrete]
-==== DATA-DECLINE-REASON
-Kind: Catalog Data Term
-Name: decline reason
-Resolves to: <<REF_CATALOG_DATA_DECLINE_REASON,canonical>>
+==== decline reason
 Structured reason code or message explaining why authorization failed.
+Canonical: <<REF_CATALOG_DATA_DECLINE_REASON,open>>
 [[REF_IDX-CATALOG_DATA_PAYMENT_ID]]
 [discrete]
-==== DATA-PAYMENT-ID
-Kind: Catalog Data Term
-Name: payment id
-Resolves to: <<REF_CATALOG_DATA_PAYMENT_ID,canonical>>
+==== payment id
 Stable identifier used to correlate a payment across services and records.
+Canonical: <<REF_CATALOG_DATA_PAYMENT_ID,open>>
 [[REF_IDX-CATALOG_DATA_RISK_SCORE]]
 [discrete]
-==== DATA-RISK-SCORE
-Kind: Catalog Data Term
-Name: risk score
-Resolves to: <<REF_CATALOG_DATA_RISK_SCORE,canonical>>
+==== risk score
 Numeric fraud score produced by risk evaluation logic.
+Canonical: <<REF_CATALOG_DATA_RISK_SCORE,open>>
 [[REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE]]
 [discrete]
-==== EVT-BANK-LINK-UNAVAILABLE
-Kind: Catalog Event
-Name: bank link is unavailable
-Resolves to: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,canonical>>
+==== bank link is unavailable
 Event raised when payment engine cannot reach the external bank gateway.
+Canonical: <<REF_CATALOG_EVT_BANK_LINK_UNAVAILABLE,open>>
 [[REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED]]
 [discrete]
-==== EVT-PAYMENT-AUTH-REQUESTED
-Kind: Catalog Event
-Name: payment authorization is requested
-Resolves to: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,canonical>>
+==== payment authorization is requested
 Event raised when checkout asks payment engine to authorize a transaction.
+Canonical: <<REF_CATALOG_EVT_PAYMENT_AUTH_REQUESTED,open>>
 [[REF_IDX-CATALOG_EVT_PAYMENT_DECLINED]]
 [discrete]
-==== EVT-PAYMENT-DECLINED
-Kind: Catalog Event
-Name: payment is declined
-Resolves to: <<REF_CATALOG_EVT_PAYMENT_DECLINED,canonical>>
+==== payment is declined
 Event indicating authorization was rejected and customer decline handling must execute.
+Canonical: <<REF_CATALOG_EVT_PAYMENT_DECLINED,open>>
 [[REF_IDX-CATALOG_EVT_RISK_HIGH]]
 [discrete]
-==== EVT-RISK-HIGH
-Kind: Catalog Event
-Name: risk score is high
-Resolves to: <<REF_CATALOG_EVT_RISK_HIGH,canonical>>
+==== risk score is high
 Event emitted when computed fraud risk exceeds the configured high-risk threshold.
+Canonical: <<REF_CATALOG_EVT_RISK_HIGH,open>>
 [[REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED]]
 [discrete]
-==== EVT-SUPPORT-NOTIFIED
-Kind: Catalog Event
-Name: support agent is notified
-Resolves to: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,canonical>>
+==== support agent is notified
 Event indicating manual review notification was sent to support operations.
+Canonical: <<REF_CATALOG_EVT_SUPPORT_NOTIFIED,open>>
 [[REF_IDX-CATALOG_FEAT_FRAUD_CHECK]]
 [discrete]
-==== FEAT-FRAUD-CHECK
-Kind: Catalog Feature
-Name: fraud check is enabled
-Resolves to: <<REF_CATALOG_FEAT_FRAUD_CHECK,canonical>>
+==== fraud check is enabled
 Feature flag controlling whether risk scoring is required before authorization.
+Canonical: <<REF_CATALOG_FEAT_FRAUD_CHECK,open>>
 [[REF_IDX-CATALOG_FG_FRAUD]]
 [discrete]
-==== FG-FRAUD
-Kind: Catalog Functional Group
-Name: fraud evaluation
-Resolves to: <<REF_CATALOG_FG_FRAUD,canonical>>
+==== fraud evaluation
 Functional group for risk scoring and fraud review capabilities.
+Canonical: <<REF_CATALOG_FG_FRAUD,open>>
 [[REF_IDX-CATALOG_FG_PAYMENTS]]
 [discrete]
-==== FG-PAYMENTS
-Kind: Catalog Functional Group
-Name: payments
-Resolves to: <<REF_CATALOG_FG_PAYMENTS,canonical>>
+==== payments
 Functional group for checkout and authorization capabilities.
+Canonical: <<REF_CATALOG_FG_PAYMENTS,open>>
 [[REF_IDX-CATALOG_FG_PLATFORM]]
 [discrete]
-==== FG-PLATFORM
-Kind: Catalog Functional Group
-Name: platform
-Resolves to: <<REF_CATALOG_FG_PLATFORM,canonical>>
+==== platform
 Functional group for provisioning and platform operations capabilities.
+Canonical: <<REF_CATALOG_FG_PLATFORM,open>>
 [[REF_IDX-CATALOG_FU_CHECKOUT]]
 [discrete]
-==== FU-CHECKOUT
-Kind: Catalog Functional Unit
-Name: checkout handling
-Resolves to: <<REF_CATALOG_FU_CHECKOUT,canonical>>
+==== checkout handling
 Handles checkout session start and customer-facing payment messaging.
+Canonical: <<REF_CATALOG_FU_CHECKOUT,open>>
 [[REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING]]
 [discrete]
-==== FU-CLUSTER-PROVISIONING
-Kind: Catalog Functional Unit
-Name: cluster provisioning
-Resolves to: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,canonical>>
+==== cluster provisioning
 Provides cluster-level platform setup and environment bootstrap.
+Canonical: <<REF_CATALOG_FU_CLUSTER_PROVISIONING,open>>
 [[REF_IDX-CATALOG_FU_GITOPS_OPERATIONS]]
 [discrete]
-==== FU-GITOPS-OPERATIONS
-Kind: Catalog Functional Unit
-Name: gitops operations
-Resolves to: <<REF_CATALOG_FU_GITOPS_OPERATIONS,canonical>>
+==== gitops operations
 Operates declarative delivery and release management flows.
+Canonical: <<REF_CATALOG_FU_GITOPS_OPERATIONS,open>>
 [[REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION]]
 [discrete]
-==== FU-PAYMENT-AUTHORIZATION
-Kind: Catalog Functional Unit
-Name: payment authorization
-Resolves to: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,canonical>>
+==== payment authorization
 Coordinates authorization flow and bank gateway interaction.
+Canonical: <<REF_CATALOG_FU_PAYMENT_AUTHORIZATION,open>>
 [[REF_IDX-CATALOG_FU_RISK_SCORING]]
 [discrete]
-==== FU-RISK-SCORING
-Kind: Catalog Functional Unit
-Name: risk scoring
-Resolves to: <<REF_CATALOG_FU_RISK_SCORING,canonical>>
+==== risk scoring
 Evaluates transaction risk and returns score classification.
+Canonical: <<REF_CATALOG_FU_RISK_SCORING,open>>
 [[REF_IDX-CATALOG_FU_SUPPORT_REVIEW]]
 [discrete]
-==== FU-SUPPORT-REVIEW
-Kind: Catalog Functional Unit
-Name: support review
-Resolves to: <<REF_CATALOG_FU_SUPPORT_REVIEW,canonical>>
+==== support review
 Supports manual review and escalation handling for risky transactions.
+Canonical: <<REF_CATALOG_FU_SUPPORT_REVIEW,open>>
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
-==== MODE-NORMAL
-Kind: Catalog Mode
-Name: normal mode is active
-Resolves to: <<REF_CATALOG_MODE_NORMAL,canonical>>
+==== normal mode is active
 Standard operating mode with full external dependency usage enabled.
+Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
 [[REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT]]
 [discrete]
-==== REF-BANK-GATEWAY-ENDPOINT
-Kind: Catalog Referenced Element
-Name: bank gateway endpoint
-Resolves to: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,canonical>>
+==== bank gateway endpoint
 External banking endpoint used for card authorization and decline decisions.
+Canonical: <<REF_CATALOG_REF_BANK_GATEWAY_ENDPOINT,open>>
 [[REF_IDX-CATALOG_REF_HELM_PLATFORM]]
 [discrete]
-==== REF-HELM-PLATFORM
-Kind: Catalog Referenced Element
-Name: helm platform
-Resolves to: <<REF_CATALOG_REF_HELM_PLATFORM,canonical>>
+==== helm platform
 Runtime packaging and deployment substrate for workloads.
+Canonical: <<REF_CATALOG_REF_HELM_PLATFORM,open>>
 [[REF_IDX-CATALOG_REF_POSTGRES_DRIVER]]
 [discrete]
-==== REF-POSTGRES-DRIVER
-Kind: Catalog Referenced Element
-Name: postgresql client driver
-Resolves to: <<REF_CATALOG_REF_POSTGRES_DRIVER,canonical>>
+==== postgresql client driver
 Third-party library used for application data persistence connectivity.
+Canonical: <<REF_CATALOG_REF_POSTGRES_DRIVER,open>>
 [[REF_IDX-CATALOG_STATE_BANK_LINK_UP]]
 [discrete]
-==== STATE-BANK-LINK-UP
-Kind: Catalog State
-Name: bank link is available
-Resolves to: <<REF_CATALOG_STATE_BANK_LINK_UP,canonical>>
+==== bank link is available
 Connectivity state showing bank gateway communication is currently healthy.
+Canonical: <<REF_CATALOG_STATE_BANK_LINK_UP,open>>
 [[REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE]]
 [discrete]
-==== STATE-CHECKOUT-ACTIVE
-Kind: Catalog State
-Name: checkout is active
-Resolves to: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,canonical>>
+==== checkout is active
 Processing state where the user is actively submitting or confirming payment.
+Canonical: <<REF_CATALOG_STATE_CHECKOUT_ACTIVE,open>>
 [[REF_IDX-CATALOG_STATE_REVIEW_PENDING]]
 [discrete]
-==== STATE-REVIEW-PENDING
-Kind: Catalog State
-Name: payment review is pending
-Resolves to: <<REF_CATALOG_STATE_REVIEW_PENDING,canonical>>
+==== payment review is pending
 Transaction state requiring manual support review before final disposition.
+Canonical: <<REF_CATALOG_STATE_REVIEW_PENDING,open>>
+[[REF_IDX-ENGMODEL_EM_ACTOR]]
+[discrete]
+==== actor
+A person or operational role that interacts with functional units.
+Canonical: <<REF_ENGMODEL_EM_ACTOR,open>>
+[[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
+[discrete]
+==== attack vector
+A technical misuse or attack path that targets functional, referenced, or runtime elements.
+Canonical: <<REF_ENGMODEL_EM_ATTACK_VECTOR,open>>
+[[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
+[discrete]
+==== authored mapping
+An explicit relationship declared in architecture inputs between authored or referenced elements.
+Canonical: <<REF_ENGMODEL_EM_AUTHORED_MAPPING,open>>
+[[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
+[discrete]
+==== code element
+An inferred code structure or ownership element discovered from source trees and build metadata.
+Canonical: <<REF_ENGMODEL_EM_CODE_ELEMENT,open>>
+[[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
+[discrete]
+==== functional group
+A major authored capability area that groups related functional units.
+Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_GROUP,open>>
+[[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
+[discrete]
+==== functional unit
+An authored working unit inside a functional group that owns specific behavior.
+Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_UNIT,open>>
+[[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
+[discrete]
+==== inferred mapping
+A discovered relationship that links inferred runtime/code elements upward to authored design.
+Canonical: <<REF_ENGMODEL_EM_INFERRED_MAPPING,open>>
+[[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
+[discrete]
+==== referenced element
+An architecture-relevant external, platform, or third-party dependency represented by role.
+Canonical: <<REF_ENGMODEL_EM_REFERENCED_ELEMENT,open>>
+[[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
+[discrete]
+==== requirement
+A structured requirement statement that defines expected system behavior and maps to functional ownership.
+Canonical: <<REF_ENGMODEL_EM_REQUIREMENT,open>>
+[[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
+[discrete]
+==== runtime element
+An inferred runtime realization element discovered from infrastructure and deployment sources.
+Canonical: <<REF_ENGMODEL_EM_RUNTIME_ELEMENT,open>>
+[[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
+[discrete]
+==== upward linking
+Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
+Canonical: <<REF_ENGMODEL_EM_UPWARD_LINKING,open>>
+[[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
+[discrete]
+==== verification check
+An inferred or authored verification artifact that validates requirement behavior with test evidence.
+Canonical: <<REF_ENGMODEL_EM_VERIFICATION_CHECK,open>>
 
 === Inferred Runtime References
-[[REF_RT_CLUSTER_PAYMENTS]]
-[discrete]
-==== payments
-Kind: Runtime cluster
-Owner: FU-CLUSTER-PROVISIONING
-Source: examples/payments-engineering-sample/infra/terraform/main.tf
-[[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]
-[discrete]
-==== flux-system/payments-sample-source
-Kind: Runtime gitrepository
-Owner: FU-GITOPS-OPERATIONS
-Source: examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
-[[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]
-[discrete]
-==== payments/checkout-api
-Kind: Runtime helmrelease
-Owner: FU-CHECKOUT
-Source: examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
-[[REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE]]
-[discrete]
-==== payments/payment-engine
-Kind: Runtime helmrelease
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
-[[REF_RT_HELMRELEASE_RISK_RISK_SCORER]]
-[discrete]
-==== risk/risk-scorer
-Kind: Runtime helmrelease
-Owner: FU-RISK-SCORING
-Source: examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
-[[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]
-[discrete]
-==== flux-system/payments-apps
-Kind: Runtime kustomization
-Owner: FU-GITOPS-OPERATIONS
-Source: examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
-[[REF_RT_NAMESPACE_FLUX_SYSTEM]]
-[discrete]
-==== flux_system
-Kind: Runtime namespace
-Owner: FU-GITOPS-OPERATIONS
-Source: examples/payments-engineering-sample/infra/terraform/main.tf
-[[REF_RT_NAMESPACE_PAYMENTS]]
-[discrete]
-==== payments
-Kind: Runtime namespace
-Owner: FU-CHECKOUT
-Source: examples/payments-engineering-sample/infra/terraform/main.tf
-[[REF_RT_NAMESPACE_RISK]]
-[discrete]
-==== risk
-Kind: Runtime namespace
-Owner: FU-RISK-SCORING
-Source: examples/payments-engineering-sample/infra/terraform/main.tf
+[cols="2,2,2,5,3",options="header"]
+|===
+|ID |Kind |Owner |Description |Source
+|[[REF_RT_CLUSTER_PAYMENTS]]payments
+|Runtime cluster
+|FU-CLUSTER-PROVISIONING
+|provisions the shared EKS control plane that hosts payments and risk workloads
+|examples/payments-engineering-sample/infra/terraform/main.tf
+|[[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]flux-system/payments-sample-source
+|Runtime gitrepository
+|FU-GITOPS-OPERATIONS
+|tracks the desired repository state that drives Flux reconciliation for payments workloads
+|examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
+|[[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]payments/checkout-api
+|Runtime helmrelease
+|FU-CHECKOUT
+|exposes checkout ingress and forwards normalized payment requests to authorization flow
+|examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
+|[[REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE]]payments/payment-engine
+|Runtime helmrelease
+|FU-PAYMENT-AUTHORIZATION
+|executes payment authorization decisions and coordinates fraud checks plus bank callbacks
+|examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
+|[[REF_RT_HELMRELEASE_RISK_RISK_SCORER]]risk/risk-scorer
+|Runtime helmrelease
+|FU-RISK-SCORING
+|computes fraud risk score signals and persists evidence used by authorization decisions
+|examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
+|[[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]flux-system/payments-apps
+|Runtime kustomization
+|FU-GITOPS-OPERATIONS
+|applies and reconciles HelmRelease definitions for checkout, payment, and risk services
+|examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
+|[[REF_RT_NAMESPACE_FLUX_SYSTEM]]flux_system
+|Runtime namespace
+|FU-GITOPS-OPERATIONS
+|control-plane namespace where Flux GitOps operators reconcile deployment state
+|examples/payments-engineering-sample/infra/terraform/main.tf
+|[[REF_RT_NAMESPACE_PAYMENTS]]payments
+|Runtime namespace
+|FU-CHECKOUT
+|runtime namespace boundary for checkout and payment authorization workloads
+|examples/payments-engineering-sample/infra/terraform/main.tf
+|[[REF_RT_NAMESPACE_RISK]]risk
+|Runtime namespace
+|FU-RISK-SCORING
+|runtime namespace boundary for fraud scoring and review support workloads
+|examples/payments-engineering-sample/infra/terraform/main.tf
+|===
 
 === Inferred Code References
-[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]
-[discrete]
-==== gopkg.in/yaml.v3
-Kind: Code library_external
-Owner: FU-CHECKOUT
-Source: checkout_api.go
-[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]
-[discrete]
-==== serde_json::json
-Kind: Code library_external
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs
-[[REF_CODE_LIBRARY_EXTERNAL_ZOD]]
-[discrete]
-==== zod
-Kind: Code library_external
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts
-[[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE]]
-[discrete]
-==== ./support/audit_envelope
-Kind: Code library_first_party
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts
-[[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT]]
-[discrete]
-==== crate::domain::events::PaymentEvent
-Kind: Code library_first_party
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate
-Kind: Code library_first_party
-Owner: FU-CHECKOUT
-Source: checkout_api.go
-[[REF_CODE_LIBRARY_STDLIB_FMT]]
-[discrete]
-==== fmt
-Kind: Code library_stdlib
-Owner: FU-CHECKOUT
-Source: checkout_api.go
-[[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO]]
-[discrete]
-==== checkout_api.go
-Kind: Code source_file
-Owner: FU-CHECKOUT
-Source: checkout_api.go
-[[REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS]]
-[discrete]
-==== domain/events.rs
-Kind: Code source_file
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: domain/events.rs
-[[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS]]
-[discrete]
-==== payment_engine.rs
-Kind: Code source_file
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs
-[[REF_CODE_SOURCE_FILE_RISK_SCORER_TS]]
-[discrete]
-==== risk_scorer.ts
-Kind: Code source_file
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts
-[[REF_CODE_SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS]]
-[discrete]
-==== support/audit_envelope.ts
-Kind: Code source_file
-Owner: FU-RISK-SCORING
-Source: support/audit_envelope.ts
-[[REF_CODE_SYMBOL_CODE_AUTHORIZEPAYMENT]]
-[discrete]
-==== CODE-AUTHORIZEPAYMENT
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:10
-[[REF_CODE_SYMBOL_CODE_BUILDREVIEWREASON]]
-[discrete]
-==== CODE-BUILDREVIEWREASON
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:49
-[[REF_CODE_SYMBOL_CODE_CALCULATERISKSCORE]]
-[discrete]
-==== CODE-CALCULATERISKSCORE
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:7
-[[REF_CODE_SYMBOL_CODE_CLASSIFYRISK]]
-[discrete]
-==== CODE-CLASSIFYRISK
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:20
-[[REF_CODE_SYMBOL_CODE_CREATEAUDITRECORD]]
-[discrete]
-==== CODE-CREATEAUDITRECORD
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:36
-[[REF_CODE_SYMBOL_CODE_ENRICHAUDITMETADATA]]
-[discrete]
-==== CODE-ENRICHAUDITMETADATA
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:44
-[[REF_CODE_SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE]]
-[discrete]
-==== CODE-HANDLEBANKLINKUNAVAILABLE
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:33
-[[REF_CODE_SYMBOL_CODE_HANDLEBANKUNAVAILABLE]]
-[discrete]
-==== CODE-HANDLEBANKUNAVAILABLE
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:31
-[[REF_CODE_SYMBOL_CODE_ISHIGHRISK]]
-[discrete]
-==== CODE-ISHIGHRISK
-Kind: Code symbol
-Owner: FU-RISK-SCORING
-Source: risk_scorer.ts:28
-[[REF_CODE_SYMBOL_CODE_NOTIFYSUPPORT]]
-[discrete]
-==== CODE-NOTIFYSUPPORT
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:51
-[[REF_CODE_SYMBOL_CODE_PERSISTAUDITRECORD]]
-[discrete]
-==== CODE-PERSISTAUDITRECORD
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:59
-[[REF_CODE_SYMBOL_CODE_PLACEINREVIEW]]
-[discrete]
-==== CODE-PLACEINREVIEW
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:43
-[[REF_CODE_SYMBOL_CODE_REQUESTBANKAUTHORIZATION]]
-[discrete]
-==== CODE-REQUESTBANKAUTHORIZATION
-Kind: Code symbol
-Owner: FU-PAYMENT-AUTHORIZATION
-Source: payment_engine.rs:25
-[[REF_CODE_SYMBOL_CODE_SHOWDECLINEREASON]]
-[discrete]
-==== CODE-SHOWDECLINEREASON
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:36
-[[REF_CODE_SYMBOL_CODE_SHOWRETRYOPTION]]
-[discrete]
-==== CODE-SHOWRETRYOPTION
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:41
-[[REF_CODE_SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE]]
-[discrete]
-==== CODE-SHOWTEMPORARYUNAVAILABLE
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:46
-[[REF_CODE_SYMBOL_CODE_STARTSESSION]]
-[discrete]
-==== CODE-STARTSESSION
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:15
-[[REF_CODE_SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST]]
-[discrete]
-==== CODE-SUBMITAUTHORIZATIONREQUEST
-Kind: Code symbol
-Owner: FU-CHECKOUT
-Source: checkout_api.go:26
+[cols="2,2,2,5,3",options="header"]
+|===
+|ID |Kind |Owner |Description |Source
+|[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3]]gopkg.in/yaml.v3
+|Code library_external
+|FU-CHECKOUT
+|n/a
+|checkout_api.go
+|[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]serde_json::json
+|Code library_external
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs
+|[[REF_CODE_LIBRARY_EXTERNAL_ZOD]]zod
+|Code library_external
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts
+|[[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE]]./support/audit_envelope
+|Code library_first_party
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts
+|[[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT]]crate::domain::events::PaymentEvent
+|Code library_first_party
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs
+|[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE]]github.com/labeth/engineering-model-go/validate
+|Code library_first_party
+|FU-CHECKOUT
+|n/a
+|checkout_api.go
+|[[REF_CODE_LIBRARY_STDLIB_FMT]]fmt
+|Code library_stdlib
+|FU-CHECKOUT
+|n/a
+|checkout_api.go
+|[[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO]]checkout_api.go
+|Code source_file
+|FU-CHECKOUT
+|accepts checkout requests and forwards payment authorization flow input
+|checkout_api.go
+|[[REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS]]domain/events.rs
+|Code source_file
+|FU-PAYMENT-AUTHORIZATION
+|defines payment domain events used across authorization and risk paths
+|domain/events.rs
+|[[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS]]payment_engine.rs
+|Code source_file
+|FU-PAYMENT-AUTHORIZATION
+|executes authorization decisions and persists payment-side audit records
+|payment_engine.rs
+|[[REF_CODE_SOURCE_FILE_RISK_SCORER_TS]]risk_scorer.ts
+|Code source_file
+|FU-RISK-SCORING
+|computes fraud risk scores and decides review or decline outcomes
+|risk_scorer.ts
+|[[REF_CODE_SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS]]support/audit_envelope.ts
+|Code source_file
+|FU-RISK-SCORING
+|formats support-review audit envelopes for traceability workflows
+|support/audit_envelope.ts
+|[[REF_CODE_SYMBOL_CODE_AUTHORIZEPAYMENT]]CODE-AUTHORIZEPAYMENT
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:11
+|[[REF_CODE_SYMBOL_CODE_BUILDREVIEWREASON]]CODE-BUILDREVIEWREASON
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:50
+|[[REF_CODE_SYMBOL_CODE_CALCULATERISKSCORE]]CODE-CALCULATERISKSCORE
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:8
+|[[REF_CODE_SYMBOL_CODE_CLASSIFYRISK]]CODE-CLASSIFYRISK
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:21
+|[[REF_CODE_SYMBOL_CODE_CREATEAUDITRECORD]]CODE-CREATEAUDITRECORD
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:37
+|[[REF_CODE_SYMBOL_CODE_ENRICHAUDITMETADATA]]CODE-ENRICHAUDITMETADATA
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:45
+|[[REF_CODE_SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE]]CODE-HANDLEBANKLINKUNAVAILABLE
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:34
+|[[REF_CODE_SYMBOL_CODE_HANDLEBANKUNAVAILABLE]]CODE-HANDLEBANKUNAVAILABLE
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:32
+|[[REF_CODE_SYMBOL_CODE_ISHIGHRISK]]CODE-ISHIGHRISK
+|Code symbol
+|FU-RISK-SCORING
+|n/a
+|risk_scorer.ts:29
+|[[REF_CODE_SYMBOL_CODE_NOTIFYSUPPORT]]CODE-NOTIFYSUPPORT
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:52
+|[[REF_CODE_SYMBOL_CODE_PERSISTAUDITRECORD]]CODE-PERSISTAUDITRECORD
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:60
+|[[REF_CODE_SYMBOL_CODE_PLACEINREVIEW]]CODE-PLACEINREVIEW
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:44
+|[[REF_CODE_SYMBOL_CODE_REQUESTBANKAUTHORIZATION]]CODE-REQUESTBANKAUTHORIZATION
+|Code symbol
+|FU-PAYMENT-AUTHORIZATION
+|n/a
+|payment_engine.rs:26
+|[[REF_CODE_SYMBOL_CODE_SHOWDECLINEREASON]]CODE-SHOWDECLINEREASON
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:37
+|[[REF_CODE_SYMBOL_CODE_SHOWRETRYOPTION]]CODE-SHOWRETRYOPTION
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:42
+|[[REF_CODE_SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE]]CODE-SHOWTEMPORARYUNAVAILABLE
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:47
+|[[REF_CODE_SYMBOL_CODE_STARTSESSION]]CODE-STARTSESSION
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:16
+|[[REF_CODE_SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST]]CODE-SUBMITAUTHORIZATIONREQUEST
+|Code symbol
+|FU-CHECKOUT
+|n/a
+|checkout_api.go:27
+|===
 
 === Verification References
-[[REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597]]
-[discrete]
-==== VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
-Kind: Verification Check
-Name: Authorized Checkout Flow
-Resolves to: <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,canonical>>
-Kind: e2e; Status: not-run; Evidence: tests/e2e/authorized_checkout_flow.yaml
-[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
-[discrete]
-==== VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
-Kind: Verification Check
-Name: Audit Record Persistence Test
-Resolves to: <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,canonical>>
-Kind: integration; Status: partial; Evidence: test-results/audit-persistence-report.md, tests/integration/audit_record_persistence_test.ts
-[[REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
-[discrete]
-==== VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
-Kind: Verification Check
-Name: Fraud Gate Test
-Resolves to: <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,canonical>>
-Kind: integration; Status: pass; Evidence: test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
-[[REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
-[discrete]
-==== VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
-Kind: Verification Check
-Name: Contract Checkout Decline
-Resolves to: <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,canonical>>
-Kind: test; Status: pass; Evidence: test-results/contract-checkout-decline.json
+[cols="2,2,1,5,3,2",options="header"]
+|===
+|ID |Kind |Status |Description |Source |Canonical
+|[[REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597]]VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597
+|e2e
+|not-run
+|executes authorized checkout flow from session start through payment authorization success
+|tests/e2e/authorized_checkout_flow.yaml
+|<<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,canonical>>
+|[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
+|integration
+|partial
+|checks audit record persistence includes payment id and computed risk score
+|test-results/audit-persistence-report.md (+1)
+|<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,canonical>>
+|[[REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
+|integration
+|pass
+|validates fraud gate escalation and block decisions before authorization completion
+|test-results/integration-fraud-gate.json (+1)
+|<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,canonical>>
+|[[REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
+|test
+|pass
+|Inferred from test result artifact.
+|test-results/contract-checkout-decline.json
+|<<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,canonical>>
+|===

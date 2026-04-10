@@ -23,6 +23,7 @@ locals {
 }
 
 # Minimal illustrative EKS control plane declaration.
+# engmodel:runtime-description: provisions the shared EKS control plane that hosts payments and risk workloads
 resource "aws_eks_cluster" "payments" {
   name     = "payments-prod-eks"
   role_arn = "arn:aws:iam::123456789012:role/eks-cluster-role"
@@ -36,6 +37,7 @@ resource "aws_eks_cluster" "payments" {
   }
 }
 
+# engmodel:runtime-description: runtime namespace boundary for checkout and payment authorization workloads
 resource "kubernetes_namespace" "payments" {
   metadata {
     name = "payments"
@@ -45,6 +47,7 @@ resource "kubernetes_namespace" "payments" {
   }
 }
 
+# engmodel:runtime-description: runtime namespace boundary for fraud scoring and review support workloads
 resource "kubernetes_namespace" "risk" {
   metadata {
     name = "risk"
@@ -54,6 +57,7 @@ resource "kubernetes_namespace" "risk" {
   }
 }
 
+# engmodel:runtime-description: control-plane namespace where Flux GitOps operators reconcile deployment state
 resource "kubernetes_namespace" "flux_system" {
   metadata {
     name = "flux-system"

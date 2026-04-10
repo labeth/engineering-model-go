@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: validates checkout decline response contract includes reason and retry guidance
 package contract
 
 import "testing"

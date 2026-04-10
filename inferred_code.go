@@ -38,7 +38,15 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		if !filepath.IsAbs(abs) {
 			abs, _ = filepath.Abs(root)
 		}
-		owners := scanCodeOwners(abs)
+		metadata := scanCodeMetadata(abs)
+		owners := map[string]string{}
+		descriptions := map[string]string{}
+		for rel, m := range metadata {
+			owners[rel] = m.Owner
+			if x := strings.TrimSpace(m.Description); x != "" {
+				descriptions[rel] = x
+			}
+		}
 		symbols, sDiags, err := codemap.Scan(abs)
 		if err != nil {
 			diags = append(diags, validate.Diagnostic{
@@ -52,19 +60,21 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		diags = append(diags, sDiags...)
 
 		for rel, owner := range owners {
+			desc := strings.TrimSpace(descriptions[rel])
 			key := "source_file|" + rel + "|" + owner
 			if seen[key] {
 				continue
 			}
 			seen[key] = true
 			items = append(items, inferredCodeItem{
-				Element: rel,
-				Kind:    "source_file",
-				Owner:   owner,
-				Source:  rel,
+				Element:     rel,
+				Kind:        "source_file",
+				Owner:       owner,
+				Description: desc,
+				Source:      rel,
 			})
 
-			deps, depDiags := parseCodeDependencies(abs, rel)
+			deps, depDiags := parseCodeDependencies(abs, rel, owner)
 			diags = append(diags, depDiags...)
 			for _, dep := range deps {
 				key := dep.Kind + "|" + dep.Element + "|" + dep.Owner + "|" + dep.Source
@@ -108,7 +118,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 	return items, validate.SortDiagnostics(diags)
 }
 
-func parseCodeDependencies(root, rel string) ([]inferredCodeItem, []validate.Diagnostic) {
+func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	path := filepath.Join(root, filepath.FromSlash(rel))
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -118,15 +128,6 @@ func parseCodeDependencies(root, rel string) ([]inferredCodeItem, []validate.Dia
 			Message:  err.Error(),
 			Path:     path,
 		}}
-	}
-	owner := "unresolved"
-	for _, line := range strings.Split(string(data), "\n") {
-		if v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:"); ok {
-			if x := strings.TrimSpace(v); x != "" {
-				owner = x
-				break
-			}
-		}
 	}
 	switch strings.ToLower(filepath.Ext(rel)) {
 	case ".go":
@@ -138,6 +139,11 @@ func parseCodeDependencies(root, rel string) ([]inferredCodeItem, []validate.Dia
 	default:
 		return nil, nil
 	}
+}
+
+type codeFileMetadata struct {
+	Owner       string
+	Description string
 }
 
 func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
@@ -241,8 +247,8 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 	return out
 }
 
-func scanCodeOwners(root string) map[string]string {
-	out := map[string]string{}
+func scanCodeMetadata(root string) map[string]codeFileMetadata {
+	out := map[string]codeFileMetadata{}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return nil
@@ -261,18 +267,45 @@ func scanCodeOwners(root string) map[string]string {
 		}
 		rel = filepath.ToSlash(rel)
 		owner := "unresolved"
+		description := ""
 		for _, line := range strings.Split(string(data), "\n") {
 			if v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:"); ok {
 				if x := strings.TrimSpace(v); x != "" {
 					owner = x
-					break
+				}
+			}
+			if description == "" {
+				if desc, ok := extractCodeDescriptionMarker(line); ok {
+					description = desc
 				}
 			}
 		}
-		out[rel] = owner
+		out[rel] = codeFileMetadata{
+			Owner:       owner,
+			Description: description,
+		}
 		return nil
 	})
 	return out
+}
+
+func extractCodeDescriptionMarker(line string) (string, bool) {
+	markers := []string{
+		"ENGMODEL-CODE-DESCRIPTION:",
+		"engmodel:code-description:",
+		"engmodel:code-description",
+		"engmodel.code.description:",
+		"engmodel.code.description",
+	}
+	for _, marker := range markers {
+		if v, ok := extractMarkerValue(line, marker); ok {
+			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
+			if v != "" {
+				return v, true
+			}
+		}
+	}
+	return "", false
 }
 
 func ownerForPath(path string, owners map[string]string) string {

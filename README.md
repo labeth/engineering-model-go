@@ -28,6 +28,8 @@ It is not a runtime observability or incident/compliance runtime system.
 - deterministic Mermaid view rendering
 - AsciiDoc architecture generation with chapter scope diagrams
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
+  - `lintRun.mode: strict` is the default and recommended project mode
+  - `guided` is optional for drafting workflows and non-blocking author guidance
 - Tree-sitter based code symbol extraction and trace mapping for:
   - Go
   - TypeScript/TSX

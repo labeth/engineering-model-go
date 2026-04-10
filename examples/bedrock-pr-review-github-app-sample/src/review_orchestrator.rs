@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-REVIEW-ORCHESTRATION
+// ENGMODEL-CODE-DESCRIPTION: coordinates deterministic and AI review steps for pull requests
 use serde_json::json;
 
 pub struct ReviewOrchestrator;

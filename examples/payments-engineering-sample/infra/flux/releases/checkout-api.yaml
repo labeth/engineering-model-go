@@ -5,6 +5,7 @@ metadata:
   namespace: payments
   annotations:
     engmodel.dev/owner-unit: FU-CHECKOUT
+    engmodel.dev/runtime-description: exposes checkout ingress and forwards normalized payment requests to authorization flow
 spec:
   interval: 5m
   chart:

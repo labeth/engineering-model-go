@@ -79,9 +79,14 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				})
 				return nil
 			}
-			reqs := uniqueStrings(requirementIDRe.FindAllString(string(data), -1))
+			content := string(data)
+			reqs := uniqueStrings(requirementIDRe.FindAllString(content, -1))
 			if len(reqs) == 0 {
 				return nil
+			}
+			desc := extractVerificationDescription(content)
+			if desc == "" {
+				desc = "Inferred from test source artifact."
 			}
 			rel, _ := filepath.Rel(baseDir, path)
 			rel = filepath.ToSlash(rel)
@@ -91,7 +96,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				Name:          verificationNameFromPath(path),
 				Kind:          verificationKindFromPath(rel),
 				Status:        "not-run",
-				Description:   "Inferred from test source artifact.",
+				Description:   desc,
 				Verifies:      reqs,
 				CodeElements:  verificationCodeElementsForPath(rel, codeBySource),
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
@@ -186,7 +191,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				Name:          verificationNameFromPath(a.Path),
 				Kind:          verificationKindFromPath(a.Path),
 				Status:        "not-run",
-				Description:   "Inferred from test result artifact.",
+				Description:   verificationDescriptionFromResultArtifact(baseDir, a.Path),
 				Verifies:      reqs,
 				CodeElements:  verificationCodeElementsForPath(a.Path, codeBySource),
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
@@ -595,6 +600,53 @@ func summarizeCheckStatus(results []inferredVerificationResult) string {
 	default:
 		return "pass"
 	}
+}
+
+func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
+	path := strings.TrimSpace(relPath)
+	if path == "" {
+		return "Inferred from test result artifact."
+	}
+	abs := path
+	if !filepath.IsAbs(abs) {
+		abs = filepath.Join(baseDir, filepath.FromSlash(path))
+	}
+	data, err := os.ReadFile(abs)
+	if err != nil {
+		return "Inferred from test result artifact."
+	}
+	if desc := extractVerificationDescription(string(data)); desc != "" {
+		return desc
+	}
+	return "Inferred from test result artifact."
+}
+
+func extractVerificationDescription(content string) string {
+	for _, line := range strings.Split(content, "\n") {
+		if desc, ok := extractVerificationDescriptionMarker(line); ok {
+			return desc
+		}
+	}
+	return ""
+}
+
+func extractVerificationDescriptionMarker(line string) (string, bool) {
+	markers := []string{
+		"ENGMODEL-VERIFICATION-DESCRIPTION:",
+		"engmodel:verification-description:",
+		"engmodel:verification-description",
+		"engmodel.verification.description:",
+		"engmodel.verification.description",
+	}
+	for _, marker := range markers {
+		if v, ok := extractMarkerValue(line, marker); ok {
+			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
+			if v != "" {
+				return v, true
+			}
+		}
+	}
+	return "", false
 }
 
 func uniqueStrings(in []string) []string {

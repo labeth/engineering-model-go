@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: verifies OTA campaign signature validation and rollout trigger behavior
 package unit
 
 import "testing"

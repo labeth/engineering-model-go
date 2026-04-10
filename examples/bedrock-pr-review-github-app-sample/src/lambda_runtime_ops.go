@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-LAMBDA-RUNTIME-OPERATIONS
+// ENGMODEL-CODE-DESCRIPTION: wires Lambda runtime entrypoints and shared execution dependencies
 package sample
 
 import "log"

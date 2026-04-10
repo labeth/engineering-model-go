@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-REVIEW-PUBLICATION
+// ENGMODEL-CODE-DESCRIPTION: publishes review comments and check-run outcomes back to GitHub
 import { Octokit } from "github-rest-sdk/publication-client";
 
 export class ReviewPublication {

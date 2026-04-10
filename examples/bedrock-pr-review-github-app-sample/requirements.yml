@@ -1,6 +1,6 @@
 lintRun:
   id: sample-pr-review-lint
-  mode: guided
+  mode: strict
   commaAsAnd: true
   catalogRef: ./catalog.yml
 

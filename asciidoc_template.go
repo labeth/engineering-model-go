@@ -54,11 +54,12 @@ type asciidocHealthRow struct {
 }
 
 type asciidocTerm struct {
-	Anchor     string
-	ID         string
-	Name       string
-	Definition string
-	Aliases    []string
+	Anchor      string
+	IndexAnchor string
+	ID          string
+	Name        string
+	Definition  string
+	Aliases     []string
 }
 
 type asciidocReferenceIndex struct {
@@ -75,6 +76,8 @@ type asciidocReferenceEntry struct {
 	ID           string
 	Name         string
 	Kind         string
+	Status       string
+	Owner        string
 	Description  string
 	Source       string
 }

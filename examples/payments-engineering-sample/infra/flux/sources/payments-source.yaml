@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
   annotations:
     engmodel.dev/owner-unit: FU-GITOPS-OPERATIONS
+    engmodel.dev/runtime-description: tracks the desired repository state that drives Flux reconciliation for payments workloads
 spec:
   interval: 1m
   url: https://github.com/example/payments-engineering-sample.git

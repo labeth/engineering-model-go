@@ -1,3 +1,4 @@
+# ENGMODEL-VERIFICATION-DESCRIPTION: runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation
 scenario: ota rollout
 requirements:
   - REQ-COF-003

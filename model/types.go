@@ -8,6 +8,7 @@ type CatalogEntry struct {
 }
 
 type CatalogGroups struct {
+	Systems            []CatalogEntry `yaml:"systems"`
 	FunctionalGroups   []CatalogEntry `yaml:"functionalGroups"`
 	FunctionalUnits    []CatalogEntry `yaml:"functionalUnits"`
 	ReferencedElements []CatalogEntry `yaml:"referencedElements"`

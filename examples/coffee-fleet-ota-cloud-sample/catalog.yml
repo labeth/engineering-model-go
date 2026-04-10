@@ -1,4 +1,10 @@
 catalog:
+  systems:
+    - id: SYS-COFFEE-FLEET-SYSTEM
+      name: coffee fleet system
+      definition: Connected coffee-machine fleet and central cloud control system-of-interest covered by this architecture.
+      aliases: [the coffee fleet system]
+
   functionalGroups:
     - id: FG-MACHINE-EDGE
       name: machine edge
@@ -126,6 +132,14 @@ catalog:
       name: ota status reported event is received
       definition: Event raised when device reports OTA apply status.
       aliases: [ota status reported]
+    - id: EVT-CLOUD-INGEST-ENDPOINT-UNAVAILABLE
+      name: cloud ingest endpoint is unavailable
+      definition: Event raised when cloud ingest endpoint becomes unavailable for telemetry ingestion.
+      aliases: [ingest endpoint unavailable]
+    - id: EVT-TELEMETRY-REPLAY-ABUSE-DETECTED
+      name: telemetry replay abuse is detected
+      definition: Event raised when replayed telemetry behavior is detected and flagged as abuse.
+      aliases: [telemetry replay detected]
 
   states:
     - id: STATE-FLEET-OPERATION-ACTIVE

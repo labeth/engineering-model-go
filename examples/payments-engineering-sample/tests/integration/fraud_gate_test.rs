@@ -1,3 +1,4 @@
+// ENGMODEL-VERIFICATION-DESCRIPTION: validates fraud gate escalation and block decisions before authorization completion
 // Sample integration fixture for architecture verification mapping.
 // Verifies REQ-PAY-002 and REQ-PAY-004.
 #[test]

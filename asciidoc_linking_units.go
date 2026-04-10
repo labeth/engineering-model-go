@@ -14,6 +14,8 @@ type linkTarget struct {
 	Label  string
 }
 
+var modelIDPattern = regexp.MustCompile(`^[A-Z0-9]+-[A-Z0-9-]+$`)
+
 func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	out := map[string]linkTarget{}
 	add := func(token, anchor, label string) {
@@ -31,42 +33,38 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 		}
 		out[token] = linkTarget{Anchor: anchor, Label: label}
 	}
+	addWithVariants := func(token, anchor string) {
+		token = strings.TrimSpace(token)
+		if token == "" {
+			return
+		}
+		add(token, anchor, token)
+		for _, v := range linkTokenVariants(token) {
+			add(v, anchor, v)
+		}
+	}
 	// Priority order matters; first match wins.
 	for _, e := range ref.Authored {
 		target := e.Anchor
-		if strings.TrimSpace(e.TargetAnchor) != "" {
-			target = strings.TrimSpace(e.TargetAnchor)
-		}
 		add(e.ID, target, e.ID)
-		add(e.Name, target, e.Name)
+		addWithVariants(e.Name, target)
 	}
 	for _, e := range ref.Catalog {
 		target := e.Anchor
-		if strings.TrimSpace(e.TargetAnchor) != "" {
-			target = strings.TrimSpace(e.TargetAnchor)
-		}
 		add(e.ID, target, e.ID)
-		// Avoid over-linking with short/common alias words.
-		if strings.Contains(e.ID, "-") || strings.Contains(e.ID, " ") || len(strings.TrimSpace(e.ID)) >= 10 {
-			add(e.ID, target, e.ID)
+		// Link alias-style IDs that are phrase-like tokens as well.
+		if !modelIDPattern.MatchString(strings.TrimSpace(e.ID)) {
+			addWithVariants(e.ID, target)
 		}
-		if len(strings.Fields(e.Name)) >= 2 {
-			add(e.Name, target, e.Name)
-		}
+		addWithVariants(e.Name, target)
 	}
 	// For inferred entries, only link explicit IDs to avoid prose noise.
 	for _, e := range ref.Runtime {
 		target := e.Anchor
-		if strings.TrimSpace(e.TargetAnchor) != "" {
-			target = strings.TrimSpace(e.TargetAnchor)
-		}
 		add(e.ID, target, e.ID)
 	}
 	for _, e := range ref.Code {
 		target := e.Anchor
-		if strings.TrimSpace(e.TargetAnchor) != "" {
-			target = strings.TrimSpace(e.TargetAnchor)
-		}
 		add(e.ID, target, e.ID)
 		if strings.Contains(strings.ToLower(strings.TrimSpace(e.Kind)), "source_file") {
 			src := strings.TrimSpace(e.Source)
@@ -83,13 +81,8 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	}
 	for _, e := range ref.Verification {
 		target := e.Anchor
-		if strings.TrimSpace(e.TargetAnchor) != "" {
-			target = strings.TrimSpace(e.TargetAnchor)
-		}
 		add(e.ID, target, e.ID)
-		if len(strings.Fields(strings.TrimSpace(e.Name))) >= 2 {
-			add(e.Name, target, e.Name)
-		}
+		addWithVariants(e.Name, target)
 	}
 	return out
 }
@@ -179,6 +172,114 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 	}
 	b.WriteString(text[last:])
 	return b.String()
+}
+
+func linkTokenVariants(token string) []string {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return nil
+	}
+	set := map[string]bool{}
+	add := func(v string) {
+		v = strings.TrimSpace(v)
+		if v == "" || strings.EqualFold(v, token) {
+			return
+		}
+		set[v] = true
+	}
+
+	lower := strings.ToLower(token)
+	add(lower)
+	title := titleWords(lower)
+	add(title)
+
+	if strings.Contains(token, " ") {
+		plural := pluralizePhrase(lower)
+		add(plural)
+		add(titleWords(plural))
+	} else {
+		if plural, ok := singleWordPlural(lower); ok {
+			add(plural)
+			add(titleWords(plural))
+		}
+	}
+
+	out := make([]string, 0, len(set))
+	for v := range set {
+		out = append(out, v)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func singleWordPlural(word string) (string, bool) {
+	switch strings.TrimSpace(strings.ToLower(word)) {
+	case "actor":
+		return "actors", true
+	case "event":
+		return "events", true
+	case "state":
+		return "states", true
+	case "feature":
+		return "features", true
+	case "mode":
+		return "modes", true
+	case "condition":
+		return "conditions", true
+	case "requirement":
+		return "requirements", true
+	case "system":
+		return "systems", true
+	default:
+		return "", false
+	}
+}
+
+func pluralizePhrase(phrase string) string {
+	parts := strings.Fields(strings.TrimSpace(phrase))
+	if len(parts) == 0 {
+		return phrase
+	}
+	parts[len(parts)-1] = pluralizeWord(parts[len(parts)-1])
+	return strings.Join(parts, " ")
+}
+
+func pluralizeWord(word string) string {
+	w := strings.TrimSpace(strings.ToLower(word))
+	if w == "" {
+		return word
+	}
+	if strings.HasSuffix(w, "s") {
+		return w
+	}
+	if strings.HasSuffix(w, "y") && len(w) > 1 {
+		prev := w[len(w)-2]
+		if !strings.ContainsRune("aeiou", rune(prev)) {
+			return w[:len(w)-1] + "ies"
+		}
+	}
+	if strings.HasSuffix(w, "ch") || strings.HasSuffix(w, "sh") || strings.HasSuffix(w, "x") || strings.HasSuffix(w, "z") {
+		return w + "es"
+	}
+	return w + "s"
+}
+
+func titleWords(s string) string {
+	parts := strings.Fields(strings.TrimSpace(s))
+	if len(parts) == 0 {
+		return s
+	}
+	for i, p := range parts {
+		if p == "" {
+			continue
+		}
+		b := []byte(p)
+		if b[0] >= 'a' && b[0] <= 'z' {
+			b[0] = b[0] - 'a' + 'A'
+		}
+		parts[i] = string(b)
+	}
+	return strings.Join(parts, " ")
 }
 
 func requirementsByUnit(reqs []model.Requirement) map[string]string {

@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CLOUD-RUNTIME-OPERATIONS
+// ENGMODEL-CODE-DESCRIPTION: wires cloud runtime handlers and integration entrypoints
 package src
 
 // TRACE-REQS: REQ-COF-008

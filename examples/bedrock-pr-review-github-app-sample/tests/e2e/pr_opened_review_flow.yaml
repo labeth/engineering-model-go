@@ -1,3 +1,4 @@
+# ENGMODEL-VERIFICATION-DESCRIPTION: exercises end-to-end pull request opened flow from webhook ingest to published review
 name: e2e-pr-opened-review-flow
 steps:
   - given: pull request opened event is received

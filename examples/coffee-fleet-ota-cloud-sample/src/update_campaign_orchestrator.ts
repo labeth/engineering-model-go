@@ -1,4 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+// ENGMODEL-CODE-DESCRIPTION: plans OTA rollout cohorts and campaign lifecycle transitions
 
 // TRACE-REQS: REQ-COF-003
 export function planCampaign(cohort: string[]): string {
