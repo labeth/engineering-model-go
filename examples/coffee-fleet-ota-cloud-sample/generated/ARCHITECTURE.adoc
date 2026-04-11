@@ -33,13 +33,20 @@ Read in this order:
 
 ++++
 <style>
-a.xref,
-a[href^="#REF_"] {
+a[href^="#REF_"],
+a[href^="#SEC_VIEW_"] {
   background: #f4f6f9;
   border-radius: 3px;
   padding: 0.03em 0.2em;
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
+}
+#toc a,
+.toc a,
+.toc2 a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }
 </style>
 ++++
@@ -255,6 +262,7 @@ flowchart LR
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
+[[SEC_VIEW_VIEW-ARCHITECTURE-INTENT]]
 == Architecture Intent View
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
@@ -748,6 +756,7 @@ none
 
 <<<
 
+[[SEC_VIEW_VIEW-COMMUNICATION]]
 == Communication View
 
 Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
@@ -1166,6 +1175,7 @@ code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS,device_identity_
 
 <<<
 
+[[SEC_VIEW_VIEW-DEPLOYMENT]]
 == Deployment View
 
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
@@ -1521,6 +1531,7 @@ Managed as shared control-plane boundary with controlled key rotation.
 
 <<<
 
+[[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
 Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence.
@@ -1885,6 +1896,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observabil
 
 <<<
 
+[[SEC_VIEW_VIEW-TRACEABILITY]]
 == Traceability View
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
@@ -2794,6 +2806,7 @@ While coffee machine fleet operation is active, when brew cycle completed event 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-001
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_002]]
 [discrete]
@@ -2806,6 +2819,7 @@ While coffee machine fleet operation is active, when telemetry ingested event is
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-002
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_003]]
 [discrete]
@@ -2818,6 +2832,7 @@ Where ota campaign is enabled, when ota campaign scheduled event is received, th
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-003
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_004]]
 [discrete]
@@ -2830,6 +2845,7 @@ Where ota campaign is enabled, when ota campaign scheduled event is received, th
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-004
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_005]]
 [discrete]
@@ -2842,6 +2858,7 @@ If firmware validation failed event is received, then the coffee fleet system sh
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-005
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
 |===
 [[REF_IDX-REQ_REQ_COF_006]]
 [discrete]
@@ -2854,6 +2871,7 @@ If cloud ingest endpoint is unavailable, then the coffee fleet system shall queu
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-006
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_COF_007]]
 [discrete]
@@ -2866,6 +2884,7 @@ Where audit logging is enabled, when ota status reported event is received, the 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-007
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_008]]
 [discrete]
@@ -2878,6 +2897,7 @@ If telemetry replay abuse is detected, then the coffee fleet system shall thrott
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-008
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_COF_009]]
 [discrete]
@@ -2890,6 +2910,7 @@ While coffee machine fleet operation is active, when telemetry ingested event is
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-009
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_COF_010]]
 [discrete]
@@ -2902,6 +2923,7 @@ If firmware validation failed event is received, then the coffee fleet system sh
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-010
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_COF_011]]
 [discrete]
@@ -2914,6 +2936,7 @@ If cloud ingest endpoint is unavailable, then the coffee fleet system shall flus
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-011
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_COF_012]]
 [discrete]
@@ -2926,6 +2949,7 @@ If telemetry replay abuse is detected, then the coffee fleet system shall notify
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-012
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 
 === Catalog References
@@ -2940,6 +2964,7 @@ Operates coffee machines and observes local machine health.
 |Key |Value
 |Kind |Actor
 |Name |barista
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_ACT_FLEET_OPERATOR]]
 [discrete]
@@ -2952,6 +2977,7 @@ Owns OTA rollout campaigns and fleet-level reliability.
 |Key |Value
 |Kind |Actor
 |Name |fleet operator
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
 |===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
@@ -2964,6 +2990,7 @@ Owns runtime deployment and operational controls.
 |Key |Value
 |Kind |Actor
 |Name |platform operator
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_ACT_SECURITY_ANALYST]]
 [discrete]
@@ -2976,6 +3003,7 @@ Reviews identity, firmware integrity, and logging controls.
 |Key |Value
 |Kind |Actor
 |Name |security analyst
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
 |===
 [[REF_IDX-CATALOG_AV_LOG_TAMPERING]]
 [discrete]
@@ -2988,6 +3016,7 @@ Attempts to suppress or alter security/operational log records.
 |Key |Value
 |Kind |Attack Vector
 |Name |log tampering
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE]]
 [discrete]
@@ -3000,6 +3029,7 @@ Tampered firmware payload attempts to execute on devices.
 |Key |Value
 |Kind |Attack Vector
 |Name |malicious firmware bundle
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY]]
 [discrete]
@@ -3012,6 +3042,7 @@ Unauthorized actor impersonates a machine identity.
 |Key |Value
 |Kind |Attack Vector
 |Name |spoofed device identity
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE]]
 [discrete]
@@ -3024,6 +3055,7 @@ Replayed telemetry floods ingestion and distorts reporting.
 |Key |Value
 |Kind |Attack Vector
 |Name |telemetry replay abuse
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID]]
 [discrete]
@@ -3036,6 +3068,7 @@ Condition indicating firmware signature verification succeeded.
 |Key |Value
 |Kind |Condition
 |Name |firmware signature is valid
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD]]
 [discrete]
@@ -3048,6 +3081,7 @@ Immutable log record for security and compliance analysis.
 |Key |Value
 |Kind |Data Term
 |Name |audit log record
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
 |===
 [[REF_IDX-CATALOG_DATA_BREW_TELEMETRY]]
 [discrete]
@@ -3060,6 +3094,7 @@ Machine telemetry including brew duration, temperature, and status metadata.
 |Key |Value
 |Kind |Data Term
 |Name |brew telemetry
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>, <<REF_REQ_REQ_COF_011,REQ-COF-011>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>, <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
 |===
 [[REF_IDX-CATALOG_DATA_CAMPAIGN_ID]]
 [discrete]
@@ -3072,6 +3107,7 @@ Stable OTA campaign identifier used to correlate rollout and audit records.
 |Key |Value
 |Kind |Data Term
 |Name |campaign id
+|Mentioned In |<<REF_REQ_REQ_COF_007,REQ-COF-007>>
 |===
 [[REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE]]
 [discrete]
@@ -3084,6 +3120,7 @@ Signed OTA firmware artifact distributed to machine cohorts for update apply.
 |Key |Value
 |Kind |Data Term
 |Name |signed firmware bundle
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>
 |===
 [[REF_IDX-CATALOG_DATA_MACHINE_IDENTITY]]
 [discrete]
@@ -3096,6 +3133,7 @@ Device identity material used for authenticated publish, ingest, and audit attri
 |Key |Value
 |Kind |Data Term
 |Name |machine identity
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>
 |===
 [[REF_IDX-CATALOG_DATA_OTA_CAMPAIGN_POLICY]]
 [discrete]
@@ -3108,6 +3146,7 @@ Policy describing rollout cohorts, windows, and rollback criteria.
 |Key |Value
 |Kind |Data Term
 |Name |ota campaign policy
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_DATA_OTA_STATUS]]
 [discrete]
@@ -3120,6 +3159,7 @@ Device-level status for firmware download, apply, and rollback outcomes.
 |Key |Value
 |Kind |Data Term
 |Name |ota status
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>, <<REF_REQ_REQ_COF_010,REQ-COF-010>>
 |===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]
@@ -3132,6 +3172,7 @@ A person or operational role that interacts with functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |actor
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
 [discrete]
@@ -3144,6 +3185,7 @@ A technical misuse or attack path that targets functional, referenced, or runtim
 |Key |Value
 |Kind |Engineering Model Term
 |Name |attack vector
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
 [discrete]
@@ -3156,6 +3198,7 @@ An explicit relationship declared in architecture inputs between authored or ref
 |Key |Value
 |Kind |Engineering Model Term
 |Name |authored mapping
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
 [discrete]
@@ -3168,6 +3211,7 @@ An inferred code structure or ownership element discovered from source trees and
 |Key |Value
 |Kind |Engineering Model Term
 |Name |code element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
@@ -3180,6 +3224,7 @@ A major authored capability area that groups related functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional group
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
 [discrete]
@@ -3192,6 +3237,7 @@ An authored working unit inside a functional group that owns specific behavior.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional unit
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
@@ -3204,6 +3250,7 @@ A discovered relationship that links inferred runtime/code elements upward to au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |inferred mapping
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
@@ -3216,6 +3263,7 @@ An architecture-relevant external, platform, or third-party dependency represent
 |Key |Value
 |Kind |Engineering Model Term
 |Name |referenced element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
 [discrete]
@@ -3228,6 +3276,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>, <<REF_REQ_REQ_COF_010,REQ-COF-010>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
 |===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]
@@ -3240,6 +3289,7 @@ An inferred runtime realization element discovered from infrastructure and deplo
 |Key |Value
 |Kind |Engineering Model Term
 |Name |runtime element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]
@@ -3252,6 +3302,7 @@ Rule where runtime and code elements point to stable functional groups/units; au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |upward linking
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
 [discrete]
@@ -3264,6 +3315,7 @@ An inferred or authored verification artifact that validates requirement behavio
 |Key |Value
 |Kind |Engineering Model Term
 |Name |verification check
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED]]
 [discrete]
@@ -3276,6 +3328,7 @@ Event raised when a coffee machine completes a brew cycle.
 |Key |Value
 |Kind |Event
 |Name |brew cycle completed event is received
+|Mentioned In |<<REF_REQ_REQ_COF_001,REQ-COF-001>>
 |===
 [[REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE]]
 [discrete]
@@ -3288,6 +3341,7 @@ Event raised when cloud ingest endpoint becomes unavailable for telemetry ingest
 |Key |Value
 |Kind |Event
 |Name |cloud ingest endpoint is unavailable
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>, <<REF_REQ_REQ_COF_011,REQ-COF-011>>
 |===
 [[REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED]]
 [discrete]
@@ -3300,6 +3354,7 @@ Event raised when signature/hash validation fails on firmware.
 |Key |Value
 |Kind |Event
 |Name |firmware validation failed event is received
+|Mentioned In |<<REF_REQ_REQ_COF_005,REQ-COF-005>>, <<REF_REQ_REQ_COF_010,REQ-COF-010>>
 |===
 [[REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED]]
 [discrete]
@@ -3312,6 +3367,7 @@ Event raised when a fleet OTA campaign is scheduled.
 |Key |Value
 |Kind |Event
 |Name |ota campaign scheduled event is received
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>
 |===
 [[REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED]]
 [discrete]
@@ -3324,6 +3380,7 @@ Event raised when device reports OTA apply status.
 |Key |Value
 |Kind |Event
 |Name |ota status reported event is received
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>
 |===
 [[REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED]]
 [discrete]
@@ -3336,6 +3393,7 @@ Event raised when cloud ingestion accepts telemetry.
 |Key |Value
 |Kind |Event
 |Name |telemetry ingested event is received
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
 |===
 [[REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED]]
 [discrete]
@@ -3348,6 +3406,7 @@ Event raised when replayed telemetry behavior is detected and flagged as abuse.
 |Key |Value
 |Kind |Event
 |Name |telemetry replay abuse is detected
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
 |===
 [[REF_IDX-CATALOG_FEAT_AUDIT_LOGGING]]
 [discrete]
@@ -3360,6 +3419,7 @@ Feature flag enabling audit-grade log persistence.
 |Key |Value
 |Kind |Feature
 |Name |audit logging is enabled
+|Mentioned In |<<REF_REQ_REQ_COF_007,REQ-COF-007>>
 |===
 [[REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN]]
 [discrete]
@@ -3372,6 +3432,7 @@ Feature flag enabling centralized OTA rollout behavior.
 |Key |Value
 |Kind |Feature
 |Name |ota campaign is enabled
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
 |===
 [[REF_IDX-CATALOG_FG_CLOUD_CONTROL]]
 [discrete]
@@ -3384,6 +3445,7 @@ Capability area for fleet ingestion, campaign orchestration, and cloud reporting
 |Key |Value
 |Kind |Functional Group
 |Name |cloud control
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>
 |===
 [[REF_IDX-CATALOG_FG_MACHINE_EDGE]]
 [discrete]
@@ -3396,6 +3458,7 @@ Capability area for device-local telemetry and OTA execution behavior.
 |Key |Value
 |Kind |Functional Group
 |Name |machine edge
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS]]
 [discrete]
@@ -3408,6 +3471,7 @@ Capability area for runtime operations and device identity/secrets lifecycle.
 |Key |Value
 |Kind |Functional Group
 |Name |platform operations
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FU_CLOUD_RUNTIME_OPERATIONS]]
 [discrete]
@@ -3420,6 +3484,7 @@ Operates cloud runtime deployment and scaling controls.
 |Key |Value
 |Kind |Functional Unit
 |Name |cloud runtime operations
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS]]
 [discrete]
@@ -3432,6 +3497,7 @@ Manages device identity material and secure configuration.
 |Key |Value
 |Kind |Functional Unit
 |Name |device identity and secrets
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_FU_FLEET_INGESTION_API]]
 [discrete]
@@ -3444,6 +3510,7 @@ Ingests telemetry and machine status from edge devices.
 |Key |Value
 |Kind |Functional Unit
 |Name |fleet ingestion api
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>, <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
 |===
 [[REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING]]
 [discrete]
@@ -3456,6 +3523,7 @@ Aggregates telemetry and update outcomes into operational and audit signals.
 |Key |Value
 |Kind |Functional Unit
 |Name |fleet observability reporting
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
 |===
 [[REF_IDX-CATALOG_FU_MACHINE_TELEMETRY_COLLECTION]]
 [discrete]
@@ -3468,6 +3536,7 @@ Collects brew/device telemetry and publishes cloud-bound payloads.
 |Key |Value
 |Kind |Functional Unit
 |Name |machine telemetry collection
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
 |===
 [[REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT]]
 [discrete]
@@ -3480,6 +3549,7 @@ Downloads, validates, and applies signed firmware updates on machines.
 |Key |Value
 |Kind |Functional Unit
 |Name |ota update agent
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
 [discrete]
@@ -3492,6 +3562,7 @@ Selects target machine groups and coordinates OTA rollout phases.
 |Key |Value
 |Kind |Functional Unit
 |Name |update campaign orchestration
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_010,REQ-COF-010>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -3504,6 +3575,7 @@ Default operation mode for telemetry and OTA behavior.
 |Key |Value
 |Kind |Mode
 |Name |normal mode is active
+|Mentioned In |<<REF_REQ_REQ_COF_011,REQ-COF-011>>
 |===
 [[REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE]]
 [discrete]
@@ -3516,6 +3588,7 @@ Managed log and metrics service used for fleet observability.
 |Key |Value
 |Kind |Referenced Element
 |Name |cloud logging service
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK]]
 [discrete]
@@ -3528,6 +3601,7 @@ SDK used by cloud units for runtime integrations.
 |Key |Value
 |Kind |Referenced Element
 |Name |cloud runtime sdk
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE]]
 [discrete]
@@ -3540,6 +3614,7 @@ Object store containing signed OTA firmware bundles.
 |Key |Value
 |Kind |Referenced Element
 |Name |firmware bundle store
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE]]
 [discrete]
@@ -3552,6 +3627,7 @@ Service that signs firmware artifacts before OTA rollout.
 |Key |Value
 |Kind |Referenced Element
 |Name |firmware signer service
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT]]
 [discrete]
@@ -3564,6 +3640,7 @@ Cloud endpoint for receiving telemetry and status from devices.
 |Key |Value
 |Kind |Referenced Element
 |Name |iot ingest endpoint
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK]]
 [discrete]
@@ -3576,6 +3653,7 @@ SDK used by edge components for telemetry and command transport.
 |Key |Value
 |Kind |Referenced Element
 |Name |mqtt device sdk
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE]]
 [discrete]
@@ -3588,6 +3666,7 @@ State where machines and central cloud are actively serving operations.
 |Key |Value
 |Kind |State
 |Name |coffee machine fleet operation is active
+|Mentioned In |<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
 |===
 [[REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM]]
 [discrete]
@@ -3600,6 +3679,7 @@ Connected coffee-machine fleet and central cloud control system-of-interest cove
 |Key |Value
 |Kind |System
 |Name |coffee fleet system
+|Mentioned In |<<REF_REQ_REQ_COF_001,REQ-COF-001>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_REQ_REQ_COF_004,REQ-COF-004>>, <<REF_REQ_REQ_COF_005,REQ-COF-005>>, <<REF_REQ_REQ_COF_006,REQ-COF-006>>, <<REF_REQ_REQ_COF_007,REQ-COF-007>>, <<REF_REQ_REQ_COF_008,REQ-COF-008>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>, <<REF_REQ_REQ_COF_010,REQ-COF-010>>, <<REF_REQ_REQ_COF_011,REQ-COF-011>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
 |===
 
 === Inferred Runtime References
@@ -3615,6 +3695,7 @@ schedules OTA campaign orchestration triggers for configured rollout windows
 |Kind |Runtime eventbridge_rule
 |Owner |FU-OTA-UPDATE-AGENT
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET]]
 [discrete]
@@ -3628,6 +3709,7 @@ routes scheduled OTA campaign events to the orchestration runtime handler
 |Kind |Runtime eventbridge_target
 |Owner |FU-OTA-UPDATE-AGENT
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API]]
 [discrete]
@@ -3641,6 +3723,7 @@ receives device telemetry, validates payload shape, and publishes normalized fle
 |Kind |Runtime lambda_function
 |Owner |FU-FLEET-INGESTION-API
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING]]
 [discrete]
@@ -3654,6 +3737,7 @@ aggregates telemetry outcomes into fleet operations and security reporting signa
 |Kind |Runtime lambda_function
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION]]
 [discrete]
@@ -3667,6 +3751,7 @@ coordinates OTA campaign rollout windows and device cohort targeting
 |Kind |Runtime lambda_function
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE]]
 [discrete]
@@ -3680,6 +3765,7 @@ buffers telemetry during ingest outages for retry once normal mode resumes
 |Kind |Runtime queue
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_TOPIC_FLEET_EVENT_TOPIC]]
 [discrete]
@@ -3693,6 +3779,7 @@ broadcasts fleet-wide telemetry and OTA lifecycle events to subscribed processor
 |Kind |Runtime topic
 |Owner |FU-FLEET-INGESTION-API
 |Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 
 === Inferred Code References
@@ -3708,6 +3795,7 @@ wires cloud runtime handlers and integration entrypoints
 |Kind |Code source_file
 |Owner |FU-CLOUD-RUNTIME-OPERATIONS
 |Source |cloud_runtime_ops.go
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS]]
 [discrete]
@@ -3721,6 +3809,7 @@ resolves device identity credentials and firmware verification secrets
 |Kind |Code source_file
 |Owner |FU-DEVICE-IDENTITY-SECRETS
 |Source |device_identity_secrets.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO]]
 [discrete]
@@ -3734,6 +3823,7 @@ ingests device telemetry and emits normalized fleet ingestion events
 |Kind |Code source_file
 |Owner |FU-FLEET-INGESTION-API
 |Source |fleet_ingestion_api.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS]]
 [discrete]
@@ -3747,6 +3837,7 @@ aggregates telemetry and OTA outcome signals for fleet observability reporting
 |Kind |Code source_file
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
 |Source |fleet_observability_reporting.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS]]
 [discrete]
@@ -3760,6 +3851,7 @@ builds machine telemetry and status payloads at the edge
 |Kind |Code source_file
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
 |Source |machine_telemetry.rs
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS]]
 [discrete]
@@ -3773,6 +3865,7 @@ applies OTA campaign updates and reports rollout outcomes
 |Kind |Code source_file
 |Owner |FU-OTA-UPDATE-AGENT
 |Source |ota_update_agent.rs
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]
 [discrete]
@@ -3786,6 +3879,7 @@ plans OTA rollout cohorts and campaign lifecycle transitions
 |Kind |Code source_file
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
 |Source |update_campaign_orchestrator.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SYMBOL_CODE_HANDLEROLLBACK]]
 [discrete]
@@ -3799,6 +3893,7 @@ Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campa
 |Kind |Code symbol
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
 |Source |update_campaign_orchestrator.ts:10
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_INGESTTELEMETRY]]
 [discrete]
@@ -3812,6 +3907,7 @@ Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go
 |Kind |Code symbol
 |Owner |FU-FLEET-INGESTION-API
 |Source |fleet_ingestion_api.go:11
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_NOTIFYREPLAYABUSE]]
 [discrete]
@@ -3825,6 +3921,7 @@ Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observ
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
 |Source |fleet_observability_reporting.ts:15
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PERSISTAUDITLOG]]
 [discrete]
@@ -3838,6 +3935,7 @@ Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observ
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
 |Source |fleet_observability_reporting.ts:10
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PERSISTTELEMETRYMETRIC]]
 [discrete]
@@ -3851,6 +3949,7 @@ Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observ
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
 |Source |fleet_observability_reporting.ts:5
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PLANCAMPAIGN]]
 [discrete]
@@ -3864,6 +3963,7 @@ Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campa
 |Kind |Code symbol
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
 |Source |update_campaign_orchestrator.ts:5
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PUBLISHBREWTELEMETRY]]
 [discrete]
@@ -3877,6 +3977,7 @@ Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telem
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
 |Source |machine_telemetry.rs:10
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_QUEUEFORRETRY]]
 [discrete]
@@ -3890,6 +3991,7 @@ Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telem
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
 |Source |machine_telemetry.rs:15
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_RAISESECURITYNOTIFICATION]]
 [discrete]
@@ -3903,6 +4005,7 @@ Inferred code symbol owned by FU-CLOUD-RUNTIME-OPERATIONS from cloud_runtime_ops
 |Kind |Code symbol
 |Owner |FU-CLOUD-RUNTIME-OPERATIONS
 |Source |cloud_runtime_ops.go:6
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_REDACTIDENTITYFORAUDIT]]
 [discrete]
@@ -3916,6 +4019,7 @@ Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_se
 |Kind |Code symbol
 |Owner |FU-DEVICE-IDENTITY-SECRETS
 |Source |device_identity_secrets.ts:10
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_REJECTREPLAY]]
 [discrete]
@@ -3929,6 +4033,7 @@ Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go
 |Kind |Code symbol
 |Owner |FU-FLEET-INGESTION-API
 |Source |fleet_ingestion_api.go:16
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_ROLLBACKANDREPORT]]
 [discrete]
@@ -3942,6 +4047,7 @@ Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:14.
 |Kind |Code symbol
 |Owner |FU-OTA-UPDATE-AGENT
 |Source |ota_update_agent.rs:14
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_VALIDATEANDAPPLY]]
 [discrete]
@@ -3955,6 +4061,7 @@ Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:5.
 |Kind |Code symbol
 |Owner |FU-OTA-UPDATE-AGENT
 |Source |ota_update_agent.rs:5
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_VERIFYFIRMWARESIGNATURE]]
 [discrete]
@@ -3968,6 +4075,7 @@ Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_se
 |Kind |Code symbol
 |Owner |FU-DEVICE-IDENTITY-SECRETS
 |Source |device_identity_secrets.ts:5
+|Mentioned In |n/a
 |===
 
 === Verification References
@@ -3984,6 +4092,7 @@ runs fleet OTA rollout scenario including scheduling, deployment, and telemetry 
 |Status |partial
 |Source |test-results/ota-rollback-report.md (+1)
 |Name |Ota Rollout Flow
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]
 [discrete]
@@ -3998,6 +4107,7 @@ validates telemetry logging pipeline persistence and operational reporting signa
 |Status |not-run
 |Source |test-results/integration-logging.json (+1)
 |Name |Logging Pipeline Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794]]
 [discrete]
@@ -4012,6 +4122,7 @@ validates telemetry ingest contract fields and accepted request semantics
 |Status |pass
 |Source |test-results/contract-telemetry.json (+1)
 |Name |Telemetry Ingest Contract Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
 |===
 [[REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8]]
 [discrete]
@@ -4026,4 +4137,5 @@ verifies OTA campaign signature validation and rollout trigger behavior
 |Status |pass
 |Source |test-results/unit-ota.xml (+1)
 |Name |Ota Campaign Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===

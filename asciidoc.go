@@ -429,7 +429,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		verificationResultRows[i].Notes = linkifyText(verificationResultRows[i].Notes, linkTargets)
 	}
 
-	doc, err := renderAsciiDocTemplate(asciidocTemplateData{
+	templateData := asciidocTemplateData{
 		Title:        nonEmpty(design.Design.Title, bundle.Architecture.Model.Title),
 		Introduction: linkifyText(strings.TrimSpace(bundle.Architecture.Model.Introduction), linkTargets),
 		HealthRows:   buildHealthRows(viewSections),
@@ -475,7 +475,15 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		Verifications:              verificationSections,
 		VerificationResults:        verificationResultRows,
 		ReferenceIndex:             refIndex,
-	})
+	}
+
+	doc, err := renderAsciiDocTemplate(templateData)
+	if err != nil {
+		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
+
+	templateData.ReferenceIndex = applyReferenceBacklinks(doc, templateData.ReferenceIndex)
+	doc, err = renderAsciiDocTemplate(templateData)
 	if err != nil {
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}

@@ -32,13 +32,20 @@ Read in this order:
 
 ++++
 <style>
-a.xref,
-a[href^="#REF_"] {
+a[href^="#REF_"],
+a[href^="#SEC_VIEW_"] {
   background: #f4f6f9;
   border-radius: 3px;
   padding: 0.03em 0.2em;
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
+}
+#toc a,
+.toc a,
+.toc2 a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }
 </style>
 ++++
@@ -252,6 +259,7 @@ flowchart LR
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
+[[SEC_VIEW_VIEW-ARCHITECTURE-INTENT]]
 == Architecture Intent View
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
@@ -739,6 +747,7 @@ none
 
 <<<
 
+[[SEC_VIEW_VIEW-COMMUNICATION]]
 == Communication View
 
 Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
@@ -1151,6 +1160,7 @@ code modules: <<REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS,secrets_configurat
 
 <<<
 
+[[SEC_VIEW_VIEW-DEPLOYMENT]]
 == Deployment View
 
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
@@ -1501,6 +1511,7 @@ Managed as a shared operational boundary with controlled rotation and rollout fl
 
 <<<
 
+[[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
 Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence.
@@ -1856,6 +1867,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modul
 
 <<<
 
+[[SEC_VIEW_VIEW-TRACEABILITY]]
 == Traceability View
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
@@ -2606,6 +2618,7 @@ While pull request review is active, when pull request synchronize event is rece
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-001
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
 [[REF_IDX-REQ_REQ_PRR_002]]
 [discrete]
@@ -2618,6 +2631,7 @@ While pull request review is active, when pull request opened event is received,
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-002
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
 [[REF_IDX-REQ_REQ_PRR_003]]
 [discrete]
@@ -2630,6 +2644,7 @@ Where ai review is enabled, when diff context is prepared, the pr review system 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-003
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
 [[REF_IDX-REQ_REQ_PRR_004]]
 [discrete]
@@ -2642,6 +2657,7 @@ Where policy checks are enabled, when pull request review is active, the pr revi
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-004
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_005]]
 [discrete]
@@ -2654,6 +2670,7 @@ While pull request review is active, when review findings are generated, the pr 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-005
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_006]]
 [discrete]
@@ -2666,6 +2683,7 @@ If bedrock runtime is unavailable, then the pr review system shall publish deter
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-006
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_007]]
 [discrete]
@@ -2678,6 +2696,7 @@ Where audit logging is enabled, when review findings are published, the pr revie
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-007
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_008]]
 [discrete]
@@ -2690,6 +2709,7 @@ If review request rate limit is exceeded, then the pr review system shall defer 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-008
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_009]]
 [discrete]
@@ -2702,6 +2722,7 @@ While pull request review is active, when review findings are generated, the pr 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-009
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_PRR_010]]
 [discrete]
@@ -2714,6 +2735,7 @@ If review request rate limit is exceeded, then the pr review system shall notify
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-010
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 
 === Catalog References
@@ -2728,6 +2750,7 @@ Engineer opening and updating pull requests.
 |Key |Value
 |Kind |Actor
 |Name |developer
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
@@ -2740,6 +2763,7 @@ Owner of deployment/runtime operations and reliability controls.
 |Key |Value
 |Kind |Actor
 |Name |platform operator
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER]]
 [discrete]
@@ -2752,6 +2776,7 @@ Owner of merge decisions and repository quality gates.
 |Key |Value
 |Kind |Actor
 |Name |repository maintainer
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>
 |===
 [[REF_IDX-CATALOG_ACT_SECURITY_ENGINEER]]
 [discrete]
@@ -2764,6 +2789,7 @@ Owner of security policy checks and finding triage.
 |Key |Value
 |Kind |Actor
 |Name |security engineer
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
 [[REF_IDX-CATALOG_AV_PR_SPAM_ABUSE]]
 [discrete]
@@ -2776,6 +2802,7 @@ High-volume event abuse causing review capacity exhaustion.
 |Key |Value
 |Kind |Attack Vector
 |Name |pull request spam abuse
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF]]
 [discrete]
@@ -2788,6 +2815,7 @@ Malicious prompt-like content embedded in pull request code changes.
 |Key |Value
 |Kind |Attack Vector
 |Name |prompt injection in diff
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW]]
 [discrete]
@@ -2800,6 +2828,7 @@ Unintended credential disclosure in generated review findings.
 |Key |Value
 |Kind |Attack Vector
 |Name |secret leakage in review output
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK]]
 [discrete]
@@ -2812,6 +2841,7 @@ Forged webhook request attempting unauthorized review execution.
 |Key |Value
 |Kind |Attack Vector
 |Name |spoofed github webhook
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_COND_WEBHOOK_SIGNATURE_VALID]]
 [discrete]
@@ -2824,6 +2854,7 @@ Condition indicating webhook HMAC verification succeeded.
 |Key |Value
 |Kind |Condition
 |Name |webhook signature is valid
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY]]
 [discrete]
@@ -2836,6 +2867,7 @@ Aggregated review result posted as a GitHub check run.
 |Key |Value
 |Kind |Data Term
 |Name |check run summary
+|Mentioned In |<<REF_REQ_REQ_PRR_005,REQ-PRR-005>>
 |===
 [[REF_IDX-CATALOG_DATA_DIFF_CONTEXT]]
 [discrete]
@@ -2848,6 +2880,7 @@ Pull request file changes and metadata prepared for analysis.
 |Key |Value
 |Kind |Data Term
 |Name |diff context
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>
 |===
 [[REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA]]
 [discrete]
@@ -2860,6 +2893,7 @@ Sanitized prompt and finding metadata retained for audit.
 |Key |Value
 |Kind |Data Term
 |Name |redacted audit metadata
+|Mentioned In |<<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
 |===
 [[REF_IDX-CATALOG_DATA_RESULT_METADATA]]
 [discrete]
@@ -2872,6 +2906,7 @@ Metadata describing review output characteristics for audit and reporting.
 |Key |Value
 |Kind |Data Term
 |Name |result metadata
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE]]
 [discrete]
@@ -2884,6 +2919,7 @@ Signature used to verify webhook authenticity.
 |Key |Value
 |Kind |Data Term
 |Name |webhook signature
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
 |===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]
@@ -2896,6 +2932,7 @@ A person or operational role that interacts with functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |actor
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
 [discrete]
@@ -2908,6 +2945,7 @@ A technical misuse or attack path that targets functional, referenced, or runtim
 |Key |Value
 |Kind |Engineering Model Term
 |Name |attack vector
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
 [discrete]
@@ -2920,6 +2958,7 @@ An explicit relationship declared in architecture inputs between authored or ref
 |Key |Value
 |Kind |Engineering Model Term
 |Name |authored mapping
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
 [discrete]
@@ -2932,6 +2971,7 @@ An inferred code structure or ownership element discovered from source trees and
 |Key |Value
 |Kind |Engineering Model Term
 |Name |code element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
@@ -2944,6 +2984,7 @@ A major authored capability area that groups related functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional group
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
 [discrete]
@@ -2956,6 +2997,7 @@ An authored working unit inside a functional group that owns specific behavior.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional unit
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
@@ -2968,6 +3010,7 @@ A discovered relationship that links inferred runtime/code elements upward to au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |inferred mapping
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
@@ -2980,6 +3023,7 @@ An architecture-relevant external, platform, or third-party dependency represent
 |Key |Value
 |Kind |Engineering Model Term
 |Name |referenced element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
 [discrete]
@@ -2992,6 +3036,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>
 |===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]
@@ -3004,6 +3049,7 @@ An inferred runtime realization element discovered from infrastructure and deplo
 |Key |Value
 |Kind |Engineering Model Term
 |Name |runtime element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]
@@ -3016,6 +3062,7 @@ Rule where runtime and code elements point to stable functional groups/units; au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |upward linking
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
 [discrete]
@@ -3028,6 +3075,7 @@ An inferred or authored verification artifact that validates requirement behavio
 |Key |Value
 |Kind |Engineering Model Term
 |Name |verification check
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE]]
 [discrete]
@@ -3040,6 +3088,7 @@ Event raised when Bedrock inference path is degraded.
 |Key |Value
 |Kind |Event
 |Name |bedrock runtime is unavailable
+|Mentioned In |<<REF_REQ_REQ_PRR_006,REQ-PRR-006>>
 |===
 [[REF_IDX-CATALOG_EVT_CONTEXT_PREPARED]]
 [discrete]
@@ -3052,6 +3101,7 @@ Event indicating context assembly completed and is ready for analysis.
 |Key |Value
 |Kind |Event
 |Name |diff context is prepared
+|Mentioned In |<<REF_REQ_REQ_PRR_003,REQ-PRR-003>>
 |===
 [[REF_IDX-CATALOG_EVT_FINDINGS_GENERATED]]
 [discrete]
@@ -3064,6 +3114,7 @@ Event indicating analysis output is ready for publication.
 |Key |Value
 |Kind |Event
 |Name |review findings are generated
+|Mentioned In |<<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>
 |===
 [[REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED]]
 [discrete]
@@ -3076,6 +3127,7 @@ Event indicating review output has been published to GitHub checks/comments.
 |Key |Value
 |Kind |Event
 |Name |review findings are published
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
 |===
 [[REF_IDX-CATALOG_EVT_PR_OPENED]]
 [discrete]
@@ -3088,6 +3140,7 @@ Event raised when a new pull request is opened.
 |Key |Value
 |Kind |Event
 |Name |pull request opened event is received
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>
 |===
 [[REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE]]
 [discrete]
@@ -3100,6 +3153,7 @@ Event raised when new commits are pushed to an open pull request.
 |Key |Value
 |Kind |Event
 |Name |pull request synchronize event is received
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
 |===
 [[REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED]]
 [discrete]
@@ -3112,6 +3166,7 @@ Event raised when PR review rate guardrails are hit.
 |Key |Value
 |Kind |Event
 |Name |review request rate limit is exceeded
+|Mentioned In |<<REF_REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>
 |===
 [[REF_IDX-CATALOG_FEAT_AI_REVIEW]]
 [discrete]
@@ -3124,6 +3179,7 @@ Feature flag enabling model-assisted review.
 |Key |Value
 |Kind |Feature
 |Name |ai review is enabled
+|Mentioned In |<<REF_REQ_REQ_PRR_003,REQ-PRR-003>>
 |===
 [[REF_IDX-CATALOG_FEAT_AUDIT_LOGGING]]
 [discrete]
@@ -3136,6 +3192,7 @@ Feature flag enabling audit metadata persistence.
 |Key |Value
 |Kind |Feature
 |Name |audit logging is enabled
+|Mentioned In |<<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
 |===
 [[REF_IDX-CATALOG_FEAT_POLICY_CHECKS]]
 [discrete]
@@ -3148,6 +3205,7 @@ Feature flag enabling deterministic policy checks.
 |Key |Value
 |Kind |Feature
 |Name |policy checks are enabled
+|Mentioned In |<<REF_REQ_REQ_PRR_004,REQ-PRR-004>>
 |===
 [[REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS]]
 [discrete]
@@ -3160,6 +3218,7 @@ Functional group for deployment lifecycle and secret/config controls.
 |Key |Value
 |Kind |Functional Group
 |Name |platform operations
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FG_PR_INTEGRATION]]
 [discrete]
@@ -3172,6 +3231,7 @@ Functional group for webhook ingress and pull request context intake.
 |Key |Value
 |Kind |Functional Group
 |Name |pr integration
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE]]
 [discrete]
@@ -3184,6 +3244,7 @@ Functional group for AI and deterministic review analysis and publication.
 |Key |Value
 |Kind |Functional Group
 |Name |review intelligence
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS]]
 [discrete]
@@ -3196,6 +3257,7 @@ Validates webhook signatures and routes trusted pull request events.
 |Key |Value
 |Kind |Functional Unit
 |Name |github webhook ingress
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
 |===
 [[REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS]]
 [discrete]
@@ -3208,6 +3270,7 @@ Manages runtime deployment and operational controls.
 |Key |Value
 |Kind |Functional Unit
 |Name |lambda runtime operations
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-CATALOG_FU_POLICY_CHECKS]]
 [discrete]
@@ -3220,6 +3283,7 @@ Evaluates deterministic repository policy checks.
 |Key |Value
 |Kind |Functional Unit
 |Name |policy checks
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
 |===
 [[REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY]]
 [discrete]
@@ -3232,6 +3296,7 @@ Fetches changed files and prepares bounded review context payloads.
 |Key |Value
 |Kind |Functional Unit
 |Name |pr context assembly
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
 [[REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION]]
 [discrete]
@@ -3244,6 +3309,7 @@ Coordinates Bedrock analysis with deterministic checks and fallback logic.
 |Key |Value
 |Kind |Functional Unit
 |Name |review orchestration
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
 |===
 [[REF_IDX-CATALOG_FU_REVIEW_PUBLICATION]]
 [discrete]
@@ -3256,6 +3322,7 @@ Publishes review findings to GitHub checks and comments.
 |Key |Value
 |Kind |Functional Unit
 |Name |review publication
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
 |===
 [[REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION]]
 [discrete]
@@ -3268,6 +3335,7 @@ Manages credentials and secure runtime configuration.
 |Key |Value
 |Kind |Functional Unit
 |Name |secrets and configuration
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -3280,6 +3348,7 @@ Default operating mode using AI plus deterministic checks.
 |Key |Value
 |Kind |Mode
 |Name |normal mode is active
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME]]
 [discrete]
@@ -3292,6 +3361,7 @@ External Bedrock runtime endpoint used for model inference.
 |Key |Value
 |Kind |Referenced Element
 |Name |bedrock runtime
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>
 |===
 [[REF_IDX-CATALOG_REF_AWS_SDK_GO]]
 [discrete]
@@ -3304,6 +3374,7 @@ SDK dependency used for AWS runtime integrations.
 |Key |Value
 |Kind |Referenced Element
 |Name |aws sdk for go
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER]]
 [discrete]
@@ -3316,6 +3387,7 @@ Managed secret store for application credentials and config values.
 |Key |Value
 |Kind |Referenced Element
 |Name |aws secrets manager
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_REF_GITHUB_APP_API]]
 [discrete]
@@ -3328,6 +3400,7 @@ External GitHub API used for pull request metadata and review publication.
 |Key |Value
 |Kind |Referenced Element
 |Name |github app api
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>
 |===
 [[REF_IDX-CATALOG_REF_GITHUB_REST_SDK]]
 [discrete]
@@ -3340,6 +3413,7 @@ SDK dependency used for GitHub App REST interactions.
 |Key |Value
 |Kind |Referenced Element
 |Name |github rest sdk
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_REF_POLICY_RULESET]]
 [discrete]
@@ -3352,6 +3426,7 @@ Deterministic review policy bundle used during analysis.
 |Key |Value
 |Kind |Referenced Element
 |Name |policy ruleset
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE]]
 [discrete]
@@ -3364,6 +3439,7 @@ State where review processing is currently active for a pull request.
 |Key |Value
 |Kind |State
 |Name |pull request review is active
+|Mentioned In |<<REF_REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>
 |===
 [[REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM]]
 [discrete]
@@ -3376,6 +3452,7 @@ GitHub App review system-of-interest that ingests PR events and publishes review
 |Key |Value
 |Kind |System
 |Name |pr review system
+|Mentioned In |<<REF_REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>
 |===
 
 === Inferred Runtime References
@@ -3391,6 +3468,7 @@ assembles diff context and orchestrates deterministic plus Bedrock-backed review
 |Kind |Runtime lambda_function
 |Owner |FU-REVIEW-ORCHESTRATION
 |Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER]]
 [discrete]
@@ -3404,6 +3482,7 @@ publishes check run summaries and inline review comments back to GitHub
 |Kind |Runtime lambda_function
 |Owner |FU-REVIEW-PUBLICATION
 |Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS]]
 [discrete]
@@ -3417,6 +3496,7 @@ validates GitHub webhook signature and normalizes pull request event payloads
 |Kind |Runtime lambda_function
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 
 === Inferred Code References
@@ -3432,6 +3512,7 @@ Inferred library_external dependency owned by FU-SECRETS-CONFIGURATION from secr
 |Kind |Code library_external
 |Owner |FU-SECRETS-CONFIGURATION
 |Source |secrets_configuration.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK]]
 [discrete]
@@ -3445,6 +3526,7 @@ Inferred library_external dependency owned by FU-PR-CONTEXT-ASSEMBLY from pr_con
 |Kind |Code library_external
 |Owner |FU-PR-CONTEXT-ASSEMBLY
 |Source |pr_context_assembly.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT]]
 [discrete]
@@ -3458,6 +3540,7 @@ Inferred library_external dependency owned by FU-REVIEW-PUBLICATION from review_
 |Kind |Code library_external
 |Owner |FU-REVIEW-PUBLICATION
 |Source |review_publication.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]
 [discrete]
@@ -3471,6 +3554,7 @@ Inferred library_external dependency owned by FU-REVIEW-ORCHESTRATION from revie
 |Kind |Code library_external
 |Owner |FU-REVIEW-ORCHESTRATION
 |Source |review_orchestrator.rs
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_CRYPTO_HMAC]]
 [discrete]
@@ -3484,6 +3568,7 @@ Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webho
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_CRYPTO_SHA256]]
 [discrete]
@@ -3497,6 +3582,7 @@ Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webho
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_ENCODING_HEX]]
 [discrete]
@@ -3510,6 +3596,7 @@ Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webho
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_FMT]]
 [discrete]
@@ -3523,6 +3610,7 @@ Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webho
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_LOG]]
 [discrete]
@@ -3536,6 +3624,7 @@ Inferred library_stdlib dependency owned by FU-LAMBDA-RUNTIME-OPERATIONS from la
 |Kind |Code library_stdlib
 |Owner |FU-LAMBDA-RUNTIME-OPERATIONS
 |Source |lambda_runtime_ops.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO]]
 [discrete]
@@ -3549,6 +3638,7 @@ wires Lambda runtime entrypoints and shared execution dependencies
 |Kind |Code source_file
 |Owner |FU-LAMBDA-RUNTIME-OPERATIONS
 |Source |lambda_runtime_ops.go
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS]]
 [discrete]
@@ -3562,6 +3652,7 @@ evaluates policy and style rules before review publication
 |Kind |Code source_file
 |Owner |FU-POLICY-CHECKS
 |Source |policy_checks.rs
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS]]
 [discrete]
@@ -3575,6 +3666,7 @@ collects pull request diff context and prepares review input payloads
 |Kind |Code source_file
 |Owner |FU-PR-CONTEXT-ASSEMBLY
 |Source |pr_context_assembly.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_REVIEW_ORCHESTRATOR_RS]]
 [discrete]
@@ -3588,6 +3680,7 @@ coordinates deterministic and AI review steps for pull requests
 |Kind |Code source_file
 |Owner |FU-REVIEW-ORCHESTRATION
 |Source |review_orchestrator.rs
+|Mentioned In |n/a
 |===
 [[REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS]]
 [discrete]
@@ -3601,6 +3694,7 @@ publishes review comments and check-run outcomes back to GitHub
 |Kind |Code source_file
 |Owner |FU-REVIEW-PUBLICATION
 |Source |review_publication.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS]]
 [discrete]
@@ -3614,6 +3708,7 @@ loads GitHub and Bedrock secret configuration for review execution
 |Kind |Code source_file
 |Owner |FU-SECRETS-CONFIGURATION
 |Source |secrets_configuration.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_WEBHOOK_INGRESS_GO]]
 [discrete]
@@ -3627,6 +3722,7 @@ validates GitHub webhook signatures and routes pull request events
 |Kind |Code source_file
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_BUILDDIFFCONTEXT]]
 [discrete]
@@ -3640,6 +3736,7 @@ Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
 |Source |pr_context_assembly.ts:15
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_FALLBACKPOLICYONLY]]
 [discrete]
@@ -3653,6 +3750,7 @@ Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.r
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
 |Source |review_orchestrator.rs:19
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_FETCHCHANGEDFILES]]
 [discrete]
@@ -3666,6 +3764,7 @@ Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
 |Source |pr_context_assembly.ts:9
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY]]
 [discrete]
@@ -3679,6 +3778,7 @@ Inferred code symbol owned by FU-SECRETS-CONFIGURATION from secrets_configuratio
 |Kind |Code symbol
 |Owner |FU-SECRETS-CONFIGURATION
 |Source |secrets_configuration.ts:9
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL]]
 [discrete]
@@ -3692,6 +3792,7 @@ Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:2
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
 |Source |review_publication.ts:27
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_POLICYONLYSUMMARY]]
 [discrete]
@@ -3705,6 +3806,7 @@ Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:21.
 |Kind |Code symbol
 |Owner |FU-POLICY-CHECKS
 |Source |policy_checks.rs:21
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PUBLISHCHECKRUN]]
 [discrete]
@@ -3718,6 +3820,7 @@ Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:9
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
 |Source |review_publication.ts:9
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA]]
 [discrete]
@@ -3731,6 +3834,7 @@ Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:2
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
 |Source |review_publication.ts:22
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_REQUESTBEDROCKREVIEW]]
 [discrete]
@@ -3744,6 +3848,7 @@ Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.r
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
 |Source |review_orchestrator.rs:9
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_ROUTEPULLREQUESTEVENT]]
 [discrete]
@@ -3757,6 +3862,7 @@ Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go:25
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_RUNDETERMINISTICCHECKS]]
 [discrete]
@@ -3770,6 +3876,7 @@ Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:7.
 |Kind |Code symbol
 |Owner |FU-POLICY-CHECKS
 |Source |policy_checks.rs:7
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_VERIFYSIGNATURE]]
 [discrete]
@@ -3783,6 +3890,7 @@ Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
 |Source |webhook_ingress.go:15
+|Mentioned In |n/a
 |===
 
 === Verification References
@@ -3799,6 +3907,7 @@ exercises end-to-end pull request opened flow from webhook ingest to published r
 |Status |pass
 |Source |test-results/contract-checkrun.json (+2)
 |Name |Pr Opened Review Flow
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1]]
 [discrete]
@@ -3813,6 +3922,7 @@ checks audit evidence redaction for secrets and sensitive payload fields
 |Status |pass
 |Source |test-results/audit-redaction-report.md (+1)
 |Name |Audit Redaction Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A]]
 [discrete]
@@ -3827,6 +3937,7 @@ verifies policy-only fallback when Bedrock inference is unavailable
 |Status |pass
 |Source |test-results/integration-policy-fallback.json (+1)
 |Name |Policy Only Fallback Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6]]
 [discrete]
@@ -3841,6 +3952,7 @@ validates GitHub check-run contract shape and required review result fields
 |Status |not-run
 |Source |tests/contract/github_check_run_contract_test.go
 |Name |Github Check Run Contract Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
 |===
 [[REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2]]
 [discrete]
@@ -3855,4 +3967,5 @@ verifies rate-limit deferral behavior for pull request review processing
 |Status |pass
 |Source |test-results/unit-rate-limit.xml (+1)
 |Name |Rate Limit Deferral Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
 |===

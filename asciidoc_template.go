@@ -81,6 +81,7 @@ type asciidocReferenceEntry struct {
 	Aliases      []string
 	Description  string
 	Source       string
+	Backlinks    []string
 }
 
 type asciidocSummary struct {

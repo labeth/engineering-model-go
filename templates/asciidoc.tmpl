@@ -31,13 +31,20 @@ Read in this order:
 
 ++++
 <style>
-a.xref,
-a[href^="#REF_"] {
+a[href^="#REF_"],
+a[href^="#SEC_VIEW_"] {
   background: #f4f6f9;
   border-radius: 3px;
   padding: 0.03em 0.2em;
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
+}
+#toc a,
+.toc a,
+.toc2 a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }
 </style>
 ++++
@@ -119,6 +126,7 @@ flowchart LR
 {{ if gt $i 0 }}
 <<<
 {{ end }}
+[[SEC_VIEW_{{ $v.ID }}]]
 == {{ $v.Heading }}
 
 {{ $v.Inf }}
@@ -497,6 +505,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Key |Value
 |Kind |{{ if .Kind }}{{ .Kind }}{{ else }}n/a{{ end }}
 |Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|Mentioned In |{{ if .Backlinks }}{{- range $i, $b := .Backlinks }}{{ if gt $i 0 }}, {{ end }}{{ $b }}{{- end }}{{ else }}n/a{{ end }}
 |===
 
 {{- end }}
@@ -514,6 +523,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Key |Value
 |Kind |{{ if .Kind }}{{ .Kind }}{{ else }}n/a{{ end }}
 |Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|Mentioned In |{{ if .Backlinks }}{{- range $i, $b := .Backlinks }}{{ if gt $i 0 }}, {{ end }}{{ $b }}{{- end }}{{ else }}n/a{{ end }}
 |===
 
 {{- end }}
@@ -532,6 +542,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |{{ .Kind }}
 |Owner |{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
 |Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|Mentioned In |{{ if .Backlinks }}{{- range $i, $b := .Backlinks }}{{ if gt $i 0 }}, {{ end }}{{ $b }}{{- end }}{{ else }}n/a{{ end }}
 |===
 {{- end }}
 
@@ -549,6 +560,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |{{ .Kind }}
 |Owner |{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
 |Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|Mentioned In |{{ if .Backlinks }}{{- range $i, $b := .Backlinks }}{{ if gt $i 0 }}, {{ end }}{{ $b }}{{- end }}{{ else }}n/a{{ end }}
 |===
 {{- end }}
 
@@ -567,5 +579,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |{{ if .Status }}{{ .Status }}{{ else }}n/a{{ end }}
 |Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
 |Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|Mentioned In |{{ if .Backlinks }}{{- range $i, $b := .Backlinks }}{{ if gt $i 0 }}, {{ end }}{{ $b }}{{- end }}{{ else }}n/a{{ end }}
 |===
 {{- end }}

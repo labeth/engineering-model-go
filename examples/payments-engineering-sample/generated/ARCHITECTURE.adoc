@@ -32,13 +32,20 @@ Read in this order:
 
 ++++
 <style>
-a.xref,
-a[href^="#REF_"] {
+a[href^="#REF_"],
+a[href^="#SEC_VIEW_"] {
   background: #f4f6f9;
   border-radius: 3px;
   padding: 0.03em 0.2em;
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
+}
+#toc a,
+.toc a,
+.toc2 a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }
 </style>
 ++++
@@ -238,6 +245,7 @@ flowchart LR
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
 
+[[SEC_VIEW_VIEW-ARCHITECTURE-INTENT]]
 == Architecture Intent View
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
@@ -685,6 +693,7 @@ no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 
 <<<
 
+[[SEC_VIEW_VIEW-COMMUNICATION]]
 == Communication View
 
 Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
@@ -947,6 +956,7 @@ authored unit with no direct derived runtime/code evidence yet
 
 <<<
 
+[[SEC_VIEW_VIEW-DEPLOYMENT]]
 == Deployment View
 
 Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM,platform>> operations.
@@ -1307,6 +1317,7 @@ Deployment design prioritizes policy gates, controlled promotion, and resilient 
 
 <<<
 
+[[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
 Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security evidence.
@@ -1618,6 +1629,7 @@ runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> 
 
 <<<
 
+[[SEC_VIEW_VIEW-TRACEABILITY]]
 == Traceability View
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
@@ -2276,6 +2288,7 @@ While checkout is active, when payment authorization is requested, the payments 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-001
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
 |===
 [[REF_IDX-REQ_REQ_PAY_002]]
 [discrete]
@@ -2288,6 +2301,7 @@ Where fraud check is enabled, when payment authorization is requested, the fraud
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-002
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-REQ_REQ_PAY_003]]
 [discrete]
@@ -2300,6 +2314,7 @@ If payment is declined, then the payments system shall present a decline reason 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-003
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
 |===
 [[REF_IDX-REQ_REQ_PAY_004]]
 [discrete]
@@ -2312,6 +2327,7 @@ While checkout is active, when payment authorization is requested and risk score
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-004
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-REQ_REQ_PAY_005]]
 [discrete]
@@ -2324,6 +2340,7 @@ Where fraud check is enabled, when payment authorization is requested, the payme
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-005
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
 |===
 [[REF_IDX-REQ_REQ_PAY_006]]
 [discrete]
@@ -2336,6 +2353,7 @@ If bank link is unavailable, then the payments system shall present a temporary 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-006
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
 |===
 [[REF_IDX-REQ_REQ_PAY_007]]
 [discrete]
@@ -2348,6 +2366,7 @@ While checkout is active, when payment authorization is requested, the payments 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-007
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_PAY_008]]
 [discrete]
@@ -2360,6 +2379,7 @@ If payment is declined, then the payments system shall present a retry option to
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-008
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_PAY_009]]
 [discrete]
@@ -2372,6 +2392,7 @@ While checkout is active, when payment authorization is requested and risk score
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-009
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 
 === Catalog References
@@ -2386,6 +2407,7 @@ End user submitting payment details during checkout.
 |Key |Value
 |Kind |Actor
 |Name |customer
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>
 |===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
@@ -2398,6 +2420,7 @@ Role responsible for GitOps and platform lifecycle operations.
 |Key |Value
 |Kind |Actor
 |Name |platform operator
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_ACT_SUPPORT]]
 [discrete]
@@ -2410,6 +2433,7 @@ Operations role that investigates declines and high-risk review cases.
 |Key |Value
 |Kind |Actor
 |Name |support agent
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY]]
 [discrete]
@@ -2422,6 +2446,7 @@ Supply-chain compromise in runtime image or code dependency.
 |Key |Value
 |Kind |Attack Vector
 |Name |compromised dependency
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN]]
 [discrete]
@@ -2434,6 +2459,7 @@ Coordinated abuse pattern using synthetic identities, stolen instruments, or vel
 |Key |Value
 |Kind |Attack Vector
 |Name |fraudulent transaction pattern
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST]]
 [discrete]
@@ -2446,6 +2472,7 @@ Crafted payload attempting to bypass validation or authorization logic.
 |Key |Value
 |Kind |Attack Vector
 |Name |malicious api request
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK]]
 [discrete]
@@ -2458,6 +2485,7 @@ Replay of a valid callback to induce duplicate or unauthorized state transitions
 |Key |Value
 |Kind |Attack Vector
 |Name |replayed authorization callback
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_COND_3DS_REQUIRED]]
 [discrete]
@@ -2470,6 +2498,7 @@ Condition indicating strong customer authentication must be performed.
 |Key |Value
 |Kind |Condition
 |Name |3DS verification is required
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]
 [discrete]
@@ -2482,6 +2511,7 @@ Condition indicating risk score crossed a policy threshold for escalation.
 |Key |Value
 |Kind |Condition
 |Name |risk threshold is exceeded
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_DATA_DECLINE_REASON]]
 [discrete]
@@ -2494,6 +2524,7 @@ Structured reason code or message explaining why authorization failed.
 |Key |Value
 |Kind |Data Term
 |Name |decline reason
+|Mentioned In |<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>
 |===
 [[REF_IDX-CATALOG_DATA_PAYMENT_ID]]
 [discrete]
@@ -2506,6 +2537,7 @@ Stable identifier used to correlate a payment across services and records.
 |Key |Value
 |Kind |Data Term
 |Name |payment id
+|Mentioned In |<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
 |===
 [[REF_IDX-CATALOG_DATA_RISK_SCORE]]
 [discrete]
@@ -2518,6 +2550,7 @@ Numeric fraud score produced by risk evaluation logic.
 |Key |Value
 |Kind |Data Term
 |Name |risk score
+|Mentioned In |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
 |===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]
@@ -2530,6 +2563,7 @@ A person or operational role that interacts with functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |actor
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
 [discrete]
@@ -2542,6 +2576,7 @@ A technical misuse or attack path that targets functional, referenced, or runtim
 |Key |Value
 |Kind |Engineering Model Term
 |Name |attack vector
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
 [discrete]
@@ -2554,6 +2589,7 @@ An explicit relationship declared in architecture inputs between authored or ref
 |Key |Value
 |Kind |Engineering Model Term
 |Name |authored mapping
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
 [discrete]
@@ -2566,6 +2602,7 @@ An inferred code structure or ownership element discovered from source trees and
 |Key |Value
 |Kind |Engineering Model Term
 |Name |code element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
@@ -2578,6 +2615,7 @@ A major authored capability area that groups related functional units.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional group
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
 [discrete]
@@ -2590,6 +2628,7 @@ An authored working unit inside a functional group that owns specific behavior.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional unit
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
@@ -2602,6 +2641,7 @@ A discovered relationship that links inferred runtime/code elements upward to au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |inferred mapping
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
@@ -2614,6 +2654,7 @@ An architecture-relevant external, platform, or third-party dependency represent
 |Key |Value
 |Kind |Engineering Model Term
 |Name |referenced element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
 [discrete]
@@ -2626,6 +2667,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]
@@ -2638,6 +2680,7 @@ An inferred runtime realization element discovered from infrastructure and deplo
 |Key |Value
 |Kind |Engineering Model Term
 |Name |runtime element
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]
@@ -2650,6 +2693,7 @@ Rule where runtime and code elements point to stable functional groups/units; au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |upward linking
+|Mentioned In |n/a
 |===
 [[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
 [discrete]
@@ -2662,6 +2706,7 @@ An inferred or authored verification artifact that validates requirement behavio
 |Key |Value
 |Kind |Engineering Model Term
 |Name |verification check
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE]]
 [discrete]
@@ -2674,6 +2719,7 @@ Event raised when payment engine cannot reach the external bank gateway.
 |Key |Value
 |Kind |Event
 |Name |bank link is unavailable
+|Mentioned In |<<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |===
 [[REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED]]
 [discrete]
@@ -2686,6 +2732,7 @@ Event raised when checkout asks payment engine to authorize a transaction.
 |Key |Value
 |Kind |Event
 |Name |payment authorization is requested
+|Mentioned In |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_EVT_PAYMENT_DECLINED]]
 [discrete]
@@ -2698,6 +2745,7 @@ Event indicating authorization was rejected and customer decline handling must e
 |Key |Value
 |Kind |Event
 |Name |payment is declined
+|Mentioned In |<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>
 |===
 [[REF_IDX-CATALOG_EVT_RISK_HIGH]]
 [discrete]
@@ -2710,6 +2758,7 @@ Event emitted when computed fraud risk exceeds the configured high-risk threshol
 |Key |Value
 |Kind |Event
 |Name |risk score is high
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED]]
 [discrete]
@@ -2722,6 +2771,7 @@ Event indicating manual review notification was sent to support operations.
 |Key |Value
 |Kind |Event
 |Name |support agent is notified
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_FEAT_FRAUD_CHECK]]
 [discrete]
@@ -2734,6 +2784,7 @@ Feature flag controlling whether risk scoring is required before authorization.
 |Key |Value
 |Kind |Feature
 |Name |fraud check is enabled
+|Mentioned In |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |===
 [[REF_IDX-CATALOG_FG_FRAUD]]
 [discrete]
@@ -2746,6 +2797,7 @@ Functional group for risk scoring and fraud review capabilities.
 |Key |Value
 |Kind |Functional Group
 |Name |fraud evaluation
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FG_PAYMENTS]]
 [discrete]
@@ -2758,6 +2810,7 @@ Functional group for checkout and authorization capabilities.
 |Key |Value
 |Kind |Functional Group
 |Name |payments
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |===
 [[REF_IDX-CATALOG_FG_PLATFORM]]
 [discrete]
@@ -2770,6 +2823,7 @@ Functional group for provisioning and platform operations capabilities.
 |Key |Value
 |Kind |Functional Group
 |Name |platform
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_FU_CHECKOUT]]
 [discrete]
@@ -2782,6 +2836,7 @@ Handles checkout session start and customer-facing payment messaging.
 |Key |Value
 |Kind |Functional Unit
 |Name |checkout handling
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
 |===
 [[REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING]]
 [discrete]
@@ -2794,6 +2849,7 @@ Provides cluster-level platform setup and environment bootstrap.
 |Key |Value
 |Kind |Functional Unit
 |Name |cluster provisioning
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-CATALOG_FU_GITOPS_OPERATIONS]]
 [discrete]
@@ -2806,6 +2862,7 @@ Operates declarative delivery and release management flows.
 |Key |Value
 |Kind |Functional Unit
 |Name |gitops operations
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION]]
 [discrete]
@@ -2818,6 +2875,7 @@ Coordinates authorization flow and bank gateway interaction.
 |Key |Value
 |Kind |Functional Unit
 |Name |payment authorization
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
 |===
 [[REF_IDX-CATALOG_FU_RISK_SCORING]]
 [discrete]
@@ -2830,6 +2888,7 @@ Evaluates transaction risk and returns score classification.
 |Key |Value
 |Kind |Functional Unit
 |Name |risk scoring
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-CATALOG_FU_SUPPORT_REVIEW]]
 [discrete]
@@ -2842,6 +2901,7 @@ Supports manual review and escalation handling for risky transactions.
 |Key |Value
 |Kind |Functional Unit
 |Name |support review
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -2854,6 +2914,7 @@ Standard operating mode with full external dependency usage enabled.
 |Key |Value
 |Kind |Mode
 |Name |normal mode is active
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT]]
 [discrete]
@@ -2866,6 +2927,7 @@ External banking endpoint used for card authorization and decline decisions.
 |Key |Value
 |Kind |Referenced Element
 |Name |bank gateway endpoint
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>
 |===
 [[REF_IDX-CATALOG_REF_HELM_PLATFORM]]
 [discrete]
@@ -2878,6 +2940,7 @@ Runtime packaging and deployment substrate for workloads.
 |Key |Value
 |Kind |Referenced Element
 |Name |helm platform
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-CATALOG_REF_POSTGRES_DRIVER]]
 [discrete]
@@ -2890,6 +2953,7 @@ Third-party library used for application data persistence connectivity.
 |Key |Value
 |Kind |Referenced Element
 |Name |postgresql client driver
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_STATE_BANK_LINK_UP]]
 [discrete]
@@ -2902,6 +2966,7 @@ Connectivity state showing bank gateway communication is currently healthy.
 |Key |Value
 |Kind |State
 |Name |bank link is available
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE]]
 [discrete]
@@ -2914,6 +2979,7 @@ Processing state where the user is actively submitting or confirming payment.
 |Key |Value
 |Kind |State
 |Name |checkout is active
+|Mentioned In |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_STATE_REVIEW_PENDING]]
 [discrete]
@@ -2926,6 +2992,7 @@ Transaction state requiring manual support review before final disposition.
 |Key |Value
 |Kind |State
 |Name |payment review is pending
+|Mentioned In |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |===
 [[REF_IDX-CATALOG_SYS_FRAUD_DETECTION_SYSTEM]]
 [discrete]
@@ -2938,6 +3005,7 @@ Fraud scoring and review subsystem participating in payment decisions.
 |Key |Value
 |Kind |System
 |Name |fraud detection system
+|Mentioned In |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>
 |===
 [[REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM]]
 [discrete]
@@ -2950,6 +3018,7 @@ Payment processing system-of-interest covered by this architecture.
 |Key |Value
 |Kind |System
 |Name |payments system
+|Mentioned In |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 
 === Inferred Runtime References
@@ -2965,6 +3034,7 @@ provisions the shared EKS control plane that hosts payments and risk workloads
 |Kind |Runtime cluster
 |Owner |FU-CLUSTER-PROVISIONING
 |Source |examples/payments-engineering-sample/infra/terraform/main.tf
+|Mentioned In |n/a
 |===
 [[REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE]]
 [discrete]
@@ -2978,6 +3048,7 @@ tracks the desired repository state that drives Flux reconciliation for payments
 |Kind |Runtime gitrepository
 |Owner |FU-GITOPS-OPERATIONS
 |Source |examples/payments-engineering-sample/infra/flux/sources/payments-source.yaml
+|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API]]
 [discrete]
@@ -2991,6 +3062,7 @@ exposes checkout ingress and forwards normalized payment requests to authorizati
 |Kind |Runtime helmrelease
 |Owner |FU-CHECKOUT
 |Source |examples/payments-engineering-sample/infra/flux/releases/checkout-api.yaml
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE]]
 [discrete]
@@ -3004,6 +3076,7 @@ executes payment authorization decisions and coordinates fraud checks plus bank 
 |Kind |Runtime helmrelease
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |examples/payments-engineering-sample/infra/flux/releases/payment-engine.yaml
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_HELMRELEASE_RISK_RISK_SCORER]]
 [discrete]
@@ -3017,6 +3090,7 @@ computes fraud risk score signals and persists evidence used by authorization de
 |Kind |Runtime helmrelease
 |Owner |FU-RISK-SCORING
 |Source |examples/payments-engineering-sample/infra/flux/releases/risk-scorer.yaml
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS]]
 [discrete]
@@ -3030,6 +3104,7 @@ applies and reconciles HelmRelease definitions for checkout, payment, and risk s
 |Kind |Runtime kustomization
 |Owner |FU-GITOPS-OPERATIONS
 |Source |examples/payments-engineering-sample/infra/flux/kustomizations/payments-apps.yaml
+|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_RT_NAMESPACE_FLUX_SYSTEM]]
 [discrete]
@@ -3043,6 +3118,7 @@ control-plane namespace where Flux GitOps operators reconcile deployment state
 |Kind |Runtime namespace
 |Owner |FU-GITOPS-OPERATIONS
 |Source |examples/payments-engineering-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_RT_NAMESPACE_PAYMENTS]]
 [discrete]
@@ -3056,6 +3132,7 @@ runtime namespace boundary for checkout and payment authorization workloads
 |Kind |Runtime namespace
 |Owner |FU-CHECKOUT
 |Source |examples/payments-engineering-sample/infra/terraform/main.tf
+|Mentioned In |n/a
 |===
 [[REF_RT_NAMESPACE_RISK]]
 [discrete]
@@ -3069,6 +3146,7 @@ runtime namespace boundary for fraud scoring and review support workloads
 |Kind |Runtime namespace
 |Owner |FU-RISK-SCORING
 |Source |examples/payments-engineering-sample/infra/terraform/main.tf
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 
 === Inferred Code References
@@ -3084,6 +3162,7 @@ Inferred library_external dependency owned by FU-CHECKOUT from checkout_api.go.
 |Kind |Code library_external
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]
 [discrete]
@@ -3097,6 +3176,7 @@ Inferred library_external dependency owned by FU-PAYMENT-AUTHORIZATION from paym
 |Kind |Code library_external
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_ZOD]]
 [discrete]
@@ -3110,6 +3190,7 @@ Inferred library_external dependency owned by FU-RISK-SCORING from risk_scorer.t
 |Kind |Code library_external
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE]]
 [discrete]
@@ -3123,6 +3204,7 @@ Inferred library_first_party dependency owned by FU-RISK-SCORING from risk_score
 |Kind |Code library_first_party
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT]]
 [discrete]
@@ -3136,6 +3218,7 @@ Inferred library_first_party dependency owned by FU-PAYMENT-AUTHORIZATION from p
 |Kind |Code library_first_party
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE]]
 [discrete]
@@ -3149,6 +3232,7 @@ Inferred library_first_party dependency owned by FU-CHECKOUT from checkout_api.g
 |Kind |Code library_first_party
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_FMT]]
 [discrete]
@@ -3162,6 +3246,7 @@ Inferred library_stdlib dependency owned by FU-CHECKOUT from checkout_api.go.
 |Kind |Code library_stdlib
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go
+|Mentioned In |n/a
 |===
 [[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO]]
 [discrete]
@@ -3175,6 +3260,7 @@ accepts checkout requests and forwards payment authorization flow input
 |Kind |Code source_file
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_DOMAIN_EVENTS_RS]]
 [discrete]
@@ -3188,6 +3274,7 @@ defines payment domain events used across authorization and risk paths
 |Kind |Code source_file
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |domain/events.rs
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS]]
 [discrete]
@@ -3201,6 +3288,7 @@ executes authorization decisions and persists payment-side audit records
 |Kind |Code source_file
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_RISK_SCORER_TS]]
 [discrete]
@@ -3214,6 +3302,7 @@ computes fraud risk scores and decides review or decline outcomes
 |Kind |Code source_file
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_CODE_SOURCE_FILE_SUPPORT_AUDIT_ENVELOPE_TS]]
 [discrete]
@@ -3227,6 +3316,7 @@ formats support-review audit envelopes for traceability workflows
 |Kind |Code source_file
 |Owner |FU-RISK-SCORING
 |Source |support/audit_envelope.ts
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_AUTHORIZEPAYMENT]]
 [discrete]
@@ -3240,6 +3330,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:11
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:11
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_BUILDREVIEWREASON]]
 [discrete]
@@ -3253,6 +3344,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:50.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:50
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_CALCULATERISKSCORE]]
 [discrete]
@@ -3266,6 +3358,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:8.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:8
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_CLASSIFYRISK]]
 [discrete]
@@ -3279,6 +3372,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:21.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:21
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_CREATEAUDITRECORD]]
 [discrete]
@@ -3292,6 +3386,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:37.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:37
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_ENRICHAUDITMETADATA]]
 [discrete]
@@ -3305,6 +3400,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:45.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:45
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_HANDLEBANKLINKUNAVAILABLE]]
 [discrete]
@@ -3318,6 +3414,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:34
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:34
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_HANDLEBANKUNAVAILABLE]]
 [discrete]
@@ -3331,6 +3428,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:32.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:32
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_ISHIGHRISK]]
 [discrete]
@@ -3344,6 +3442,7 @@ Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:29.
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
 |Source |risk_scorer.ts:29
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_NOTIFYSUPPORT]]
 [discrete]
@@ -3357,6 +3456,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:52
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:52
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PERSISTAUDITRECORD]]
 [discrete]
@@ -3370,6 +3470,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:60
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:60
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_PLACEINREVIEW]]
 [discrete]
@@ -3383,6 +3484,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:44
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:44
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_REQUESTBANKAUTHORIZATION]]
 [discrete]
@@ -3396,6 +3498,7 @@ Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:26
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |payment_engine.rs:26
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_SHOWDECLINEREASON]]
 [discrete]
@@ -3409,6 +3512,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:37.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:37
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_SHOWRETRYOPTION]]
 [discrete]
@@ -3422,6 +3526,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:42.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:42
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_SHOWTEMPORARYUNAVAILABLE]]
 [discrete]
@@ -3435,6 +3540,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:47.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:47
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_STARTSESSION]]
 [discrete]
@@ -3448,6 +3554,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:16.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:16
+|Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_CODE_SUBMITAUTHORIZATIONREQUEST]]
 [discrete]
@@ -3461,6 +3568,7 @@ Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:27.
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
 |Source |checkout_api.go:27
+|Mentioned In |n/a
 |===
 
 === Verification References
@@ -3477,6 +3585,7 @@ executes authorized checkout flow from session start through payment authorizati
 |Status |not-run
 |Source |tests/e2e/authorized_checkout_flow.yaml
 |Name |Authorized Checkout Flow
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
 [discrete]
@@ -3491,6 +3600,7 @@ checks audit record persistence includes payment id and computed risk score
 |Status |partial
 |Source |test-results/audit-persistence-report.md (+1)
 |Name |Audit Record Persistence Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
 [discrete]
@@ -3505,6 +3615,7 @@ validates fraud gate escalation and block decisions before authorization complet
 |Status |pass
 |Source |test-results/integration-fraud-gate.json (+1)
 |Name |Fraud Gate Test
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
 [discrete]
@@ -3519,4 +3630,5 @@ Inferred from test result artifact.
 |Status |pass
 |Source |test-results/contract-checkout-decline.json
 |Name |Contract Checkout Decline
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
 |===

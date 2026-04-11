@@ -138,16 +138,21 @@ The generated document starts with:
 Each generated view includes:
 - `What This View Answers`
 - `Coverage Gaps` and `Recommended Next Evidence Additions`
-- view-scoped FG/FU narratives from `design.yml`
+- view-scoped narratives from `design.yml`
+  - for `security`, content is organized as attack-vector chapters with per-attack diagrams and related FU sections
+
+The Traceability View includes:
+- `Requirement-to-Unit Mapping (Compact)`
+- `Verification Result Mapping` (inferred per-requirement outcomes)
 
 The traceability appendix includes:
 - `Requirement Details`
 - `Verification Inventory` (inferred test/check mappings to test code elements and requirements)
-- `Verification Result Mapping` (inferred per-requirement outcomes)
 - `Reference Index` with consistent entry layout:
   - chapter per ID
   - short prose description
   - compact key/value table with the most relevant fields
+  - `Mentioned In` backlinks to jump from registry entries to sections where each entry is referenced
   - sections: `Authored References`, `Catalog References`, `Inferred Runtime References`, `Inferred Code References`, `Verification References`
 
 AI-first export includes:
