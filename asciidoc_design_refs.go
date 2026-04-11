@@ -116,10 +116,18 @@ func referenceAnchor(kind, id string) string {
 
 func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDocument, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck) asciidocReferenceIndex {
 	authored := []asciidocReferenceEntry{}
+	catalogIDs := catalogEntryIDSet(bundle.Catalog)
 	addAuthored := func(anchorKind, kind, id, name, desc string) {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			return
+		}
+		if catalogIDs[strings.ToUpper(id)] {
+			return
+		}
 		authored = append(authored, asciidocReferenceEntry{
 			Anchor:      referenceAnchor(anchorKind, id),
-			ID:          strings.TrimSpace(id),
+			ID:          id,
 			Name:        strings.TrimSpace(name),
 			Kind:        strings.TrimSpace(kind),
 			Description: strings.TrimSpace(desc),
@@ -174,11 +182,21 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 
 func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
+	seen := map[string]bool{}
 	for _, term := range builtInEngineeringModelTerms() {
+		id := strings.TrimSpace(term.ID)
+		if id == "" {
+			continue
+		}
+		key := strings.ToUpper(id)
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
 		out = append(out, asciidocReferenceEntry{
 			Anchor:       referenceAnchor("idx-engmodel", term.ID),
 			TargetAnchor: term.Anchor,
-			ID:           term.ID,
+			ID:           id,
 			Name:         term.Name,
 			Kind:         "Engineering Model Term",
 			Description:  strings.TrimSpace(term.Definition),
@@ -186,29 +204,24 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 	}
 	add := func(kind string, entries []model.CatalogEntry) {
 		for _, e := range entries {
+			id := strings.TrimSpace(e.ID)
+			if id == "" {
+				continue
+			}
+			key := strings.ToUpper(id)
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
 			canonical := referenceAnchor("catalog", e.ID)
 			out = append(out, asciidocReferenceEntry{
 				Anchor:       referenceAnchor("idx-catalog", e.ID),
 				TargetAnchor: canonical,
-				ID:           e.ID,
+				ID:           id,
 				Name:         nonEmpty(e.Name, e.ID),
-				Kind:         "Catalog " + kind,
+				Kind:         strings.TrimSpace(kind),
 				Description:  strings.TrimSpace(e.Definition),
 			})
-			for _, a := range e.Aliases {
-				alias := strings.TrimSpace(a)
-				if alias == "" {
-					continue
-				}
-				out = append(out, asciidocReferenceEntry{
-					Anchor:       referenceAnchor("catalog-alias", e.ID+"-"+alias),
-					TargetAnchor: canonical,
-					ID:           alias,
-					Name:         nonEmpty(e.Name, e.ID),
-					Kind:         "Catalog Alias",
-					Description:  aliasDescription(e),
-				})
-			}
 		}
 	}
 	c := doc.Catalog
@@ -230,6 +243,33 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 		}
 		return out[i].ID < out[j].ID
 	})
+	return out
+}
+
+func catalogEntryIDSet(doc model.CatalogDocument) map[string]bool {
+	out := map[string]bool{}
+	add := func(entries []model.CatalogEntry) {
+		for _, e := range entries {
+			id := strings.ToUpper(strings.TrimSpace(e.ID))
+			if id == "" {
+				continue
+			}
+			out[id] = true
+		}
+	}
+	c := doc.Catalog
+	add(c.Systems)
+	add(c.FunctionalGroups)
+	add(c.FunctionalUnits)
+	add(c.ReferencedElements)
+	add(c.Actors)
+	add(c.AttackVectors)
+	add(c.Events)
+	add(c.States)
+	add(c.Features)
+	add(c.Modes)
+	add(c.Conditions)
+	add(c.DataTerms)
 	return out
 }
 
