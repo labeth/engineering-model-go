@@ -193,7 +193,7 @@ catalog:
     - id: DATA-OTA-STATUS
       name: ota status
       definition: Device-level status for firmware download, apply, and rollback outcomes.
-      aliases: [ota outcomes, update outcomes, update/rollback status]
+      aliases: [ota outcomes, update outcomes, update/rollback status, firmware apply, rollback firmware apply]
     - id: DATA-AUDIT-LOG-RECORD
       name: audit log record
       definition: Immutable log record for security and compliance analysis.

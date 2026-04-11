@@ -175,7 +175,7 @@ a[href^="#REF_"] {
 |[[REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED]]<<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>> (EVT-OTA-CAMPAIGN-SCHEDULED)
 |Event raised when a fleet OTA campaign is scheduled. Aliases:campaign commands, campaign scheduled, ota commands, ota rollout commands
 |[[REF_CATALOG_DATA_OTA_STATUS]]<<REF_IDX-CATALOG_DATA_OTA_STATUS,ota status>> (DATA-OTA-STATUS)
-|Device-level status for firmware download, apply, and rollback outcomes. Aliases:ota outcomes, update outcomes, update/rollback status
+|Device-level status for firmware download, apply, and rollback outcomes. Aliases:firmware apply, ota outcomes, rollback firmware apply, update outcomes, update/rollback status
 |[[REF_CATALOG_EVT_OTA_STATUS_REPORTED]]<<REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED,ota status reported event is received>> (EVT-OTA-STATUS-REPORTED)
 |Event raised when device reports OTA apply status. Aliases:apply status, apply/rollback status, ota status reported, rollback status, status feedback, update status
 |[[REF_CATALOG_FU_OTA_UPDATE_AGENT]]<<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,ota update agent>> (FU-OTA-UPDATE-AGENT)
@@ -2252,12 +2252,12 @@ Notes: <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,OTA rollout>> behavior from central <
 [[REF_REQ_REQ_COF_004]]
 ==== REQ-COF-004
 
-Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall gate firmware apply on <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,firmware signature is valid>>.
+Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall gate <<REF_IDX-CATALOG_DATA_OTA_STATUS,firmware apply>> on <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,firmware signature is valid>>.
 Notes: Firmware integrity and trust boundary control.
 [[REF_REQ_REQ_COF_005]]
 ==== REQ-COF-005
 
-If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall rollback firmware apply.
+If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall <<REF_IDX-CATALOG_DATA_OTA_STATUS,rollback firmware apply>>.
 Notes: Rollback and failure signaling path.
 [[REF_REQ_REQ_COF_006]]
 ==== REQ-COF-006
