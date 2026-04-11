@@ -37,6 +37,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/labeth/ears-lint-go v0.0.0-20260402063834-996b4b00b06f h1:sCNKBJ9JWQpZ9ZfsyB4z8ZgaQGXZfbV0eIOKi9+KpLM=
 github.com/labeth/ears-lint-go v0.0.0-20260402063834-996b4b00b06f/go.mod h1:Q8XQsEE3FrIAp5jZp1SMp8UBp4vl1voTfbD5jg1nFSA=
+github.com/labeth/ears-lint-go v0.0.0-20260411130243-62e3d1d7a831 h1:jcIOh6iMHz7QbT9JokLKC11dv/hHusdLUK1qShHMpvk=
+github.com/labeth/ears-lint-go v0.0.0-20260411130243-62e3d1d7a831/go.mod h1:Q8XQsEE3FrIAp5jZp1SMp8UBp4vl1voTfbD5jg1nFSA=
 github.com/mattn/go-pointer v0.0.1 h1:n+XhsuGeVO6MEAp7xyEukFINEa+Quek5psIR/ylA6o0=
 github.com/mattn/go-pointer v0.0.1/go.mod h1:2zXcozF6qYGgmsG+SeTZz3oAbFLdD3OWqnUbNvJZAlc=
 github.com/mitchellh/go-wordwrap v1.0.1 h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=

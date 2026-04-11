@@ -78,6 +78,7 @@ type asciidocReferenceEntry struct {
 	Kind         string
 	Status       string
 	Owner        string
+	Aliases      []string
 	Description  string
 	Source       string
 }

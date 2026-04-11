@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/hashicorp/hcl/v2 v2.24.0
-	github.com/labeth/ears-lint-go v0.0.0-20260402063834-996b4b00b06f
+	github.com/labeth/ears-lint-go v0.0.0-20260411130243-62e3d1d7a831
 	github.com/tree-sitter/go-tree-sitter v0.25.0
 	github.com/tree-sitter/tree-sitter-go v0.25.0
 	github.com/tree-sitter/tree-sitter-rust v0.24.2

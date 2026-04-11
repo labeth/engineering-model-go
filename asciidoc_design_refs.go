@@ -220,6 +220,7 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 				ID:           id,
 				Name:         nonEmpty(e.Name, e.ID),
 				Kind:         strings.TrimSpace(kind),
+				Aliases:      uniqueSorted(e.Aliases),
 				Description:  strings.TrimSpace(e.Definition),
 			})
 		}

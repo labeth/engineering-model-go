@@ -1,4 +1,10 @@
 catalog:
+  systems:
+    - id: SYS-PR-REVIEW-SYSTEM
+      name: pr review system
+      definition: GitHub App review system-of-interest that ingests PR events and publishes review outcomes.
+      aliases: [the pr review system]
+
   functionalGroups:
     - id: FG-PR-INTEGRATION
       name: pr integration
@@ -7,7 +13,7 @@ catalog:
     - id: FG-REVIEW-INTELLIGENCE
       name: review intelligence
       definition: Functional group for AI and deterministic review analysis and publication.
-      aliases: [pr review system]
+      aliases: [review system]
     - id: FG-PLATFORM-OPERATIONS
       name: platform operations
       definition: Functional group for deployment lifecycle and secret/config controls.
@@ -109,11 +115,11 @@ catalog:
     - id: EVT-PR-OPENED
       name: pull request opened event is received
       definition: Event raised when a new pull request is opened.
-      aliases: [pr opened]
+      aliases: [pr opened, webhook events]
     - id: EVT-PR-SYNCHRONIZE
       name: pull request synchronize event is received
       definition: Event raised when new commits are pushed to an open pull request.
-      aliases: [pr synchronize]
+      aliases: [pr synchronize, authorized events]
     - id: EVT-CONTEXT-PREPARED
       name: diff context is prepared
       definition: Event indicating context assembly completed and is ready for analysis.
@@ -121,11 +127,11 @@ catalog:
     - id: EVT-FINDINGS-GENERATED
       name: review findings are generated
       definition: Event indicating analysis output is ready for publication.
-      aliases: [findings generated]
+      aliases: [findings generated, review outcome]
     - id: EVT-FINDINGS-PUBLISHED
       name: review findings are published
       definition: Event indicating review output has been published to GitHub checks/comments.
-      aliases: [findings published]
+      aliases: [findings published, publication output]
     - id: EVT-BEDROCK-UNAVAILABLE
       name: bedrock runtime is unavailable
       definition: Event raised when Bedrock inference path is degraded.
@@ -175,11 +181,11 @@ catalog:
     - id: DATA-DIFF-CONTEXT
       name: diff context
       definition: Pull request file changes and metadata prepared for analysis.
-      aliases: []
+      aliases: [review context, normalized review context, review-ready context, pull request metadata, pull request files]
     - id: DATA-CHECKRUN-SUMMARY
       name: check run summary
       definition: Aggregated review result posted as a GitHub check run.
-      aliases: []
+      aliases: [check run summaries]
     - id: DATA-REDACTED-AUDIT-METADATA
       name: redacted audit metadata
       definition: Sanitized prompt and finding metadata retained for audit.

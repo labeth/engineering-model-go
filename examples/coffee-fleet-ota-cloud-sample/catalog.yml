@@ -115,11 +115,11 @@ catalog:
     - id: EVT-BREW-CYCLE-COMPLETED
       name: brew cycle completed event is received
       definition: Event raised when a coffee machine completes a brew cycle.
-      aliases: [brew completed]
+      aliases: [brew completed, brew cycle event]
     - id: EVT-OTA-CAMPAIGN-SCHEDULED
       name: ota campaign scheduled event is received
       definition: Event raised when a fleet OTA campaign is scheduled.
-      aliases: [campaign scheduled]
+      aliases: [campaign scheduled, ota commands, campaign commands, ota rollout commands]
     - id: EVT-FIRMWARE-VALIDATION-FAILED
       name: firmware validation failed event is received
       definition: Event raised when signature/hash validation fails on firmware.
@@ -127,19 +127,19 @@ catalog:
     - id: EVT-TELEMETRY-INGESTED
       name: telemetry ingested event is received
       definition: Event raised when cloud ingestion accepts telemetry.
-      aliases: [telemetry ingested]
+      aliases: [telemetry ingested, ingestion events, fleet events, observability event fanout, observability events]
     - id: EVT-OTA-STATUS-REPORTED
       name: ota status reported event is received
       definition: Event raised when device reports OTA apply status.
-      aliases: [ota status reported]
+      aliases: [ota status reported, update status, rollback status, apply status, apply/rollback status, status feedback]
     - id: EVT-CLOUD-INGEST-ENDPOINT-UNAVAILABLE
       name: cloud ingest endpoint is unavailable
       definition: Event raised when cloud ingest endpoint becomes unavailable for telemetry ingestion.
-      aliases: [ingest endpoint unavailable]
+      aliases: [ingest endpoint unavailable, endpoint outage]
     - id: EVT-TELEMETRY-REPLAY-ABUSE-DETECTED
       name: telemetry replay abuse is detected
       definition: Event raised when replayed telemetry behavior is detected and flagged as abuse.
-      aliases: [telemetry replay detected]
+      aliases: [telemetry replay detected, replay abuse]
 
   states:
     - id: STATE-FLEET-OPERATION-ACTIVE
@@ -151,7 +151,7 @@ catalog:
     - id: FEAT-OTA-CAMPAIGN
       name: ota campaign is enabled
       definition: Feature flag enabling centralized OTA rollout behavior.
-      aliases: [ota enabled]
+      aliases: [ota enabled, ota rollout]
     - id: FEAT-AUDIT-LOGGING
       name: audit logging is enabled
       definition: Feature flag enabling audit-grade log persistence.
@@ -161,7 +161,7 @@ catalog:
     - id: MODE-NORMAL
       name: normal mode is active
       definition: Default operation mode for telemetry and OTA behavior.
-      aliases: [normal mode]
+      aliases: [normal mode, normal operation mode]
 
   conditions:
     - id: COND-FIRMWARE-SIGNATURE-VALID
@@ -170,19 +170,31 @@ catalog:
       aliases: [signature valid]
 
   dataTerms:
+    - id: DATA-FIRMWARE-BUNDLE
+      name: signed firmware bundle
+      definition: Signed OTA firmware artifact distributed to machine cohorts for update apply.
+      aliases: [firmware bundle, firmware bundles, signed firmware bundles, firmware artifact]
+    - id: DATA-MACHINE-IDENTITY
+      name: machine identity
+      definition: Device identity material used for authenticated publish, ingest, and audit attribution.
+      aliases: [device identity, machine identities]
+    - id: DATA-CAMPAIGN-ID
+      name: campaign id
+      definition: Stable OTA campaign identifier used to correlate rollout and audit records.
+      aliases: [campaign identifier, campaign ids]
     - id: DATA-BREW-TELEMETRY
       name: brew telemetry
       definition: Machine telemetry including brew duration, temperature, and status metadata.
-      aliases: []
+      aliases: [telemetry, machine telemetry, telemetry payloads, telemetry records, machine status]
     - id: DATA-OTA-CAMPAIGN-POLICY
       name: ota campaign policy
       definition: Policy describing rollout cohorts, windows, and rollback criteria.
-      aliases: []
+      aliases: [campaign policy, rollout cohorts, rollout windows]
     - id: DATA-OTA-STATUS
       name: ota status
       definition: Device-level status for firmware download, apply, and rollback outcomes.
-      aliases: []
+      aliases: [ota outcomes, update outcomes, update/rollback status]
     - id: DATA-AUDIT-LOG-RECORD
       name: audit log record
       definition: Immutable log record for security and compliance analysis.
-      aliases: []
+      aliases: [audit records, logging records]

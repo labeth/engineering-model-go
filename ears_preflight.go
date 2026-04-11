@@ -22,8 +22,9 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 	if strings.EqualFold(strings.TrimSpace(requirements.LintRun.Mode), string(earslint.ModeGuided)) {
 		mode = earslint.ModeGuided
 	}
+	catalog := toEarsCatalog(catalogDoc)
 
-	results := earslint.LintEarsBatch(items, toEarsCatalog(catalogDoc), &earslint.Options{
+	results := earslint.LintEarsBatch(items, catalog, &earslint.Options{
 		Mode:       mode,
 		CommaAsAnd: requirements.LintRun.CommaAsAnd,
 	})
@@ -48,6 +49,19 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 			})
 		}
 	}
+
+	coverageDiags := earslint.LintCatalogCoverage(items, toEarsCoverageCatalog(catalogDoc), &earslint.Options{
+		Mode:       mode,
+		CommaAsAnd: requirements.LintRun.CommaAsAnd,
+	})
+	for _, d := range coverageDiags {
+		out = append(out, validate.Diagnostic{
+			Code:     d.Code,
+			Severity: mapEarsSeverity(d.Severity),
+			Message:  d.Message,
+			Path:     "requirements",
+		})
+	}
 	return validate.SortDiagnostics(out)
 }
 
@@ -57,6 +71,19 @@ func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	systems = append(systems, toEarsEntries(doc.Catalog.FunctionalUnits)...)
 	return earslint.Catalog{
 		Systems:    dedupeEarsEntries(systems),
+		Actors:     toEarsEntries(doc.Catalog.Actors),
+		Events:     toEarsEntries(doc.Catalog.Events),
+		States:     toEarsEntries(doc.Catalog.States),
+		Features:   toEarsEntries(doc.Catalog.Features),
+		Modes:      toEarsEntries(doc.Catalog.Modes),
+		Conditions: toEarsEntries(doc.Catalog.Conditions),
+		DataTerms:  toEarsEntries(doc.Catalog.DataTerms),
+	}
+}
+
+func toEarsCoverageCatalog(doc model.CatalogDocument) earslint.Catalog {
+	return earslint.Catalog{
+		Systems:    toEarsEntries(doc.Catalog.Systems),
 		Actors:     toEarsEntries(doc.Catalog.Actors),
 		Events:     toEarsEntries(doc.Catalog.Events),
 		States:     toEarsEntries(doc.Catalog.States),

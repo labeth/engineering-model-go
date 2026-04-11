@@ -1,13 +1,23 @@
 catalog:
+  systems:
+    - id: SYS-PAYMENTS-SYSTEM
+      name: payments system
+      definition: Payment processing system-of-interest covered by this architecture.
+      aliases: [the payments system]
+    - id: SYS-FRAUD-DETECTION-SYSTEM
+      name: fraud detection system
+      definition: Fraud scoring and review subsystem participating in payment decisions.
+      aliases: [the fraud detection system]
+
   functionalGroups:
     - id: FG-PAYMENTS
       name: payments
       definition: Functional group for checkout and authorization capabilities.
-      aliases: [payments domain, payments system]
+      aliases: [payments domain]
     - id: FG-FRAUD
       name: fraud evaluation
       definition: Functional group for risk scoring and fraud review capabilities.
-      aliases: [fraud domain, fraud detection system]
+      aliases: [fraud domain]
     - id: FG-PLATFORM
       name: platform
       definition: Functional group for provisioning and platform operations capabilities.
@@ -89,15 +99,15 @@ catalog:
     - id: EVT-PAYMENT-AUTH-REQUESTED
       name: payment authorization is requested
       definition: Event raised when checkout asks payment engine to authorize a transaction.
-      aliases: [payment auth requested]
+      aliases: [payment auth requested, authorization requested]
     - id: EVT-PAYMENT-DECLINED
       name: payment is declined
       definition: Event indicating authorization was rejected and customer decline handling must execute.
-      aliases: [payment declined]
+      aliases: [payment declined, decline]
     - id: EVT-RISK-HIGH
       name: risk score is high
       definition: Event emitted when computed fraud risk exceeds the configured high-risk threshold.
-      aliases: [high risk]
+      aliases: [high risk, high-risk classification, high-risk classifications]
     - id: EVT-SUPPORT-NOTIFIED
       name: support agent is notified
       definition: Event indicating manual review notification was sent to support operations.
@@ -119,7 +129,7 @@ catalog:
     - id: STATE-REVIEW-PENDING
       name: payment review is pending
       definition: Transaction state requiring manual support review before final disposition.
-      aliases: [review pending]
+      aliases: [review pending, review state]
 
   features:
     - id: FEAT-FRAUD-CHECK
@@ -131,7 +141,7 @@ catalog:
     - id: MODE-NORMAL
       name: normal mode is active
       definition: Standard operating mode with full external dependency usage enabled.
-      aliases: [normal mode]
+      aliases: [normal mode, standard operating mode]
 
   conditions:
     - id: COND-3DS-REQUIRED
@@ -155,4 +165,4 @@ catalog:
     - id: DATA-DECLINE-REASON
       name: decline reason
       definition: Structured reason code or message explaining why authorization failed.
-      aliases: [decline code]
+      aliases: [decline code, decline reasons]

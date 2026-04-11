@@ -81,6 +81,7 @@ Verification metadata is inferred from test artifacts (not authored in `architec
 - requirement IDs are inferred by matching `REQ-*` tokens in test and result artifacts
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
+- strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are not referenced by any requirement text (`catalog.term_unreferenced`)
 
 ## CLI Usage
 

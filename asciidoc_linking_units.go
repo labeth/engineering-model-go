@@ -15,6 +15,7 @@ type linkTarget struct {
 }
 
 var modelIDPattern = regexp.MustCompile(`^[A-Z0-9]+-[A-Z0-9-]+$`)
+var inlineLinkPattern = regexp.MustCompile(`<<[^>\n]+>>`)
 
 func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	out := map[string]linkTarget{}
@@ -57,6 +58,9 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 			addWithVariants(e.ID, target)
 		}
 		addWithVariants(e.Name, target)
+		for _, alias := range e.Aliases {
+			addWithVariants(alias, target)
+		}
 	}
 	// For inferred entries, only link explicit IDs to avoid prose noise.
 	for _, e := range ref.Runtime {
@@ -89,9 +93,10 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 
 func linkifyText(text string, targets map[string]linkTarget) string {
 	in := strings.TrimSpace(text)
-	if in == "" || strings.Contains(in, "<<") {
+	if in == "" {
 		return text
 	}
+	textLower := strings.ToLower(text)
 	type tokenInfo struct {
 		Token string
 		Link  linkTarget
@@ -113,6 +118,11 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 	}
 	spans := []span{}
 	used := make([]bool, len(text))
+	for _, loc := range inlineLinkPattern.FindAllStringIndex(text, -1) {
+		for i := loc[0]; i < loc[1] && i < len(used); i++ {
+			used[i] = true
+		}
+	}
 	isWordBound := func(s string, idx int) bool {
 		if idx <= 0 || idx >= len(s) {
 			return true
@@ -126,10 +136,13 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 		if token == "" {
 			continue
 		}
-		link := "<<" + it.Link.Anchor + "," + it.Link.Label + ">>"
+		tokenLower := strings.ToLower(token)
+		if tokenLower == "" {
+			continue
+		}
 		start := 0
 		for {
-			pos := strings.Index(text[start:], token)
+			pos := strings.Index(textLower[start:], tokenLower)
 			if pos < 0 {
 				break
 			}
@@ -148,6 +161,11 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 				}
 			}
 			if ok {
+				label := text[s:e]
+				if strings.TrimSpace(label) == "" {
+					label = it.Link.Label
+				}
+				link := "<<" + it.Link.Anchor + "," + label + ">>"
 				for i := s; i < e; i++ {
 					used[i] = true
 				}
@@ -182,7 +200,7 @@ func linkTokenVariants(token string) []string {
 	set := map[string]bool{}
 	add := func(v string) {
 		v = strings.TrimSpace(v)
-		if v == "" || strings.EqualFold(v, token) {
+		if v == "" || v == token {
 			return
 		}
 		set[v] = true
@@ -192,15 +210,21 @@ func linkTokenVariants(token string) []string {
 	add(lower)
 	title := titleWords(lower)
 	add(title)
+	natural := titleWordsNatural(lower)
+	add(natural)
+	acronymTitle := titleWordsWithAcronyms(lower)
+	add(acronymTitle)
 
 	if strings.Contains(token, " ") {
 		plural := pluralizePhrase(lower)
 		add(plural)
 		add(titleWords(plural))
+		add(titleWordsWithAcronyms(plural))
 	} else {
 		if plural, ok := singleWordPlural(lower); ok {
 			add(plural)
 			add(titleWords(plural))
+			add(titleWordsWithAcronyms(plural))
 		}
 	}
 
@@ -271,6 +295,68 @@ func titleWords(s string) string {
 	}
 	for i, p := range parts {
 		if p == "" {
+			continue
+		}
+		b := []byte(p)
+		if b[0] >= 'a' && b[0] <= 'z' {
+			b[0] = b[0] - 'a' + 'A'
+		}
+		parts[i] = string(b)
+	}
+	return strings.Join(parts, " ")
+}
+
+func titleWordsNatural(s string) string {
+	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
+	if len(parts) == 0 {
+		return s
+	}
+	minor := map[string]bool{
+		"and": true, "or": true, "of": true, "to": true, "in": true, "on": true,
+		"for": true, "a": true, "an": true, "the": true, "with": true, "without": true,
+	}
+	for i, p := range parts {
+		if p == "" {
+			continue
+		}
+		if i > 0 && i < len(parts)-1 && minor[p] {
+			parts[i] = p
+			continue
+		}
+		b := []byte(p)
+		if b[0] >= 'a' && b[0] <= 'z' {
+			b[0] = b[0] - 'a' + 'A'
+		}
+		parts[i] = string(b)
+	}
+	return strings.Join(parts, " ")
+}
+
+func titleWordsWithAcronyms(s string) string {
+	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
+	if len(parts) == 0 {
+		return s
+	}
+	minor := map[string]bool{
+		"and": true, "or": true, "of": true, "to": true, "in": true, "on": true,
+		"for": true, "a": true, "an": true, "the": true, "with": true, "without": true,
+	}
+	acronyms := map[string]bool{
+		"api": true, "sdk": true, "iot": true, "ota": true, "id": true, "pr": true,
+		"ui": true, "ux": true, "db": true, "sql": true, "http": true, "https": true,
+		"tls": true, "jwt": true, "kms": true, "sqs": true, "sns": true, "aws": true,
+		"gcp": true, "k8s": true, "mqtt": true,
+	}
+	for i, p := range parts {
+		if p == "" {
+			continue
+		}
+		if i > 0 && i < len(parts)-1 && minor[p] {
+			parts[i] = p
+			continue
+		}
+		if acronyms[p] {
+			parts[i] = strings.ToUpper(p)
 			continue
 		}
 		b := []byte(p)

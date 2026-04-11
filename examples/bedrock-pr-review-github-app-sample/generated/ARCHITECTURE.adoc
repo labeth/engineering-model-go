@@ -114,13 +114,13 @@ a[href^="#REF_"] {
 |[[REF_CATALOG_EVT_BEDROCK_UNAVAILABLE]]<<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>> (EVT-BEDROCK-UNAVAILABLE)
 |Event raised when Bedrock inference path is degraded. Aliases:bedrock unavailable
 |[[REF_CATALOG_DATA_CHECKRUN_SUMMARY]]<<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> (DATA-CHECKRUN-SUMMARY)
-|Aggregated review result posted as a GitHub check run.
+|Aggregated review result posted as a GitHub check run. Aliases:check run summaries
 |[[REF_ENGMODEL_EM_CODE_ELEMENT]]<<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code element>> (EM-CODE-ELEMENT)
 |An inferred code structure or ownership element discovered from source trees and build metadata.
 |[[REF_CATALOG_ACT_DEVELOPER]]<<REF_IDX-CATALOG_ACT_DEVELOPER,developer>> (ACT-DEVELOPER)
 |Engineer opening and updating pull requests. Aliases:pr author
 |[[REF_CATALOG_DATA_DIFF_CONTEXT]]<<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> (DATA-DIFF-CONTEXT)
-|Pull request file changes and metadata prepared for analysis.
+|Pull request file changes and metadata prepared for analysis. Aliases:normalized review context, pull request files, pull request metadata, review context, review-ready context
 |[[REF_CATALOG_EVT_CONTEXT_PREPARED]]<<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>> (EVT-CONTEXT-PREPARED)
 |Event indicating context assembly completed and is ready for analysis. Aliases:context prepared
 |[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,functional group>> (EM-FUNCTIONAL-GROUP)
@@ -153,16 +153,18 @@ a[href^="#REF_"] {
 |Fetches changed files and prepares bounded review context payloads. Aliases:context assembly
 |[[REF_CATALOG_FG_PR_INTEGRATION]]<<REF_IDX-CATALOG_FG_PR_INTEGRATION,pr integration>> (FG-PR-INTEGRATION)
 |Functional group for webhook ingress and pull request context intake. Aliases:github integration
+|[[REF_CATALOG_SYS_PR_REVIEW_SYSTEM]]<<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,pr review system>> (SYS-PR-REVIEW-SYSTEM)
+|GitHub App review system-of-interest that ingests PR events and publishes review outcomes. Aliases:the pr review system
 |[[REF_CATALOG_AV_PROMPT_INJECTION_IN_DIFF]]<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,prompt injection in diff>> (AV-PROMPT-INJECTION-IN-DIFF)
 |Malicious prompt-like content embedded in pull request code changes. Aliases:prompt injection
 |[[REF_CATALOG_EVT_PR_OPENED]]<<REF_IDX-CATALOG_EVT_PR_OPENED,pull request opened event is received>> (EVT-PR-OPENED)
-|Event raised when a new pull request is opened. Aliases:pr opened
+|Event raised when a new pull request is opened. Aliases:pr opened, webhook events
 |[[REF_CATALOG_STATE_PR_REVIEW_ACTIVE]]<<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>> (STATE-PR-REVIEW-ACTIVE)
 |State where review processing is currently active for a pull request. Aliases:review active
 |[[REF_CATALOG_AV_PR_SPAM_ABUSE]]<<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,pull request spam abuse>> (AV-PR-SPAM-ABUSE)
 |High-volume event abuse causing review capacity exhaustion. Aliases:pr spam
 |[[REF_CATALOG_EVT_PR_SYNCHRONIZE]]<<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>> (EVT-PR-SYNCHRONIZE)
-|Event raised when new commits are pushed to an open pull request. Aliases:pr synchronize
+|Event raised when new commits are pushed to an open pull request. Aliases:authorized events, pr synchronize
 |[[REF_CATALOG_DATA_REDACTED_AUDIT_METADATA]]<<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> (DATA-REDACTED-AUDIT-METADATA)
 |Sanitized prompt and finding metadata retained for audit.
 |[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT,referenced element>> (EM-REFERENCED-ELEMENT)
@@ -174,11 +176,11 @@ a[href^="#REF_"] {
 |[[REF_CATALOG_DATA_RESULT_METADATA]]<<REF_IDX-CATALOG_DATA_RESULT_METADATA,result metadata>> (DATA-RESULT-METADATA)
 |Metadata describing review output characteristics for audit and reporting.
 |[[REF_CATALOG_EVT_FINDINGS_GENERATED]]<<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>> (EVT-FINDINGS-GENERATED)
-|Event indicating analysis output is ready for publication. Aliases:findings generated
+|Event indicating analysis output is ready for publication. Aliases:findings generated, review outcome
 |[[REF_CATALOG_EVT_FINDINGS_PUBLISHED]]<<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>> (EVT-FINDINGS-PUBLISHED)
-|Event indicating review output has been published to GitHub checks/comments. Aliases:findings published
+|Event indicating review output has been published to GitHub checks/comments. Aliases:findings published, publication output
 |[[REF_CATALOG_FG_REVIEW_INTELLIGENCE]]<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,review intelligence>> (FG-REVIEW-INTELLIGENCE)
-|Functional group for AI and deterministic review analysis and publication. Aliases:pr review system
+|Functional group for AI and deterministic review analysis and publication. Aliases:review system
 |[[REF_CATALOG_FU_REVIEW_ORCHESTRATION]]<<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,review orchestration>> (FU-REVIEW-ORCHESTRATION)
 |Coordinates Bedrock analysis with deterministic checks and fallback logic. Aliases:orchestration
 |[[REF_CATALOG_FU_REVIEW_PUBLICATION]]<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>> (FU-REVIEW-PUBLICATION)
@@ -463,11 +465,11 @@ flowchart LR
 ==== PR Integration (FG-PR-INTEGRATION)
 
 
-Ingress and context assembly for GitHub pull request events.
+Ingress and <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,context assembly>> for GitHub pull request events.
 
 
 
-PR Integration owns webhook trust boundaries and pull request context intake.
+<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook trust boundaries and pull request context intake.
 It converts incoming GitHub events into normalized review work with clear boundaries.
 
 
@@ -490,17 +492,17 @@ Verifies <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>>, validate
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github webhook ingress>>; includes decision and orchestration flow to PR Context Assembly
+functional responsibility for <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github webhook ingress>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 
 [discrete]
 ====== Key Collaborators
 
-PR Context Assembly
+<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
+<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 
 
 
@@ -513,17 +515,17 @@ PR Context Assembly
 
 
 
-Fetches changed files and diff metadata and prepares bounded review context payloads.
+Fetches changed files and diff metadata and prepares bounded <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,review context>> payloads.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,pr context assembly>>; includes decision and orchestration flow to GitHub App API and decision and orchestration flow to Review Orchestration
+functional responsibility for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,pr context assembly>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
 
 [discrete]
 ====== Key Collaborators
 
-GitHub App API, Review Orchestration
+<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
 
 [discrete]
 ====== Linked Requirements
@@ -544,11 +546,11 @@ GitHub App API, Review Orchestration
 ==== Review Intelligence (FG-REVIEW-INTELLIGENCE)
 
 
-AI and deterministic review analysis with result publication.
+AI and deterministic review analysis with result <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>>.
 
 
 
-Review Intelligence owns generated findings, deterministic checks, and final publication behavior.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> owns generated findings, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,deterministic checks>>, and final <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> behavior.
 It combines Bedrock reasoning with predictable <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> and emits auditable review outputs.
 
 
@@ -570,17 +572,17 @@ It combines Bedrock reasoning with predictable <<REF_IDX-CATALOG_FU_POLICY_CHECK
 
 
 
-Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+Runs <<REF_IDX-CATALOG_FU_POLICY_CHECKS,deterministic checks>> for secrets, risky IaC changes, and repository policy constraints.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>>; includes decision and orchestration flow to Review Policy Ruleset
+functional responsibility for <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
 
 [discrete]
 ====== Key Collaborators
 
-Review Policy Ruleset
+Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
 
 [discrete]
 ====== Linked Requirements
@@ -603,12 +605,12 @@ Calls Bedrock models, merges AI and deterministic findings, and handles graceful
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,review orchestration>>; includes decision and orchestration flow to AWS Bedrock Runtime API and decision and orchestration flow to Policy Checks
+functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,review orchestration>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API and decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>
 
 [discrete]
 ====== Key Collaborators
 
-AWS Bedrock Runtime API, Policy Checks, Review Publication, Secrets and Configuration
+AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Linked Requirements
@@ -631,17 +633,17 @@ Publishes check-run summaries and inline comments back to GitHub pull requests.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>>; includes decision and orchestration flow to GitHub App API and decision and orchestration flow to Secrets and Configuration
+functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Key Collaborators
 
-GitHub App API, Secrets and Configuration
+<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
+<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 
 
 
@@ -651,11 +653,11 @@ GitHub App API, Secrets and Configuration
 ==== Platform Operations (FG-PLATFORM-OPERATIONS)
 
 
-Lambda deployment lifecycle, runtime operations, and secrets/configuration.
+Lambda deployment lifecycle, <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,runtime operations>>, and secrets/configuration.
 
 
 
-Platform Operations owns safe deployment, runtime controls, and secret/config lifecycle for the app.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns safe deployment, runtime controls, and secret/config lifecycle for the app.
 It enables dependable review operation without owning business-level review policy semantics.
 
 
@@ -674,12 +676,12 @@ Manages Lambda packaging/deployment lifecycle and operational health guardrails.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>>; includes decision and orchestration flow to AWS Secrets Manager and decision and orchestration flow to Secrets and Configuration
+functional responsibility for <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>>; includes decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>> and decision and <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> flow to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Key Collaborators
 
-AWS Secrets Manager, Secrets and Configuration
+<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Linked Requirements
@@ -751,13 +753,13 @@ Show who communicates with whom across key request paths, including interface ed
 Coverage summary: 3/7 units have direct evidence coverage in this view.
 
 
-- Lambda Runtime Operations has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
 
-- PR Context Assembly has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment evidence yet.
 
-- Policy Checks has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment evidence yet.
 
-- Secrets and Configuration has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment evidence yet.
 
 
 === Recommended Next Evidence Additions
@@ -804,7 +806,7 @@ flowchart LR
 
 
 
-PR Integration receives webhook events and forwards normalized review context to orchestration with explicit handoff semantics.
+<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> receives <<REF_IDX-CATALOG_EVT_PR_OPENED,webhook events>> and forwards <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,normalized review context>> to <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> with explicit handoff semantics.
 
 
 
@@ -819,7 +821,7 @@ PR Integration receives webhook events and forwards normalized review context to
 
 
 
-Receives webhook payloads, validates them, and routes authorized events to context assembly.
+Receives webhook payloads, validates them, and routes <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,authorized events>> to <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,context assembly>>.
 
 
 
@@ -831,7 +833,7 @@ Receives webhook payloads, validates them, and routes authorized events to conte
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Developer |Developer push/update activity triggers pull request webhook events.
+|<<REF_IDX-CATALOG_ACT_DEVELOPER,Developer>> |<<REF_IDX-CATALOG_ACT_DEVELOPER,Developer>> push/update activity triggers pull request <<REF_IDX-CATALOG_EVT_PR_OPENED,webhook events>>.
 |===
 
 [discrete]
@@ -840,7 +842,7 @@ Receives webhook payloads, validates them, and routes authorized events to conte
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|PR Context Assembly |Forwards authenticated PR events for context assembly.
+|<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> |Forwards authenticated PR events for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,context assembly>>.
 |===
 
 [discrete]
@@ -857,7 +859,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modul
 
 
 
-Calls GitHub APIs and forwards normalized context to orchestration.
+Calls <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub APIs>> and forwards normalized context to <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>>.
 
 
 
@@ -869,7 +871,7 @@ Calls GitHub APIs and forwards normalized context to orchestration.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|GitHub Webhook Ingress |Forwards authenticated PR events for context assembly.
+|<<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,GitHub Webhook Ingress>> |Forwards authenticated PR events for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,context assembly>>.
 |===
 
 [discrete]
@@ -878,8 +880,8 @@ Calls GitHub APIs and forwards normalized context to orchestration.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|GitHub App API |Fetches pull request files and metadata.
-|Review Orchestration |Sends normalized review context.
+|<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> |Fetches <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,pull request files>> and metadata.
+|<<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>> |Sends <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,normalized review context>>.
 |===
 
 [discrete]
@@ -904,7 +906,7 @@ code modules: <<REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS,pr_context_assembly>
 
 
 
-Review Intelligence coordinates Bedrock calls, policy evaluation, and publication sequencing for deterministic outcomes.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> coordinates Bedrock calls, policy evaluation, and <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> sequencing for deterministic outcomes.
 
 
 
@@ -923,7 +925,7 @@ Review Intelligence coordinates Bedrock calls, policy evaluation, and publicatio
 
 
 
-Exchanges policy findings with orchestration for final result composition.
+Exchanges policy findings with <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> for final result composition.
 
 
 
@@ -935,8 +937,8 @@ Exchanges policy findings with orchestration for final result composition.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Review Orchestration |Merges deterministic policy findings with model output.
-|Security Engineer |Maintains and evolves deterministic security checks.
+|<<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>> |Merges deterministic policy findings with model output.
+|<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |Maintains and evolves deterministic security checks.
 |===
 
 [discrete]
@@ -945,7 +947,7 @@ Exchanges policy findings with orchestration for final result composition.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Review Policy Ruleset |Evaluates repository policy and risk rules.
+|Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>> |Evaluates repository policy and risk rules.
 |===
 
 [discrete]
@@ -962,7 +964,7 @@ code modules: <<REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS,policy_checks>>
 
 
 
-Integrates context input, Bedrock calls, and publication output in a deterministic sequence.
+Integrates context input, Bedrock calls, and <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,publication output>> in a deterministic sequence.
 
 
 
@@ -974,7 +976,7 @@ Integrates context input, Bedrock calls, and publication output in a determinist
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|PR Context Assembly |Sends normalized review context.
+|<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> |Sends <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,normalized review context>>.
 |===
 
 [discrete]
@@ -983,10 +985,10 @@ Integrates context input, Bedrock calls, and publication output in a determinist
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|AWS Bedrock Runtime API |Requests model analysis for code review findings.
-|Policy Checks |Merges deterministic policy findings with model output.
-|Review Publication |Submits final findings for publication.
-|Secrets and Configuration |Retrieves model configuration and safety settings.
+|AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API |Requests model analysis for code review findings.
+|<<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> |Merges deterministic policy findings with model output.
+|<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |Submits final findings for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>>.
+|<<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> |Retrieves model configuration and safety settings.
 |===
 
 [discrete]
@@ -1003,7 +1005,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | co
 
 
 
-Posts summaries and inline annotations through GitHub App APIs.
+Posts summaries and inline annotations through <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App APIs>>.
 
 
 
@@ -1015,8 +1017,8 @@ Posts summaries and inline annotations through GitHub App APIs.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Repository Maintainer |Reviews findings and gate decisions before merge.
-|Review Orchestration |Submits final findings for publication.
+|<<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,Repository Maintainer>> |Reviews findings and gate decisions before merge.
+|<<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>> |Submits final findings for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>>.
 |===
 
 [discrete]
@@ -1025,8 +1027,8 @@ Posts summaries and inline annotations through GitHub App APIs.
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|GitHub App API |Publishes check runs and inline review comments.
-|Secrets and Configuration |Retrieves app credentials and redaction rules.
+|<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> |Publishes check runs and inline review comments.
+|<<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> |Retrieves app credentials and redaction rules.
 |===
 
 [discrete]
@@ -1045,7 +1047,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>> | code mod
 
 
 
-Platform Operations coordinates runtime controls with app units via deployment and secret/config integration interfaces.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> coordinates runtime controls with app units via deployment and secret/config integration interfaces.
 
 
 
@@ -1068,7 +1070,7 @@ Operates deployment and runtime controls that indirectly shape request-path reli
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Platform Operator |Operates deployments, scaling controls, and runtime observability.
+|<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |Operates deployments, scaling controls, and runtime observability.
 |===
 
 [discrete]
@@ -1077,8 +1079,8 @@ Operates deployment and runtime controls that indirectly shape request-path reli
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|AWS Secrets Manager |Uses managed secret store for runtime credentials.
-|Secrets and Configuration |Requires secure runtime configuration and credential access.
+|<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>> |Uses managed secret store for runtime credentials.
+|<<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> |Requires secure runtime configuration and credential access.
 |===
 
 [discrete]
@@ -1095,7 +1097,7 @@ code modules: <<REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO,lambda_runtime_ops>>
 
 
 
-Provides secure config retrieval contracts to orchestration and publication units.
+Provides secure config retrieval contracts to <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> and <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> units.
 
 
 
@@ -1107,10 +1109,10 @@ Provides secure config retrieval contracts to orchestration and publication unit
 [cols="1,3",options="header"]
 |===
 |Interface |Description
-|Lambda Runtime Operations |Requires secure runtime configuration and credential access.
-|Platform Operator |Rotates credentials and manages secure configuration lifecycle.
-|Review Orchestration |Retrieves model configuration and safety settings.
-|Review Publication |Retrieves app credentials and redaction rules.
+|<<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> |Requires secure runtime configuration and credential access.
+|<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |Rotates credentials and manages secure configuration lifecycle.
+|<<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>> |Retrieves model configuration and safety settings.
+|<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |Retrieves app credentials and redaction rules.
 |===
 
 [discrete]
@@ -1159,13 +1161,13 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 Coverage summary: 3/7 units have direct evidence coverage in this view.
 
 
-- Lambda Runtime Operations has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
 
-- PR Context Assembly has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment evidence yet.
 
-- Policy Checks has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment evidence yet.
 
-- Secrets and Configuration has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment evidence yet.
 
 
 === Recommended Next Evidence Additions
@@ -1248,7 +1250,7 @@ flowchart LR
 
 
 
-PR Integration functions deploy independently to isolate webhook ingress from context-fetch implementation changes.
+<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> functions deploy independently to isolate <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,webhook ingress>> from context-fetch implementation changes.
 
 
 
@@ -1274,8 +1276,8 @@ Deploys as an independently managed Lambda runtime boundary.
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
-|Deployment dependencies |PR Context Assembly
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
+|Deployment dependencies |<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 |Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 |===
 
@@ -1300,7 +1302,7 @@ Deployed separately to allow context shaping changes without ingress disruption.
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>
-|Deployment dependencies |GitHub App API, Review Orchestration
+|Deployment dependencies |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
 |Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS,pr_context_assembly>>
 |===
 
@@ -1321,7 +1323,7 @@ Deployed separately to allow context shaping changes without ingress disruption.
 
 
 
-Review Intelligence units roll independently to preserve availability and reduce blast radius during model or rule updates.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> units roll independently to preserve availability and reduce blast radius during model or rule updates.
 
 
 
@@ -1352,7 +1354,7 @@ Deployed independently to evolve policy logic without model coupling.
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
-|Deployment dependencies |Review Policy Ruleset
+|Deployment dependencies |Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
 |Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS,policy_checks>>
 |===
 
@@ -1377,7 +1379,7 @@ Isolated deployment enables cautious model/config rollout and fallback control.
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
-|Deployment dependencies |AWS Bedrock Runtime API, Policy Checks, Review Publication, Secrets and Configuration
+|Deployment dependencies |AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 |Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
 |===
 
@@ -1392,7 +1394,7 @@ Isolated deployment enables cautious model/config rollout and fallback control.
 
 ====== Review Publication Deployment
 
-Release isolation protects publication reliability during other unit rollouts.
+Release isolation protects <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> reliability during other unit rollouts.
 
 
 
@@ -1401,8 +1403,8 @@ Release isolation protects publication reliability during other unit rollouts.
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
-|Deployment dependencies |GitHub App API, Secrets and Configuration
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
+|Deployment dependencies |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 |Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>> | code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS,review_publication>>
 |===
 
@@ -1417,7 +1419,7 @@ Release isolation protects publication reliability during other unit rollouts.
 
 
 
-Platform Operations governs release orchestration and runtime placement to keep review capacity stable.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> governs release <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,orchestration>> and runtime placement to keep review capacity stable.
 
 
 
@@ -1440,7 +1442,7 @@ Governs source-to-release pipeline behavior and runtime placement boundaries.
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
-|Deployment dependencies |AWS Secrets Manager, Secrets and Configuration
+|Deployment dependencies |<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 |Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO,lambda_runtime_ops>>
 |===
 
@@ -1505,9 +1507,9 @@ Show inferred exposure and dependency risk points aligned to unit boundaries, fo
 Coverage summary: 5/7 units have direct evidence coverage in this view.
 
 
-- Lambda Runtime Operations has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
 
-- Policy Checks has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
 
 
 === Recommended Next Evidence Additions
@@ -1583,7 +1585,7 @@ flowchart LR
 
 
 
-PR Integration protects signature verification and hostile-diff ingress paths to reduce spoofing and prompt injection risk.
+<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> protects signature verification and hostile-diff ingress paths to reduce spoofing and <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,prompt injection>> risk.
 
 
 
@@ -1607,12 +1609,12 @@ Enforces signature verification and rejects spoofed or malformed events.
 [discrete]
 ====== Attack Surface
 
-PR Context Assembly
+<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 
 [discrete]
 ====== Main Threats
 
-Pull Request Spam Abuse, Spoofed GitHub Webhook
+<<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>>, <<REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,Spoofed GitHub Webhook>>
 
 [discrete]
 ====== Expected Controls
@@ -1638,7 +1640,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-Applies contextual sanitization to reduce prompt injection risk from diffs.
+Applies contextual sanitization to reduce <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,prompt injection>> risk from diffs.
 
 
 
@@ -1647,12 +1649,12 @@ Applies contextual sanitization to reduce prompt injection risk from diffs.
 [discrete]
 ====== Attack Surface
 
-GitHub App API, Review Orchestration
+<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
 
 [discrete]
 ====== Main Threats
 
-Prompt Injection in Diff
+<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>>
 
 [discrete]
 ====== Expected Controls
@@ -1686,7 +1688,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-Review Intelligence emphasizes prompt hardening, output redaction, and secure publication boundaries.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> emphasizes prompt hardening, output redaction, and secure <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> boundaries.
 
 
 
@@ -1714,7 +1716,7 @@ Provides deterministic controls for secrets and risky infrastructure changes.
 [discrete]
 ====== Attack Surface
 
-Review Policy Ruleset
+Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
 
 [discrete]
 ====== Main Threats
@@ -1754,12 +1756,12 @@ Enforces safe prompt construction and bounded output handling under adversarial 
 [discrete]
 ====== Attack Surface
 
-AWS Bedrock Runtime API, Policy Checks, Review Publication, Secrets and Configuration
+AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Main Threats
 
-Prompt Injection in Diff, Pull Request Spam Abuse
+<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>>, <<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>>
 
 [discrete]
 ====== Expected Controls
@@ -1794,12 +1796,12 @@ Applies redaction and policy-aware output filtering before publishing findings.
 [discrete]
 ====== Attack Surface
 
-GitHub App API, Secrets and Configuration
+<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Main Threats
 
-Secret Leakage in Review Output
+<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>>
 
 [discrete]
 ====== Expected Controls
@@ -1827,7 +1829,7 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 
 
-Platform Operations secures credential paths and operational controls across Lambda deployment lifecycle.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> secures credential paths and operational controls across Lambda deployment lifecycle.
 
 
 
@@ -1847,7 +1849,7 @@ Hardens operational control loops and protects deployment trust boundaries.
 [discrete]
 ====== Attack Surface
 
-AWS Secrets Manager, Secrets and Configuration
+<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Main Threats
@@ -1892,7 +1894,7 @@ none
 [discrete]
 ====== Main Threats
 
-Secret Leakage in Review Output
+<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>>
 
 [discrete]
 ====== Expected Controls
@@ -1945,13 +1947,13 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 Coverage summary: 7/7 units have direct evidence coverage in this view.
 
 
-- Lambda Runtime Operations has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime evidence yet.
 
-- PR Context Assembly has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime evidence yet.
 
-- Policy Checks has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime evidence yet.
 
-- Secrets and Configuration has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime evidence yet.
 
 
 === Recommended Next Evidence Additions
@@ -2058,6 +2060,14 @@ flowchart LR
   REQ_REQ_PRR_008 --> UNIT_FU_GITHUB_WEBHOOK_INGRESS
   UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQ_REQ_PRR_008 --> UNIT_FU_REVIEW_PUBLICATION
+  REQ_REQ_PRR_009["REQ-PRR-009"]:::requirement
+  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+  REQ_REQ_PRR_009 --> UNIT_FU_REVIEW_PUBLICATION
+  REQ_REQ_PRR_010["REQ-PRR-010"]:::requirement
+  UNIT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+  REQ_REQ_PRR_010 --> UNIT_FU_GITHUB_WEBHOOK_INGRESS
+  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+  REQ_REQ_PRR_010 --> UNIT_FU_REVIEW_PUBLICATION
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2140,6 +2150,14 @@ flowchart LR
   REQC_REQ_PRR_008 -->|code trace| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   REQC_REQ_PRR_008 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  REQC_REQ_PRR_009["REQ-PRR-009"]:::requirement
+  REQC_REQ_PRR_009 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  REQC_REQ_PRR_009 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  REQC_REQ_PRR_010["REQ-PRR-010"]:::requirement
+  REQC_REQ_PRR_010 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
+  REQC_REQ_PRR_010 -->|code trace| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  REQC_REQ_PRR_010 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  REQC_REQ_PRR_010 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2162,43 +2180,53 @@ Show requirement-to-unit mappings inferred from appliesTo and authored architect
 [[REF_REQ_REQ_PRR_001]]
 ==== REQ-PRR-001
 
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>>, the pr review system shall verify <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> before processing review workflow.
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall verify <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> before processing review workflow.
 Notes: Webhook trust boundary validation.
 [[REF_REQ_REQ_PRR_002]]
 ==== REQ-PRR-002
 
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_OPENED,pull request opened event is received>>, the pr review system shall fetch changed files and construct <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> for review execution.
-Notes: Context ingestion from GitHub API.
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_OPENED,pull request opened event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall construct <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> from changed files for review execution.
+Notes: Context ingestion from <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub API>>.
 [[REF_REQ_REQ_PRR_003]]
 ==== REQ-PRR-003
 
-Where <<REF_IDX-CATALOG_FEAT_AI_REVIEW,ai review is enabled>>, when <<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>>, the pr review system shall request <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,bedrock runtime>> analysis for security, architecture, and maintainability findings.
+Where <<REF_IDX-CATALOG_FEAT_AI_REVIEW,ai review is enabled>>, when <<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall request <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,bedrock runtime>> analysis for review findings.
 Notes: AI-assisted review path.
 [[REF_REQ_REQ_PRR_004]]
 ==== REQ-PRR-004
 
-Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, the pr review system shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure, infrastructure risk, and dependency changes.
+Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure plus infrastructure risk plus dependency changes.
 Notes: Deterministic non-LLM review checks.
 [[REF_REQ_REQ_PRR_005]]
 ==== REQ-PRR-005
 
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, the pr review system shall publish <<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> and inline comments to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
-Notes: Result publication contract.
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish <<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+Notes: Result <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
 [[REF_REQ_REQ_PRR_006]]
 ==== REQ-PRR-006
 
-If <<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>>, then the pr review system shall publish deterministic policy-only review outcome.
+If <<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish deterministic policy-only <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review outcome>>.
 Notes: Graceful degradation <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
 [[REF_REQ_REQ_PRR_007]]
 ==== REQ-PRR-007
 
-Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>>, the pr review system shall persist redacted prompt and <<REF_IDX-CATALOG_DATA_RESULT_METADATA,result metadata>> for audit traceability.
+Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall persist <<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> for audit traceability.
 Notes: Evidence and audit lineage.
 [[REF_REQ_REQ_PRR_008]]
 ==== REQ-PRR-008
 
-If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then the pr review system shall defer processing and notify <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall defer processing.
 Notes: Abuse and capacity protection behavior.
+[[REF_REQ_REQ_PRR_009]]
+==== REQ-PRR-009
+
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish inline comments to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+Notes: Inline-annotation <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
+[[REF_REQ_REQ_PRR_010]]
+==== REQ-PRR-010
+
+If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall notify <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+Notes: <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,Maintainer>> notification for deferred review processing.
 
 === Verification Inventory
 
@@ -2374,7 +2402,7 @@ While pull request review is active, when pull request synchronize event is rece
 [discrete]
 ==== REQ-PRR-002
 
-While pull request review is active, when pull request opened event is received, the pr review system shall fetch changed files and construct diff context for review execution.
+While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for review execution.
 
 [cols="1,4",options="header"]
 |===
@@ -2386,7 +2414,7 @@ While pull request review is active, when pull request opened event is received,
 [discrete]
 ==== REQ-PRR-003
 
-Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for security, architecture, and maintainability findings.
+Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for review findings.
 
 [cols="1,4",options="header"]
 |===
@@ -2398,7 +2426,7 @@ Where ai review is enabled, when diff context is prepared, the pr review system 
 [discrete]
 ==== REQ-PRR-004
 
-Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure, infrastructure risk, and dependency changes.
+Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure plus infrastructure risk plus dependency changes.
 
 [cols="1,4",options="header"]
 |===
@@ -2410,7 +2438,7 @@ Where policy checks are enabled, when pull request review is active, the pr revi
 [discrete]
 ==== REQ-PRR-005
 
-While pull request review is active, when review findings are generated, the pr review system shall publish check run summary and inline comments to repository maintainer.
+While pull request review is active, when review findings are generated, the pr review system shall publish check run summary to repository maintainer.
 
 [cols="1,4",options="header"]
 |===
@@ -2434,7 +2462,7 @@ If bedrock runtime is unavailable, then the pr review system shall publish deter
 [discrete]
 ==== REQ-PRR-007
 
-Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted prompt and result metadata for audit traceability.
+Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted audit metadata for audit traceability.
 
 [cols="1,4",options="header"]
 |===
@@ -2446,13 +2474,37 @@ Where audit logging is enabled, when review findings are published, the pr revie
 [discrete]
 ==== REQ-PRR-008
 
-If review request rate limit is exceeded, then the pr review system shall defer processing and notify repository maintainer.
+If review request rate limit is exceeded, then the pr review system shall defer processing.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-008
+|===
+[[REF_IDX-REQ_REQ_PRR_009]]
+[discrete]
+==== REQ-PRR-009
+
+While pull request review is active, when review findings are generated, the pr review system shall publish inline comments to repository maintainer.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-009
+|===
+[[REF_IDX-REQ_REQ_PRR_010]]
+[discrete]
+==== REQ-PRR-010
+
+If review request rate limit is exceeded, then the pr review system shall notify repository maintainer.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-010
 |===
 
 === Catalog References
@@ -3103,6 +3155,18 @@ State where review processing is currently active for a pull request.
 |Key |Value
 |Kind |State
 |Name |pull request review is active
+|===
+[[REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM]]
+[discrete]
+==== SYS-PR-REVIEW-SYSTEM
+
+GitHub App review system-of-interest that ingests PR events and publishes review outcomes.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |System
+|Name |pr review system
 |===
 
 === Inferred Runtime References
