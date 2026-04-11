@@ -478,12 +478,15 @@ What this section shows: per-requirement result mapping inferred from test-resul
 [[{{ .Anchor }}]]
 [discrete]
 ==== {{ .ID }}
-Kind: {{ .Kind }}
-Name: {{ .Name }}
-{{ if .TargetAnchor -}}
-Resolves to: <<{{ .TargetAnchor }},canonical>>
-{{- end }}
-{{ .Description }}
+
+{{ if .Description }}{{ .Description }}{{ else }}Authored architecture reference entry.{{ end }}
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |{{ if .Kind }}{{ .Kind }}{{ else }}n/a{{ end }}
+|Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|===
 
 {{- end }}
 
@@ -491,51 +494,67 @@ Resolves to: <<{{ .TargetAnchor }},canonical>>
 {{- range .ReferenceIndex.Catalog }}
 [[{{ .Anchor }}]]
 [discrete]
-==== {{ if .Name }}{{ .Name }}{{ else }}{{ .ID }}{{ end }}
+==== {{ if .ID }}{{ .ID }}{{ else }}{{ .Name }}{{ end }}
 
-{{- if .Description }}
-{{ .Description }}
-{{- end }}
-Canonical: {{ if .TargetAnchor }}<<{{ .TargetAnchor }},open>>{{ else }}n/a{{ end }}
+{{ if .Description }}{{ .Description }}{{ else }}Catalog reference entry.{{ end }}
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |{{ if .Kind }}{{ .Kind }}{{ else }}n/a{{ end }}
+|Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|===
 
 {{- end }}
 
 === Inferred Runtime References
-[cols="2,2,2,5,3",options="header"]
-|===
-|ID |Kind |Owner |Description |Source
 {{- range .ReferenceIndex.Runtime }}
-|[[{{ .Anchor }}]]{{ .ID }}
-|{{ .Kind }}
-|{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
-|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
-|{{ .Source }}
-{{- end }}
+[[{{ .Anchor }}]]
+[discrete]
+==== {{ .ID }}
+
+{{ if .Description }}{{ .Description }}{{ else }}No optional description was provided for this inferred runtime reference.{{ end }}
+
+[cols="1,4",options="header"]
 |===
+|Key |Value
+|Kind |{{ .Kind }}
+|Owner |{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
+|Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|===
+{{- end }}
 
 === Inferred Code References
-[cols="2,2,2,5,3",options="header"]
-|===
-|ID |Kind |Owner |Description |Source
 {{- range .ReferenceIndex.Code }}
-|[[{{ .Anchor }}]]{{ .ID }}
-|{{ .Kind }}
-|{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
-|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
-|{{ .Source }}
-{{- end }}
+[[{{ .Anchor }}]]
+[discrete]
+==== {{ .ID }}
+
+{{ if .Description }}{{ .Description }}{{ else }}No optional description was provided for this inferred code reference.{{ end }}
+
+[cols="1,4",options="header"]
 |===
+|Key |Value
+|Kind |{{ .Kind }}
+|Owner |{{ if .Owner }}{{ .Owner }}{{ else }}unresolved{{ end }}
+|Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|===
+{{- end }}
 
 === Verification References
-[cols="2,2,1,5,3,2",options="header"]
-|===
-|ID |Kind |Status |Description |Source |Canonical
 {{- range .ReferenceIndex.Verification }}
-|[[{{ .Anchor }}]]{{ .ID }}
-|{{ .Kind }}
-|{{ if .Status }}{{ .Status }}{{ else }}n/a{{ end }}
-|{{ if .Description }}{{ .Description }}{{ else }}n/a{{ end }}
-|{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
-|{{ if .TargetAnchor }}<<{{ .TargetAnchor }},canonical>>{{ else }}n/a{{ end }}
-{{- end }}
+[[{{ .Anchor }}]]
+[discrete]
+==== {{ .ID }}
+
+{{ if .Description }}{{ .Description }}{{ else }}No optional description was provided for this inferred verification reference.{{ end }}
+
+[cols="1,4",options="header"]
 |===
+|Key |Value
+|Kind |{{ if .Kind }}{{ .Kind }}{{ else }}n/a{{ end }}
+|Status |{{ if .Status }}{{ .Status }}{{ else }}n/a{{ end }}
+|Source |{{ if .Source }}{{ .Source }}{{ else }}n/a{{ end }}
+|Name |{{ if .Name }}{{ .Name }}{{ else }}n/a{{ end }}
+|===
+{{- end }}

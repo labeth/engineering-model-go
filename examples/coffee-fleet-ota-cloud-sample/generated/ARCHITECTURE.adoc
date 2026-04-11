@@ -2355,858 +2355,1892 @@ No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requir
 [[REF_IDX-ACTOR_ACT_BARISTA]]
 [discrete]
 ==== ACT-BARISTA
-Kind: Actor
-Name: Barista
 
 Operates coffee machines and observes local device status.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Barista
+|===
 [[REF_IDX-ACTOR_ACT_FLEET_OPERATOR]]
 [discrete]
 ==== ACT-FLEET-OPERATOR
-Kind: Actor
-Name: Fleet Operator
 
 Manages OTA campaigns and fleet-wide operational decisions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Fleet Operator
+|===
 [[REF_IDX-ACTOR_ACT_PLATFORM_OPERATOR]]
 [discrete]
 ==== ACT-PLATFORM-OPERATOR
-Kind: Actor
-Name: Platform Operator
 
 Operates cloud runtime, deployment, and reliability controls.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Platform Operator
+|===
 [[REF_IDX-ACTOR_ACT_SECURITY_ANALYST]]
 [discrete]
 ==== ACT-SECURITY-ANALYST
-Kind: Actor
-Name: Security Analyst
 
 Reviews firmware integrity, identity controls, and audit logging.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Security Analyst
+|===
 [[REF_IDX-ATTACK_AV_LOG_TAMPERING]]
 [discrete]
 ==== AV-LOG-TAMPERING
-Kind: Attack Vector
-Name: Log Tampering
 
 Attempts to suppress or alter audit/operational logs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Log Tampering
+|===
 [[REF_IDX-ATTACK_AV_MALICIOUS_FIRMWARE_BUNDLE]]
 [discrete]
 ==== AV-MALICIOUS-FIRMWARE-BUNDLE
-Kind: Attack Vector
-Name: Malicious Firmware Bundle
 
 Tampered OTA payload targeting update agent execution.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Malicious Firmware Bundle
+|===
 [[REF_IDX-ATTACK_AV_SPOOFED_DEVICE_IDENTITY]]
 [discrete]
 ==== AV-SPOOFED-DEVICE-IDENTITY
-Kind: Attack Vector
-Name: Spoofed Device Identity
 
 Unauthorized identity attempting telemetry/command access.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Spoofed Device Identity
+|===
 [[REF_IDX-ATTACK_AV_TELEMETRY_REPLAY_ABUSE]]
 [discrete]
 ==== AV-TELEMETRY-REPLAY-ABUSE
-Kind: Attack Vector
-Name: Telemetry Replay Abuse
 
 Replayed telemetry intended to overload ingestion and corrupt insights.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Telemetry Replay Abuse
+|===
 [[REF_IDX-FG_FG_CLOUD_CONTROL]]
 [discrete]
 ==== FG-CLOUD-CONTROL
-Kind: Functional Group
-Name: Cloud Control
 
 Central cloud ingestion, campaign control, and fleet reporting.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |Cloud Control
+|===
 [[REF_IDX-FG_FG_MACHINE_EDGE]]
 [discrete]
 ==== FG-MACHINE-EDGE
-Kind: Functional Group
-Name: Machine Edge
 
 Device-local telemetry and OTA execution responsibilities.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |Machine Edge
+|===
 [[REF_IDX-FG_FG_PLATFORM_OPERATIONS]]
 [discrete]
 ==== FG-PLATFORM-OPERATIONS
-Kind: Functional Group
-Name: Platform Operations
 
 Cloud runtime operations plus identity and secret-management controls.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |Platform Operations
+|===
 [[REF_IDX-FU_FU_CLOUD_RUNTIME_OPERATIONS]]
 [discrete]
 ==== FU-CLOUD-RUNTIME-OPERATIONS
-Kind: Functional Unit
-Name: Cloud Runtime Operations
 
 Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Cloud Runtime Operations
+|===
 [[REF_IDX-FU_FU_DEVICE_IDENTITY_SECRETS]]
 [discrete]
 ==== FU-DEVICE-IDENTITY-SECRETS
-Kind: Functional Unit
-Name: Device Identity and Secrets
 
 Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Device Identity and Secrets
+|===
 [[REF_IDX-FU_FU_FLEET_INGESTION_API]]
 [discrete]
 ==== FU-FLEET-INGESTION-API
-Kind: Functional Unit
-Name: Fleet Ingestion API
 
 Receives telemetry and machine status, applies validation, and emits ingestion events.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Fleet Ingestion API
+|===
 [[REF_IDX-FU_FU_FLEET_OBSERVABILITY_REPORTING]]
 [discrete]
 ==== FU-FLEET-OBSERVABILITY-REPORTING
-Kind: Functional Unit
-Name: Fleet Observability Reporting
 
 Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Fleet Observability Reporting
+|===
 [[REF_IDX-FU_FU_MACHINE_TELEMETRY_COLLECTION]]
 [discrete]
 ==== FU-MACHINE-TELEMETRY-COLLECTION
-Kind: Functional Unit
-Name: Machine Telemetry Collection
 
 Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Machine Telemetry Collection
+|===
 [[REF_IDX-FU_FU_OTA_UPDATE_AGENT]]
 [discrete]
 ==== FU-OTA-UPDATE-AGENT
-Kind: Functional Unit
-Name: OTA Update Agent
 
 Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |OTA Update Agent
+|===
 [[REF_IDX-FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
 [discrete]
 ==== FU-UPDATE-CAMPAIGN-ORCHESTRATION
-Kind: Functional Unit
-Name: Update Campaign Orchestration
 
 Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Update Campaign Orchestration
+|===
 [[REF_IDX-REF_REF_CLOUD_LOGGING_SERVICE]]
 [discrete]
 ==== REF-CLOUD-LOGGING-SERVICE
-Kind: Referenced Element
-Name: Cloud Logging Service
 
 platform_service / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |Cloud Logging Service
+|===
 [[REF_IDX-REF_REF_CLOUD_RUNTIME_SDK]]
 [discrete]
 ==== REF-CLOUD-RUNTIME-SDK
-Kind: Referenced Element
-Name: Cloud Runtime SDK
 
 third_party_library / code
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |Cloud Runtime SDK
+|===
 [[REF_IDX-REF_REF_FIRMWARE_BUNDLE_STORE]]
 [discrete]
 ==== REF-FIRMWARE-BUNDLE-STORE
-Kind: Referenced Element
-Name: Firmware Bundle Store
 
 object_store / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |Firmware Bundle Store
+|===
 [[REF_IDX-REF_REF_FIRMWARE_SIGNER_SERVICE]]
 [discrete]
 ==== REF-FIRMWARE-SIGNER-SERVICE
-Kind: Referenced Element
-Name: Firmware Signer Service
 
 signing_service / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |Firmware Signer Service
+|===
 [[REF_IDX-REF_REF_IOT_INGEST_ENDPOINT]]
 [discrete]
 ==== REF-IOT-INGEST-ENDPOINT
-Kind: Referenced Element
-Name: IoT Ingest Endpoint
 
 external_service_endpoint / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |IoT Ingest Endpoint
+|===
 [[REF_IDX-REF_REF_MQTT_DEVICE_SDK]]
 [discrete]
 ==== REF-MQTT-DEVICE-SDK
-Kind: Referenced Element
-Name: MQTT Device SDK
 
 third_party_library / code
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |MQTT Device SDK
+|===
 [[REF_IDX-REQ_REQ_COF_001]]
 [discrete]
 ==== REQ-COF-001
-Kind: Requirement
-Name: REQ-COF-001
-Resolves to: <<REF_REQ_REQ_COF_001,canonical>>
+
 While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-001
+|===
 [[REF_IDX-REQ_REQ_COF_002]]
 [discrete]
 ==== REQ-COF-002
-Kind: Requirement
-Name: REQ-COF-002
-Resolves to: <<REF_REQ_REQ_COF_002,canonical>>
+
 While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics and logging records for fleet operator.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-002
+|===
 [[REF_IDX-REQ_REQ_COF_003]]
 [discrete]
 ==== REQ-COF-003
-Kind: Requirement
-Name: REQ-COF-003
-Resolves to: <<REF_REQ_REQ_COF_003,canonical>>
+
 Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-003
+|===
 [[REF_IDX-REQ_REQ_COF_004]]
 [discrete]
 ==== REQ-COF-004
-Kind: Requirement
-Name: REQ-COF-004
-Resolves to: <<REF_REQ_REQ_COF_004,canonical>>
+
 Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-004
+|===
 [[REF_IDX-REQ_REQ_COF_005]]
 [discrete]
 ==== REQ-COF-005
-Kind: Requirement
-Name: REQ-COF-005
-Resolves to: <<REF_REQ_REQ_COF_005,canonical>>
+
 If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply and report ota status to update campaign orchestration.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-005
+|===
 [[REF_IDX-REQ_REQ_COF_006]]
 [discrete]
 ==== REQ-COF-006
-Kind: Requirement
-Name: REQ-COF-006
-Resolves to: <<REF_REQ_REQ_COF_006,canonical>>
+
 If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry and flush when normal mode is active.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-006
+|===
 [[REF_IDX-REQ_REQ_COF_007]]
 [discrete]
 ==== REQ-COF-007
-Kind: Requirement
-Name: REQ-COF-007
-Resolves to: <<REF_REQ_REQ_COF_007,canonical>>
+
 Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record including machine identity and campaign id.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-007
+|===
 [[REF_IDX-REQ_REQ_COF_008]]
 [discrete]
 ==== REQ-COF-008
-Kind: Requirement
-Name: REQ-COF-008
-Resolves to: <<REF_REQ_REQ_COF_008,canonical>>
+
 If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry and notify security analyst.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-COF-008
+|===
 
 === Catalog References
 [[REF_IDX-CATALOG_ACT_BARISTA]]
 [discrete]
-==== barista
+==== ACT-BARISTA
+
 Operates coffee machines and observes local machine health.
-Canonical: <<REF_CATALOG_ACT_BARISTA,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |barista
+|===
 [[REF_IDX-CATALOG_ACT_FLEET_OPERATOR]]
 [discrete]
-==== fleet operator
+==== ACT-FLEET-OPERATOR
+
 Owns OTA rollout campaigns and fleet-level reliability.
-Canonical: <<REF_CATALOG_ACT_FLEET_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |fleet operator
+|===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
-==== platform operator
+==== ACT-PLATFORM-OPERATOR
+
 Owns runtime deployment and operational controls.
-Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |platform operator
+|===
 [[REF_IDX-CATALOG_ACT_SECURITY_ANALYST]]
 [discrete]
-==== security analyst
+==== ACT-SECURITY-ANALYST
+
 Reviews identity, firmware integrity, and logging controls.
-Canonical: <<REF_CATALOG_ACT_SECURITY_ANALYST,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |security analyst
+|===
 [[REF_CATALOG-ALIAS_FEAT_AUDIT_LOGGING_AUDIT_ENABLED]]
 [discrete]
-==== audit logging is enabled
+==== audit enabled
+
 Feature flag enabling audit-grade log persistence.
-Canonical: <<REF_CATALOG_FEAT_AUDIT_LOGGING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |audit logging is enabled
+|===
 [[REF_CATALOG-ALIAS_AV_LOG_TAMPERING_AUDIT_TAMPERING]]
 [discrete]
-==== log tampering
+==== audit tampering
+
 Attempts to suppress or alter security/operational log records.
-Canonical: <<REF_CATALOG_AV_LOG_TAMPERING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |log tampering
+|===
 [[REF_CATALOG-ALIAS_EVT_BREW_CYCLE_COMPLETED_BREW_COMPLETED]]
 [discrete]
-==== brew cycle completed event is received
+==== brew completed
+
 Event raised when a coffee machine completes a brew cycle.
-Canonical: <<REF_CATALOG_EVT_BREW_CYCLE_COMPLETED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |brew cycle completed event is received
+|===
 [[REF_CATALOG-ALIAS_FU_UPDATE_CAMPAIGN_ORCHESTRATION_CAMPAIGN_ORCHESTRATION]]
 [discrete]
-==== update campaign orchestration
+==== campaign orchestration
+
 Selects target machine groups and coordinates OTA rollout phases.
-Canonical: <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |update campaign orchestration
+|===
 [[REF_CATALOG-ALIAS_EVT_OTA_CAMPAIGN_SCHEDULED_CAMPAIGN_SCHEDULED]]
 [discrete]
-==== ota campaign scheduled event is received
+==== campaign scheduled
+
 Event raised when a fleet OTA campaign is scheduled.
-Canonical: <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |ota campaign scheduled event is received
+|===
 [[REF_CATALOG-ALIAS_FG_CLOUD_CONTROL_CENTRAL_CLOUD_SITE]]
 [discrete]
-==== cloud control
+==== central cloud site
+
 Capability area for fleet ingestion, campaign orchestration, and cloud reporting.
-Canonical: <<REF_CATALOG_FG_CLOUD_CONTROL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |cloud control
+|===
 [[REF_CATALOG-ALIAS_REF_CLOUD_RUNTIME_SDK_CLOUD_SDK]]
 [discrete]
-==== cloud runtime sdk
+==== cloud sdk
+
 SDK used by cloud units for runtime integrations.
-Canonical: <<REF_CATALOG_REF_CLOUD_RUNTIME_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |cloud runtime sdk
+|===
 [[REF_CATALOG-ALIAS_FG_MACHINE_EDGE_COFFEE_MACHINE_EDGE]]
 [discrete]
-==== machine edge
+==== coffee machine edge
+
 Capability area for device-local telemetry and OTA execution behavior.
-Canonical: <<REF_CATALOG_FG_MACHINE_EDGE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |machine edge
+|===
 [[REF_CATALOG-ALIAS_FU_DEVICE_IDENTITY_SECRETS_DEVICE_SECRETS]]
 [discrete]
-==== device identity and secrets
+==== device secrets
+
 Manages device identity material and secure configuration.
-Canonical: <<REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |device identity and secrets
+|===
 [[REF_CATALOG-ALIAS_AV_SPOOFED_DEVICE_IDENTITY_DEVICE_SPOOFING]]
 [discrete]
-==== spoofed device identity
+==== device spoofing
+
 Unauthorized actor impersonates a machine identity.
-Canonical: <<REF_CATALOG_AV_SPOOFED_DEVICE_IDENTITY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |spoofed device identity
+|===
 [[REF_CATALOG-ALIAS_FU_OTA_UPDATE_AGENT_DEVICE_UPDATE_AGENT]]
 [discrete]
-==== ota update agent
+==== device update agent
+
 Downloads, validates, and applies signed firmware updates on machines.
-Canonical: <<REF_CATALOG_FU_OTA_UPDATE_AGENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |ota update agent
+|===
 [[REF_CATALOG-ALIAS_REF_FIRMWARE_BUNDLE_STORE_FIRMWARE_STORE]]
 [discrete]
-==== firmware bundle store
+==== firmware store
+
 Object store containing signed OTA firmware bundles.
-Canonical: <<REF_CATALOG_REF_FIRMWARE_BUNDLE_STORE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |firmware bundle store
+|===
 [[REF_CATALOG-ALIAS_AV_MALICIOUS_FIRMWARE_BUNDLE_FIRMWARE_TAMPERING]]
 [discrete]
-==== malicious firmware bundle
+==== firmware tampering
+
 Tampered firmware payload attempts to execute on devices.
-Canonical: <<REF_CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |malicious firmware bundle
+|===
 [[REF_CATALOG-ALIAS_ACT_FLEET_OPERATOR_FLEET_ADMIN]]
 [discrete]
-==== fleet operator
+==== fleet admin
+
 Owns OTA rollout campaigns and fleet-level reliability.
-Canonical: <<REF_CATALOG_ACT_FLEET_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |fleet operator
+|===
 [[REF_CATALOG-ALIAS_STATE_FLEET_OPERATION_ACTIVE_FLEET_OPERATION_ACTIVE]]
 [discrete]
-==== coffee machine fleet operation is active
+==== fleet operation active
+
 State where machines and central cloud are actively serving operations.
-Canonical: <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |coffee machine fleet operation is active
+|===
 [[REF_CATALOG-ALIAS_FG_PLATFORM_OPERATIONS_FLEET_PLATFORM_OPERATIONS]]
 [discrete]
-==== platform operations
+==== fleet platform operations
+
 Capability area for runtime operations and device identity/secrets lifecycle.
-Canonical: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |platform operations
+|===
 [[REF_CATALOG-ALIAS_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE_INGEST_ENDPOINT_UNAVAILABLE]]
 [discrete]
-==== cloud ingest endpoint is unavailable
+==== ingest endpoint unavailable
+
 Event raised when cloud ingest endpoint becomes unavailable for telemetry ingestion.
-Canonical: <<REF_CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |cloud ingest endpoint is unavailable
+|===
 [[REF_CATALOG-ALIAS_FU_FLEET_INGESTION_API_INGESTION_API]]
 [discrete]
-==== fleet ingestion api
+==== ingestion api
+
 Ingests telemetry and machine status from edge devices.
-Canonical: <<REF_CATALOG_FU_FLEET_INGESTION_API,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |fleet ingestion api
+|===
 [[REF_CATALOG-ALIAS_REF_IOT_INGEST_ENDPOINT_IOT_ENDPOINT]]
 [discrete]
-==== iot ingest endpoint
+==== iot endpoint
+
 Cloud endpoint for receiving telemetry and status from devices.
-Canonical: <<REF_CATALOG_REF_IOT_INGEST_ENDPOINT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |iot ingest endpoint
+|===
 [[REF_CATALOG-ALIAS_REF_CLOUD_LOGGING_SERVICE_LOGGING_SERVICE]]
 [discrete]
-==== cloud logging service
+==== logging service
+
 Managed log and metrics service used for fleet observability.
-Canonical: <<REF_CATALOG_REF_CLOUD_LOGGING_SERVICE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |cloud logging service
+|===
 [[REF_CATALOG-ALIAS_REF_MQTT_DEVICE_SDK_MQTT_SDK]]
 [discrete]
-==== mqtt device sdk
+==== mqtt sdk
+
 SDK used by edge components for telemetry and command transport.
-Canonical: <<REF_CATALOG_REF_MQTT_DEVICE_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |mqtt device sdk
+|===
 [[REF_CATALOG-ALIAS_MODE_NORMAL_NORMAL_MODE]]
 [discrete]
-==== normal mode is active
+==== normal mode
+
 Default operation mode for telemetry and OTA behavior.
-Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |normal mode is active
+|===
 [[REF_CATALOG-ALIAS_FU_FLEET_OBSERVABILITY_REPORTING_OBSERVABILITY_REPORTING]]
 [discrete]
-==== fleet observability reporting
+==== observability reporting
+
 Aggregates telemetry and update outcomes into operational and audit signals.
-Canonical: <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |fleet observability reporting
+|===
 [[REF_CATALOG-ALIAS_FEAT_OTA_CAMPAIGN_OTA_ENABLED]]
 [discrete]
-==== ota campaign is enabled
+==== ota enabled
+
 Feature flag enabling centralized OTA rollout behavior.
-Canonical: <<REF_CATALOG_FEAT_OTA_CAMPAIGN,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |ota campaign is enabled
+|===
 [[REF_CATALOG-ALIAS_EVT_OTA_STATUS_REPORTED_OTA_STATUS_REPORTED]]
 [discrete]
-==== ota status reported event is received
+==== ota status reported
+
 Event raised when device reports OTA apply status.
-Canonical: <<REF_CATALOG_EVT_OTA_STATUS_REPORTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |ota status reported event is received
+|===
 [[REF_CATALOG-ALIAS_ACT_PLATFORM_OPERATOR_PLATFORM_OPS]]
 [discrete]
-==== platform operator
+==== platform ops
+
 Owns runtime deployment and operational controls.
-Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |platform operator
+|===
 [[REF_CATALOG-ALIAS_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME_OPERATIONS]]
 [discrete]
-==== cloud runtime operations
+==== runtime operations
+
 Operates cloud runtime deployment and scaling controls.
-Canonical: <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |cloud runtime operations
+|===
 [[REF_CATALOG-ALIAS_ACT_SECURITY_ANALYST_SECURITY_REVIEWER]]
 [discrete]
-==== security analyst
+==== security reviewer
+
 Reviews identity, firmware integrity, and logging controls.
-Canonical: <<REF_CATALOG_ACT_SECURITY_ANALYST,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |security analyst
+|===
 [[REF_CATALOG-ALIAS_COND_FIRMWARE_SIGNATURE_VALID_SIGNATURE_VALID]]
 [discrete]
-==== firmware signature is valid
+==== signature valid
+
 Condition indicating firmware signature verification succeeded.
-Canonical: <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |firmware signature is valid
+|===
 [[REF_CATALOG-ALIAS_REF_FIRMWARE_SIGNER_SERVICE_SIGNER_SERVICE]]
 [discrete]
-==== firmware signer service
+==== signer service
+
 Service that signs firmware artifacts before OTA rollout.
-Canonical: <<REF_CATALOG_REF_FIRMWARE_SIGNER_SERVICE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |firmware signer service
+|===
 [[REF_CATALOG-ALIAS_ACT_BARISTA_STORE_OPERATOR]]
 [discrete]
-==== barista
+==== store operator
+
 Operates coffee machines and observes local machine health.
-Canonical: <<REF_CATALOG_ACT_BARISTA,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |barista
+|===
 [[REF_CATALOG-ALIAS_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_COLLECTION]]
 [discrete]
-==== machine telemetry collection
+==== telemetry collection
+
 Collects brew/device telemetry and publishes cloud-bound payloads.
-Canonical: <<REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |machine telemetry collection
+|===
 [[REF_CATALOG-ALIAS_EVT_TELEMETRY_INGESTED_TELEMETRY_INGESTED]]
 [discrete]
-==== telemetry ingested event is received
+==== telemetry ingested
+
 Event raised when cloud ingestion accepts telemetry.
-Canonical: <<REF_CATALOG_EVT_TELEMETRY_INGESTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |telemetry ingested event is received
+|===
 [[REF_CATALOG-ALIAS_AV_TELEMETRY_REPLAY_ABUSE_TELEMETRY_REPLAY]]
 [discrete]
-==== telemetry replay abuse
+==== telemetry replay
+
 Replayed telemetry floods ingestion and distorts reporting.
-Canonical: <<REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |telemetry replay abuse
+|===
 [[REF_CATALOG-ALIAS_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED_TELEMETRY_REPLAY_DETECTED]]
 [discrete]
-==== telemetry replay abuse is detected
+==== telemetry replay detected
+
 Event raised when replayed telemetry behavior is detected and flagged as abuse.
-Canonical: <<REF_CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |telemetry replay abuse is detected
+|===
 [[REF_CATALOG-ALIAS_SYS_COFFEE_FLEET_SYSTEM_THE_COFFEE_FLEET_SYSTEM]]
 [discrete]
-==== coffee fleet system
+==== the coffee fleet system
+
 Connected coffee-machine fleet and central cloud control system-of-interest covered by this architecture.
-Canonical: <<REF_CATALOG_SYS_COFFEE_FLEET_SYSTEM,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |coffee fleet system
+|===
 [[REF_CATALOG-ALIAS_EVT_FIRMWARE_VALIDATION_FAILED_VALIDATION_FAILED]]
 [discrete]
-==== firmware validation failed event is received
+==== validation failed
+
 Event raised when signature/hash validation fails on firmware.
-Canonical: <<REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |firmware validation failed event is received
+|===
 [[REF_IDX-CATALOG_AV_LOG_TAMPERING]]
 [discrete]
-==== log tampering
+==== AV-LOG-TAMPERING
+
 Attempts to suppress or alter security/operational log records.
-Canonical: <<REF_CATALOG_AV_LOG_TAMPERING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |log tampering
+|===
 [[REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE]]
 [discrete]
-==== malicious firmware bundle
+==== AV-MALICIOUS-FIRMWARE-BUNDLE
+
 Tampered firmware payload attempts to execute on devices.
-Canonical: <<REF_CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |malicious firmware bundle
+|===
 [[REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY]]
 [discrete]
-==== spoofed device identity
+==== AV-SPOOFED-DEVICE-IDENTITY
+
 Unauthorized actor impersonates a machine identity.
-Canonical: <<REF_CATALOG_AV_SPOOFED_DEVICE_IDENTITY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |spoofed device identity
+|===
 [[REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE]]
 [discrete]
-==== telemetry replay abuse
+==== AV-TELEMETRY-REPLAY-ABUSE
+
 Replayed telemetry floods ingestion and distorts reporting.
-Canonical: <<REF_CATALOG_AV_TELEMETRY_REPLAY_ABUSE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |telemetry replay abuse
+|===
 [[REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID]]
 [discrete]
-==== firmware signature is valid
+==== COND-FIRMWARE-SIGNATURE-VALID
+
 Condition indicating firmware signature verification succeeded.
-Canonical: <<REF_CATALOG_COND_FIRMWARE_SIGNATURE_VALID,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Condition
+|Name |firmware signature is valid
+|===
 [[REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD]]
 [discrete]
-==== audit log record
+==== DATA-AUDIT-LOG-RECORD
+
 Immutable log record for security and compliance analysis.
-Canonical: <<REF_CATALOG_DATA_AUDIT_LOG_RECORD,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |audit log record
+|===
 [[REF_IDX-CATALOG_DATA_BREW_TELEMETRY]]
 [discrete]
-==== brew telemetry
+==== DATA-BREW-TELEMETRY
+
 Machine telemetry including brew duration, temperature, and status metadata.
-Canonical: <<REF_CATALOG_DATA_BREW_TELEMETRY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |brew telemetry
+|===
 [[REF_IDX-CATALOG_DATA_OTA_CAMPAIGN_POLICY]]
 [discrete]
-==== ota campaign policy
+==== DATA-OTA-CAMPAIGN-POLICY
+
 Policy describing rollout cohorts, windows, and rollback criteria.
-Canonical: <<REF_CATALOG_DATA_OTA_CAMPAIGN_POLICY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |ota campaign policy
+|===
 [[REF_IDX-CATALOG_DATA_OTA_STATUS]]
 [discrete]
-==== ota status
+==== DATA-OTA-STATUS
+
 Device-level status for firmware download, apply, and rollback outcomes.
-Canonical: <<REF_CATALOG_DATA_OTA_STATUS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |ota status
+|===
 [[REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED]]
 [discrete]
-==== brew cycle completed event is received
+==== EVT-BREW-CYCLE-COMPLETED
+
 Event raised when a coffee machine completes a brew cycle.
-Canonical: <<REF_CATALOG_EVT_BREW_CYCLE_COMPLETED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |brew cycle completed event is received
+|===
 [[REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE]]
 [discrete]
-==== cloud ingest endpoint is unavailable
+==== EVT-CLOUD-INGEST-ENDPOINT-UNAVAILABLE
+
 Event raised when cloud ingest endpoint becomes unavailable for telemetry ingestion.
-Canonical: <<REF_CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |cloud ingest endpoint is unavailable
+|===
 [[REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED]]
 [discrete]
-==== firmware validation failed event is received
+==== EVT-FIRMWARE-VALIDATION-FAILED
+
 Event raised when signature/hash validation fails on firmware.
-Canonical: <<REF_CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |firmware validation failed event is received
+|===
 [[REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED]]
 [discrete]
-==== ota campaign scheduled event is received
+==== EVT-OTA-CAMPAIGN-SCHEDULED
+
 Event raised when a fleet OTA campaign is scheduled.
-Canonical: <<REF_CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |ota campaign scheduled event is received
+|===
 [[REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED]]
 [discrete]
-==== ota status reported event is received
+==== EVT-OTA-STATUS-REPORTED
+
 Event raised when device reports OTA apply status.
-Canonical: <<REF_CATALOG_EVT_OTA_STATUS_REPORTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |ota status reported event is received
+|===
 [[REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED]]
 [discrete]
-==== telemetry ingested event is received
+==== EVT-TELEMETRY-INGESTED
+
 Event raised when cloud ingestion accepts telemetry.
-Canonical: <<REF_CATALOG_EVT_TELEMETRY_INGESTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |telemetry ingested event is received
+|===
 [[REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED]]
 [discrete]
-==== telemetry replay abuse is detected
+==== EVT-TELEMETRY-REPLAY-ABUSE-DETECTED
+
 Event raised when replayed telemetry behavior is detected and flagged as abuse.
-Canonical: <<REF_CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |telemetry replay abuse is detected
+|===
 [[REF_IDX-CATALOG_FEAT_AUDIT_LOGGING]]
 [discrete]
-==== audit logging is enabled
+==== FEAT-AUDIT-LOGGING
+
 Feature flag enabling audit-grade log persistence.
-Canonical: <<REF_CATALOG_FEAT_AUDIT_LOGGING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |audit logging is enabled
+|===
 [[REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN]]
 [discrete]
-==== ota campaign is enabled
+==== FEAT-OTA-CAMPAIGN
+
 Feature flag enabling centralized OTA rollout behavior.
-Canonical: <<REF_CATALOG_FEAT_OTA_CAMPAIGN,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |ota campaign is enabled
+|===
 [[REF_IDX-CATALOG_FG_CLOUD_CONTROL]]
 [discrete]
-==== cloud control
+==== FG-CLOUD-CONTROL
+
 Capability area for fleet ingestion, campaign orchestration, and cloud reporting.
-Canonical: <<REF_CATALOG_FG_CLOUD_CONTROL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |cloud control
+|===
 [[REF_IDX-CATALOG_FG_MACHINE_EDGE]]
 [discrete]
-==== machine edge
+==== FG-MACHINE-EDGE
+
 Capability area for device-local telemetry and OTA execution behavior.
-Canonical: <<REF_CATALOG_FG_MACHINE_EDGE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |machine edge
+|===
 [[REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS]]
 [discrete]
-==== platform operations
+==== FG-PLATFORM-OPERATIONS
+
 Capability area for runtime operations and device identity/secrets lifecycle.
-Canonical: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |platform operations
+|===
 [[REF_IDX-CATALOG_FU_CLOUD_RUNTIME_OPERATIONS]]
 [discrete]
-==== cloud runtime operations
+==== FU-CLOUD-RUNTIME-OPERATIONS
+
 Operates cloud runtime deployment and scaling controls.
-Canonical: <<REF_CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |cloud runtime operations
+|===
 [[REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS]]
 [discrete]
-==== device identity and secrets
+==== FU-DEVICE-IDENTITY-SECRETS
+
 Manages device identity material and secure configuration.
-Canonical: <<REF_CATALOG_FU_DEVICE_IDENTITY_SECRETS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |device identity and secrets
+|===
 [[REF_IDX-CATALOG_FU_FLEET_INGESTION_API]]
 [discrete]
-==== fleet ingestion api
+==== FU-FLEET-INGESTION-API
+
 Ingests telemetry and machine status from edge devices.
-Canonical: <<REF_CATALOG_FU_FLEET_INGESTION_API,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |fleet ingestion api
+|===
 [[REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING]]
 [discrete]
-==== fleet observability reporting
+==== FU-FLEET-OBSERVABILITY-REPORTING
+
 Aggregates telemetry and update outcomes into operational and audit signals.
-Canonical: <<REF_CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |fleet observability reporting
+|===
 [[REF_IDX-CATALOG_FU_MACHINE_TELEMETRY_COLLECTION]]
 [discrete]
-==== machine telemetry collection
+==== FU-MACHINE-TELEMETRY-COLLECTION
+
 Collects brew/device telemetry and publishes cloud-bound payloads.
-Canonical: <<REF_CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |machine telemetry collection
+|===
 [[REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT]]
 [discrete]
-==== ota update agent
+==== FU-OTA-UPDATE-AGENT
+
 Downloads, validates, and applies signed firmware updates on machines.
-Canonical: <<REF_CATALOG_FU_OTA_UPDATE_AGENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |ota update agent
+|===
 [[REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
 [discrete]
-==== update campaign orchestration
+==== FU-UPDATE-CAMPAIGN-ORCHESTRATION
+
 Selects target machine groups and coordinates OTA rollout phases.
-Canonical: <<REF_CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |update campaign orchestration
+|===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
-==== normal mode is active
+==== MODE-NORMAL
+
 Default operation mode for telemetry and OTA behavior.
-Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Mode
+|Name |normal mode is active
+|===
 [[REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE]]
 [discrete]
-==== cloud logging service
+==== REF-CLOUD-LOGGING-SERVICE
+
 Managed log and metrics service used for fleet observability.
-Canonical: <<REF_CATALOG_REF_CLOUD_LOGGING_SERVICE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |cloud logging service
+|===
 [[REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK]]
 [discrete]
-==== cloud runtime sdk
+==== REF-CLOUD-RUNTIME-SDK
+
 SDK used by cloud units for runtime integrations.
-Canonical: <<REF_CATALOG_REF_CLOUD_RUNTIME_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |cloud runtime sdk
+|===
 [[REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE]]
 [discrete]
-==== firmware bundle store
+==== REF-FIRMWARE-BUNDLE-STORE
+
 Object store containing signed OTA firmware bundles.
-Canonical: <<REF_CATALOG_REF_FIRMWARE_BUNDLE_STORE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |firmware bundle store
+|===
 [[REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE]]
 [discrete]
-==== firmware signer service
+==== REF-FIRMWARE-SIGNER-SERVICE
+
 Service that signs firmware artifacts before OTA rollout.
-Canonical: <<REF_CATALOG_REF_FIRMWARE_SIGNER_SERVICE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |firmware signer service
+|===
 [[REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT]]
 [discrete]
-==== iot ingest endpoint
+==== REF-IOT-INGEST-ENDPOINT
+
 Cloud endpoint for receiving telemetry and status from devices.
-Canonical: <<REF_CATALOG_REF_IOT_INGEST_ENDPOINT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |iot ingest endpoint
+|===
 [[REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK]]
 [discrete]
-==== mqtt device sdk
+==== REF-MQTT-DEVICE-SDK
+
 SDK used by edge components for telemetry and command transport.
-Canonical: <<REF_CATALOG_REF_MQTT_DEVICE_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |mqtt device sdk
+|===
 [[REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE]]
 [discrete]
-==== coffee machine fleet operation is active
+==== STATE-FLEET-OPERATION-ACTIVE
+
 State where machines and central cloud are actively serving operations.
-Canonical: <<REF_CATALOG_STATE_FLEET_OPERATION_ACTIVE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog State
+|Name |coffee machine fleet operation is active
+|===
 [[REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM]]
 [discrete]
-==== coffee fleet system
+==== SYS-COFFEE-FLEET-SYSTEM
+
 Connected coffee-machine fleet and central cloud control system-of-interest covered by this architecture.
-Canonical: <<REF_CATALOG_SYS_COFFEE_FLEET_SYSTEM,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog System
+|Name |coffee fleet system
+|===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]
-==== actor
+==== EM-ACTOR
+
 A person or operational role that interacts with functional units.
-Canonical: <<REF_ENGMODEL_EM_ACTOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |actor
+|===
 [[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
 [discrete]
-==== attack vector
+==== EM-ATTACK-VECTOR
+
 A technical misuse or attack path that targets functional, referenced, or runtime elements.
-Canonical: <<REF_ENGMODEL_EM_ATTACK_VECTOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |attack vector
+|===
 [[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
 [discrete]
-==== authored mapping
+==== EM-AUTHORED-MAPPING
+
 An explicit relationship declared in architecture inputs between authored or referenced elements.
-Canonical: <<REF_ENGMODEL_EM_AUTHORED_MAPPING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |authored mapping
+|===
 [[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
 [discrete]
-==== code element
+==== EM-CODE-ELEMENT
+
 An inferred code structure or ownership element discovered from source trees and build metadata.
-Canonical: <<REF_ENGMODEL_EM_CODE_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |code element
+|===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
-==== functional group
+==== EM-FUNCTIONAL-GROUP
+
 A major authored capability area that groups related functional units.
-Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_GROUP,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional group
+|===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
 [discrete]
-==== functional unit
+==== EM-FUNCTIONAL-UNIT
+
 An authored working unit inside a functional group that owns specific behavior.
-Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_UNIT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional unit
+|===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
-==== inferred mapping
+==== EM-INFERRED-MAPPING
+
 A discovered relationship that links inferred runtime/code elements upward to authored design.
-Canonical: <<REF_ENGMODEL_EM_INFERRED_MAPPING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |inferred mapping
+|===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
-==== referenced element
+==== EM-REFERENCED-ELEMENT
+
 An architecture-relevant external, platform, or third-party dependency represented by role.
-Canonical: <<REF_ENGMODEL_EM_REFERENCED_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |referenced element
+|===
 [[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
 [discrete]
-==== requirement
+==== EM-REQUIREMENT
+
 A structured requirement statement that defines expected system behavior and maps to functional ownership.
-Canonical: <<REF_ENGMODEL_EM_REQUIREMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |requirement
+|===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]
-==== runtime element
+==== EM-RUNTIME-ELEMENT
+
 An inferred runtime realization element discovered from infrastructure and deployment sources.
-Canonical: <<REF_ENGMODEL_EM_RUNTIME_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |runtime element
+|===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]
-==== upward linking
+==== EM-UPWARD-LINKING
+
 Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
-Canonical: <<REF_ENGMODEL_EM_UPWARD_LINKING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |upward linking
+|===
 [[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
 [discrete]
-==== verification check
+==== EM-VERIFICATION-CHECK
+
 An inferred or authored verification artifact that validates requirement behavior with test evidence.
-Canonical: <<REF_ENGMODEL_EM_VERIFICATION_CHECK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |verification check
+|===
 
 === Inferred Runtime References
-[cols="2,2,2,5,3",options="header"]
+[[REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE]]
+[discrete]
+==== ota_campaign_schedule
+
+schedules OTA campaign orchestration triggers for configured rollout windows
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Owner |Description |Source
-|[[REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE]]ota_campaign_schedule
-|Runtime eventbridge_rule
-|FU-OTA-UPDATE-AGENT
-|schedules OTA campaign orchestration triggers for configured rollout windows
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET]]ota_campaign_target
-|Runtime eventbridge_target
-|FU-OTA-UPDATE-AGENT
-|routes scheduled OTA campaign events to the orchestration runtime handler
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API]]fleet_ingestion_api
-|Runtime lambda_function
-|FU-FLEET-INGESTION-API
-|receives device telemetry, validates payload shape, and publishes normalized fleet events
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING]]fleet_observability_reporting
-|Runtime lambda_function
-|FU-FLEET-OBSERVABILITY-REPORTING
-|aggregates telemetry outcomes into fleet operations and security reporting signals
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION]]update_campaign_orchestration
-|Runtime lambda_function
-|FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|coordinates OTA campaign rollout windows and device cohort targeting
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE]]telemetry_retry_queue
-|Runtime queue
-|FU-MACHINE-TELEMETRY-COLLECTION
-|buffers telemetry during ingest outages for retry once normal mode resumes
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
-|[[REF_RT_TOPIC_FLEET_EVENT_TOPIC]]fleet_event_topic
-|Runtime topic
-|FU-FLEET-INGESTION-API
-|broadcasts fleet-wide telemetry and OTA lifecycle events to subscribed processors
-|examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|Key |Value
+|Kind |Runtime eventbridge_rule
+|Owner |FU-OTA-UPDATE-AGENT
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET]]
+[discrete]
+==== ota_campaign_target
+
+routes scheduled OTA campaign events to the orchestration runtime handler
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime eventbridge_target
+|Owner |FU-OTA-UPDATE-AGENT
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API]]
+[discrete]
+==== fleet_ingestion_api
+
+receives device telemetry, validates payload shape, and publishes normalized fleet events
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-FLEET-INGESTION-API
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING]]
+[discrete]
+==== fleet_observability_reporting
+
+aggregates telemetry outcomes into fleet operations and security reporting signals
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-FLEET-OBSERVABILITY-REPORTING
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION]]
+[discrete]
+==== update_campaign_orchestration
+
+coordinates OTA campaign rollout windows and device cohort targeting
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE]]
+[discrete]
+==== telemetry_retry_queue
+
+buffers telemetry during ingest outages for retry once normal mode resumes
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime queue
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
+|===
+[[REF_RT_TOPIC_FLEET_EVENT_TOPIC]]
+[discrete]
+==== fleet_event_topic
+
+broadcasts fleet-wide telemetry and OTA lifecycle events to subscribed processors
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime topic
+|Owner |FU-FLEET-INGESTION-API
+|Source |examples/coffee-fleet-ota-cloud-sample/infra/terraform/main.tf
 |===
 
 === Inferred Code References
-[cols="2,2,2,5,3",options="header"]
+[[REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO]]
+[discrete]
+==== cloud_runtime_ops.go
+
+wires cloud runtime handlers and integration entrypoints
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Owner |Description |Source
-|[[REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO]]cloud_runtime_ops.go
-|Code source_file
-|FU-CLOUD-RUNTIME-OPERATIONS
-|wires cloud runtime handlers and integration entrypoints
-|cloud_runtime_ops.go
-|[[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS]]device_identity_secrets.ts
-|Code source_file
-|FU-DEVICE-IDENTITY-SECRETS
-|resolves device identity credentials and firmware verification secrets
-|device_identity_secrets.ts
-|[[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO]]fleet_ingestion_api.go
-|Code source_file
-|FU-FLEET-INGESTION-API
-|ingests device telemetry and emits normalized fleet ingestion events
-|fleet_ingestion_api.go
-|[[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS]]fleet_observability_reporting.ts
-|Code source_file
-|FU-FLEET-OBSERVABILITY-REPORTING
-|aggregates telemetry and OTA outcome signals for fleet observability reporting
-|fleet_observability_reporting.ts
-|[[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS]]machine_telemetry.rs
-|Code source_file
-|FU-MACHINE-TELEMETRY-COLLECTION
-|builds machine telemetry and status payloads at the edge
-|machine_telemetry.rs
-|[[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS]]ota_update_agent.rs
-|Code source_file
-|FU-OTA-UPDATE-AGENT
-|applies OTA campaign updates and reports rollout outcomes
-|ota_update_agent.rs
-|[[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]update_campaign_orchestrator.ts
-|Code source_file
-|FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|plans OTA rollout cohorts and campaign lifecycle transitions
-|update_campaign_orchestrator.ts
-|[[REF_CODE_SYMBOL_CODE_HANDLEROLLBACK]]CODE-HANDLEROLLBACK
-|Code symbol
-|FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|n/a
-|update_campaign_orchestrator.ts:10
-|[[REF_CODE_SYMBOL_CODE_INGESTTELEMETRY]]CODE-INGESTTELEMETRY
-|Code symbol
-|FU-FLEET-INGESTION-API
-|n/a
-|fleet_ingestion_api.go:11
-|[[REF_CODE_SYMBOL_CODE_NOTIFYREPLAYABUSE]]CODE-NOTIFYREPLAYABUSE
-|Code symbol
-|FU-FLEET-OBSERVABILITY-REPORTING
-|n/a
-|fleet_observability_reporting.ts:15
-|[[REF_CODE_SYMBOL_CODE_PERSISTAUDITLOG]]CODE-PERSISTAUDITLOG
-|Code symbol
-|FU-FLEET-OBSERVABILITY-REPORTING
-|n/a
-|fleet_observability_reporting.ts:10
-|[[REF_CODE_SYMBOL_CODE_PERSISTTELEMETRYMETRIC]]CODE-PERSISTTELEMETRYMETRIC
-|Code symbol
-|FU-FLEET-OBSERVABILITY-REPORTING
-|n/a
-|fleet_observability_reporting.ts:5
-|[[REF_CODE_SYMBOL_CODE_PLANCAMPAIGN]]CODE-PLANCAMPAIGN
-|Code symbol
-|FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|n/a
-|update_campaign_orchestrator.ts:5
-|[[REF_CODE_SYMBOL_CODE_PUBLISHBREWTELEMETRY]]CODE-PUBLISHBREWTELEMETRY
-|Code symbol
-|FU-MACHINE-TELEMETRY-COLLECTION
-|n/a
-|machine_telemetry.rs:10
-|[[REF_CODE_SYMBOL_CODE_QUEUEFORRETRY]]CODE-QUEUEFORRETRY
-|Code symbol
-|FU-MACHINE-TELEMETRY-COLLECTION
-|n/a
-|machine_telemetry.rs:15
-|[[REF_CODE_SYMBOL_CODE_RAISESECURITYNOTIFICATION]]CODE-RAISESECURITYNOTIFICATION
-|Code symbol
-|FU-CLOUD-RUNTIME-OPERATIONS
-|n/a
-|cloud_runtime_ops.go:6
-|[[REF_CODE_SYMBOL_CODE_REDACTIDENTITYFORAUDIT]]CODE-REDACTIDENTITYFORAUDIT
-|Code symbol
-|FU-DEVICE-IDENTITY-SECRETS
-|n/a
-|device_identity_secrets.ts:10
-|[[REF_CODE_SYMBOL_CODE_REJECTREPLAY]]CODE-REJECTREPLAY
-|Code symbol
-|FU-FLEET-INGESTION-API
-|n/a
-|fleet_ingestion_api.go:16
-|[[REF_CODE_SYMBOL_CODE_ROLLBACKANDREPORT]]CODE-ROLLBACKANDREPORT
-|Code symbol
-|FU-OTA-UPDATE-AGENT
-|n/a
-|ota_update_agent.rs:14
-|[[REF_CODE_SYMBOL_CODE_VALIDATEANDAPPLY]]CODE-VALIDATEANDAPPLY
-|Code symbol
-|FU-OTA-UPDATE-AGENT
-|n/a
-|ota_update_agent.rs:5
-|[[REF_CODE_SYMBOL_CODE_VERIFYFIRMWARESIGNATURE]]CODE-VERIFYFIRMWARESIGNATURE
-|Code symbol
-|FU-DEVICE-IDENTITY-SECRETS
-|n/a
-|device_identity_secrets.ts:5
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-CLOUD-RUNTIME-OPERATIONS
+|Source |cloud_runtime_ops.go
+|===
+[[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS]]
+[discrete]
+==== device_identity_secrets.ts
+
+resolves device identity credentials and firmware verification secrets
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-DEVICE-IDENTITY-SECRETS
+|Source |device_identity_secrets.ts
+|===
+[[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO]]
+[discrete]
+==== fleet_ingestion_api.go
+
+ingests device telemetry and emits normalized fleet ingestion events
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-FLEET-INGESTION-API
+|Source |fleet_ingestion_api.go
+|===
+[[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS]]
+[discrete]
+==== fleet_observability_reporting.ts
+
+aggregates telemetry and OTA outcome signals for fleet observability reporting
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-FLEET-OBSERVABILITY-REPORTING
+|Source |fleet_observability_reporting.ts
+|===
+[[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS]]
+[discrete]
+==== machine_telemetry.rs
+
+builds machine telemetry and status payloads at the edge
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |machine_telemetry.rs
+|===
+[[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS]]
+[discrete]
+==== ota_update_agent.rs
+
+applies OTA campaign updates and reports rollout outcomes
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-OTA-UPDATE-AGENT
+|Source |ota_update_agent.rs
+|===
+[[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]
+[discrete]
+==== update_campaign_orchestrator.ts
+
+plans OTA rollout cohorts and campaign lifecycle transitions
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
+|Source |update_campaign_orchestrator.ts
+|===
+[[REF_CODE_SYMBOL_CODE_HANDLEROLLBACK]]
+[discrete]
+==== CODE-HANDLEROLLBACK
+
+Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campaign_orchestrator.ts:10.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
+|Source |update_campaign_orchestrator.ts:10
+|===
+[[REF_CODE_SYMBOL_CODE_INGESTTELEMETRY]]
+[discrete]
+==== CODE-INGESTTELEMETRY
+
+Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go:11.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-FLEET-INGESTION-API
+|Source |fleet_ingestion_api.go:11
+|===
+[[REF_CODE_SYMBOL_CODE_NOTIFYREPLAYABUSE]]
+[discrete]
+==== CODE-NOTIFYREPLAYABUSE
+
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:15.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-FLEET-OBSERVABILITY-REPORTING
+|Source |fleet_observability_reporting.ts:15
+|===
+[[REF_CODE_SYMBOL_CODE_PERSISTAUDITLOG]]
+[discrete]
+==== CODE-PERSISTAUDITLOG
+
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:10.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-FLEET-OBSERVABILITY-REPORTING
+|Source |fleet_observability_reporting.ts:10
+|===
+[[REF_CODE_SYMBOL_CODE_PERSISTTELEMETRYMETRIC]]
+[discrete]
+==== CODE-PERSISTTELEMETRYMETRIC
+
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-FLEET-OBSERVABILITY-REPORTING
+|Source |fleet_observability_reporting.ts:5
+|===
+[[REF_CODE_SYMBOL_CODE_PLANCAMPAIGN]]
+[discrete]
+==== CODE-PLANCAMPAIGN
+
+Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campaign_orchestrator.ts:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
+|Source |update_campaign_orchestrator.ts:5
+|===
+[[REF_CODE_SYMBOL_CODE_PUBLISHBREWTELEMETRY]]
+[discrete]
+==== CODE-PUBLISHBREWTELEMETRY
+
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telemetry.rs:10.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |machine_telemetry.rs:10
+|===
+[[REF_CODE_SYMBOL_CODE_QUEUEFORRETRY]]
+[discrete]
+==== CODE-QUEUEFORRETRY
+
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telemetry.rs:15.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |machine_telemetry.rs:15
+|===
+[[REF_CODE_SYMBOL_CODE_RAISESECURITYNOTIFICATION]]
+[discrete]
+==== CODE-RAISESECURITYNOTIFICATION
+
+Inferred code symbol owned by FU-CLOUD-RUNTIME-OPERATIONS from cloud_runtime_ops.go:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-CLOUD-RUNTIME-OPERATIONS
+|Source |cloud_runtime_ops.go:6
+|===
+[[REF_CODE_SYMBOL_CODE_REDACTIDENTITYFORAUDIT]]
+[discrete]
+==== CODE-REDACTIDENTITYFORAUDIT
+
+Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_secrets.ts:10.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-DEVICE-IDENTITY-SECRETS
+|Source |device_identity_secrets.ts:10
+|===
+[[REF_CODE_SYMBOL_CODE_REJECTREPLAY]]
+[discrete]
+==== CODE-REJECTREPLAY
+
+Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go:16.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-FLEET-INGESTION-API
+|Source |fleet_ingestion_api.go:16
+|===
+[[REF_CODE_SYMBOL_CODE_ROLLBACKANDREPORT]]
+[discrete]
+==== CODE-ROLLBACKANDREPORT
+
+Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:14.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-UPDATE-AGENT
+|Source |ota_update_agent.rs:14
+|===
+[[REF_CODE_SYMBOL_CODE_VALIDATEANDAPPLY]]
+[discrete]
+==== CODE-VALIDATEANDAPPLY
+
+Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-UPDATE-AGENT
+|Source |ota_update_agent.rs:5
+|===
+[[REF_CODE_SYMBOL_CODE_VERIFYFIRMWARESIGNATURE]]
+[discrete]
+==== CODE-VERIFYFIRMWARESIGNATURE
+
+Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_secrets.ts:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-DEVICE-IDENTITY-SECRETS
+|Source |device_identity_secrets.ts:5
 |===
 
 === Verification References
-[cols="2,2,1,5,3,2",options="header"]
+[[REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC]]
+[discrete]
+==== VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC
+
+runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Status |Description |Source |Canonical
-|[[REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC]]VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC
-|e2e
-|partial
-|runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation
-|test-results/ota-rollback-report.md (+1)
-|<<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,canonical>>
-|[[REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF
-|integration
-|not-run
-|validates telemetry logging pipeline persistence and operational reporting signals
-|test-results/integration-logging.json (+1)
-|<<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,canonical>>
-|[[REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794]]VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794
-|test
-|pass
-|validates telemetry ingest contract fields and accepted request semantics
-|test-results/contract-telemetry.json (+1)
-|<<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,canonical>>
-|[[REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8]]VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8
-|unit
-|pass
-|verifies OTA campaign signature validation and rollout trigger behavior
-|test-results/unit-ota.xml (+1)
-|<<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,canonical>>
+|Key |Value
+|Kind |e2e
+|Status |partial
+|Source |test-results/ota-rollback-report.md (+1)
+|Name |Ota Rollout Flow
+|===
+[[REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]
+[discrete]
+==== VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF
+
+validates telemetry logging pipeline persistence and operational reporting signals
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |integration
+|Status |not-run
+|Source |test-results/integration-logging.json (+1)
+|Name |Logging Pipeline Test
+|===
+[[REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794]]
+[discrete]
+==== VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794
+
+validates telemetry ingest contract fields and accepted request semantics
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |pass
+|Source |test-results/contract-telemetry.json (+1)
+|Name |Telemetry Ingest Contract Test
+|===
+[[REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8]]
+[discrete]
+==== VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8
+
+verifies OTA campaign signature validation and rollout trigger behavior
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |unit
+|Status |pass
+|Source |test-results/unit-ota.xml (+1)
+|Name |Ota Campaign Test
 |===

@@ -253,14 +253,20 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 			continue
 		}
 		seen[key] = true
+		owner := nonEmpty(strings.TrimSpace(r.Owner), "unresolved")
+		source := sanitizeSourcePath(r.Source)
+		desc := strings.TrimSpace(r.Description)
+		if desc == "" {
+			desc = fmt.Sprintf("Inferred runtime %s owned by %s from %s.", nonEmpty(kind, "element"), owner, nonEmpty(source, "unknown source"))
+		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:      referenceAnchor("rt", kind+"-"+id),
 			ID:          id,
 			Name:        id,
 			Kind:        "Runtime " + kind,
-			Owner:       nonEmpty(strings.TrimSpace(r.Owner), "unresolved"),
-			Description: strings.TrimSpace(r.Description),
-			Source:      sanitizeSourcePath(r.Source),
+			Owner:       owner,
+			Description: desc,
+			Source:      source,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -285,14 +291,27 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 			continue
 		}
 		seen[key] = true
+		owner := nonEmpty(strings.TrimSpace(c.Owner), "unresolved")
+		source := sanitizeSourcePath(c.Source)
+		desc := strings.TrimSpace(c.Description)
+		if desc == "" {
+			switch strings.TrimSpace(c.Kind) {
+			case "symbol":
+				desc = fmt.Sprintf("Inferred code symbol owned by %s from %s.", owner, nonEmpty(source, "unknown source"))
+			case "source_file":
+				desc = fmt.Sprintf("Inferred source file owned by %s from %s.", owner, nonEmpty(source, "unknown source"))
+			default:
+				desc = fmt.Sprintf("Inferred %s dependency owned by %s from %s.", nonEmpty(strings.TrimSpace(c.Kind), "code"), owner, nonEmpty(source, "unknown source"))
+			}
+		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:      referenceAnchor("code", c.Kind+"-"+id),
 			ID:          id,
 			Name:        id,
 			Kind:        "Code " + c.Kind,
-			Owner:       nonEmpty(strings.TrimSpace(c.Owner), "unresolved"),
-			Description: strings.TrimSpace(c.Description),
-			Source:      sanitizeSourcePath(c.Source),
+			Owner:       owner,
+			Description: desc,
+			Source:      source,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -325,7 +344,7 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 		}
 		desc := strings.TrimSpace(v.Description)
 		if desc == "" {
-			desc = "n/a"
+			desc = fmt.Sprintf("Inferred %s verification check with status %s.", nonEmpty(strings.TrimSpace(v.Kind), "test"), nonEmpty(strings.TrimSpace(v.Status), "not-run"))
 		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:       referenceAnchor("idx-ver", id),

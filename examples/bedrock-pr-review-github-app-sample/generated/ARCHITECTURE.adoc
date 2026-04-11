@@ -2361,884 +2361,1957 @@ policy-only fallback published
 [[REF_IDX-ACTOR_ACT_DEVELOPER]]
 [discrete]
 ==== ACT-DEVELOPER
-Kind: Actor
-Name: Developer
 
 Opens pull requests and receives review feedback.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Developer
+|===
 [[REF_IDX-ACTOR_ACT_PLATFORM_OPERATOR]]
 [discrete]
 ==== ACT-PLATFORM-OPERATOR
-Kind: Actor
-Name: Platform Operator
 
 Operates Lambda deployment and runtime controls.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Platform Operator
+|===
 [[REF_IDX-ACTOR_ACT_REPOSITORY_MAINTAINER]]
 [discrete]
 ==== ACT-REPOSITORY-MAINTAINER
-Kind: Actor
-Name: Repository Maintainer
 
 Owns merge decisions and repository-level quality gates.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Repository Maintainer
+|===
 [[REF_IDX-ACTOR_ACT_SECURITY_ENGINEER]]
 [discrete]
 ==== ACT-SECURITY-ENGINEER
-Kind: Actor
-Name: Security Engineer
 
 Curates policy checks and triages security findings.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Actor
+|Name |Security Engineer
+|===
 [[REF_IDX-ATTACK_AV_PR_SPAM_ABUSE]]
 [discrete]
 ==== AV-PR-SPAM-ABUSE
-Kind: Attack Vector
-Name: Pull Request Spam Abuse
 
 High-rate PR event flooding that can exhaust review capacity.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Pull Request Spam Abuse
+|===
 [[REF_IDX-ATTACK_AV_PROMPT_INJECTION_IN_DIFF]]
 [discrete]
 ==== AV-PROMPT-INJECTION-IN-DIFF
-Kind: Attack Vector
-Name: Prompt Injection in Diff
 
 Malicious prompt-like content embedded in pull request diffs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Prompt Injection in Diff
+|===
 [[REF_IDX-ATTACK_AV_SECRET_LEAKAGE_IN_REVIEW]]
 [discrete]
 ==== AV-SECRET-LEAKAGE-IN-REVIEW
-Kind: Attack Vector
-Name: Secret Leakage in Review Output
 
 Generated findings accidentally exposing secrets/tokens in comments.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Secret Leakage in Review Output
+|===
 [[REF_IDX-ATTACK_AV_SPOOFED_GITHUB_WEBHOOK]]
 [discrete]
 ==== AV-SPOOFED-GITHUB-WEBHOOK
-Kind: Attack Vector
-Name: Spoofed GitHub Webhook
 
 Forged webhook payload attempting unauthorized review execution.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Attack Vector
+|Name |Spoofed GitHub Webhook
+|===
 [[REF_IDX-FG_FG_PLATFORM_OPERATIONS]]
 [discrete]
 ==== FG-PLATFORM-OPERATIONS
-Kind: Functional Group
-Name: Platform Operations
 
 Lambda deployment lifecycle, runtime operations, and secrets/configuration.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |Platform Operations
+|===
 [[REF_IDX-FG_FG_PR_INTEGRATION]]
 [discrete]
 ==== FG-PR-INTEGRATION
-Kind: Functional Group
-Name: PR Integration
 
 Ingress and context assembly for GitHub pull request events.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |PR Integration
+|===
 [[REF_IDX-FG_FG_REVIEW_INTELLIGENCE]]
 [discrete]
 ==== FG-REVIEW-INTELLIGENCE
-Kind: Functional Group
-Name: Review Intelligence
 
 AI and deterministic review analysis with result publication.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Group
+|Name |Review Intelligence
+|===
 [[REF_IDX-FU_FU_GITHUB_WEBHOOK_INGRESS]]
 [discrete]
 ==== FU-GITHUB-WEBHOOK-INGRESS
-Kind: Functional Unit
-Name: GitHub Webhook Ingress
 
 Verifies webhook signatures, validates event type, and starts review workflow routing.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |GitHub Webhook Ingress
+|===
 [[REF_IDX-FU_FU_LAMBDA_RUNTIME_OPERATIONS]]
 [discrete]
 ==== FU-LAMBDA-RUNTIME-OPERATIONS
-Kind: Functional Unit
-Name: Lambda Runtime Operations
 
 Manages Lambda packaging/deployment lifecycle and operational health guardrails.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Lambda Runtime Operations
+|===
 [[REF_IDX-FU_FU_POLICY_CHECKS]]
 [discrete]
 ==== FU-POLICY-CHECKS
-Kind: Functional Unit
-Name: Policy Checks
 
 Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Policy Checks
+|===
 [[REF_IDX-FU_FU_PR_CONTEXT_ASSEMBLY]]
 [discrete]
 ==== FU-PR-CONTEXT-ASSEMBLY
-Kind: Functional Unit
-Name: PR Context Assembly
 
 Fetches changed files and diff metadata and prepares bounded review context payloads.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |PR Context Assembly
+|===
 [[REF_IDX-FU_FU_REVIEW_ORCHESTRATION]]
 [discrete]
 ==== FU-REVIEW-ORCHESTRATION
-Kind: Functional Unit
-Name: Review Orchestration
 
 Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Review Orchestration
+|===
 [[REF_IDX-FU_FU_REVIEW_PUBLICATION]]
 [discrete]
 ==== FU-REVIEW-PUBLICATION
-Kind: Functional Unit
-Name: Review Publication
 
 Publishes check-run summaries and inline comments back to GitHub pull requests.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Review Publication
+|===
 [[REF_IDX-FU_FU_SECRETS_CONFIGURATION]]
 [discrete]
 ==== FU-SECRETS-CONFIGURATION
-Kind: Functional Unit
-Name: Secrets and Configuration
 
 Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Functional Unit
+|Name |Secrets and Configuration
+|===
 [[REF_IDX-REF_REF_AWS_BEDROCK_RUNTIME]]
 [discrete]
 ==== REF-AWS-BEDROCK-RUNTIME
-Kind: Referenced Element
-Name: AWS Bedrock Runtime API
 
 external_service_endpoint / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |AWS Bedrock Runtime API
+|===
 [[REF_IDX-REF_REF_AWS_SDK_GO]]
 [discrete]
 ==== REF-AWS-SDK-GO
-Kind: Referenced Element
-Name: AWS SDK for Go
 
 third_party_library / code
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |AWS SDK for Go
+|===
 [[REF_IDX-REF_REF_AWS_SECRETS_MANAGER]]
 [discrete]
 ==== REF-AWS-SECRETS-MANAGER
-Kind: Referenced Element
-Name: AWS Secrets Manager
 
 platform_service / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |AWS Secrets Manager
+|===
 [[REF_IDX-REF_REF_GITHUB_APP_API]]
 [discrete]
 ==== REF-GITHUB-APP-API
-Kind: Referenced Element
-Name: GitHub App API
 
 external_service_endpoint / runtime
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |GitHub App API
+|===
 [[REF_IDX-REF_REF_GITHUB_REST_SDK]]
 [discrete]
 ==== REF-GITHUB-REST-SDK
-Kind: Referenced Element
-Name: GitHub REST SDK
 
 third_party_library / code
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |GitHub REST SDK
+|===
 [[REF_IDX-REF_REF_POLICY_RULESET]]
 [discrete]
 ==== REF-POLICY-RULESET
-Kind: Referenced Element
-Name: Review Policy Ruleset
 
 policy_bundle / code
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Referenced Element
+|Name |Review Policy Ruleset
+|===
 [[REF_IDX-REQ_REQ_PRR_001]]
 [discrete]
 ==== REQ-PRR-001
-Kind: Requirement
-Name: REQ-PRR-001
-Resolves to: <<REF_REQ_REQ_PRR_001,canonical>>
+
 While pull request review is active, when pull request synchronize event is received, the pr review system shall verify webhook signature before processing review workflow.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-001
+|===
 [[REF_IDX-REQ_REQ_PRR_002]]
 [discrete]
 ==== REQ-PRR-002
-Kind: Requirement
-Name: REQ-PRR-002
-Resolves to: <<REF_REQ_REQ_PRR_002,canonical>>
+
 While pull request review is active, when pull request opened event is received, the pr review system shall fetch changed files and construct diff context for review execution.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-002
+|===
 [[REF_IDX-REQ_REQ_PRR_003]]
 [discrete]
 ==== REQ-PRR-003
-Kind: Requirement
-Name: REQ-PRR-003
-Resolves to: <<REF_REQ_REQ_PRR_003,canonical>>
+
 Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for security, architecture, and maintainability findings.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-003
+|===
 [[REF_IDX-REQ_REQ_PRR_004]]
 [discrete]
 ==== REQ-PRR-004
-Kind: Requirement
-Name: REQ-PRR-004
-Resolves to: <<REF_REQ_REQ_PRR_004,canonical>>
+
 Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure, infrastructure risk, and dependency changes.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-004
+|===
 [[REF_IDX-REQ_REQ_PRR_005]]
 [discrete]
 ==== REQ-PRR-005
-Kind: Requirement
-Name: REQ-PRR-005
-Resolves to: <<REF_REQ_REQ_PRR_005,canonical>>
+
 While pull request review is active, when review findings are generated, the pr review system shall publish check run summary and inline comments to repository maintainer.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-005
+|===
 [[REF_IDX-REQ_REQ_PRR_006]]
 [discrete]
 ==== REQ-PRR-006
-Kind: Requirement
-Name: REQ-PRR-006
-Resolves to: <<REF_REQ_REQ_PRR_006,canonical>>
+
 If bedrock runtime is unavailable, then the pr review system shall publish deterministic policy-only review outcome.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-006
+|===
 [[REF_IDX-REQ_REQ_PRR_007]]
 [discrete]
 ==== REQ-PRR-007
-Kind: Requirement
-Name: REQ-PRR-007
-Resolves to: <<REF_REQ_REQ_PRR_007,canonical>>
+
 Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted prompt and result metadata for audit traceability.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-007
+|===
 [[REF_IDX-REQ_REQ_PRR_008]]
 [discrete]
 ==== REQ-PRR-008
-Kind: Requirement
-Name: REQ-PRR-008
-Resolves to: <<REF_REQ_REQ_PRR_008,canonical>>
+
 If review request rate limit is exceeded, then the pr review system shall defer processing and notify repository maintainer.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-008
+|===
 
 === Catalog References
 [[REF_IDX-CATALOG_ACT_DEVELOPER]]
 [discrete]
-==== developer
+==== ACT-DEVELOPER
+
 Engineer opening and updating pull requests.
-Canonical: <<REF_CATALOG_ACT_DEVELOPER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |developer
+|===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
-==== platform operator
+==== ACT-PLATFORM-OPERATOR
+
 Owner of deployment/runtime operations and reliability controls.
-Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |platform operator
+|===
 [[REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER]]
 [discrete]
-==== repository maintainer
+==== ACT-REPOSITORY-MAINTAINER
+
 Owner of merge decisions and repository quality gates.
-Canonical: <<REF_CATALOG_ACT_REPOSITORY_MAINTAINER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |repository maintainer
+|===
 [[REF_IDX-CATALOG_ACT_SECURITY_ENGINEER]]
 [discrete]
-==== security engineer
+==== ACT-SECURITY-ENGINEER
+
 Owner of security policy checks and finding triage.
-Canonical: <<REF_CATALOG_ACT_SECURITY_ENGINEER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |security engineer
+|===
 [[REF_CATALOG-ALIAS_FEAT_AI_REVIEW_AI_REVIEW_ENABLED]]
 [discrete]
-==== ai review is enabled
+==== ai review enabled
+
 Feature flag enabling model-assisted review.
-Canonical: <<REF_CATALOG_FEAT_AI_REVIEW,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |ai review is enabled
+|===
 [[REF_CATALOG-ALIAS_FEAT_AUDIT_LOGGING_AUDIT_ENABLED]]
 [discrete]
-==== audit logging is enabled
+==== audit enabled
+
 Feature flag enabling audit metadata persistence.
-Canonical: <<REF_CATALOG_FEAT_AUDIT_LOGGING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |audit logging is enabled
+|===
 [[REF_CATALOG-ALIAS_REF_AWS_SDK_GO_AWS_SDK]]
 [discrete]
-==== aws sdk for go
+==== aws sdk
+
 SDK dependency used for AWS runtime integrations.
-Canonical: <<REF_CATALOG_REF_AWS_SDK_GO,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |aws sdk for go
+|===
 [[REF_CATALOG-ALIAS_REF_AWS_BEDROCK_RUNTIME_BEDROCK_API]]
 [discrete]
-==== bedrock runtime
+==== bedrock api
+
 External Bedrock runtime endpoint used for model inference.
-Canonical: <<REF_CATALOG_REF_AWS_BEDROCK_RUNTIME,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |bedrock runtime
+|===
 [[REF_CATALOG-ALIAS_EVT_BEDROCK_UNAVAILABLE_BEDROCK_UNAVAILABLE]]
 [discrete]
-==== bedrock runtime is unavailable
+==== bedrock unavailable
+
 Event raised when Bedrock inference path is degraded.
-Canonical: <<REF_CATALOG_EVT_BEDROCK_UNAVAILABLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |bedrock runtime is unavailable
+|===
 [[REF_CATALOG-ALIAS_FU_PR_CONTEXT_ASSEMBLY_CONTEXT_ASSEMBLY]]
 [discrete]
-==== pr context assembly
+==== context assembly
+
 Fetches changed files and prepares bounded review context payloads.
-Canonical: <<REF_CATALOG_FU_PR_CONTEXT_ASSEMBLY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pr context assembly
+|===
 [[REF_CATALOG-ALIAS_EVT_CONTEXT_PREPARED_CONTEXT_PREPARED]]
 [discrete]
-==== diff context is prepared
+==== context prepared
+
 Event indicating context assembly completed and is ready for analysis.
-Canonical: <<REF_CATALOG_EVT_CONTEXT_PREPARED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |diff context is prepared
+|===
 [[REF_CATALOG-ALIAS_FU_POLICY_CHECKS_DETERMINISTIC_CHECKS]]
 [discrete]
-==== policy checks
+==== deterministic checks
+
 Evaluates deterministic repository policy checks.
-Canonical: <<REF_CATALOG_FU_POLICY_CHECKS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |policy checks
+|===
 [[REF_CATALOG-ALIAS_EVT_FINDINGS_GENERATED_FINDINGS_GENERATED]]
 [discrete]
-==== review findings are generated
+==== findings generated
+
 Event indicating analysis output is ready for publication.
-Canonical: <<REF_CATALOG_EVT_FINDINGS_GENERATED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review findings are generated
+|===
 [[REF_CATALOG-ALIAS_EVT_FINDINGS_PUBLISHED_FINDINGS_PUBLISHED]]
 [discrete]
-==== review findings are published
+==== findings published
+
 Event indicating review output has been published to GitHub checks/comments.
-Canonical: <<REF_CATALOG_EVT_FINDINGS_PUBLISHED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review findings are published
+|===
 [[REF_CATALOG-ALIAS_REF_GITHUB_APP_API_GITHUB_API]]
 [discrete]
-==== github app api
+==== github api
+
 External GitHub API used for pull request metadata and review publication.
-Canonical: <<REF_CATALOG_REF_GITHUB_APP_API,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |github app api
+|===
 [[REF_CATALOG-ALIAS_FG_PR_INTEGRATION_GITHUB_INTEGRATION]]
 [discrete]
-==== pr integration
+==== github integration
+
 Functional group for webhook ingress and pull request context intake.
-Canonical: <<REF_CATALOG_FG_PR_INTEGRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pr integration
+|===
 [[REF_CATALOG-ALIAS_REF_GITHUB_REST_SDK_GITHUB_SDK]]
 [discrete]
-==== github rest sdk
+==== github sdk
+
 SDK dependency used for GitHub App REST interactions.
-Canonical: <<REF_CATALOG_REF_GITHUB_REST_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |github rest sdk
+|===
 [[REF_CATALOG-ALIAS_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_OPS]]
 [discrete]
-==== lambda runtime operations
+==== lambda ops
+
 Manages runtime deployment and operational controls.
-Canonical: <<REF_CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |lambda runtime operations
+|===
 [[REF_CATALOG-ALIAS_ACT_REPOSITORY_MAINTAINER_MAINTAINER]]
 [discrete]
-==== repository maintainer
+==== maintainer
+
 Owner of merge decisions and repository quality gates.
-Canonical: <<REF_CATALOG_ACT_REPOSITORY_MAINTAINER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |repository maintainer
+|===
 [[REF_CATALOG-ALIAS_MODE_NORMAL_NORMAL_MODE]]
 [discrete]
-==== normal mode is active
+==== normal mode
+
 Default operating mode using AI plus deterministic checks.
-Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |normal mode is active
+|===
 [[REF_CATALOG-ALIAS_FU_REVIEW_ORCHESTRATION_ORCHESTRATION]]
 [discrete]
-==== review orchestration
+==== orchestration
+
 Coordinates Bedrock analysis with deterministic checks and fallback logic.
-Canonical: <<REF_CATALOG_FU_REVIEW_ORCHESTRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review orchestration
+|===
 [[REF_CATALOG-ALIAS_ACT_PLATFORM_OPERATOR_PLATFORM_OPS]]
 [discrete]
-==== platform operator
+==== platform ops
+
 Owner of deployment/runtime operations and reliability controls.
-Canonical: <<REF_CATALOG_ACT_PLATFORM_OPERATOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |platform operator
+|===
 [[REF_CATALOG-ALIAS_REF_POLICY_RULESET_POLICY_BUNDLE]]
 [discrete]
-==== policy ruleset
+==== policy bundle
+
 Deterministic review policy bundle used during analysis.
-Canonical: <<REF_CATALOG_REF_POLICY_RULESET,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |policy ruleset
+|===
 [[REF_CATALOG-ALIAS_FEAT_POLICY_CHECKS_POLICY_CHECKS_ENABLED]]
 [discrete]
-==== policy checks are enabled
+==== policy checks enabled
+
 Feature flag enabling deterministic policy checks.
-Canonical: <<REF_CATALOG_FEAT_POLICY_CHECKS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |policy checks are enabled
+|===
 [[REF_CATALOG-ALIAS_ACT_DEVELOPER_PR_AUTHOR]]
 [discrete]
-==== developer
+==== pr author
+
 Engineer opening and updating pull requests.
-Canonical: <<REF_CATALOG_ACT_DEVELOPER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |developer
+|===
 [[REF_CATALOG-ALIAS_EVT_PR_OPENED_PR_OPENED]]
 [discrete]
-==== pull request opened event is received
+==== pr opened
+
 Event raised when a new pull request is opened.
-Canonical: <<REF_CATALOG_EVT_PR_OPENED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pull request opened event is received
+|===
 [[REF_CATALOG-ALIAS_FG_REVIEW_INTELLIGENCE_PR_REVIEW_SYSTEM]]
 [discrete]
-==== review intelligence
+==== pr review system
+
 Functional group for AI and deterministic review analysis and publication.
-Canonical: <<REF_CATALOG_FG_REVIEW_INTELLIGENCE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review intelligence
+|===
 [[REF_CATALOG-ALIAS_AV_PR_SPAM_ABUSE_PR_SPAM]]
 [discrete]
-==== pull request spam abuse
+==== pr spam
+
 High-volume event abuse causing review capacity exhaustion.
-Canonical: <<REF_CATALOG_AV_PR_SPAM_ABUSE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pull request spam abuse
+|===
 [[REF_CATALOG-ALIAS_EVT_PR_SYNCHRONIZE_PR_SYNCHRONIZE]]
 [discrete]
-==== pull request synchronize event is received
+==== pr synchronize
+
 Event raised when new commits are pushed to an open pull request.
-Canonical: <<REF_CATALOG_EVT_PR_SYNCHRONIZE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pull request synchronize event is received
+|===
 [[REF_CATALOG-ALIAS_AV_PROMPT_INJECTION_IN_DIFF_PROMPT_INJECTION]]
 [discrete]
-==== prompt injection in diff
+==== prompt injection
+
 Malicious prompt-like content embedded in pull request code changes.
-Canonical: <<REF_CATALOG_AV_PROMPT_INJECTION_IN_DIFF,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |prompt injection in diff
+|===
 [[REF_CATALOG-ALIAS_FU_REVIEW_PUBLICATION_PUBLICATION]]
 [discrete]
-==== review publication
+==== publication
+
 Publishes review findings to GitHub checks and comments.
-Canonical: <<REF_CATALOG_FU_REVIEW_PUBLICATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review publication
+|===
 [[REF_CATALOG-ALIAS_EVT_RATE_LIMIT_EXCEEDED_RATE_LIMIT_EXCEEDED]]
 [discrete]
-==== review request rate limit is exceeded
+==== rate limit exceeded
+
 Event raised when PR review rate guardrails are hit.
-Canonical: <<REF_CATALOG_EVT_RATE_LIMIT_EXCEEDED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |review request rate limit is exceeded
+|===
 [[REF_CATALOG-ALIAS_STATE_PR_REVIEW_ACTIVE_REVIEW_ACTIVE]]
 [discrete]
-==== pull request review is active
+==== review active
+
 State where review processing is currently active for a pull request.
-Canonical: <<REF_CATALOG_STATE_PR_REVIEW_ACTIVE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |pull request review is active
+|===
 [[REF_CATALOG-ALIAS_FG_PLATFORM_OPERATIONS_RUNTIME_OPERATIONS]]
 [discrete]
-==== platform operations
+==== runtime operations
+
 Functional group for deployment lifecycle and secret/config controls.
-Canonical: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |platform operations
+|===
 [[REF_CATALOG-ALIAS_FU_SECRETS_CONFIGURATION_SECRET_CONFIG]]
 [discrete]
-==== secrets and configuration
+==== secret config
+
 Manages credentials and secure runtime configuration.
-Canonical: <<REF_CATALOG_FU_SECRETS_CONFIGURATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |secrets and configuration
+|===
 [[REF_CATALOG-ALIAS_AV_SECRET_LEAKAGE_IN_REVIEW_SECRET_LEAKAGE]]
 [discrete]
-==== secret leakage in review output
+==== secret leakage
+
 Unintended credential disclosure in generated review findings.
-Canonical: <<REF_CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |secret leakage in review output
+|===
 [[REF_CATALOG-ALIAS_REF_AWS_SECRETS_MANAGER_SECRETS_MANAGER]]
 [discrete]
-==== aws secrets manager
+==== secrets manager
+
 Managed secret store for application credentials and config values.
-Canonical: <<REF_CATALOG_REF_AWS_SECRETS_MANAGER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |aws secrets manager
+|===
 [[REF_CATALOG-ALIAS_ACT_SECURITY_ENGINEER_SECURITY_REVIEWER]]
 [discrete]
-==== security engineer
+==== security reviewer
+
 Owner of security policy checks and finding triage.
-Canonical: <<REF_CATALOG_ACT_SECURITY_ENGINEER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |security engineer
+|===
 [[REF_CATALOG-ALIAS_COND_WEBHOOK_SIGNATURE_VALID_SIGNATURE_VALID]]
 [discrete]
-==== webhook signature is valid
+==== signature valid
+
 Condition indicating webhook HMAC verification succeeded.
-Canonical: <<REF_CATALOG_COND_WEBHOOK_SIGNATURE_VALID,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |webhook signature is valid
+|===
 [[REF_CATALOG-ALIAS_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS]]
 [discrete]
-==== github webhook ingress
+==== webhook ingress
+
 Validates webhook signatures and routes trusted pull request events.
-Canonical: <<REF_CATALOG_FU_GITHUB_WEBHOOK_INGRESS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |github webhook ingress
+|===
 [[REF_CATALOG-ALIAS_AV_SPOOFED_GITHUB_WEBHOOK_WEBHOOK_SPOOFING]]
 [discrete]
-==== spoofed github webhook
+==== webhook spoofing
+
 Forged webhook request attempting unauthorized review execution.
-Canonical: <<REF_CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |spoofed github webhook
+|===
 [[REF_IDX-CATALOG_AV_PR_SPAM_ABUSE]]
 [discrete]
-==== pull request spam abuse
+==== AV-PR-SPAM-ABUSE
+
 High-volume event abuse causing review capacity exhaustion.
-Canonical: <<REF_CATALOG_AV_PR_SPAM_ABUSE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |pull request spam abuse
+|===
 [[REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF]]
 [discrete]
-==== prompt injection in diff
+==== AV-PROMPT-INJECTION-IN-DIFF
+
 Malicious prompt-like content embedded in pull request code changes.
-Canonical: <<REF_CATALOG_AV_PROMPT_INJECTION_IN_DIFF,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |prompt injection in diff
+|===
 [[REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW]]
 [discrete]
-==== secret leakage in review output
+==== AV-SECRET-LEAKAGE-IN-REVIEW
+
 Unintended credential disclosure in generated review findings.
-Canonical: <<REF_CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |secret leakage in review output
+|===
 [[REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK]]
 [discrete]
-==== spoofed github webhook
+==== AV-SPOOFED-GITHUB-WEBHOOK
+
 Forged webhook request attempting unauthorized review execution.
-Canonical: <<REF_CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Attack Vector
+|Name |spoofed github webhook
+|===
 [[REF_IDX-CATALOG_COND_WEBHOOK_SIGNATURE_VALID]]
 [discrete]
-==== webhook signature is valid
+==== COND-WEBHOOK-SIGNATURE-VALID
+
 Condition indicating webhook HMAC verification succeeded.
-Canonical: <<REF_CATALOG_COND_WEBHOOK_SIGNATURE_VALID,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Condition
+|Name |webhook signature is valid
+|===
 [[REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY]]
 [discrete]
-==== check run summary
+==== DATA-CHECKRUN-SUMMARY
+
 Aggregated review result posted as a GitHub check run.
-Canonical: <<REF_CATALOG_DATA_CHECKRUN_SUMMARY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |check run summary
+|===
 [[REF_IDX-CATALOG_DATA_DIFF_CONTEXT]]
 [discrete]
-==== diff context
+==== DATA-DIFF-CONTEXT
+
 Pull request file changes and metadata prepared for analysis.
-Canonical: <<REF_CATALOG_DATA_DIFF_CONTEXT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |diff context
+|===
 [[REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA]]
 [discrete]
-==== redacted audit metadata
+==== DATA-REDACTED-AUDIT-METADATA
+
 Sanitized prompt and finding metadata retained for audit.
-Canonical: <<REF_CATALOG_DATA_REDACTED_AUDIT_METADATA,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |redacted audit metadata
+|===
 [[REF_IDX-CATALOG_DATA_RESULT_METADATA]]
 [discrete]
-==== result metadata
+==== DATA-RESULT-METADATA
+
 Metadata describing review output characteristics for audit and reporting.
-Canonical: <<REF_CATALOG_DATA_RESULT_METADATA,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |result metadata
+|===
 [[REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE]]
 [discrete]
-==== webhook signature
+==== DATA-WEBHOOK-SIGNATURE
+
 Signature used to verify webhook authenticity.
-Canonical: <<REF_CATALOG_DATA_WEBHOOK_SIGNATURE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |webhook signature
+|===
 [[REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE]]
 [discrete]
-==== bedrock runtime is unavailable
+==== EVT-BEDROCK-UNAVAILABLE
+
 Event raised when Bedrock inference path is degraded.
-Canonical: <<REF_CATALOG_EVT_BEDROCK_UNAVAILABLE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |bedrock runtime is unavailable
+|===
 [[REF_IDX-CATALOG_EVT_CONTEXT_PREPARED]]
 [discrete]
-==== diff context is prepared
+==== EVT-CONTEXT-PREPARED
+
 Event indicating context assembly completed and is ready for analysis.
-Canonical: <<REF_CATALOG_EVT_CONTEXT_PREPARED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |diff context is prepared
+|===
 [[REF_IDX-CATALOG_EVT_FINDINGS_GENERATED]]
 [discrete]
-==== review findings are generated
+==== EVT-FINDINGS-GENERATED
+
 Event indicating analysis output is ready for publication.
-Canonical: <<REF_CATALOG_EVT_FINDINGS_GENERATED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |review findings are generated
+|===
 [[REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED]]
 [discrete]
-==== review findings are published
+==== EVT-FINDINGS-PUBLISHED
+
 Event indicating review output has been published to GitHub checks/comments.
-Canonical: <<REF_CATALOG_EVT_FINDINGS_PUBLISHED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |review findings are published
+|===
 [[REF_IDX-CATALOG_EVT_PR_OPENED]]
 [discrete]
-==== pull request opened event is received
+==== EVT-PR-OPENED
+
 Event raised when a new pull request is opened.
-Canonical: <<REF_CATALOG_EVT_PR_OPENED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |pull request opened event is received
+|===
 [[REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE]]
 [discrete]
-==== pull request synchronize event is received
+==== EVT-PR-SYNCHRONIZE
+
 Event raised when new commits are pushed to an open pull request.
-Canonical: <<REF_CATALOG_EVT_PR_SYNCHRONIZE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |pull request synchronize event is received
+|===
 [[REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED]]
 [discrete]
-==== review request rate limit is exceeded
+==== EVT-RATE-LIMIT-EXCEEDED
+
 Event raised when PR review rate guardrails are hit.
-Canonical: <<REF_CATALOG_EVT_RATE_LIMIT_EXCEEDED,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |review request rate limit is exceeded
+|===
 [[REF_IDX-CATALOG_FEAT_AI_REVIEW]]
 [discrete]
-==== ai review is enabled
+==== FEAT-AI-REVIEW
+
 Feature flag enabling model-assisted review.
-Canonical: <<REF_CATALOG_FEAT_AI_REVIEW,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |ai review is enabled
+|===
 [[REF_IDX-CATALOG_FEAT_AUDIT_LOGGING]]
 [discrete]
-==== audit logging is enabled
+==== FEAT-AUDIT-LOGGING
+
 Feature flag enabling audit metadata persistence.
-Canonical: <<REF_CATALOG_FEAT_AUDIT_LOGGING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |audit logging is enabled
+|===
 [[REF_IDX-CATALOG_FEAT_POLICY_CHECKS]]
 [discrete]
-==== policy checks are enabled
+==== FEAT-POLICY-CHECKS
+
 Feature flag enabling deterministic policy checks.
-Canonical: <<REF_CATALOG_FEAT_POLICY_CHECKS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |policy checks are enabled
+|===
 [[REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS]]
 [discrete]
-==== platform operations
+==== FG-PLATFORM-OPERATIONS
+
 Functional group for deployment lifecycle and secret/config controls.
-Canonical: <<REF_CATALOG_FG_PLATFORM_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |platform operations
+|===
 [[REF_IDX-CATALOG_FG_PR_INTEGRATION]]
 [discrete]
-==== pr integration
+==== FG-PR-INTEGRATION
+
 Functional group for webhook ingress and pull request context intake.
-Canonical: <<REF_CATALOG_FG_PR_INTEGRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |pr integration
+|===
 [[REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE]]
 [discrete]
-==== review intelligence
+==== FG-REVIEW-INTELLIGENCE
+
 Functional group for AI and deterministic review analysis and publication.
-Canonical: <<REF_CATALOG_FG_REVIEW_INTELLIGENCE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |review intelligence
+|===
 [[REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS]]
 [discrete]
-==== github webhook ingress
+==== FU-GITHUB-WEBHOOK-INGRESS
+
 Validates webhook signatures and routes trusted pull request events.
-Canonical: <<REF_CATALOG_FU_GITHUB_WEBHOOK_INGRESS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |github webhook ingress
+|===
 [[REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS]]
 [discrete]
-==== lambda runtime operations
+==== FU-LAMBDA-RUNTIME-OPERATIONS
+
 Manages runtime deployment and operational controls.
-Canonical: <<REF_CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |lambda runtime operations
+|===
 [[REF_IDX-CATALOG_FU_POLICY_CHECKS]]
 [discrete]
-==== policy checks
+==== FU-POLICY-CHECKS
+
 Evaluates deterministic repository policy checks.
-Canonical: <<REF_CATALOG_FU_POLICY_CHECKS,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |policy checks
+|===
 [[REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY]]
 [discrete]
-==== pr context assembly
+==== FU-PR-CONTEXT-ASSEMBLY
+
 Fetches changed files and prepares bounded review context payloads.
-Canonical: <<REF_CATALOG_FU_PR_CONTEXT_ASSEMBLY,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |pr context assembly
+|===
 [[REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION]]
 [discrete]
-==== review orchestration
+==== FU-REVIEW-ORCHESTRATION
+
 Coordinates Bedrock analysis with deterministic checks and fallback logic.
-Canonical: <<REF_CATALOG_FU_REVIEW_ORCHESTRATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |review orchestration
+|===
 [[REF_IDX-CATALOG_FU_REVIEW_PUBLICATION]]
 [discrete]
-==== review publication
+==== FU-REVIEW-PUBLICATION
+
 Publishes review findings to GitHub checks and comments.
-Canonical: <<REF_CATALOG_FU_REVIEW_PUBLICATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |review publication
+|===
 [[REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION]]
 [discrete]
-==== secrets and configuration
+==== FU-SECRETS-CONFIGURATION
+
 Manages credentials and secure runtime configuration.
-Canonical: <<REF_CATALOG_FU_SECRETS_CONFIGURATION,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |secrets and configuration
+|===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
-==== normal mode is active
+==== MODE-NORMAL
+
 Default operating mode using AI plus deterministic checks.
-Canonical: <<REF_CATALOG_MODE_NORMAL,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Mode
+|Name |normal mode is active
+|===
 [[REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME]]
 [discrete]
-==== bedrock runtime
+==== REF-AWS-BEDROCK-RUNTIME
+
 External Bedrock runtime endpoint used for model inference.
-Canonical: <<REF_CATALOG_REF_AWS_BEDROCK_RUNTIME,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |bedrock runtime
+|===
 [[REF_IDX-CATALOG_REF_AWS_SDK_GO]]
 [discrete]
-==== aws sdk for go
+==== REF-AWS-SDK-GO
+
 SDK dependency used for AWS runtime integrations.
-Canonical: <<REF_CATALOG_REF_AWS_SDK_GO,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |aws sdk for go
+|===
 [[REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER]]
 [discrete]
-==== aws secrets manager
+==== REF-AWS-SECRETS-MANAGER
+
 Managed secret store for application credentials and config values.
-Canonical: <<REF_CATALOG_REF_AWS_SECRETS_MANAGER,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |aws secrets manager
+|===
 [[REF_IDX-CATALOG_REF_GITHUB_APP_API]]
 [discrete]
-==== github app api
+==== REF-GITHUB-APP-API
+
 External GitHub API used for pull request metadata and review publication.
-Canonical: <<REF_CATALOG_REF_GITHUB_APP_API,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |github app api
+|===
 [[REF_IDX-CATALOG_REF_GITHUB_REST_SDK]]
 [discrete]
-==== github rest sdk
+==== REF-GITHUB-REST-SDK
+
 SDK dependency used for GitHub App REST interactions.
-Canonical: <<REF_CATALOG_REF_GITHUB_REST_SDK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |github rest sdk
+|===
 [[REF_IDX-CATALOG_REF_POLICY_RULESET]]
 [discrete]
-==== policy ruleset
+==== REF-POLICY-RULESET
+
 Deterministic review policy bundle used during analysis.
-Canonical: <<REF_CATALOG_REF_POLICY_RULESET,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |policy ruleset
+|===
 [[REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE]]
 [discrete]
-==== pull request review is active
+==== STATE-PR-REVIEW-ACTIVE
+
 State where review processing is currently active for a pull request.
-Canonical: <<REF_CATALOG_STATE_PR_REVIEW_ACTIVE,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog State
+|Name |pull request review is active
+|===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]
-==== actor
+==== EM-ACTOR
+
 A person or operational role that interacts with functional units.
-Canonical: <<REF_ENGMODEL_EM_ACTOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |actor
+|===
 [[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
 [discrete]
-==== attack vector
+==== EM-ATTACK-VECTOR
+
 A technical misuse or attack path that targets functional, referenced, or runtime elements.
-Canonical: <<REF_ENGMODEL_EM_ATTACK_VECTOR,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |attack vector
+|===
 [[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
 [discrete]
-==== authored mapping
+==== EM-AUTHORED-MAPPING
+
 An explicit relationship declared in architecture inputs between authored or referenced elements.
-Canonical: <<REF_ENGMODEL_EM_AUTHORED_MAPPING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |authored mapping
+|===
 [[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
 [discrete]
-==== code element
+==== EM-CODE-ELEMENT
+
 An inferred code structure or ownership element discovered from source trees and build metadata.
-Canonical: <<REF_ENGMODEL_EM_CODE_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |code element
+|===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
-==== functional group
+==== EM-FUNCTIONAL-GROUP
+
 A major authored capability area that groups related functional units.
-Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_GROUP,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional group
+|===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
 [discrete]
-==== functional unit
+==== EM-FUNCTIONAL-UNIT
+
 An authored working unit inside a functional group that owns specific behavior.
-Canonical: <<REF_ENGMODEL_EM_FUNCTIONAL_UNIT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional unit
+|===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
-==== inferred mapping
+==== EM-INFERRED-MAPPING
+
 A discovered relationship that links inferred runtime/code elements upward to authored design.
-Canonical: <<REF_ENGMODEL_EM_INFERRED_MAPPING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |inferred mapping
+|===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
-==== referenced element
+==== EM-REFERENCED-ELEMENT
+
 An architecture-relevant external, platform, or third-party dependency represented by role.
-Canonical: <<REF_ENGMODEL_EM_REFERENCED_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |referenced element
+|===
 [[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
 [discrete]
-==== requirement
+==== EM-REQUIREMENT
+
 A structured requirement statement that defines expected system behavior and maps to functional ownership.
-Canonical: <<REF_ENGMODEL_EM_REQUIREMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |requirement
+|===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]
-==== runtime element
+==== EM-RUNTIME-ELEMENT
+
 An inferred runtime realization element discovered from infrastructure and deployment sources.
-Canonical: <<REF_ENGMODEL_EM_RUNTIME_ELEMENT,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |runtime element
+|===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]
-==== upward linking
+==== EM-UPWARD-LINKING
+
 Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
-Canonical: <<REF_ENGMODEL_EM_UPWARD_LINKING,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |upward linking
+|===
 [[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
 [discrete]
-==== verification check
+==== EM-VERIFICATION-CHECK
+
 An inferred or authored verification artifact that validates requirement behavior with test evidence.
-Canonical: <<REF_ENGMODEL_EM_VERIFICATION_CHECK,open>>
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |verification check
+|===
 
 === Inferred Runtime References
-[cols="2,2,2,5,3",options="header"]
+[[REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR]]
+[discrete]
+==== review_orchestrator
+
+assembles diff context and orchestrates deterministic plus Bedrock-backed review analysis
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Owner |Description |Source
-|[[REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR]]review_orchestrator
-|Runtime lambda_function
-|FU-REVIEW-ORCHESTRATION
-|assembles diff context and orchestrates deterministic plus Bedrock-backed review analysis
-|examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
-|[[REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER]]review_publisher
-|Runtime lambda_function
-|FU-REVIEW-PUBLICATION
-|publishes check run summaries and inline review comments back to GitHub
-|examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
-|[[REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS]]webhook_ingress
-|Runtime lambda_function
-|FU-GITHUB-WEBHOOK-INGRESS
-|validates GitHub webhook signature and normalizes pull request event payloads
-|examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|===
+[[REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER]]
+[discrete]
+==== review_publisher
+
+publishes check run summaries and inline review comments back to GitHub
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-REVIEW-PUBLICATION
+|Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
+|===
+[[REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS]]
+[discrete]
+==== webhook_ingress
+
+validates GitHub webhook signature and normalizes pull request event payloads
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Runtime lambda_function
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |examples/bedrock-pr-review-github-app-sample/infra/terraform/main.tf
 |===
 
 === Inferred Code References
-[cols="2,2,2,5,3",options="header"]
+[[REF_CODE_LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER]]
+[discrete]
+==== aws-sdk-go-v2/secretsmanager
+
+Inferred library_external dependency owned by FU-SECRETS-CONFIGURATION from secrets_configuration.ts.
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Owner |Description |Source
-|[[REF_CODE_LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER]]aws-sdk-go-v2/secretsmanager
-|Code library_external
-|FU-SECRETS-CONFIGURATION
-|n/a
-|secrets_configuration.ts
-|[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK]]github-rest-sdk
-|Code library_external
-|FU-PR-CONTEXT-ASSEMBLY
-|n/a
-|pr_context_assembly.ts
-|[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT]]github-rest-sdk/publication-client
-|Code library_external
-|FU-REVIEW-PUBLICATION
-|n/a
-|review_publication.ts
-|[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]serde_json::json
-|Code library_external
-|FU-REVIEW-ORCHESTRATION
-|n/a
-|review_orchestrator.rs
-|[[REF_CODE_LIBRARY_STDLIB_CRYPTO_HMAC]]crypto/hmac
-|Code library_stdlib
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go
-|[[REF_CODE_LIBRARY_STDLIB_CRYPTO_SHA256]]crypto/sha256
-|Code library_stdlib
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go
-|[[REF_CODE_LIBRARY_STDLIB_ENCODING_HEX]]encoding/hex
-|Code library_stdlib
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go
-|[[REF_CODE_LIBRARY_STDLIB_FMT]]fmt
-|Code library_stdlib
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go
-|[[REF_CODE_LIBRARY_STDLIB_LOG]]log
-|Code library_stdlib
-|FU-LAMBDA-RUNTIME-OPERATIONS
-|n/a
-|lambda_runtime_ops.go
-|[[REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO]]lambda_runtime_ops.go
-|Code source_file
-|FU-LAMBDA-RUNTIME-OPERATIONS
-|wires Lambda runtime entrypoints and shared execution dependencies
-|lambda_runtime_ops.go
-|[[REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS]]policy_checks.rs
-|Code source_file
-|FU-POLICY-CHECKS
-|evaluates policy and style rules before review publication
-|policy_checks.rs
-|[[REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS]]pr_context_assembly.ts
-|Code source_file
-|FU-PR-CONTEXT-ASSEMBLY
-|collects pull request diff context and prepares review input payloads
-|pr_context_assembly.ts
-|[[REF_CODE_SOURCE_FILE_REVIEW_ORCHESTRATOR_RS]]review_orchestrator.rs
-|Code source_file
-|FU-REVIEW-ORCHESTRATION
-|coordinates deterministic and AI review steps for pull requests
-|review_orchestrator.rs
-|[[REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS]]review_publication.ts
-|Code source_file
-|FU-REVIEW-PUBLICATION
-|publishes review comments and check-run outcomes back to GitHub
-|review_publication.ts
-|[[REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS]]secrets_configuration.ts
-|Code source_file
-|FU-SECRETS-CONFIGURATION
-|loads GitHub and Bedrock secret configuration for review execution
-|secrets_configuration.ts
-|[[REF_CODE_SOURCE_FILE_WEBHOOK_INGRESS_GO]]webhook_ingress.go
-|Code source_file
-|FU-GITHUB-WEBHOOK-INGRESS
-|validates GitHub webhook signatures and routes pull request events
-|webhook_ingress.go
-|[[REF_CODE_SYMBOL_CODE_BUILDDIFFCONTEXT]]CODE-BUILDDIFFCONTEXT
-|Code symbol
-|FU-PR-CONTEXT-ASSEMBLY
-|n/a
-|pr_context_assembly.ts:15
-|[[REF_CODE_SYMBOL_CODE_FALLBACKPOLICYONLY]]CODE-FALLBACKPOLICYONLY
-|Code symbol
-|FU-REVIEW-ORCHESTRATION
-|n/a
-|review_orchestrator.rs:19
-|[[REF_CODE_SYMBOL_CODE_FETCHCHANGEDFILES]]CODE-FETCHCHANGEDFILES
-|Code symbol
-|FU-PR-CONTEXT-ASSEMBLY
-|n/a
-|pr_context_assembly.ts:9
-|[[REF_CODE_SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY]]CODE-GETGITHUBAPPPRIVATEKEY
-|Code symbol
-|FU-SECRETS-CONFIGURATION
-|n/a
-|secrets_configuration.ts:9
-|[[REF_CODE_SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL]]CODE-NOTIFYMAINTAINERDEFERRAL
-|Code symbol
-|FU-REVIEW-PUBLICATION
-|n/a
-|review_publication.ts:27
-|[[REF_CODE_SYMBOL_CODE_POLICYONLYSUMMARY]]CODE-POLICYONLYSUMMARY
-|Code symbol
-|FU-POLICY-CHECKS
-|n/a
-|policy_checks.rs:21
-|[[REF_CODE_SYMBOL_CODE_PUBLISHCHECKRUN]]CODE-PUBLISHCHECKRUN
-|Code symbol
-|FU-REVIEW-PUBLICATION
-|n/a
-|review_publication.ts:9
-|[[REF_CODE_SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA]]CODE-RECORDREDACTEDAUDITMETADATA
-|Code symbol
-|FU-REVIEW-PUBLICATION
-|n/a
-|review_publication.ts:22
-|[[REF_CODE_SYMBOL_CODE_REQUESTBEDROCKREVIEW]]CODE-REQUESTBEDROCKREVIEW
-|Code symbol
-|FU-REVIEW-ORCHESTRATION
-|n/a
-|review_orchestrator.rs:9
-|[[REF_CODE_SYMBOL_CODE_ROUTEPULLREQUESTEVENT]]CODE-ROUTEPULLREQUESTEVENT
-|Code symbol
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go:25
-|[[REF_CODE_SYMBOL_CODE_RUNDETERMINISTICCHECKS]]CODE-RUNDETERMINISTICCHECKS
-|Code symbol
-|FU-POLICY-CHECKS
-|n/a
-|policy_checks.rs:7
-|[[REF_CODE_SYMBOL_CODE_VERIFYSIGNATURE]]CODE-VERIFYSIGNATURE
-|Code symbol
-|FU-GITHUB-WEBHOOK-INGRESS
-|n/a
-|webhook_ingress.go:15
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-SECRETS-CONFIGURATION
+|Source |secrets_configuration.ts
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK]]
+[discrete]
+==== github-rest-sdk
+
+Inferred library_external dependency owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-PR-CONTEXT-ASSEMBLY
+|Source |pr_context_assembly.ts
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT]]
+[discrete]
+==== github-rest-sdk/publication-client
+
+Inferred library_external dependency owned by FU-REVIEW-PUBLICATION from review_publication.ts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON]]
+[discrete]
+==== serde_json::json
+
+Inferred library_external dependency owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |review_orchestrator.rs
+|===
+[[REF_CODE_LIBRARY_STDLIB_CRYPTO_HMAC]]
+[discrete]
+==== crypto/hmac
+
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go
+|===
+[[REF_CODE_LIBRARY_STDLIB_CRYPTO_SHA256]]
+[discrete]
+==== crypto/sha256
+
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go
+|===
+[[REF_CODE_LIBRARY_STDLIB_ENCODING_HEX]]
+[discrete]
+==== encoding/hex
+
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go
+|===
+[[REF_CODE_LIBRARY_STDLIB_FMT]]
+[discrete]
+==== fmt
+
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go
+|===
+[[REF_CODE_LIBRARY_STDLIB_LOG]]
+[discrete]
+==== log
+
+Inferred library_stdlib dependency owned by FU-LAMBDA-RUNTIME-OPERATIONS from lambda_runtime_ops.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-LAMBDA-RUNTIME-OPERATIONS
+|Source |lambda_runtime_ops.go
+|===
+[[REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO]]
+[discrete]
+==== lambda_runtime_ops.go
+
+wires Lambda runtime entrypoints and shared execution dependencies
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-LAMBDA-RUNTIME-OPERATIONS
+|Source |lambda_runtime_ops.go
+|===
+[[REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS]]
+[discrete]
+==== policy_checks.rs
+
+evaluates policy and style rules before review publication
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-POLICY-CHECKS
+|Source |policy_checks.rs
+|===
+[[REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS]]
+[discrete]
+==== pr_context_assembly.ts
+
+collects pull request diff context and prepares review input payloads
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-PR-CONTEXT-ASSEMBLY
+|Source |pr_context_assembly.ts
+|===
+[[REF_CODE_SOURCE_FILE_REVIEW_ORCHESTRATOR_RS]]
+[discrete]
+==== review_orchestrator.rs
+
+coordinates deterministic and AI review steps for pull requests
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |review_orchestrator.rs
+|===
+[[REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS]]
+[discrete]
+==== review_publication.ts
+
+publishes review comments and check-run outcomes back to GitHub
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts
+|===
+[[REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS]]
+[discrete]
+==== secrets_configuration.ts
+
+loads GitHub and Bedrock secret configuration for review execution
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-SECRETS-CONFIGURATION
+|Source |secrets_configuration.ts
+|===
+[[REF_CODE_SOURCE_FILE_WEBHOOK_INGRESS_GO]]
+[discrete]
+==== webhook_ingress.go
+
+validates GitHub webhook signatures and routes pull request events
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go
+|===
+[[REF_CODE_SYMBOL_CODE_BUILDDIFFCONTEXT]]
+[discrete]
+==== CODE-BUILDDIFFCONTEXT
+
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:15.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-PR-CONTEXT-ASSEMBLY
+|Source |pr_context_assembly.ts:15
+|===
+[[REF_CODE_SYMBOL_CODE_FALLBACKPOLICYONLY]]
+[discrete]
+==== CODE-FALLBACKPOLICYONLY
+
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:19.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |review_orchestrator.rs:19
+|===
+[[REF_CODE_SYMBOL_CODE_FETCHCHANGEDFILES]]
+[discrete]
+==== CODE-FETCHCHANGEDFILES
+
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-PR-CONTEXT-ASSEMBLY
+|Source |pr_context_assembly.ts:9
+|===
+[[REF_CODE_SYMBOL_CODE_GETGITHUBAPPPRIVATEKEY]]
+[discrete]
+==== CODE-GETGITHUBAPPPRIVATEKEY
+
+Inferred code symbol owned by FU-SECRETS-CONFIGURATION from secrets_configuration.ts:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-SECRETS-CONFIGURATION
+|Source |secrets_configuration.ts:9
+|===
+[[REF_CODE_SYMBOL_CODE_NOTIFYMAINTAINERDEFERRAL]]
+[discrete]
+==== CODE-NOTIFYMAINTAINERDEFERRAL
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:27.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts:27
+|===
+[[REF_CODE_SYMBOL_CODE_POLICYONLYSUMMARY]]
+[discrete]
+==== CODE-POLICYONLYSUMMARY
+
+Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:21.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-POLICY-CHECKS
+|Source |policy_checks.rs:21
+|===
+[[REF_CODE_SYMBOL_CODE_PUBLISHCHECKRUN]]
+[discrete]
+==== CODE-PUBLISHCHECKRUN
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts:9
+|===
+[[REF_CODE_SYMBOL_CODE_RECORDREDACTEDAUDITMETADATA]]
+[discrete]
+==== CODE-RECORDREDACTEDAUDITMETADATA
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:22.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts:22
+|===
+[[REF_CODE_SYMBOL_CODE_REQUESTBEDROCKREVIEW]]
+[discrete]
+==== CODE-REQUESTBEDROCKREVIEW
+
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |review_orchestrator.rs:9
+|===
+[[REF_CODE_SYMBOL_CODE_ROUTEPULLREQUESTEVENT]]
+[discrete]
+==== CODE-ROUTEPULLREQUESTEVENT
+
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:25.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go:25
+|===
+[[REF_CODE_SYMBOL_CODE_RUNDETERMINISTICCHECKS]]
+[discrete]
+==== CODE-RUNDETERMINISTICCHECKS
+
+Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:7.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-POLICY-CHECKS
+|Source |policy_checks.rs:7
+|===
+[[REF_CODE_SYMBOL_CODE_VERIFYSIGNATURE]]
+[discrete]
+==== CODE-VERIFYSIGNATURE
+
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:15.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go:15
 |===
 
 === Verification References
-[cols="2,2,1,5,3,2",options="header"]
+[[REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5]]
+[discrete]
+==== VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5
+
+exercises end-to-end pull request opened flow from webhook ingest to published review
+
+[cols="1,4",options="header"]
 |===
-|ID |Kind |Status |Description |Source |Canonical
-|[[REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5]]VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5
-|e2e
-|pass
-|exercises end-to-end pull request opened flow from webhook ingest to published review
-|test-results/contract-checkrun.json (+2)
-|<<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,canonical>>
-|[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1]]VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1
-|integration
-|pass
-|checks audit evidence redaction for secrets and sensitive payload fields
-|test-results/audit-redaction-report.md (+1)
-|<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,canonical>>
-|[[REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A]]VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A
-|integration
-|pass
-|verifies policy-only fallback when Bedrock inference is unavailable
-|test-results/integration-policy-fallback.json (+1)
-|<<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,canonical>>
-|[[REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6]]VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6
-|test
-|not-run
-|validates GitHub check-run contract shape and required review result fields
-|tests/contract/github_check_run_contract_test.go
-|<<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,canonical>>
-|[[REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2]]VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2
-|unit
-|pass
-|verifies rate-limit deferral behavior for pull request review processing
-|test-results/unit-rate-limit.xml (+1)
-|<<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,canonical>>
+|Key |Value
+|Kind |e2e
+|Status |pass
+|Source |test-results/contract-checkrun.json (+2)
+|Name |Pr Opened Review Flow
+|===
+[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1]]
+[discrete]
+==== VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1
+
+checks audit evidence redaction for secrets and sensitive payload fields
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |integration
+|Status |pass
+|Source |test-results/audit-redaction-report.md (+1)
+|Name |Audit Redaction Test
+|===
+[[REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A]]
+[discrete]
+==== VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A
+
+verifies policy-only fallback when Bedrock inference is unavailable
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |integration
+|Status |pass
+|Source |test-results/integration-policy-fallback.json (+1)
+|Name |Policy Only Fallback Test
+|===
+[[REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6]]
+[discrete]
+==== VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6
+
+validates GitHub check-run contract shape and required review result fields
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |tests/contract/github_check_run_contract_test.go
+|Name |Github Check Run Contract Test
+|===
+[[REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2]]
+[discrete]
+==== VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2
+
+verifies rate-limit deferral behavior for pull request review processing
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |unit
+|Status |pass
+|Source |test-results/unit-rate-limit.xml (+1)
+|Name |Rate Limit Deferral Test
 |===

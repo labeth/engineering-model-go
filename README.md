@@ -143,6 +143,11 @@ The traceability appendix includes:
 - `Requirement Details`
 - `Verification Inventory` (inferred test/check mappings to test code elements and requirements)
 - `Verification Result Mapping` (inferred per-requirement outcomes)
+- `Reference Index` with consistent entry layout:
+  - chapter per ID
+  - short prose description
+  - compact key/value table with the most relevant fields
+  - sections: `Authored References`, `Catalog References`, `Inferred Runtime References`, `Inferred Code References`, `Verification References`
 
 AI-first export includes:
 - `architecture.ai.json` style normalized machine artifact (`--ai-json-out`)
