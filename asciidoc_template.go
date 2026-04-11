@@ -169,7 +169,9 @@ type asciidocPlatformOpRow struct {
 }
 
 type asciidocSecurityPathRow struct {
+	AttackVectorID string
 	AttackVector string
+	TargetID      string
 	Target       string
 	DependsOn    string
 }
@@ -210,6 +212,15 @@ type asciidocViewSection struct {
 	SecurityGraph             string
 	SecurityRows              []asciidocSecurityPathRow
 	SecurityObsRows           []asciidocSecurityObsRow
+	SecurityAttackChapters    []asciidocSecurityAttackChapter
+}
+
+type asciidocSecurityAttackChapter struct {
+	ID          string
+	Name        string
+	Description string
+	Diagram     string
+	Units       []asciidocUnitSection
 }
 
 type asciidocDesignDetail struct {
@@ -247,10 +258,14 @@ type asciidocUnitSection struct {
 }
 
 type asciidocRequirementSection struct {
-	Anchor string
-	ID     string
-	Text   string
-	Notes  string
+	Anchor                string
+	ID                    string
+	Text                  string
+	Notes                 string
+	AlignmentMermaid      string
+	CoverageMermaid       string
+	AlignmentExplanation  string
+	CoverageExplanation   string
 }
 
 type asciidocVerificationSection struct {

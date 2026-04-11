@@ -182,18 +182,10 @@ Arrow meaning: `A -->|depends_on| B` means unit `A` requires behavior or data fr
 ----
 {{- end }}
 
-{{- if $v.InferredGraph }}
-{{ if eq $v.Kind "traceability" }}
-=== Traceability Evidence Graph
-
-What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
-
-NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
-{{ else }}
+{{- if and $v.InferredGraph (ne $v.Kind "traceability") }}
 === Inferred Data Graph
 
 What this diagram shows: inferred relationships for this view based on available runtime/code evidence.
-{{ end }}
 
 [source,mermaid]
 ----
@@ -240,32 +232,55 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 ----
 {{- end }}
 
-{{- if $v.SecurityGraph }}
-=== Attack Path Diagram
-
-What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
-
-NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
-
-[source,mermaid]
-----
-{{ $v.SecurityGraph }}
-----
-{{- end }}
-
-{{- if $v.SecurityObsRows }}
+{{ if $v.SecurityObsRows }}
 === Security Logging and Observability
 
 [cols="2,1,1,3",options="header"]
 |===
 |Signal |Layer |Owner |Evidence
-{{- range $v.SecurityObsRows }}
+{{ range $v.SecurityObsRows }}
 |{{ .Signal }} |{{ .Layer }} |{{ .Owner }} |{{ .Evidence }}
-{{- end }}
+{{ end }}
 |===
-{{- end }}
+{{ end }}
 
-{{- if ne $v.Kind "traceability" }}
+{{ if and (eq $v.Kind "security") $v.SecurityAttackChapters }}
+=== Attack Vector Chapters
+
+{{ range $c := $v.SecurityAttackChapters }}
+==== {{ $c.Name }} ({{ $c.ID }})
+
+{{ if $c.Description }}
+{{ $c.Description }}
+{{ end }}
+
+[source,mermaid]
+----
+{{ $c.Diagram }}
+----
+
+{{ range $u := $c.Units }}
+===== {{ $u.Name }} ({{ $u.ID }})
+
+{{ range $u.Details }}
+{{ .Narrative }}
+{{ end }}
+
+[discrete]
+====== Attack Surface
+
+{{ $u.DependsOn }}
+
+[discrete]
+====== Security Evidence Present
+
+{{ $u.Evidence }}
+{{ end }}
+
+{{ end }}
+{{ end }}
+
+{{- if and (ne $v.Kind "traceability") (ne $v.Kind "security") }}
 === Functional Groups and Units (View Scoped)
 
 {{ $viewKind := $v.Kind }}
@@ -385,25 +400,27 @@ Close any unresolved ownership or unmapped threat-linkage gaps in Traceability V
 
 {{- range $i, $v := .Views }}
 {{- if eq $v.Kind "traceability" }}
-=== Requirement-to-Unit Mapping
+=== Requirement-to-Unit Mapping (Compact)
 
-What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
+What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-[source,mermaid]
-----
 {{ $root.RequirementMermaid }}
-----
 
-=== Requirement-to-Unit-to-Evidence Coverage
+=== Verification Result Mapping
 
-What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
 
-[source,mermaid]
-----
-{{ $root.RequirementCoverageMermaid }}
-----
-
-{{ $root.RequirementInf }}
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+{{ range $root.VerificationResults }}
+|{{ .CheckID }}
+|{{ .Requirement }}
+|{{ .Status }}
+|{{ .Evidence }}{{ if .Notes }} + 
+{{ .Notes }}{{ end }}
+{{ end }}
+|===
 {{- end }}
 {{- end }}
 
@@ -418,9 +435,19 @@ What this diagram shows: requirement-to-unit links extended with inferred runtim
 
 {{ .Text }}
 
-{{- if .Notes }}
-Notes: {{ .Notes }}
-{{- end }}
+{{ if .Notes }}
+NOTE: {{ .Notes }}
+
+{{ end }}
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+{{ .CoverageExplanation }}
+
+[source,mermaid]
+----
+{{ .CoverageMermaid }}
+----
 
 {{- end }}
 
@@ -453,22 +480,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 {{ end }}
-
-=== Verification Result Mapping
-
-What this section shows: per-requirement result mapping inferred from test-result artifacts.
-
-[cols="1,1,1,4",options="header"]
-|===
-|Check ID |Requirement |Result |Evidence / Notes
-{{- range .VerificationResults }}
-|{{ .CheckID }}
-|{{ .Requirement }}
-|{{ .Status }}
-|{{ .Evidence }}{{ if .Notes }} + 
-{{ .Notes }}{{ end }}
-{{- end }}
-|===
 
 <<<
 == Reference Index

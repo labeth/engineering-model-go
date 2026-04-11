@@ -271,6 +271,99 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
 }
 
+func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
+	unitByID := map[string]asciidocUnitSection{}
+	for _, u := range units {
+		unitByID[strings.TrimSpace(u.ID)] = u
+	}
+	unitIDsByAttack := map[string]map[string]bool{}
+	for _, m := range a.Mappings {
+		if strings.TrimSpace(m.Type) != "targets" {
+			continue
+		}
+		attackID := strings.TrimSpace(m.From)
+		unitID := strings.TrimSpace(m.To)
+		if attackID == "" || unitID == "" {
+			continue
+		}
+		if !nodeSet[unitID] {
+			continue
+		}
+		if _, ok := unitByID[unitID]; !ok {
+			continue
+		}
+		if unitIDsByAttack[attackID] == nil {
+			unitIDsByAttack[attackID] = map[string]bool{}
+		}
+		unitIDsByAttack[attackID][unitID] = true
+	}
+
+	attackByID := map[string]model.AttackVector{}
+	for _, av := range a.AttackVectors {
+		attackByID[strings.TrimSpace(av.ID)] = av
+	}
+	rowsByAttackID := map[string][]asciidocSecurityPathRow{}
+	for _, row := range securityRows {
+		attackID := strings.TrimSpace(row.AttackVectorID)
+		if attackID == "" {
+			continue
+		}
+		rowsByAttackID[attackID] = append(rowsByAttackID[attackID], row)
+	}
+
+	attackIDs := make([]string, 0, len(unitIDsByAttack))
+	for attackID := range unitIDsByAttack {
+		attackIDs = append(attackIDs, attackID)
+	}
+	sort.SliceStable(attackIDs, func(i, j int) bool {
+		left := attackByID[attackIDs[i]]
+		right := attackByID[attackIDs[j]]
+		leftName := strings.ToLower(nonEmpty(strings.TrimSpace(left.Name), attackIDs[i]))
+		rightName := strings.ToLower(nonEmpty(strings.TrimSpace(right.Name), attackIDs[j]))
+		if leftName != rightName {
+			return leftName < rightName
+		}
+		return attackIDs[i] < attackIDs[j]
+	})
+
+	out := make([]asciidocSecurityAttackChapter, 0, len(attackIDs))
+	for _, attackID := range attackIDs {
+		unitIDs := keysFromSet(unitIDsByAttack[attackID])
+		sort.Strings(unitIDs)
+		chapterUnits := make([]asciidocUnitSection, 0, len(unitIDs))
+		for _, unitID := range unitIDs {
+			chapterUnits = append(chapterUnits, unitByID[unitID])
+		}
+		sort.SliceStable(chapterUnits, func(i, j int) bool {
+			left := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[i].Name), chapterUnits[i].ID))
+			right := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[j].Name), chapterUnits[j].ID))
+			if left != right {
+				return left < right
+			}
+			return chapterUnits[i].ID < chapterUnits[j].ID
+		})
+		av := attackByID[attackID]
+		attackRows := append([]asciidocSecurityPathRow(nil), rowsByAttackID[attackID]...)
+		sort.SliceStable(attackRows, func(i, j int) bool {
+			if attackRows[i].Target != attackRows[j].Target {
+				return attackRows[i].Target < attackRows[j].Target
+			}
+			if attackRows[i].DependsOn != attackRows[j].DependsOn {
+				return attackRows[i].DependsOn < attackRows[j].DependsOn
+			}
+			return attackRows[i].TargetID < attackRows[j].TargetID
+		})
+		out = append(out, asciidocSecurityAttackChapter{
+			ID:          attackID,
+			Name:        nonEmpty(strings.TrimSpace(av.Name), attackID),
+			Description: strings.TrimSpace(av.Description),
+			Diagram:     buildSecurityPathMermaid(attackRows, runtime, code),
+			Units:       chapterUnits,
+		})
+	}
+	return out
+}
+
 func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
 	withEvidence := 0
 	for _, u := range units {

@@ -624,9 +624,11 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 		}
 		seen[key] = true
 		out = append(out, asciidocSecurityPathRow{
-			AttackVector: attack,
-			Target:       target,
-			DependsOn:    depSummary,
+			AttackVectorID: strings.TrimSpace(m.From),
+			AttackVector:   attack,
+			TargetID:       strings.TrimSpace(m.To),
+			Target:         target,
+			DependsOn:      depSummary,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
@@ -638,11 +640,64 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 	return out
 }
 
-func buildSecurityPathMermaid(rows []asciidocSecurityPathRow) string {
+func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
+	runtimeByOwner := map[string][]string{}
+	for _, r := range runtime {
+		owner := strings.TrimSpace(r.Owner)
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		label := runtimeShortName(strings.TrimSpace(r.Name))
+		if label == "" {
+			continue
+		}
+		runtimeByOwner[owner] = append(runtimeByOwner[owner], label)
+	}
+	for owner, items := range runtimeByOwner {
+		runtimeByOwner[owner] = uniqueSorted(items)
+	}
+
+	codeByOwner := map[string][]string{}
+	for _, c := range code {
+		owner := strings.TrimSpace(c.Owner)
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		label := ""
+		switch strings.TrimSpace(c.Kind) {
+		case "source_file", "symbol":
+			path := codeItemPath(c)
+			if path == "" {
+				continue
+			}
+			label = moduleFromPath(path)
+			if strings.TrimSpace(label) == "" {
+				label = path
+			}
+		default:
+			label = strings.TrimSpace(c.Element)
+		}
+		if strings.TrimSpace(label) == "" {
+			continue
+		}
+		codeByOwner[owner] = append(codeByOwner[owner], label)
+	}
+	for owner, items := range codeByOwner {
+		codeByOwner[owner] = uniqueSorted(items)
+	}
+
 	lines := []string{"flowchart LR"}
 	for _, r := range rows {
-		avNode := "AV_" + sanitizeNode(r.AttackVector)
-		tNode := "SEC_TGT_" + sanitizeNode(r.Target)
+		attackID := strings.TrimSpace(r.AttackVectorID)
+		if attackID == "" {
+			attackID = r.AttackVector
+		}
+		targetID := strings.TrimSpace(r.TargetID)
+		if targetID == "" {
+			targetID = r.Target
+		}
+		avNode := "AV_" + sanitizeNode(attackID)
+		tNode := "SEC_TGT_" + sanitizeNode(targetID)
 		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::attack_vector", avNode, escapeMermaidLabel(r.AttackVector)))
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", tNode, escapeMermaidLabel(r.Target)))
 		lines = append(lines, fmt.Sprintf("  %s -->|targets| %s", avNode, tNode))
@@ -654,6 +709,28 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow) string {
 			dNode := "SEC_DEP_" + sanitizeNode(dep)
 			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", dNode, escapeMermaidLabel(dep)))
 			lines = append(lines, fmt.Sprintf("  %s -->|depends_on| %s", tNode, dNode))
+		}
+		runtimeNodes := make([]string, 0, len(runtimeByOwner[targetID]))
+		for _, rt := range runtimeByOwner[targetID] {
+			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-"+rt)
+			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", rtNode, escapeMermaidLabel(rt)))
+			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
+			runtimeNodes = append(runtimeNodes, rtNode)
+		}
+		// Keep code evidence traced via runtime, even when no direct runtime artifact is inferred.
+		if len(runtimeNodes) == 0 && len(codeByOwner[targetID]) > 0 {
+			rtLabel := nonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
+			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-runtime")
+			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", rtNode, escapeMermaidLabel(rtLabel)))
+			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
+			runtimeNodes = append(runtimeNodes, rtNode)
+		}
+		for _, mod := range codeByOwner[targetID] {
+			codeNode := "SEC_CODE_" + sanitizeNode(targetID+"-"+mod)
+			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::code_element", codeNode, escapeMermaidLabel(mod)))
+			if len(runtimeNodes) > 0 {
+				lines = append(lines, fmt.Sprintf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode))
+			}
 		}
 	}
 	lines = appendMermaidClassDefs(lines)

@@ -467,6 +467,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -806,6 +810,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1259,6 +1267,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1539,58 +1551,39 @@ Coverage summary: 6/7 units have direct evidence coverage in this view.
 
 - Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
 
-=== Attack Path Diagram
 
-What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
-NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
+
+
+=== Attack Vector Chapters
+
+
+==== <<REF_IDX-CATALOG_AV_LOG_TAMPERING,Log Tampering>> (AV-LOG-TAMPERING)
+
+
+Attempts to suppress or alter audit/operational logs.
+
 
 [source,mermaid]
 ----
 flowchart LR
-  AV_LOG_TAMPERING(("Log Tampering")):::attack_vector
-  SEC_TGT_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::functional_unit
-  AV_LOG_TAMPERING -->|targets| SEC_TGT_DEVICE_IDENTITY_AND_SECRETS
-  SEC_TGT_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  AV_LOG_TAMPERING -->|targets| SEC_TGT_FLEET_OBSERVABILITY_REPORTING
+  AV_AV_LOG_TAMPERING(("Log Tampering")):::attack_vector
+  SEC_TGT_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+  AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_DEVICE_IDENTITY_SECRETS
+  SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
+  SEC_TGT_FU_DEVICE_IDENTITY_SECRETS -->|runtime| SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
+  SEC_CODE_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS["device_identity_secrets"]:::code_element
+  SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| SEC_CODE_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
   SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
-  SEC_TGT_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_CLOUD_LOGGING_SERVICE
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_CLOUD_LOGGING_SERVICE
   SEC_DEP_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::referenced_element
-  SEC_TGT_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
-  AV_MALICIOUS_FIRMWARE_BUNDLE(("Malicious Firmware Bundle")):::attack_vector
-  SEC_TGT_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-  AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_OTA_UPDATE_AGENT
-  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
-  SEC_DEP_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
-  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_FIRMWARE_BUNDLE_STORE
-  SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::referenced_element
-  SEC_TGT_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION
-  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
-  AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION
-  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
-  SEC_DEP_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
-  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FIRMWARE_SIGNER_SERVICE
-  SEC_DEP_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::referenced_element
-  SEC_TGT_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
-  AV_SPOOFED_DEVICE_IDENTITY(("Spoofed Device Identity")):::attack_vector
-  SEC_TGT_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FLEET_INGESTION_API
-  SEC_DEP_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
-  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_CLOUD_RUNTIME_SDK
-  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
-  SEC_TGT_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
-  SEC_TGT_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
-  AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_MACHINE_TELEMETRY_COLLECTION
-  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
-  SEC_DEP_FLEET_INGESTION_API["Fleet Ingestion API"]:::referenced_element
-  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_FLEET_INGESTION_API
-  SEC_DEP_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
-  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_IOT_INGEST_ENDPOINT
-  SEC_DEP_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
-  SEC_TGT_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_MQTT_DEVICE_SDK
-  AV_TELEMETRY_REPLAY_ABUSE(("Telemetry Replay Abuse")):::attack_vector
-  AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FLEET_INGESTION_API
-  AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FLEET_OBSERVABILITY_REPORTING
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  SEC_CODE_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| SEC_CODE_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1603,326 +1596,12 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Functional Groups and Units (View Scoped)
-
-
-
-==== Machine Edge (FG-MACHINE-EDGE)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_MACHINE_EDGE,Machine Edge>> enforces firmware trust and authenticated <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> at the device boundary.
-
-
-
-
-
-
-
-
-
-
-
-===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
-
-
-
-
-Protects <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> authenticity and defends against <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,replay abuse>> patterns.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS,machine_telemetry>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
-
-
-
-
-Enforces <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,signature valid>>ation and rejects untrusted <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,firmware bundles>>.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>> | code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS,ota_update_agent>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-
-
-
-
-==== Cloud Control (FG-CLOUD-CONTROL)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> focuses on replay detection, campaign authorization, and audit integrity.
-
-
-
-
-
-===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
-
-
-
-
-Applies identity checks and replay throttling for ingest requests.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>>, <<REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
-
-
-
-
-Preserves audit integrity and protects sensitive identifiers in persisted records.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_LOG_TAMPERING,Log Tampering>>, <<REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
-
-
-
-
-Enforces signed-firmware policy and campaign authorization boundaries.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-
-
-
-
-
-
-
-
-==== Platform Operations (FG-PLATFORM-OPERATIONS)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform operations>> hardens identity, key rotation, and log integrity boundaries.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-===== Cloud Runtime Operations (FU-CLOUD-RUNTIME-OPERATIONS)
-
-
-
-
-Enforces operational hardening and security escalation signaling.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-
-[discrete]
-====== Main Threats
-
-no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
 
 
 ===== Device Identity and Secrets (FU-DEVICE-IDENTITY-SECRETS)
 
 
-
-
 Protects credential lifecycle and enforces least-privilege access patterns.
-
-
-
 
 
 [discrete]
@@ -1931,26 +1610,274 @@ Protects credential lifecycle and enforces least-privilege access patterns.
 none
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_LOG_TAMPERING,Log Tampering>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
 
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+Preserves audit integrity and protects sensitive identifiers in persisted records.
+
+
 [discrete]
-====== Security Evidence Missing
+====== Attack Surface
 
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
 
 
+
+==== <<REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>> (AV-MALICIOUS-FIRMWARE-BUNDLE)
+
+
+Tampered OTA payload targeting update agent execution.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_MALICIOUS_FIRMWARE_BUNDLE(("Malicious Firmware Bundle")):::attack_vector
+  SEC_TGT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+  AV_AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_FU_OTA_UPDATE_AGENT
+  SEC_DEP_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::referenced_element
+  SEC_TGT_FU_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+  SEC_TGT_FU_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_FIRMWARE_BUNDLE_STORE
+  SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::referenced_element
+  SEC_TGT_FU_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION
+  SEC_RT_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  SEC_TGT_FU_OTA_UPDATE_AGENT -->|runtime| SEC_RT_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE
+  SEC_RT_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET["ota_campaign_target"]:::runtime_element
+  SEC_TGT_FU_OTA_UPDATE_AGENT -->|runtime| SEC_RT_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET
+  SEC_CODE_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT["ota_update_agent"]:::code_element
+  SEC_RT_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE -->|implemented_by| SEC_CODE_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+  AV_AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+  SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FIRMWARE_SIGNER_SERVICE
+  SEC_DEP_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::referenced_element
+  SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
+  SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
+  SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime| SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
+  SEC_CODE_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
+  SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| SEC_CODE_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+
+===== OTA Update Agent (FU-OTA-UPDATE-AGENT)
+
+
+Enforces <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,signature valid>>ation and rejects untrusted <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,firmware bundles>>.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>> | code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+
+===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
+
+
+Enforces signed-firmware policy and campaign authorization boundaries.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+
+
+
+==== <<REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>> (AV-SPOOFED-DEVICE-IDENTITY)
+
+
+Unauthorized identity attempting <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>>/command access.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_SPOOFED_DEVICE_IDENTITY(("Spoofed Device Identity")):::attack_vector
+  SEC_TGT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  AV_AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FU_FLEET_INGESTION_API
+  SEC_DEP_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_CLOUD_RUNTIME_SDK
+  SEC_DEP_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  SEC_CODE_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| SEC_CODE_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+  AV_AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FLEET_INGESTION_API["Fleet Ingestion API"]:::referenced_element
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_FLEET_INGESTION_API
+  SEC_DEP_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_IOT_INGEST_ENDPOINT
+  SEC_DEP_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_MQTT_DEVICE_SDK
+  SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
+  SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime| SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE
+  SEC_CODE_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY["machine_telemetry"]:::code_element
+  SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE -->|implemented_by| SEC_CODE_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+Applies identity checks and replay throttling for ingest requests.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+
+===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
+
+
+Protects <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> authenticity and defends against <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,replay abuse>> patterns.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS,machine_telemetry>>
+
+
+
+==== <<REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>> (AV-TELEMETRY-REPLAY-ABUSE)
+
+
+Replayed <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> intended to overload ingestion and corrupt insights.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_TELEMETRY_REPLAY_ABUSE(("Telemetry Replay Abuse")):::attack_vector
+  SEC_TGT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+  AV_AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FU_FLEET_INGESTION_API
+  SEC_DEP_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_CLOUD_RUNTIME_SDK
+  SEC_DEP_DEVICE_IDENTITY_AND_SECRETS["Device Identity and Secrets"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_DEP_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::referenced_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  SEC_CODE_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| SEC_CODE_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+  AV_AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
+  SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_CLOUD_LOGGING_SERVICE
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  SEC_CODE_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| SEC_CODE_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+
+===== Fleet Ingestion API (FU-FLEET-INGESTION-API)
+
+
+Applies identity checks and replay throttling for ingest requests.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+
+===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
+
+
+Preserves audit integrity and protects sensitive identifiers in persisted records.
+
+
+[discrete]
+====== Attack Surface
+
+<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
 
 
 
@@ -1991,119 +1918,187 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 - Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
 
 
-=== Traceability Evidence Graph
-
-What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
-
-NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
 
 
-[source,mermaid]
-----
-flowchart TB
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
-=== Requirement-to-Unit Mapping
 
-What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
+=== Requirement-to-Unit Mapping (Compact)
 
-[source,mermaid]
-----
-flowchart LR
-  REQ_REQ_COF_001["REQ-COF-001"]:::requirement
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_001 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
-  REQ_REQ_COF_001 --> UNIT_FU_MACHINE_TELEMETRY_COLLECTION
-  REQ_REQ_COF_002["REQ-COF-002"]:::requirement
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_002 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_002 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  REQ_REQ_COF_003["REQ-COF-003"]:::requirement
-  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-  REQ_REQ_COF_003 --> UNIT_FU_OTA_UPDATE_AGENT
-  UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
-  REQ_REQ_COF_003 --> UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-  REQ_REQ_COF_004["REQ-COF-004"]:::requirement
-  UNIT_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
-  REQ_REQ_COF_004 --> UNIT_FU_DEVICE_IDENTITY_SECRETS
-  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-  REQ_REQ_COF_004 --> UNIT_FU_OTA_UPDATE_AGENT
-  REQ_REQ_COF_005["REQ-COF-005"]:::requirement
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_005 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-  REQ_REQ_COF_005 --> UNIT_FU_OTA_UPDATE_AGENT
-  UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
-  REQ_REQ_COF_005 --> UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-  REQ_REQ_COF_006["REQ-COF-006"]:::requirement
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_006 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
-  REQ_REQ_COF_006 --> UNIT_FU_MACHINE_TELEMETRY_COLLECTION
-  REQ_REQ_COF_007["REQ-COF-007"]:::requirement
-  UNIT_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
-  REQ_REQ_COF_007 --> UNIT_FU_DEVICE_IDENTITY_SECRETS
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_007 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  REQ_REQ_COF_008["REQ-COF-008"]:::requirement
-  UNIT_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
-  REQ_REQ_COF_008 --> UNIT_FU_CLOUD_RUNTIME_OPERATIONS
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_008 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_008 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  REQ_REQ_COF_009["REQ-COF-009"]:::requirement
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_009 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_009 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  REQ_REQ_COF_010["REQ-COF-010"]:::requirement
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_010 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  UNIT_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-  REQ_REQ_COF_010 --> UNIT_FU_OTA_UPDATE_AGENT
-  UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
-  REQ_REQ_COF_010 --> UNIT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-  REQ_REQ_COF_011["REQ-COF-011"]:::requirement
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_011 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
-  REQ_REQ_COF_011 --> UNIT_FU_MACHINE_TELEMETRY_COLLECTION
-  REQ_REQ_COF_012["REQ-COF-012"]:::requirement
-  UNIT_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
-  REQ_REQ_COF_012 --> UNIT_FU_CLOUD_RUNTIME_OPERATIONS
-  UNIT_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-  REQ_REQ_COF_012 --> UNIT_FU_FLEET_INGESTION_API
-  UNIT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-  REQ_REQ_COF_012 --> UNIT_FU_FLEET_OBSERVABILITY_REPORTING
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
+What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-=== Requirement-to-Unit-to-Evidence Coverage
+[cols="2,1,1,1,1,1,1,1",options="header"]
+|===
+|Requirement
+|FU-CLOUD-RUNTIME-OPERATIONS
+|FU-DEVICE-IDENTITY-SECRETS
+|FU-FLEET-INGESTION-API
+|FU-FLEET-OBSERVABILITY-REPORTING
+|FU-MACHINE-TELEMETRY-COLLECTION
+|FU-OTA-UPDATE-AGENT
+|FU-UPDATE-CAMPAIGN-ORCHESTRATION
+|REQ-COF-001
+|
+|
+|X
+|
+|X
+|
+|
+|REQ-COF-002
+|
+|
+|X
+|X
+|
+|
+|
+|REQ-COF-003
+|
+|
+|
+|
+|
+|X
+|X
+|REQ-COF-004
+|
+|X
+|
+|
+|
+|X
+|
+|REQ-COF-005
+|
+|
+|
+|X
+|
+|X
+|X
+|REQ-COF-006
+|
+|
+|X
+|
+|X
+|
+|
+|REQ-COF-007
+|
+|X
+|
+|X
+|
+|
+|
+|REQ-COF-008
+|X
+|
+|X
+|X
+|
+|
+|
+|REQ-COF-009
+|
+|
+|X
+|X
+|
+|
+|
+|REQ-COF-010
+|
+|
+|
+|X
+|
+|X
+|X
+|REQ-COF-011
+|
+|
+|X
+|
+|X
+|
+|
+|REQ-COF-012
+|X
+|
+|X
+|X
+|
+|
+|
+|===
 
-What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+
+|<<REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794>>
+|<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>
+|pass
+|test-results/contract-telemetry.json + 
+ingest payload accepted with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> and <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> fields
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
+|<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>
+|not-run
+|none + 
+No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
+|<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
+|not-run
+|none + 
+No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
+|<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
+|pass
+|test-results/unit-ota.xml
+
+|<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
+|<<REF_IDX-REQ_REQ_COF_004,REQ-COF-004>>
+|pass
+|test-results/unit-ota.xml
+
+|<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
+|<<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>
+|partial
+|test-results/ota-rollback-report.md
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
+|<<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>
+|pass
+|test-results/integration-logging.json + 
+<<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> persisted with redacted <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>>
+
+|===
+
+<<<
+== Traceability Appendix
+
+=== Requirement Details
+[[REF_REQ_REQ_COF_001]]
+==== REQ-COF-001
+
+While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED,brew cycle completed event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall publish <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,brew telemetry>> to <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,fleet ingestion api>>.
+
+
+NOTE: Primary machine-to-cloud <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> contract.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
 
 [source,mermaid]
 ----
@@ -2125,8 +2120,48 @@ flowchart LR
   CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY["machine_telemetry"]:::code_element
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE -->|implemented_by| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
   REQC_REQ_COF_001 -->|code trace| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794["VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794 (pass)"]:::verification
+  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|verifies| REQC_REQ_COF_001
+  VEC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO["tests/contract"]:::code_element
+  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|implemented_by| VEC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_002]]
+==== REQ-COF-002
+
+While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist fleet <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> metrics for <<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
+
+
+NOTE: Operational observability <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_002["REQ-COF-002"]:::requirement
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_002 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
@@ -2135,6 +2170,39 @@ flowchart LR
   CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_002 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (not-run)"]:::verification
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_002
+  VEC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VEC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_003]]
+==== REQ-COF-003
+
+Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall distribute <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,signed firmware bundle>> to targeted machine cohort.
+
+
+NOTE: <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_003["REQ-COF-003"]:::requirement
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_003 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
@@ -2152,6 +2220,43 @@ flowchart LR
   CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
   REQC_REQ_COF_003 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (partial)"]:::verification
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
+  VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_003
+  VEC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO["tests/unit"]:::code_element
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VEC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_004]]
+==== REQ-COF-004
+
+Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall gate <<REF_IDX-CATALOG_DATA_OTA_STATUS,firmware apply>> on <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,firmware signature is valid>>.
+
+
+NOTE: Firmware integrity and trust boundary control.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_004["REQ-COF-004"]:::requirement
   FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
   REQC_REQ_COF_004 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
@@ -2160,25 +2265,199 @@ flowchart LR
   CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS["device_identity_secrets"]:::code_element
   RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
   REQC_REQ_COF_004 -->|code trace| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_004 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET["ota_campaign_target"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET
+  CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT["ota_update_agent"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE -->|implemented_by| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
   REQC_REQ_COF_004 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_004
+  VEC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO["tests/unit"]:::code_element
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VEC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_005]]
+==== REQ-COF-005
+
+If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall <<REF_IDX-CATALOG_DATA_OTA_STATUS,rollback firmware apply>>.
+
+
+NOTE: Rollback and failure signaling path.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_005["REQ-COF-005"]:::requirement
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_005 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET["ota_campaign_target"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET
+  CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT["ota_update_agent"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE -->|implemented_by| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
   REQC_REQ_COF_005 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
+  CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
   REQC_REQ_COF_005 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (partial)"]:::verification
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_005
+  VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_006]]
+==== REQ-COF-006
+
+If <<REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,cloud ingest endpoint is unavailable>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall queue <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> for retry.
+
+
+NOTE: Resilience for temporary cloud outage.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_006["REQ-COF-006"]:::requirement
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_006 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_006 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_006 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE
+  CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY["machine_telemetry"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE -->|implemented_by| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
   REQC_REQ_COF_006 -->|code trace| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_007]]
+==== REQ-COF-007
+
+Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED,ota status reported event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist redacted <<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> plus <<REF_IDX-CATALOG_DATA_CAMPAIGN_ID,campaign id>>.
+
+
+NOTE: Audit/compliance logging <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_007["REQ-COF-007"]:::requirement
+  FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
   REQC_REQ_COF_007 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
+  FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
+  CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS["device_identity_secrets"]:::code_element
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
   REQC_REQ_COF_007 -->|code trace| CDC_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_SECRETS
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_007 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_007 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (not-run)"]:::verification
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_007
+  VEC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VEC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_008]]
+==== REQ-COF-008
+
+If <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,telemetry replay abuse is detected>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall throttle duplicate <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>>.
+
+
+NOTE: Abuse control and security response <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_008["REQ-COF-008"]:::requirement
   FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_CLOUD_RUNTIME_OPERATIONS
@@ -2187,33 +2466,219 @@ flowchart LR
   CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS["cloud_runtime_ops"]:::code_element
   RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
   REQC_REQ_COF_008 -->|code trace| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_008 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_008 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_009]]
+==== REQ-COF-009
+
+While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist <<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,logging records>> for <<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
+
+
+NOTE: Operational logging persistence <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_009["REQ-COF-009"]:::requirement
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_009 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_009 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_009 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_009 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_010]]
+==== REQ-COF-010
+
+If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall report <<REF_IDX-CATALOG_DATA_OTA_STATUS,ota status>> to <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,update campaign orchestration>>.
+
+
+NOTE: OTA failure status signaling <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_010["REQ-COF-010"]:::requirement
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_010 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE["ota_campaign_schedule"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET["ota_campaign_target"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_TARGET
+  CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT["ota_update_agent"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_OTA_CAMPAIGN_SCHEDULE -->|implemented_by| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
   REQC_REQ_COF_010 -->|code trace| CDC_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
+  FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
+  CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
   REQC_REQ_COF_010 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_011]]
+==== REQ-COF-011
+
+If <<REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,cloud ingest endpoint is unavailable>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall flush queued <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> when <<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>>.
+
+
+NOTE: Queued <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> drain behavior after endpoint recovery.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_011["REQ-COF-011"]:::requirement
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_011 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_011 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_011 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE
+  CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY["machine_telemetry"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_TELEMETRY_RETRY_QUEUE -->|implemented_by| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
   REQC_REQ_COF_011 -->|code trace| CDC_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_COF_012]]
+==== REQ-COF-012
+
+If <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,telemetry replay abuse is detected>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall notify <<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,security analyst>>.
+
+
+NOTE: Security notification <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> for <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,replay abuse>> events.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_COF_012["REQ-COF-012"]:::requirement
+  FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
   REQC_REQ_COF_012 -->|applies_to| FU_FU_CLOUD_RUNTIME_OPERATIONS
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME["Cloud Runtime Operations runtime (inferred)"]:::runtime_element
+  FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME
+  CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS["cloud_runtime_ops"]:::code_element
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
   REQC_REQ_COF_012 -->|code trace| CDC_FU_CLOUD_RUNTIME_OPERATIONS_CLOUD_RUNTIME_OPS
+  FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_012 -->|applies_to| FU_FU_FLEET_INGESTION_API
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC["fleet_event_topic"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
+  FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_EVENT_TOPIC -->|implemented_by| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   REQC_REQ_COF_012 -->|code trace| CDC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
+  FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_012 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
+  FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   REQC_REQ_COF_012 -->|code trace| CDC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2227,73 +2692,6 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
-Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.
-
-<<<
-== Traceability Appendix
-
-=== Requirement Details
-[[REF_REQ_REQ_COF_001]]
-==== REQ-COF-001
-
-While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED,brew cycle completed event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall publish <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,brew telemetry>> to <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,fleet ingestion api>>.
-Notes: Primary machine-to-cloud <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> contract.
-[[REF_REQ_REQ_COF_002]]
-==== REQ-COF-002
-
-While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist fleet <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> metrics for <<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
-Notes: Operational observability <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_COF_003]]
-==== REQ-COF-003
-
-Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall distribute <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,signed firmware bundle>> to targeted machine cohort.
-Notes: <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>.
-[[REF_REQ_REQ_COF_004]]
-==== REQ-COF-004
-
-Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall gate <<REF_IDX-CATALOG_DATA_OTA_STATUS,firmware apply>> on <<REF_IDX-CATALOG_COND_FIRMWARE_SIGNATURE_VALID,firmware signature is valid>>.
-Notes: Firmware integrity and trust boundary control.
-[[REF_REQ_REQ_COF_005]]
-==== REQ-COF-005
-
-If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall <<REF_IDX-CATALOG_DATA_OTA_STATUS,rollback firmware apply>>.
-Notes: Rollback and failure signaling path.
-[[REF_REQ_REQ_COF_006]]
-==== REQ-COF-006
-
-If <<REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,cloud ingest endpoint is unavailable>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall queue <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> for retry.
-Notes: Resilience for temporary cloud outage.
-[[REF_REQ_REQ_COF_007]]
-==== REQ-COF-007
-
-Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_STATUS_REPORTED,ota status reported event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist redacted <<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> plus <<REF_IDX-CATALOG_DATA_CAMPAIGN_ID,campaign id>>.
-Notes: Audit/compliance logging <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_COF_008]]
-==== REQ-COF-008
-
-If <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,telemetry replay abuse is detected>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall throttle duplicate <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>>.
-Notes: Abuse control and security response <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_COF_009]]
-==== REQ-COF-009
-
-While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist <<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,logging records>> for <<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
-Notes: Operational logging persistence <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_COF_010]]
-==== REQ-COF-010
-
-If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall report <<REF_IDX-CATALOG_DATA_OTA_STATUS,ota status>> to <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,update campaign orchestration>>.
-Notes: OTA failure status signaling <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_COF_011]]
-==== REQ-COF-011
-
-If <<REF_IDX-CATALOG_EVT_CLOUD_INGEST_ENDPOINT_UNAVAILABLE,cloud ingest endpoint is unavailable>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall flush queued <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> when <<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>>.
-Notes: Queued <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> drain behavior after endpoint recovery.
-[[REF_REQ_REQ_COF_012]]
-==== REQ-COF-012
-
-If <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,telemetry replay abuse is detected>>, then <<REF_IDX-CATALOG_SYS_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall notify <<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,security analyst>>.
-Notes: Security notification <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> for <<REF_IDX-CATALOG_EVT_TELEMETRY_REPLAY_ABUSE_DETECTED,replay abuse>> events.
 
 === Verification Inventory
 
@@ -2380,47 +2778,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
-
-=== Verification Result Mapping
-
-What this section shows: per-requirement result mapping inferred from test-result artifacts.
-
-[cols="1,1,1,4",options="header"]
-|===
-|Check ID |Requirement |Result |Evidence / Notes
-|<<REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794>>
-|<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>
-|pass
-|test-results/contract-telemetry.json + 
-ingest payload accepted with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> and <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,telemetry>> fields
-|<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
-|<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>
-|not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-|<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
-|<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
-|not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-|<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
-|<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
-|pass
-|test-results/unit-ota.xml
-|<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
-|<<REF_IDX-REQ_REQ_COF_004,REQ-COF-004>>
-|pass
-|test-results/unit-ota.xml
-|<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
-|<<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>
-|partial
-|test-results/ota-rollback-report.md
-|<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
-|<<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>
-|pass
-|test-results/integration-logging.json + 
-<<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> persisted with redacted <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>>
-|===
 
 <<<
 == Reference Index

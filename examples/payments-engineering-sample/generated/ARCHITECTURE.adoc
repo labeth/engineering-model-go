@@ -420,6 +420,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -737,6 +741,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1063,6 +1071,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1327,40 +1339,93 @@ Coverage summary: 4/6 units have direct evidence coverage in this view.
 
 - Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
 
-=== Attack Path Diagram
 
-What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
-NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
+=== Security Logging and Observability
+
+[cols="2,1,1,3",options="header"]
+|===
+|Signal |Layer |Owner |Evidence
+
+|application security telemetry hooks |code |FU-RISK-SCORING |code support/audit_envelope.ts
+
+|fraud and abuse detection code paths |code |FU-RISK-SCORING |code risk_scorer.ts
+
+|deployment and platform audit events |deployment |FU-CHECKOUT |helmrelease checkout-api
+
+|deployment and platform audit events |deployment |FU-CHECKOUT |namespace payments
+
+|deployment and platform audit events |deployment |FU-CLUSTER-PROVISIONING |cluster payments
+
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |gitrepository payments-sample-source
+
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |kustomization payments-apps
+
+|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |namespace flux_system
+
+|deployment and platform audit events |deployment |FU-PAYMENT-AUTHORIZATION |helmrelease payment-engine
+
+|deployment and platform audit events |deployment |FU-RISK-SCORING |helmrelease risk-scorer
+
+|deployment and platform audit events |deployment |FU-RISK-SCORING |namespace risk
+
+|abuse and fraud decision logs |runtime |FU-RISK-SCORING |helmrelease risk-scorer
+
+|abuse and fraud decision logs |runtime |FU-RISK-SCORING |namespace risk
+
+|===
+
+
+
+=== Attack Vector Chapters
+
+
+==== <<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>> (AV-FRAUDULENT-TRANSACTION-PATTERN)
+
+
+Coordinated abuse pattern using synthetic identities, stolen instruments, and velocity anomalies to seek unauthorized approvals.
+
 
 [source,mermaid]
 ----
 flowchart LR
-  AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
-  SEC_TGT_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::functional_unit
-  AV_COMPROMISED_DEPENDENCY -->|targets| SEC_TGT_POSTGRESQL_CLIENT_DRIVER
-  AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
-  SEC_TGT_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_PAYMENT_AUTHORIZATION
+  AV_AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_PAYMENT_AUTHORIZATION
   SEC_DEP_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
-  SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_BANK_GATEWAY_ENDPOINT
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_BANK_GATEWAY_ENDPOINT
   SEC_DEP_RISK_SCORING["Risk Scoring"]:::referenced_element
-  SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_RISK_SCORING
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_RISK_SCORING
   SEC_DEP_SUPPORT_REVIEW["Support Review"]:::referenced_element
-  SEC_TGT_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
-  SEC_TGT_RISK_SCORING["Risk Scoring"]:::functional_unit
-  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_RISK_SCORING
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_CRATE__DOMAIN__EVENTS__PAYMENTEVENT["crate::domain::events::PaymentEvent"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_CRATE__DOMAIN__EVENTS__PAYMENTEVENT
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON["serde_json::json"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON
+  SEC_TGT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+  AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_RISK_SCORING
   SEC_DEP_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-  SEC_TGT_RISK_SCORING -->|depends_on| SEC_DEP_POSTGRESQL_CLIENT_DRIVER
-  SEC_TGT_SUPPORT_REVIEW["Support Review"]:::functional_unit
-  AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_SUPPORT_REVIEW
-  AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
-  SEC_TGT_CHECKOUT_HANDLING["Checkout Handling"]:::functional_unit
-  AV_MALICIOUS_API_REQUEST -->|targets| SEC_TGT_CHECKOUT_HANDLING
-  SEC_DEP_PAYMENT_AUTHORIZATION["Payment Authorization"]:::referenced_element
-  SEC_TGT_CHECKOUT_HANDLING -->|depends_on| SEC_DEP_PAYMENT_AUTHORIZATION
-  AV_REPLAYED_AUTHORIZATION_CALLBACK(("Replayed Authorization Callback")):::attack_vector
-  AV_REPLAYED_AUTHORIZATION_CALLBACK -->|targets| SEC_TGT_PAYMENT_AUTHORIZATION
+  SEC_TGT_FU_RISK_SCORING -->|depends_on| SEC_DEP_POSTGRESQL_CLIENT_DRIVER
+  SEC_RT_FU_RISK_SCORING_RISK["risk"]:::runtime_element
+  SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK
+  SEC_RT_FU_RISK_SCORING_RISK_SCORER["risk-scorer"]:::runtime_element
+  SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK_SCORER
+  SEC_CODE_FU_RISK_SCORING___SUPPORT_AUDIT_ENVELOPE["./support/audit_envelope"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| SEC_CODE_FU_RISK_SCORING___SUPPORT_AUDIT_ENVELOPE
+  SEC_CODE_FU_RISK_SCORING_RISK_SCORER["risk_scorer"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| SEC_CODE_FU_RISK_SCORING_RISK_SCORER
+  SEC_CODE_FU_RISK_SCORING_SUPPORT["support"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| SEC_CODE_FU_RISK_SCORING_SUPPORT
+  SEC_CODE_FU_RISK_SCORING_ZOD["zod"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| SEC_CODE_FU_RISK_SCORING_ZOD
+  SEC_TGT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_SUPPORT_REVIEW
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1373,100 +1438,13 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Security Logging and Observability
-
-[cols="2,1,1,3",options="header"]
-|===
-|Signal |Layer |Owner |Evidence
-|application security telemetry hooks |code |FU-RISK-SCORING |code support/audit_envelope.ts
-|fraud and abuse detection code paths |code |FU-RISK-SCORING |code risk_scorer.ts
-|deployment and platform audit events |deployment |FU-CHECKOUT |helmrelease checkout-api
-|deployment and platform audit events |deployment |FU-CHECKOUT |namespace payments
-|deployment and platform audit events |deployment |FU-CLUSTER-PROVISIONING |cluster payments
-|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |gitrepository payments-sample-source
-|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |kustomization payments-apps
-|deployment and platform audit events |deployment |FU-GITOPS-OPERATIONS |namespace flux_system
-|deployment and platform audit events |deployment |FU-PAYMENT-AUTHORIZATION |helmrelease payment-engine
-|deployment and platform audit events |deployment |FU-RISK-SCORING |helmrelease risk-scorer
-|deployment and platform audit events |deployment |FU-RISK-SCORING |namespace risk
-|abuse and fraud decision logs |runtime |FU-RISK-SCORING |helmrelease risk-scorer
-|abuse and fraud decision logs |runtime |FU-RISK-SCORING |namespace risk
-|===
-=== Functional Groups and Units (View Scoped)
-
-
-
-==== Payments (FG-PAYMENTS)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_PAYMENTS,payments>> protects public trust boundaries where untrusted input and external callbacks enter the system.
-Security design focuses on strict validation, replay resistance, and safe failure behavior that preserves
-<<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> trust during degraded dependency conditions.
-
-
-
-
-
-
-
-
-
-===== Checkout Handling (FU-CHECKOUT)
-
-
-
-
-<<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
-The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
-are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> flows.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
 
 
 ===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 
-
-
 <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
 The design defends against replay, policy probing, and ambiguous error channels that could be abused.
-
-
-
 
 
 [discrete]
@@ -1475,58 +1453,15 @@ The design defends against replay, policy probing, and ambiguous error channels 
 <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>, <<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-
-
-
-
-==== Fraud Evaluation (FG-FRAUD)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> security focuses on decision integrity and review integrity.
-The design assumes attempted manipulation of <<REF_RT_NAMESPACE_RISK,risk>> inputs, dependency trust, and <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,manual review>> workflows,
-and therefore requires strong evidence lineage and tamper-evident operator actions.
-
-
-
-
-
 ===== Risk Scoring (FU-RISK-SCORING)
-
-
 
 
 <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>> security assumes adversarial input attempts and model manipulation pressure.
 Design controls enforce strict input handling and evidence capture for post-event investigation.
-
-
-
 
 
 [discrete]
@@ -1535,180 +1470,147 @@ Design controls enforce strict input handling and evidence capture for post-even
 <<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 runtime: <<REF_RT_NAMESPACE_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
 ===== Support Review (FU-SUPPORT-REVIEW)
-
-
 
 
 <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> security requires strong operator identity controls and tamper-evident audit trails.
 The design prevents silent overrides and guarantees every manual decision is attributable.
 
 
-
-
-
 [discrete]
 ====== Attack Surface
 
 none
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
 
 [discrete]
 ====== Security Evidence Present
 
 authored unit with no direct derived runtime/code evidence yet
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
+==== <<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,Malicious API Request>> (AV-MALICIOUS-API-REQUEST)
 
 
+Crafted payloads attempting to bypass authorization controls.
 
 
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
+  SEC_TGT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+  AV_AV_MALICIOUS_API_REQUEST -->|targets| SEC_TGT_FU_CHECKOUT
+  SEC_DEP_PAYMENT_AUTHORIZATION["Payment Authorization"]:::referenced_element
+  SEC_TGT_FU_CHECKOUT -->|depends_on| SEC_DEP_PAYMENT_AUTHORIZATION
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API["checkout-api"]:::runtime_element
+  SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_CHECKOUT_API
+  SEC_RT_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_PAYMENTS
+  SEC_CODE_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_CHECKOUT_API
+  SEC_CODE_FU_CHECKOUT_FMT["fmt"]:::code_element
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_FMT
+  SEC_CODE_FU_CHECKOUT_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE["github.com/labeth/engineering-model-go/validate"]:::code_element
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
+  SEC_CODE_FU_CHECKOUT_GOPKG_IN_YAML_V3["gopkg.in/yaml.v3"]:::code_element
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_GOPKG_IN_YAML_V3
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
 
 
+===== Checkout Handling (FU-CHECKOUT)
 
 
-
-
-
-==== Platform (FG-PLATFORM)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_PLATFORM,platform>> security design establishes baseline controls inherited by all higher-layer units.
-It focuses on trusted reconciliation, isolation defaults, and policy enforcement points where compromise
-would have broad systemic impact.
-
-
-
-
-
-
-
-
-
-
-
-
-
-===== Cluster Provisioning (FU-CLUSTER-PROVISIONING)
-
-
-
-
-<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,cluster provisioning>> security sets inherited baseline hardening and isolation defaults.
-Design must detect and remediate security drift early because downstream controls depend on this layer.
-
-
-
+<<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>> security protects the internet-facing ingress.
+The design requires strict validation, abuse resistance, and traceable rejection behavior so malicious inputs
+are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> flows.
 
 
 [discrete]
 ====== Attack Surface
 
-none
-
-[discrete]
-====== Main Threats
-
-no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
+<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO,checkout_api>>
 
 
 
+==== <<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>> (AV-REPLAYED-AUTH-CALLBACK)
 
 
-===== GitOps Operations (FU-GITOPS-OPERATIONS)
+Replay attack against external authorization callback flow.
 
 
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_REPLAYED_AUTH_CALLBACK(("Replayed Authorization Callback")):::attack_vector
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  AV_AV_REPLAYED_AUTH_CALLBACK -->|targets| SEC_TGT_FU_PAYMENT_AUTHORIZATION
+  SEC_DEP_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_BANK_GATEWAY_ENDPOINT
+  SEC_DEP_RISK_SCORING["Risk Scoring"]:::referenced_element
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_RISK_SCORING
+  SEC_DEP_SUPPORT_REVIEW["Support Review"]:::referenced_element
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
+  SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_CRATE__DOMAIN__EVENTS__PAYMENTEVENT["crate::domain::events::PaymentEvent"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_CRATE__DOMAIN__EVENTS__PAYMENTEVENT
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON["serde_json::json"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
 
 
-<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> security protects source trust and reconciliation authority.
-The design prevents unauthorized state changes and enforces policy before runtime apply occurs.
+===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 
-
+<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
 
 [discrete]
 ====== Attack Surface
 
-<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,Cluster Provisioning>>, <<REF_IDX-CATALOG_REF_HELM_PLATFORM,Helm>> Runtime <<REF_IDX-CATALOG_FG_PLATFORM,Platform>>
-
-[discrete]
-====== Main Threats
-
-no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
+<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_KUSTOMIZATION_FLUX_SYSTEM_PAYMENTS_APPS,flux-system/payments-apps>>, <<REF_RT_GITREPOSITORY_FLUX_SYSTEM_PAYMENTS_SAMPLE_SOURCE,flux-system/payments-sample-source>>, <<REF_RT_NAMESPACE_FLUX_SYSTEM,flux_system>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS,payment_engine>>
 
 
 
@@ -1753,110 +1655,125 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 - Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
 
 
-=== Traceability Evidence Graph
-
-What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
-
-NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
 
 
-[source,mermaid]
-----
-flowchart TB
-  FU_FU_CHECKOUT["FU-CHECKOUT"]:::functional_unit
-  FG_FG_PAYMENTS["Payments"]:::functional_group
-  FG_FG_PAYMENTS -->|contains| FU_FU_CHECKOUT
-  LIB_GOPKG_IN_YAML_V3["gopkg.in/yaml.v3"]:::code_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_GOPKG_IN_YAML_V3
-  LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE["engineering-model-go/validate"]:::code_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
-  LIB_FMT["fmt"]:::code_element
-  FU_FU_CHECKOUT -->|uses_library| LIB_FMT
-  FU_FU_PAYMENT_AUTHORIZATION["FU-PAYMENT-AUTHORIZATION"]:::functional_unit
-  FG_FG_PAYMENTS -->|contains| FU_FU_PAYMENT_AUTHORIZATION
-  LIB_SERDE_JSON__JSON["serde_json::json"]:::code_element
-  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_SERDE_JSON__JSON
-  LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT["domain::events::PaymentEvent"]:::code_element
-  FU_FU_PAYMENT_AUTHORIZATION -->|uses_library| LIB_CRATE__DOMAIN__EVENTS__PAYMENTEVENT
-  FU_FU_RISK_SCORING["FU-RISK-SCORING"]:::functional_unit
-  FG_FG_FRAUD["Fraud Evaluation"]:::functional_group
-  FG_FG_FRAUD -->|contains| FU_FU_RISK_SCORING
-  LIB_ZOD["zod"]:::code_element
-  FU_FU_RISK_SCORING -->|uses_library| LIB_ZOD
-  LIB___SUPPORT_AUDIT_ENVELOPE["support/audit_envelope"]:::code_element
-  FU_FU_RISK_SCORING -->|uses_library| LIB___SUPPORT_AUDIT_ENVELOPE
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
-=== Requirement-to-Unit Mapping
 
-What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
+=== Requirement-to-Unit Mapping (Compact)
 
-[source,mermaid]
-----
-flowchart LR
-  REQ_REQ_PAY_001["REQ-PAY-001"]:::requirement
-  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-  REQ_REQ_PAY_001 --> UNIT_FU_CHECKOUT
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  REQ_REQ_PAY_001 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  REQ_REQ_PAY_002["REQ-PAY-002"]:::requirement
-  UNIT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-  REQ_REQ_PAY_002 --> UNIT_FU_RISK_SCORING
-  REQ_REQ_PAY_003["REQ-PAY-003"]:::requirement
-  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-  REQ_REQ_PAY_003 --> UNIT_FU_CHECKOUT
-  REQ_REQ_PAY_004["REQ-PAY-004"]:::requirement
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  REQ_REQ_PAY_004 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  UNIT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-  REQ_REQ_PAY_004 --> UNIT_FU_SUPPORT_REVIEW
-  REQ_REQ_PAY_005["REQ-PAY-005"]:::requirement
-  UNIT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
-  REQ_REQ_PAY_005 --> UNIT_FU_RISK_SCORING
-  REQ_REQ_PAY_006["REQ-PAY-006"]:::requirement
-  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-  REQ_REQ_PAY_006 --> UNIT_FU_CHECKOUT
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  REQ_REQ_PAY_006 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  REQ_REQ_PAY_007["REQ-PAY-007"]:::requirement
-  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-  REQ_REQ_PAY_007 --> UNIT_FU_CHECKOUT
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  REQ_REQ_PAY_007 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  REQ_REQ_PAY_008["REQ-PAY-008"]:::requirement
-  UNIT_FU_CHECKOUT["Checkout Handling"]:::functional_unit
-  REQ_REQ_PAY_008 --> UNIT_FU_CHECKOUT
-  REQ_REQ_PAY_009["REQ-PAY-009"]:::requirement
-  UNIT_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
-  REQ_REQ_PAY_009 --> UNIT_FU_PAYMENT_AUTHORIZATION
-  UNIT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
-  REQ_REQ_PAY_009 --> UNIT_FU_SUPPORT_REVIEW
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
+What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-=== Requirement-to-Unit-to-Evidence Coverage
+[cols="2,1,1,1,1",options="header"]
+|===
+|Requirement
+|FU-CHECKOUT
+|FU-PAYMENT-AUTHORIZATION
+|FU-RISK-SCORING
+|FU-SUPPORT-REVIEW
+|REQ-PAY-001
+|X
+|X
+|
+|
+|REQ-PAY-002
+|
+|
+|X
+|
+|REQ-PAY-003
+|X
+|
+|
+|
+|REQ-PAY-004
+|
+|X
+|
+|X
+|REQ-PAY-005
+|
+|
+|X
+|
+|REQ-PAY-006
+|X
+|X
+|
+|
+|REQ-PAY-007
+|X
+|X
+|
+|
+|REQ-PAY-008
+|X
+|
+|
+|
+|REQ-PAY-009
+|
+|X
+|
+|X
+|===
 
-What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+
+|<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
+|<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
+|not-run
+|none + 
+No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>
+|pass
+|test-results/integration-fraud-gate.json
+
+|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>
+|pass
+|test-results/contract-checkout-decline.json
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
+|pass
+|test-results/integration-fraud-gate.json
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
+|<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
+|partial
+|test-results/audit-persistence-report.md
+
+|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
+|<<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
+|pass
+|test-results/contract-checkout-decline.json
+
+|===
+
+<<<
+== Traceability Appendix
+
+=== Requirement Details
+[[REF_REQ_REQ_PAY_001]]
+==== REQ-PAY-001
+
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall create a payment session.
+
+
+NOTE: Core authorization path from <<REF_IDX-CATALOG_FU_CHECKOUT,checkout>> to bank gateway.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
 
 [source,mermaid]
 ----
@@ -1881,6 +1798,39 @@ flowchart LR
   CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_001 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597["VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597 (not-run)"]:::verification
+  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|verifies| REQC_REQ_PAY_001
+  VEC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|implemented_by| VEC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_002]]
+==== REQ-PAY-002
+
+Where <<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_FRAUD_DETECTION_SYSTEM,the fraud detection system>> shall calculate a <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>> before approval.
+
+
+NOTE: <<REF_IDX-CATALOG_FU_RISK_SCORING,Fraud scoring>> gate before approval.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_002["REQ-PAY-002"]:::requirement
   FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQC_REQ_PAY_002 -->|applies_to| FU_FU_RISK_SCORING
@@ -1894,38 +1844,323 @@ flowchart LR
   CDC_FU_RISK_SCORING_SUPPORT["support"]:::code_element
   RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_SUPPORT
   REQC_REQ_PAY_002 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_002
+  VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_003]]
+==== REQ-PAY-003
+
+If <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a <<REF_IDX-CATALOG_DATA_DECLINE_REASON,decline reason>> to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
+
+
+NOTE: <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,Decline>> handling and <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> feedback.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_003["REQ-PAY-003"]:::requirement
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_003 -->|applies_to| FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
+  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
   REQC_REQ_PAY_003 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26["VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (pass)"]:::verification
+  VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26 -->|verifies| REQC_REQ_PAY_003
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_004]]
+==== REQ-PAY-004
+
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall place the payment in <<REF_IDX-CATALOG_STATE_REVIEW_PENDING,payment review is pending>>.
+
+
+NOTE: Escalation flow for high-risk <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_004["REQ-PAY-004"]:::requirement
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
   REQC_REQ_PAY_004 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_004 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_SUPPORT_REVIEW
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_004
+  VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_005]]
+==== REQ-PAY-005
+
+Where <<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall persist an audit record with <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> plus <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>.
+
+
+NOTE: Auditability for authorization decisions.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_005["REQ-PAY-005"]:::requirement
+  FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQC_REQ_PAY_005 -->|applies_to| FU_FU_RISK_SCORING
+  RTC_FU_RISK_SCORING_RISK["risk"]:::runtime_element
+  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
+  RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
+  FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
+  CDC_FU_RISK_SCORING_RISK_SCORER["risk_scorer"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_RISK_SCORER
   REQC_REQ_PAY_005 -->|code trace| CDC_FU_RISK_SCORING_RISK_SCORER
+  CDC_FU_RISK_SCORING_SUPPORT["support"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_SUPPORT
   REQC_REQ_PAY_005 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
+  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2["VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2 (partial)"]:::verification
+  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|verifies| REQC_REQ_PAY_005
+  VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_006]]
+==== REQ-PAY-006
+
+If <<REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a temporary unavailable message to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
+
+
+NOTE: Fallback behavior when external banking path is down.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_006["REQ-PAY-006"]:::requirement
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_006 -->|applies_to| FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
+  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
   REQC_REQ_PAY_006 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_006 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
   REQC_REQ_PAY_006 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_006 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26["VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (pass)"]:::verification
+  VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26 -->|verifies| REQC_REQ_PAY_006
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_007]]
+==== REQ-PAY-007
+
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall request authorization from <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>>.
+
+
+NOTE: External authorization call contract.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_007["REQ-PAY-007"]:::requirement
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_007 -->|applies_to| FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
+  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
   REQC_REQ_PAY_007 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_007 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
   REQC_REQ_PAY_007 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_007 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_008]]
+==== REQ-PAY-008
+
+If <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a retry option to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
+
+
+NOTE: <<REF_IDX-CATALOG_ACT_CUSTOMER,Customer>> retry path <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> after <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,decline>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_008["REQ-PAY-008"]:::requirement
+  FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_008 -->|applies_to| FU_FU_CHECKOUT
+  RTC_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
+  RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
+  FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
   REQC_REQ_PAY_008 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PAY_009]]
+==== REQ-PAY-009
+
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall notify <<REF_IDX-CATALOG_ACT_SUPPORT,support agent>>.
+
+
+NOTE: <<REF_IDX-CATALOG_ACT_SUPPORT,Support>> notification <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> for high-risk review.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PAY_009["REQ-PAY-009"]:::requirement
+  FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_009 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
+  FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN["domain"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
   REQC_REQ_PAY_009 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_DOMAIN
+  CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_009 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
+  FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_009 -->|applies_to| FU_FU_SUPPORT_REVIEW
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -1939,58 +2174,6 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
-Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.
-
-<<<
-== Traceability Appendix
-
-=== Requirement Details
-[[REF_REQ_REQ_PAY_001]]
-==== REQ-PAY-001
-
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall create a payment session.
-Notes: Core authorization path from <<REF_IDX-CATALOG_FU_CHECKOUT,checkout>> to bank gateway.
-[[REF_REQ_REQ_PAY_002]]
-==== REQ-PAY-002
-
-Where <<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_FRAUD_DETECTION_SYSTEM,the fraud detection system>> shall calculate a <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>> before approval.
-Notes: <<REF_IDX-CATALOG_FU_RISK_SCORING,Fraud scoring>> gate before approval.
-[[REF_REQ_REQ_PAY_003]]
-==== REQ-PAY-003
-
-If <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a <<REF_IDX-CATALOG_DATA_DECLINE_REASON,decline reason>> to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
-Notes: <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,Decline>> handling and <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> feedback.
-[[REF_REQ_REQ_PAY_004]]
-==== REQ-PAY-004
-
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall place the payment in <<REF_IDX-CATALOG_STATE_REVIEW_PENDING,payment review is pending>>.
-Notes: Escalation flow for high-risk <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
-[[REF_REQ_REQ_PAY_005]]
-==== REQ-PAY-005
-
-Where <<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall persist an audit record with <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> plus <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>.
-Notes: Auditability for authorization decisions.
-[[REF_REQ_REQ_PAY_006]]
-==== REQ-PAY-006
-
-If <<REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a temporary unavailable message to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
-Notes: Fallback behavior when external banking path is down.
-[[REF_REQ_REQ_PAY_007]]
-==== REQ-PAY-007
-
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall request authorization from <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>>.
-Notes: External authorization call contract.
-[[REF_REQ_REQ_PAY_008]]
-==== REQ-PAY-008
-
-If <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,payment is declined>>, then <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall present a retry option to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
-Notes: <<REF_IDX-CATALOG_ACT_CUSTOMER,Customer>> retry path <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> after <<REF_IDX-CATALOG_EVT_PAYMENT_DECLINED,decline>>.
-[[REF_REQ_REQ_PAY_009]]
-==== REQ-PAY-009
-
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_SYS_PAYMENTS_SYSTEM,the payments system>> shall notify <<REF_IDX-CATALOG_ACT_SUPPORT,support agent>>.
-Notes: <<REF_IDX-CATALOG_ACT_SUPPORT,Support>> notification <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> for high-risk review.
 
 === Verification Inventory
 
@@ -2077,40 +2260,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
-
-=== Verification Result Mapping
-
-What this section shows: per-requirement result mapping inferred from test-result artifacts.
-
-[cols="1,1,1,4",options="header"]
-|===
-|Check ID |Requirement |Result |Evidence / Notes
-|<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
-|<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
-|not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
-|<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>
-|pass
-|test-results/integration-fraud-gate.json
-|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
-|<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>
-|pass
-|test-results/contract-checkout-decline.json
-|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
-|<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
-|pass
-|test-results/integration-fraud-gate.json
-|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
-|<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
-|partial
-|test-results/audit-persistence-report.md
-|<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
-|<<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
-|pass
-|test-results/contract-checkout-decline.json
-|===
 
 <<<
 == Reference Index

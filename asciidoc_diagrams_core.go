@@ -42,6 +42,93 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 	return strings.Join(lines, "\n")
 }
 
+func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
+	appliesByReq := map[string]map[string]bool{}
+	reqIDs := make([]string, 0, len(reqs))
+	seenReq := map[string]bool{}
+	fuSet := map[string]bool{}
+
+	type reqTargets struct {
+		ID      string
+		Targets []string
+	}
+	byReq := make([]reqTargets, 0, len(reqs))
+
+	for _, r := range reqs {
+		rid := strings.TrimSpace(r.ID)
+		if rid == "" || seenReq[rid] {
+			continue
+		}
+		seenReq[rid] = true
+		targets := uniqueSorted(r.AppliesTo)
+		for _, fu := range targets {
+			if strings.TrimSpace(fu) == "" {
+				continue
+			}
+			fuSet[fu] = true
+		}
+		byReq = append(byReq, reqTargets{ID: rid, Targets: targets})
+	}
+	sort.SliceStable(byReq, func(i, j int) bool { return byReq[i].ID < byReq[j].ID })
+	for _, r := range byReq {
+		reqIDs = append(reqIDs, r.ID)
+		if appliesByReq[r.ID] == nil {
+			appliesByReq[r.ID] = map[string]bool{}
+		}
+		for _, fu := range r.Targets {
+			fu = strings.TrimSpace(fu)
+			if fu == "" {
+				continue
+			}
+			appliesByReq[r.ID][fu] = true
+		}
+	}
+	fuIDs := uniqueSorted(keysFromSet(fuSet))
+	if len(reqIDs) == 0 || len(fuIDs) == 0 {
+		return "No authored requirement-to-unit mappings were found."
+	}
+
+	colSpec := make([]string, 0, len(fuIDs)+1)
+	colSpec = append(colSpec, "2")
+	for range fuIDs {
+		colSpec = append(colSpec, "1")
+	}
+	lines := []string{
+		"[cols=\"" + strings.Join(colSpec, ",") + "\",options=\"header\"]",
+		"|===",
+		"|Requirement",
+	}
+	for _, fu := range fuIDs {
+		lines = append(lines, "|"+escapeTableCell(fu))
+	}
+	for _, reqID := range reqIDs {
+		lines = append(lines, "|"+escapeTableCell(reqID))
+		for _, fu := range fuIDs {
+			mark := ""
+			if appliesByReq[reqID][fu] {
+				mark = "X"
+			}
+			lines = append(lines, "|"+mark)
+		}
+	}
+	lines = append(lines, "|===")
+	return strings.Join(lines, "\n")
+}
+
+func keysFromSet(m map[string]bool) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	return out
+}
+
+func escapeTableCell(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.ReplaceAll(s, "|", "\\|")
+	return s
+}
+
 func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart LR"}
 	for _, act := range a.Actors {
@@ -296,7 +383,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 	return strings.Join(lines, "\n")
 }
 
-func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, labels map[string]string) string {
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
 	rtByOwner := map[string][]string{}
 	for _, r := range runtime {
@@ -313,6 +400,28 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 			continue
 		}
 		codeByOwner[owner] = append(codeByOwner[owner], moduleFromPath(codeItemPath(c)))
+	}
+	checksByReq := map[string][]inferredVerificationCheck{}
+	for _, v := range verification {
+		id := strings.TrimSpace(v.ID)
+		if id == "" {
+			continue
+		}
+		for _, reqID := range uniqueSorted(v.Verifies) {
+			reqID = strings.TrimSpace(reqID)
+			if reqID == "" {
+				continue
+			}
+			checksByReq[reqID] = append(checksByReq[reqID], v)
+		}
+	}
+	for reqID := range checksByReq {
+		sort.SliceStable(checksByReq[reqID], func(i, j int) bool {
+			if checksByReq[reqID][i].ID != checksByReq[reqID][j].ID {
+				return checksByReq[reqID][i].ID < checksByReq[reqID][j].ID
+			}
+			return checksByReq[reqID][i].Name < checksByReq[reqID][j].Name
+		})
 	}
 
 	for _, r := range reqs {
@@ -352,6 +461,29 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 					lines = append(lines, "  "+fuNode+" -->|code evidence| "+cmNode)
 				}
 				lines = append(lines, "  "+reqNode+" -->|code trace| "+cmNode)
+			}
+		}
+		for _, v := range checksByReq[strings.TrimSpace(r.ID)] {
+			status := strings.TrimSpace(v.Status)
+			checkLabel := strings.TrimSpace(v.ID)
+			if status != "" {
+				checkLabel = checkLabel + " (" + status + ")"
+			}
+			verNode := "VERC_" + sanitizeNode(v.ID)
+			lines = append(lines, "  "+verNode+"[\""+escapeMermaidLabel(checkLabel)+"\"]:::verification")
+			lines = append(lines, "  "+verNode+" -->|verifies| "+reqNode)
+			for _, ce := range uniqueSorted(v.CodeElements) {
+				elem := strings.TrimSpace(ce)
+				if elem == "" {
+					continue
+				}
+				label := moduleFromPath(elem)
+				if strings.TrimSpace(label) == "" {
+					label = elem
+				}
+				ceNode := "VEC_" + sanitizeNode(v.ID+"-"+elem)
+				lines = append(lines, "  "+ceNode+"[\""+escapeMermaidLabel(label)+"\"]:::code_element")
+				lines = append(lines, "  "+verNode+" -->|implemented_by| "+ceNode)
 			}
 		}
 	}

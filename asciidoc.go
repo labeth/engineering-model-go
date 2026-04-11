@@ -230,8 +230,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		case "security":
 			secRows := buildSecurityPathRows(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityRows = secRows
-			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows)
+			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
 			viewSections[i].SecurityObsRows = buildSecurityObservabilityRows(inferredRuntime, inferredCode)
+			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, inferredRuntime, inferredCode)
 		case "traceability":
 			codeRows := buildCodeOwnershipRows(inferredCode)
 			viewSections[i].InferredGraph = buildCodeOwnershipMermaid(codeRows, bundle.Architecture.AuthoredArchitecture)
@@ -241,7 +242,18 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 
 	reqSections := make([]asciidocRequirementSection, 0, len(requirements.Requirements))
 	for _, r := range requirements.Requirements {
-		reqSections = append(reqSections, asciidocRequirementSection{Anchor: referenceAnchor("req", r.ID), ID: r.ID, Text: strings.TrimSpace(r.Text), Notes: strings.TrimSpace(r.Notes)})
+		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID)
+		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID)
+		reqSections = append(reqSections, asciidocRequirementSection{
+			Anchor:               referenceAnchor("req", r.ID),
+			ID:                   r.ID,
+			Text:                 strings.TrimSpace(r.Text),
+			Notes:                strings.TrimSpace(r.Notes),
+			AlignmentMermaid:     alignmentMermaid,
+			CoverageMermaid:      coverageMermaid,
+			AlignmentExplanation: "What this diagram shows: direct authored mapping from this requirement to the functional units it applies to.",
+			CoverageExplanation:  "What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.",
+		})
 	}
 	sort.SliceStable(reqSections, func(i, j int) bool { return reqSections[i].ID < reqSections[j].ID })
 	joinList := func(items []string) string {
@@ -329,8 +341,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		return verificationResultRows[i].Status < verificationResultRows[j].Status
 	})
 
-	reqMermaid := buildRequirementAlignmentMermaid(requirements.Requirements, labelByID)
-	reqCoverageMermaid := buildRequirementCoverageMermaid(requirements.Requirements, inferredRuntime, inferredCode, labelByID)
+	reqMermaid := buildRequirementAlignmentCompactTable(requirements.Requirements)
 	refIndex := buildReferenceIndex(bundle, requirements, inferredRuntime, inferredCode, inferredVerification)
 	linkTargets := buildLinkTargets(refIndex)
 	terms := buildTermsFromCatalog(bundle.Catalog)
@@ -362,6 +373,23 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			viewSections[i].Units[j].Evidence = linkifyText(viewSections[i].Units[j].Evidence, linkTargets)
 			for k := range viewSections[i].Units[j].Details {
 				viewSections[i].Units[j].Details[k].Narrative = linkifyText(viewSections[i].Units[j].Details[k].Narrative, linkTargets)
+			}
+		}
+		for j := range viewSections[i].SecurityAttackChapters {
+			viewSections[i].SecurityAttackChapters[j].Name = linkifyText(viewSections[i].SecurityAttackChapters[j].Name, linkTargets)
+			viewSections[i].SecurityAttackChapters[j].Description = linkifyText(viewSections[i].SecurityAttackChapters[j].Description, linkTargets)
+			for k := range viewSections[i].SecurityAttackChapters[j].Units {
+				viewSections[i].SecurityAttackChapters[j].Units[k].Intro = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Intro, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].WhatOwns = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].WhatOwns, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].Triggers = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Triggers, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].Consumes = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Consumes, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].Produces = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Produces, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].DependsOn = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].DependsOn, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].Threats = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Threats, linkTargets)
+				viewSections[i].SecurityAttackChapters[j].Units[k].Evidence = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Evidence, linkTargets)
+				for d := range viewSections[i].SecurityAttackChapters[j].Units[k].Details {
+					viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative, linkTargets)
+				}
 			}
 		}
 		if viewSections[i].Inf != "" {
@@ -442,7 +470,6 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		},
 		Views:                      viewSections,
 		RequirementMermaid:         reqMermaid,
-		RequirementCoverageMermaid: reqCoverageMermaid,
 		RequirementInf:             "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
 		Requirements:               reqSections,
 		Verifications:              verificationSections,

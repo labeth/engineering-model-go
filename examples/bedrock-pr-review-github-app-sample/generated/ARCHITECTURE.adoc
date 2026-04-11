@@ -458,6 +458,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -795,6 +799,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1239,6 +1247,10 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1521,47 +1533,51 @@ Coverage summary: 5/7 units have direct evidence coverage in this view.
 
 - Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
 
-=== Attack Path Diagram
 
-What this diagram shows: authored attack vectors, their targeted units, and security-relevant dependency paths.
 
-NOTE: Security relationships shown here are explicitly modeled or inferred from available evidence and may be incomplete. Absence of a path does not imply absence of risk. Threats that are currently mitigated (including fraud/abuse threats) should still be modeled as attack vectors for auditability and control-trace visibility.
+
+
+=== Attack Vector Chapters
+
+
+==== <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>> (AV-PROMPT-INJECTION-IN-DIFF)
+
+
+Malicious prompt-like content embedded in pull request diffs.
+
 
 [source,mermaid]
 ----
 flowchart LR
-  AV_PROMPT_INJECTION_IN_DIFF(("Prompt Injection in Diff")):::attack_vector
-  SEC_TGT_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
-  AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_PR_CONTEXT_ASSEMBLY
+  AV_AV_PROMPT_INJECTION_IN_DIFF(("Prompt Injection in Diff")):::attack_vector
+  SEC_TGT_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+  AV_AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_FU_PR_CONTEXT_ASSEMBLY
   SEC_DEP_GITHUB_APP_API["GitHub App API"]:::referenced_element
-  SEC_TGT_PR_CONTEXT_ASSEMBLY -->|depends_on| SEC_DEP_GITHUB_APP_API
+  SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|depends_on| SEC_DEP_GITHUB_APP_API
   SEC_DEP_REVIEW_ORCHESTRATION["Review Orchestration"]:::referenced_element
-  SEC_TGT_PR_CONTEXT_ASSEMBLY -->|depends_on| SEC_DEP_REVIEW_ORCHESTRATION
-  SEC_TGT_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
-  AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_REVIEW_ORCHESTRATION
+  SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|depends_on| SEC_DEP_REVIEW_ORCHESTRATION
+  SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
+  SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|runtime| SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
+  SEC_CODE_FU_PR_CONTEXT_ASSEMBLY_GITHUB_REST_SDK["github-rest-sdk"]:::code_element
+  SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| SEC_CODE_FU_PR_CONTEXT_ASSEMBLY_GITHUB_REST_SDK
+  SEC_CODE_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY["pr_context_assembly"]:::code_element
+  SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| SEC_CODE_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY
+  SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+  AV_AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
   SEC_DEP_AWS_BEDROCK_RUNTIME_API["AWS Bedrock Runtime API"]:::referenced_element
-  SEC_TGT_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_AWS_BEDROCK_RUNTIME_API
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_AWS_BEDROCK_RUNTIME_API
   SEC_DEP_POLICY_CHECKS["Policy Checks"]:::referenced_element
-  SEC_TGT_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_POLICY_CHECKS
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_POLICY_CHECKS
   SEC_DEP_REVIEW_PUBLICATION["Review Publication"]:::referenced_element
-  SEC_TGT_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_REVIEW_PUBLICATION
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_REVIEW_PUBLICATION
   SEC_DEP_SECRETS_AND_CONFIGURATION["Secrets and Configuration"]:::referenced_element
-  SEC_TGT_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
-  AV_PULL_REQUEST_SPAM_ABUSE(("Pull Request Spam Abuse")):::attack_vector
-  SEC_TGT_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
-  AV_PULL_REQUEST_SPAM_ABUSE -->|targets| SEC_TGT_GITHUB_WEBHOOK_INGRESS
-  SEC_DEP_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::referenced_element
-  SEC_TGT_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
-  AV_PULL_REQUEST_SPAM_ABUSE -->|targets| SEC_TGT_REVIEW_ORCHESTRATION
-  AV_SECRET_LEAKAGE_IN_REVIEW_OUTPUT(("Secret Leakage in Review Output")):::attack_vector
-  SEC_TGT_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  AV_SECRET_LEAKAGE_IN_REVIEW_OUTPUT -->|targets| SEC_TGT_REVIEW_PUBLICATION
-  SEC_TGT_REVIEW_PUBLICATION -->|depends_on| SEC_DEP_GITHUB_APP_API
-  SEC_TGT_REVIEW_PUBLICATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
-  SEC_TGT_SECRETS_AND_CONFIGURATION["Secrets and Configuration"]:::functional_unit
-  AV_SECRET_LEAKAGE_IN_REVIEW_OUTPUT -->|targets| SEC_TGT_SECRETS_AND_CONFIGURATION
-  AV_SPOOFED_GITHUB_WEBHOOK(("Spoofed GitHub Webhook")):::attack_vector
-  AV_SPOOFED_GITHUB_WEBHOOK -->|targets| SEC_TGT_GITHUB_WEBHOOK_INGRESS
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  SEC_CODE_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| SEC_CODE_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  SEC_CODE_FU_REVIEW_ORCHESTRATION_SERDE_JSON__JSON["serde_json::json"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| SEC_CODE_FU_REVIEW_ORCHESTRATION_SERDE_JSON__JSON
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1574,76 +1590,12 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-=== Functional Groups and Units (View Scoped)
-
-
-
-==== PR Integration (FG-PR-INTEGRATION)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> protects signature verification and hostile-diff ingress paths to reduce spoofing and <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,prompt injection>> risk.
-
-
-
-
-
-
-
-
-
-===== GitHub Webhook Ingress (FU-GITHUB-WEBHOOK-INGRESS)
-
-
-
-
-Enforces signature verification and rejects spoofed or malformed events.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
-
-[discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>>, <<REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,Spoofed GitHub Webhook>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
 
 
 ===== PR Context Assembly (FU-PR-CONTEXT-ASSEMBLY)
 
 
-
-
 Applies contextual sanitization to reduce <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,prompt injection>> risk from diffs.
-
-
-
 
 
 [discrete]
@@ -1652,105 +1604,14 @@ Applies contextual sanitization to reduce <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_
 <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 code modules: <<REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS,pr_context_assembly>>
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-
-
-
-
-
-
-==== Review Intelligence (FG-REVIEW-INTELLIGENCE)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> emphasizes prompt hardening, output redaction, and secure <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> boundaries.
-
-
-
-
-
-
-
-
-
-
-
-
-
-===== Policy Checks (FU-POLICY-CHECKS)
-
-
-
-
-Provides deterministic controls for secrets and risky infrastructure changes.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
-
-[discrete]
-====== Main Threats
-
-no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-code modules: <<REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS,policy_checks>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
 ===== Review Orchestration (FU-REVIEW-ORCHESTRATION)
 
 
-
-
 Enforces safe prompt construction and bounded output handling under adversarial input.
-
-
-
 
 
 [discrete]
@@ -1759,38 +1620,150 @@ Enforces safe prompt construction and bounded output handling under adversarial 
 AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
-====== Main Threats
+====== Security Evidence Present
 
-<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>>, <<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+
+
+
+==== <<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>> (AV-PR-SPAM-ABUSE)
+
+
+High-rate PR event flooding that can exhaust review capacity.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_PR_SPAM_ABUSE(("Pull Request Spam Abuse")):::attack_vector
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+  AV_AV_PR_SPAM_ABUSE -->|targets| SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS
+  SEC_DEP_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::referenced_element
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_HMAC["crypto/hmac"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_HMAC
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_SHA256["crypto/sha256"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_SHA256
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_ENCODING_HEX["encoding/hex"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_ENCODING_HEX
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_FMT["fmt"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_FMT
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+  AV_AV_PR_SPAM_ABUSE -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
+  SEC_DEP_AWS_BEDROCK_RUNTIME_API["AWS Bedrock Runtime API"]:::referenced_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_AWS_BEDROCK_RUNTIME_API
+  SEC_DEP_POLICY_CHECKS["Policy Checks"]:::referenced_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_POLICY_CHECKS
+  SEC_DEP_REVIEW_PUBLICATION["Review Publication"]:::referenced_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_REVIEW_PUBLICATION
+  SEC_DEP_SECRETS_AND_CONFIGURATION["Secrets and Configuration"]:::referenced_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
+  SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  SEC_CODE_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| SEC_CODE_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  SEC_CODE_FU_REVIEW_ORCHESTRATION_SERDE_JSON__JSON["serde_json::json"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| SEC_CODE_FU_REVIEW_ORCHESTRATION_SERDE_JSON__JSON
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+
+===== GitHub Webhook Ingress (FU-GITHUB-WEBHOOK-INGRESS)
+
+
+Enforces signature verification and rejects spoofed or malformed events.
+
 
 [discrete]
-====== Expected Controls
+====== Attack Surface
 
-Define control expectations in authored security narratives and mapped dependencies.
+<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
+
+[discrete]
+====== Security Evidence Present
+
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+
+===== Review Orchestration (FU-REVIEW-ORCHESTRATION)
+
+
+Enforces safe prompt construction and bounded output handling under adversarial input.
+
+
+[discrete]
+====== Attack Surface
+
+AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Security Evidence Present
 
 runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
 
 
+==== <<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>> (AV-SECRET-LEAKAGE-IN-REVIEW)
 
+
+Generated findings accidentally exposing secrets/tokens in comments.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_SECRET_LEAKAGE_IN_REVIEW(("Secret Leakage in Review Output")):::attack_vector
+  SEC_TGT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+  AV_AV_SECRET_LEAKAGE_IN_REVIEW -->|targets| SEC_TGT_FU_REVIEW_PUBLICATION
+  SEC_DEP_GITHUB_APP_API["GitHub App API"]:::referenced_element
+  SEC_TGT_FU_REVIEW_PUBLICATION -->|depends_on| SEC_DEP_GITHUB_APP_API
+  SEC_DEP_SECRETS_AND_CONFIGURATION["Secrets and Configuration"]:::referenced_element
+  SEC_TGT_FU_REVIEW_PUBLICATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
+  SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  SEC_TGT_FU_REVIEW_PUBLICATION -->|runtime| SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  SEC_CODE_FU_REVIEW_PUBLICATION_GITHUB_REST_SDK_PUBLICATION_CLIENT["github-rest-sdk/publication-client"]:::code_element
+  SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| SEC_CODE_FU_REVIEW_PUBLICATION_GITHUB_REST_SDK_PUBLICATION_CLIENT
+  SEC_CODE_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| SEC_CODE_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  SEC_TGT_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+  AV_AV_SECRET_LEAKAGE_IN_REVIEW -->|targets| SEC_TGT_FU_SECRETS_CONFIGURATION
+  SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME["Secrets and Configuration runtime (inferred)"]:::runtime_element
+  SEC_TGT_FU_SECRETS_CONFIGURATION -->|runtime| SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME
+  SEC_CODE_FU_SECRETS_CONFIGURATION_AWS_SDK_GO_V2_SECRETSMANAGER["aws-sdk-go-v2/secretsmanager"]:::code_element
+  SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| SEC_CODE_FU_SECRETS_CONFIGURATION_AWS_SDK_GO_V2_SECRETSMANAGER
+  SEC_CODE_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION["secrets_configuration"]:::code_element
+  SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| SEC_CODE_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
 
 
 ===== Review Publication (FU-REVIEW-PUBLICATION)
 
 
-
-
 Applies redaction and policy-aware output filtering before publishing findings.
-
-
-
 
 
 [discrete]
@@ -1799,91 +1772,14 @@ Applies redaction and policy-aware output filtering before publishing findings.
 <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>> | code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS,review_publication>>
 
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
-==== Platform Operations (FG-PLATFORM-OPERATIONS)
-
-
-
-
-
-
-<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> secures credential paths and operational controls across Lambda deployment lifecycle.
-
-
-
-
-
-===== Lambda Runtime Operations (FU-LAMBDA-RUNTIME-OPERATIONS)
-
-
-
-
-Hardens operational control loops and protects deployment trust boundaries.
-
-
-
-
-
-[discrete]
-====== Attack Surface
-
-<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-
-[discrete]
-====== Main Threats
-
-no explicit <<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> targeting this unit
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
-====== Security Evidence Present
-
-code modules: <<REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO,lambda_runtime_ops>>
-
-[discrete]
-====== Security Evidence Missing
-
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
-
-
-
-
-
 ===== Secrets and Configuration (FU-SECRETS-CONFIGURATION)
 
 
-
-
 Enforces credential isolation, least-privilege access, and redaction-safe metadata handling.
-
-
-
 
 
 [discrete]
@@ -1892,36 +1788,67 @@ Enforces credential isolation, least-privilege access, and redaction-safe metada
 none
 
 [discrete]
-====== Main Threats
-
-<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>>
-
-[discrete]
-====== Expected Controls
-
-Define control expectations in authored security narratives and mapped dependencies.
-
-[discrete]
 ====== Security Evidence Present
 
 code modules: <<REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS,secrets_configuration>>
 
+
+
+==== <<REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,Spoofed GitHub Webhook>> (AV-SPOOFED-GITHUB-WEBHOOK)
+
+
+Forged webhook payload attempting unauthorized review execution.
+
+
+[source,mermaid]
+----
+flowchart LR
+  AV_AV_SPOOFED_GITHUB_WEBHOOK(("Spoofed GitHub Webhook")):::attack_vector
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+  AV_AV_SPOOFED_GITHUB_WEBHOOK -->|targets| SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS
+  SEC_DEP_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::referenced_element
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
+  SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_HMAC["crypto/hmac"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_HMAC
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_SHA256["crypto/sha256"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_CRYPTO_SHA256
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_ENCODING_HEX["encoding/hex"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_ENCODING_HEX
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_FMT["fmt"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_FMT
+  SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| SEC_CODE_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+
+
+===== GitHub Webhook Ingress (FU-GITHUB-WEBHOOK-INGRESS)
+
+
+Enforces signature verification and rejects spoofed or malformed events.
+
+
 [discrete]
-====== Security Evidence Missing
+====== Attack Surface
 
-Close any unresolved ownership or unmapped threat-linkage gaps in Traceability View.
+<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 
+[discrete]
+====== Security Evidence Present
 
-
-
-
-
-
-
-
-
-
-
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 
 
 
@@ -1966,124 +1893,169 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 - Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
 
 
-=== Traceability Evidence Graph
-
-What this diagram shows: authored units and the inferred evidence links that support traceability confidence.
-
-NOTE: This graph summarizes inferred ownership/evidence links and is intended for traceability confidence checks.
 
 
-[source,mermaid]
-----
-flowchart TB
-  FU_FU_GITHUB_WEBHOOK_INGRESS["FU-GITHUB-WEBHOOK-INGRESS"]:::functional_unit
-  FG_FG_PR_INTEGRATION["PR Integration"]:::functional_group
-  FG_FG_PR_INTEGRATION -->|contains| FU_FU_GITHUB_WEBHOOK_INGRESS
-  LIB_CRYPTO_HMAC["crypto/hmac"]:::code_element
-  FU_FU_GITHUB_WEBHOOK_INGRESS -->|uses_library| LIB_CRYPTO_HMAC
-  LIB_CRYPTO_SHA256["crypto/sha256"]:::code_element
-  FU_FU_GITHUB_WEBHOOK_INGRESS -->|uses_library| LIB_CRYPTO_SHA256
-  LIB_ENCODING_HEX["encoding/hex"]:::code_element
-  FU_FU_GITHUB_WEBHOOK_INGRESS -->|uses_library| LIB_ENCODING_HEX
-  LIB_FMT["fmt"]:::code_element
-  FU_FU_GITHUB_WEBHOOK_INGRESS -->|uses_library| LIB_FMT
-  FU_FU_LAMBDA_RUNTIME_OPERATIONS["FU-LAMBDA-RUNTIME-OPERATIONS"]:::functional_unit
-  FG_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
-  FG_FG_PLATFORM_OPERATIONS -->|contains| FU_FU_LAMBDA_RUNTIME_OPERATIONS
-  LIB_LOG["log"]:::code_element
-  FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|uses_library| LIB_LOG
-  FU_FU_PR_CONTEXT_ASSEMBLY["FU-PR-CONTEXT-ASSEMBLY"]:::functional_unit
-  FG_FG_PR_INTEGRATION -->|contains| FU_FU_PR_CONTEXT_ASSEMBLY
-  LIB_GITHUB_REST_SDK["github-rest-sdk"]:::code_element
-  FU_FU_PR_CONTEXT_ASSEMBLY -->|uses_library| LIB_GITHUB_REST_SDK
-  FU_FU_REVIEW_ORCHESTRATION["FU-REVIEW-ORCHESTRATION"]:::functional_unit
-  FG_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::functional_group
-  FG_FG_REVIEW_INTELLIGENCE -->|contains| FU_FU_REVIEW_ORCHESTRATION
-  LIB_SERDE_JSON__JSON["serde_json::json"]:::code_element
-  FU_FU_REVIEW_ORCHESTRATION -->|uses_library| LIB_SERDE_JSON__JSON
-  FU_FU_REVIEW_PUBLICATION["FU-REVIEW-PUBLICATION"]:::functional_unit
-  FG_FG_REVIEW_INTELLIGENCE -->|contains| FU_FU_REVIEW_PUBLICATION
-  LIB_GITHUB_REST_SDK_PUBLICATION_CLIENT["github-rest-sdk/publication-client"]:::code_element
-  FU_FU_REVIEW_PUBLICATION -->|uses_library| LIB_GITHUB_REST_SDK_PUBLICATION_CLIENT
-  FU_FU_SECRETS_CONFIGURATION["FU-SECRETS-CONFIGURATION"]:::functional_unit
-  FG_FG_PLATFORM_OPERATIONS -->|contains| FU_FU_SECRETS_CONFIGURATION
-  LIB_AWS_SDK_GO_V2_SECRETSMANAGER["aws-sdk-go-v2/secretsmanager"]:::code_element
-  FU_FU_SECRETS_CONFIGURATION -->|uses_library| LIB_AWS_SDK_GO_V2_SECRETSMANAGER
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
-=== Requirement-to-Unit Mapping
 
-What this diagram shows: direct authored mapping from requirements to the functional units they apply to.
+=== Requirement-to-Unit Mapping (Compact)
 
-[source,mermaid]
-----
-flowchart LR
-  REQ_REQ_PRR_001["REQ-PRR-001"]:::requirement
-  UNIT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
-  REQ_REQ_PRR_001 --> UNIT_FU_GITHUB_WEBHOOK_INGRESS
-  REQ_REQ_PRR_002["REQ-PRR-002"]:::requirement
-  UNIT_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
-  REQ_REQ_PRR_002 --> UNIT_FU_PR_CONTEXT_ASSEMBLY
-  REQ_REQ_PRR_003["REQ-PRR-003"]:::requirement
-  UNIT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
-  REQ_REQ_PRR_003 --> UNIT_FU_REVIEW_ORCHESTRATION
-  REQ_REQ_PRR_004["REQ-PRR-004"]:::requirement
-  UNIT_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
-  REQ_REQ_PRR_004 --> UNIT_FU_POLICY_CHECKS
-  REQ_REQ_PRR_005["REQ-PRR-005"]:::requirement
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_005 --> UNIT_FU_REVIEW_PUBLICATION
-  REQ_REQ_PRR_006["REQ-PRR-006"]:::requirement
-  UNIT_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
-  REQ_REQ_PRR_006 --> UNIT_FU_POLICY_CHECKS
-  UNIT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
-  REQ_REQ_PRR_006 --> UNIT_FU_REVIEW_ORCHESTRATION
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_006 --> UNIT_FU_REVIEW_PUBLICATION
-  REQ_REQ_PRR_007["REQ-PRR-007"]:::requirement
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_007 --> UNIT_FU_REVIEW_PUBLICATION
-  UNIT_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
-  REQ_REQ_PRR_007 --> UNIT_FU_SECRETS_CONFIGURATION
-  REQ_REQ_PRR_008["REQ-PRR-008"]:::requirement
-  UNIT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
-  REQ_REQ_PRR_008 --> UNIT_FU_GITHUB_WEBHOOK_INGRESS
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_008 --> UNIT_FU_REVIEW_PUBLICATION
-  REQ_REQ_PRR_009["REQ-PRR-009"]:::requirement
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_009 --> UNIT_FU_REVIEW_PUBLICATION
-  REQ_REQ_PRR_010["REQ-PRR-010"]:::requirement
-  UNIT_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
-  REQ_REQ_PRR_010 --> UNIT_FU_GITHUB_WEBHOOK_INGRESS
-  UNIT_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-  REQ_REQ_PRR_010 --> UNIT_FU_REVIEW_PUBLICATION
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
-----
+What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-=== Requirement-to-Unit-to-Evidence Coverage
+[cols="2,1,1,1,1,1,1",options="header"]
+|===
+|Requirement
+|FU-GITHUB-WEBHOOK-INGRESS
+|FU-POLICY-CHECKS
+|FU-PR-CONTEXT-ASSEMBLY
+|FU-REVIEW-ORCHESTRATION
+|FU-REVIEW-PUBLICATION
+|FU-SECRETS-CONFIGURATION
+|REQ-PRR-001
+|X
+|
+|
+|
+|
+|
+|REQ-PRR-002
+|
+|
+|X
+|
+|
+|
+|REQ-PRR-003
+|
+|
+|
+|X
+|
+|
+|REQ-PRR-004
+|
+|X
+|
+|
+|
+|
+|REQ-PRR-005
+|
+|
+|
+|
+|X
+|
+|REQ-PRR-006
+|
+|X
+|
+|X
+|X
+|
+|REQ-PRR-007
+|
+|
+|
+|
+|X
+|X
+|REQ-PRR-008
+|X
+|
+|
+|
+|X
+|
+|REQ-PRR-009
+|
+|
+|
+|
+|X
+|
+|REQ-PRR-010
+|X
+|
+|
+|
+|X
+|
+|===
 
-What this diagram shows: requirement-to-unit links extended with inferred runtime/code evidence attached to each unit.
+=== Verification Result Mapping
+
+What this section shows: per-requirement result mapping inferred from test-result artifacts.
+
+[cols="1,1,1,4",options="header"]
+|===
+|Check ID |Requirement |Result |Evidence / Notes
+
+|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
+|<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>
+|pass
+|test-results/e2e-pr-opened-review.xml
+
+|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
+|<<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>
+|pass
+|test-results/e2e-pr-opened-review.xml
+
+|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
+|<<REF_IDX-REQ_REQ_PRR_003,REQ-PRR-003>>
+|pass
+|test-results/e2e-pr-opened-review.xml
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
+|<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>
+|pass
+|test-results/integration-policy-fallback.json + 
+deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> executed
+
+|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
+|<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
+|pass
+|test-results/e2e-pr-opened-review.xml
+
+|<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6>>
+|<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
+|not-run
+|none + 
+No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
+|<<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
+|pass
+|test-results/integration-policy-fallback.json + 
+policy-only fallback published
+
+|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1>>
+|<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
+|pass
+|test-results/audit-redaction-report.md
+
+|<<REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2>>
+|<<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
+|pass
+|test-results/unit-rate-limit.xml
+
+|===
+
+<<<
+== Traceability Appendix
+
+=== Requirement Details
+[[REF_REQ_REQ_PRR_001]]
+==== REQ-PRR-001
+
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall verify <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> before processing review workflow.
+
+
+NOTE: Webhook trust boundary validation.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
 
 [source,mermaid]
 ----
@@ -2096,6 +2068,39 @@ flowchart LR
   CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::code_element
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   REQC_REQ_PRR_001 -->|code trace| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_001
+  VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_002]]
+==== REQ-PRR-002
+
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_OPENED,pull request opened event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall construct <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> from changed files for review execution.
+
+
+NOTE: Context ingestion from <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub API>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_002["REQ-PRR-002"]:::requirement
   FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_PR_CONTEXT_ASSEMBLY
@@ -2104,6 +2109,39 @@ flowchart LR
   CDC_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY["pr_context_assembly"]:::code_element
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CDC_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY
   REQC_REQ_PRR_002 -->|code trace| CDC_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_002
+  VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_003]]
+==== REQ-PRR-003
+
+Where <<REF_IDX-CATALOG_FEAT_AI_REVIEW,ai review is enabled>>, when <<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall request <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,bedrock runtime>> analysis for review findings.
+
+
+NOTE: AI-assisted review path.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_003["REQ-PRR-003"]:::requirement
   FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   REQC_REQ_PRR_003 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
@@ -2112,6 +2150,39 @@ flowchart LR
   CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::code_element
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   REQC_REQ_PRR_003 -->|code trace| CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_003
+  VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_004]]
+==== REQ-PRR-004
+
+Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure plus infrastructure risk plus dependency changes.
+
+
+NOTE: Deterministic non-LLM review checks.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_004["REQ-PRR-004"]:::requirement
   FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
   REQC_REQ_PRR_004 -->|applies_to| FU_FU_POLICY_CHECKS
@@ -2120,6 +2191,39 @@ flowchart LR
   CDC_FU_POLICY_CHECKS_POLICY_CHECKS["policy_checks"]:::code_element
   RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CDC_FU_POLICY_CHECKS_POLICY_CHECKS
   REQC_REQ_PRR_004 -->|code trace| CDC_FU_POLICY_CHECKS_POLICY_CHECKS
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_004
+  VEC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VEC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_005]]
+==== REQ-PRR-005
+
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish <<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+
+
+NOTE: Result <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_005["REQ-PRR-005"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_005 -->|applies_to| FU_FU_REVIEW_PUBLICATION
@@ -2128,15 +2232,105 @@ flowchart LR
   CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_005 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_005
+  VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML["tests/e2e"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VEC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_TESTS_E2E_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6["VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6 (not-run)"]:::verification
+  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|verifies| REQC_REQ_PRR_005
+  VEC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO["tests/contract"]:::code_element
+  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|implemented_by| VEC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_006]]
+==== REQ-PRR-006
+
+If <<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish deterministic policy-only <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review outcome>>.
+
+
+NOTE: Graceful degradation <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_006["REQ-PRR-006"]:::requirement
+  FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_POLICY_CHECKS
+  RTC_FU_POLICY_CHECKS_RUNTIME["Policy Checks runtime (inferred)"]:::runtime_element
+  FU_FU_POLICY_CHECKS -->|runtime evidence| RTC_FU_POLICY_CHECKS_RUNTIME
+  CDC_FU_POLICY_CHECKS_POLICY_CHECKS["policy_checks"]:::code_element
+  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CDC_FU_POLICY_CHECKS_POLICY_CHECKS
   REQC_REQ_PRR_006 -->|code trace| CDC_FU_POLICY_CHECKS_POLICY_CHECKS
+  FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
+  FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::code_element
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   REQC_REQ_PRR_006 -->|code trace| CDC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
+  FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_006 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_006
+  VEC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VEC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_007]]
+==== REQ-PRR-007
+
+Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall persist <<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> for audit traceability.
+
+
+NOTE: Evidence and audit lineage.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_007["REQ-PRR-007"]:::requirement
+  FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_007 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   FU_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_SECRETS_CONFIGURATION
@@ -2145,18 +2339,138 @@ flowchart LR
   CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION["secrets_configuration"]:::code_element
   RTC_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION
   REQC_REQ_PRR_007 -->|code trace| CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1["VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1 (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|verifies| REQC_REQ_PRR_007
+  VEC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS["tests/integration"]:::code_element
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|implemented_by| VEC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_008]]
+==== REQ-PRR-008
+
+If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall defer processing.
+
+
+NOTE: Abuse and capacity protection behavior.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_008["REQ-PRR-008"]:::requirement
+  FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
+  FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::code_element
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   REQC_REQ_PRR_008 -->|code trace| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_008 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2["VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2 (pass)"]:::verification
+  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|verifies| REQC_REQ_PRR_008
+  VEC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO["tests/unit"]:::code_element
+  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|implemented_by| VEC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_009]]
+==== REQ-PRR-009
+
+While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish inline comments to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+
+
+NOTE: Inline-annotation <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_009["REQ-PRR-009"]:::requirement
+  FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_009 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_009 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
+  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+----
+[[REF_REQ_REQ_PRR_010]]
+==== REQ-PRR-010
+
+If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall notify <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
+
+
+NOTE: <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,Maintainer>> notification for deferred review processing.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
   REQC_REQ_PRR_010["REQ-PRR-010"]:::requirement
+  FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_010 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
+  FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::code_element
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   REQC_REQ_PRR_010 -->|code trace| CDC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_010 -->|applies_to| FU_FU_REVIEW_PUBLICATION
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
+  FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+  CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION["review_publication"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   REQC_REQ_PRR_010 -->|code trace| CDC_FU_REVIEW_PUBLICATION_REVIEW_PUBLICATION
   classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
   classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2170,63 +2484,6 @@ flowchart LR
   classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
   classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 ----
-
-Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.
-
-<<<
-== Traceability Appendix
-
-=== Requirement Details
-[[REF_REQ_REQ_PRR_001]]
-==== REQ-PRR-001
-
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall verify <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> before processing review workflow.
-Notes: Webhook trust boundary validation.
-[[REF_REQ_REQ_PRR_002]]
-==== REQ-PRR-002
-
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_PR_OPENED,pull request opened event is received>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall construct <<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> from changed files for review execution.
-Notes: Context ingestion from <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub API>>.
-[[REF_REQ_REQ_PRR_003]]
-==== REQ-PRR-003
-
-Where <<REF_IDX-CATALOG_FEAT_AI_REVIEW,ai review is enabled>>, when <<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall request <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,bedrock runtime>> analysis for review findings.
-Notes: AI-assisted review path.
-[[REF_REQ_REQ_PRR_004]]
-==== REQ-PRR-004
-
-Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure plus infrastructure risk plus dependency changes.
-Notes: Deterministic non-LLM review checks.
-[[REF_REQ_REQ_PRR_005]]
-==== REQ-PRR-005
-
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish <<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
-Notes: Result <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
-[[REF_REQ_REQ_PRR_006]]
-==== REQ-PRR-006
-
-If <<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish deterministic policy-only <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review outcome>>.
-Notes: Graceful degradation <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
-[[REF_REQ_REQ_PRR_007]]
-==== REQ-PRR-007
-
-Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall persist <<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> for audit traceability.
-Notes: Evidence and audit lineage.
-[[REF_REQ_REQ_PRR_008]]
-==== REQ-PRR-008
-
-If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall defer processing.
-Notes: Abuse and capacity protection behavior.
-[[REF_REQ_REQ_PRR_009]]
-==== REQ-PRR-009
-
-While <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_GENERATED,review findings are generated>>, <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall publish inline comments to <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
-Notes: Inline-annotation <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,publication>> contract.
-[[REF_REQ_REQ_PRR_010]]
-==== REQ-PRR-010
-
-If <<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>>, then <<REF_IDX-CATALOG_SYS_PR_REVIEW_SYSTEM,the pr review system>> shall notify <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>>.
-Notes: <<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,Maintainer>> notification for deferred review processing.
 
 === Verification Inventory
 
@@ -2333,54 +2590,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
-
-=== Verification Result Mapping
-
-What this section shows: per-requirement result mapping inferred from test-result artifacts.
-
-[cols="1,1,1,4",options="header"]
-|===
-|Check ID |Requirement |Result |Evidence / Notes
-|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
-|<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>
-|pass
-|test-results/e2e-pr-opened-review.xml
-|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
-|<<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>
-|pass
-|test-results/e2e-pr-opened-review.xml
-|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
-|<<REF_IDX-REQ_REQ_PRR_003,REQ-PRR-003>>
-|pass
-|test-results/e2e-pr-opened-review.xml
-|<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
-|<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>
-|pass
-|test-results/integration-policy-fallback.json + 
-deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> executed
-|<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
-|<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
-|pass
-|test-results/e2e-pr-opened-review.xml
-|<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6>>
-|<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
-|not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-|<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
-|<<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
-|pass
-|test-results/integration-policy-fallback.json + 
-policy-only fallback published
-|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1>>
-|<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
-|pass
-|test-results/audit-redaction-report.md
-|<<REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2>>
-|<<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
-|pass
-|test-results/unit-rate-limit.xml
-|===
 
 <<<
 == Reference Index
