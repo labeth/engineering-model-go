@@ -180,6 +180,27 @@ type Event struct {
 	Description string `yaml:"description"`
 }
 
+type FlowStep struct {
+	ID       string   `yaml:"id"`
+	Ref      string   `yaml:"ref"`
+	Kind     string   `yaml:"kind"`
+	Action   string   `yaml:"action"`
+	DataIn   []string `yaml:"dataIn"`
+	DataOut  []string `yaml:"dataOut"`
+	Next     []string `yaml:"next"`
+	OnError  []string `yaml:"onError"`
+	Async    bool     `yaml:"async"`
+	Optional bool     `yaml:"optional"`
+}
+
+type Flow struct {
+	ID    string     `yaml:"id"`
+	Title string     `yaml:"title"`
+	Entry []string   `yaml:"entry"`
+	Exits []string   `yaml:"exits"`
+	Steps []FlowStep `yaml:"steps"`
+}
+
 type AuthoredArchitecture struct {
 	FunctionalGroups   []FunctionalGroup   `yaml:"functionalGroups"`
 	FunctionalUnits    []FunctionalUnit    `yaml:"functionalUnits"`
@@ -193,6 +214,7 @@ type AuthoredArchitecture struct {
 	TrustBoundaries    []TrustBoundary     `yaml:"trustBoundaries"`
 	States             []State             `yaml:"states"`
 	Events             []Event             `yaml:"events"`
+	Flows              []Flow              `yaml:"flows"`
 	Mappings           []Mapping           `yaml:"mappings"`
 }
 

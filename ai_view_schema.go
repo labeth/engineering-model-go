@@ -46,6 +46,8 @@ type AIModelCounts struct {
 	TrustBoundaries   int `json:"trust_boundaries,omitempty"`
 	States            int `json:"states,omitempty"`
 	Events            int `json:"events,omitempty"`
+	Flows             int `json:"flows,omitempty"`
+	FlowSteps         int `json:"flow_steps,omitempty"`
 	Views             int `json:"views"`
 }
 
@@ -70,6 +72,8 @@ type AIEntityIndex struct {
 	TrustBoundaryIDs    []string         `json:"trust_boundary_ids,omitempty"`
 	StateIDs            []string         `json:"state_ids,omitempty"`
 	EventIDs            []string         `json:"event_ids,omitempty"`
+	FlowIDs             []string         `json:"flow_ids,omitempty"`
+	FlowStepIDs         []string         `json:"flow_step_ids,omitempty"`
 	Lookup              []AIEntityLookup `json:"lookup"`
 }
 
@@ -108,6 +112,8 @@ type AIEntity struct {
 	TrustBoundaryIDs []string            `json:"trust_boundary_ids,omitempty"`
 	StateIDs         []string            `json:"state_ids,omitempty"`
 	EventIDs         []string            `json:"event_ids,omitempty"`
+	FlowIDs          []string            `json:"flow_ids,omitempty"`
+	FlowStepIDs      []string            `json:"flow_step_ids,omitempty"`
 	RelatedIDs       []string            `json:"related_ids,omitempty"`
 	Fields           AIEntityFields      `json:"fields,omitempty"`
 	FieldProvenance  []AIFieldProvenance `json:"field_provenance,omitempty"`

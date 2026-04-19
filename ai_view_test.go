@@ -181,3 +181,61 @@ func TestGenerateAIView_IncludesNewAuthoredEntityKindsAndSupportPath(t *testing.
 		t.Fatalf("expected requirement support path to include new authored implementation evidence ids")
 	}
 }
+
+func TestGenerateAIView_IncludesFlowEntities(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
+			FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Name: "Unit", Group: "FG-A"}},
+			Actors:           []model.Actor{{ID: "ACT-A", Name: "User"}},
+			Interfaces:       []model.Interface{{ID: "IF-A", Name: "API", Owner: "FU-A"}},
+			Flows: []model.Flow{{
+				ID:    "FLOW-A",
+				Title: "Input Flow",
+				Entry: []string{"submit"},
+				Exits: []string{"ack"},
+				Steps: []model.FlowStep{
+					{ID: "submit", Kind: "user_action", Ref: "ACT-A", Action: "Submit", Next: []string{"call"}},
+					{ID: "call", Kind: "system_action", Ref: "IF-A", Action: "Call API", Async: true, Next: []string{"ack"}},
+					{ID: "ack", Kind: "system_action", Ref: "FU-A", Action: "Acknowledge"},
+				},
+			}},
+		},
+		Views: []model.View{{ID: "V", Kind: "interaction-flow", Roots: []string{"FLOW-A"}}},
+	}}
+	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-A", Text: "system shall acknowledge", AppliesTo: []string{"FU-A"}}}}
+	doc := buildAIViewDocument(bundle, requirements, model.DesignDocument{}, nil, nil, nil, "", "", AIViewOptions{})
+
+	if doc.Model.Counts.Flows == 0 || doc.Model.Counts.FlowSteps == 0 {
+		t.Fatalf("expected flow and flow_step counts, got %+v", doc.Model.Counts)
+	}
+	hasFlow := false
+	hasStep := false
+	for _, e := range doc.Entities {
+		if e.Kind == "flow" && e.ID == "FLOW-A" {
+			hasFlow = true
+		}
+		if e.Kind == "flow_step" && strings.HasPrefix(e.ID, "FLOW-A::") {
+			hasStep = true
+		}
+	}
+	if !hasFlow || !hasStep {
+		t.Fatalf("expected flow and flow_step entities")
+	}
+	foundSupportPath := false
+	for _, sp := range doc.SupportPaths {
+		if sp.FromID != "REQ-A" {
+			continue
+		}
+		for _, id := range sp.Path {
+			if strings.HasPrefix(id, "FLOW-A::") {
+				foundSupportPath = true
+				break
+			}
+		}
+	}
+	if !foundSupportPath {
+		t.Fatalf("expected requirement support path to include flow step evidence")
+	}
+}

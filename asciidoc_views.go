@@ -113,6 +113,8 @@ func viewHeading(kind string) string {
 		return "Traceability View"
 	case "state-lifecycle":
 		return "State Lifecycle View"
+	case "interaction-flow":
+		return "Interaction Flow View"
 	default:
 		return strings.Title(kind) + " View"
 	}
@@ -135,6 +137,7 @@ func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
 		"security":            3,
 		"traceability":        4,
 		"state-lifecycle":     5,
+		"interaction-flow":    6,
 	}
 	sort.SliceStable(out, func(i, j int) bool {
 		li, ok := order[kindByID[out[i]]]
@@ -167,6 +170,8 @@ func inferredDescription(kind string) string {
 		return "Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps."
 	case "state-lifecycle":
 		return "Show workflow state transitions, ownership of transitions, and key exceptional paths."
+	case "interaction-flow":
+		return "Show user-intent-to-outcome causal flow, including ordered steps, data movement, and error/async branches."
 	default:
 		return "Show authored architecture scope for this view."
 	}
@@ -209,6 +214,12 @@ func viewQuestions(kind string) []string {
 			"What states exist and which events trigger transitions?",
 			"Which unit owns each state transition?",
 			"Where do automatic and manual flows diverge?",
+		}
+	case "interaction-flow":
+		return []string{
+			"What happens from user intent to system outcome, step by step?",
+			"What data enters/exits each step and where are decisions made?",
+			"Where are async and error paths and what completes each path?",
 		}
 	default:
 		return []string{"What does this view show?"}
@@ -439,6 +450,8 @@ func viewHeuristicBasis(kind string) string {
 		return "Defaults authored units to covered; use authoredStatus as the primary publication signal."
 	case "state-lifecycle":
 		return "Lifecycle heuristic is currently basic; treat authoredStatus as primary signal."
+	case "interaction-flow":
+		return "Flow heuristic is step/branch-oriented; treat authoredStatus plus projection completeness as the primary signal."
 	default:
 		return "Coverage heuristic varies by view kind; interpret with authored status and explanation."
 	}
@@ -487,6 +500,12 @@ func viewNextActions(kind string, gaps []string) []string {
 			"Add explicit authored attack-vector mappings for units currently marked without threat linkage.",
 			"Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.",
 			"Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.",
+		}
+	case "interaction-flow":
+		return []string{
+			"Add missing step-level data_in/data_out fields for critical path transitions.",
+			"Add explicit error branches for validation/retry/fallback behavior where currently implicit.",
+			"Link each major step to concrete verification evidence in Traceability and Verification sections.",
 		}
 	default:
 		return []string{

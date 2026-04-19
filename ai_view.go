@@ -138,6 +138,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	fuToBoundary := map[string][]string{}
 	fuToState := map[string][]string{}
 	fuToEvent := map[string][]string{}
+	fuToFlow := map[string][]string{}
+	fuToFlowStep := map[string][]string{}
 
 	entities := make([]AIEntity, 0, len(a.FunctionalGroups)+len(a.FunctionalUnits)+len(requirements.Requirements)+len(inferredRuntime)+len(inferredCode)+len(inferredVerification))
 
@@ -347,6 +349,75 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		})
 	}
 
+	for _, flow := range a.Flows {
+		flowID := strings.TrimSpace(flow.ID)
+		if flowID == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, flowID, "flow", fmt.Sprintf("authored flow %s", flowID), flowID)
+		stepIDs := []string{}
+		for _, step := range flow.Steps {
+			stepID := strings.TrimSpace(step.ID)
+			if stepID == "" {
+				continue
+			}
+			entityID := flowID + "::" + stepID
+			stepIDs = append(stepIDs, entityID)
+			related := []string{flowID}
+			if ref := strings.TrimSpace(step.Ref); ref != "" {
+				related = append(related, ref)
+				if strings.HasPrefix(ref, "FU-") {
+					fuToFlow[ref] = append(fuToFlow[ref], flowID)
+					fuToFlowStep[ref] = append(fuToFlowStep[ref], entityID)
+				}
+			}
+			for _, next := range step.Next {
+				next = strings.TrimSpace(next)
+				if next == "" {
+					continue
+				}
+				related = append(related, flowID+"::"+next)
+			}
+			for _, onErr := range step.OnError {
+				onErr = strings.TrimSpace(onErr)
+				if onErr == "" {
+					continue
+				}
+				related = append(related, flowID+"::"+onErr)
+			}
+			stepSource := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, entityID, "flow_step", fmt.Sprintf("flow step %s", entityID), entityID)
+			action := strings.TrimSpace(step.Action)
+			if action == "" {
+				action = stepID
+			}
+			summary := action
+			if len(step.DataIn) > 0 || len(step.DataOut) > 0 {
+				summary = fmt.Sprintf("%s (in: %s; out: %s)", action, strings.Join(step.DataIn, ", "), strings.Join(step.DataOut, ", "))
+			}
+			entities = append(entities, AIEntity{
+				ID:         entityID,
+				Kind:       "flow_step",
+				Title:      action,
+				Summary:    strings.TrimSpace(summary),
+				Origin:     "authored",
+				Status:     "stable",
+				RelatedIDs: uniqueSorted(related),
+				SourceRefs: []string{stepSource},
+			})
+		}
+		entities = append(entities, AIEntity{
+			ID:          flowID,
+			Kind:        "flow",
+			Title:       nonEmpty(strings.TrimSpace(flow.Title), flowID),
+			Summary:     fmt.Sprintf("entry: %s; exits: %s; steps: %d", strings.Join(flow.Entry, ", "), strings.Join(flow.Exits, ", "), len(stepIDs)),
+			Origin:      "authored",
+			Status:      "stable",
+			RelatedIDs:  uniqueSorted(stepIDs),
+			FlowStepIDs: uniqueSorted(stepIDs),
+			SourceRefs:  []string{sid},
+		})
+	}
+
 	for _, r := range inferredRuntime {
 		id := aiRuntimeEntityID(r)
 		ctx.runtimeEntityIDFor[aiRuntimeItemKey(r)] = id
@@ -501,6 +572,10 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 					fuToState[from] = append(fuToState[from], to)
 				case "event":
 					fuToEvent[from] = append(fuToEvent[from], to)
+				case "flow":
+					fuToFlow[from] = append(fuToFlow[from], to)
+				case "flow_step":
+					fuToFlowStep[from] = append(fuToFlowStep[from], to)
 				}
 			}
 		}
@@ -522,6 +597,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		entities[i].TrustBoundaryIDs = uniqueSorted(fuToBoundary[id])
 		entities[i].StateIDs = uniqueSorted(fuToState[id])
 		entities[i].EventIDs = uniqueSorted(fuToEvent[id])
+		entities[i].FlowIDs = uniqueSorted(fuToFlow[id])
+		entities[i].FlowStepIDs = uniqueSorted(fuToFlowStep[id])
 		if len(entities[i].RuntimeIDs) > 0 {
 			entities[i].FieldProvenance = append(entities[i].FieldProvenance, AIFieldProvenance{
 				Field:      "runtime_ids",
@@ -548,6 +625,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		allEvidenceIDs = append(allEvidenceIDs, entities[i].TrustBoundaryIDs...)
 		allEvidenceIDs = append(allEvidenceIDs, entities[i].StateIDs...)
 		allEvidenceIDs = append(allEvidenceIDs, entities[i].EventIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].FlowIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].FlowStepIDs...)
 		entities[i].SourceRefs = uniqueSorted(append(entities[i].SourceRefs, ctx.sourceRefsForEntityIDs(allEvidenceIDs)...))
 	}
 
@@ -601,6 +680,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		TrustBoundaryIDs:    collectEntityIDsByKind(entities, "trust_boundary"),
 		StateIDs:            collectEntityIDsByKind(entities, "state"),
 		EventIDs:            collectEntityIDsByKind(entities, "event"),
+		FlowIDs:             collectEntityIDsByKind(entities, "flow"),
+		FlowStepIDs:         collectEntityIDsByKind(entities, "flow_step"),
 		Lookup:              make([]AIEntityLookup, 0, len(entities)),
 	}
 	for _, e := range entities {
@@ -627,6 +708,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 			TrustBoundaries:   len(index.TrustBoundaryIDs),
 			States:            len(index.StateIDs),
 			Events:            len(index.EventIDs),
+			Flows:             len(index.FlowIDs),
+			FlowSteps:         len(index.FlowStepIDs),
 			Views:             len(ctx.selectedViewIDs),
 		},
 	}
@@ -826,7 +909,7 @@ func aiEntityKindRank(kind string) int {
 		return 2
 	case "requirement":
 		return 3
-	case "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event":
+	case "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event", "flow", "flow_step":
 		return 4
 	case "runtime_element":
 		return 5
@@ -861,6 +944,8 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		boundaryIDs := []string{}
 		stateIDs := []string{}
 		eventIDs := []string{}
+		flowIDs := []string{}
+		flowStepIDs := []string{}
 		for _, fuID := range fus {
 			fu, ok := entityByID[fuID]
 			if !ok || fu.Kind != "functional_unit" {
@@ -875,6 +960,8 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 			boundaryIDs = append(boundaryIDs, fu.TrustBoundaryIDs...)
 			stateIDs = append(stateIDs, fu.StateIDs...)
 			eventIDs = append(eventIDs, fu.EventIDs...)
+			flowIDs = append(flowIDs, fu.FlowIDs...)
+			flowStepIDs = append(flowStepIDs, fu.FlowStepIDs...)
 		}
 		runtimeIDs = uniqueSorted(runtimeIDs)
 		codeIDs = uniqueSorted(codeIDs)
@@ -885,6 +972,8 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		boundaryIDs = uniqueSorted(boundaryIDs)
 		stateIDs = uniqueSorted(stateIDs)
 		eventIDs = uniqueSorted(eventIDs)
+		flowIDs = uniqueSorted(flowIDs)
+		flowStepIDs = uniqueSorted(flowStepIDs)
 
 		path := []string{e.ID}
 		if len(fus) > 0 {
@@ -896,7 +985,7 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		if len(codeIDs) > 0 {
 			path = append(path, codeIDs[0])
 		}
-		for _, extras := range [][]string{interfaceIDs, dataIDs, deploymentIDs, controlIDs, boundaryIDs, stateIDs, eventIDs} {
+		for _, extras := range [][]string{interfaceIDs, dataIDs, deploymentIDs, controlIDs, boundaryIDs, stateIDs, eventIDs, flowIDs, flowStepIDs} {
 			if len(extras) > 0 {
 				path = append(path, extras[0])
 			}
@@ -907,7 +996,7 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		path = uniquePreserve(path)
 
 		confidence := "low"
-		hasImplementation := len(runtimeIDs)+len(codeIDs)+len(interfaceIDs)+len(dataIDs)+len(deploymentIDs)+len(controlIDs)+len(boundaryIDs)+len(stateIDs)+len(eventIDs) > 0
+		hasImplementation := len(runtimeIDs)+len(codeIDs)+len(interfaceIDs)+len(dataIDs)+len(deploymentIDs)+len(controlIDs)+len(boundaryIDs)+len(stateIDs)+len(eventIDs)+len(flowIDs)+len(flowStepIDs) > 0
 		switch {
 		case len(verIDs) > 0 && hasImplementation:
 			confidence = "high"
@@ -962,7 +1051,7 @@ func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIE
 	for _, e := range entities {
 		switch e.Kind {
 		case "functional_unit":
-			if len(e.RuntimeIDs)+len(e.CodeIDs)+len(e.VerificationIDs)+len(e.InterfaceIDs)+len(e.DataObjectIDs)+len(e.DeploymentIDs)+len(e.ControlIDs)+len(e.TrustBoundaryIDs)+len(e.StateIDs)+len(e.EventIDs) > 0 {
+			if len(e.RuntimeIDs)+len(e.CodeIDs)+len(e.VerificationIDs)+len(e.InterfaceIDs)+len(e.DataObjectIDs)+len(e.DeploymentIDs)+len(e.ControlIDs)+len(e.TrustBoundaryIDs)+len(e.StateIDs)+len(e.EventIDs)+len(e.FlowIDs)+len(e.FlowStepIDs) > 0 {
 				fuWithEvidence = append(fuWithEvidence, e.ID)
 			}
 		case "runtime_element", "code_element":

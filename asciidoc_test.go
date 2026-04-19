@@ -436,3 +436,50 @@ func referenceBlockByID(doc, id string) string {
 	}
 	return block[:len(marker)+next]
 }
+
+func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
+			FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Name: "Unit", Group: "FG-A"}},
+			Actors:           []model.Actor{{ID: "ACT-A", Name: "User"}},
+			Interfaces:       []model.Interface{{ID: "IF-A", Name: "Control API", Owner: "FU-A"}},
+			Flows: []model.Flow{{
+				ID:    "FLOW-INPUT",
+				Title: "Input Selection Flow",
+				Entry: []string{"submit"},
+				Exits: []string{"ack"},
+				Steps: []model.FlowStep{
+					{ID: "submit", Kind: "user_action", Ref: "ACT-A", Action: "Submit input", Next: []string{"call-api"}},
+					{ID: "call-api", Kind: "system_action", Ref: "IF-A", Action: "Call API", Async: true, Next: []string{"ack"}},
+					{ID: "ack", Kind: "system_action", Ref: "FU-A", Action: "Acknowledge"},
+				},
+			}},
+		},
+		Views: []model.View{{ID: "VIEW-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT"}}},
+	}}
+
+	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{})
+	if err != nil {
+		t.Fatalf("generate asciidoc failed: %v", err)
+	}
+	if !strings.Contains(res.Document, "== Interaction Flow View") {
+		t.Fatalf("missing Interaction Flow View chapter")
+	}
+	flowSection := sectionByHeading(res.Document, "== Interaction Flow View")
+	for _, want := range []string{"FLOW-INPUT", "FLOW-INPUT::submit", "flow_next", "flow_async", "flow_ref"} {
+		if !strings.Contains(flowSection, want) {
+			t.Fatalf("interaction flow section missing %s", want)
+		}
+	}
+	for _, id := range []string{"FLOW-INPUT", "FLOW-INPUT::submit"} {
+		block := referenceBlockByID(res.Document, id)
+		if block == "" {
+			t.Fatalf("missing reference index entry for %s", id)
+		}
+		if !strings.Contains(block, "|Mentioned In |<<") {
+			t.Fatalf("reference entry for %s missing backlinks", id)
+		}
+	}
+}

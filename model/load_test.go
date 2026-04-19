@@ -14,7 +14,7 @@ func TestLoadBundle(t *testing.T) {
 	if b.Architecture.Model.ID != "sample-payments-layered-model" {
 		t.Fatalf("unexpected model id: %q", b.Architecture.Model.ID)
 	}
-	if len(b.Architecture.Views) != 5 {
-		t.Fatalf("expected 5 views, got %d", len(b.Architecture.Views))
+	if len(b.Architecture.Views) != 6 {
+		t.Fatalf("expected 6 views, got %d", len(b.Architecture.Views))
 	}
 }

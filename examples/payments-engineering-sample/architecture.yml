@@ -117,6 +117,40 @@ authoredArchitecture:
       layer: runtime
       name: Helm Runtime Platform
 
+  flows:
+    - id: FLOW-CUSTOMER-CHECKOUT
+      title: Customer Checkout Authorization Flow
+      entry: [submit-payment]
+      exits: [show-outcome]
+      steps:
+        - id: submit-payment
+          kind: user_action
+          ref: ACT-CUSTOMER
+          action: Customer submits checkout payment form
+          dataIn: [payment_method, billing_address, amount]
+          next: [normalize-request]
+        - id: normalize-request
+          kind: system_action
+          ref: FU-CHECKOUT
+          action: Normalize and validate checkout payload
+          dataOut: [normalized_payment_request]
+          onError: [show-outcome]
+          next: [authorize-payment]
+        - id: authorize-payment
+          kind: system_action
+          ref: FU-PAYMENT-AUTHORIZATION
+          action: Request fraud score and external authorization
+          dataIn: [normalized_payment_request]
+          dataOut: [authorization_decision]
+          async: true
+          onError: [show-outcome]
+          next: [show-outcome]
+        - id: show-outcome
+          kind: system_action
+          ref: FU-CHECKOUT
+          action: Return approval or decline outcome to customer
+          dataIn: [authorization_decision]
+
   mappings:
     - type: contains
       from: FG-PAYMENTS
@@ -244,3 +278,10 @@ views:
     roots: [FU-CHECKOUT, FU-PAYMENT-AUTHORIZATION, FU-RISK-SCORING, FU-SUPPORT-REVIEW, FU-CLUSTER-PROVISIONING, FU-GITOPS-OPERATIONS]
     authoredStatus: in-review
     authoredStatusExplanation: Requirement-to-unit linkage is present; cross-layer ownership consistency still needs tightening.
+  - id: VIEW-INTERACTION-FLOW
+    kind: interaction-flow
+    roots: [FLOW-CUSTOMER-CHECKOUT]
+    includeKinds: [flow, flow_step, actor, functional_unit]
+    includeMappings: [flow_next, flow_error, flow_async, flow_ref]
+    authoredStatus: in-review
+    authoredStatusExplanation: Flow is authored for core checkout path and used to align UX/data movement semantics with architecture behavior.

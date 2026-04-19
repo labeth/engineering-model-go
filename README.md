@@ -72,6 +72,7 @@ View IDs are free-form, but view `kind` must be one of:
 - `security`
 - `traceability`
 - `state-lifecycle` (optional)
+- `interaction-flow` (optional)
 
 Optional view projection controls in `architecture.yml`:
 
@@ -89,6 +90,14 @@ Authored architecture optionally supports additional first-class entities:
 - `trustBoundaries`
 - `states`
 - `events`
+- `flows` (with ordered `steps`)
+
+Flow step fields (`authoredArchitecture.flows[].steps[]`) support:
+
+- `id`, `ref`, `kind`, `action`
+- `dataIn`, `dataOut`
+- `next`, `onError`
+- `async`, `optional`
 
 Expanded mapping relation vocabulary includes:
 
@@ -96,6 +105,7 @@ Expanded mapping relation vocabulary includes:
 - Communication/data: `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`
 - Traceability/deployment: `implements`, `satisfies`, `allocated_to`, `verified_by`, `deployed_to`
 - Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
+- Flow projection (view-only): `flow_next`, `flow_error`, `flow_async`, `flow_ref`
 
 Optional per-view publication metadata (in `architecture.yml`):
 - `authoredStatus` (for example `draft`, `in-review`, `stable`)

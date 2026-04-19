@@ -1,16 +1,5 @@
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
-N_ACT_BARISTA(("Barista")):::actor
-N_ACT_FLEET_OPERATOR(("Fleet Operator")):::actor
-N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
-N_ACT_SECURITY_ANALYST(("Security Analyst")):::actor
-N_AV_LOG_TAMPERING[["Log Tampering"]]:::attack_vector
-N_AV_MALICIOUS_FIRMWARE_BUNDLE[["Malicious Firmware Bundle"]]:::attack_vector
-N_AV_SPOOFED_DEVICE_IDENTITY[["Spoofed Device Identity"]]:::attack_vector
-N_AV_TELEMETRY_REPLAY_ABUSE[["Telemetry Replay Abuse"]]:::attack_vector
-N_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
-N_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
-N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
 N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
 N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
 N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -24,25 +13,6 @@ N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
 N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
 N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
 N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
-N_ACT_BARISTA --> N_FU_MACHINE_TELEMETRY_COLLECTION
-N_ACT_FLEET_OPERATOR --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-N_ACT_PLATFORM_OPERATOR --> N_FU_CLOUD_RUNTIME_OPERATIONS
-N_ACT_SECURITY_ANALYST --> N_FU_DEVICE_IDENTITY_SECRETS
-N_AV_LOG_TAMPERING --> N_FU_DEVICE_IDENTITY_SECRETS
-N_AV_LOG_TAMPERING --> N_FU_FLEET_OBSERVABILITY_REPORTING
-N_AV_MALICIOUS_FIRMWARE_BUNDLE --> N_FU_OTA_UPDATE_AGENT
-N_AV_MALICIOUS_FIRMWARE_BUNDLE --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-N_AV_SPOOFED_DEVICE_IDENTITY --> N_FU_FLEET_INGESTION_API
-N_AV_SPOOFED_DEVICE_IDENTITY --> N_FU_MACHINE_TELEMETRY_COLLECTION
-N_AV_TELEMETRY_REPLAY_ABUSE --> N_FU_FLEET_INGESTION_API
-N_AV_TELEMETRY_REPLAY_ABUSE --> N_FU_FLEET_OBSERVABILITY_REPORTING
-N_FG_CLOUD_CONTROL --> N_FU_FLEET_INGESTION_API
-N_FG_CLOUD_CONTROL --> N_FU_FLEET_OBSERVABILITY_REPORTING
-N_FG_CLOUD_CONTROL --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-N_FG_MACHINE_EDGE --> N_FU_MACHINE_TELEMETRY_COLLECTION
-N_FG_MACHINE_EDGE --> N_FU_OTA_UPDATE_AGENT
-N_FG_PLATFORM_OPERATIONS --> N_FU_CLOUD_RUNTIME_OPERATIONS
-N_FG_PLATFORM_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
 N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
@@ -65,4 +35,13 @@ classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
 classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
 classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

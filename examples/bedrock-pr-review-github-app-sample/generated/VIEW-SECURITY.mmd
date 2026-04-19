@@ -1,9 +1,5 @@
 flowchart LR
 %% view: VIEW-SECURITY (security)
-N_ACT_DEVELOPER(("Developer")):::actor
-N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
-N_ACT_REPOSITORY_MAINTAINER(("Repository Maintainer")):::actor
-N_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
 N_AV_PR_SPAM_ABUSE[["Pull Request Spam Abuse"]]:::attack_vector
 N_AV_PROMPT_INJECTION_IN_DIFF[["Prompt Injection in Diff"]]:::attack_vector
 N_AV_SECRET_LEAKAGE_IN_REVIEW[["Secret Leakage in Review Output"]]:::attack_vector
@@ -22,11 +18,6 @@ N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
 N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
 N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
 N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
-N_ACT_DEVELOPER --> N_FU_GITHUB_WEBHOOK_INGRESS
-N_ACT_PLATFORM_OPERATOR --> N_FU_LAMBDA_RUNTIME_OPERATIONS
-N_ACT_PLATFORM_OPERATOR --> N_FU_SECRETS_CONFIGURATION
-N_ACT_REPOSITORY_MAINTAINER --> N_FU_REVIEW_PUBLICATION
-N_ACT_SECURITY_ENGINEER --> N_FU_POLICY_CHECKS
 N_AV_PR_SPAM_ABUSE --> N_FU_GITHUB_WEBHOOK_INGRESS
 N_AV_PR_SPAM_ABUSE --> N_FU_REVIEW_ORCHESTRATION
 N_AV_PROMPT_INJECTION_IN_DIFF --> N_FU_PR_CONTEXT_ASSEMBLY
@@ -34,13 +25,6 @@ N_AV_PROMPT_INJECTION_IN_DIFF --> N_FU_REVIEW_ORCHESTRATION
 N_AV_SECRET_LEAKAGE_IN_REVIEW --> N_FU_REVIEW_PUBLICATION
 N_AV_SECRET_LEAKAGE_IN_REVIEW --> N_FU_SECRETS_CONFIGURATION
 N_AV_SPOOFED_GITHUB_WEBHOOK --> N_FU_GITHUB_WEBHOOK_INGRESS
-N_FG_PLATFORM_OPERATIONS --> N_FU_LAMBDA_RUNTIME_OPERATIONS
-N_FG_PLATFORM_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
-N_FG_PR_INTEGRATION --> N_FU_GITHUB_WEBHOOK_INGRESS
-N_FG_PR_INTEGRATION --> N_FU_PR_CONTEXT_ASSEMBLY
-N_FG_REVIEW_INTELLIGENCE --> N_FU_POLICY_CHECKS
-N_FG_REVIEW_INTELLIGENCE --> N_FU_REVIEW_ORCHESTRATION
-N_FG_REVIEW_INTELLIGENCE --> N_FU_REVIEW_PUBLICATION
 N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
 N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
 N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
@@ -58,4 +42,13 @@ classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
 classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
 classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

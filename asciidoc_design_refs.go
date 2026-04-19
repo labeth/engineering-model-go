@@ -128,6 +128,21 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	for _, x := range a.Events {
 		out[x.ID] = nonEmpty(x.Name, x.ID)
 	}
+	for _, f := range a.Flows {
+		out[f.ID] = nonEmpty(f.Title, f.ID)
+		for _, s := range f.Steps {
+			sid := strings.TrimSpace(s.ID)
+			if sid == "" {
+				continue
+			}
+			composite := strings.TrimSpace(f.ID) + "::" + sid
+			label := strings.TrimSpace(s.Action)
+			if label == "" {
+				label = sid
+			}
+			out[composite] = label
+		}
+	}
 	return out
 }
 
@@ -194,6 +209,18 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Events {
 		addAuthored("idx-evt", "Event", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+	}
+	for _, f := range bundle.Architecture.AuthoredArchitecture.Flows {
+		addAuthored("idx-flow", "Flow", f.ID, nonEmpty(f.Title, f.ID), fmt.Sprintf("entry=%s; exits=%s; steps=%d", strings.Join(f.Entry, ", "), strings.Join(f.Exits, ", "), len(f.Steps)))
+		for _, s := range f.Steps {
+			sid := strings.TrimSpace(s.ID)
+			if sid == "" {
+				continue
+			}
+			id := strings.TrimSpace(f.ID) + "::" + sid
+			desc := fmt.Sprintf("kind=%s; ref=%s; action=%s; dataIn=%s; dataOut=%s; async=%t", nonEmpty(strings.TrimSpace(s.Kind), "n/a"), nonEmpty(strings.TrimSpace(s.Ref), "n/a"), nonEmpty(strings.TrimSpace(s.Action), "n/a"), strings.Join(s.DataIn, ", "), strings.Join(s.DataOut, ", "), s.Async)
+			addAuthored("idx-flow-step", "Flow Step", id, nonEmpty(strings.TrimSpace(s.Action), sid), desc)
+		}
 	}
 	for _, x := range requirements.Requirements {
 		authored = append(authored, asciidocReferenceEntry{

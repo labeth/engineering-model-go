@@ -14,6 +14,7 @@ var allowedViewKinds = map[string]bool{
 	"security":            true,
 	"traceability":        true,
 	"state-lifecycle":     true,
+	"interaction-flow":    true,
 }
 
 var allowedMappingTypes = map[string]bool{
@@ -39,6 +40,33 @@ var allowedMappingTypes = map[string]bool{
 	"bounded_by":     true,
 }
 
+var allowedViewMappingTypes = map[string]bool{
+	"contains":       true,
+	"depends_on":     true,
+	"interacts_with": true,
+	"targets":        true,
+	"calls":          true,
+	"publishes":      true,
+	"subscribes":     true,
+	"reads":          true,
+	"writes":         true,
+	"streams":        true,
+	"implements":     true,
+	"satisfies":      true,
+	"allocated_to":   true,
+	"verified_by":    true,
+	"transitions_to": true,
+	"triggered_by":   true,
+	"guarded_by":     true,
+	"deployed_to":    true,
+	"mitigated_by":   true,
+	"bounded_by":     true,
+	"flow_next":      true,
+	"flow_error":     true,
+	"flow_async":     true,
+	"flow_ref":       true,
+}
+
 var allowedViewEntityKinds = map[string]bool{
 	"functional_group":   true,
 	"functional_unit":    true,
@@ -52,6 +80,16 @@ var allowedViewEntityKinds = map[string]bool{
 	"trust_boundary":     true,
 	"state":              true,
 	"event":              true,
+	"flow":               true,
+	"flow_step":          true,
+}
+
+var allowedFlowStepKinds = map[string]bool{
+	"user_action":          true,
+	"system_action":        true,
+	"data_move":            true,
+	"decision":             true,
+	"external_interaction": true,
 }
 
 func Bundle(b model.Bundle) []Diagnostic {
@@ -152,6 +190,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 		events[x.ID] = true
 		kindByID[x.ID] = "event"
 	}
+	for i, x := range b.Architecture.AuthoredArchitecture.Flows {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.flows[%d]", i))
+		kindByID[x.ID] = "flow"
+	}
 
 	validID := func(id string) bool {
 		_, ok := idOwner[id]
@@ -192,6 +234,66 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 
+	for i, f := range b.Architecture.AuthoredArchitecture.Flows {
+		flowPath := fmt.Sprintf("authoredArchitecture.flows[%d]", i)
+		stepOwner := map[string]string{}
+		for j, s := range f.Steps {
+			stepPath := fmt.Sprintf("%s.steps[%d]", flowPath, j)
+			stepID := strings.TrimSpace(s.ID)
+			if stepID == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_flow_step_id", Severity: SeverityError, Message: fmt.Sprintf("flow %q has a step with missing id", strings.TrimSpace(f.ID)), Path: stepPath})
+				continue
+			}
+			if prev, ok := stepOwner[stepID]; ok {
+				diags = append(diags, Diagnostic{Code: "model.duplicate_flow_step_id", Severity: SeverityError, Message: fmt.Sprintf("flow %q has duplicate step id %q (%s, %s)", strings.TrimSpace(f.ID), stepID, prev, stepPath), Path: stepPath})
+				continue
+			}
+			stepOwner[stepID] = stepPath
+			if kind := strings.TrimSpace(s.Kind); kind != "" && !allowedFlowStepKinds[kind] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_kind", Severity: SeverityError, Message: fmt.Sprintf("flow step %q uses unknown kind %q", stepID, kind), Path: stepPath})
+			}
+			if ref := strings.TrimSpace(s.Ref); ref == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_flow_step_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q must reference an authored id", stepID), Path: stepPath})
+			} else if !validID(ref) {
+				diags = append(diags, Diagnostic{Code: "model.broken_flow_reference", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown id %q", stepID, ref), Path: stepPath})
+			}
+		}
+		if len(stepOwner) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_flow_steps", Severity: SeverityError, Message: fmt.Sprintf("flow %q must include at least one step", strings.TrimSpace(f.ID)), Path: flowPath})
+			continue
+		}
+		validateStepTarget := func(target, path, edgeKind string) {
+			target = strings.TrimSpace(target)
+			if target == "" {
+				return
+			}
+			if _, ok := stepOwner[target]; !ok {
+				diags = append(diags, Diagnostic{Code: "model.broken_flow_step_link", Severity: SeverityError, Message: fmt.Sprintf("flow %q %s references unknown step %q", strings.TrimSpace(f.ID), edgeKind, target), Path: path})
+			}
+		}
+		for j, s := range f.Steps {
+			stepPath := fmt.Sprintf("%s.steps[%d]", flowPath, j)
+			for _, next := range s.Next {
+				validateStepTarget(next, stepPath, "next")
+			}
+			for _, onErr := range s.OnError {
+				validateStepTarget(onErr, stepPath, "onError")
+			}
+		}
+		if len(f.Entry) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_flow_entry", Severity: SeverityError, Message: fmt.Sprintf("flow %q must define at least one entry step", strings.TrimSpace(f.ID)), Path: flowPath})
+		} else {
+			for _, entry := range f.Entry {
+				validateStepTarget(entry, flowPath, "entry")
+			}
+		}
+		if len(f.Exits) > 0 {
+			for _, exit := range f.Exits {
+				validateStepTarget(exit, flowPath, "exit")
+			}
+		}
+	}
+
 	for i, v := range b.Architecture.Views {
 		path := fmt.Sprintf("views[%d]", i)
 		if strings.TrimSpace(v.ID) == "" {
@@ -222,12 +324,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 			}
 		}
 		for _, rel := range v.IncludeMappings {
-			if !allowedMappingTypes[strings.TrimSpace(rel)] {
+			if !allowedViewMappingTypes[strings.TrimSpace(rel)] {
 				diags = append(diags, Diagnostic{Code: "model.unknown_view_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown includeMappings value %q", rel), Path: path})
 			}
 		}
 		for _, rel := range v.ExcludeMappings {
-			if !allowedMappingTypes[strings.TrimSpace(rel)] {
+			if !allowedViewMappingTypes[strings.TrimSpace(rel)] {
 				diags = append(diags, Diagnostic{Code: "model.unknown_view_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown excludeMappings value %q", rel), Path: path})
 			}
 		}

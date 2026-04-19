@@ -22,6 +22,7 @@ type index struct {
 	boundaries map[string]model.TrustBoundary
 	states     map[string]model.State
 	events     map[string]model.Event
+	flows      map[string]model.Flow
 }
 
 func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
@@ -40,6 +41,10 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 	maxDepth := v.MaxDepth
 	if maxDepth <= 0 {
 		maxDepth = 99
+	}
+
+	if strings.TrimSpace(v.Kind) == "interaction-flow" {
+		return buildInteractionFlowView(v, idx, includeKinds, excludeKinds, includeMappings, excludeMappings, maxDepth), nil
 	}
 
 	included := map[string]bool{}
@@ -129,6 +134,7 @@ func buildIndex(b model.Bundle) index {
 		boundaries: map[string]model.TrustBoundary{},
 		states:     map[string]model.State{},
 		events:     map[string]model.Event{},
+		flows:      map[string]model.Flow{},
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		idx.groups[x.ID] = x
@@ -165,6 +171,9 @@ func buildIndex(b model.Bundle) index {
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.Events {
 		idx.events[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.Flows {
+		idx.flows[x.ID] = x
 	}
 	return idx
 }
@@ -214,6 +223,9 @@ func toNode(id string, idx index) Node {
 	}
 	if x, ok := idx.events[id]; ok {
 		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "event"}
+	}
+	if x, ok := idx.flows[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Title, id), Kind: "flow"}
 	}
 	return Node{ID: id, Label: id, Kind: "unknown"}
 }
@@ -274,6 +286,9 @@ func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[s
 		case "state-lifecycle":
 			includeMappings = setFromSlice([]string{"transitions_to", "triggered_by", "guarded_by"})
 			includeKinds = setFromSlice([]string{"state", "event", "control", "trust_boundary", "referenced_element"})
+		case "interaction-flow":
+			includeMappings = setFromSlice([]string{"flow_next", "flow_error", "flow_async", "flow_ref"})
+			includeKinds = setFromSlice([]string{"flow", "flow_step", "actor", "functional_group", "functional_unit", "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event", "referenced_element"})
 		}
 	}
 
@@ -290,6 +305,162 @@ func setFromSlice(in []string) map[string]bool {
 		out[x] = true
 	}
 	return out
+}
+
+func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKinds, includeMappings, excludeMappings map[string]bool, maxDepth int) ProjectedView {
+	pv := ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}
+	nodesByID := map[string]Node{}
+	edges := []Edge{}
+	adj := map[string][]string{}
+
+	addNode := func(n Node) {
+		if strings.TrimSpace(n.ID) == "" {
+			return
+		}
+		if !nodeKindAllowed(n.Kind, includeKinds, excludeKinds) {
+			return
+		}
+		nodesByID[n.ID] = n
+	}
+	addEdge := func(e Edge) {
+		if !mappingAllowed(e.Type, includeMappings, excludeMappings) {
+			return
+		}
+		if _, ok := nodesByID[e.From]; !ok {
+			return
+		}
+		if _, ok := nodesByID[e.To]; !ok {
+			return
+		}
+		edges = append(edges, e)
+		adj[e.From] = append(adj[e.From], e.To)
+	}
+
+	selectedFlowIDs := []string{}
+	for _, r := range v.Roots {
+		r = strings.TrimSpace(r)
+		if r == "" {
+			continue
+		}
+		if _, ok := idx.flows[r]; ok {
+			selectedFlowIDs = append(selectedFlowIDs, r)
+		}
+	}
+	if len(selectedFlowIDs) == 0 {
+		for id := range idx.flows {
+			selectedFlowIDs = append(selectedFlowIDs, id)
+		}
+	}
+	sort.Strings(selectedFlowIDs)
+
+	stepNodeID := func(flowID, stepID string) string {
+		return flowID + "::" + stepID
+	}
+
+	for _, flowID := range selectedFlowIDs {
+		flow := idx.flows[flowID]
+		flowNode := Node{ID: flowID, Label: nonEmpty(strings.TrimSpace(flow.Title), flowID), Kind: "flow"}
+		addNode(flowNode)
+
+		for _, step := range flow.Steps {
+			stepID := strings.TrimSpace(step.ID)
+			if stepID == "" {
+				continue
+			}
+			label := strings.TrimSpace(step.Action)
+			if label == "" {
+				label = stepID
+			}
+			nID := stepNodeID(flowID, stepID)
+			addNode(Node{ID: nID, Label: label, Kind: "flow_step"})
+		}
+
+		for _, entry := range flow.Entry {
+			sid := strings.TrimSpace(entry)
+			if sid == "" {
+				continue
+			}
+			to := stepNodeID(flowID, sid)
+			addEdge(Edge{From: flowID, To: to, Type: "flow_next", Label: "flow_next"})
+		}
+
+		for _, step := range flow.Steps {
+			from := stepNodeID(flowID, strings.TrimSpace(step.ID))
+			if strings.TrimSpace(step.Ref) != "" {
+				if refNode := toNode(strings.TrimSpace(step.Ref), idx); strings.TrimSpace(refNode.ID) != "" && refNode.Kind != "unknown" {
+					addNode(refNode)
+					addEdge(Edge{From: from, To: refNode.ID, Type: "flow_ref", Label: "flow_ref"})
+				}
+			}
+			edgeType := "flow_next"
+			if step.Async {
+				edgeType = "flow_async"
+			}
+			for _, next := range step.Next {
+				to := stepNodeID(flowID, strings.TrimSpace(next))
+				addEdge(Edge{From: from, To: to, Type: edgeType, Label: edgeType})
+			}
+			for _, onErr := range step.OnError {
+				to := stepNodeID(flowID, strings.TrimSpace(onErr))
+				addEdge(Edge{From: from, To: to, Type: "flow_error", Label: "flow_error"})
+			}
+		}
+	}
+
+	roots := []string{}
+	for _, r := range v.Roots {
+		r = strings.TrimSpace(r)
+		if r == "" {
+			continue
+		}
+		if _, ok := nodesByID[r]; ok {
+			roots = append(roots, r)
+		}
+	}
+	if len(roots) == 0 {
+		for _, flowID := range selectedFlowIDs {
+			if _, ok := nodesByID[flowID]; ok {
+				roots = append(roots, flowID)
+			}
+		}
+	}
+	included := map[string]bool{}
+	depth := map[string]int{}
+	queue := []string{}
+	for _, r := range roots {
+		if !included[r] {
+			included[r] = true
+			depth[r] = 0
+			queue = append(queue, r)
+		}
+	}
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		if depth[cur] >= maxDepth {
+			continue
+		}
+		for _, nxt := range adj[cur] {
+			if included[nxt] {
+				continue
+			}
+			included[nxt] = true
+			depth[nxt] = depth[cur] + 1
+			queue = append(queue, nxt)
+		}
+	}
+	for id, n := range nodesByID {
+		if included[id] {
+			pv.Nodes = append(pv.Nodes, n)
+		}
+	}
+	for _, e := range edges {
+		if included[e.From] && included[e.To] {
+			pv.Edges = append(pv.Edges, e)
+		}
+	}
+
+	return sortView(pv)
 }
 
 func nonEmpty(v, fallback string) string {

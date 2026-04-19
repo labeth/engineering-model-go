@@ -1,0 +1,35 @@
+flowchart LR
+%% view: VIEW-INTERACTION-FLOW (interaction-flow)
+N_ACT_CUSTOMER(("Customer")):::actor
+N_FLOW_CUSTOMER_CHECKOUT["Customer Checkout Authorization Flow"]:::flow
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment["Request fraud score and external authorization"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request["Normalize and validate checkout payload"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__show_outcome["Return approval or decline outcome to customer"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__submit_payment["Customer submits checkout payment form"]:::flow_step
+N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FLOW_CUSTOMER_CHECKOUT --> N_FLOW_CUSTOMER_CHECKOUT__submit_payment
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FU_PAYMENT_AUTHORIZATION
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FLOW_CUSTOMER_CHECKOUT__authorize_payment
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FU_CHECKOUT
+N_FLOW_CUSTOMER_CHECKOUT__show_outcome --> N_FU_CHECKOUT
+N_FLOW_CUSTOMER_CHECKOUT__submit_payment --> N_ACT_CUSTOMER
+N_FLOW_CUSTOMER_CHECKOUT__submit_payment --> N_FLOW_CUSTOMER_CHECKOUT__normalize_request
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

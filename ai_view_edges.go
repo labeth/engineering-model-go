@@ -71,6 +71,12 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 			for _, id := range e.EventIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_event", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
 			}
+			for _, id := range e.FlowIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_flow", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.FlowStepIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_flow_step", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
 			for _, relatedID := range e.RelatedIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: relatedID, Relation: "depends_on", Origin: "authored", Confidence: "high", SourceRefs: sourceRefs})
 			}
@@ -89,6 +95,11 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 				addEdge(AIEdge{FromID: e.ID, ToID: ownerID, Relation: "derived_owner", Origin: "inferred", Confidence: "medium", SourceRefs: sourceRefs})
 			}
 		default:
+			if e.Kind == "flow" {
+				for _, stepID := range e.FlowStepIDs {
+					addEdge(AIEdge{FromID: e.ID, ToID: stepID, Relation: "contains_step", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[stepID].SourceRefs)})
+				}
+			}
 			for _, relatedID := range e.RelatedIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: relatedID, Relation: "related_to", Origin: "authored", Confidence: "high", SourceRefs: sourceRefs})
 			}

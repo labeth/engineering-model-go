@@ -141,3 +141,58 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 		t.Fatalf("expected unknown kind and invalid depth diagnostics, got: %+v", diags)
 	}
 }
+
+func TestBundleValidation_InteractionFlowValid(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Actors:           []model.Actor{{ID: "ACT-A", Name: "User"}},
+		Interfaces:       []model.Interface{{ID: "IF-A", Name: "Control API", Owner: "FU-A"}},
+		DataObjects:      []model.DataObject{{ID: "DO-A", Name: "Selection State"}},
+		Flows: []model.Flow{{
+			ID:    "FLOW-INPUT-SELECTION",
+			Title: "Input selection flow",
+			Entry: []string{"user-submit"},
+			Exits: []string{"state-saved"},
+			Steps: []model.FlowStep{
+				{ID: "user-submit", Kind: "user_action", Ref: "ACT-A", Action: "Submit selection", DataIn: []string{"input_selection"}, Next: []string{"api-ingest"}},
+				{ID: "api-ingest", Kind: "system_action", Ref: "IF-A", Action: "Validate and ingest", DataOut: []string{"normalized_selection"}, Next: []string{"state-saved"}},
+				{ID: "state-saved", Kind: "data_move", Ref: "DO-A", Action: "Persist selection"},
+			},
+		}},
+	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT-SELECTION"}, IncludeMappings: []string{"flow_next", "flow_ref"}}}}}
+
+	if diags := Bundle(b); HasErrors(diags) {
+		t.Fatalf("expected valid interaction flow model, got: %+v", diags)
+	}
+}
+
+func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Flows: []model.Flow{{
+			ID:    "FLOW-BROKEN",
+			Title: "Broken flow",
+			Entry: []string{"missing-step"},
+			Steps: []model.FlowStep{
+				{ID: "step-1", Kind: "invalid-kind", Ref: "MISSING-ID", Next: []string{"step-2"}},
+				{ID: "step-1", Kind: "system_action", Ref: "FU-A"},
+			},
+		}},
+	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-BROKEN"}}}}}
+
+	diags := Bundle(b)
+	if !HasErrors(diags) {
+		t.Fatalf("expected invalid flow model to fail")
+	}
+	checks := map[string]bool{}
+	for _, d := range diags {
+		checks[d.Code] = true
+	}
+	for _, code := range []string{"model.invalid_flow_step_kind", "model.broken_flow_reference", "model.duplicate_flow_step_id", "model.broken_flow_step_link"} {
+		if !checks[code] {
+			t.Fatalf("expected diagnostic %s, got: %+v", code, diags)
+		}
+	}
+}

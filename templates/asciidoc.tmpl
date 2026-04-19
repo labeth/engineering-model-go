@@ -89,6 +89,15 @@ flowchart LR
   FU["Functional Unit"]:::functional_unit
   ACT(("Actor")):::actor
   REF["Referenced Element"]:::referenced_element
+  IFACE["Interface"]:::interface
+  DATA["Data Object"]:::data_object
+  DEPT["Deployment Target"]:::deployment_target
+  CTRL[["Control"]]:::control
+  TB["Trust Boundary"]:::trust_boundary
+  ST(("State")):::state
+  EVT(("Event")):::event
+  FLOW["Flow"]:::flow
+  FSTEP["Flow Step"]:::flow_step
   AV(("Attack Vector")):::attack_vector
   REQ["Requirement"]:::requirement
   VER["Verification Check"]:::verification
@@ -100,6 +109,15 @@ flowchart LR
   FG --> FU
   ACT --> FU
   FU --> REF
+  FU --> IFACE
+  FU --> DATA
+  FU --> DEPT
+  FU --> CTRL
+  FU --> TB
+  ST -->|triggered_by| EVT
+  ST -->|guarded_by| CTRL
+  FLOW --> FSTEP
+  FSTEP -->|flow_ref| FU
   REQ -->|applies_to| FU
   VER -->|verifies| REQ
   VER -->|implemented_by| CODE
@@ -114,6 +132,15 @@ flowchart LR
   classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
   classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
   classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+  classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20;
+  classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100;
+  classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+  classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+  classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px,color:#004d40;
+  classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+  classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+  classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px,color:#311b92;
+  classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#1b5e20;
   classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
   classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
   classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
