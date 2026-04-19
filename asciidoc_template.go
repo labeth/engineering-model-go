@@ -144,6 +144,12 @@ type asciidocMappingSection struct {
 	Description string
 }
 
+type asciidocProjectedNode struct {
+	ID    string
+	Kind  string
+	Label string
+}
+
 type asciidocInferredRow struct {
 	Name   string
 	Kind   string
@@ -171,10 +177,10 @@ type asciidocPlatformOpRow struct {
 
 type asciidocSecurityPathRow struct {
 	AttackVectorID string
-	AttackVector string
-	TargetID      string
-	Target       string
-	DependsOn    string
+	AttackVector   string
+	TargetID       string
+	Target         string
+	DependsOn      string
 }
 
 type asciidocSecurityObsRow struct {
@@ -214,6 +220,8 @@ type asciidocViewSection struct {
 	SecurityRows              []asciidocSecurityPathRow
 	SecurityObsRows           []asciidocSecurityObsRow
 	SecurityAttackChapters    []asciidocSecurityAttackChapter
+	ProjectedNodes            []asciidocProjectedNode
+	ProjectedMappings         []asciidocMappingSection
 }
 
 type asciidocSecurityAttackChapter struct {
@@ -259,14 +267,14 @@ type asciidocUnitSection struct {
 }
 
 type asciidocRequirementSection struct {
-	Anchor                string
-	ID                    string
-	Text                  string
-	Notes                 string
-	AlignmentMermaid      string
-	CoverageMermaid       string
-	AlignmentExplanation  string
-	CoverageExplanation   string
+	Anchor               string
+	ID                   string
+	Text                 string
+	Notes                string
+	AlignmentMermaid     string
+	CoverageMermaid      string
+	AlignmentExplanation string
+	CoverageExplanation  string
 }
 
 type asciidocVerificationSection struct {

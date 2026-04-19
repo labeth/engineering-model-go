@@ -21,6 +21,37 @@ var allowedMappingTypes = map[string]bool{
 	"depends_on":     true,
 	"interacts_with": true,
 	"targets":        true,
+	"calls":          true,
+	"publishes":      true,
+	"subscribes":     true,
+	"reads":          true,
+	"writes":         true,
+	"streams":        true,
+	"implements":     true,
+	"satisfies":      true,
+	"allocated_to":   true,
+	"verified_by":    true,
+	"transitions_to": true,
+	"triggered_by":   true,
+	"guarded_by":     true,
+	"deployed_to":    true,
+	"mitigated_by":   true,
+	"bounded_by":     true,
+}
+
+var allowedViewEntityKinds = map[string]bool{
+	"functional_group":   true,
+	"functional_unit":    true,
+	"actor":              true,
+	"attack_vector":      true,
+	"referenced_element": true,
+	"interface":          true,
+	"data_object":        true,
+	"deployment_target":  true,
+	"control":            true,
+	"trust_boundary":     true,
+	"state":              true,
+	"event":              true,
 }
 
 func Bundle(b model.Bundle) []Diagnostic {
@@ -44,15 +75,25 @@ func Bundle(b model.Bundle) []Diagnostic {
 	actors := map[string]bool{}
 	vectors := map[string]bool{}
 	references := map[string]bool{}
+	interfaces := map[string]bool{}
+	dataObjects := map[string]bool{}
+	deploymentTargets := map[string]bool{}
+	controls := map[string]bool{}
+	trustBoundaries := map[string]bool{}
+	states := map[string]bool{}
+	events := map[string]bool{}
+	kindByID := map[string]string{}
 
 	for i, g := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		addID(g.ID, fmt.Sprintf("authoredArchitecture.functionalGroups[%d]", i))
 		groups[g.ID] = true
+		kindByID[g.ID] = "functional_group"
 	}
 	for i, u := range b.Architecture.AuthoredArchitecture.FunctionalUnits {
 		path := fmt.Sprintf("authoredArchitecture.functionalUnits[%d]", i)
 		addID(u.ID, path)
 		units[u.ID] = true
+		kindByID[u.ID] = "functional_unit"
 		if strings.TrimSpace(u.Group) == "" || !groups[u.Group] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_group", Severity: SeverityError, Message: fmt.Sprintf("functional unit %q must reference a valid functional group", u.ID), Path: path})
 		}
@@ -60,14 +101,56 @@ func Bundle(b model.Bundle) []Diagnostic {
 	for i, a := range b.Architecture.AuthoredArchitecture.Actors {
 		addID(a.ID, fmt.Sprintf("authoredArchitecture.actors[%d]", i))
 		actors[a.ID] = true
+		kindByID[a.ID] = "actor"
 	}
 	for i, a := range b.Architecture.AuthoredArchitecture.AttackVectors {
 		addID(a.ID, fmt.Sprintf("authoredArchitecture.attackVectors[%d]", i))
 		vectors[a.ID] = true
+		kindByID[a.ID] = "attack_vector"
 	}
 	for i, r := range b.Architecture.AuthoredArchitecture.ReferencedElements {
 		addID(r.ID, fmt.Sprintf("authoredArchitecture.referencedElements[%d]", i))
 		references[r.ID] = true
+		kindByID[r.ID] = "referenced_element"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.Interfaces {
+		path := fmt.Sprintf("authoredArchitecture.interfaces[%d]", i)
+		addID(x.ID, path)
+		interfaces[x.ID] = true
+		kindByID[x.ID] = "interface"
+		if owner := strings.TrimSpace(x.Owner); owner != "" && !units[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_interface_owner", Severity: SeverityError, Message: fmt.Sprintf("interface %q owner %q must be a functional unit", x.ID, owner), Path: path})
+		}
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.DataObjects {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.dataObjects[%d]", i))
+		dataObjects[x.ID] = true
+		kindByID[x.ID] = "data_object"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.DeploymentTargets {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.deploymentTargets[%d]", i))
+		deploymentTargets[x.ID] = true
+		kindByID[x.ID] = "deployment_target"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.Controls {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.controls[%d]", i))
+		controls[x.ID] = true
+		kindByID[x.ID] = "control"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.TrustBoundaries {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.trustBoundaries[%d]", i))
+		trustBoundaries[x.ID] = true
+		kindByID[x.ID] = "trust_boundary"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.States {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.states[%d]", i))
+		states[x.ID] = true
+		kindByID[x.ID] = "state"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.Events {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.events[%d]", i))
+		events[x.ID] = true
+		kindByID[x.ID] = "event"
 	}
 
 	validID := func(id string) bool {
@@ -95,6 +178,18 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if m.Type == "targets" && !vectors[m.From] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_target", Severity: SeverityError, Message: "targets must originate from an attack vector", Path: path})
 		}
+		if m.Type == "triggered_by" && !events[m.To] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_trigger", Severity: SeverityError, Message: "triggered_by must target an event", Path: path})
+		}
+		if m.Type == "guarded_by" && !(controls[m.To] || trustBoundaries[m.To] || references[m.To]) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_guard", Severity: SeverityError, Message: "guarded_by must target a control, trust boundary, or referenced element", Path: path})
+		}
+		if m.Type == "transitions_to" && !(states[m.From] && states[m.To]) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_transition", Severity: SeverityError, Message: "transitions_to must be state -> state", Path: path})
+		}
+		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !mappingPairAllowed(m.Type, fromKind, toKind) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_mapping_pair", Severity: SeverityError, Message: fmt.Sprintf("mapping type %q is not valid for %s -> %s", m.Type, fromKind, toKind), Path: path})
+		}
 	}
 
 	for i, v := range b.Architecture.Views {
@@ -113,7 +208,128 @@ func Bundle(b model.Bundle) []Diagnostic {
 				diags = append(diags, Diagnostic{Code: "model.broken_reference", Severity: SeverityError, Message: fmt.Sprintf("view root %q does not exist", root), Path: path})
 			}
 		}
+		if v.MaxDepth < 0 {
+			diags = append(diags, Diagnostic{Code: "model.invalid_view_depth", Severity: SeverityError, Message: "view maxDepth must be >= 0", Path: path})
+		}
+		for _, kind := range v.IncludeKinds {
+			if !allowedViewEntityKinds[strings.TrimSpace(kind)] {
+				diags = append(diags, Diagnostic{Code: "model.unknown_view_entity_kind", Severity: SeverityError, Message: fmt.Sprintf("unknown includeKinds value %q", kind), Path: path})
+			}
+		}
+		for _, kind := range v.ExcludeKinds {
+			if !allowedViewEntityKinds[strings.TrimSpace(kind)] {
+				diags = append(diags, Diagnostic{Code: "model.unknown_view_entity_kind", Severity: SeverityError, Message: fmt.Sprintf("unknown excludeKinds value %q", kind), Path: path})
+			}
+		}
+		for _, rel := range v.IncludeMappings {
+			if !allowedMappingTypes[strings.TrimSpace(rel)] {
+				diags = append(diags, Diagnostic{Code: "model.unknown_view_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown includeMappings value %q", rel), Path: path})
+			}
+		}
+		for _, rel := range v.ExcludeMappings {
+			if !allowedMappingTypes[strings.TrimSpace(rel)] {
+				diags = append(diags, Diagnostic{Code: "model.unknown_view_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown excludeMappings value %q", rel), Path: path})
+			}
+		}
 	}
 
 	return SortDiagnostics(diags)
+}
+
+func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
+	t := strings.TrimSpace(mappingType)
+	from := strings.TrimSpace(fromKind)
+	to := strings.TrimSpace(toKind)
+	if t == "" || from == "" || to == "" {
+		return false
+	}
+	if t == "contains" {
+		if from == "functional_group" && to == "functional_unit" {
+			return true
+		}
+		if from == "functional_unit" {
+			return to == "interface" || to == "data_object"
+		}
+		return false
+	}
+	allowed := map[string]map[string]bool{
+		"depends_on": {
+			"functional_unit:functional_unit":    true,
+			"functional_unit:referenced_element": true,
+			"functional_unit:interface":          true,
+			"functional_unit:deployment_target":  true,
+		},
+		"interacts_with": {
+			"actor:functional_unit": true,
+		},
+		"targets": {
+			"attack_vector:functional_unit":    true,
+			"attack_vector:referenced_element": true,
+			"attack_vector:interface":          true,
+			"attack_vector:deployment_target":  true,
+		},
+		"calls": {
+			"functional_unit:functional_unit": true,
+			"functional_unit:interface":       true,
+		},
+		"publishes": {
+			"functional_unit:interface":   true,
+			"functional_unit:data_object": true,
+		},
+		"subscribes": {
+			"functional_unit:interface":   true,
+			"functional_unit:data_object": true,
+		},
+		"reads": {
+			"functional_unit:data_object": true,
+		},
+		"writes": {
+			"functional_unit:data_object": true,
+		},
+		"streams": {
+			"functional_unit:interface":   true,
+			"functional_unit:data_object": true,
+		},
+		"implements": {
+			"functional_unit:interface":   true,
+			"functional_unit:data_object": true,
+		},
+		"satisfies": {
+			"functional_unit:referenced_element": true,
+			"functional_unit:control":            true,
+		},
+		"allocated_to": {
+			"functional_unit:deployment_target": true,
+			"interface:deployment_target":       true,
+		},
+		"verified_by": {
+			"functional_unit:referenced_element": true,
+			"control:referenced_element":         true,
+		},
+		"transitions_to": {
+			"state:state": true,
+		},
+		"triggered_by": {
+			"state:event": true,
+		},
+		"guarded_by": {
+			"state:control":            true,
+			"state:trust_boundary":     true,
+			"state:referenced_element": true,
+		},
+		"deployed_to": {
+			"functional_unit:deployment_target": true,
+			"interface:deployment_target":       true,
+		},
+		"mitigated_by": {
+			"attack_vector:control": true,
+		},
+		"bounded_by": {
+			"functional_unit:trust_boundary":   true,
+			"deployment_target:trust_boundary": true,
+			"interface:trust_boundary":         true,
+		},
+	}
+	key := from + ":" + to
+	return allowed[t][key]
 }

@@ -137,6 +137,29 @@ flowchart LR
 - {{ . }}
 {{ end }}
 
+=== View-Scoped Projection
+
+[source,mermaid]
+----
+{{ $v.Mermaid }}
+----
+
+[cols="1,1,3",options="header"]
+|===
+|Node ID |Kind |Label
+{{ range $v.ProjectedNodes }}
+|{{ .ID }} |{{ .Kind }} |{{ .Label }}
+{{ end }}
+|===
+
+[cols="1,2,2",options="header"]
+|===
+|Mapping Type |From |To
+{{ range $v.ProjectedMappings }}
+|{{ .Type }} |{{ .From }} |{{ .To }}
+{{ end }}
+|===
+
 {{- if ne $v.Kind "architecture-intent" }}
 === Coverage Gaps
 
@@ -351,9 +374,20 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 |Inferred deployment evidence |{{ .Evidence }}
 |===
 {{ else if eq $viewKind "state-lifecycle" }}
-Lifecycle triggers: {{ .Triggers }}
-Lifecycle collaborators: {{ .DependsOn }}
-Lifecycle evidence: {{ .Evidence }}
+[discrete]
+====== Lifecycle Triggers
+
+{{ .Triggers }}
+
+[discrete]
+====== Lifecycle Collaborators
+
+{{ .DependsOn }}
+
+[discrete]
+====== Lifecycle Evidence
+
+{{ .Evidence }}
 {{ else if eq $viewKind "security" }}
 [discrete]
 ====== Attack Surface

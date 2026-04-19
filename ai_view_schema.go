@@ -33,13 +33,20 @@ type AIModelSummary struct {
 }
 
 type AIModelCounts struct {
-	FunctionalGroups int `json:"fg"`
-	FunctionalUnits  int `json:"fu"`
-	Requirements     int `json:"req"`
-	Runtime          int `json:"rt"`
-	Code             int `json:"code"`
-	Verification     int `json:"verification"`
-	Views            int `json:"views"`
+	FunctionalGroups  int `json:"fg"`
+	FunctionalUnits   int `json:"fu"`
+	Requirements      int `json:"req"`
+	Runtime           int `json:"rt"`
+	Code              int `json:"code"`
+	Verification      int `json:"verification"`
+	Interfaces        int `json:"interfaces,omitempty"`
+	DataObjects       int `json:"data_objects,omitempty"`
+	DeploymentTargets int `json:"deployment_targets,omitempty"`
+	Controls          int `json:"controls,omitempty"`
+	TrustBoundaries   int `json:"trust_boundaries,omitempty"`
+	States            int `json:"states,omitempty"`
+	Events            int `json:"events,omitempty"`
+	Views             int `json:"views"`
 }
 
 type AIEntryPoint struct {
@@ -50,13 +57,20 @@ type AIEntryPoint struct {
 }
 
 type AIEntityIndex struct {
-	FunctionalGroupIDs []string         `json:"fg_ids"`
-	FunctionalUnitIDs  []string         `json:"fu_ids"`
-	RequirementIDs     []string         `json:"req_ids"`
-	RuntimeIDs         []string         `json:"rt_ids"`
-	CodeIDs            []string         `json:"code_ids"`
-	VerificationIDs    []string         `json:"verification_ids"`
-	Lookup             []AIEntityLookup `json:"lookup"`
+	FunctionalGroupIDs  []string         `json:"fg_ids"`
+	FunctionalUnitIDs   []string         `json:"fu_ids"`
+	RequirementIDs      []string         `json:"req_ids"`
+	RuntimeIDs          []string         `json:"rt_ids"`
+	CodeIDs             []string         `json:"code_ids"`
+	VerificationIDs     []string         `json:"verification_ids"`
+	InterfaceIDs        []string         `json:"interface_ids,omitempty"`
+	DataObjectIDs       []string         `json:"data_object_ids,omitempty"`
+	DeploymentTargetIDs []string         `json:"deployment_target_ids,omitempty"`
+	ControlIDs          []string         `json:"control_ids,omitempty"`
+	TrustBoundaryIDs    []string         `json:"trust_boundary_ids,omitempty"`
+	StateIDs            []string         `json:"state_ids,omitempty"`
+	EventIDs            []string         `json:"event_ids,omitempty"`
+	Lookup              []AIEntityLookup `json:"lookup"`
 }
 
 type AIEntityLookup struct {
@@ -76,21 +90,28 @@ type AISupportPath struct {
 }
 
 type AIEntity struct {
-	ID              string              `json:"id"`
-	Kind            string              `json:"kind"`
-	Title           string              `json:"title"`
-	Summary         string              `json:"summary"`
-	Origin          string              `json:"origin"`
-	Status          string              `json:"status,omitempty"`
-	GroupID         string              `json:"group_id,omitempty"`
-	RequirementIDs  []string            `json:"requirement_ids,omitempty"`
-	RuntimeIDs      []string            `json:"runtime_ids,omitempty"`
-	CodeIDs         []string            `json:"code_ids,omitempty"`
-	VerificationIDs []string            `json:"verification_ids,omitempty"`
-	RelatedIDs      []string            `json:"related_ids,omitempty"`
-	Fields          AIEntityFields      `json:"fields,omitempty"`
-	FieldProvenance []AIFieldProvenance `json:"field_provenance,omitempty"`
-	SourceRefs      []string            `json:"source_refs"`
+	ID               string              `json:"id"`
+	Kind             string              `json:"kind"`
+	Title            string              `json:"title"`
+	Summary          string              `json:"summary"`
+	Origin           string              `json:"origin"`
+	Status           string              `json:"status,omitempty"`
+	GroupID          string              `json:"group_id,omitempty"`
+	RequirementIDs   []string            `json:"requirement_ids,omitempty"`
+	RuntimeIDs       []string            `json:"runtime_ids,omitempty"`
+	CodeIDs          []string            `json:"code_ids,omitempty"`
+	VerificationIDs  []string            `json:"verification_ids,omitempty"`
+	InterfaceIDs     []string            `json:"interface_ids,omitempty"`
+	DataObjectIDs    []string            `json:"data_object_ids,omitempty"`
+	DeploymentIDs    []string            `json:"deployment_target_ids,omitempty"`
+	ControlIDs       []string            `json:"control_ids,omitempty"`
+	TrustBoundaryIDs []string            `json:"trust_boundary_ids,omitempty"`
+	StateIDs         []string            `json:"state_ids,omitempty"`
+	EventIDs         []string            `json:"event_ids,omitempty"`
+	RelatedIDs       []string            `json:"related_ids,omitempty"`
+	Fields           AIEntityFields      `json:"fields,omitempty"`
+	FieldProvenance  []AIFieldProvenance `json:"field_provenance,omitempty"`
+	SourceRefs       []string            `json:"source_refs"`
 }
 
 type AIEntityFields struct {

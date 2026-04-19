@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/model"
 )
 
 func TestGenerateAIViewFromFiles_Deterministic(t *testing.T) {
@@ -128,5 +130,54 @@ func TestGenerateAIViewFromFiles_BedrockShapeAndOrdering(t *testing.T) {
 	}
 	if lines == 0 {
 		t.Fatalf("expected non-empty edges ndjson")
+	}
+}
+
+func TestGenerateAIView_IncludesNewAuthoredEntityKindsAndSupportPath(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups:  []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
+			FunctionalUnits:   []model.FunctionalUnit{{ID: "FU-A", Name: "Unit", Group: "FG-A"}},
+			Interfaces:        []model.Interface{{ID: "IF-A", Name: "Ingress", Owner: "FU-A"}},
+			DataObjects:       []model.DataObject{{ID: "DATA-A", Name: "Digest Lock"}},
+			DeploymentTargets: []model.DeploymentTarget{{ID: "DEP-A", Name: "Prod"}},
+			Controls:          []model.Control{{ID: "CTRL-A", Name: "Digest Pinning"}},
+			TrustBoundaries:   []model.TrustBoundary{{ID: "TB-A", Name: "Cluster Boundary"}},
+			States:            []model.State{{ID: "STATE-A", Name: "Ready"}},
+			Events:            []model.Event{{ID: "EVT-A", Name: "Release Requested"}},
+			Mappings: []model.Mapping{
+				{Type: "deployed_to", From: "FU-A", To: "DEP-A"},
+				{Type: "calls", From: "FU-A", To: "IF-A"},
+				{Type: "writes", From: "FU-A", To: "DATA-A"},
+				{Type: "bounded_by", From: "FU-A", To: "TB-A"},
+				{Type: "guarded_by", From: "STATE-A", To: "CTRL-A"},
+				{Type: "triggered_by", From: "STATE-A", To: "EVT-A"},
+			},
+		},
+		Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}},
+	}}
+	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-A", Text: "system shall deploy digest pins", AppliesTo: []string{"FU-A"}}}}
+	doc := buildAIViewDocument(bundle, requirements, model.DesignDocument{}, nil, nil, nil, "", "", AIViewOptions{})
+
+	counts := doc.Model.Counts
+	if counts.Interfaces == 0 || counts.DataObjects == 0 || counts.DeploymentTargets == 0 || counts.Controls == 0 || counts.TrustBoundaries == 0 || counts.States == 0 || counts.Events == 0 {
+		t.Fatalf("expected non-zero counts for new authored kinds, got %+v", counts)
+	}
+
+	foundPath := false
+	for _, sp := range doc.SupportPaths {
+		if sp.FromID != "REQ-A" {
+			continue
+		}
+		for _, id := range sp.Path {
+			if id == "DEP-A" || id == "IF-A" || id == "DATA-A" {
+				foundPath = true
+				break
+			}
+		}
+	}
+	if !foundPath {
+		t.Fatalf("expected requirement support path to include new authored implementation evidence ids")
 	}
 }

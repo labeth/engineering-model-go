@@ -62,6 +62,31 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		if err != nil {
 			return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("generate view %s: %w", viewID, err)
 		}
+		projectedNodes := make([]asciidocProjectedNode, 0, len(res.View.Nodes))
+		for _, n := range res.View.Nodes {
+			projectedNodes = append(projectedNodes, asciidocProjectedNode{ID: strings.TrimSpace(n.ID), Kind: strings.TrimSpace(n.Kind), Label: strings.TrimSpace(n.Label)})
+		}
+		sort.SliceStable(projectedNodes, func(i, j int) bool {
+			if projectedNodes[i].Kind != projectedNodes[j].Kind {
+				return projectedNodes[i].Kind < projectedNodes[j].Kind
+			}
+			return projectedNodes[i].ID < projectedNodes[j].ID
+		})
+
+		projectedMappings := make([]asciidocMappingSection, 0, len(res.View.Edges))
+		for _, e := range res.View.Edges {
+			projectedMappings = append(projectedMappings, asciidocMappingSection{Type: strings.TrimSpace(e.Type), From: strings.TrimSpace(e.From), To: strings.TrimSpace(e.To), Description: strings.TrimSpace(e.Label)})
+		}
+		sort.SliceStable(projectedMappings, func(i, j int) bool {
+			if projectedMappings[i].Type != projectedMappings[j].Type {
+				return projectedMappings[i].Type < projectedMappings[j].Type
+			}
+			if projectedMappings[i].From != projectedMappings[j].From {
+				return projectedMappings[i].From < projectedMappings[j].From
+			}
+			return projectedMappings[i].To < projectedMappings[j].To
+		})
+
 		viewSections = append(viewSections, asciidocViewSection{
 			ID:                        viewID,
 			Kind:                      res.View.Kind,
@@ -71,6 +96,8 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			Mermaid:                   strings.TrimSpace(res.Mermaid),
 			Inf:                       inferredDescription(res.View.Kind),
 			ViewQuestions:             viewQuestions(res.View.Kind),
+			ProjectedNodes:            projectedNodes,
+			ProjectedMappings:         projectedMappings,
 		})
 		nodes := map[string]bool{}
 		for _, n := range res.View.Nodes {
@@ -404,6 +431,17 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		for j := range viewSections[i].NextActions {
 			viewSections[i].NextActions[j] = linkifyText(viewSections[i].NextActions[j], linkTargets)
 		}
+		for j := range viewSections[i].ProjectedNodes {
+			viewSections[i].ProjectedNodes[j].ID = linkifyText(viewSections[i].ProjectedNodes[j].ID, linkTargets)
+			viewSections[i].ProjectedNodes[j].Kind = linkifyText(viewSections[i].ProjectedNodes[j].Kind, linkTargets)
+			viewSections[i].ProjectedNodes[j].Label = linkifyText(viewSections[i].ProjectedNodes[j].Label, linkTargets)
+		}
+		for j := range viewSections[i].ProjectedMappings {
+			viewSections[i].ProjectedMappings[j].Type = linkifyText(viewSections[i].ProjectedMappings[j].Type, linkTargets)
+			viewSections[i].ProjectedMappings[j].From = linkifyText(viewSections[i].ProjectedMappings[j].From, linkTargets)
+			viewSections[i].ProjectedMappings[j].To = linkifyText(viewSections[i].ProjectedMappings[j].To, linkTargets)
+			viewSections[i].ProjectedMappings[j].Description = linkifyText(viewSections[i].ProjectedMappings[j].Description, linkTargets)
+		}
 		viewSections[i].CoverageSummary = linkifyText(viewSections[i].CoverageSummary, linkTargets)
 	}
 	for i := range reqSections {
@@ -468,13 +506,13 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			AttackVectors:      listNamesVectors(bundle.Architecture.AuthoredArchitecture.AttackVectors),
 			ReferencedElements: listNamesRefs(bundle.Architecture.AuthoredArchitecture.ReferencedElements),
 		},
-		Views:                      viewSections,
-		RequirementMermaid:         reqMermaid,
-		RequirementInf:             "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
-		Requirements:               reqSections,
-		Verifications:              verificationSections,
-		VerificationResults:        verificationResultRows,
-		ReferenceIndex:             refIndex,
+		Views:               viewSections,
+		RequirementMermaid:  reqMermaid,
+		RequirementInf:      "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
+		Requirements:        reqSections,
+		Verifications:       verificationSections,
+		VerificationResults: verificationResultRows,
+		ReferenceIndex:      refIndex,
 	}
 
 	doc, err := renderAsciiDocTemplate(templateData)

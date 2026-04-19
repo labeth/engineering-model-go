@@ -50,6 +50,27 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 			for _, verID := range e.VerificationIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: verID, Relation: "covered_by_verification", Origin: "verification", Confidence: "medium", SourceRefs: combineSourceRefs(sourceRefs, entityByID[verID].SourceRefs)})
 			}
+			for _, id := range e.InterfaceIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_interface", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.DataObjectIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_data_object", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.DeploymentIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_deployment_target", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.ControlIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_control", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.TrustBoundaryIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "bounded_by", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.StateIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_state", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
+			for _, id := range e.EventIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: id, Relation: "has_event", Origin: "authored", Confidence: "high", SourceRefs: combineSourceRefs(sourceRefs, entityByID[id].SourceRefs)})
+			}
 			for _, relatedID := range e.RelatedIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: relatedID, Relation: "depends_on", Origin: "authored", Confidence: "high", SourceRefs: sourceRefs})
 			}
@@ -66,6 +87,10 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 			}
 			for _, ownerID := range e.RelatedIDs {
 				addEdge(AIEdge{FromID: e.ID, ToID: ownerID, Relation: "derived_owner", Origin: "inferred", Confidence: "medium", SourceRefs: sourceRefs})
+			}
+		default:
+			for _, relatedID := range e.RelatedIDs {
+				addEdge(AIEdge{FromID: e.ID, ToID: relatedID, Relation: "related_to", Origin: "authored", Confidence: "high", SourceRefs: sourceRefs})
 			}
 		}
 	}

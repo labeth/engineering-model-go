@@ -319,3 +319,120 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 		t.Fatalf("expected runtime evidence edge in requirement coverage graph")
 	}
 }
+
+func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-MEDIACHESTV-CORE", Name: "Core"}},
+			FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-MEDIACHESTV-CORE", Name: "Core Unit", Group: "FG-MEDIACHESTV-CORE"}},
+			Actors:             []model.Actor{{ID: "ACT-MEDIACHESTV-OPERATOR", Name: "Operator"}},
+			AttackVectors:      []model.AttackVector{{ID: "AV-MEDIACHESTV-INPUT-SPOOF", Name: "Input spoof"}},
+			ReferencedElements: []model.ReferencedElement{{ID: "REF-MEDIACHESTV-UPSTREAM", Name: "Upstream", Kind: "service", Layer: "external"}},
+			Interfaces: []model.Interface{
+				{ID: "IF-MEDIACHESTV-CONTROL-API", Name: "Control API", Protocol: "https", Endpoint: "/control", SchemaRef: "schemas/control.json", Owner: "FU-MEDIACHESTV-CORE"},
+			},
+			DataObjects: []model.DataObject{
+				{ID: "DO-MEDIACHESTV-OCI-LOCK", Name: "OCI Lock", SchemaRef: "schemas/oci-lock.json", Sensitivity: "internal"},
+			},
+			DeploymentTargets: []model.DeploymentTarget{
+				{ID: "DEP-MEDIACHESTV-KAIROS-NODE", Name: "Kairos Node", Environment: "prod", Cluster: "kairos", Namespace: "mediachest", TrustZone: "device"},
+			},
+			Controls: []model.Control{
+				{ID: "CTRL-MEDIACHESTV-DIGEST-PINNING", Name: "Digest pinning", Category: "supply-chain", Description: "digest only"},
+			},
+			TrustBoundaries: []model.TrustBoundary{
+				{ID: "TB-MEDIACHESTV-DEVICE", Name: "Device", Description: "device trust boundary"},
+			},
+			States: []model.State{
+				{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
+				{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
+			},
+			Events: []model.Event{{ID: "EVT-MEDIACHESTV-DEPLOY-REQUESTED", Name: "Deploy Requested"}},
+			Mappings: []model.Mapping{
+				{Type: "contains", From: "FG-MEDIACHESTV-CORE", To: "FU-MEDIACHESTV-CORE"},
+				{Type: "interacts_with", From: "ACT-MEDIACHESTV-OPERATOR", To: "FU-MEDIACHESTV-CORE"},
+				{Type: "depends_on", From: "FU-MEDIACHESTV-CORE", To: "REF-MEDIACHESTV-UPSTREAM"},
+				{Type: "calls", From: "FU-MEDIACHESTV-CORE", To: "IF-MEDIACHESTV-CONTROL-API"},
+				{Type: "writes", From: "FU-MEDIACHESTV-CORE", To: "DO-MEDIACHESTV-OCI-LOCK"},
+				{Type: "deployed_to", From: "FU-MEDIACHESTV-CORE", To: "DEP-MEDIACHESTV-KAIROS-NODE"},
+				{Type: "targets", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "FU-MEDIACHESTV-CORE"},
+				{Type: "mitigated_by", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
+				{Type: "bounded_by", From: "FU-MEDIACHESTV-CORE", To: "TB-MEDIACHESTV-DEVICE"},
+				{Type: "transitions_to", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING"},
+				{Type: "triggered_by", From: "STATE-MEDIACHESTV-IDLE", To: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"},
+				{Type: "guarded_by", From: "STATE-MEDIACHESTV-APPLYING", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
+				{Type: "guarded_by", From: "STATE-MEDIACHESTV-IDLE", To: "TB-MEDIACHESTV-DEVICE"},
+			},
+		},
+		Views: []model.View{
+			{ID: "VIEW-ARCHITECTURE-INTENT", Kind: "architecture-intent", Roots: []string{"FG-MEDIACHESTV-CORE"}},
+			{ID: "VIEW-COMMUNICATION", Kind: "communication", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"calls", "interacts_with"}},
+			{ID: "VIEW-DEPLOYMENT", Kind: "deployment", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"deployed_to", "bounded_by"}},
+			{ID: "VIEW-SECURITY", Kind: "security", Roots: []string{"AV-MEDIACHESTV-INPUT-SPOOF"}},
+			{ID: "VIEW-TRACEABILITY", Kind: "traceability", Roots: []string{"FU-MEDIACHESTV-CORE"}},
+			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transitions_to", "triggered_by", "guarded_by"}},
+		},
+	}, Catalog: model.CatalogDocument{}}
+
+	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{})
+	if err != nil {
+		t.Fatalf("generate asciidoc failed: %v", err)
+	}
+
+	if !strings.Contains(res.Document, "== State Lifecycle View") {
+		t.Fatalf("missing State Lifecycle View chapter")
+	}
+
+	stateSection := sectionByHeading(res.Document, "== State Lifecycle View")
+	for _, want := range []string{"STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE"} {
+		if !strings.Contains(stateSection, want) {
+			t.Fatalf("state lifecycle section missing node %s", want)
+		}
+	}
+	for _, want := range []string{"transitions_to", "triggered_by", "guarded_by"} {
+		if !strings.Contains(stateSection, want) {
+			t.Fatalf("state lifecycle projection missing mapping type %s", want)
+		}
+	}
+	if strings.Contains(stateSection, "depends_on") {
+		t.Fatalf("state lifecycle section should respect includeMappings and exclude depends_on")
+	}
+
+	for _, id := range []string{"IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED"} {
+		block := referenceBlockByID(res.Document, id)
+		if block == "" {
+			t.Fatalf("missing reference index entry for %s", id)
+		}
+		if !strings.Contains(block, "|Mentioned In |<<") {
+			t.Fatalf("reference entry for %s missing backlinks", id)
+		}
+	}
+}
+
+func sectionByHeading(doc, heading string) string {
+	idx := strings.Index(doc, heading)
+	if idx < 0 {
+		return ""
+	}
+	section := doc[idx:]
+	next := strings.Index(section[len(heading):], "\n== ")
+	if next < 0 {
+		return section
+	}
+	return section[:len(heading)+next]
+}
+
+func referenceBlockByID(doc, id string) string {
+	marker := "==== " + id
+	idx := strings.Index(doc, marker)
+	if idx < 0 {
+		return ""
+	}
+	block := doc[idx:]
+	next := strings.Index(block[len(marker):], "\n[discrete]\n==== ")
+	if next < 0 {
+		return block
+	}
+	return block[:len(marker)+next]
+}

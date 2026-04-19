@@ -82,6 +82,13 @@ func Render(v view.ProjectedView) string {
 			"classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;",
 			"classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;",
 			"classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;",
+			"classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;",
+			"classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;",
+			"classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;",
+			"classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;",
+			"classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;",
+			"classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;",
+			"classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;",
 			"classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;",
 		},
 	}
@@ -108,6 +115,20 @@ func renderNode(n view.Node) string {
 		return fmt.Sprintf("%s[[\"%s\"]]:::attack_vector", id, label)
 	case "referenced_element":
 		return fmt.Sprintf("%s[\"%s\"]:::referenced_element", id, label)
+	case "interface":
+		return fmt.Sprintf("%s[\"%s\"]:::interface", id, label)
+	case "data_object":
+		return fmt.Sprintf("%s[\"%s\"]:::data_object", id, label)
+	case "deployment_target":
+		return fmt.Sprintf("%s[\"%s\"]:::deployment_target", id, label)
+	case "control":
+		return fmt.Sprintf("%s[[\"%s\"]]:::control", id, label)
+	case "trust_boundary":
+		return fmt.Sprintf("%s[\"%s\"]:::trust_boundary", id, label)
+	case "state":
+		return fmt.Sprintf("%s([\"%s\"]):::state", id, label)
+	case "event":
+		return fmt.Sprintf("%s((\"%s\")):::event", id, label)
 	default:
 		return fmt.Sprintf("%s[\"%s\"]:::unknown", id, label)
 	}

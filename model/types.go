@@ -127,12 +127,72 @@ type Mapping struct {
 	Description string `yaml:"description"`
 }
 
+type Interface struct {
+	ID        string `yaml:"id"`
+	Name      string `yaml:"name"`
+	Protocol  string `yaml:"protocol"`
+	Endpoint  string `yaml:"endpoint"`
+	SchemaRef string `yaml:"schemaRef"`
+	Owner     string `yaml:"owner"`
+}
+
+type DataObject struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	TermRef     string `yaml:"termRef"`
+	SchemaRef   string `yaml:"schemaRef"`
+	Sensitivity string `yaml:"sensitivity"`
+}
+
+type DeploymentTarget struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Environment string `yaml:"environment"`
+	Region      string `yaml:"region"`
+	Account     string `yaml:"account"`
+	Cluster     string `yaml:"cluster"`
+	Namespace   string `yaml:"namespace"`
+	TrustZone   string `yaml:"trustZone"`
+}
+
+type Control struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Category    string `yaml:"category"`
+	Description string `yaml:"description"`
+}
+
+type TrustBoundary struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+}
+
+type State struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+}
+
+type Event struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+}
+
 type AuthoredArchitecture struct {
 	FunctionalGroups   []FunctionalGroup   `yaml:"functionalGroups"`
 	FunctionalUnits    []FunctionalUnit    `yaml:"functionalUnits"`
 	Actors             []Actor             `yaml:"actors"`
 	AttackVectors      []AttackVector      `yaml:"attackVectors"`
 	ReferencedElements []ReferencedElement `yaml:"referencedElements"`
+	Interfaces         []Interface         `yaml:"interfaces"`
+	DataObjects        []DataObject        `yaml:"dataObjects"`
+	DeploymentTargets  []DeploymentTarget  `yaml:"deploymentTargets"`
+	Controls           []Control           `yaml:"controls"`
+	TrustBoundaries    []TrustBoundary     `yaml:"trustBoundaries"`
+	States             []State             `yaml:"states"`
+	Events             []Event             `yaml:"events"`
 	Mappings           []Mapping           `yaml:"mappings"`
 }
 
@@ -149,6 +209,13 @@ type View struct {
 	Roots                     []string `yaml:"roots"`
 	AuthoredStatus            string   `yaml:"authoredStatus"`
 	AuthoredStatusExplanation string   `yaml:"authoredStatusExplanation"`
+	IncludeKinds              []string `yaml:"includeKinds"`
+	ExcludeKinds              []string `yaml:"excludeKinds"`
+	IncludeMappings           []string `yaml:"includeMappings"`
+	ExcludeMappings           []string `yaml:"excludeMappings"`
+	MaxDepth                  int      `yaml:"maxDepth"`
+	Audience                  string   `yaml:"audience"`
+	Abstraction               string   `yaml:"abstraction"`
 }
 
 type ArchitectureDocument struct {

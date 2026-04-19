@@ -112,7 +112,7 @@ func viewHeading(kind string) string {
 	case "traceability":
 		return "Traceability View"
 	case "state-lifecycle":
-		return "State / Lifecycle View"
+		return "State Lifecycle View"
 	default:
 		return strings.Title(kind) + " View"
 	}

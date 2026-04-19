@@ -20,6 +20,7 @@ It is not a runtime observability or incident/compliance runtime system.
 
 - strict YAML loading for architecture/catalog/requirements/design documents
 - model validation for IDs, references, relations, and viewpoint configuration
+- expanded mapping relation taxonomy for communication/deployment/security/traceability/lifecycle semantics
 - catalog-linked architecture relation labeling
 - deployment view extraction from:
   - Terraform (`.tf`) using HashiCorp HCL parsing
@@ -27,6 +28,7 @@ It is not a runtime observability or incident/compliance runtime system.
   - Helm chart metadata via Helm SDK chart loader
 - deterministic Mermaid view rendering
 - AsciiDoc architecture generation with chapter scope diagrams
+- view-level filtering controls (`includeKinds`, `excludeKinds`, `includeMappings`, `excludeMappings`, `maxDepth`)
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
   - `lintRun.mode: strict` is the default and recommended project mode
   - `guided` is optional for drafting workflows and non-blocking author guidance
@@ -70,6 +72,30 @@ View IDs are free-form, but view `kind` must be one of:
 - `security`
 - `traceability`
 - `state-lifecycle` (optional)
+
+Optional view projection controls in `architecture.yml`:
+
+- `includeKinds` / `excludeKinds`: node kind filtering
+- `includeMappings` / `excludeMappings`: relation type filtering
+- `maxDepth`: bounded traversal from roots (`0` means unlimited/default behavior)
+- `audience`, `abstraction`: optional publication metadata
+
+Authored architecture optionally supports additional first-class entities:
+
+- `interfaces`
+- `dataObjects`
+- `deploymentTargets`
+- `controls`
+- `trustBoundaries`
+- `states`
+- `events`
+
+Expanded mapping relation vocabulary includes:
+
+- Base: `contains`, `depends_on`, `interacts_with`, `targets`
+- Communication/data: `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`
+- Traceability/deployment: `implements`, `satisfies`, `allocated_to`, `verified_by`, `deployed_to`
+- Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
 
 Optional per-view publication metadata (in `architecture.yml`):
 - `authoredStatus` (for example `draft`, `in-review`, `stable`)
@@ -159,6 +185,10 @@ AI-first export includes:
 - `architecture.ai.json` style normalized machine artifact (`--ai-json-out`)
 - optional derived audit markdown (`--ai-md-out`)
 - optional dense edge stream for graph indexing (`--ai-edges-out`)
+
+AI export entity index/counts include authored semantic kinds when present:
+
+- `interface`, `data_object`, `deployment_target`, `control`, `trust_boundary`, `state`, `event`
 
 ## Agent Skills
 

@@ -131,6 +131,13 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	fuToCode := map[string][]string{}
 	reqToVerification := map[string][]string{}
 	fuToVerification := map[string][]string{}
+	fuToInterface := map[string][]string{}
+	fuToData := map[string][]string{}
+	fuToDeployment := map[string][]string{}
+	fuToControl := map[string][]string{}
+	fuToBoundary := map[string][]string{}
+	fuToState := map[string][]string{}
+	fuToEvent := map[string][]string{}
 
 	entities := make([]AIEntity, 0, len(a.FunctionalGroups)+len(a.FunctionalUnits)+len(requirements.Requirements)+len(inferredRuntime)+len(inferredCode)+len(inferredVerification))
 
@@ -206,6 +213,137 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 			RelatedIDs:      uniqueSorted(req.AppliesTo),
 			VerificationIDs: nil,
 			SourceRefs:      uniqueSorted([]string{sid}),
+		})
+	}
+
+	for _, itf := range a.Interfaces {
+		id := strings.TrimSpace(itf.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "interface", fmt.Sprintf("authored interface %s", id), id)
+		related := []string{}
+		if owner := strings.TrimSpace(itf.Owner); owner != "" {
+			related = append(related, owner)
+			fuToInterface[owner] = append(fuToInterface[owner], id)
+		}
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "interface",
+			Title:      nonEmpty(strings.TrimSpace(itf.Name), id),
+			Summary:    strings.TrimSpace(itf.Protocol + " " + itf.Endpoint),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: uniqueSorted(related),
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, obj := range a.DataObjects {
+		id := strings.TrimSpace(obj.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "data_object", fmt.Sprintf("authored data object %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "data_object",
+			Title:      nonEmpty(strings.TrimSpace(obj.Name), id),
+			Summary:    strings.TrimSpace(obj.Sensitivity),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, target := range a.DeploymentTargets {
+		id := strings.TrimSpace(target.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "deployment_target", fmt.Sprintf("authored deployment target %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "deployment_target",
+			Title:      nonEmpty(strings.TrimSpace(target.Name), id),
+			Summary:    strings.TrimSpace(target.Environment + " " + target.Cluster + " " + target.Namespace),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, ctrl := range a.Controls {
+		id := strings.TrimSpace(ctrl.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "control", fmt.Sprintf("authored control %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "control",
+			Title:      nonEmpty(strings.TrimSpace(ctrl.Name), id),
+			Summary:    nonEmpty(strings.TrimSpace(ctrl.Description), strings.TrimSpace(ctrl.Category)),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, boundary := range a.TrustBoundaries {
+		id := strings.TrimSpace(boundary.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "trust_boundary", fmt.Sprintf("authored trust boundary %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "trust_boundary",
+			Title:      nonEmpty(strings.TrimSpace(boundary.Name), id),
+			Summary:    strings.TrimSpace(boundary.Description),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, state := range a.States {
+		id := strings.TrimSpace(state.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "state", fmt.Sprintf("authored state %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "state",
+			Title:      nonEmpty(strings.TrimSpace(state.Name), id),
+			Summary:    strings.TrimSpace(state.Description),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
+		})
+	}
+
+	for _, event := range a.Events {
+		id := strings.TrimSpace(event.ID)
+		if id == "" {
+			continue
+		}
+		sid := ctx.addAuthoredYAMLSource(bundle.ArchitecturePath, id, "event", fmt.Sprintf("authored event %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:         id,
+			Kind:       "event",
+			Title:      nonEmpty(strings.TrimSpace(event.Name), id),
+			Summary:    strings.TrimSpace(event.Description),
+			Origin:     "authored",
+			Status:     "stable",
+			RelatedIDs: nil,
+			SourceRefs: []string{sid},
 		})
 	}
 
@@ -334,6 +472,39 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	for i := range entities {
 		entityByID[entities[i].ID] = &entities[i]
 	}
+	for _, m := range a.Mappings {
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" {
+			continue
+		}
+		if fromEntity := entityByID[from]; fromEntity != nil {
+			fromEntity.RelatedIDs = uniqueSorted(append(fromEntity.RelatedIDs, to))
+		}
+		if toEntity := entityByID[to]; toEntity != nil {
+			toEntity.RelatedIDs = uniqueSorted(append(toEntity.RelatedIDs, from))
+		}
+		if strings.HasPrefix(from, "FU-") {
+			if toEntity := entityByID[to]; toEntity != nil {
+				switch toEntity.Kind {
+				case "interface":
+					fuToInterface[from] = append(fuToInterface[from], to)
+				case "data_object":
+					fuToData[from] = append(fuToData[from], to)
+				case "deployment_target":
+					fuToDeployment[from] = append(fuToDeployment[from], to)
+				case "control":
+					fuToControl[from] = append(fuToControl[from], to)
+				case "trust_boundary":
+					fuToBoundary[from] = append(fuToBoundary[from], to)
+				case "state":
+					fuToState[from] = append(fuToState[from], to)
+				case "event":
+					fuToEvent[from] = append(fuToEvent[from], to)
+				}
+			}
+		}
+	}
 
 	for i := range entities {
 		if entities[i].Kind != "functional_unit" {
@@ -344,6 +515,13 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		entities[i].RuntimeIDs = uniqueSorted(fuToRuntime[id])
 		entities[i].CodeIDs = uniqueSorted(fuToCode[id])
 		entities[i].VerificationIDs = uniqueSorted(fuToVerification[id])
+		entities[i].InterfaceIDs = uniqueSorted(fuToInterface[id])
+		entities[i].DataObjectIDs = uniqueSorted(fuToData[id])
+		entities[i].DeploymentIDs = uniqueSorted(fuToDeployment[id])
+		entities[i].ControlIDs = uniqueSorted(fuToControl[id])
+		entities[i].TrustBoundaryIDs = uniqueSorted(fuToBoundary[id])
+		entities[i].StateIDs = uniqueSorted(fuToState[id])
+		entities[i].EventIDs = uniqueSorted(fuToEvent[id])
 		if len(entities[i].RuntimeIDs) > 0 {
 			entities[i].FieldProvenance = append(entities[i].FieldProvenance, AIFieldProvenance{
 				Field:      "runtime_ids",
@@ -360,7 +538,17 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 				SourceRefs: ctx.sourceRefsForEntityIDs(entities[i].CodeIDs),
 			})
 		}
-		entities[i].SourceRefs = uniqueSorted(append(entities[i].SourceRefs, ctx.sourceRefsForEntityIDs(append(entities[i].RuntimeIDs, entities[i].CodeIDs...))...))
+		allEvidenceIDs := []string{}
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].RuntimeIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].CodeIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].InterfaceIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].DataObjectIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].DeploymentIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].ControlIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].TrustBoundaryIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].StateIDs...)
+		allEvidenceIDs = append(allEvidenceIDs, entities[i].EventIDs...)
+		entities[i].SourceRefs = uniqueSorted(append(entities[i].SourceRefs, ctx.sourceRefsForEntityIDs(allEvidenceIDs)...))
 	}
 
 	for i := range entities {
@@ -400,13 +588,20 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	})
 
 	index := AIEntityIndex{
-		FunctionalGroupIDs: collectEntityIDsByKind(entities, "functional_group"),
-		FunctionalUnitIDs:  collectEntityIDsByKind(entities, "functional_unit"),
-		RequirementIDs:     collectEntityIDsByKind(entities, "requirement"),
-		RuntimeIDs:         collectEntityIDsByKind(entities, "runtime_element"),
-		CodeIDs:            collectEntityIDsByKind(entities, "code_element"),
-		VerificationIDs:    collectEntityIDsByKind(entities, "verification"),
-		Lookup:             make([]AIEntityLookup, 0, len(entities)),
+		FunctionalGroupIDs:  collectEntityIDsByKind(entities, "functional_group"),
+		FunctionalUnitIDs:   collectEntityIDsByKind(entities, "functional_unit"),
+		RequirementIDs:      collectEntityIDsByKind(entities, "requirement"),
+		RuntimeIDs:          collectEntityIDsByKind(entities, "runtime_element"),
+		CodeIDs:             collectEntityIDsByKind(entities, "code_element"),
+		VerificationIDs:     collectEntityIDsByKind(entities, "verification"),
+		InterfaceIDs:        collectEntityIDsByKind(entities, "interface"),
+		DataObjectIDs:       collectEntityIDsByKind(entities, "data_object"),
+		DeploymentTargetIDs: collectEntityIDsByKind(entities, "deployment_target"),
+		ControlIDs:          collectEntityIDsByKind(entities, "control"),
+		TrustBoundaryIDs:    collectEntityIDsByKind(entities, "trust_boundary"),
+		StateIDs:            collectEntityIDsByKind(entities, "state"),
+		EventIDs:            collectEntityIDsByKind(entities, "event"),
+		Lookup:              make([]AIEntityLookup, 0, len(entities)),
 	}
 	for _, e := range entities {
 		index.Lookup = append(index.Lookup, AIEntityLookup{ID: e.ID, Kind: e.Kind, Title: e.Title})
@@ -419,13 +614,20 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		ID:    strings.TrimSpace(bundle.Architecture.Model.ID),
 		Title: strings.TrimSpace(bundle.Architecture.Model.Title),
 		Counts: AIModelCounts{
-			FunctionalGroups: len(index.FunctionalGroupIDs),
-			FunctionalUnits:  len(index.FunctionalUnitIDs),
-			Requirements:     len(index.RequirementIDs),
-			Runtime:          len(index.RuntimeIDs),
-			Code:             len(index.CodeIDs),
-			Verification:     len(index.VerificationIDs),
-			Views:            len(ctx.selectedViewIDs),
+			FunctionalGroups:  len(index.FunctionalGroupIDs),
+			FunctionalUnits:   len(index.FunctionalUnitIDs),
+			Requirements:      len(index.RequirementIDs),
+			Runtime:           len(index.RuntimeIDs),
+			Code:              len(index.CodeIDs),
+			Verification:      len(index.VerificationIDs),
+			Interfaces:        len(index.InterfaceIDs),
+			DataObjects:       len(index.DataObjectIDs),
+			DeploymentTargets: len(index.DeploymentTargetIDs),
+			Controls:          len(index.ControlIDs),
+			TrustBoundaries:   len(index.TrustBoundaryIDs),
+			States:            len(index.StateIDs),
+			Events:            len(index.EventIDs),
+			Views:             len(ctx.selectedViewIDs),
 		},
 	}
 	for _, ep := range entryPoints {
@@ -624,12 +826,14 @@ func aiEntityKindRank(kind string) int {
 		return 2
 	case "requirement":
 		return 3
-	case "runtime_element":
+	case "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event":
 		return 4
-	case "code_element":
+	case "runtime_element":
 		return 5
-	case "verification":
+	case "code_element":
 		return 6
+	case "verification":
+		return 7
 	default:
 		return 99
 	}
@@ -650,6 +854,13 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		verIDs := uniqueSorted(e.VerificationIDs)
 		runtimeIDs := []string{}
 		codeIDs := []string{}
+		interfaceIDs := []string{}
+		dataIDs := []string{}
+		deploymentIDs := []string{}
+		controlIDs := []string{}
+		boundaryIDs := []string{}
+		stateIDs := []string{}
+		eventIDs := []string{}
 		for _, fuID := range fus {
 			fu, ok := entityByID[fuID]
 			if !ok || fu.Kind != "functional_unit" {
@@ -657,9 +868,23 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 			}
 			runtimeIDs = append(runtimeIDs, fu.RuntimeIDs...)
 			codeIDs = append(codeIDs, fu.CodeIDs...)
+			interfaceIDs = append(interfaceIDs, fu.InterfaceIDs...)
+			dataIDs = append(dataIDs, fu.DataObjectIDs...)
+			deploymentIDs = append(deploymentIDs, fu.DeploymentIDs...)
+			controlIDs = append(controlIDs, fu.ControlIDs...)
+			boundaryIDs = append(boundaryIDs, fu.TrustBoundaryIDs...)
+			stateIDs = append(stateIDs, fu.StateIDs...)
+			eventIDs = append(eventIDs, fu.EventIDs...)
 		}
 		runtimeIDs = uniqueSorted(runtimeIDs)
 		codeIDs = uniqueSorted(codeIDs)
+		interfaceIDs = uniqueSorted(interfaceIDs)
+		dataIDs = uniqueSorted(dataIDs)
+		deploymentIDs = uniqueSorted(deploymentIDs)
+		controlIDs = uniqueSorted(controlIDs)
+		boundaryIDs = uniqueSorted(boundaryIDs)
+		stateIDs = uniqueSorted(stateIDs)
+		eventIDs = uniqueSorted(eventIDs)
 
 		path := []string{e.ID}
 		if len(fus) > 0 {
@@ -671,16 +896,22 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 		if len(codeIDs) > 0 {
 			path = append(path, codeIDs[0])
 		}
+		for _, extras := range [][]string{interfaceIDs, dataIDs, deploymentIDs, controlIDs, boundaryIDs, stateIDs, eventIDs} {
+			if len(extras) > 0 {
+				path = append(path, extras[0])
+			}
+		}
 		if len(verIDs) > 0 {
 			path = append(path, verIDs[0])
 		}
 		path = uniquePreserve(path)
 
 		confidence := "low"
+		hasImplementation := len(runtimeIDs)+len(codeIDs)+len(interfaceIDs)+len(dataIDs)+len(deploymentIDs)+len(controlIDs)+len(boundaryIDs)+len(stateIDs)+len(eventIDs) > 0
 		switch {
-		case len(verIDs) > 0 && (len(runtimeIDs) > 0 || len(codeIDs) > 0):
+		case len(verIDs) > 0 && hasImplementation:
 			confidence = "high"
-		case len(verIDs) > 0 || len(runtimeIDs) > 0 || len(codeIDs) > 0:
+		case len(verIDs) > 0 || hasImplementation:
 			confidence = "medium"
 		}
 
@@ -731,7 +962,7 @@ func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIE
 	for _, e := range entities {
 		switch e.Kind {
 		case "functional_unit":
-			if len(e.RuntimeIDs) > 0 || len(e.CodeIDs) > 0 || len(e.VerificationIDs) > 0 {
+			if len(e.RuntimeIDs)+len(e.CodeIDs)+len(e.VerificationIDs)+len(e.InterfaceIDs)+len(e.DataObjectIDs)+len(e.DeploymentIDs)+len(e.ControlIDs)+len(e.TrustBoundaryIDs)+len(e.StateIDs)+len(e.EventIDs) > 0 {
 				fuWithEvidence = append(fuWithEvidence, e.ID)
 			}
 		case "runtime_element", "code_element":

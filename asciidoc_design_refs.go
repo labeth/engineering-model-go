@@ -107,6 +107,27 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	for _, x := range a.ReferencedElements {
 		out[x.ID] = nonEmpty(x.Name, x.ID)
 	}
+	for _, x := range a.Interfaces {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.DataObjects {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.DeploymentTargets {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.Controls {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.TrustBoundaries {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.States {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
+	for _, x := range a.Events {
+		out[x.ID] = nonEmpty(x.Name, x.ID)
+	}
 	return out
 }
 
@@ -148,6 +169,31 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.ReferencedElements {
 		addAuthored("idx-ref", "Referenced Element", x.ID, nonEmpty(x.Name, x.ID), x.Kind+" / "+x.Layer)
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.Interfaces {
+		desc := fmt.Sprintf("protocol=%s; endpoint=%s; schemaRef=%s; owner=%s", nonEmpty(strings.TrimSpace(x.Protocol), "n/a"), nonEmpty(strings.TrimSpace(x.Endpoint), "n/a"), nonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), nonEmpty(strings.TrimSpace(x.Owner), "n/a"))
+		addAuthored("idx-if", "Interface", x.ID, nonEmpty(x.Name, x.ID), desc)
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.DataObjects {
+		desc := fmt.Sprintf("termRef=%s; schemaRef=%s; sensitivity=%s", nonEmpty(strings.TrimSpace(x.TermRef), "n/a"), nonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), nonEmpty(strings.TrimSpace(x.Sensitivity), "n/a"))
+		addAuthored("idx-do", "Data Object", x.ID, nonEmpty(x.Name, x.ID), desc)
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.DeploymentTargets {
+		desc := fmt.Sprintf("environment=%s; region=%s; account=%s; cluster=%s; namespace=%s; trustZone=%s", nonEmpty(strings.TrimSpace(x.Environment), "n/a"), nonEmpty(strings.TrimSpace(x.Region), "n/a"), nonEmpty(strings.TrimSpace(x.Account), "n/a"), nonEmpty(strings.TrimSpace(x.Cluster), "n/a"), nonEmpty(strings.TrimSpace(x.Namespace), "n/a"), nonEmpty(strings.TrimSpace(x.TrustZone), "n/a"))
+		addAuthored("idx-dep", "Deployment Target", x.ID, nonEmpty(x.Name, x.ID), desc)
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.Controls {
+		desc := fmt.Sprintf("category=%s; description=%s", nonEmpty(strings.TrimSpace(x.Category), "n/a"), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+		addAuthored("idx-ctrl", "Control", x.ID, nonEmpty(x.Name, x.ID), desc)
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.TrustBoundaries {
+		addAuthored("idx-tb", "Trust Boundary", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.States {
+		addAuthored("idx-state", "State", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.Events {
+		addAuthored("idx-evt", "Event", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
 	for _, x := range requirements.Requirements {
 		authored = append(authored, asciidocReferenceEntry{
@@ -219,10 +265,29 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 				TargetAnchor: canonical,
 				ID:           id,
 				Name:         nonEmpty(e.Name, e.ID),
-				Kind:         strings.TrimSpace(kind),
+				Kind:         "Catalog " + strings.TrimSpace(kind),
 				Aliases:      uniqueSorted(e.Aliases),
 				Description:  strings.TrimSpace(e.Definition),
 			})
+			for _, alias := range uniqueSorted(e.Aliases) {
+				alias = strings.TrimSpace(alias)
+				if alias == "" {
+					continue
+				}
+				aliasKey := strings.ToUpper(alias)
+				if seen[aliasKey] {
+					continue
+				}
+				seen[aliasKey] = true
+				out = append(out, asciidocReferenceEntry{
+					Anchor:       referenceAnchor("idx-catalog", alias),
+					TargetAnchor: canonical,
+					ID:           alias,
+					Name:         alias,
+					Kind:         "Catalog Alias",
+					Description:  aliasDescription(e),
+				})
+			}
 		}
 	}
 	c := doc.Catalog
