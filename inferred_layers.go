@@ -44,6 +44,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 
 	for _, src := range bundle.Architecture.InferenceHints.RuntimeSources {
 		root := resolveSourcePath(baseDir, src)
+		parsedBySource := map[string]bool{}
 		walkErr := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
@@ -58,6 +59,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 				diags = append(diags, tfDiags...)
 				for _, it := range tfItems {
 					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
+					parsedBySource[filepath.ToSlash(strings.TrimSpace(it.Source))] = true
 					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
 					if !seen[key] {
 						seen[key] = true
@@ -68,6 +70,26 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 				yItems, yDiags := parseManifestRuntime(path)
 				diags = append(diags, yDiags...)
 				for _, it := range yItems {
+					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
+					parsedBySource[filepath.ToSlash(strings.TrimSpace(it.Source))] = true
+					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
+					if !seen[key] {
+						seen[key] = true
+						items = append(items, it)
+					}
+				}
+				if !parsedBySource[filepath.ToSlash(path)] {
+					for _, it := range inferDeploymentArtifactItems(baseDir, path) {
+						it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
+						key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
+						if !seen[key] {
+							seen[key] = true
+							items = append(items, it)
+						}
+					}
+				}
+			case ".json":
+				for _, it := range inferDeploymentArtifactItems(baseDir, path) {
 					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
 					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
 					if !seen[key] {
@@ -251,20 +273,79 @@ func inferOwnerByConvention(kind, name string) string {
 
 func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit) string {
 	owner := strings.TrimSpace(item.Owner)
-	if owner != "" && owner != "unresolved" {
+	if owner != "" && owner != "unresolved" && functionalUnitExists(owner, units) {
 		return owner
 	}
 
 	owner = inferOwnerByConvention(item.Kind, item.Name)
-	if owner != "unresolved" {
+	if owner != "unresolved" && functionalUnitExists(owner, units) {
 		return owner
 	}
 
-	owner = inferOwnerByFunctionalUnits(item.Name, units)
+	owner = inferOwnerByFunctionalUnits(item.Name+" "+item.Source, units)
 	if owner != "" {
 		return owner
 	}
+	if strings.TrimSpace(item.Owner) != "" && strings.TrimSpace(item.Owner) != "unresolved" {
+		return strings.TrimSpace(item.Owner)
+	}
+	if owner != "unresolved" {
+		return owner
+	}
 	return "unresolved"
+}
+
+func functionalUnitExists(id string, units []model.FunctionalUnit) bool {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return false
+	}
+	for _, unit := range units {
+		if strings.TrimSpace(unit.ID) == id {
+			return true
+		}
+	}
+	return false
+}
+
+func inferDeploymentArtifactItems(baseDir, path string) []inferredRuntimeItem {
+	if !isDeploymentEvidencePath(path) {
+		return nil
+	}
+	rel := deploymentArtifactDisplayPath(baseDir, path)
+	return []inferredRuntimeItem{{
+		Name:        rel,
+		Kind:        "deployment_artifact",
+		Owner:       "unresolved",
+		Description: "Inferred deployment configuration evidence artifact.",
+		Source:      filepath.ToSlash(path),
+	}}
+}
+
+func isDeploymentEvidencePath(path string) bool {
+	p := filepath.ToSlash(strings.ToLower(strings.TrimSpace(path)))
+	if p == "" {
+		return false
+	}
+	ext := strings.ToLower(filepath.Ext(p))
+	if ext != ".yaml" && ext != ".yml" && ext != ".json" {
+		return false
+	}
+	return strings.Contains(p, "/deploy/oci/") || strings.Contains(p, "/deploy/kairos/") || strings.Contains(p, "/infra/flux/")
+}
+
+func deploymentArtifactDisplayPath(baseDir, path string) string {
+	abs := strings.TrimSpace(path)
+	if abs == "" {
+		return "deployment-artifact"
+	}
+	if rel, err := filepath.Rel(baseDir, abs); err == nil {
+		rel = filepath.ToSlash(strings.TrimSpace(rel))
+		if rel != "" && rel != "." && !strings.HasPrefix(rel, "../") {
+			return rel
+		}
+	}
+	return filepath.ToSlash(abs)
 }
 
 func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) string {

@@ -107,3 +107,22 @@ spec:
 		t.Fatalf("unexpected runtime description: %q", items[0].Description)
 	}
 }
+
+func TestResolveRuntimeOwner_PrefersFunctionalUnitFromDeploymentSourcePath(t *testing.T) {
+	units := []model.FunctionalUnit{
+		{ID: "FU-MEDIACHESTV-OCI-PACKAGING", Name: "OCI Packaging"},
+		{ID: "FU-MEDIACHESTV-FLUX-DELIVERY", Name: "Flux Delivery"},
+	}
+
+	item := inferredRuntimeItem{
+		Name:   "flux-system/kustomization",
+		Kind:   "kustomization",
+		Owner:  "FU-GITOPS-OPERATIONS",
+		Source: "/workspace/mediachest-v2/infra/flux/kustomization.yaml",
+	}
+
+	got := resolveRuntimeOwner(item, units)
+	if got != "FU-MEDIACHESTV-FLUX-DELIVERY" {
+		t.Fatalf("expected FU-MEDIACHESTV-FLUX-DELIVERY, got %q", got)
+	}
+}

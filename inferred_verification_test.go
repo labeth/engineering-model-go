@@ -57,3 +57,72 @@ package sample
 		t.Fatalf("unexpected check description: got %q want %q", checks[0].Description, want)
 	}
 }
+
+func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIdentity(t *testing.T) {
+	root := t.TempDir()
+	testsDir := filepath.Join(root, "tests")
+	if err := os.MkdirAll(testsDir, 0o755); err != nil {
+		t.Fatalf("create tests dir: %v", err)
+	}
+	resultsDir := filepath.Join(root, "test-results")
+	if err := os.MkdirAll(resultsDir, 0o755); err != nil {
+		t.Fatalf("create test-results dir: %v", err)
+	}
+
+	validationPath := filepath.Join(testsDir, "validation.test.js")
+	validationTest := "// TRACE-REQS: REQ-PRR-004\n"
+	if err := os.WriteFile(validationPath, []byte(validationTest), 0o644); err != nil {
+		t.Fatalf("write validation test fixture: %v", err)
+	}
+
+	e2ePath := filepath.Join(testsDir, "e2e-requirements.test.js")
+	e2eTest := "// TRACE-REQS: REQ-PRR-004\n"
+	if err := os.WriteFile(e2ePath, []byte(e2eTest), 0o644); err != nil {
+		t.Fatalf("write e2e test fixture: %v", err)
+	}
+
+	validationResultPath := filepath.Join(resultsDir, "validation.json")
+	validationResult := `{"results":[{"requirement":"REQ-PRR-004","status":"pass"}]}`
+	if err := os.WriteFile(validationResultPath, []byte(validationResult), 0o644); err != nil {
+		t.Fatalf("write validation result fixture: %v", err)
+	}
+
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "architecture.yml")}
+	requirements := model.RequirementsDocument{
+		Requirements: []model.Requirement{{ID: "REQ-PRR-004", AppliesTo: []string{"FU-POLICY-CHECKS"}}},
+	}
+
+	checks, _ := inferVerificationChecks(bundle, requirements, nil, "")
+
+	validationRel := filepath.ToSlash(filepath.Join("tests", "validation.test.js"))
+	validationCheck, ok := findCheckByEvidence(checks, validationRel)
+	if !ok {
+		t.Fatalf("missing inferred verification check for %s", validationRel)
+	}
+	if validationCheck.Status != "pass" {
+		t.Fatalf("expected validation test check status pass, got %q", validationCheck.Status)
+	}
+
+	resultRel := filepath.ToSlash(filepath.Join("test-results", "validation.json"))
+	foundResultEvidence := false
+	for _, r := range validationCheck.Results {
+		if r.Requirement == "REQ-PRR-004" && r.Status == "pass" && r.Evidence == resultRel {
+			foundResultEvidence = true
+			break
+		}
+	}
+	if !foundResultEvidence {
+		t.Fatalf("expected pass result evidence from %s in validation check", resultRel)
+	}
+}
+
+func findCheckByEvidence(checks []inferredVerificationCheck, evidence string) (inferredVerificationCheck, bool) {
+	for _, check := range checks {
+		for _, ev := range check.Evidence {
+			if ev == evidence {
+				return check, true
+			}
+		}
+	}
+	return inferredVerificationCheck{}, false
+}

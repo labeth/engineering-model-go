@@ -1,6 +1,7 @@
 package engmodel
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -143,5 +144,178 @@ func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("expected catalog.missing_description diagnostic, got: %+v", res.Diagnostics)
+	}
+}
+
+func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatch(t *testing.T) {
+	sample := filepath.Join("examples", "payments-engineering-sample")
+	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
+	if err != nil {
+		t.Fatalf("load bundle failed: %v", err)
+	}
+	requirements, err := model.LoadRequirements(filepath.Join(sample, "requirements.yml"))
+	if err != nil {
+		t.Fatalf("load requirements failed: %v", err)
+	}
+	design, err := model.LoadDesign(filepath.Join(sample, "design.yml"))
+	if err != nil {
+		t.Fatalf("load design failed: %v", err)
+	}
+
+	root := t.TempDir()
+	testsDir := filepath.Join(root, "tests")
+	if err := os.MkdirAll(testsDir, 0o755); err != nil {
+		t.Fatalf("create tests dir: %v", err)
+	}
+	resultsDir := filepath.Join(root, "test-results")
+	if err := os.MkdirAll(resultsDir, 0o755); err != nil {
+		t.Fatalf("create test-results dir: %v", err)
+	}
+
+	validationTest := filepath.Join(testsDir, "validation.test.js")
+	if err := os.WriteFile(validationTest, []byte("// TRACE-REQS: REQ-PAY-001\n"), 0o644); err != nil {
+		t.Fatalf("write validation test fixture: %v", err)
+	}
+	otherTest := filepath.Join(testsDir, "e2e-requirements.test.js")
+	if err := os.WriteFile(otherTest, []byte("// TRACE-REQS: REQ-PAY-001\n"), 0o644); err != nil {
+		t.Fatalf("write e2e test fixture: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(resultsDir, "validation.json"), []byte(`{"results":[{"requirement":"REQ-PAY-001","status":"pass"}]}`), 0o644); err != nil {
+		t.Fatalf("write validation result fixture: %v", err)
+	}
+
+	bundle.ArchitecturePath = filepath.Join(root, "architecture.yml")
+
+	checks, _ := inferVerificationChecks(bundle, requirements, nil, "")
+	validationCheck, ok := findCheckByEvidence(checks, filepath.ToSlash(filepath.Join("tests", "validation.test.js")))
+	if !ok {
+		t.Fatalf("missing validation inferred verification check")
+	}
+
+	aiRes, err := GenerateAIView(bundle, requirements, design, AIViewOptions{})
+	if err != nil {
+		t.Fatalf("generate ai view failed: %v", err)
+	}
+	foundAIStatus := false
+	for _, e := range aiRes.Document.Entities {
+		if e.Kind == "verification" && e.ID == validationCheck.ID {
+			if e.Status != "pass" {
+				t.Fatalf("expected ai verification status pass for %s, got %q", e.ID, e.Status)
+			}
+			foundAIStatus = true
+			break
+		}
+	}
+	if !foundAIStatus {
+		t.Fatalf("missing ai verification entity for %s", validationCheck.ID)
+	}
+
+	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	if err != nil {
+		t.Fatalf("generate asciidoc failed: %v", err)
+	}
+	if !strings.Contains(adocRes.Document, "=== Verification Inventory") {
+		t.Fatalf("asciidoc output missing verification inventory")
+	}
+	if !strings.Contains(adocRes.Document, "=== Verification Result Mapping") {
+		t.Fatalf("asciidoc output missing verification result mapping")
+	}
+	if !strings.Contains(adocRes.Document, "REQ-PAY-001") {
+		t.Fatalf("asciidoc output missing mapped requirement")
+	}
+	if !strings.Contains(adocRes.Document, "|Status |pass") {
+		t.Fatalf("expected asciidoc verification status pass for %s", validationCheck.ID)
+	}
+}
+
+func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testing.T) {
+	sample := filepath.Join("examples", "payments-engineering-sample")
+	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
+	if err != nil {
+		t.Fatalf("load bundle failed: %v", err)
+	}
+	requirements, err := model.LoadRequirements(filepath.Join(sample, "requirements.yml"))
+	if err != nil {
+		t.Fatalf("load requirements failed: %v", err)
+	}
+	design, err := model.LoadDesign(filepath.Join(sample, "design.yml"))
+	if err != nil {
+		t.Fatalf("load design failed: %v", err)
+	}
+
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "deploy", "oci"), 0o755); err != nil {
+		t.Fatalf("create deploy/oci: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "deploy", "kairos"), 0o755); err != nil {
+		t.Fatalf("create deploy/kairos: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "infra", "flux"), 0o755); err != nil {
+		t.Fatalf("create infra/flux: %v", err)
+	}
+
+	if err := os.WriteFile(filepath.Join(root, "deploy", "oci", "checkout-images.lock.json"), []byte(`{"images":[{"name":"checkout","digest":"sha256:abc"}]}`), 0o644); err != nil {
+		t.Fatalf("write checkout lock file: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "deploy", "oci", "compose.yaml"), []byte("services:\n  checkout:\n    image: checkout@sha256:abc\n"), 0o644); err != nil {
+		t.Fatalf("write compose file: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "deploy", "kairos", "payment-authorization-profile.yaml"), []byte("digestPolicy: immutable-only\nrequireDigestPinning: true\n"), 0o644); err != nil {
+		t.Fatalf("write kairos profile: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "infra", "flux", "payment-authorization-kustomization.yaml"), []byte("imagesLockFile: ../../deploy/oci/checkout-images.lock.json\n"), 0o644); err != nil {
+		t.Fatalf("write flux kustomization: %v", err)
+	}
+
+	bundle.ArchitecturePath = filepath.Join(root, "architecture.yml")
+	bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
+
+	aiRes, err := GenerateAIView(bundle, requirements, design, AIViewOptions{})
+	if err != nil {
+		t.Fatalf("generate ai view failed: %v", err)
+	}
+
+	deploymentRuntimeIDs := map[string]bool{}
+	for _, e := range aiRes.Document.Entities {
+		if e.Kind != "runtime_element" {
+			continue
+		}
+		title := strings.TrimSpace(e.Title)
+		if strings.Contains(title, "deploy/oci/") || strings.Contains(title, "deploy/kairos/") || strings.Contains(title, "infra/flux/") {
+			deploymentRuntimeIDs[e.ID] = true
+		}
+	}
+	if len(deploymentRuntimeIDs) == 0 {
+		t.Fatalf("expected deployment runtime evidence entities in ai view")
+	}
+
+	foundSupportPath := false
+	for _, sp := range aiRes.Document.SupportPaths {
+		if strings.TrimSpace(sp.FromID) != "REQ-PAY-001" {
+			continue
+		}
+		for _, id := range sp.Path {
+			if deploymentRuntimeIDs[id] {
+				foundSupportPath = true
+				break
+			}
+		}
+	}
+	if !foundSupportPath {
+		t.Fatalf("expected REQ-PAY-001 support path to include deployment runtime evidence")
+	}
+
+	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	if err != nil {
+		t.Fatalf("generate asciidoc failed: %v", err)
+	}
+	if !strings.Contains(adocRes.Document, "REQ-PAY-001") {
+		t.Fatalf("expected requirement section for REQ-PAY-001")
+	}
+	if !strings.Contains(adocRes.Document, "deploy/oci/checkout-images.lock.json") {
+		t.Fatalf("expected deployment evidence label in requirement coverage graph")
+	}
+	if !strings.Contains(adocRes.Document, "runtime evidence") {
+		t.Fatalf("expected runtime evidence edge in requirement coverage graph")
 	}
 }

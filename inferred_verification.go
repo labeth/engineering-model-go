@@ -59,6 +59,21 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 
 	diags := []validate.Diagnostic{}
 	checkByID := map[string]*inferredVerificationCheck{}
+	checkIDsByIdentity := map[string][]string{}
+	checkIdentityByID := map[string]map[string]bool{}
+	registerCheckIdentity := func(id, path string) {
+		keys := verificationIdentityKeysFromPath(path)
+		if len(keys) == 0 {
+			return
+		}
+		if checkIdentityByID[id] == nil {
+			checkIdentityByID[id] = map[string]bool{}
+		}
+		for _, key := range keys {
+			checkIDsByIdentity[key] = appendUnique(checkIDsByIdentity[key], id)
+			checkIdentityByID[id][key] = true
+		}
+	}
 
 	for _, root := range testRoots {
 		err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -103,6 +118,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				Evidence:      []string{rel},
 			}
 			checkByID[id] = check
+			registerCheckIdentity(id, rel)
 			return nil
 		})
 		if err != nil {
@@ -157,27 +173,40 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			})
 		}
 	}
+	sort.SliceStable(artifacts, func(i, j int) bool {
+		return artifacts[i].Path < artifacts[j].Path
+	})
 
 	for _, a := range artifacts {
 		bestID := ""
-		bestOverlap := 0
 		reqSet := map[string]bool{}
 		for _, r := range a.Results {
 			if strings.TrimSpace(r.Requirement) != "" {
 				reqSet[r.Requirement] = true
 			}
 		}
-		for id, c := range checkByID {
-			overlap := 0
-			for _, req := range c.Verifies {
-				if reqSet[req] {
-					overlap++
-				}
+
+		artifactKeys := verificationIdentityKeysFromPath(a.Path)
+		candidateIDSet := map[string]bool{}
+		for _, key := range artifactKeys {
+			for _, id := range checkIDsByIdentity[key] {
+				candidateIDSet[id] = true
 			}
-			if overlap > bestOverlap || (overlap == bestOverlap && overlap > 0 && (bestID == "" || id < bestID)) {
-				bestOverlap = overlap
-				bestID = id
+		}
+		candidateIDs := make([]string, 0, len(candidateIDSet))
+		for id := range candidateIDSet {
+			candidateIDs = append(candidateIDs, id)
+		}
+		sort.Strings(candidateIDs)
+		bestID = selectBestVerificationCheckID(candidateIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, false)
+
+		if bestID == "" {
+			allIDs := make([]string, 0, len(checkByID))
+			for id := range checkByID {
+				allIDs = append(allIDs, id)
 			}
+			sort.Strings(allIDs)
+			bestID = selectBestVerificationCheckID(allIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, true)
 		}
 		if bestID == "" {
 			id := verificationIDFromPath(a.Path)
@@ -197,6 +226,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
 				Evidence:      []string{a.Path},
 			}
+			registerCheckIdentity(id, a.Path)
 			bestID = id
 		}
 		c := checkByID[bestID]
@@ -207,7 +237,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			c.Verifies = appendUnique(c.Verifies, ar.Requirement)
 			c.DerivedOwners = appendUniqueSlice(c.DerivedOwners, ownersForRequirements(reqOwners, []string{ar.Requirement}))
-			c.Results = appendOrReplaceResult(c.Results, inferredVerificationResult{
+			c.Results = appendOrMergeResult(c.Results, inferredVerificationResult{
 				Requirement: ar.Requirement,
 				Status:      ar.Status,
 				Evidence:    a.Path,
@@ -593,13 +623,83 @@ func summarizeCheckStatus(results []inferredVerificationResult) string {
 		return "blocked"
 	case has["partial"]:
 		return "partial"
-	case has["not-run"]:
-		return "not-run"
+	case has["pass"] && has["not-run"]:
+		return "partial"
 	case has["flaky"]:
 		return "flaky"
+	case has["pass"]:
+		return "pass"
+	case has["not-run"]:
+		return "not-run"
 	default:
 		return "pass"
 	}
+}
+
+func verificationIdentityKeysFromPath(path string) []string {
+	p := filepath.ToSlash(strings.TrimSpace(path))
+	if p == "" {
+		return nil
+	}
+	base := strings.TrimSuffix(filepath.Base(p), filepath.Ext(p))
+	base = strings.TrimSpace(base)
+	if base == "" {
+		return nil
+	}
+	keys := []string{}
+	appendKey := func(v string) {
+		if key := normalizeVerificationIdentity(v); key != "" {
+			keys = appendUnique(keys, key)
+		}
+	}
+	appendKey(base)
+	trimmed := strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(base, ".test"), "_test"), "-test"), ".spec"), "_spec"), "-spec")
+	appendKey(trimmed)
+	return keys
+}
+
+func normalizeVerificationIdentity(raw string) string {
+	x := strings.ToLower(strings.TrimSpace(raw))
+	if x == "" {
+		return ""
+	}
+	x = strings.Trim(nonAlnumRe.ReplaceAllString(x, "-"), "-")
+	return x
+}
+
+var nonAlnumRe = regexp.MustCompile(`[^a-z0-9]+`)
+
+func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
+	bestID := ""
+	bestKeyMatches := -1
+	bestOverlap := -1
+	for _, id := range ids {
+		c := checks[id]
+		if c == nil {
+			continue
+		}
+		overlap := 0
+		for _, req := range c.Verifies {
+			if reqSet[req] {
+				overlap++
+			}
+		}
+		if requireOverlap && overlap == 0 {
+			continue
+		}
+		keyMatches := 0
+		for _, key := range artifactKeys {
+			if checkIdentityByID[id][key] {
+				keyMatches++
+			}
+		}
+		if keyMatches > bestKeyMatches || (keyMatches == bestKeyMatches && overlap > bestOverlap) || (keyMatches == bestKeyMatches && overlap == bestOverlap && (bestID == "" || id < bestID)) {
+			bestID = id
+			bestKeyMatches = keyMatches
+			bestOverlap = overlap
+		}
+	}
+	return bestID
 }
 
 func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
@@ -685,12 +785,49 @@ func appendUniqueSlice(in []string, items []string) []string {
 	return out
 }
 
-func appendOrReplaceResult(in []inferredVerificationResult, r inferredVerificationResult) []inferredVerificationResult {
+func appendOrMergeResult(in []inferredVerificationResult, r inferredVerificationResult) []inferredVerificationResult {
 	for i := range in {
 		if in[i].Requirement == r.Requirement {
-			in[i] = r
+			in[i] = mergeVerificationResult(in[i], r)
 			return in
 		}
 	}
 	return append(in, r)
+}
+
+func mergeVerificationResult(existing, incoming inferredVerificationResult) inferredVerificationResult {
+	existingStatus := normalizeResultStatus(existing.Status)
+	incomingStatus := normalizeResultStatus(incoming.Status)
+	if verificationStatusRank(incomingStatus) > verificationStatusRank(existingStatus) {
+		existing.Status = incomingStatus
+		existing.Evidence = strings.TrimSpace(incoming.Evidence)
+		existing.Notes = strings.TrimSpace(incoming.Notes)
+		return existing
+	}
+	if strings.TrimSpace(existing.Evidence) == "" {
+		existing.Evidence = strings.TrimSpace(incoming.Evidence)
+	}
+	if strings.TrimSpace(existing.Notes) == "" {
+		existing.Notes = strings.TrimSpace(incoming.Notes)
+	}
+	return existing
+}
+
+func verificationStatusRank(status string) int {
+	switch normalizeResultStatus(status) {
+	case "fail":
+		return 6
+	case "blocked":
+		return 5
+	case "partial":
+		return 4
+	case "flaky":
+		return 3
+	case "pass":
+		return 2
+	case "not-run":
+		return 1
+	default:
+		return 0
+	}
 }
