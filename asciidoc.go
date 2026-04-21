@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/render/diagramstyle"
 	"github.com/labeth/engineering-model-go/validate"
 )
 
@@ -258,6 +259,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			secRows := buildSecurityPathRows(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityRows = secRows
 			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
+			viewSections[i].SecurityContextDFD = buildSecurityContextDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
+			viewSections[i].SecurityDataFlowDFD = buildSecurityDataFlowDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
+			viewSections[i].SecurityThreatOverlayDFD = buildSecurityThreatOverlayMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityObsRows = buildSecurityObservabilityRows(inferredRuntime, inferredCode)
 			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, inferredRuntime, inferredCode)
 		case "traceability":
@@ -506,6 +510,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			AttackVectors:      listNamesVectors(bundle.Architecture.AuthoredArchitecture.AttackVectors),
 			ReferencedElements: listNamesRefs(bundle.Architecture.AuthoredArchitecture.ReferencedElements),
 		},
+		MermaidClassDefs:    diagramstyle.MermaidClassDefsBlock("  "),
 		Views:               viewSections,
 		RequirementMermaid:  reqMermaid,
 		RequirementInf:      "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",

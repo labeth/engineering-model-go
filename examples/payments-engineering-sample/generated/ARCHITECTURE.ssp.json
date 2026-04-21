@@ -1,0 +1,254 @@
+{
+  "system-security-plan": {
+    "uuid": "183f9788-e896-56b9-9abe-bd45eca65a85",
+    "metadata": {
+      "title": "Sample Payments Layered Architecture",
+      "last-modified": "2026-04-21T19:01:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-profile": {
+      "href": "https://raw.githubusercontent.com/usnistgov/OSCAL/main/content/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "identifier-type": "https://engineering-model-go/system-id",
+          "id": "sample-payments-layered-model"
+        }
+      ],
+      "system-name": "Sample Payments Layered Architecture",
+      "description": "This document describes the payments architecture using authored functional design and inferred runtime/code realization.\nIt is intended to help product, platform, security, and implementation engineers reason about one shared model.\nFunctional design is kept stable while realization details are inferred from infrastructure and source artifacts.",
+      "security-sensitivity-level": "moderate",
+      "system-information": {
+        "information-types": [
+          {
+            "uuid": "6fad1692-82cb-58e7-bdfb-a944ea33cf39",
+            "title": "Operational Data",
+            "description": "Application and operational data managed by the engineered system.",
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "availability-impact": {
+              "base": "fips-199-moderate"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "moderate",
+        "security-objective-integrity": "moderate",
+        "security-objective-availability": "moderate"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "Authorization boundary aligns with authored architecture scope and allocated components."
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "8e2de97a-8233-5a86-8592-00e1b7363542",
+          "title": "Customer",
+          "description": "Starts checkout and confirms payment.",
+          "short-name": "customer"
+        },
+        {
+          "uuid": "1fd0843e-92a2-58dc-835e-baf1bb12ec6d",
+          "title": "Platform Operator",
+          "description": "Operates GitOps and platform lifecycle.",
+          "short-name": "platform-operator"
+        },
+        {
+          "uuid": "30821525-6bf3-5f69-8cdb-61fcea9272ec",
+          "title": "Support Agent",
+          "description": "Reviews high-risk and declined-payment cases.",
+          "short-name": "support-agent"
+        }
+      ],
+      "components": [
+        {
+          "uuid": "b3a10d2c-da45-5ab1-9e73-9e27a34c6ae8",
+          "type": "functional_unit",
+          "title": "Cluster Provisioning",
+          "description": "Architecture component mapped from FU-CLUSTER-PROVISIONING.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "value": "FU-CLUSTER-PROVISIONING"
+            },
+            {
+              "name": "architecture-kind",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
+          "type": "functional_unit",
+          "title": "GitOps Operations",
+          "description": "Architecture component mapped from FU-GITOPS-OPERATIONS.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "value": "FU-GITOPS-OPERATIONS"
+            },
+            {
+              "name": "architecture-kind",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
+          "type": "functional_unit",
+          "title": "Support Review",
+          "description": "Architecture component mapped from FU-SUPPORT-REVIEW.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "value": "FU-SUPPORT-REVIEW"
+            },
+            {
+              "name": "architecture-kind",
+              "value": "functional_unit"
+            }
+          ]
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "Control implementation allocations derived from authored controlAllocations.",
+      "implemented-requirements": [
+        {
+          "uuid": "80a73294-7abb-58bb-96d2-935523cbcccd",
+          "control-id": "ac-2",
+          "by-components": [
+            {
+              "uuid": "30987cd2-3f7b-5c71-84b3-e1c5fe027988",
+              "component-uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "technical"
+                }
+              ],
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
+            },
+            {
+              "uuid": "85bde396-c22a-533f-a4b1-464c7a5f10b1",
+              "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "technical"
+                }
+              ],
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
+            }
+          ]
+        },
+        {
+          "uuid": "dbcd1a0c-7f99-5fa3-8839-e1808e575e61",
+          "control-id": "cm-6",
+          "by-components": [
+            {
+              "uuid": "78e7095e-491f-5768-9a29-a525a2e0a18c",
+              "component-uuid": "b3a10d2c-da45-5ab1-9e73-9e27a34c6ae8",
+              "description": "Delivery pipelines and deployment manifests require immutable image digest pinning.\nRelease automation rejects mutable tags in production deployment paths.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "hybrid"
+                }
+              ],
+              "remarks": "Evidence: infra/flux/kustomization.yaml, infra/helm/values-prod.yaml"
+            },
+            {
+              "uuid": "6f4fceb3-6de6-5aac-b377-7ef83c157e96",
+              "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
+              "description": "Delivery pipelines and deployment manifests require immutable image digest pinning.\nRelease automation rejects mutable tags in production deployment paths.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "hybrid"
+                }
+              ],
+              "remarks": "Evidence: infra/flux/kustomization.yaml, infra/helm/values-prod.yaml"
+            }
+          ]
+        },
+        {
+          "uuid": "616a78a1-1fb9-59b9-9fb0-f6996f7a7421",
+          "control-id": "ia-2.1",
+          "by-components": [
+            {
+              "uuid": "4b8dccb9-7b92-5a6f-8da8-6f19929583ff",
+              "component-uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "technical"
+                }
+              ],
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
+            },
+            {
+              "uuid": "65aeaeaa-e287-5a0f-b315-7670cb11781a",
+              "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "value": "technical"
+                }
+              ],
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

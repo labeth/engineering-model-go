@@ -1,5 +1,7 @@
 flowchart LR
 %% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_COFFEE_CLOUD_PROD["Coffee Cloud Production"]:::deployment_target
+N_DEP_COFFEE_EDGE_FLEET["Coffee Edge Fleet"]:::deployment_target
 N_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
 N_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
 N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
@@ -10,6 +12,8 @@ N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional
 N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
 N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+N_IF_COFFEE_OTA_COMMAND[/"OTA Command Interface"/]:::interface
+N_IF_COFFEE_TELEMETRY_INGEST[/"Telemetry Ingestion Interface"/]:::interface
 N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
 N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
 N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
@@ -25,8 +29,10 @@ N_FG_PLATFORM_OPERATIONS --> N_FU_CLOUD_RUNTIME_OPERATIONS
 N_FG_PLATFORM_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API --> N_DEP_COFFEE_CLOUD_PROD
 N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API --> N_IF_COFFEE_TELEMETRY_INGEST
 N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
 N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
@@ -34,24 +40,27 @@ N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
 N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
 N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT --> N_DEP_COFFEE_EDGE_FLEET
 N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
 N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_DEP_COFFEE_CLOUD_PROD
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_IF_COFFEE_OTA_COMMAND
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
 classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
 classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2;
 classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
 classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4;
 classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
 classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

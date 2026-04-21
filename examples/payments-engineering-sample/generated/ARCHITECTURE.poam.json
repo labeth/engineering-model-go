@@ -1,0 +1,50 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "6e40afb6-9bc6-549a-8815-7657c282fb9a",
+    "metadata": {
+      "title": "Sample Payments Layered Architecture POA\u0026M",
+      "last-modified": "2026-04-21T19:01:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./ARCHITECTURE.ssp.json"
+    },
+    "poam-items": [
+      {
+        "uuid": "42ac6bf8-4d88-5995-a028-a408759c3120",
+        "title": "Remove legacy non-federated operator accounts",
+        "description": "Remove legacy non-federated operator accounts",
+        "props": [
+          {
+            "name": "due-date",
+            "value": "2026-06-30"
+          },
+          {
+            "name": "status",
+            "value": "in-progress"
+          },
+          {
+            "name": "responsible-role",
+            "value": "ACT-PLATFORM-OPERATOR"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "7200531e-b7ce-56a9-9b0f-23adfcd80f32"
+          }
+        ],
+        "remarks": "Artifacts: tickets/SEC-1423.md"
+      }
+    ],
+    "risks": [
+      {
+        "uuid": "7200531e-b7ce-56a9-9b0f-23adfcd80f32",
+        "title": "Privileged SSO path bypass risk",
+        "description": "Privileged operational actions may bypass MFA if SSO policy enforcement drifts.",
+        "status": "mitigating",
+        "statement": "Legacy operator account cleanup still in progress."
+      }
+    ]
+  }
+}

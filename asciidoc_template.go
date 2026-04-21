@@ -31,6 +31,7 @@ type asciidocTemplateData struct {
 	InferredRuntime            []asciidocInferredRow
 	InferredCode               []asciidocInferredRow
 	Summary                    asciidocSummary
+	MermaidClassDefs           string
 	Views                      []asciidocViewSection
 	RequirementMermaid         string
 	RequirementCoverageMermaid string
@@ -217,6 +218,9 @@ type asciidocViewSection struct {
 	PlatformOpsGraph          string
 	PlatformOpsRows           []asciidocPlatformOpRow
 	SecurityGraph             string
+	SecurityContextDFD        string
+	SecurityDataFlowDFD       string
+	SecurityThreatOverlayDFD  string
 	SecurityRows              []asciidocSecurityPathRow
 	SecurityObsRows           []asciidocSecurityObsRow
 	SecurityAttackChapters    []asciidocSecurityAttackChapter

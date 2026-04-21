@@ -1,0 +1,67 @@
+flowchart LR
+%% view: VIEW-INTERACTION-FLOW (interaction-flow)
+N_ACT_DEVELOPER(("Developer")):::actor
+N_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
+N_DO_BEDROCK_PR_CONTEXT[("Pull Request Context")]:::data_object
+N_DO_BEDROCK_REVIEW_FINDINGS[("Review Findings")]:::data_object
+N_FLOW_BEDROCK_POLICY_TUNING{"Security Policy Tuning Flow"}:::flow
+N_FLOW_BEDROCK_PR_REVIEW{"PR Review Interaction Flow"}:::flow
+N_FLOW_BEDROCK_POLICY_TUNING__orchestrate_policy_validation>"Orchestrate dry-run review validation with policy outputs"]:::flow_step
+N_FLOW_BEDROCK_POLICY_TUNING__publish_policy_validation>"Publish policy validation findings to repository maintainers"]:::flow_step
+N_FLOW_BEDROCK_POLICY_TUNING__run_policy_checks>"Execute deterministic policy checks on candidate rules"]:::flow_step
+N_FLOW_BEDROCK_POLICY_TUNING__update_policy_rules>"Security engineer updates review policy rules"]:::flow_step
+N_FLOW_BEDROCK_PR_REVIEW__assemble_context>"Build bounded review context"]:::flow_step
+N_FLOW_BEDROCK_PR_REVIEW__orchestrate_review>"Run AI + policy checks and prepare findings"]:::flow_step
+N_FLOW_BEDROCK_PR_REVIEW__publish_review>"Publish findings to GitHub check run"]:::flow_step
+N_FLOW_BEDROCK_PR_REVIEW__receive_webhook>"Developer pushes PR updates that trigger webhook processing"]:::flow_step
+N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
+N_FLOW_BEDROCK_POLICY_TUNING --> N_FLOW_BEDROCK_POLICY_TUNING__update_policy_rules
+N_FLOW_BEDROCK_POLICY_TUNING__orchestrate_policy_validation --> N_FLOW_BEDROCK_POLICY_TUNING__publish_policy_validation
+N_FLOW_BEDROCK_POLICY_TUNING__orchestrate_policy_validation -->|ref| N_FU_REVIEW_ORCHESTRATION
+N_FLOW_BEDROCK_POLICY_TUNING__publish_policy_validation -->|ref| N_FU_REVIEW_PUBLICATION
+N_FLOW_BEDROCK_POLICY_TUNING__run_policy_checks --> N_FLOW_BEDROCK_POLICY_TUNING__orchestrate_policy_validation
+N_FLOW_BEDROCK_POLICY_TUNING__run_policy_checks -->|ref| N_FU_POLICY_CHECKS
+N_FLOW_BEDROCK_POLICY_TUNING__update_policy_rules -->|ref| N_ACT_SECURITY_ENGINEER
+N_FLOW_BEDROCK_POLICY_TUNING__update_policy_rules --> N_FLOW_BEDROCK_POLICY_TUNING__run_policy_checks
+N_FLOW_BEDROCK_PR_REVIEW --> N_FLOW_BEDROCK_PR_REVIEW__receive_webhook
+N_FLOW_BEDROCK_PR_REVIEW__assemble_context --> N_FLOW_BEDROCK_PR_REVIEW__orchestrate_review
+N_FLOW_BEDROCK_PR_REVIEW__assemble_context -->|ref| N_FU_PR_CONTEXT_ASSEMBLY
+N_FLOW_BEDROCK_PR_REVIEW__orchestrate_review -->|async| N_FLOW_BEDROCK_PR_REVIEW__publish_review
+N_FLOW_BEDROCK_PR_REVIEW__orchestrate_review -->|error| N_FLOW_BEDROCK_PR_REVIEW__publish_review
+N_FLOW_BEDROCK_PR_REVIEW__orchestrate_review -->|ref| N_FU_REVIEW_ORCHESTRATION
+N_FLOW_BEDROCK_PR_REVIEW__publish_review -->|ref| N_FU_REVIEW_PUBLICATION
+N_FLOW_BEDROCK_PR_REVIEW__receive_webhook -->|ref| N_ACT_DEVELOPER
+N_FLOW_BEDROCK_PR_REVIEW__receive_webhook --> N_FLOW_BEDROCK_PR_REVIEW__assemble_context
+N_FU_PR_CONTEXT_ASSEMBLY -->|writes| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|contains| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|reads| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|writes| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION -->|contains| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION -->|reads| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION -->|calls| N_IF_BEDROCK_REVIEW_PUBLISH_API
+N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;

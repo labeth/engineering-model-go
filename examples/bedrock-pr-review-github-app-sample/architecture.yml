@@ -119,6 +119,168 @@ authoredArchitecture:
       layer: code
       name: Review Policy Ruleset
 
+  interfaces:
+    - id: IF-BEDROCK-WEBHOOK-API
+      name: Webhook Intake API
+      protocol: https
+      endpoint: /webhook/github
+      schemaRef: schemas/webhook-event.json
+      owner: FU-GITHUB-WEBHOOK-INGRESS
+    - id: IF-BEDROCK-REVIEW-PUBLISH-API
+      name: Review Publish API
+      protocol: https
+      endpoint: /github/check-runs
+      schemaRef: schemas/review-output.json
+      owner: FU-REVIEW-PUBLICATION
+
+  dataObjects:
+    - id: DO-BEDROCK-PR-CONTEXT
+      name: Pull Request Context
+      termRef: DATA-PR-CONTEXT
+      schemaRef: schemas/pr-context.json
+      sensitivity: internal
+    - id: DO-BEDROCK-REVIEW-FINDINGS
+      name: Review Findings
+      termRef: DATA-REVIEW-FINDINGS
+      schemaRef: schemas/review-findings.json
+      sensitivity: internal
+
+  deploymentTargets:
+    - id: DEP-BEDROCK-LAMBDA-PRIMARY
+      name: Primary Lambda Runtime
+      environment: prod
+      region: us-east-1
+      account: app
+      cluster: lambda
+      namespace: review
+      trustZone: app
+    - id: DEP-BEDROCK-GITHUB-BOUNDARY
+      name: GitHub Integration Boundary
+      environment: external
+      region: global
+      account: github
+      cluster: external
+      namespace: app
+      trustZone: external
+
+  controls:
+    - id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+      name: Webhook Signature Verification
+      category: input-integrity
+      description: Enforce signature verification for all GitHub webhook events.
+    - id: CTRL-BEDROCK-SECRETS-ROTATION
+      name: Secret Rotation Enforcement
+      category: credential-management
+      description: Rotate app and model credentials according to policy.
+
+  controlAllocations:
+    - id: ALLOC-SI-10-WEBHOOK
+      controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+      oscalControlIds: [si-10]
+      appliesTo: [FU-GITHUB-WEBHOOK-INGRESS, IF-BEDROCK-WEBHOOK-API]
+      implementationType: technical
+      status: implemented
+      narrative: Validate webhook signatures and reject invalid payloads before processing.
+      evidence:
+        - path: src/webhook_ingress.go
+          description: Signature validation entrypoint.
+      responsibleRoles: [ACT-SECURITY-ENGINEER]
+    - id: ALLOC-IA-5-SECRETS
+      controlRef: CTRL-BEDROCK-SECRETS-ROTATION
+      oscalControlIds: [ia-5]
+      appliesTo: [FU-SECRETS-CONFIGURATION, FU-LAMBDA-RUNTIME-OPERATIONS]
+      implementationType: hybrid
+      status: implemented
+      narrative: Rotate secrets and enforce managed credential lifecycle for app runtime.
+      evidence:
+        - path: infra/terraform/main.tf
+          description: Secret lifecycle and rotation policy.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
+
+  trustBoundaries:
+    - id: TB-BEDROCK-GITHUB-EXTERNAL
+      name: GitHub External Boundary
+      description: Boundary between external GitHub traffic and internal review processing.
+    - id: TB-BEDROCK-AWS-CONTROL
+      name: AWS Control Boundary
+      description: Boundary between app workloads and privileged platform controls.
+
+  states:
+    - id: STATE-BEDROCK-PR-RECEIVED
+      name: PR Received
+      description: PR webhook accepted and queued for analysis.
+    - id: STATE-BEDROCK-REVIEW-PUBLISHED
+      name: Review Published
+      description: Findings published to GitHub check run output.
+
+  events:
+    - id: EVT-BEDROCK-REVIEW-REQUESTED
+      name: Review Requested
+      description: Trigger for analysis orchestration.
+    - id: EVT-BEDROCK-REVIEW-COMPLETED
+      name: Review Completed
+      description: Trigger indicating publication complete.
+
+  flows:
+    - id: FLOW-BEDROCK-PR-REVIEW
+      title: PR Review Interaction Flow
+      entry: [receive-webhook]
+      exits: [publish-review]
+      steps:
+        - id: receive-webhook
+          kind: user_action
+          ref: ACT-DEVELOPER
+          action: Developer pushes PR updates that trigger webhook processing
+          next: [assemble-context]
+        - id: assemble-context
+          kind: system_action
+          ref: FU-PR-CONTEXT-ASSEMBLY
+          action: Build bounded review context
+          dataOut: [pr_context]
+          next: [orchestrate-review]
+        - id: orchestrate-review
+          kind: system_action
+          ref: FU-REVIEW-ORCHESTRATION
+          action: Run AI + policy checks and prepare findings
+          dataIn: [pr_context]
+          dataOut: [review_findings]
+          async: true
+          onError: [publish-review]
+          next: [publish-review]
+        - id: publish-review
+          kind: system_action
+          ref: FU-REVIEW-PUBLICATION
+          action: Publish findings to GitHub check run
+          dataIn: [review_findings]
+    - id: FLOW-BEDROCK-POLICY-TUNING
+      title: Security Policy Tuning Flow
+      entry: [update-policy-rules]
+      exits: [publish-policy-validation]
+      steps:
+        - id: update-policy-rules
+          kind: user_action
+          ref: ACT-SECURITY-ENGINEER
+          action: Security engineer updates review policy rules
+          next: [run-policy-checks]
+        - id: run-policy-checks
+          kind: system_action
+          ref: FU-POLICY-CHECKS
+          action: Execute deterministic policy checks on candidate rules
+          dataOut: [policy_check_results]
+          next: [orchestrate-policy-validation]
+        - id: orchestrate-policy-validation
+          kind: system_action
+          ref: FU-REVIEW-ORCHESTRATION
+          action: Orchestrate dry-run review validation with policy outputs
+          dataIn: [policy_check_results]
+          dataOut: [validation_findings]
+          next: [publish-policy-validation]
+        - id: publish-policy-validation
+          kind: system_action
+          ref: FU-REVIEW-PUBLICATION
+          action: Publish policy validation findings to repository maintainers
+          dataIn: [validation_findings]
+
   mappings:
     - type: contains
       from: FG-PR-INTEGRATION
@@ -167,6 +329,10 @@ authoredArchitecture:
       from: FU-GITHUB-WEBHOOK-INGRESS
       to: FU-PR-CONTEXT-ASSEMBLY
       description: Forwards authenticated PR events for context assembly.
+    - type: calls
+      from: FU-GITHUB-WEBHOOK-INGRESS
+      to: IF-BEDROCK-WEBHOOK-API
+      description: Receives webhook payload through signed API endpoint.
     - type: depends_on
       from: FU-PR-CONTEXT-ASSEMBLY
       to: REF-GITHUB-APP-API
@@ -175,6 +341,10 @@ authoredArchitecture:
       from: FU-PR-CONTEXT-ASSEMBLY
       to: FU-REVIEW-ORCHESTRATION
       description: Sends normalized review context.
+    - type: writes
+      from: FU-PR-CONTEXT-ASSEMBLY
+      to: DO-BEDROCK-PR-CONTEXT
+      description: Persists normalized context payload.
     - type: depends_on
       from: FU-REVIEW-ORCHESTRATION
       to: REF-AWS-BEDROCK-RUNTIME
@@ -187,6 +357,14 @@ authoredArchitecture:
       from: FU-REVIEW-ORCHESTRATION
       to: FU-REVIEW-PUBLICATION
       description: Submits final findings for publication.
+    - type: reads
+      from: FU-REVIEW-ORCHESTRATION
+      to: DO-BEDROCK-PR-CONTEXT
+      description: Reads normalized context before model call.
+    - type: writes
+      from: FU-REVIEW-ORCHESTRATION
+      to: DO-BEDROCK-REVIEW-FINDINGS
+      description: Persists merged deterministic and AI findings.
     - type: depends_on
       from: FU-POLICY-CHECKS
       to: REF-POLICY-RULESET
@@ -195,6 +373,14 @@ authoredArchitecture:
       from: FU-REVIEW-PUBLICATION
       to: REF-GITHUB-APP-API
       description: Publishes check runs and inline review comments.
+    - type: calls
+      from: FU-REVIEW-PUBLICATION
+      to: IF-BEDROCK-REVIEW-PUBLISH-API
+      description: Calls publication API for check-run output.
+    - type: reads
+      from: FU-REVIEW-PUBLICATION
+      to: DO-BEDROCK-REVIEW-FINDINGS
+      description: Reads final findings for publication.
     - type: depends_on
       from: FU-REVIEW-PUBLICATION
       to: FU-SECRETS-CONFIGURATION
@@ -211,6 +397,26 @@ authoredArchitecture:
       from: FU-LAMBDA-RUNTIME-OPERATIONS
       to: REF-AWS-SECRETS-MANAGER
       description: Uses managed secret store for runtime credentials.
+    - type: deployed_to
+      from: FU-GITHUB-WEBHOOK-INGRESS
+      to: DEP-BEDROCK-LAMBDA-PRIMARY
+      description: Webhook ingress executes in primary lambda runtime.
+    - type: deployed_to
+      from: FU-REVIEW-ORCHESTRATION
+      to: DEP-BEDROCK-LAMBDA-PRIMARY
+      description: Orchestration executes in primary lambda runtime.
+    - type: deployed_to
+      from: IF-BEDROCK-REVIEW-PUBLISH-API
+      to: DEP-BEDROCK-GITHUB-BOUNDARY
+      description: Publication API crosses GitHub integration boundary.
+    - type: bounded_by
+      from: FU-GITHUB-WEBHOOK-INGRESS
+      to: TB-BEDROCK-GITHUB-EXTERNAL
+      description: External ingress trust boundary.
+    - type: bounded_by
+      from: FU-LAMBDA-RUNTIME-OPERATIONS
+      to: TB-BEDROCK-AWS-CONTROL
+      description: Runtime platform control boundary.
 
     - type: targets
       from: AV-SPOOFED-GITHUB-WEBHOOK
@@ -233,6 +439,68 @@ authoredArchitecture:
     - type: targets
       from: AV-PR-SPAM-ABUSE
       to: FU-REVIEW-ORCHESTRATION
+    - type: mitigated_by
+      from: AV-SPOOFED-GITHUB-WEBHOOK
+      to: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    - type: mitigated_by
+      from: AV-SECRET-LEAKAGE-IN-REVIEW
+      to: CTRL-BEDROCK-SECRETS-ROTATION
+
+    - type: contains
+      from: FU-GITHUB-WEBHOOK-INGRESS
+      to: IF-BEDROCK-WEBHOOK-API
+    - type: contains
+      from: FU-REVIEW-PUBLICATION
+      to: IF-BEDROCK-REVIEW-PUBLISH-API
+    - type: contains
+      from: FU-REVIEW-ORCHESTRATION
+      to: DO-BEDROCK-PR-CONTEXT
+    - type: contains
+      from: FU-REVIEW-PUBLICATION
+      to: DO-BEDROCK-REVIEW-FINDINGS
+
+    - type: transitions_to
+      from: STATE-BEDROCK-PR-RECEIVED
+      to: STATE-BEDROCK-REVIEW-PUBLISHED
+    - type: triggered_by
+      from: STATE-BEDROCK-PR-RECEIVED
+      to: EVT-BEDROCK-REVIEW-REQUESTED
+    - type: triggered_by
+      from: STATE-BEDROCK-REVIEW-PUBLISHED
+      to: EVT-BEDROCK-REVIEW-COMPLETED
+    - type: guarded_by
+      from: STATE-BEDROCK-REVIEW-PUBLISHED
+      to: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    - type: guarded_by
+      from: STATE-BEDROCK-REVIEW-PUBLISHED
+      to: TB-BEDROCK-GITHUB-EXTERNAL
+
+  risks:
+    - id: RISK-BEDROCK-WEBHOOK-SPOOFING
+      title: Webhook spoofing risk
+      statement: Forged webhook requests could trigger unauthorized review actions.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-SECURITY-ENGINEER
+      appliesTo: [FU-GITHUB-WEBHOOK-INGRESS, IF-BEDROCK-WEBHOOK-API]
+      relatedControls: [CTRL-BEDROCK-WEBHOOK-SIGNATURE]
+      attackVectors: [AV-SPOOFED-GITHUB-WEBHOOK]
+      evidence:
+        - path: src/webhook_ingress.go
+      residualRisk: medium
+      rationale: Signature verification is implemented; replay defenses are periodically revalidated.
+
+  poamItems:
+    - id: POAM-BEDROCK-REPLAY-HARDENING
+      riskRef: RISK-BEDROCK-WEBHOOK-SPOOFING
+      milestone: Add nonce and timestamp replay window hardening
+      dueDate: 2026-07-15
+      status: planned
+      responsibleRole: ACT-SECURITY-ENGINEER
+      artifacts:
+        - path: tickets/SEC-2045.md
 
 inferenceHints:
   runtimeSources:
@@ -306,3 +574,20 @@ views:
       - FU-SECRETS-CONFIGURATION
     authoredStatus: in-review
     authoredStatusExplanation: Requirement mappings exist; evidence completeness and consistency are still being hardened.
+  - id: VIEW-INTERACTION-FLOW
+    kind: interaction-flow
+    roots:
+      - FLOW-BEDROCK-PR-REVIEW
+      - FLOW-BEDROCK-POLICY-TUNING
+    includeKinds: [flow, flow_step, actor, functional_unit, interface, data_object]
+    includeMappings: [flow_next, flow_error, flow_async, flow_ref, contains, calls, reads, writes, publishes, subscribes, streams]
+    authoredStatus: in-review
+    authoredStatusExplanation: Interaction flow captures PR review causality from ingress through publication.
+  - id: VIEW-STATE-LIFECYCLE
+    kind: state-lifecycle
+    roots:
+      - STATE-BEDROCK-PR-RECEIVED
+    includeKinds: [state, event, control, trust_boundary]
+    includeMappings: [transitions_to, triggered_by, guarded_by]
+    authoredStatus: in-review
+    authoredStatusExplanation: Review lifecycle states and guarded transitions are explicitly modeled.

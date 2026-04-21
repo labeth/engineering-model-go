@@ -74,3 +74,26 @@ func TestCatalogSystems_AppearInTermsAndRegistry(t *testing.T) {
 		t.Fatalf("expected system alias entry in catalog registry")
 	}
 }
+
+func TestBuiltInTerms_IncludeNewAuthoredConcepts(t *testing.T) {
+	terms := buildTermsFromCatalog(model.CatalogDocument{})
+	seen := map[string]bool{}
+	for _, term := range terms {
+		seen[term.ID] = true
+	}
+	for _, id := range []string{
+		"EM-INTERFACE",
+		"EM-DATA-OBJECT",
+		"EM-DEPLOYMENT-TARGET",
+		"EM-CONTROL",
+		"EM-TRUST-BOUNDARY",
+		"EM-STATE",
+		"EM-EVENT",
+		"EM-FLOW",
+		"EM-FLOW-STEP",
+	} {
+		if !seen[id] {
+			t.Fatalf("expected built-in term %s to be present", id)
+		}
+	}
+}

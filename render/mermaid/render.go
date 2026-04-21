@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/labeth/engineering-model-go/render/diagramstyle"
 	"github.com/labeth/engineering-model-go/view"
 )
 
@@ -31,24 +32,6 @@ type diagramTemplateData struct {
 	Nodes     []string
 	Edges     []edgeLine
 	ClassDefs []string
-}
-
-var defaultClassDefs = []string{
-	"classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;",
-	"classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;",
-	"classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;",
-	"classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;",
-	"classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;",
-	"classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;",
-	"classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;",
-	"classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;",
-	"classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;",
-	"classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;",
-	"classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;",
-	"classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;",
-	"classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;",
-	"classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;",
-	"classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;",
 }
 
 func Render(v view.ProjectedView) string {
@@ -94,7 +77,7 @@ func Render(v view.ProjectedView) string {
 		ViewKind:  escapeComment(v.Kind),
 		Nodes:     nodeLines,
 		Edges:     edgeLines,
-		ClassDefs: append([]string(nil), defaultClassDefs...),
+		ClassDefs: diagramstyle.MermaidClassDefs(),
 	}
 
 	var b bytes.Buffer
@@ -116,27 +99,27 @@ func renderNode(n view.Node) string {
 	case "actor":
 		return fmt.Sprintf("%s((\"%s\")):::actor", id, label)
 	case "attack_vector":
-		return fmt.Sprintf("%s[[\"%s\"]]:::attack_vector", id, label)
+		return fmt.Sprintf("%s((\"%s\")):::attack_vector", id, label)
 	case "referenced_element":
 		return fmt.Sprintf("%s[\"%s\"]:::referenced_element", id, label)
 	case "interface":
-		return fmt.Sprintf("%s[\"%s\"]:::interface", id, label)
+		return fmt.Sprintf("%s[/\"%s\"/]:::interface", id, label)
 	case "data_object":
-		return fmt.Sprintf("%s[\"%s\"]:::data_object", id, label)
+		return fmt.Sprintf("%s[(\"%s\")]:::data_object", id, label)
 	case "deployment_target":
 		return fmt.Sprintf("%s[\"%s\"]:::deployment_target", id, label)
 	case "control":
 		return fmt.Sprintf("%s[[\"%s\"]]:::control", id, label)
 	case "trust_boundary":
-		return fmt.Sprintf("%s[\"%s\"]:::trust_boundary", id, label)
+		return fmt.Sprintf("%s[/\"%s\"\\]:::trust_boundary", id, label)
 	case "state":
 		return fmt.Sprintf("%s([\"%s\"]):::state", id, label)
 	case "event":
 		return fmt.Sprintf("%s((\"%s\")):::event", id, label)
 	case "flow":
-		return fmt.Sprintf("%s[\"%s\"]:::flow", id, label)
+		return fmt.Sprintf("%s{\"%s\"}:::flow", id, label)
 	case "flow_step":
-		return fmt.Sprintf("%s[\"%s\"]:::flow_step", id, label)
+		return fmt.Sprintf("%s>\"%s\"]:::flow_step", id, label)
 	default:
 		return fmt.Sprintf("%s[\"%s\"]:::unknown", id, label)
 	}
@@ -180,9 +163,19 @@ func escapeComment(s string) string {
 }
 
 func compactEdgeLabel(edgeType, fallback string) string {
-	// Keep the projected view graph compact for PDF readability.
-	// Detailed semantics are explained in the surrounding tables/sections.
-	_ = edgeType
-	_ = fallback
-	return ""
+	// Keep labels selective: show interaction/activity semantics so flow diagrams
+	// communicate behavior directly, while avoiding noisy labels everywhere.
+	switch strings.TrimSpace(edgeType) {
+	case "calls", "reads", "writes", "publishes", "subscribes", "streams", "contains":
+		return strings.TrimSpace(edgeType)
+	case "flow_async":
+		return "async"
+	case "flow_error":
+		return "error"
+	case "flow_ref":
+		return "ref"
+	default:
+		_ = fallback
+		return ""
+	}
 }

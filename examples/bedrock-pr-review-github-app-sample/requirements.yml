@@ -6,13 +6,13 @@ lintRun:
 
 requirements:
   - id: REQ-PRR-001
-    text: "While pull request review is active, when pull request synchronize event is received, the pr review system shall verify webhook signature before processing review workflow."
+    text: "While normal mode is active, when pull request synchronize event is received and webhook signature is valid, the pr review system shall verify webhook signature before processing review workflow."
     notes: "Webhook trust boundary validation."
     appliesTo:
       - FU-GITHUB-WEBHOOK-INGRESS
 
   - id: REQ-PRR-002
-    text: "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for review execution."
+    text: "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for developer review execution."
     notes: "Context ingestion from GitHub API."
     appliesTo:
       - FU-PR-CONTEXT-ASSEMBLY
@@ -44,7 +44,7 @@ requirements:
       - FU-REVIEW-PUBLICATION
 
   - id: REQ-PRR-007
-    text: "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted audit metadata for audit traceability."
+    text: "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted audit metadata for security engineer audit traceability."
     notes: "Evidence and audit lineage."
     appliesTo:
       - FU-REVIEW-PUBLICATION
@@ -58,13 +58,13 @@ requirements:
       - FU-REVIEW-PUBLICATION
 
   - id: REQ-PRR-009
-    text: "While pull request review is active, when review findings are generated, the pr review system shall publish inline comments to repository maintainer."
+    text: "While pull request review is active, when review findings are generated, the pr review system shall publish inline comments with result metadata to repository maintainer."
     notes: "Inline-annotation publication contract."
     appliesTo:
       - FU-REVIEW-PUBLICATION
 
   - id: REQ-PRR-010
-    text: "If review request rate limit is exceeded, then the pr review system shall notify repository maintainer."
+    text: "If review request rate limit is exceeded, then the pr review system shall notify platform operator."
     notes: "Maintainer notification for deferred review processing."
     appliesTo:
       - FU-GITHUB-WEBHOOK-INGRESS

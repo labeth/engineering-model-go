@@ -95,11 +95,19 @@ a[href^="#SEC_VIEW_"] {
 |4
 |high
 |Counts a unit as covered when direct inferred runtime or code evidence exists.
+|State Lifecycle View (`VIEW-STATE-LIFECYCLE`)
+|in-review
+|Lifecycle transitions and controls are explicitly modeled for payment decision progression.
+|0
+|0
+|0
+|n/a
+|Lifecycle heuristic is currently basic; treat authoredStatus as primary signal.
 |Interaction Flow View (`VIEW-INTERACTION-FLOW`)
 |in-review
 |Flow is authored for core checkout path and used to align UX/data movement semantics with architecture behavior.
-|2
-|2
+|4
+|4
 |0
 |high
 |Flow heuristic is step/branch-oriented; treat authoredStatus plus projection completeness as the primary signal.
@@ -134,10 +142,22 @@ a[href^="#SEC_VIEW_"] {
 |An inferred code structure or ownership element discovered from source trees and build metadata.
 |[[REF_CATALOG_AV_COMPROMISED_DEPENDENCY]]<<REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY,compromised dependency>> (AV-COMPROMISED-DEPENDENCY)
 |Supply-chain compromise in runtime image or code dependency. Aliases:dependency compromise
+|[[REF_ENGMODEL_EM_CONTROL]]<<REF_IDX-ENGMODEL_EM_CONTROL,control>> (EM-CONTROL)
+|An authored security, policy, or operational control used to constrain behavior and reduce risk.
 |[[REF_CATALOG_ACT_CUSTOMER]]<<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> (ACT-CUSTOMER)
 |End user submitting payment details during checkout. Aliases:buyer
+|[[REF_ENGMODEL_EM_DATA_OBJECT]]<<REF_IDX-ENGMODEL_EM_DATA_OBJECT,data object>> (EM-DATA-OBJECT)
+|An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
 |[[REF_CATALOG_DATA_DECLINE_REASON]]<<REF_IDX-CATALOG_DATA_DECLINE_REASON,decline reason>> (DATA-DECLINE-REASON)
 |Structured reason code or message explaining why authorization failed. Aliases:decline code, decline reasons
+|[[REF_ENGMODEL_EM_DEPLOYMENT_TARGET]]<<REF_IDX-ENGMODEL_EM_DEPLOYMENT_TARGET,deployment target>> (EM-DEPLOYMENT-TARGET)
+|An authored deployment destination such as environment, cluster, namespace, or registry scope.
+|[[REF_ENGMODEL_EM_EVENT]]<<REF_IDX-ENGMODEL_EM_EVENT,event>> (EM-EVENT)
+|An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
+|[[REF_ENGMODEL_EM_FLOW]]<<REF_IDX-ENGMODEL_EM_FLOW,flow>> (EM-FLOW)
+|An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
+|[[REF_ENGMODEL_EM_FLOW_STEP]]<<REF_IDX-ENGMODEL_EM_FLOW_STEP,flow step>> (EM-FLOW-STEP)
+|A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
 |[[REF_CATALOG_FEAT_FRAUD_CHECK]]<<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>> (FEAT-FRAUD-CHECK)
 |Feature flag controlling whether risk scoring is required before authorization. Aliases:fraud check
 |[[REF_CATALOG_SYS_FRAUD_DETECTION_SYSTEM]]<<REF_IDX-CATALOG_SYS_FRAUD_DETECTION_SYSTEM,fraud detection system>> (SYS-FRAUD-DETECTION-SYSTEM)
@@ -156,6 +176,8 @@ a[href^="#SEC_VIEW_"] {
 |Runtime packaging and deployment substrate for workloads. Aliases:helm
 |[[REF_ENGMODEL_EM_INFERRED_MAPPING]]<<REF_IDX-ENGMODEL_EM_INFERRED_MAPPING,inferred mapping>> (EM-INFERRED-MAPPING)
 |A discovered relationship that links inferred runtime/code elements upward to authored design.
+|[[REF_ENGMODEL_EM_INTERFACE]]<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> (EM-INTERFACE)
+|An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
 |[[REF_CATALOG_AV_MALICIOUS_API_REQUEST]]<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,malicious api request>> (AV-MALICIOUS-API-REQUEST)
 |Crafted payload attempting to bypass validation or authorization logic. Aliases:malicious request
 |[[REF_CATALOG_MODE_NORMAL]]<<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>> (MODE-NORMAL)
@@ -196,12 +218,16 @@ a[href^="#SEC_VIEW_"] {
 |Condition indicating risk score crossed a policy threshold for escalation. Aliases:risk above threshold
 |[[REF_ENGMODEL_EM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,runtime element>> (EM-RUNTIME-ELEMENT)
 |An inferred runtime realization element discovered from infrastructure and deployment sources.
+|[[REF_ENGMODEL_EM_STATE]]<<REF_IDX-ENGMODEL_EM_STATE,state>> (EM-STATE)
+|An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
 |[[REF_CATALOG_ACT_SUPPORT]]<<REF_IDX-CATALOG_ACT_SUPPORT,support agent>> (ACT-SUPPORT)
 |Operations role that investigates declines and high-risk review cases. Aliases:support
 |[[REF_CATALOG_EVT_SUPPORT_NOTIFIED]]<<REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED,support agent is notified>> (EVT-SUPPORT-NOTIFIED)
 |Event indicating manual review notification was sent to support operations. Aliases:support notified
 |[[REF_CATALOG_FU_SUPPORT_REVIEW]]<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> (FU-SUPPORT-REVIEW)
 |Supports manual review and escalation handling for risky transactions. Aliases:manual review
+|[[REF_ENGMODEL_EM_TRUST_BOUNDARY]]<<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundary>> (EM-TRUST-BOUNDARY)
+|An authored trust separation zone that marks policy, identity, or security control boundaries.
 |[[REF_ENGMODEL_EM_UPWARD_LINKING]]<<REF_IDX-ENGMODEL_EM_UPWARD_LINKING,upward linking>> (EM-UPWARD-LINKING)
 |Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
 |[[REF_ENGMODEL_EM_VERIFICATION_CHECK]]<<REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK,verification check>> (EM-VERIFICATION-CHECK)
@@ -220,15 +246,15 @@ flowchart LR
   FU["Functional Unit"]:::functional_unit
   ACT(("Actor")):::actor
   REF["Referenced Element"]:::referenced_element
-  IFACE["Interface"]:::interface
-  DATA["Data Object"]:::data_object
+  IFACE[/"Interface"/]:::interface
+  DATA[("Data Object")]:::data_object
   DEPT["Deployment Target"]:::deployment_target
   CTRL[["Control"]]:::control
-  TB["Trust Boundary"]:::trust_boundary
+  TB[/"Trust Boundary"\]:::trust_boundary
   ST(("State")):::state
   EVT(("Event")):::event
-  FLOW["Flow"]:::flow
-  FSTEP["Flow Step"]:::flow_step
+  FLOW{"Flow"}:::flow
+  FSTEP>"Flow Step"]:::flow_step
   AV(("Attack Vector")):::attack_vector
   REQ["Requirement"]:::requirement
   VER["Verification Check"]:::verification
@@ -258,26 +284,27 @@ flowchart LR
   RT -->|implemented_by| CODE
   REQ -->|code_trace| CODE
 
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20;
-  classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100;
-  classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
-  classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px,color:#004d40;
-  classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
-  classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
-  classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px,color:#311b92;
-  classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#1b5e20;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [[SEC_VIEW_VIEW-ARCHITECTURE-INTENT]]
@@ -304,6 +331,15 @@ flowchart LR
 N_ACT_CUSTOMER(("Customer")):::actor
 N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
 N_ACT_SUPPORT(("Support Agent")):::actor
+N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
+N_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+N_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+N_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+N_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+N_DEP_PAYMENTS_BANK_EDGE["Bank Edge Integration Zone"]:::deployment_target
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
+N_EVT_PAYMENTS_AUTH_COMPLETED(("Authorization Completed")):::event
+N_EVT_PAYMENTS_AUTH_REQUESTED(("Authorization Requested")):::event
 N_FG_FRAUD["Fraud Evaluation"]:::functional_group
 N_FG_PAYMENTS["Payments"]:::functional_group
 N_FG_PLATFORM["Platform"]:::functional_group
@@ -313,41 +349,85 @@ N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
 N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
 N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
 N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_STATE_PAYMENTS_AUTHORIZED(["Payment Authorized"]):::state
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED(["Checkout Received"]):::state
+N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+N_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
 N_ACT_CUSTOMER --> N_FU_CHECKOUT
 N_ACT_PLATFORM_OPERATOR --> N_FU_CLUSTER_PROVISIONING
 N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
 N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
-N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
+N_FG_FRAUD -->|contains| N_FU_RISK_SCORING
+N_FG_FRAUD -->|contains| N_FU_SUPPORT_REVIEW
+N_FG_PAYMENTS -->|contains| N_FU_CHECKOUT
+N_FG_PAYMENTS -->|contains| N_FU_PAYMENT_AUTHORIZATION
+N_FG_PLATFORM -->|contains| N_FU_CLUSTER_PROVISIONING
+N_FG_PLATFORM -->|contains| N_FU_GITOPS_OPERATIONS
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_CHECKOUT -->|reads| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_CHECKOUT -->|writes| N_DO_PAYMENTS_AUTH_REQUEST
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|calls| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
 N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
 N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_GITOPS_OPERATIONS --> N_TB_PAYMENTS_PLATFORM_CONTROL
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|writes| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_RISK_SIGNAL
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_RISK_SCORE_API
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_PAYMENT_AUTHORIZATION --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_FU_RISK_SCORING -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_RISK_SCORING -->|contains| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|publishes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|writes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+N_FU_SUPPORT_REVIEW -->|contains| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
+N_IF_PAYMENTS_BANK_AUTH --> N_DEP_PAYMENTS_BANK_EDGE
+N_STATE_PAYMENTS_AUTHORIZED --> N_CTRL_PAYMENTS_SSO_MFA
+N_STATE_PAYMENTS_AUTHORIZED --> N_EVT_PAYMENTS_AUTH_COMPLETED
+N_STATE_PAYMENTS_AUTHORIZED --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_EVT_PAYMENTS_AUTH_REQUESTED
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZED
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
@@ -359,6 +439,24 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,ACT-PLATFORM-OPERATOR>> |<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
 
 |<<REF_IDX-CATALOG_ACT_SUPPORT,ACT-SUPPORT>> |<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> |<<REF_IDX-CATALOG_ACT_SUPPORT,Support Agent>>
+
+|<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,Authorization Request>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,Risk Signal>>
+
+|<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,DEP-PAYMENTS-BANK-EDGE>> |deployment_target |<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,Bank Edge Integration Zone>>
+
+|<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>> |deployment_target |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,Payments Cluster Production>>
+
+|<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,EVT-PAYMENTS-AUTH-COMPLETED>> |<<REF_IDX-ENGMODEL_EM_EVENT,event>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,Authorization Completed>>
+
+|<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,EVT-PAYMENTS-AUTH-REQUESTED>> |<<REF_IDX-ENGMODEL_EM_EVENT,event>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,Authorization Requested>>
 
 |<<REF_IDX-CATALOG_FG_FRAUD,FG-FRAUD>> |functional_group |<<REF_IDX-CATALOG_FG_FRAUD,Fraud Evaluation>>
 
@@ -378,17 +476,41 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |functional_unit |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
 
+|<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,Checkout API Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,Risk Score Interface>>
+
 |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,REF-BANK-GATEWAY-ENDPOINT>> |referenced_element |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>
 
 |<<REF_IDX-CATALOG_REF_HELM_PLATFORM,REF-HELM-PLATFORM>> |referenced_element |<<REF_IDX-CATALOG_HELM,Helm>> Runtime <<REF_IDX-CATALOG_FG_PLATFORM,Platform>>
 
 |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>> |referenced_element |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 
+|<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-ENGMODEL_EM_STATE,state>> |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,Payment Authorized>>
+
+|<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-ENGMODEL_EM_STATE,state>> |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,Checkout Received>>
+
+|<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>> |trust_boundary |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>
+
+|<<REF_IDX-TB_TB_PAYMENTS_PLATFORM_CONTROL,TB-PAYMENTS-PLATFORM-CONTROL>> |trust_boundary |<<REF_IDX-TB_TB_PAYMENTS_PLATFORM_CONTROL,Platform Control Boundary>>
+
 |===
 
 [cols="1,2,2",options="header"]
 |===
 |Mapping Type |From |To
+
+|bounded_by |<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,FU-GITOPS-OPERATIONS>> |<<REF_IDX-TB_TB_PAYMENTS_PLATFORM_CONTROL,TB-PAYMENTS-PLATFORM-CONTROL>>
+
+|bounded_by |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>>
+
+|calls |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
 
 |contains |<<REF_IDX-CATALOG_FG_FRAUD,FG-FRAUD>> |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>
 
@@ -401,6 +523,20 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |contains |<<REF_IDX-CATALOG_FG_PLATFORM,FG-PLATFORM>> |<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,FU-CLUSTER-PROVISIONING>>
 
 |contains |<<REF_IDX-CATALOG_FG_PLATFORM,FG-PLATFORM>> |<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,FU-GITOPS-OPERATIONS>>
+
+|contains |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|contains |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|contains |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 
@@ -416,6 +552,16 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |depends_on |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>>
 
+|deployed_to |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
+|deployed_to |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
+|deployed_to |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,DEP-PAYMENTS-BANK-EDGE>>
+
+|guarded_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>>
+
+|guarded_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>>
+
 |interacts_with |<<REF_IDX-CATALOG_ACT_CUSTOMER,ACT-CUSTOMER>> |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>
 
 |interacts_with |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,ACT-PLATFORM-OPERATOR>> |<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,FU-CLUSTER-PROVISIONING>>
@@ -423,6 +569,34 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |interacts_with |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,ACT-PLATFORM-OPERATOR>> |<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,FU-GITOPS-OPERATIONS>>
 
 |interacts_with |<<REF_IDX-CATALOG_ACT_SUPPORT,ACT-SUPPORT>> |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
+
+|publishes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|subscribes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|transitions_to |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>>
+
+|triggered_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,EVT-PAYMENTS-AUTH-COMPLETED>>
+
+|triggered_by |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,EVT-PAYMENTS-AUTH-REQUESTED>>
+
+|writes |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|writes |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|writes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|writes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
 
 |===
 === System Boundary Diagram
@@ -467,17 +641,27 @@ flowchart LR
   FU_FU_PAYMENT_AUTHORIZATION -->|Calls external bank authorization endpoint.| REF_REF_BANK_GATEWAY_ENDPOINT
   FU_FU_RISK_SCORING -->|Uses external library for audit persistence.| REF_REF_POSTGRES_DRIVER
   FU_FU_GITOPS_OPERATIONS -->|Uses Helm runtime platform for release orchestration.| REF_REF_HELM_PLATFORM
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 === System Decomposition Diagram
@@ -506,17 +690,27 @@ flowchart TB
   FG_FG_PLATFORM -->|contains| FU_FU_CLUSTER_PROVISIONING
   FU_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
   FG_FG_PLATFORM -->|contains| FU_FU_GITOPS_OPERATIONS
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 <<<
@@ -582,18 +776,34 @@ flowchart LR
   FU_FU_RISK_SCORING -->|depends_on| REF_REF_POSTGRES_DRIVER
   FU_FU_GITOPS_OPERATIONS -->|depends_on| FU_FU_CLUSTER_PROVISIONING
   FU_FU_GITOPS_OPERATIONS -->|depends_on| REF_REF_HELM_PLATFORM
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
 
 
 
@@ -611,7 +821,7 @@ Core payment <<REF_IDX-CATALOG_CHECKOUT,checkout>> and authorization domain.
 
 The <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
 It owns the consistency of <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> messaging and transaction decisions when a payment is attempted,
-declined, retried, or temporarily unavailable. The group keeps <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> flow stable while depending on
+declined, retried, or temporarily unavailable. The group keeps <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> stable while depending on
 fraud and external bank capabilities.
 
 
@@ -636,7 +846,7 @@ It delegates decision logic to <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,paymen
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration flow to <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+functional responsibility for <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
 
 [discrete]
 ====== Key Collaborators
@@ -666,7 +876,7 @@ The unit returns deterministic outcomes so downstream behavior remains consisten
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration flow to <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration flow to <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
+functional responsibility for <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
 
 [discrete]
 ====== Key Collaborators
@@ -716,7 +926,7 @@ The unit is focused on decision quality, consistency, and policy-driven classifi
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration flow to <<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
+functional responsibility for <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>>; includes decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 
 [discrete]
 ====== Key Collaborators
@@ -740,7 +950,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>>; 
 
 
 <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support review>> handles manual decisions for escalated or ambiguous payment cases.
-It gives <<REF_IDX-CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled flow.
+It gives <<REF_IDX-CATALOG_ACT_SUPPORT,support>> operators context to approve, reject, or request additional verification in a controlled <<REF_IDX-ENGMODEL_EM_FLOW,flow>>.
 The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
 
 [discrete]
@@ -831,14 +1041,14 @@ no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 
 
 
-<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,GitOps operations>> continuously reconciles intended release state with actual runtime state.
-It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,GitOps operations>> continuously reconciles intended release <<REF_IDX-ENGMODEL_EM_STATE,state>> with actual runtime <<REF_IDX-ENGMODEL_EM_STATE,state>>.
+It governs rollout <<REF_IDX-ENGMODEL_EM_FLOW,flow>>, drift correction, and operational delivery confidence across payment and fraud workloads.
 The unit provides safe and observable release behavior as an ongoing operational capability.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration flow to <<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration flow to <<REF_IDX-CATALOG_HELM,Helm>> Runtime <<REF_IDX-CATALOG_FG_PLATFORM,Platform>>
+functional responsibility for <<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>>; includes decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,Cluster Provisioning>> and decision and orchestration <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_HELM,Helm>> Runtime <<REF_IDX-CATALOG_FG_PLATFORM,Platform>>
 
 [discrete]
 ====== Key Collaborators
@@ -862,7 +1072,7 @@ no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
 [[SEC_VIEW_VIEW-COMMUNICATION]]
 == Communication View
 
-Show who communicates with whom across key request paths, including interface edges and dependency handoffs.
+Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> edges and dependency handoffs.
 
 === What This View Answers
 
@@ -871,7 +1081,7 @@ Show who communicates with whom across key request paths, including interface ed
 
 - Which edges are synchronous, asynchronous, event-driven, or callback-oriented?
 
-- Which communication paths are critical to the main request flow?
+- Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_EM_FLOW,flow>>?
 
 
 === View-Scoped Projection
@@ -882,34 +1092,61 @@ flowchart LR
 %% view: VIEW-COMMUNICATION (communication)
 N_ACT_CUSTOMER(("Customer")):::actor
 N_ACT_SUPPORT(("Support Agent")):::actor
+N_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+N_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+N_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+N_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
 N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
 N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
 N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
 N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
 N_ACT_CUSTOMER --> N_FU_CHECKOUT
 N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
+N_FU_CHECKOUT -->|reads| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_CHECKOUT -->|writes| N_DO_PAYMENTS_AUTH_REQUEST
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|calls| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_PAYMENT_AUTHORIZATION -->|writes| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_RISK_SIGNAL
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_RISK_SCORE_API
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_RISK_SCORING -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_RISK_SCORING -->|publishes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|writes| N_DO_PAYMENTS_RISK_SIGNAL
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
@@ -920,6 +1157,14 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |<<REF_IDX-CATALOG_ACT_SUPPORT,ACT-SUPPORT>> |<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> |<<REF_IDX-CATALOG_ACT_SUPPORT,Support Agent>>
 
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,Authorization Request>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,Risk Signal>>
+
 |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |functional_unit |<<REF_IDX-CATALOG_FU_CHECKOUT,Checkout Handling>>
 
 |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |functional_unit |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
@@ -927,6 +1172,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |functional_unit |<<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
 
 |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |functional_unit |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,Checkout API Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,Risk Score Interface>>
 
 |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,REF-BANK-GATEWAY-ENDPOINT>> |referenced_element |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>
 
@@ -937,6 +1188,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 [cols="1,2,2",options="header"]
 |===
 |Mapping Type |From |To
+
+|calls |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 
@@ -952,6 +1209,28 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |interacts_with |<<REF_IDX-CATALOG_ACT_SUPPORT,ACT-SUPPORT>> |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
 
+|publishes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|subscribes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|writes |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|writes |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|writes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|writes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
+
 |===
 === Coverage Gaps
 
@@ -964,7 +1243,7 @@ Coverage summary: 3/4 units have direct evidence coverage in this view.
 === Recommended Next Evidence Additions
 
 
-- Add explicit communication metadata (protocol, sync/async/event/callback) to <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> where currently implicit.
+- Add explicit communication metadata (protocol, sync/async/<<REF_IDX-ENGMODEL_EM_EVENT,event>>/callback) to <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> where currently implicit.
 
 - Expose service protocol/port metadata in <<REF_IDX-CATALOG_HELM,Helm>> or manifest values to enrich interface-edge inference.
 
@@ -984,18 +1263,34 @@ flowchart LR
   RT_CHECKOUT_API -->|API 8081/TCP| RT_PAYMENT_ENGINE
   RT_RISK_SCORER["risk-scorer"]:::runtime_element
   RT_PAYMENT_ENGINE -->|API 8082/TCP| RT_RISK_SCORER
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
 
 
 
@@ -1029,6 +1324,8 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 ----
 flowchart LR
 %% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_PAYMENTS_BANK_EDGE["Bank Edge Integration Zone"]:::deployment_target
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
 N_FG_FRAUD["Fraud Evaluation"]:::functional_group
 N_FG_PAYMENTS["Payments"]:::functional_group
 N_FG_PLATFORM["Platform"]:::functional_group
@@ -1038,42 +1335,61 @@ N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
 N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
 N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
 N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
-N_FG_FRAUD --> N_FU_RISK_SCORING
-N_FG_FRAUD --> N_FU_SUPPORT_REVIEW
-N_FG_PAYMENTS --> N_FU_CHECKOUT
-N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
-N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
-N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
+N_FG_FRAUD -->|contains| N_FU_RISK_SCORING
+N_FG_FRAUD -->|contains| N_FU_SUPPORT_REVIEW
+N_FG_PAYMENTS -->|contains| N_FU_CHECKOUT
+N_FG_PAYMENTS -->|contains| N_FU_PAYMENT_AUTHORIZATION
+N_FG_PLATFORM -->|contains| N_FU_CLUSTER_PROVISIONING
+N_FG_PLATFORM -->|contains| N_FU_GITOPS_OPERATIONS
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
 N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
 N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+N_IF_PAYMENTS_BANK_AUTH --> N_DEP_PAYMENTS_BANK_EDGE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
 |===
 |Node ID |Kind |Label
+
+|<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,DEP-PAYMENTS-BANK-EDGE>> |deployment_target |<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,Bank Edge Integration Zone>>
+
+|<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>> |deployment_target |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,Payments Cluster Production>>
 
 |<<REF_IDX-CATALOG_FG_FRAUD,FG-FRAUD>> |functional_group |<<REF_IDX-CATALOG_FG_FRAUD,Fraud Evaluation>>
 
@@ -1092,6 +1408,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |functional_unit |<<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
 
 |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |functional_unit |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,Checkout API Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,Risk Score Interface>>
 
 |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,REF-BANK-GATEWAY-ENDPOINT>> |referenced_element |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>
 
@@ -1117,6 +1439,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |contains |<<REF_IDX-CATALOG_FG_PLATFORM,FG-PLATFORM>> |<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,FU-GITOPS-OPERATIONS>>
 
+|contains |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|contains |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
+
 |depends_on |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,FU-GITOPS-OPERATIONS>> |<<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,FU-CLUSTER-PROVISIONING>>
@@ -1130,6 +1458,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |depends_on |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,REF-BANK-GATEWAY-ENDPOINT>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>>
+
+|deployed_to |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
+|deployed_to |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
+|deployed_to |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE,DEP-PAYMENTS-BANK-EDGE>>
 
 |===
 === Coverage Gaps
@@ -1145,7 +1479,7 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 
 - Add owner metadata to Flux/Kustomization/<<REF_IDX-CATALOG_HELM,Helm>> objects for clearer <<REF_IDX-CATALOG_FG_PLATFORM,platform>> ownership mapping.
 
-- Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.
+- Ensure deployment <<REF_IDX-ENGMODEL_EM_CONTROL,control>> artifacts (source, kustomization, release) are all included in scanned directories.
 
 - Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.
 
@@ -1188,17 +1522,27 @@ flowchart TB
   DP_PAYMENTS_CHECKOUT_API -->|targets| DP_PAYMENTS
   DP_PAYMENTS_PAYMENT_ENGINE -->|targets| DP_PAYMENTS
   DP_RISK_RISK_SCORER -->|targets| DP_RISK
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 === Platform Operations Graph
 
@@ -1231,18 +1575,34 @@ flowchart LR
   PFU_CLUSTER_PROVISIONING --> TGT_PAYMENTS
   TGT_RISK["risk"]:::deployment_element
   PFU_CLUSTER_PROVISIONING --> TGT_RISK
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
 
 
 
@@ -1278,7 +1638,7 @@ policy-impacting releases are exposed.
 ====== Checkout Handling Deployment Design
 
 <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>> is released independently to protect user-facing velocity without destabilizing policy logic.
-Deployment design favors fast rollback and compatibility checks with the current authorization interface.
+Deployment design favors fast rollback and compatibility checks with the current authorization <<REF_IDX-ENGMODEL_EM_INTERFACE,interface>>.
 
 
 
@@ -1408,8 +1768,8 @@ Deployment design must preserve active review sessions across upgrades and ensur
 
 
 <<REF_IDX-CATALOG_FG_PLATFORM,platform>> deployment design governs how infrastructure intent is applied and kept in sync over time.
-It prioritizes deterministic sequencing, drift control, and recoverable change paths before application
-teams depend on new <<REF_IDX-CATALOG_FG_PLATFORM,platform>> states.
+It prioritizes deterministic sequencing, drift <<REF_IDX-ENGMODEL_EM_CONTROL,control>>, and recoverable change paths before application
+teams depend on new <<REF_IDX-CATALOG_FG_PLATFORM,platform>> <<REF_IDX-ENGMODEL_EM_STATE,states>>.
 
 
 
@@ -1456,7 +1816,7 @@ Deployment design requires deterministic change plans, drift awareness, and roll
 
 ====== GitOps Operations Deployment Design
 
-<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the release control plane for application artifacts.
+<<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,gitops operations>> deployment defines the release <<REF_IDX-ENGMODEL_EM_CONTROL,control>> plane for application artifacts.
 Deployment design prioritizes policy gates, controlled promotion, and resilient rollback mechanics.
 
 
@@ -1487,7 +1847,7 @@ Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points alig
 === What This View Answers
 
 
-- What are the main trust boundaries and attack paths?
+- What are the main <<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundaries>> and attack paths?
 
 - Which units are exposed and what security evidence exists?
 
@@ -1500,10 +1860,12 @@ Show inferred exposure and dependency <<REF_RT_NAMESPACE_RISK,risk>> points alig
 ----
 flowchart LR
 %% view: VIEW-SECURITY (security)
-N_AV_COMPROMISED_DEPENDENCY[["Compromised Dependency"]]:::attack_vector
-N_AV_FRAUDULENT_TRANSACTION_PATTERN[["Fraudulent Transaction Pattern"]]:::attack_vector
-N_AV_MALICIOUS_API_REQUEST[["Malicious API Request"]]:::attack_vector
-N_AV_REPLAYED_AUTH_CALLBACK[["Replayed Authorization Callback"]]:::attack_vector
+N_AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
+N_AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
+N_AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
+N_AV_REPLAYED_AUTH_CALLBACK(("Replayed Authorization Callback")):::attack_vector
+N_CTRL_PAYMENTS_IMAGE_DIGEST[["Immutable Image Digests"]]:::control
+N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
 N_FG_FRAUD["Fraud Evaluation"]:::functional_group
 N_FG_PAYMENTS["Payments"]:::functional_group
 N_FG_PLATFORM["Platform"]:::functional_group
@@ -1513,32 +1875,42 @@ N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
 N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+N_AV_COMPROMISED_DEPENDENCY --> N_CTRL_PAYMENTS_IMAGE_DIGEST
 N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
 N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_PAYMENT_AUTHORIZATION
 N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_RISK_SCORING
 N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_SUPPORT_REVIEW
+N_AV_MALICIOUS_API_REQUEST --> N_CTRL_PAYMENTS_SSO_MFA
 N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
 N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_PAYMENT_AUTHORIZATION --> N_TB_PAYMENTS_EXTERNAL_BANK
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
@@ -1552,6 +1924,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,AV-MALICIOUS-API-REQUEST>> |attack_vector |<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,Malicious API Request>>
 
 |<<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,AV-REPLAYED-AUTH-CALLBACK>> |attack_vector |<<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
+
+|<<REF_IDX-CTRL_CTRL_PAYMENTS_IMAGE_DIGEST,CTRL-PAYMENTS-IMAGE-DIGEST>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_IMAGE_DIGEST,Immutable Image Digests>>
+
+|<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>>
 
 |<<REF_IDX-CATALOG_FG_FRAUD,FG-FRAUD>> |functional_group |<<REF_IDX-CATALOG_FG_FRAUD,Fraud Evaluation>>
 
@@ -1571,11 +1947,15 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>> |referenced_element |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
 
+|<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>> |trust_boundary |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>
+
 |===
 
 [cols="1,2,2",options="header"]
 |===
 |Mapping Type |From |To
+
+|bounded_by |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 
@@ -1586,6 +1966,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 |depends_on |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,REF-BANK-GATEWAY-ENDPOINT>>
 
 |depends_on |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>>
+
+|mitigated_by |<<REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY,AV-COMPROMISED-DEPENDENCY>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_IMAGE_DIGEST,CTRL-PAYMENTS-IMAGE-DIGEST>>
+
+|mitigated_by |<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,AV-MALICIOUS-API-REQUEST>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>>
 
 |targets |<<REF_IDX-CATALOG_AV_COMPROMISED_DEPENDENCY,AV-COMPROMISED-DEPENDENCY>> |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>>
 
@@ -1612,6 +1996,220 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+=== Threat Model Context Diagram
+
+What this diagram shows: OWASP-style context view of actors, core processes, interfaces, and trust boundary-relevant entities.
+
+[source,mermaid]
+----
+flowchart LR
+  CTX_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+  CTX_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+  CTX_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
+  CTX_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+  CTX_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+  CTX_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+  CTX_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+  CTX_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+  CTX_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
+  CTX_FG_PAYMENTS["Payments"]:::functional_group
+  CTX_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+  CTX_FG_PAYMENTS -->|contains| CTX_FU_CHECKOUT
+  CTX_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  CTX_FG_PAYMENTS -->|contains| CTX_FU_PAYMENT_AUTHORIZATION
+  CTX_FG_FRAUD["Fraud Evaluation"]:::functional_group
+  CTX_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+  CTX_FG_FRAUD -->|contains| CTX_FU_RISK_SCORING
+  CTX_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  CTX_FG_FRAUD -->|contains| CTX_FU_SUPPORT_REVIEW
+  CTX_FG_PLATFORM["Platform"]:::functional_group
+  CTX_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+  CTX_FG_PLATFORM -->|contains| CTX_FU_CLUSTER_PROVISIONING
+  CTX_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+  CTX_FG_PLATFORM -->|contains| CTX_FU_GITOPS_OPERATIONS
+  CTX_ACT_CUSTOMER(("Customer")):::actor
+  CTX_ACT_CUSTOMER -->|interacts_with| CTX_FU_CHECKOUT
+  CTX_ACT_SUPPORT(("Support Agent")):::actor
+  CTX_ACT_SUPPORT -->|interacts_with| CTX_FU_SUPPORT_REVIEW
+  CTX_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+  CTX_ACT_PLATFORM_OPERATOR -->|interacts_with| CTX_FU_GITOPS_OPERATIONS
+  CTX_ACT_PLATFORM_OPERATOR -->|interacts_with| CTX_FU_CLUSTER_PROVISIONING
+  CTX_FU_CHECKOUT -->|depends_on| CTX_FU_PAYMENT_AUTHORIZATION
+  CTX_FU_CHECKOUT -->|calls| CTX_IF_PAYMENTS_CHECKOUT_API
+  CTX_FU_CHECKOUT -->|writes| CTX_DO_PAYMENTS_AUTH_REQUEST
+  CTX_FU_CHECKOUT -->|reads| CTX_DO_PAYMENTS_AUTH_DECISION
+  CTX_FU_PAYMENT_AUTHORIZATION -->|depends_on| CTX_FU_RISK_SCORING
+  CTX_FU_PAYMENT_AUTHORIZATION -->|calls| CTX_IF_PAYMENTS_RISK_SCORE_API
+  CTX_FU_PAYMENT_AUTHORIZATION -->|calls| CTX_IF_PAYMENTS_BANK_AUTH
+  CTX_FU_PAYMENT_AUTHORIZATION -->|reads| CTX_DO_PAYMENTS_AUTH_REQUEST
+  CTX_FU_PAYMENT_AUTHORIZATION -->|writes| CTX_DO_PAYMENTS_AUTH_DECISION
+  CTX_FU_RISK_SCORING -->|writes| CTX_DO_PAYMENTS_RISK_SIGNAL
+  CTX_FU_RISK_SCORING -->|reads| CTX_DO_PAYMENTS_AUTH_REQUEST
+  CTX_FU_PAYMENT_AUTHORIZATION -->|reads| CTX_DO_PAYMENTS_RISK_SIGNAL
+  CTX_FU_RISK_SCORING -->|publishes| CTX_DO_PAYMENTS_RISK_SIGNAL
+  CTX_FU_SUPPORT_REVIEW -->|subscribes| CTX_DO_PAYMENTS_RISK_SIGNAL
+  CTX_FU_SUPPORT_REVIEW -->|writes| CTX_DO_PAYMENTS_REVIEW_TICKET
+  CTX_FU_PAYMENT_AUTHORIZATION -->|reads| CTX_DO_PAYMENTS_REVIEW_TICKET
+  CTX_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+  CTX_FU_PAYMENT_AUTHORIZATION -->|depends_on| CTX_REF_BANK_GATEWAY_ENDPOINT
+  CTX_FU_PAYMENT_AUTHORIZATION -->|depends_on| CTX_FU_SUPPORT_REVIEW
+  CTX_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+  CTX_FU_RISK_SCORING -->|depends_on| CTX_REF_POSTGRES_DRIVER
+  CTX_FU_GITOPS_OPERATIONS -->|depends_on| CTX_FU_CLUSTER_PROVISIONING
+  CTX_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
+  CTX_FU_GITOPS_OPERATIONS -->|depends_on| CTX_REF_HELM_PLATFORM
+  CTX_FU_PAYMENT_AUTHORIZATION -->|bounded_by| CTX_TB_PAYMENTS_EXTERNAL_BANK
+  CTX_FU_GITOPS_OPERATIONS -->|bounded_by| CTX_TB_PAYMENTS_PLATFORM_CONTROL
+  CTX_FU_CHECKOUT -->|contains| CTX_IF_PAYMENTS_CHECKOUT_API
+  CTX_FU_PAYMENT_AUTHORIZATION -->|contains| CTX_IF_PAYMENTS_BANK_AUTH
+  CTX_FU_RISK_SCORING -->|contains| CTX_IF_PAYMENTS_RISK_SCORE_API
+  CTX_FU_PAYMENT_AUTHORIZATION -->|contains| CTX_DO_PAYMENTS_AUTH_REQUEST
+  CTX_FU_PAYMENT_AUTHORIZATION -->|contains| CTX_DO_PAYMENTS_AUTH_DECISION
+  CTX_FU_RISK_SCORING -->|contains| CTX_DO_PAYMENTS_RISK_SIGNAL
+  CTX_FU_SUPPORT_REVIEW -->|contains| CTX_DO_PAYMENTS_REVIEW_TICKET
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+
+
+=== Threat Model Data Flow Diagram
+
+What this diagram shows: primary security-relevant data flows (reads/writes/publishes/subscribes/streams) between processes and data objects.
+
+[source,mermaid]
+----
+flowchart LR
+  DFD_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+  DFD_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+  DFD_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+  DFD_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+  DFD_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+  DFD_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+  DFD_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
+  DFD_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+  DFD_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
+  DFD_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+  DFD_FU_CHECKOUT -->|calls| DFD_IF_PAYMENTS_CHECKOUT_API
+  DFD_FU_CHECKOUT -->|writes| DFD_DO_PAYMENTS_AUTH_REQUEST
+  DFD_FU_CHECKOUT -->|reads| DFD_DO_PAYMENTS_AUTH_DECISION
+  DFD_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  DFD_FU_PAYMENT_AUTHORIZATION -->|calls| DFD_IF_PAYMENTS_RISK_SCORE_API
+  DFD_FU_PAYMENT_AUTHORIZATION -->|calls| DFD_IF_PAYMENTS_BANK_AUTH
+  DFD_FU_PAYMENT_AUTHORIZATION -->|reads| DFD_DO_PAYMENTS_AUTH_REQUEST
+  DFD_FU_PAYMENT_AUTHORIZATION -->|writes| DFD_DO_PAYMENTS_AUTH_DECISION
+  DFD_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+  DFD_FU_RISK_SCORING -->|writes| DFD_DO_PAYMENTS_RISK_SIGNAL
+  DFD_FU_RISK_SCORING -->|reads| DFD_DO_PAYMENTS_AUTH_REQUEST
+  DFD_FU_PAYMENT_AUTHORIZATION -->|reads| DFD_DO_PAYMENTS_RISK_SIGNAL
+  DFD_FU_RISK_SCORING -->|publishes| DFD_DO_PAYMENTS_RISK_SIGNAL
+  DFD_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  DFD_FU_SUPPORT_REVIEW -->|subscribes| DFD_DO_PAYMENTS_RISK_SIGNAL
+  DFD_FU_SUPPORT_REVIEW -->|writes| DFD_DO_PAYMENTS_REVIEW_TICKET
+  DFD_FU_PAYMENT_AUTHORIZATION -->|reads| DFD_DO_PAYMENTS_REVIEW_TICKET
+  DFD_FU_PAYMENT_AUTHORIZATION -->|bounded_by| DFD_TB_PAYMENTS_EXTERNAL_BANK
+  DFD_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+  DFD_FU_GITOPS_OPERATIONS -->|bounded_by| DFD_TB_PAYMENTS_PLATFORM_CONTROL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+
+
+=== Threat-to-Control Overlay Diagram
+
+What this diagram shows: attack vectors, targeted components, and mitigation/boundary relationships.
+
+[source,mermaid]
+----
+flowchart LR
+  THR_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+  THR_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+  THR_FU_PAYMENT_AUTHORIZATION -->|bounded_by| THR_TB_PAYMENTS_EXTERNAL_BANK
+  THR_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+  THR_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
+  THR_FU_GITOPS_OPERATIONS -->|bounded_by| THR_TB_PAYMENTS_PLATFORM_CONTROL
+  THR_AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
+  THR_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+  THR_AV_MALICIOUS_API_REQUEST -->|targets| THR_FU_CHECKOUT
+  THR_AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
+  THR_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+  THR_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| THR_FU_RISK_SCORING
+  THR_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| THR_FU_PAYMENT_AUTHORIZATION
+  THR_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+  THR_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| THR_FU_SUPPORT_REVIEW
+  THR_AV_REPLAYED_AUTH_CALLBACK(("Replayed Authorization Callback")):::attack_vector
+  THR_AV_REPLAYED_AUTH_CALLBACK -->|targets| THR_FU_PAYMENT_AUTHORIZATION
+  THR_AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
+  THR_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+  THR_AV_COMPROMISED_DEPENDENCY -->|targets| THR_REF_POSTGRES_DRIVER
+  THR_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
+  THR_AV_MALICIOUS_API_REQUEST -->|mitigated_by| THR_CTRL_PAYMENTS_SSO_MFA
+  THR_CTRL_PAYMENTS_IMAGE_DIGEST[["Immutable Image Digests"]]:::control
+  THR_AV_COMPROMISED_DEPENDENCY -->|mitigated_by| THR_CTRL_PAYMENTS_IMAGE_DIGEST
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 
 
 
@@ -1700,17 +2298,27 @@ flowchart LR
   SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| SEC_CODE_FU_RISK_SCORING_ZOD
   SEC_TGT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_SUPPORT_REVIEW
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 
@@ -1793,17 +2401,27 @@ flowchart LR
   SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
   SEC_CODE_FU_CHECKOUT_GOPKG_IN_YAML_V3["gopkg.in/yaml.v3"]:::code_element
   SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| SEC_CODE_FU_CHECKOUT_GOPKG_IN_YAML_V3
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 
@@ -1830,7 +2448,7 @@ runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS
 ==== <<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>> (AV-REPLAYED-AUTH-CALLBACK)
 
 
-Replay attack against external authorization callback flow.
+Replay attack against external authorization callback <<REF_IDX-ENGMODEL_EM_FLOW,flow>>.
 
 
 [source,mermaid]
@@ -1855,17 +2473,27 @@ flowchart LR
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON["serde_json::json"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| SEC_CODE_FU_PAYMENT_AUTHORIZATION_SERDE_JSON__JSON
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 
@@ -1913,6 +2541,7 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 ----
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
 N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
 N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
 N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
@@ -1922,33 +2551,43 @@ N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
 N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
 N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
 |===
 |Node ID |Kind |Label
+
+|<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>> |deployment_target |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,Payments Cluster Production>>
 
 |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |functional_unit |<<REF_IDX-CATALOG_FU_CHECKOUT,Checkout Handling>>
 
@@ -1988,6 +2627,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |depends_on |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,REF-POSTGRES-DRIVER>>
 
+|deployed_to |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
+|deployed_to |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD,DEP-PAYMENTS-CLUSTER-PROD>>
+
 |===
 === Coverage Gaps
 
@@ -2017,12 +2660,137 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 
 
 
+
+
+
+
+
+
+<<<
+
+[[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
+== State Lifecycle View
+
+Show workflow <<REF_IDX-ENGMODEL_EM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
+
+=== What This View Answers
+
+
+- What <<REF_IDX-ENGMODEL_EM_STATE,states>> exist and which <<REF_IDX-ENGMODEL_EM_EVENT,events>> trigger transitions?
+
+- Which unit owns each <<REF_IDX-ENGMODEL_EM_STATE,state>> transition?
+
+- Where do automatic and manual flows diverge?
+
+
+=== View-Scoped Projection
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
+N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
+N_EVT_PAYMENTS_AUTH_COMPLETED(("Authorization Completed")):::event
+N_EVT_PAYMENTS_AUTH_REQUESTED(("Authorization Requested")):::event
+N_STATE_PAYMENTS_AUTHORIZED(["Payment Authorized"]):::state
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED(["Checkout Received"]):::state
+N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+N_STATE_PAYMENTS_AUTHORIZED --> N_CTRL_PAYMENTS_SSO_MFA
+N_STATE_PAYMENTS_AUTHORIZED --> N_EVT_PAYMENTS_AUTH_COMPLETED
+N_STATE_PAYMENTS_AUTHORIZED --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_EVT_PAYMENTS_AUTH_REQUESTED
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZED
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+[cols="1,1,3",options="header"]
+|===
+|Node ID |Kind |Label
+
+|<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>>
+
+|<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,EVT-PAYMENTS-AUTH-COMPLETED>> |<<REF_IDX-ENGMODEL_EM_EVENT,event>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,Authorization Completed>>
+
+|<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,EVT-PAYMENTS-AUTH-REQUESTED>> |<<REF_IDX-ENGMODEL_EM_EVENT,event>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,Authorization Requested>>
+
+|<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-ENGMODEL_EM_STATE,state>> |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,Payment Authorized>>
+
+|<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-ENGMODEL_EM_STATE,state>> |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,Checkout Received>>
+
+|<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>> |trust_boundary |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>
+
+|===
+
+[cols="1,2,2",options="header"]
+|===
+|Mapping Type |From |To
+
+|guarded_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,CTRL-PAYMENTS-SSO-MFA>>
+
+|guarded_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,TB-PAYMENTS-EXTERNAL-BANK>>
+
+|transitions_to |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>>
+
+|triggered_by |<<REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED,STATE-PAYMENTS-AUTHORIZED>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED,EVT-PAYMENTS-AUTH-COMPLETED>>
+
+|triggered_by |<<REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED,STATE-PAYMENTS-CHECKOUT-RECEIVED>> |<<REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED,EVT-PAYMENTS-AUTH-REQUESTED>>
+
+|===
+=== Coverage Gaps
+
+Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> are in scope for this view.
+
+
+- No major coverage gaps detected from current authored and inferred inputs.
+
+
+=== Recommended Next Evidence Additions
+
+
+- No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+=== Functional Groups and Units (View Scoped)
+
+
+
+
+
 <<<
 
 [[SEC_VIEW_VIEW-INTERACTION-FLOW]]
 == Interaction Flow View
 
-Show user-intent-to-outcome causal flow, including ordered steps, data movement, and error/async branches.
+Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_EM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
 
 === What This View Answers
 
@@ -2041,38 +2809,84 @@ Show user-intent-to-outcome causal flow, including ordered steps, data movement,
 flowchart LR
 %% view: VIEW-INTERACTION-FLOW (interaction-flow)
 N_ACT_CUSTOMER(("Customer")):::actor
-N_FLOW_CUSTOMER_CHECKOUT["Customer Checkout Authorization Flow"]:::flow
-N_FLOW_CUSTOMER_CHECKOUT__authorize_payment["Request fraud score and external authorization"]:::flow_step
-N_FLOW_CUSTOMER_CHECKOUT__normalize_request["Normalize and validate checkout payload"]:::flow_step
-N_FLOW_CUSTOMER_CHECKOUT__show_outcome["Return approval or decline outcome to customer"]:::flow_step
-N_FLOW_CUSTOMER_CHECKOUT__submit_payment["Customer submits checkout payment form"]:::flow_step
+N_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+N_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+N_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+N_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+N_FLOW_CUSTOMER_CHECKOUT{"Customer Checkout Authorization Flow"}:::flow
+N_FLOW_PAYMENTS_MANUAL_REVIEW{"High-Risk Manual Review Flow"}:::flow
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment>"Request fraud score and external authorization"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request>"Normalize and validate checkout payload"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__show_outcome>"Return approval or decline outcome to customer"]:::flow_step
+N_FLOW_CUSTOMER_CHECKOUT__submit_payment>"Customer submits checkout payment form"]:::flow_step
+N_FLOW_PAYMENTS_MANUAL_REVIEW__complete_review>"Complete authorization using manual review outcome"]:::flow_step
+N_FLOW_PAYMENTS_MANUAL_REVIEW__create_review_ticket>"Create manual review ticket for support operations"]:::flow_step
+N_FLOW_PAYMENTS_MANUAL_REVIEW__detect_high_risk>"Detect high-risk signal and emit escalation trigger"]:::flow_step
 N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
 N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
 N_FLOW_CUSTOMER_CHECKOUT --> N_FLOW_CUSTOMER_CHECKOUT__submit_payment
-N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
-N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
-N_FLOW_CUSTOMER_CHECKOUT__authorize_payment --> N_FU_PAYMENT_AUTHORIZATION
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment -->|async| N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment -->|error| N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__authorize_payment -->|ref| N_FU_PAYMENT_AUTHORIZATION
 N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FLOW_CUSTOMER_CHECKOUT__authorize_payment
-N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FLOW_CUSTOMER_CHECKOUT__show_outcome
-N_FLOW_CUSTOMER_CHECKOUT__normalize_request --> N_FU_CHECKOUT
-N_FLOW_CUSTOMER_CHECKOUT__show_outcome --> N_FU_CHECKOUT
-N_FLOW_CUSTOMER_CHECKOUT__submit_payment --> N_ACT_CUSTOMER
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request -->|error| N_FLOW_CUSTOMER_CHECKOUT__show_outcome
+N_FLOW_CUSTOMER_CHECKOUT__normalize_request -->|ref| N_FU_CHECKOUT
+N_FLOW_CUSTOMER_CHECKOUT__show_outcome -->|ref| N_FU_CHECKOUT
+N_FLOW_CUSTOMER_CHECKOUT__submit_payment -->|ref| N_ACT_CUSTOMER
 N_FLOW_CUSTOMER_CHECKOUT__submit_payment --> N_FLOW_CUSTOMER_CHECKOUT__normalize_request
-classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
-classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
-classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
-classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
-classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
-classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
-classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
-classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
-classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
-classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
+N_FLOW_PAYMENTS_MANUAL_REVIEW --> N_FLOW_PAYMENTS_MANUAL_REVIEW__detect_high_risk
+N_FLOW_PAYMENTS_MANUAL_REVIEW__complete_review -->|ref| N_FU_PAYMENT_AUTHORIZATION
+N_FLOW_PAYMENTS_MANUAL_REVIEW__create_review_ticket --> N_FLOW_PAYMENTS_MANUAL_REVIEW__complete_review
+N_FLOW_PAYMENTS_MANUAL_REVIEW__create_review_ticket -->|ref| N_FU_SUPPORT_REVIEW
+N_FLOW_PAYMENTS_MANUAL_REVIEW__detect_high_risk --> N_FLOW_PAYMENTS_MANUAL_REVIEW__create_review_ticket
+N_FLOW_PAYMENTS_MANUAL_REVIEW__detect_high_risk -->|ref| N_FU_RISK_SCORING
+N_FU_CHECKOUT -->|reads| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_CHECKOUT -->|writes| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_CHECKOUT -->|calls| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|writes| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_RISK_SCORING -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_RISK_SCORING -->|contains| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|publishes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|writes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_SUPPORT_REVIEW -->|contains| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 [cols="1,1,3",options="header"]
@@ -2081,7 +2895,17 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |<<REF_IDX-CATALOG_ACT_CUSTOMER,ACT-CUSTOMER>> |<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> |<<REF_IDX-CATALOG_ACT_CUSTOMER,Customer>>
 
-|<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,FLOW-CUSTOMER-CHECKOUT>> |flow |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>>
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,Authorization Request>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>
+
+|<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>> |data_object |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,Risk Signal>>
+
+|<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,FLOW-CUSTOMER-CHECKOUT>> |<<REF_IDX-ENGMODEL_EM_FLOW,flow>> |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>>
+
+|<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW>> |<<REF_IDX-ENGMODEL_EM_FLOW,flow>> |<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,High-Risk Manual Review Flow>>
 
 |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT,FLOW-CUSTOMER-CHECKOUT::authorize-payment>> |flow_step |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT,Request fraud score and external authorization>>
 
@@ -2091,15 +2915,51 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__SUBMIT_PAYMENT,FLOW-CUSTOMER-CHECKOUT::submit-payment>> |flow_step |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__SUBMIT_PAYMENT,Customer submits checkout payment form>>
 
+|<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__COMPLETE_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW::complete-review>> |flow_step |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__COMPLETE_REVIEW,Complete authorization using manual review outcome>>
+
+|<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET,FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket>> |flow_step |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET,Create manual review ticket for support operations>>
+
+|<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK,FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk>> |flow_step |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK,Detect high-risk signal and emit escalation trigger>>
+
 |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |functional_unit |<<REF_IDX-CATALOG_FU_CHECKOUT,Checkout Handling>>
 
 |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |functional_unit |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+
+|<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |functional_unit |<<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
+
+|<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |functional_unit |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,Checkout API Interface>>
+
+|<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>> |<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,Risk Score Interface>>
 
 |===
 
 [cols="1,2,2",options="header"]
 |===
 |Mapping Type |From |To
+
+|calls |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|calls |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,IF-PAYMENTS-CHECKOUT-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|contains |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,IF-PAYMENTS-BANK-AUTH>>
+
+|contains |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|contains |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API,IF-PAYMENTS-RISK-SCORE-API>>
+
+|contains |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
 
 |flow_async |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT,FLOW-CUSTOMER-CHECKOUT::authorize-payment>> |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__SHOW_OUTCOME,FLOW-CUSTOMER-CHECKOUT::show-outcome>>
 
@@ -2113,6 +2973,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |flow_next |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__SUBMIT_PAYMENT,FLOW-CUSTOMER-CHECKOUT::submit-payment>> |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__NORMALIZE_REQUEST,FLOW-CUSTOMER-CHECKOUT::normalize-request>>
 
+|flow_next |<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW>> |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK,FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk>>
+
+|flow_next |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET,FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket>> |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__COMPLETE_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW::complete-review>>
+
+|flow_next |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK,FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk>> |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET,FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket>>
+
 |flow_ref |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT,FLOW-CUSTOMER-CHECKOUT::authorize-payment>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 
 |flow_ref |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__NORMALIZE_REQUEST,FLOW-CUSTOMER-CHECKOUT::normalize-request>> |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>
@@ -2121,10 +2987,38 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;
 
 |flow_ref |<<REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__SUBMIT_PAYMENT,FLOW-CUSTOMER-CHECKOUT::submit-payment>> |<<REF_IDX-CATALOG_ACT_CUSTOMER,ACT-CUSTOMER>>
 
+|flow_ref |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__COMPLETE_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW::complete-review>> |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
+
+|flow_ref |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET,FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket>> |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
+
+|flow_ref |<<REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK,FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk>> |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>
+
+|publishes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
+
+|reads |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|reads |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|subscribes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|writes |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,DO-PAYMENTS-AUTH-REQUEST>>
+
+|writes |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,DO-PAYMENTS-AUTH-DECISION>>
+
+|writes |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>> |<<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,DO-PAYMENTS-RISK-SIGNAL>>
+
+|writes |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,DO-PAYMENTS-REVIEW-TICKET>>
+
 |===
 === Coverage Gaps
 
-Coverage summary: 2/2 units have direct evidence coverage in this view.
+Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 - No major coverage gaps detected from current authored and inferred inputs.
@@ -2134,6 +3028,12 @@ Coverage summary: 2/2 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
 
 
 
@@ -2250,7 +3150,7 @@ No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requir
 [[REF_REQ_REQ_PAY_001]]
 ==== REQ-PAY-001
 
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall create a payment session.
+While <<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall create a payment session.
 
 
 NOTE: Core authorization path from <<REF_IDX-CATALOG_CHECKOUT,checkout>> to bank gateway.
@@ -2288,17 +3188,27 @@ flowchart LR
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|verifies| REQC_REQ_PAY_001
   VEC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML["tests/e2e"]:::code_element
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|implemented_by| VEC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_TESTS_E2E_AUTHORIZED_CHECKOUT_FLOW_YAML
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_002]]
 ==== REQ-PAY-002
@@ -2334,17 +3244,27 @@ flowchart LR
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_002
   VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_003]]
 ==== REQ-PAY-003
@@ -2375,25 +3295,35 @@ flowchart LR
   REQC_REQ_PAY_003 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
   VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26["VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (pass)"]:::verification
   VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26 -->|verifies| REQC_REQ_PAY_003
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_004]]
 ==== REQ-PAY-004
 
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall place the payment in <<REF_IDX-CATALOG_STATE_REVIEW_PENDING,payment review is pending>>.
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>> and <<REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED,risk threshold is exceeded>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall place the payment in <<REF_IDX-CATALOG_STATE_REVIEW_PENDING,payment review is pending>>.
 
 
-NOTE: Escalation flow for high-risk <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
+NOTE: Escalation <<REF_IDX-ENGMODEL_EM_FLOW,flow>> for high-risk <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
 
 
 
@@ -2421,17 +3351,27 @@ flowchart LR
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_004
   VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_005]]
 ==== REQ-PAY-005
@@ -2439,7 +3379,7 @@ flowchart LR
 Where <<REF_IDX-CATALOG_FEAT_FRAUD_CHECK,fraud check is enabled>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall persist an audit record with <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> plus <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>.
 
 
-NOTE: Auditability for authorization decisions.
+NOTE: Auditability for <<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,authorization decisions>>.
 
 
 
@@ -2467,22 +3407,32 @@ flowchart LR
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|verifies| REQC_REQ_PAY_005
   VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS["tests/integration"]:::code_element
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_006]]
 ==== REQ-PAY-006
 
-If <<REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall present a temporary unavailable message to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>>.
+If <<REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE,bank link is unavailable>>, then <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall present a temporary unavailable message to <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> until <<REF_IDX-CATALOG_STATE_BANK_LINK_UP,bank link is available>>.
 
 
 NOTE: Fallback behavior when external banking path is down.
@@ -2518,22 +3468,32 @@ flowchart LR
   REQC_REQ_PAY_006 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26["VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26 (pass)"]:::verification
   VERC_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26 -->|verifies| REQC_REQ_PAY_006
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_007]]
 ==== REQ-PAY-007
 
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall request authorization from <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>>.
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_COND_3DS_REQUIRED,3DS verification is required>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall request authorization from <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,bank gateway endpoint>>.
 
 
 NOTE: External authorization call contract.
@@ -2567,17 +3527,27 @@ flowchart LR
   CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment_engine"]:::code_element
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   REQC_REQ_PAY_007 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_008]]
 ==== REQ-PAY-008
@@ -2606,22 +3576,32 @@ flowchart LR
   CDC_FU_CHECKOUT_CHECKOUT_API["checkout_api"]:::code_element
   RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CDC_FU_CHECKOUT_CHECKOUT_API
   REQC_REQ_PAY_008 -->|code trace| CDC_FU_CHECKOUT_CHECKOUT_API
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 [[REF_REQ_REQ_PAY_009]]
 ==== REQ-PAY-009
 
-While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_EVT_RISK_HIGH,risk score is high>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall notify <<REF_IDX-CATALOG_ACT_SUPPORT,support agent>>.
+While <<REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE,checkout is active>>, when <<REF_IDX-CATALOG_EVT_PAYMENT_AUTH_REQUESTED,payment authorization is requested>> and <<REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED,risk threshold is exceeded>>, <<REF_IDX-CATALOG_THE_PAYMENTS_SYSTEM,the payments system>> shall notify <<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,platform operator>> when <<REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED,support agent is notified>>.
 
 
 NOTE: <<REF_IDX-CATALOG_ACT_SUPPORT,Support>> notification <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> for high-risk review.
@@ -2648,17 +3628,27 @@ flowchart LR
   REQC_REQ_PAY_009 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_009 -->|applies_to| FU_FU_SUPPORT_REVIEW
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 
 === Verification Inventory
@@ -2751,6 +3741,136 @@ What this section shows: verification checks inferred from test artifacts, linke
 == Reference Index
 
 === Authored References
+[[REF_IDX-CTRL_CTRL_PAYMENTS_IMAGE_DIGEST]]
+[discrete]
+==== CTRL-PAYMENTS-IMAGE-DIGEST
+
+category=supply-chain; description=Enforce immutable digest-pinned container image references.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |Immutable Image Digests
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
+|===
+[[REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA]]
+[discrete]
+==== CTRL-PAYMENTS-SSO-MFA
+
+category=identity-access; description=Enforce MFA and conditional access for privileged operations.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |SSO MFA Enforcement
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION]]
+[discrete]
+==== DO-PAYMENTS-AUTH-DECISION
+
+termRef=DATA-AUTH-DECISION; schemaRef=schemas/auth-decision.json; sensitivity=internal
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Authorization Decision
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|===
+[[REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST]]
+[discrete]
+==== DO-PAYMENTS-AUTH-REQUEST
+
+termRef=DATA-PAYMENT-REQUEST; schemaRef=schemas/auth-request.json; sensitivity=confidential
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Authorization Request
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET]]
+[discrete]
+==== DO-PAYMENTS-REVIEW-TICKET
+
+termRef=n/a; schemaRef=schemas/review-ticket.json; sensitivity=confidential
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Manual Review Ticket
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL]]
+[discrete]
+==== DO-PAYMENTS-RISK-SIGNAL
+
+termRef=n/a; schemaRef=schemas/risk-signal.json; sensitivity=internal
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Risk Signal
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE]]
+[discrete]
+==== DEP-PAYMENTS-BANK-EDGE
+
+environment=prod; region=us-east-1; account=external; cluster=bank-edge; namespace=partner; trustZone=external
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Deployment Target
+|Name |Bank Edge Integration Zone
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|===
+[[REF_IDX-DEP_DEP_PAYMENTS_CLUSTER_PROD]]
+[discrete]
+==== DEP-PAYMENTS-CLUSTER-PROD
+
+environment=prod; region=us-east-1; account=shared-platform; cluster=payments-prod; namespace=payments; trustZone=app
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Deployment Target
+|Name |Payments Cluster Production
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
+|===
+[[REF_IDX-EVT_EVT_PAYMENTS_AUTH_COMPLETED]]
+[discrete]
+==== EVT-PAYMENTS-AUTH-COMPLETED
+
+Authorization decision returned to checkout.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Event
+|Name |Authorization Completed
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-EVT_EVT_PAYMENTS_AUTH_REQUESTED]]
+[discrete]
+==== EVT-PAYMENTS-AUTH-REQUESTED
+
+Request sent to authorization orchestration.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Event
+|Name |Authorization Requested
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
 [[REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT]]
 [discrete]
 ==== FLOW-CUSTOMER-CHECKOUT
@@ -2762,6 +3882,19 @@ entry=submit-payment; exits=show-outcome; steps=4
 |Key |Value
 |Kind |Flow
 |Name |Customer Checkout Authorization Flow
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW]]
+[discrete]
+==== FLOW-PAYMENTS-MANUAL-REVIEW
+
+entry=detect-high-risk; exits=complete-review; steps=3
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow
+|Name |High-Risk Manual Review Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT]]
@@ -2816,11 +3949,89 @@ kind=user_action; ref=ACT-CUSTOMER; action=Customer submits checkout payment for
 |Name |Customer submits checkout payment form
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
+[[REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__COMPLETE_REVIEW]]
+[discrete]
+==== FLOW-PAYMENTS-MANUAL-REVIEW::complete-review
+
+kind=system_action; ref=FU-PAYMENT-AUTHORIZATION; action=Complete authorization using manual review outcome; dataIn=review_ticket; dataOut=; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Complete authorization using manual review outcome
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__CREATE_REVIEW_TICKET]]
+[discrete]
+==== FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket
+
+kind=system_action; ref=FU-SUPPORT-REVIEW; action=Create manual review ticket for support operations; dataIn=risk_signal; dataOut=review_ticket; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Create manual review ticket for support operations
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-FLOW-STEP_FLOW_PAYMENTS_MANUAL_REVIEW__DETECT_HIGH_RISK]]
+[discrete]
+==== FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk
+
+kind=system_action; ref=FU-RISK-SCORING; action=Detect high-risk signal and emit escalation trigger; dataIn=; dataOut=risk_signal; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Detect high-risk signal and emit escalation trigger
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-IF_IF_PAYMENTS_BANK_AUTH]]
+[discrete]
+==== IF-PAYMENTS-BANK-AUTH
+
+protocol=https; endpoint=/bank/authorize; schemaRef=schemas/bank-auth.json; owner=FU-PAYMENT-AUTHORIZATION
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |Bank Authorization Interface
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API]]
+[discrete]
+==== IF-PAYMENTS-CHECKOUT-API
+
+protocol=https; endpoint=/api/checkout; schemaRef=schemas/checkout-request.json; owner=FU-CHECKOUT
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |Checkout API Interface
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API]]
+[discrete]
+==== IF-PAYMENTS-RISK-SCORE-API
+
+protocol=https; endpoint=/risk/score; schemaRef=schemas/risk-score.json; owner=FU-RISK-SCORING
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |Risk Score Interface
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
 [[REF_IDX-REQ_REQ_PAY_001]]
 [discrete]
 ==== REQ-PAY-001
 
-While checkout is active, when payment authorization is requested, the payments system shall create a payment session.
+While normal mode is active, when payment authorization is requested, the payments system shall create a payment session.
 
 [cols="1,4",options="header"]
 |===
@@ -2859,7 +4070,7 @@ If payment is declined, then the payments system shall present a decline reason 
 [discrete]
 ==== REQ-PAY-004
 
-While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in payment review is pending.
+While checkout is active, when payment authorization is requested and risk score is high and risk threshold is exceeded, the payments system shall place the payment in payment review is pending.
 
 [cols="1,4",options="header"]
 |===
@@ -2885,7 +4096,7 @@ Where fraud check is enabled, when payment authorization is requested, the payme
 [discrete]
 ==== REQ-PAY-006
 
-If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer.
+If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer until bank link is available.
 
 [cols="1,4",options="header"]
 |===
@@ -2898,7 +4109,7 @@ If bank link is unavailable, then the payments system shall present a temporary 
 [discrete]
 ==== REQ-PAY-007
 
-While checkout is active, when payment authorization is requested, the payments system shall request authorization from bank gateway endpoint.
+While checkout is active, when payment authorization is requested and 3DS verification is required, the payments system shall request authorization from bank gateway endpoint.
 
 [cols="1,4",options="header"]
 |===
@@ -2924,7 +4135,7 @@ If payment is declined, then the payments system shall present a retry option to
 [discrete]
 ==== REQ-PAY-009
 
-While checkout is active, when payment authorization is requested and risk score is high, the payments system shall notify support agent.
+While checkout is active, when payment authorization is requested and risk threshold is exceeded, the payments system shall notify platform operator when support agent is notified.
 
 [cols="1,4",options="header"]
 |===
@@ -2932,6 +4143,58 @@ While checkout is active, when payment authorization is requested and risk score
 |Kind |Requirement
 |Name |REQ-PAY-009
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|===
+[[REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZED]]
+[discrete]
+==== STATE-PAYMENTS-AUTHORIZED
+
+Authorization decision approved.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |Payment Authorized
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED]]
+[discrete]
+==== STATE-PAYMENTS-CHECKOUT-RECEIVED
+
+Payment request accepted at checkout boundary.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |Checkout Received
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK]]
+[discrete]
+==== TB-PAYMENTS-EXTERNAL-BANK
+
+Separates internal payment authorization from external bank services.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Trust Boundary
+|Name |External Bank Boundary
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-TB_TB_PAYMENTS_PLATFORM_CONTROL]]
+[discrete]
+==== TB-PAYMENTS-PLATFORM-CONTROL
+
+Separates app workloads from platform control-plane authority.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Trust Boundary
+|Name |Platform Control Boundary
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
 |===
 
 === Catalog References
@@ -2959,7 +4222,7 @@ Role responsible for GitOps and platform lifecycle operations.
 |Key |Value
 |Kind |Catalog Actor
 |Name |platform operator
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_ACT_SUPPORT]]
 [discrete]
@@ -3583,7 +4846,7 @@ Condition indicating strong customer authentication must be performed.
 |Key |Value
 |Kind |Catalog Condition
 |Name |3DS verification is required
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_PAY_007,REQ-PAY-007>>
 |===
 [[REF_IDX-CATALOG_COND_RISK_THRESHOLD_EXCEEDED]]
 [discrete]
@@ -3596,7 +4859,7 @@ Condition indicating risk score crossed a policy threshold for escalation.
 |Key |Value
 |Kind |Catalog Condition
 |Name |risk threshold is exceeded
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_DATA_DECLINE_REASON]]
 [discrete]
@@ -3687,7 +4950,7 @@ Event emitted when computed fraud risk exceeds the configured high-risk threshol
 |Key |Value
 |Kind |Catalog Event
 |Name |risk score is high
-|Mentioned In |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
+|Mentioned In |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
 |===
 [[REF_IDX-CATALOG_EVT_SUPPORT_NOTIFIED]]
 [discrete]
@@ -3700,7 +4963,7 @@ Event indicating manual review notification was sent to support operations.
 |Key |Value
 |Kind |Catalog Event
 |Name |support agent is notified
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_FEAT_FRAUD_CHECK]]
 [discrete]
@@ -3817,7 +5080,7 @@ Evaluates transaction risk and returns score classification.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |risk scoring
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-CATALOG_FU_SUPPORT_REVIEW]]
 [discrete]
@@ -3830,7 +5093,7 @@ Supports manual review and escalation handling for risky transactions.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |support review
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -3843,7 +5106,7 @@ Standard operating mode with full external dependency usage enabled.
 |Key |Value
 |Kind |Catalog Mode
 |Name |normal mode is active
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
 |===
 [[REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT]]
 [discrete]
@@ -3895,7 +5158,7 @@ Connectivity state showing bank gateway communication is currently healthy.
 |Key |Value
 |Kind |Catalog State
 |Name |bank link is available
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_PAY_006,REQ-PAY-006>>
 |===
 [[REF_IDX-CATALOG_STATE_CHECKOUT_ACTIVE]]
 [discrete]
@@ -3908,7 +5171,7 @@ Processing state where the user is actively submitting or confirming payment.
 |Key |Value
 |Kind |Catalog State
 |Name |checkout is active
-|Mentioned In |<<REF_REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
+|Mentioned In |<<REF_REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_STATE_REVIEW_PENDING]]
 [discrete]
@@ -4001,6 +5264,84 @@ An inferred code structure or ownership element discovered from source trees and
 |Name |code element
 |Mentioned In |n/a
 |===
+[[REF_IDX-ENGMODEL_EM_CONTROL]]
+[discrete]
+==== EM-CONTROL
+
+An authored security, policy, or operational control used to constrain behavior and reduce risk.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |control
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-ENGMODEL_EM_DATA_OBJECT]]
+[discrete]
+==== EM-DATA-OBJECT
+
+An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |data object
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_EM_DEPLOYMENT_TARGET]]
+[discrete]
+==== EM-DEPLOYMENT-TARGET
+
+An authored deployment destination such as environment, cluster, namespace, or registry scope.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |deployment target
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_EM_EVENT]]
+[discrete]
+==== EM-EVENT
+
+An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |event
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-ENGMODEL_EM_FLOW]]
+[discrete]
+==== EM-FLOW
+
+An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |flow
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PAY_004,REQ-PAY-004>>
+|===
+[[REF_IDX-ENGMODEL_EM_FLOW_STEP]]
+[discrete]
+==== EM-FLOW-STEP
+
+A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |flow step
+|Mentioned In |n/a
+|===
 [[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
 [discrete]
 ==== EM-FUNCTIONAL-GROUP
@@ -4025,7 +5366,7 @@ An authored working unit inside a functional group that owns specific behavior.
 |Key |Value
 |Kind |Engineering Model Term
 |Name |functional unit
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
 |===
 [[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
 [discrete]
@@ -4039,6 +5380,19 @@ A discovered relationship that links inferred runtime/code elements upward to au
 |Kind |Engineering Model Term
 |Name |inferred mapping
 |Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_EM_INTERFACE]]
+[discrete]
+==== EM-INTERFACE
+
+An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |interface
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
 [discrete]
@@ -4078,6 +5432,32 @@ An inferred runtime realization element discovered from infrastructure and deplo
 |Kind |Engineering Model Term
 |Name |runtime element
 |Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_EM_STATE]]
+[discrete]
+==== EM-STATE
+
+An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |state
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
+|===
+[[REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY]]
+[discrete]
+==== EM-TRUST-BOUNDARY
+
+An authored trust separation zone that marks policy, identity, or security control boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |trust boundary
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
 [discrete]

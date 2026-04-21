@@ -1,0 +1,28 @@
+flowchart LR
+%% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
+N_CTRL_BEDROCK_WEBHOOK_SIGNATURE[["Webhook Signature Verification"]]:::control
+N_EVT_BEDROCK_REVIEW_COMPLETED(("Review Completed")):::event
+N_EVT_BEDROCK_REVIEW_REQUESTED(("Review Requested")):::event
+N_STATE_BEDROCK_PR_RECEIVED(["PR Received"]):::state
+N_STATE_BEDROCK_REVIEW_PUBLISHED(["Review Published"]):::state
+N_TB_BEDROCK_GITHUB_EXTERNAL[/"GitHub External Boundary"\]:::trust_boundary
+N_STATE_BEDROCK_PR_RECEIVED --> N_EVT_BEDROCK_REVIEW_REQUESTED
+N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_PUBLISHED
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_CTRL_BEDROCK_WEBHOOK_SIGNATURE
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_EVT_BEDROCK_REVIEW_COMPLETED
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_TB_BEDROCK_GITHUB_EXTERNAL
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

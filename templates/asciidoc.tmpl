@@ -89,15 +89,15 @@ flowchart LR
   FU["Functional Unit"]:::functional_unit
   ACT(("Actor")):::actor
   REF["Referenced Element"]:::referenced_element
-  IFACE["Interface"]:::interface
-  DATA["Data Object"]:::data_object
+  IFACE[/"Interface"/]:::interface
+  DATA[("Data Object")]:::data_object
   DEPT["Deployment Target"]:::deployment_target
   CTRL[["Control"]]:::control
-  TB["Trust Boundary"]:::trust_boundary
+  TB[/"Trust Boundary"\]:::trust_boundary
   ST(("State")):::state
   EVT(("Event")):::event
-  FLOW["Flow"]:::flow
-  FSTEP["Flow Step"]:::flow_step
+  FLOW{"Flow"}:::flow
+  FSTEP>"Flow Step"]:::flow_step
   AV(("Attack Vector")):::attack_vector
   REQ["Requirement"]:::requirement
   VER["Verification Check"]:::verification
@@ -127,26 +127,7 @@ flowchart LR
   RT -->|implemented_by| CODE
   REQ -->|code_trace| CODE
 
-  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
-  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
-  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
-  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
-  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
-  classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,color:#1b5e20;
-  classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,color:#e65100;
-  classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
-  classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px,color:#004d40;
-  classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
-  classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
-  classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px,color:#311b92;
-  classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#1b5e20;
-  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
-  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
-  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
-  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
-  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+{{ .MermaidClassDefs }}
 ----
 
 {{- range $i, $v := .Views }}
@@ -289,6 +270,39 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 {{ $v.PlatformOpsGraph }}
 ----
 {{- end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityContextDFD }}
+=== Threat Model Context Diagram
+
+What this diagram shows: OWASP-style context view of actors, core processes, interfaces, and trust boundary-relevant entities.
+
+[source,mermaid]
+----
+{{ $v.SecurityContextDFD }}
+----
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityDataFlowDFD }}
+=== Threat Model Data Flow Diagram
+
+What this diagram shows: primary security-relevant data flows (reads/writes/publishes/subscribes/streams) between processes and data objects.
+
+[source,mermaid]
+----
+{{ $v.SecurityDataFlowDFD }}
+----
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityThreatOverlayDFD }}
+=== Threat-to-Control Overlay Diagram
+
+What this diagram shows: attack vectors, targeted components, and mitigation/boundary relationships.
+
+[source,mermaid]
+----
+{{ $v.SecurityThreatOverlayDFD }}
+----
+{{ end }}
 
 {{ if $v.SecurityObsRows }}
 === Security Logging and Observability

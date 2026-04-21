@@ -1,5 +1,7 @@
 flowchart LR
 %% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_PAYMENTS_BANK_EDGE["Bank Edge Integration Zone"]:::deployment_target
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
 N_FG_FRAUD["Fraud Evaluation"]:::functional_group
 N_FG_PAYMENTS["Payments"]:::functional_group
 N_FG_PLATFORM["Platform"]:::functional_group
@@ -9,6 +11,8 @@ N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
 N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
 N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
 N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
 N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
@@ -18,25 +22,30 @@ N_FG_PAYMENTS --> N_FU_CHECKOUT
 N_FG_PAYMENTS --> N_FU_PAYMENT_AUTHORIZATION
 N_FG_PLATFORM --> N_FU_CLUSTER_PROVISIONING
 N_FG_PLATFORM --> N_FU_GITOPS_OPERATIONS
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT --> N_IF_PAYMENTS_CHECKOUT_API
 N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
 N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
 N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION --> N_IF_PAYMENTS_BANK_AUTH
 N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
 N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
+N_IF_PAYMENTS_BANK_AUTH --> N_DEP_PAYMENTS_BANK_EDGE
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
 classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
 classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2;
 classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
 classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4;
 classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
 classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

@@ -1,0 +1,96 @@
+{
+  "assessment-results": {
+    "uuid": "feb3a254-f078-59e8-b66d-b7015be52e53",
+    "metadata": {
+      "title": "Sample Payments Layered Architecture Assessment Results",
+      "last-modified": "2026-04-21T19:01:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./ASSESSMENT-PLAN.json"
+    },
+    "results": [
+      {
+        "uuid": "5b5abe26-c8a5-5ef4-a195-d9f9cc21839e",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
+        "start": "2026-04-21T19:01:00Z",
+        "end": "2026-04-21T19:01:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived allocations.",
+              "include-controls": [
+                {
+                  "control-id": "ac-2"
+                },
+                {
+                  "control-id": "cm-6"
+                },
+                {
+                  "control-id": "ia-2.1"
+                }
+              ]
+            }
+          ]
+        },
+        "findings": [
+          {
+            "uuid": "25c8cf78-5f00-543a-9cef-7294c3128531",
+            "title": "Audit Record Persistence Test",
+            "description": "checks audit record persistence includes payment id and computed risk score",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-005",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+              },
+              {
+                "name": "verification-status",
+                "value": "partial"
+              }
+            ]
+          },
+          {
+            "uuid": "35efa4f7-6abf-5e58-a1c4-98cd5d7a57ed",
+            "title": "Authorized Checkout Flow",
+            "description": "executes authorized checkout flow from session start through payment authorization success",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "uuid": "705ea5a2-bf1f-56e6-af5c-39498ad3ef76",
+            "title": "Privileged SSO path bypass risk",
+            "description": "Privileged operational actions may bypass MFA if SSO policy enforcement drifts.",
+            "status": "mitigating",
+            "statement": "Legacy operator account cleanup still in progress."
+          }
+        ]
+      }
+    ]
+  }
+}

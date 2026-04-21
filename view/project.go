@@ -44,7 +44,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 	}
 
 	if strings.TrimSpace(v.Kind) == "interaction-flow" {
-		return buildInteractionFlowView(v, idx, includeKinds, excludeKinds, includeMappings, excludeMappings, maxDepth), nil
+		return buildInteractionFlowView(v, idx, b.Architecture.AuthoredArchitecture.Mappings, includeKinds, excludeKinds, includeMappings, excludeMappings, maxDepth), nil
 	}
 
 	included := map[string]bool{}
@@ -307,11 +307,20 @@ func setFromSlice(in []string) map[string]bool {
 	return out
 }
 
-func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKinds, includeMappings, excludeMappings map[string]bool, maxDepth int) ProjectedView {
+func buildInteractionFlowView(v model.View, idx index, mappings []model.Mapping, includeKinds, excludeKinds, includeMappings, excludeMappings map[string]bool, maxDepth int) ProjectedView {
 	pv := ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}
 	nodesByID := map[string]Node{}
 	edges := []Edge{}
+	edgeSeen := map[string]bool{}
 	adj := map[string][]string{}
+	isInteractionActivityType := func(mappingType string) bool {
+		switch strings.TrimSpace(mappingType) {
+		case "contains", "calls", "reads", "writes", "publishes", "subscribes", "streams":
+			return true
+		default:
+			return false
+		}
+	}
 
 	addNode := func(n Node) {
 		if strings.TrimSpace(n.ID) == "" {
@@ -332,6 +341,11 @@ func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKind
 		if _, ok := nodesByID[e.To]; !ok {
 			return
 		}
+		edgeKey := e.From + "|" + e.To + "|" + e.Type
+		if edgeSeen[edgeKey] {
+			return
+		}
+		edgeSeen[edgeKey] = true
 		edges = append(edges, e)
 		adj[e.From] = append(adj[e.From], e.To)
 	}
@@ -361,6 +375,7 @@ func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKind
 		flow := idx.flows[flowID]
 		flowNode := Node{ID: flowID, Label: nonEmpty(strings.TrimSpace(flow.Title), flowID), Kind: "flow"}
 		addNode(flowNode)
+		participants := map[string]bool{}
 
 		for _, step := range flow.Steps {
 			stepID := strings.TrimSpace(step.ID)
@@ -390,6 +405,7 @@ func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKind
 				if refNode := toNode(strings.TrimSpace(step.Ref), idx); strings.TrimSpace(refNode.ID) != "" && refNode.Kind != "unknown" {
 					addNode(refNode)
 					addEdge(Edge{From: from, To: refNode.ID, Type: "flow_ref", Label: "flow_ref"})
+					participants[refNode.ID] = true
 				}
 			}
 			edgeType := "flow_next"
@@ -404,6 +420,26 @@ func buildInteractionFlowView(v model.View, idx index, includeKinds, excludeKind
 				to := stepNodeID(flowID, strings.TrimSpace(onErr))
 				addEdge(Edge{From: from, To: to, Type: "flow_error", Label: "flow_error"})
 			}
+		}
+
+		for _, m := range mappings {
+			t := strings.TrimSpace(m.Type)
+			if !isInteractionActivityType(t) {
+				continue
+			}
+			from := strings.TrimSpace(m.From)
+			to := strings.TrimSpace(m.To)
+			if from == "" || to == "" || !participants[from] {
+				continue
+			}
+			fromNode := toNode(from, idx)
+			toNode := toNode(to, idx)
+			if fromNode.Kind == "unknown" || toNode.Kind == "unknown" {
+				continue
+			}
+			addNode(fromNode)
+			addNode(toNode)
+			addEdge(Edge{From: fromNode.ID, To: toNode.ID, Type: t, Label: t})
 		}
 	}
 

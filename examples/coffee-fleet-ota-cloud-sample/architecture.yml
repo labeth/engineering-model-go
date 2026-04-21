@@ -120,6 +120,163 @@ authoredArchitecture:
       layer: code
       name: Cloud Runtime SDK
 
+  interfaces:
+    - id: IF-COFFEE-TELEMETRY-INGEST
+      name: Telemetry Ingestion Interface
+      protocol: mqtt
+      endpoint: mqtt://ingest/topics/telemetry
+      schemaRef: schemas/telemetry.json
+      owner: FU-FLEET-INGESTION-API
+    - id: IF-COFFEE-OTA-COMMAND
+      name: OTA Command Interface
+      protocol: mqtt
+      endpoint: mqtt://devices/ota/commands
+      schemaRef: schemas/ota-command.json
+      owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+
+  dataObjects:
+    - id: DO-COFFEE-TELEMETRY-EVENT
+      name: Telemetry Event
+      termRef: DATA-TELEMETRY-EVENT
+      schemaRef: schemas/telemetry-event.json
+      sensitivity: internal
+    - id: DO-COFFEE-OTA-PLAN
+      name: OTA Rollout Plan
+      termRef: DATA-OTA-PLAN
+      schemaRef: schemas/ota-plan.json
+      sensitivity: internal
+
+  deploymentTargets:
+    - id: DEP-COFFEE-CLOUD-PROD
+      name: Coffee Cloud Production
+      environment: prod
+      region: us-east-1
+      account: cloud
+      cluster: coffee-cloud
+      namespace: coffee
+      trustZone: app
+    - id: DEP-COFFEE-EDGE-FLEET
+      name: Coffee Edge Fleet
+      environment: edge
+      region: global
+      account: device
+      cluster: edge-fleet
+      namespace: devices
+      trustZone: edge
+
+  controls:
+    - id: CTRL-COFFEE-DEVICE-IDENTITY
+      name: Device Identity Validation
+      category: identity-access
+      description: Require authenticated device identity for telemetry and OTA command channels.
+    - id: CTRL-COFFEE-FIRMWARE-SIGNATURE
+      name: Firmware Signature Enforcement
+      category: integrity
+      description: Require signed firmware bundles before applying OTA updates.
+
+  controlAllocations:
+    - id: ALLOC-IA-3-DEVICE-IDENTITY
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      oscalControlIds: [ia-3]
+      appliesTo: [FU-FLEET-INGESTION-API, FU-DEVICE-IDENTITY-SECRETS, IF-COFFEE-TELEMETRY-INGEST]
+      implementationType: technical
+      status: implemented
+      narrative: Telemetry channels enforce device identity verification and reject unauthorized clients.
+      evidence:
+        - path: src/telemetry_ingest.ts
+      responsibleRoles: [ACT-SECURITY-ANALYST]
+    - id: ALLOC-SI-7-FW-SIGNATURE
+      controlRef: CTRL-COFFEE-FIRMWARE-SIGNATURE
+      oscalControlIds: [si-7]
+      appliesTo: [FU-OTA-UPDATE-AGENT, FU-UPDATE-CAMPAIGN-ORCHESTRATION]
+      implementationType: hybrid
+      status: implemented
+      narrative: OTA workflows require signer verification before rollout and device application.
+      evidence:
+        - path: src/ota_agent.rs
+      responsibleRoles: [ACT-FLEET-OPERATOR]
+
+  trustBoundaries:
+    - id: TB-COFFEE-EDGE-DEVICE
+      name: Edge Device Boundary
+      description: Boundary between managed edge devices and cloud control plane.
+    - id: TB-COFFEE-CLOUD-CONTROL
+      name: Cloud Control Boundary
+      description: Boundary between cloud app workloads and privileged platform controls.
+
+  states:
+    - id: STATE-COFFEE-OTA-SCHEDULED
+      name: OTA Scheduled
+      description: Campaign prepared and waiting for rollout execution.
+    - id: STATE-COFFEE-OTA-APPLIED
+      name: OTA Applied
+      description: Firmware update successfully applied to target cohort.
+
+  events:
+    - id: EVT-COFFEE-OTA-REQUESTED
+      name: OTA Requested
+      description: OTA campaign request accepted.
+    - id: EVT-COFFEE-OTA-COMPLETED
+      name: OTA Completed
+      description: OTA rollout completed for cohort.
+
+  flows:
+    - id: FLOW-COFFEE-OTA-ROLLOUT
+      title: OTA Rollout Interaction Flow
+      entry: [operator-schedules-rollout]
+      exits: [report-outcome]
+      steps:
+        - id: operator-schedules-rollout
+          kind: user_action
+          ref: ACT-FLEET-OPERATOR
+          action: Fleet operator schedules OTA campaign
+          next: [plan-campaign]
+        - id: plan-campaign
+          kind: system_action
+          ref: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+          action: Build rollout cohorts and policy checks
+          dataOut: [ota_rollout_plan]
+          next: [execute-update]
+        - id: execute-update
+          kind: system_action
+          ref: FU-OTA-UPDATE-AGENT
+          action: Execute signed OTA update on edge devices
+          dataIn: [ota_rollout_plan]
+          async: true
+          onError: [report-outcome]
+          next: [report-outcome]
+        - id: report-outcome
+          kind: system_action
+          ref: FU-FLEET-OBSERVABILITY-REPORTING
+          action: Emit rollout status and observability summary
+    - id: FLOW-COFFEE-TELEMETRY-INGEST
+      title: Telemetry Ingestion Interaction Flow
+      entry: [capture-machine-telemetry]
+      exits: [publish-fleet-observability]
+      steps:
+        - id: capture-machine-telemetry
+          kind: user_action
+          ref: ACT-BARISTA
+          action: Barista machine activity produces telemetry events
+          next: [collect-and-send-telemetry]
+        - id: collect-and-send-telemetry
+          kind: system_action
+          ref: FU-MACHINE-TELEMETRY-COLLECTION
+          action: Collect and send telemetry payloads to cloud ingest
+          dataOut: [telemetry_event]
+          next: [ingest-telemetry]
+        - id: ingest-telemetry
+          kind: system_action
+          ref: FU-FLEET-INGESTION-API
+          action: Validate and ingest telemetry records
+          dataIn: [telemetry_event]
+          next: [publish-fleet-observability]
+        - id: publish-fleet-observability
+          kind: system_action
+          ref: FU-FLEET-OBSERVABILITY-REPORTING
+          action: Publish fleet observability and audit summaries
+          dataIn: [telemetry_event]
+
   mappings:
     - type: contains
       from: FG-MACHINE-EDGE
@@ -164,6 +321,14 @@ authoredArchitecture:
       from: FU-MACHINE-TELEMETRY-COLLECTION
       to: REF-IOT-INGEST-ENDPOINT
       description: Publishes telemetry payloads to cloud ingestion.
+    - type: calls
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: IF-COFFEE-TELEMETRY-INGEST
+      description: Sends telemetry payloads via telemetry ingest interface.
+    - type: writes
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: DO-COFFEE-TELEMETRY-EVENT
+      description: Writes normalized telemetry event payload.
     - type: depends_on
       from: FU-MACHINE-TELEMETRY-COLLECTION
       to: FU-FLEET-INGESTION-API
@@ -181,6 +346,18 @@ authoredArchitecture:
       from: FU-OTA-UPDATE-AGENT
       to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
       description: Receives OTA rollout commands and policy constraints.
+    - type: calls
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: IF-COFFEE-OTA-COMMAND
+      description: Publishes OTA rollout commands to device fleet.
+    - type: writes
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: DO-COFFEE-OTA-PLAN
+      description: Persists rollout plan and cohort metadata.
+    - type: reads
+      from: FU-OTA-UPDATE-AGENT
+      to: DO-COFFEE-OTA-PLAN
+      description: Reads rollout plan before applying firmware.
     - type: depends_on
       from: FU-OTA-UPDATE-AGENT
       to: REF-FIRMWARE-BUNDLE-STORE
@@ -233,6 +410,26 @@ authoredArchitecture:
       from: FU-CLOUD-RUNTIME-OPERATIONS
       to: REF-CLOUD-LOGGING-SERVICE
       description: Emits platform operation and deployment events.
+    - type: deployed_to
+      from: FU-FLEET-INGESTION-API
+      to: DEP-COFFEE-CLOUD-PROD
+      description: Ingestion API runs in cloud production target.
+    - type: deployed_to
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: DEP-COFFEE-CLOUD-PROD
+      description: Orchestration service runs in cloud production target.
+    - type: deployed_to
+      from: FU-OTA-UPDATE-AGENT
+      to: DEP-COFFEE-EDGE-FLEET
+      description: OTA agent executes on managed edge fleet.
+    - type: bounded_by
+      from: FU-OTA-UPDATE-AGENT
+      to: TB-COFFEE-EDGE-DEVICE
+      description: OTA execution constrained by edge trust boundary.
+    - type: bounded_by
+      from: FU-CLOUD-RUNTIME-OPERATIONS
+      to: TB-COFFEE-CLOUD-CONTROL
+      description: Cloud control-plane trust separation.
 
     - type: targets
       from: AV-MALICIOUS-FIRMWARE-BUNDLE
@@ -258,6 +455,68 @@ authoredArchitecture:
     - type: targets
       from: AV-LOG-TAMPERING
       to: FU-DEVICE-IDENTITY-SECRETS
+    - type: mitigated_by
+      from: AV-SPOOFED-DEVICE-IDENTITY
+      to: CTRL-COFFEE-DEVICE-IDENTITY
+    - type: mitigated_by
+      from: AV-MALICIOUS-FIRMWARE-BUNDLE
+      to: CTRL-COFFEE-FIRMWARE-SIGNATURE
+
+    - type: contains
+      from: FU-FLEET-INGESTION-API
+      to: IF-COFFEE-TELEMETRY-INGEST
+    - type: contains
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: IF-COFFEE-OTA-COMMAND
+    - type: contains
+      from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      to: DO-COFFEE-OTA-PLAN
+    - type: contains
+      from: FU-MACHINE-TELEMETRY-COLLECTION
+      to: DO-COFFEE-TELEMETRY-EVENT
+
+    - type: transitions_to
+      from: STATE-COFFEE-OTA-SCHEDULED
+      to: STATE-COFFEE-OTA-APPLIED
+    - type: triggered_by
+      from: STATE-COFFEE-OTA-SCHEDULED
+      to: EVT-COFFEE-OTA-REQUESTED
+    - type: triggered_by
+      from: STATE-COFFEE-OTA-APPLIED
+      to: EVT-COFFEE-OTA-COMPLETED
+    - type: guarded_by
+      from: STATE-COFFEE-OTA-APPLIED
+      to: CTRL-COFFEE-FIRMWARE-SIGNATURE
+    - type: guarded_by
+      from: STATE-COFFEE-OTA-APPLIED
+      to: TB-COFFEE-EDGE-DEVICE
+
+  risks:
+    - id: RISK-COFFEE-DEVICE-SPOOFING
+      title: Device identity spoofing risk
+      statement: Spoofed devices may inject telemetry and OTA requests without strong identity controls.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [FU-FLEET-INGESTION-API, IF-COFFEE-TELEMETRY-INGEST]
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      attackVectors: [AV-SPOOFED-DEVICE-IDENTITY]
+      evidence:
+        - path: src/telemetry_ingest.ts
+      residualRisk: medium
+      rationale: Identity validation is active; replay hardening remains under review.
+
+  poamItems:
+    - id: POAM-COFFEE-REPLAY-WINDOW-HARDENING
+      riskRef: RISK-COFFEE-DEVICE-SPOOFING
+      milestone: Enforce tighter telemetry replay window constraints
+      dueDate: 2026-08-01
+      status: planned
+      responsibleRole: ACT-SECURITY-ANALYST
+      artifacts:
+        - path: tickets/SEC-3301.md
 
 inferenceHints:
   runtimeSources:
@@ -335,3 +594,20 @@ views:
       - FU-DEVICE-IDENTITY-SECRETS
     authoredStatus: in-review
     authoredStatusExplanation: Requirement mappings exist; verification and evidence coverage continue to be hardened.
+  - id: VIEW-INTERACTION-FLOW
+    kind: interaction-flow
+    roots:
+      - FLOW-COFFEE-OTA-ROLLOUT
+      - FLOW-COFFEE-TELEMETRY-INGEST
+    includeKinds: [flow, flow_step, actor, functional_unit, interface, data_object]
+    includeMappings: [flow_next, flow_error, flow_async, flow_ref, contains, calls, reads, writes, publishes, subscribes, streams]
+    authoredStatus: in-review
+    authoredStatusExplanation: OTA rollout interaction sequence is explicitly modeled from operator intent to rollout reporting.
+  - id: VIEW-STATE-LIFECYCLE
+    kind: state-lifecycle
+    roots:
+      - STATE-COFFEE-OTA-SCHEDULED
+    includeKinds: [state, event, control, trust_boundary]
+    includeMappings: [transitions_to, triggered_by, guarded_by]
+    authoredStatus: in-review
+    authoredStatusExplanation: OTA lifecycle transitions and guards are authored for deterministic operational progression.

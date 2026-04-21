@@ -99,6 +99,13 @@ Flow step fields (`authoredArchitecture.flows[].steps[]`) support:
 - `next`, `onError`
 - `async`, `optional`
 
+OSCAL authoring fields in `authoredArchitecture`:
+
+- `controls`
+- `controlAllocations`
+- `risks`
+- `poamItems`
+
 Expanded mapping relation vocabulary includes:
 
 - Base: `contains`, `depends_on`, `interacts_with`, `targets`
@@ -199,6 +206,38 @@ AI-first export includes:
 AI export entity index/counts include authored semantic kinds when present:
 
 - `interface`, `data_object`, `deployment_target`, `control`, `trust_boundary`, `state`, `event`
+
+## OSCAL chain generation
+
+Use `engoscal` to generate SSP, Assessment Results, and POA&M artifacts from architecture inputs.
+
+SSP only:
+
+```bash
+go run ./cmd/engoscal --model examples/payments-engineering-sample/architecture.yml --ssp-out examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json
+```
+
+Full chain:
+
+```bash
+go run ./cmd/engoscal \
+  --model examples/payments-engineering-sample/architecture.yml \
+  --requirements examples/payments-engineering-sample/requirements.yml \
+  --code-root examples/payments-engineering-sample/src \
+  --ssp-out examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json \
+  --ar-out examples/payments-engineering-sample/generated/ARCHITECTURE.ar.json \
+  --poam-out examples/payments-engineering-sample/generated/ARCHITECTURE.poam.json \
+  --ap-href ./ASSESSMENT-PLAN.json \
+  --ssp-href ./ARCHITECTURE.ssp.json
+```
+
+Validation with OSCAL CLI (containerized):
+
+```bash
+podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0 ssp validate --as json examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json
+podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0 ar validate --as json examples/payments-engineering-sample/generated/ARCHITECTURE.ar.json
+podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0 poam validate --as json examples/payments-engineering-sample/generated/ARCHITECTURE.poam.json
+```
 
 ## Agent Skills
 

@@ -4,6 +4,8 @@ N_ACT_DEVELOPER(("Developer")):::actor
 N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
 N_ACT_REPOSITORY_MAINTAINER(("Repository Maintainer")):::actor
 N_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
+N_DO_BEDROCK_PR_CONTEXT[("Pull Request Context")]:::data_object
+N_DO_BEDROCK_REVIEW_FINDINGS[("Review Findings")]:::data_object
 N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
 N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
 N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
@@ -11,6 +13,8 @@ N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
 N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
 N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
 N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
+N_IF_BEDROCK_WEBHOOK_API[/"Webhook Intake API"/]:::interface
 N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
 N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
 N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
@@ -21,29 +25,35 @@ N_ACT_PLATFORM_OPERATOR --> N_FU_SECRETS_CONFIGURATION
 N_ACT_REPOSITORY_MAINTAINER --> N_FU_REVIEW_PUBLICATION
 N_ACT_SECURITY_ENGINEER --> N_FU_POLICY_CHECKS
 N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_IF_BEDROCK_WEBHOOK_API
 N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
 N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
 N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY --> N_DO_BEDROCK_PR_CONTEXT
 N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
 N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_REVIEW_ORCHESTRATION --> N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION --> N_DO_BEDROCK_REVIEW_FINDINGS
 N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
 N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
 N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
 N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION --> N_DO_BEDROCK_REVIEW_FINDINGS
 N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION --> N_IF_BEDROCK_REVIEW_PUBLISH_API
 N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px;
 classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px;
 classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px;
 classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px;
-classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2;
 classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px;
 classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px;
-classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:1px;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4;
 classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px;
 classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px;
-classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:1px;
-classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:1px;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px;

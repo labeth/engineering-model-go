@@ -196,3 +196,98 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 		}
 	}
 }
+
+func TestBundleValidation_ControlAllocations(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Actors:           []model.Actor{{ID: "ACT-A", Name: "Owner"}},
+		Controls:         []model.Control{{ID: "CTRL-A", Name: "MFA"}},
+		ControlAllocations: []model.ControlAllocation{{
+			ID:                 "ALLOC-A",
+			ControlRef:         "CTRL-A",
+			OSCALControlIDs:    []string{"ac-2", "ia-2(1)"},
+			AppliesTo:          []string{"FU-A"},
+			ImplementationType: "technical",
+			Status:             "implemented",
+			Narrative:          "MFA enforced through SSO policy.",
+			Evidence:           []model.ControlEvidence{{Path: "infra/identity/policy.yaml"}},
+			ResponsibleRoles:   []string{"ACT-A"},
+		}},
+	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
+
+	if diags := Bundle(b); HasErrors(diags) {
+		t.Fatalf("expected valid control allocation, got: %+v", diags)
+	}
+
+	b.Architecture.AuthoredArchitecture.ControlAllocations[0].OSCALControlIDs = []string{"bad id"}
+	b.Architecture.AuthoredArchitecture.ControlAllocations[0].ResponsibleRoles = []string{"MISSING"}
+	b.Architecture.AuthoredArchitecture.ControlAllocations[0].ControlRef = "CTRL-MISSING"
+	diags := Bundle(b)
+	if !HasErrors(diags) {
+		t.Fatalf("expected invalid control allocation diagnostics")
+	}
+	seen := map[string]bool{}
+	for _, d := range diags {
+		seen[d.Code] = true
+	}
+	for _, code := range []string{"model.invalid_control_ref", "model.invalid_oscal_control_id", "model.invalid_control_responsible_role"} {
+		if !seen[code] {
+			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
+		}
+	}
+}
+
+func TestBundleValidation_RisksAndPOAM(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Actors:           []model.Actor{{ID: "ACT-A", Name: "Owner"}},
+		AttackVectors:    []model.AttackVector{{ID: "AV-A", Name: "Attack"}},
+		Controls:         []model.Control{{ID: "CTRL-A", Name: "Control A"}},
+		Risks: []model.Risk{{
+			ID:              "RISK-A",
+			Title:           "MFA bypass",
+			Statement:       "MFA may be bypassed.",
+			Status:          "mitigating",
+			Likelihood:      "medium",
+			Impact:          "high",
+			Response:        "mitigate",
+			Owner:           "ACT-A",
+			AppliesTo:       []string{"FU-A"},
+			RelatedControls: []string{"CTRL-A"},
+			AttackVectors:   []string{"AV-A"},
+			Evidence:        []model.RiskEvidence{{Path: "docs/risk.md"}},
+			ResidualRisk:    "medium",
+		}},
+		POAMItems: []model.POAMItem{{
+			ID:              "POAM-A",
+			RiskRef:         "RISK-A",
+			Milestone:       "Remove legacy account",
+			DueDate:         "2026-06-30",
+			Status:          "in-progress",
+			ResponsibleRole: "ACT-A",
+			Artifacts:       []model.POAMArtifact{{Path: "tickets/SEC-1.md"}},
+		}},
+	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
+
+	if diags := Bundle(b); HasErrors(diags) {
+		t.Fatalf("expected valid risk/poam model, got: %+v", diags)
+	}
+
+	b.Architecture.AuthoredArchitecture.Risks[0].Owner = "MISSING"
+	b.Architecture.AuthoredArchitecture.POAMItems[0].RiskRef = "RISK-MISSING"
+	diags := Bundle(b)
+	if !HasErrors(diags) {
+		t.Fatalf("expected invalid risk/poam diagnostics")
+	}
+	seen := map[string]bool{}
+	for _, d := range diags {
+		seen[d.Code] = true
+	}
+	for _, code := range []string{"model.invalid_risk_owner", "model.invalid_poam_risk_ref"} {
+		if !seen[code] {
+			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
+		}
+	}
+}

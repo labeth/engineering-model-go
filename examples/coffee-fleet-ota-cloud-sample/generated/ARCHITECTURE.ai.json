@@ -10,7 +10,16 @@
       "rt": 7,
       "code": 21,
       "verification": 4,
-      "views": 5
+      "interfaces": 2,
+      "data_objects": 2,
+      "deployment_targets": 2,
+      "controls": 2,
+      "trust_boundaries": 2,
+      "states": 2,
+      "events": 2,
+      "flows": 2,
+      "flow_steps": 8,
+      "views": 7
     },
     "entry_point_ids": [
       "EP-FU-EVIDENCE",
@@ -143,6 +152,48 @@
       "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794",
       "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
     ],
+    "interface_ids": [
+      "IF-COFFEE-OTA-COMMAND",
+      "IF-COFFEE-TELEMETRY-INGEST"
+    ],
+    "data_object_ids": [
+      "DO-COFFEE-OTA-PLAN",
+      "DO-COFFEE-TELEMETRY-EVENT"
+    ],
+    "deployment_target_ids": [
+      "DEP-COFFEE-CLOUD-PROD",
+      "DEP-COFFEE-EDGE-FLEET"
+    ],
+    "control_ids": [
+      "CTRL-COFFEE-DEVICE-IDENTITY",
+      "CTRL-COFFEE-FIRMWARE-SIGNATURE"
+    ],
+    "trust_boundary_ids": [
+      "TB-COFFEE-CLOUD-CONTROL",
+      "TB-COFFEE-EDGE-DEVICE"
+    ],
+    "state_ids": [
+      "STATE-COFFEE-OTA-APPLIED",
+      "STATE-COFFEE-OTA-SCHEDULED"
+    ],
+    "event_ids": [
+      "EVT-COFFEE-OTA-COMPLETED",
+      "EVT-COFFEE-OTA-REQUESTED"
+    ],
+    "flow_ids": [
+      "FLOW-COFFEE-OTA-ROLLOUT",
+      "FLOW-COFFEE-TELEMETRY-INGEST"
+    ],
+    "flow_step_ids": [
+      "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+      "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout",
+      "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign",
+      "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
+      "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry",
+      "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
+      "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+      "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
+    ],
     "lookup": [
       {
         "id": "FG-CLOUD-CONTROL",
@@ -253,6 +304,126 @@
         "id": "REQ-COF-012",
         "kind": "requirement",
         "title": "REQ-COF-012"
+      },
+      {
+        "id": "CTRL-COFFEE-DEVICE-IDENTITY",
+        "kind": "control",
+        "title": "Device Identity Validation"
+      },
+      {
+        "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+        "kind": "control",
+        "title": "Firmware Signature Enforcement"
+      },
+      {
+        "id": "DEP-COFFEE-CLOUD-PROD",
+        "kind": "deployment_target",
+        "title": "Coffee Cloud Production"
+      },
+      {
+        "id": "DEP-COFFEE-EDGE-FLEET",
+        "kind": "deployment_target",
+        "title": "Coffee Edge Fleet"
+      },
+      {
+        "id": "DO-COFFEE-OTA-PLAN",
+        "kind": "data_object",
+        "title": "OTA Rollout Plan"
+      },
+      {
+        "id": "DO-COFFEE-TELEMETRY-EVENT",
+        "kind": "data_object",
+        "title": "Telemetry Event"
+      },
+      {
+        "id": "EVT-COFFEE-OTA-COMPLETED",
+        "kind": "event",
+        "title": "OTA Completed"
+      },
+      {
+        "id": "EVT-COFFEE-OTA-REQUESTED",
+        "kind": "event",
+        "title": "OTA Requested"
+      },
+      {
+        "id": "FLOW-COFFEE-OTA-ROLLOUT",
+        "kind": "flow",
+        "title": "OTA Rollout Interaction Flow"
+      },
+      {
+        "id": "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+        "kind": "flow_step",
+        "title": "Execute signed OTA update on edge devices"
+      },
+      {
+        "id": "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout",
+        "kind": "flow_step",
+        "title": "Fleet operator schedules OTA campaign"
+      },
+      {
+        "id": "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign",
+        "kind": "flow_step",
+        "title": "Build rollout cohorts and policy checks"
+      },
+      {
+        "id": "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
+        "kind": "flow_step",
+        "title": "Emit rollout status and observability summary"
+      },
+      {
+        "id": "FLOW-COFFEE-TELEMETRY-INGEST",
+        "kind": "flow",
+        "title": "Telemetry Ingestion Interaction Flow"
+      },
+      {
+        "id": "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry",
+        "kind": "flow_step",
+        "title": "Barista machine activity produces telemetry events"
+      },
+      {
+        "id": "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
+        "kind": "flow_step",
+        "title": "Collect and send telemetry payloads to cloud ingest"
+      },
+      {
+        "id": "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+        "kind": "flow_step",
+        "title": "Validate and ingest telemetry records"
+      },
+      {
+        "id": "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability",
+        "kind": "flow_step",
+        "title": "Publish fleet observability and audit summaries"
+      },
+      {
+        "id": "IF-COFFEE-OTA-COMMAND",
+        "kind": "interface",
+        "title": "OTA Command Interface"
+      },
+      {
+        "id": "IF-COFFEE-TELEMETRY-INGEST",
+        "kind": "interface",
+        "title": "Telemetry Ingestion Interface"
+      },
+      {
+        "id": "STATE-COFFEE-OTA-APPLIED",
+        "kind": "state",
+        "title": "OTA Applied"
+      },
+      {
+        "id": "STATE-COFFEE-OTA-SCHEDULED",
+        "kind": "state",
+        "title": "OTA Scheduled"
+      },
+      {
+        "id": "TB-COFFEE-CLOUD-CONTROL",
+        "kind": "trust_boundary",
+        "title": "Cloud Control Boundary"
+      },
+      {
+        "id": "TB-COFFEE-EDGE-DEVICE",
+        "kind": "trust_boundary",
+        "title": "Edge Device Boundary"
       },
       {
         "id": "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
@@ -428,16 +599,25 @@
         "FU-FLEET-INGESTION-API",
         "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
         "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DO-COFFEE-TELEMETRY-EVENT",
+        "DEP-COFFEE-CLOUD-PROD",
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
       "summary": "Support path for REQ-COF-001 from authored scope to inferred evidence and verification.",
       "confidence": "high",
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_8_48E4EE",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_0_FE4BEE",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_CONTRACT_TELEMETRY_JSON_0_B59B8C"
@@ -454,16 +634,24 @@
         "FU-FLEET-INGESTION-API",
         "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
         "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DEP-COFFEE-CLOUD-PROD",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
       "summary": "Support path for REQ-COF-002 from authored scope to inferred evidence and verification.",
       "confidence": "high",
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_15_566B32",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_0_88EB4B",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_INTEGRATION_LOGGING_JSON_0_FE3CDC"
@@ -481,16 +669,27 @@
         "FU-OTA-UPDATE-AGENT",
         "RT-LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION_B15322",
         "CODE-SOURCE_FILE_OTA_UPDATE_AGENT_RS_D0D2CD",
+        "IF-COFFEE-OTA-COMMAND",
+        "DO-COFFEE-OTA-PLAN",
+        "DEP-COFFEE-CLOUD-PROD",
+        "TB-COFFEE-EDGE-DEVICE",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
       ],
       "summary": "Support path for REQ-COF-003 from authored scope to inferred evidence and verification.",
       "confidence": "high",
       "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_143_C446A8",
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_158_E30873",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_A1973A",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_38_28A8E2",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_14_D68F1B",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_5_9B1801",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_22_78DF61",
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_200_848DE9",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML_0_1A29FF",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_0_5C0941",
         "SRC-VERIFICATION_ARTIFACT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_TEST_RESULTS_OTA_ROLLBACK_REPORT_MD_0_9F30DB",
@@ -507,6 +706,11 @@
         "REQ-COF-004",
         "FU-DEVICE-IDENTITY-SECRETS",
         "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "DO-COFFEE-OTA-PLAN",
+        "DEP-COFFEE-EDGE-FLEET",
+        "TB-COFFEE-EDGE-DEVICE",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
       "summary": "Support path for REQ-COF-004 from authored scope to inferred evidence and verification.",
@@ -532,11 +736,21 @@
         "FU-FLEET-OBSERVABILITY-REPORTING",
         "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
         "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+        "IF-COFFEE-OTA-COMMAND",
+        "DO-COFFEE-OTA-PLAN",
+        "DEP-COFFEE-CLOUD-PROD",
+        "TB-COFFEE-EDGE-DEVICE",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
       ],
       "summary": "Support path for REQ-COF-005 from authored scope to inferred evidence and verification.",
       "confidence": "high",
       "source_refs": [
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_260888",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_F7EEBA",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_10_446F9F",
@@ -556,16 +770,25 @@
         "REQ-COF-006",
         "FU-FLEET-INGESTION-API",
         "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
-        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DO-COFFEE-TELEMETRY-EVENT",
+        "DEP-COFFEE-CLOUD-PROD",
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
       ],
       "summary": "Support path for REQ-COF-006 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_44_B17D95"
       ]
     },
@@ -580,6 +803,8 @@
         "FU-DEVICE-IDENTITY-SECRETS",
         "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
         "CODE-SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_43FC40",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
       "summary": "Support path for REQ-COF-007 from authored scope to inferred evidence and verification.",
@@ -602,7 +827,12 @@
         "REQ-COF-008",
         "FU-CLOUD-RUNTIME-OPERATIONS",
         "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
-        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144"
+        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DEP-COFFEE-CLOUD-PROD",
+        "TB-COFFEE-CLOUD-CONTROL",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
       ],
       "summary": "Support path for REQ-COF-008 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
@@ -614,7 +844,8 @@
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_D8A27B",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_42_BEBA2F",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_47_7D4BEE",
-        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_58_528C86"
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_58_528C86",
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_203_146623"
       ]
     },
     {
@@ -625,16 +856,24 @@
         "REQ-COF-009",
         "FU-FLEET-INGESTION-API",
         "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
-        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DEP-COFFEE-CLOUD-PROD",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
       ],
       "summary": "Support path for REQ-COF-009 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_66_B41091"
       ]
     },
@@ -646,11 +885,21 @@
         "REQ-COF-010",
         "FU-FLEET-OBSERVABILITY-REPORTING",
         "RT-LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING_B15322",
-        "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510"
+        "CODE-SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_A7B510",
+        "IF-COFFEE-OTA-COMMAND",
+        "DO-COFFEE-OTA-PLAN",
+        "DEP-COFFEE-CLOUD-PROD",
+        "TB-COFFEE-EDGE-DEVICE",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update"
       ],
       "summary": "Support path for REQ-COF-010 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
       "source_refs": [
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_260888",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_F7EEBA",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_10_446F9F",
@@ -668,16 +917,25 @@
         "REQ-COF-011",
         "FU-FLEET-INGESTION-API",
         "RT-LAMBDA_FUNCTION_FLEET_INGESTION_API_B15322",
-        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94"
+        "CODE-SOURCE_FILE_FLEET_INGESTION_API_GO_761D94",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DO-COFFEE-TELEMETRY-EVENT",
+        "DEP-COFFEE-CLOUD-PROD",
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
       ],
       "summary": "Support path for REQ-COF-011 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_81_FB02D8"
       ]
     },
@@ -689,7 +947,12 @@
         "REQ-COF-012",
         "FU-CLOUD-RUNTIME-OPERATIONS",
         "RT-EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE_B15322",
-        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144"
+        "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
+        "IF-COFFEE-TELEMETRY-INGEST",
+        "DEP-COFFEE-CLOUD-PROD",
+        "TB-COFFEE-CLOUD-CONTROL",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
       ],
       "summary": "Support path for REQ-COF-012 from authored scope to inferred evidence and verification.",
       "confidence": "medium",
@@ -701,7 +964,8 @@
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_D8A27B",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_42_BEBA2F",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_47_7D4BEE",
-        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_88_2E7547"
+        "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_88_2E7547",
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_203_146623"
       ]
     }
   ],
@@ -777,11 +1041,15 @@
         "CODE-SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_54F144",
         "CODE-SYMBOL_CODE_RAISESECURITYNOTIFICATION_2191CD"
       ],
+      "trust_boundary_ids": [
+        "TB-COFFEE-CLOUD-CONTROL"
+      ],
       "related_ids": [
         "ACT-PLATFORM-OPERATOR",
         "FG-PLATFORM-OPERATIONS",
         "FU-DEVICE-IDENTITY-SECRETS",
-        "REF-CLOUD-LOGGING-SERVICE"
+        "REF-CLOUD-LOGGING-SERVICE",
+        "TB-COFFEE-CLOUD-CONTROL"
       ],
       "fields": {
         "triggers": [
@@ -793,6 +1061,7 @@
           "REF-CLOUD-LOGGING-SERVICE"
         ],
         "produces": [
+          "bounded_by:TB-COFFEE-CLOUD-CONTROL",
           "depends_on:FU-DEVICE-IDENTITY-SECRETS",
           "depends_on:REF-CLOUD-LOGGING-SERVICE"
         ]
@@ -826,7 +1095,8 @@
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_30_A32BB5",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_36_D8A27B",
         "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_42_BEBA2F",
-        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_47_7D4BEE"
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_47_7D4BEE",
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_203_146623"
       ]
     },
     {
@@ -918,13 +1188,27 @@
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF",
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
+      "interface_ids": [
+        "IF-COFFEE-TELEMETRY-INGEST"
+      ],
+      "deployment_target_ids": [
+        "DEP-COFFEE-CLOUD-PROD"
+      ],
+      "flow_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST"
+      ],
+      "flow_step_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry"
+      ],
       "related_ids": [
         "AV-SPOOFED-DEVICE-IDENTITY",
         "AV-TELEMETRY-REPLAY-ABUSE",
+        "DEP-COFFEE-CLOUD-PROD",
         "FG-CLOUD-CONTROL",
         "FU-DEVICE-IDENTITY-SECRETS",
         "FU-FLEET-OBSERVABILITY-REPORTING",
         "FU-MACHINE-TELEMETRY-COLLECTION",
+        "IF-COFFEE-TELEMETRY-INGEST",
         "REF-CLOUD-RUNTIME-SDK"
       ],
       "fields": {
@@ -945,7 +1229,8 @@
         "produces": [
           "depends_on:FU-DEVICE-IDENTITY-SECRETS",
           "depends_on:FU-FLEET-OBSERVABILITY-REPORTING",
-          "depends_on:REF-CLOUD-RUNTIME-SDK"
+          "depends_on:REF-CLOUD-RUNTIME-SDK",
+          "deployed_to:DEP-COFFEE-CLOUD-PROD"
         ],
         "threats": [
           "Spoofed Device Identity",
@@ -973,11 +1258,15 @@
         }
       ],
       "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_43_CA3AEB",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_0_8B80AA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_11_F1F65D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_INGESTION_API_GO_16_4DB883",
-        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F"
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_6_DD022F",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9"
       ]
     },
     {
@@ -1009,6 +1298,14 @@
       "verification_ids": [
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "flow_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-TELEMETRY-INGEST"
+      ],
+      "flow_step_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
+        "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
       ],
       "related_ids": [
         "AV-LOG-TAMPERING",
@@ -1064,6 +1361,10 @@
         }
       ],
       "source_refs": [
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_260888",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_F7EEBA",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_53_68C01D",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_0_D90F04",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_FLEET_OBSERVABILITY_REPORTING_TS_10_446F9F",
@@ -1093,12 +1394,26 @@
       "verification_ids": [
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
+      "interface_ids": [
+        "IF-COFFEE-TELEMETRY-INGEST"
+      ],
+      "data_object_ids": [
+        "DO-COFFEE-TELEMETRY-EVENT"
+      ],
+      "flow_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST"
+      ],
+      "flow_step_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
+      ],
       "related_ids": [
         "ACT-BARISTA",
         "AV-SPOOFED-DEVICE-IDENTITY",
+        "DO-COFFEE-TELEMETRY-EVENT",
         "FG-MACHINE-EDGE",
         "FU-DEVICE-IDENTITY-SECRETS",
         "FU-FLEET-INGESTION-API",
+        "IF-COFFEE-TELEMETRY-INGEST",
         "REF-IOT-INGEST-ENDPOINT",
         "REF-MQTT-DEVICE-SDK"
       ],
@@ -1115,10 +1430,12 @@
           "REF-MQTT-DEVICE-SDK"
         ],
         "produces": [
+          "calls:IF-COFFEE-TELEMETRY-INGEST",
           "depends_on:FU-DEVICE-IDENTITY-SECRETS",
           "depends_on:FU-FLEET-INGESTION-API",
           "depends_on:REF-IOT-INGEST-ENDPOINT",
-          "depends_on:REF-MQTT-DEVICE-SDK"
+          "depends_on:REF-MQTT-DEVICE-SDK",
+          "writes:DO-COFFEE-TELEMETRY-EVENT"
         ],
         "threats": [
           "Spoofed Device Identity"
@@ -1137,10 +1454,14 @@
         }
       ],
       "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_138_E324FC",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_4823D9",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_33_B27AF7",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_0_91813A",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_10_EEE764",
-        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_15_B6D792"
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_MACHINE_TELEMETRY_RS_15_B6D792",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9"
       ]
     },
     {
@@ -1166,12 +1487,30 @@
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "data_object_ids": [
+        "DO-COFFEE-OTA-PLAN"
+      ],
+      "deployment_target_ids": [
+        "DEP-COFFEE-EDGE-FLEET"
+      ],
+      "trust_boundary_ids": [
+        "TB-COFFEE-EDGE-DEVICE"
+      ],
+      "flow_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT"
+      ],
+      "flow_step_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update"
+      ],
       "related_ids": [
         "AV-MALICIOUS-FIRMWARE-BUNDLE",
+        "DEP-COFFEE-EDGE-FLEET",
+        "DO-COFFEE-OTA-PLAN",
         "FG-MACHINE-EDGE",
         "FU-DEVICE-IDENTITY-SECRETS",
         "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
-        "REF-FIRMWARE-BUNDLE-STORE"
+        "REF-FIRMWARE-BUNDLE-STORE",
+        "TB-COFFEE-EDGE-DEVICE"
       ],
       "fields": {
         "triggers": [
@@ -1186,9 +1525,12 @@
           "REF-FIRMWARE-BUNDLE-STORE"
         ],
         "produces": [
+          "bounded_by:TB-COFFEE-EDGE-DEVICE",
           "depends_on:FU-DEVICE-IDENTITY-SECRETS",
           "depends_on:FU-UPDATE-CAMPAIGN-ORCHESTRATION",
-          "depends_on:REF-FIRMWARE-BUNDLE-STORE"
+          "depends_on:REF-FIRMWARE-BUNDLE-STORE",
+          "deployed_to:DEP-COFFEE-EDGE-FLEET",
+          "reads:DO-COFFEE-OTA-PLAN"
         ],
         "threats": [
           "Malicious Firmware Bundle"
@@ -1207,10 +1549,15 @@
         }
       ],
       "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_143_C446A8",
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_158_E30873",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_A1973A",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_38_28A8E2",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_0_238B1E",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_14_D68F1B",
-        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_5_9B1801"
+        "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_OTA_UPDATE_AGENT_RS_5_9B1801",
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_200_848DE9"
       ]
     },
     {
@@ -1238,13 +1585,31 @@
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "interface_ids": [
+        "IF-COFFEE-OTA-COMMAND"
+      ],
+      "data_object_ids": [
+        "DO-COFFEE-OTA-PLAN"
+      ],
+      "deployment_target_ids": [
+        "DEP-COFFEE-CLOUD-PROD"
+      ],
+      "flow_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT"
+      ],
+      "flow_step_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign"
+      ],
       "related_ids": [
         "ACT-FLEET-OPERATOR",
         "AV-MALICIOUS-FIRMWARE-BUNDLE",
+        "DEP-COFFEE-CLOUD-PROD",
+        "DO-COFFEE-OTA-PLAN",
         "FG-CLOUD-CONTROL",
         "FU-DEVICE-IDENTITY-SECRETS",
         "FU-FLEET-OBSERVABILITY-REPORTING",
         "FU-OTA-UPDATE-AGENT",
+        "IF-COFFEE-OTA-COMMAND",
         "REF-FIRMWARE-SIGNER-SERVICE"
       ],
       "fields": {
@@ -1259,9 +1624,12 @@
           "REF-FIRMWARE-SIGNER-SERVICE"
         ],
         "produces": [
+          "calls:IF-COFFEE-OTA-COMMAND",
           "depends_on:FU-DEVICE-IDENTITY-SECRETS",
           "depends_on:FU-FLEET-OBSERVABILITY-REPORTING",
-          "depends_on:REF-FIRMWARE-SIGNER-SERVICE"
+          "depends_on:REF-FIRMWARE-SIGNER-SERVICE",
+          "deployed_to:DEP-COFFEE-CLOUD-PROD",
+          "writes:DO-COFFEE-OTA-PLAN"
         ],
         "threats": [
           "Malicious Firmware Bundle"
@@ -1288,18 +1656,23 @@
         }
       ],
       "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_143_C446A8",
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_EADE2B",
         "SRC-FUNCTIONAL_UNIT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_48_626D83",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_0_C9C3FA",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_10_C5FD4E",
         "SRC-INFERRED_CODE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_5_D3052A",
-        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_14_1C3920"
+        "SRC-INFERRED_RUNTIME_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_INFRA_TERRAFORM_MAIN_TF_14_1C3920",
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_130_502C72"
       ]
     },
     {
       "id": "REQ-COF-001",
       "kind": "requirement",
       "title": "REQ-COF-001",
-      "summary": "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api.",
+      "summary": "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations.",
       "origin": "authored",
       "status": "stable",
       "verification_ids": [
@@ -1363,7 +1736,7 @@
       "id": "REQ-COF-003",
       "kind": "requirement",
       "title": "REQ-COF-003",
-      "summary": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort.",
+      "summary": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort using ota campaign policy.",
       "origin": "authored",
       "status": "stable",
       "verification_ids": [
@@ -1546,7 +1919,7 @@
       "id": "REQ-COF-010",
       "kind": "requirement",
       "title": "REQ-COF-010",
-      "summary": "If firmware validation failed event is received, then the coffee fleet system shall report ota status to update campaign orchestration.",
+      "summary": "If firmware validation failed event is received, then the coffee fleet system shall report ota status to platform operator.",
       "origin": "authored",
       "status": "stable",
       "related_ids": [
@@ -1590,6 +1963,407 @@
       "fields": {},
       "source_refs": [
         "SRC-REQUIREMENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_REQUIREMENTS_YML_88_2E7547"
+      ]
+    },
+    {
+      "id": "CTRL-COFFEE-DEVICE-IDENTITY",
+      "kind": "control",
+      "title": "Device Identity Validation",
+      "summary": "Require authenticated device identity for telemetry and OTA command channels.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "AV-SPOOFED-DEVICE-IDENTITY"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-CONTROL_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_168_D1E000"
+      ]
+    },
+    {
+      "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+      "kind": "control",
+      "title": "Firmware Signature Enforcement",
+      "summary": "Require signed firmware bundles before applying OTA updates.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "AV-MALICIOUS-FIRMWARE-BUNDLE",
+        "STATE-COFFEE-OTA-APPLIED"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-CONTROL_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_172_E6DABE"
+      ]
+    },
+    {
+      "id": "DEP-COFFEE-CLOUD-PROD",
+      "kind": "deployment_target",
+      "title": "Coffee Cloud Production",
+      "summary": "prod coffee-cloud coffee",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41"
+      ]
+    },
+    {
+      "id": "DEP-COFFEE-EDGE-FLEET",
+      "kind": "deployment_target",
+      "title": "Coffee Edge Fleet",
+      "summary": "edge edge-fleet devices",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_158_E30873"
+      ]
+    },
+    {
+      "id": "DO-COFFEE-OTA-PLAN",
+      "kind": "data_object",
+      "title": "OTA Rollout Plan",
+      "summary": "internal",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_143_C446A8"
+      ]
+    },
+    {
+      "id": "DO-COFFEE-TELEMETRY-EVENT",
+      "kind": "data_object",
+      "title": "Telemetry Event",
+      "summary": "internal",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_138_E324FC"
+      ]
+    },
+    {
+      "id": "EVT-COFFEE-OTA-COMPLETED",
+      "kind": "event",
+      "title": "OTA Completed",
+      "summary": "OTA rollout completed for cohort.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "STATE-COFFEE-OTA-APPLIED"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-EVENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_219_9451C3"
+      ]
+    },
+    {
+      "id": "EVT-COFFEE-OTA-REQUESTED",
+      "kind": "event",
+      "title": "OTA Requested",
+      "summary": "OTA campaign request accepted.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "STATE-COFFEE-OTA-SCHEDULED"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-EVENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_216_4D4C3F"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT",
+      "kind": "flow",
+      "title": "OTA Rollout Interaction Flow",
+      "summary": "entry: operator-schedules-rollout; exits: report-outcome; steps: 4",
+      "origin": "authored",
+      "status": "stable",
+      "flow_step_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+        "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout",
+        "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
+      ],
+      "related_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+        "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout",
+        "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+      "kind": "flow_step",
+      "title": "Execute signed OTA update on edge devices",
+      "summary": "Execute signed OTA update on edge devices (in: ota_rollout_plan; out: )",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_A1973A"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout",
+      "kind": "flow_step",
+      "title": "Fleet operator schedules OTA campaign",
+      "summary": "Fleet operator schedules OTA campaign",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "ACT-FLEET-OPERATOR",
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_546A37"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign",
+      "kind": "flow_step",
+      "title": "Build rollout cohorts and policy checks",
+      "summary": "Build rollout cohorts and policy checks (in: ; out: ota_rollout_plan)",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_EADE2B"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT::report-outcome",
+      "kind": "flow_step",
+      "title": "Emit rollout status and observability summary",
+      "summary": "Emit rollout status and observability summary",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_F7EEBA"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST",
+      "kind": "flow",
+      "title": "Telemetry Ingestion Interaction Flow",
+      "summary": "entry: capture-machine-telemetry; exits: publish-fleet-observability; steps: 4",
+      "origin": "authored",
+      "status": "stable",
+      "flow_step_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
+      ],
+      "related_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+        "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry",
+      "kind": "flow_step",
+      "title": "Barista machine activity produces telemetry events",
+      "summary": "Barista machine activity produces telemetry events",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "ACT-BARISTA",
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_B40502"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry",
+      "kind": "flow_step",
+      "title": "Collect and send telemetry payloads to cloud ingest",
+      "summary": "Collect and send telemetry payloads to cloud ingest (in: ; out: telemetry_event)",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_4823D9"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry",
+      "kind": "flow_step",
+      "title": "Validate and ingest telemetry records",
+      "summary": "Validate and ingest telemetry records (in: telemetry_event; out: )",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability",
+        "FU-FLEET-INGESTION-API"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability",
+      "kind": "flow_step",
+      "title": "Publish fleet observability and audit summaries",
+      "summary": "Publish fleet observability and audit summaries (in: telemetry_event; out: )",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_260888"
+      ]
+    },
+    {
+      "id": "IF-COFFEE-OTA-COMMAND",
+      "kind": "interface",
+      "title": "OTA Command Interface",
+      "summary": "mqtt mqtt://devices/ota/commands",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_130_502C72"
+      ]
+    },
+    {
+      "id": "IF-COFFEE-TELEMETRY-INGEST",
+      "kind": "interface",
+      "title": "Telemetry Ingestion Interface",
+      "summary": "mqtt mqtt://ingest/topics/telemetry",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9"
+      ]
+    },
+    {
+      "id": "STATE-COFFEE-OTA-APPLIED",
+      "kind": "state",
+      "title": "OTA Applied",
+      "summary": "Firmware update successfully applied to target cohort.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+        "EVT-COFFEE-OTA-COMPLETED",
+        "STATE-COFFEE-OTA-SCHEDULED",
+        "TB-COFFEE-EDGE-DEVICE"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-STATE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_211_861FF3"
+      ]
+    },
+    {
+      "id": "STATE-COFFEE-OTA-SCHEDULED",
+      "kind": "state",
+      "title": "OTA Scheduled",
+      "summary": "Campaign prepared and waiting for rollout execution.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "EVT-COFFEE-OTA-REQUESTED",
+        "STATE-COFFEE-OTA-APPLIED"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-STATE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_208_72F33A"
+      ]
+    },
+    {
+      "id": "TB-COFFEE-CLOUD-CONTROL",
+      "kind": "trust_boundary",
+      "title": "Cloud Control Boundary",
+      "summary": "Boundary between cloud app workloads and privileged platform controls.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-CLOUD-RUNTIME-OPERATIONS"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_203_146623"
+      ]
+    },
+    {
+      "id": "TB-COFFEE-EDGE-DEVICE",
+      "kind": "trust_boundary",
+      "title": "Edge Device Boundary",
+      "summary": "Boundary between managed edge devices and cloud control plane.",
+      "origin": "authored",
+      "status": "stable",
+      "related_ids": [
+        "FU-OTA-UPDATE-AGENT",
+        "STATE-COFFEE-OTA-APPLIED"
+      ],
+      "fields": {},
+      "source_refs": [
+        "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_200_848DE9"
       ]
     },
     {
@@ -2425,6 +3199,78 @@
   ],
   "source_blocks": [
     {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_260888",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
+      ],
+      "summary": "flow step FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_4823D9",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
+      ],
+      "summary": "flow step FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_546A37",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout"
+      ],
+      "summary": "flow step FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_90BAAD",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry"
+      ],
+      "summary": "flow step FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_A1973A",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::execute-update"
+      ],
+      "summary": "flow step FLOW-COFFEE-OTA-ROLLOUT::execute-update"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_B40502",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry"
+      ],
+      "summary": "flow step FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_EADE2B",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::plan-campaign"
+      ],
+      "summary": "flow step FLOW-COFFEE-OTA-ROLLOUT::plan-campaign"
+    },
+    {
+      "id": "SRC-FLOW_STEP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_0_F7EEBA",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "kind": "flow_step",
+      "entity_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
+      ],
+      "summary": "flow step FLOW-COFFEE-OTA-ROLLOUT::report-outcome"
+    },
+    {
       "id": "SRC-FUNCTIONAL_GROUP_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_13_A950D1",
       "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
       "line_start": 13,
@@ -2533,6 +3379,182 @@
         "FU-DEVICE-IDENTITY-SECRETS"
       ],
       "summary": "authored functional unit FU-DEVICE-IDENTITY-SECRETS"
+    },
+    {
+      "id": "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_124_5001F9",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 124,
+      "line_end": 124,
+      "kind": "interface",
+      "entity_ids": [
+        "IF-COFFEE-TELEMETRY-INGEST"
+      ],
+      "summary": "authored interface IF-COFFEE-TELEMETRY-INGEST"
+    },
+    {
+      "id": "SRC-INTERFACE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_130_502C72",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 130,
+      "line_end": 130,
+      "kind": "interface",
+      "entity_ids": [
+        "IF-COFFEE-OTA-COMMAND"
+      ],
+      "summary": "authored interface IF-COFFEE-OTA-COMMAND"
+    },
+    {
+      "id": "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_138_E324FC",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 138,
+      "line_end": 138,
+      "kind": "data_object",
+      "entity_ids": [
+        "DO-COFFEE-TELEMETRY-EVENT"
+      ],
+      "summary": "authored data object DO-COFFEE-TELEMETRY-EVENT"
+    },
+    {
+      "id": "SRC-DATA_OBJECT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_143_C446A8",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 143,
+      "line_end": 143,
+      "kind": "data_object",
+      "entity_ids": [
+        "DO-COFFEE-OTA-PLAN"
+      ],
+      "summary": "authored data object DO-COFFEE-OTA-PLAN"
+    },
+    {
+      "id": "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_150_271E41",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 150,
+      "line_end": 150,
+      "kind": "deployment_target",
+      "entity_ids": [
+        "DEP-COFFEE-CLOUD-PROD"
+      ],
+      "summary": "authored deployment target DEP-COFFEE-CLOUD-PROD"
+    },
+    {
+      "id": "SRC-DEPLOYMENT_TARGET_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_158_E30873",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 158,
+      "line_end": 158,
+      "kind": "deployment_target",
+      "entity_ids": [
+        "DEP-COFFEE-EDGE-FLEET"
+      ],
+      "summary": "authored deployment target DEP-COFFEE-EDGE-FLEET"
+    },
+    {
+      "id": "SRC-CONTROL_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_168_D1E000",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 168,
+      "line_end": 168,
+      "kind": "control",
+      "entity_ids": [
+        "CTRL-COFFEE-DEVICE-IDENTITY"
+      ],
+      "summary": "authored control CTRL-COFFEE-DEVICE-IDENTITY"
+    },
+    {
+      "id": "SRC-CONTROL_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_172_E6DABE",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 172,
+      "line_end": 172,
+      "kind": "control",
+      "entity_ids": [
+        "CTRL-COFFEE-FIRMWARE-SIGNATURE"
+      ],
+      "summary": "authored control CTRL-COFFEE-FIRMWARE-SIGNATURE"
+    },
+    {
+      "id": "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_200_848DE9",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 200,
+      "line_end": 200,
+      "kind": "trust_boundary",
+      "entity_ids": [
+        "TB-COFFEE-EDGE-DEVICE"
+      ],
+      "summary": "authored trust boundary TB-COFFEE-EDGE-DEVICE"
+    },
+    {
+      "id": "SRC-TRUST_BOUNDARY_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_203_146623",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 203,
+      "line_end": 203,
+      "kind": "trust_boundary",
+      "entity_ids": [
+        "TB-COFFEE-CLOUD-CONTROL"
+      ],
+      "summary": "authored trust boundary TB-COFFEE-CLOUD-CONTROL"
+    },
+    {
+      "id": "SRC-STATE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_208_72F33A",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 208,
+      "line_end": 208,
+      "kind": "state",
+      "entity_ids": [
+        "STATE-COFFEE-OTA-SCHEDULED"
+      ],
+      "summary": "authored state STATE-COFFEE-OTA-SCHEDULED"
+    },
+    {
+      "id": "SRC-STATE_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_211_861FF3",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 211,
+      "line_end": 211,
+      "kind": "state",
+      "entity_ids": [
+        "STATE-COFFEE-OTA-APPLIED"
+      ],
+      "summary": "authored state STATE-COFFEE-OTA-APPLIED"
+    },
+    {
+      "id": "SRC-EVENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_216_4D4C3F",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 216,
+      "line_end": 216,
+      "kind": "event",
+      "entity_ids": [
+        "EVT-COFFEE-OTA-REQUESTED"
+      ],
+      "summary": "authored event EVT-COFFEE-OTA-REQUESTED"
+    },
+    {
+      "id": "SRC-EVENT_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_219_9451C3",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 219,
+      "line_end": 219,
+      "kind": "event",
+      "entity_ids": [
+        "EVT-COFFEE-OTA-COMPLETED"
+      ],
+      "summary": "authored event EVT-COFFEE-OTA-COMPLETED"
+    },
+    {
+      "id": "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_224_ACEF76",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 224,
+      "line_end": 224,
+      "kind": "flow",
+      "entity_ids": [
+        "FLOW-COFFEE-OTA-ROLLOUT"
+      ],
+      "summary": "authored flow FLOW-COFFEE-OTA-ROLLOUT"
+    },
+    {
+      "id": "SRC-FLOW_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_ARCHITECTURE_YML_252_790970",
+      "path": "examples/coffee-fleet-ota-cloud-sample/architecture.yml",
+      "line_start": 252,
+      "line_end": 252,
+      "kind": "flow",
+      "entity_ids": [
+        "FLOW-COFFEE-TELEMETRY-INGEST"
+      ],
+      "summary": "authored flow FLOW-COFFEE-TELEMETRY-INGEST"
     },
     {
       "id": "SRC-DESIGN_YAML_EXAMPLES_COFFEE_FLEET_OTA_CLOUD_SAMPLE_DESIGN_YML_6_E70AC7",

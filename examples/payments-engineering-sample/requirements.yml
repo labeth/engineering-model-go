@@ -6,7 +6,7 @@ lintRun:
 
 requirements:
   - id: REQ-PAY-001
-    text: "While checkout is active, when payment authorization is requested, the payments system shall create a payment session."
+    text: "While normal mode is active, when payment authorization is requested, the payments system shall create a payment session."
     notes: "Core authorization path from checkout to bank gateway."
     appliesTo:
       - FU-CHECKOUT
@@ -25,7 +25,7 @@ requirements:
       - FU-CHECKOUT
 
   - id: REQ-PAY-004
-    text: "While checkout is active, when payment authorization is requested and risk score is high, the payments system shall place the payment in payment review is pending."
+    text: "While checkout is active, when payment authorization is requested and risk score is high and risk threshold is exceeded, the payments system shall place the payment in payment review is pending."
     notes: "Escalation flow for high-risk payments."
     appliesTo:
       - FU-PAYMENT-AUTHORIZATION
@@ -38,14 +38,14 @@ requirements:
       - FU-RISK-SCORING
 
   - id: REQ-PAY-006
-    text: "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer."
+    text: "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer until bank link is available."
     notes: "Fallback behavior when external banking path is down."
     appliesTo:
       - FU-CHECKOUT
       - FU-PAYMENT-AUTHORIZATION
 
   - id: REQ-PAY-007
-    text: "While checkout is active, when payment authorization is requested, the payments system shall request authorization from bank gateway endpoint."
+    text: "While checkout is active, when payment authorization is requested and 3DS verification is required, the payments system shall request authorization from bank gateway endpoint."
     notes: "External authorization call contract."
     appliesTo:
       - FU-CHECKOUT
@@ -58,7 +58,7 @@ requirements:
       - FU-CHECKOUT
 
   - id: REQ-PAY-009
-    text: "While checkout is active, when payment authorization is requested and risk score is high, the payments system shall notify support agent."
+    text: "While checkout is active, when payment authorization is requested and risk threshold is exceeded, the payments system shall notify platform operator when support agent is notified."
     notes: "Support notification requirement for high-risk review."
     appliesTo:
       - FU-PAYMENT-AUTHORIZATION

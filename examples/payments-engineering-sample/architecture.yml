@@ -117,6 +117,64 @@ authoredArchitecture:
       layer: runtime
       name: Helm Runtime Platform
 
+  interfaces:
+    - id: IF-PAYMENTS-CHECKOUT-API
+      name: Checkout API Interface
+      protocol: https
+      endpoint: /api/checkout
+      schemaRef: schemas/checkout-request.json
+      owner: FU-CHECKOUT
+    - id: IF-PAYMENTS-BANK-AUTH
+      name: Bank Authorization Interface
+      protocol: https
+      endpoint: /bank/authorize
+      schemaRef: schemas/bank-auth.json
+      owner: FU-PAYMENT-AUTHORIZATION
+    - id: IF-PAYMENTS-RISK-SCORE-API
+      name: Risk Score Interface
+      protocol: https
+      endpoint: /risk/score
+      schemaRef: schemas/risk-score.json
+      owner: FU-RISK-SCORING
+
+  dataObjects:
+    - id: DO-PAYMENTS-AUTH-REQUEST
+      name: Authorization Request
+      termRef: DATA-PAYMENT-REQUEST
+      schemaRef: schemas/auth-request.json
+      sensitivity: confidential
+    - id: DO-PAYMENTS-AUTH-DECISION
+      name: Authorization Decision
+      termRef: DATA-AUTH-DECISION
+      schemaRef: schemas/auth-decision.json
+      sensitivity: internal
+    - id: DO-PAYMENTS-RISK-SIGNAL
+      name: Risk Signal
+      schemaRef: schemas/risk-signal.json
+      sensitivity: internal
+    - id: DO-PAYMENTS-REVIEW-TICKET
+      name: Manual Review Ticket
+      schemaRef: schemas/review-ticket.json
+      sensitivity: confidential
+
+  deploymentTargets:
+    - id: DEP-PAYMENTS-CLUSTER-PROD
+      name: Payments Cluster Production
+      environment: prod
+      region: us-east-1
+      account: shared-platform
+      cluster: payments-prod
+      namespace: payments
+      trustZone: app
+    - id: DEP-PAYMENTS-BANK-EDGE
+      name: Bank Edge Integration Zone
+      environment: prod
+      region: us-east-1
+      account: external
+      cluster: bank-edge
+      namespace: partner
+      trustZone: external
+
   flows:
     - id: FLOW-CUSTOMER-CHECKOUT
       title: Customer Checkout Authorization Flow
@@ -150,6 +208,122 @@ authoredArchitecture:
           ref: FU-CHECKOUT
           action: Return approval or decline outcome to customer
           dataIn: [authorization_decision]
+    - id: FLOW-PAYMENTS-MANUAL-REVIEW
+      title: High-Risk Manual Review Flow
+      entry: [detect-high-risk]
+      exits: [complete-review]
+      steps:
+        - id: detect-high-risk
+          kind: system_action
+          ref: FU-RISK-SCORING
+          action: Detect high-risk signal and emit escalation trigger
+          dataOut: [risk_signal]
+          next: [create-review-ticket]
+        - id: create-review-ticket
+          kind: system_action
+          ref: FU-SUPPORT-REVIEW
+          action: Create manual review ticket for support operations
+          dataIn: [risk_signal]
+          dataOut: [review_ticket]
+          next: [complete-review]
+        - id: complete-review
+          kind: system_action
+          ref: FU-PAYMENT-AUTHORIZATION
+          action: Complete authorization using manual review outcome
+          dataIn: [review_ticket]
+
+  controls:
+    - id: CTRL-PAYMENTS-SSO-MFA
+      name: SSO MFA Enforcement
+      category: identity-access
+      description: Enforce MFA and conditional access for privileged operations.
+    - id: CTRL-PAYMENTS-IMAGE-DIGEST
+      name: Immutable Image Digests
+      category: supply-chain
+      description: Enforce immutable digest-pinned container image references.
+
+  controlAllocations:
+    - id: ALLOC-AC-2-IA-2-SSO
+      controlRef: CTRL-PAYMENTS-SSO-MFA
+      oscalControlIds: [ac-2, ia-2(1)]
+      appliesTo: [FU-SUPPORT-REVIEW, FU-GITOPS-OPERATIONS]
+      implementationType: technical
+      status: implemented
+      narrative: |
+        Workforce access is mediated by centralized SSO with MFA and conditional access policy.
+        Elevated operational actions require successful strong authentication before authorization.
+      evidence:
+        - path: infra/identity/sso-policy.yaml
+          description: SSO policy with MFA and conditional access requirements.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
+    - id: ALLOC-CM-6-IMAGE-DIGEST
+      controlRef: CTRL-PAYMENTS-IMAGE-DIGEST
+      oscalControlIds: [cm-6]
+      appliesTo: [FU-GITOPS-OPERATIONS, FU-CLUSTER-PROVISIONING]
+      implementationType: hybrid
+      status: implemented
+      narrative: |
+        Delivery pipelines and deployment manifests require immutable image digest pinning.
+        Release automation rejects mutable tags in production deployment paths.
+      evidence:
+        - path: infra/flux/kustomization.yaml
+          description: Flux deployment baseline references immutable release artifacts.
+        - path: infra/helm/values-prod.yaml
+          description: Production chart values pin immutable digest references.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
+
+  trustBoundaries:
+    - id: TB-PAYMENTS-EXTERNAL-BANK
+      name: External Bank Boundary
+      description: Separates internal payment authorization from external bank services.
+    - id: TB-PAYMENTS-PLATFORM-CONTROL
+      name: Platform Control Boundary
+      description: Separates app workloads from platform control-plane authority.
+
+  states:
+    - id: STATE-PAYMENTS-CHECKOUT-RECEIVED
+      name: Checkout Received
+      description: Payment request accepted at checkout boundary.
+    - id: STATE-PAYMENTS-AUTHORIZED
+      name: Payment Authorized
+      description: Authorization decision approved.
+
+  events:
+    - id: EVT-PAYMENTS-AUTH-REQUESTED
+      name: Authorization Requested
+      description: Request sent to authorization orchestration.
+    - id: EVT-PAYMENTS-AUTH-COMPLETED
+      name: Authorization Completed
+      description: Authorization decision returned to checkout.
+
+  risks:
+    - id: RISK-PAYMENTS-SSO-MFA-GAP
+      title: Privileged SSO path bypass risk
+      statement: Privileged operational actions may bypass MFA if SSO policy enforcement drifts.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [FU-GITOPS-OPERATIONS, FU-SUPPORT-REVIEW]
+      relatedControls: [CTRL-PAYMENTS-SSO-MFA]
+      attackVectors: [AV-MALICIOUS-API-REQUEST]
+      evidence:
+        - path: infra/identity/sso-policy.yaml
+          description: Active MFA policy configuration.
+      residualRisk: medium
+      rationale: Legacy operator account cleanup still in progress.
+
+  poamItems:
+    - id: POAM-PAYMENTS-SSO-LEGACY-CLEANUP
+      riskRef: RISK-PAYMENTS-SSO-MFA-GAP
+      milestone: Remove legacy non-federated operator accounts
+      dueDate: 2026-06-30
+      status: in-progress
+      responsibleRole: ACT-PLATFORM-OPERATOR
+      artifacts:
+        - path: tickets/SEC-1423.md
+          description: Migration and account cleanup tracking ticket.
 
   mappings:
     - type: contains
@@ -192,10 +366,66 @@ authoredArchitecture:
       from: FU-CHECKOUT
       to: FU-PAYMENT-AUTHORIZATION
       description: Delegates payment authorization.
+    - type: calls
+      from: FU-CHECKOUT
+      to: IF-PAYMENTS-CHECKOUT-API
+      description: Receives and validates checkout request payload.
+    - type: writes
+      from: FU-CHECKOUT
+      to: DO-PAYMENTS-AUTH-REQUEST
+      description: Persists normalized authorization request.
+    - type: reads
+      from: FU-CHECKOUT
+      to: DO-PAYMENTS-AUTH-DECISION
+      description: Reads final authorization decision for user-facing response.
     - type: depends_on
       from: FU-PAYMENT-AUTHORIZATION
       to: FU-RISK-SCORING
       description: Requests fraud scoring before final authorization.
+    - type: calls
+      from: FU-PAYMENT-AUTHORIZATION
+      to: IF-PAYMENTS-RISK-SCORE-API
+      description: Calls risk scoring interface for fraud decision support.
+    - type: calls
+      from: FU-PAYMENT-AUTHORIZATION
+      to: IF-PAYMENTS-BANK-AUTH
+      description: Calls external bank authorization interface.
+    - type: reads
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-AUTH-REQUEST
+      description: Reads normalized request for authorization pipeline.
+    - type: writes
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-AUTH-DECISION
+      description: Persists final authorization decision.
+    - type: writes
+      from: FU-RISK-SCORING
+      to: DO-PAYMENTS-RISK-SIGNAL
+      description: Persists computed risk signal.
+    - type: reads
+      from: FU-RISK-SCORING
+      to: DO-PAYMENTS-AUTH-REQUEST
+      description: Reads normalized request to compute risk signal.
+    - type: reads
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-RISK-SIGNAL
+      description: Reads risk signal before final authorization decision.
+    - type: publishes
+      from: FU-RISK-SCORING
+      to: DO-PAYMENTS-RISK-SIGNAL
+      description: Publishes risk signal updates for downstream consumers.
+    - type: subscribes
+      from: FU-SUPPORT-REVIEW
+      to: DO-PAYMENTS-RISK-SIGNAL
+      description: Subscribes to high-risk signal updates.
+    - type: writes
+      from: FU-SUPPORT-REVIEW
+      to: DO-PAYMENTS-REVIEW-TICKET
+      description: Persists manual review ticket records.
+    - type: reads
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-REVIEW-TICKET
+      description: Reads manual review outcome before returning decision.
     - type: depends_on
       from: FU-PAYMENT-AUTHORIZATION
       to: REF-BANK-GATEWAY-ENDPOINT
@@ -216,6 +446,26 @@ authoredArchitecture:
       from: FU-GITOPS-OPERATIONS
       to: REF-HELM-PLATFORM
       description: Uses Helm runtime platform for release orchestration.
+    - type: deployed_to
+      from: FU-CHECKOUT
+      to: DEP-PAYMENTS-CLUSTER-PROD
+      description: Checkout workload deployment target.
+    - type: deployed_to
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DEP-PAYMENTS-CLUSTER-PROD
+      description: Authorization workload deployment target.
+    - type: deployed_to
+      from: IF-PAYMENTS-BANK-AUTH
+      to: DEP-PAYMENTS-BANK-EDGE
+      description: External authorization interface boundary target.
+    - type: bounded_by
+      from: FU-PAYMENT-AUTHORIZATION
+      to: TB-PAYMENTS-EXTERNAL-BANK
+      description: Authorization crosses external bank trust boundary.
+    - type: bounded_by
+      from: FU-GITOPS-OPERATIONS
+      to: TB-PAYMENTS-PLATFORM-CONTROL
+      description: GitOps control-plane boundaries.
 
     - type: targets
       from: AV-MALICIOUS-API-REQUEST
@@ -235,6 +485,55 @@ authoredArchitecture:
     - type: targets
       from: AV-COMPROMISED-DEPENDENCY
       to: REF-POSTGRES-DRIVER
+    - type: mitigated_by
+      from: AV-MALICIOUS-API-REQUEST
+      to: CTRL-PAYMENTS-SSO-MFA
+    - type: mitigated_by
+      from: AV-COMPROMISED-DEPENDENCY
+      to: CTRL-PAYMENTS-IMAGE-DIGEST
+
+    - type: contains
+      from: FU-CHECKOUT
+      to: IF-PAYMENTS-CHECKOUT-API
+    - type: contains
+      from: FU-PAYMENT-AUTHORIZATION
+      to: IF-PAYMENTS-BANK-AUTH
+    - type: contains
+      from: FU-RISK-SCORING
+      to: IF-PAYMENTS-RISK-SCORE-API
+    - type: contains
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-AUTH-REQUEST
+    - type: contains
+      from: FU-PAYMENT-AUTHORIZATION
+      to: DO-PAYMENTS-AUTH-DECISION
+    - type: contains
+      from: FU-RISK-SCORING
+      to: DO-PAYMENTS-RISK-SIGNAL
+    - type: contains
+      from: FU-SUPPORT-REVIEW
+      to: DO-PAYMENTS-REVIEW-TICKET
+
+    - type: transitions_to
+      from: STATE-PAYMENTS-CHECKOUT-RECEIVED
+      to: STATE-PAYMENTS-AUTHORIZED
+      description: Checkout transitions to authorized state after policy and bank decision.
+    - type: triggered_by
+      from: STATE-PAYMENTS-CHECKOUT-RECEIVED
+      to: EVT-PAYMENTS-AUTH-REQUESTED
+      description: Authorization flow start trigger.
+    - type: triggered_by
+      from: STATE-PAYMENTS-AUTHORIZED
+      to: EVT-PAYMENTS-AUTH-COMPLETED
+      description: Completion event for authorization flow.
+    - type: guarded_by
+      from: STATE-PAYMENTS-AUTHORIZED
+      to: CTRL-PAYMENTS-SSO-MFA
+      description: Authorized-state operations require strong access controls.
+    - type: guarded_by
+      from: STATE-PAYMENTS-AUTHORIZED
+      to: TB-PAYMENTS-EXTERNAL-BANK
+      description: Boundary guard for external bank interaction.
 
 inferenceHints:
   runtimeSources:
@@ -280,8 +579,15 @@ views:
     authoredStatusExplanation: Requirement-to-unit linkage is present; cross-layer ownership consistency still needs tightening.
   - id: VIEW-INTERACTION-FLOW
     kind: interaction-flow
-    roots: [FLOW-CUSTOMER-CHECKOUT]
-    includeKinds: [flow, flow_step, actor, functional_unit]
-    includeMappings: [flow_next, flow_error, flow_async, flow_ref]
+    roots: [FLOW-CUSTOMER-CHECKOUT, FLOW-PAYMENTS-MANUAL-REVIEW]
+    includeKinds: [flow, flow_step, actor, functional_unit, interface, data_object]
+    includeMappings: [flow_next, flow_error, flow_async, flow_ref, contains, calls, reads, writes, publishes, subscribes, streams]
     authoredStatus: in-review
     authoredStatusExplanation: Flow is authored for core checkout path and used to align UX/data movement semantics with architecture behavior.
+  - id: VIEW-STATE-LIFECYCLE
+    kind: state-lifecycle
+    roots: [STATE-PAYMENTS-CHECKOUT-RECEIVED]
+    includeKinds: [state, event, control, trust_boundary]
+    includeMappings: [transitions_to, triggered_by, guarded_by]
+    authoredStatus: in-review
+    authoredStatusExplanation: Lifecycle transitions and controls are explicitly modeled for payment decision progression.

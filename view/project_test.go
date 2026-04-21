@@ -158,3 +158,50 @@ func TestBuild_InteractionFlowRespectsIncludeMappings(t *testing.T) {
 		}
 	}
 }
+
+func TestBuild_InteractionFlowIncludesActivityEdgesWhenConfigured(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalUnits: []model.FunctionalUnit{{ID: "FU-A", Name: "Core"}},
+			Interfaces:      []model.Interface{{ID: "IF-A", Name: "Ingress API", Owner: "FU-A"}},
+			DataObjects:     []model.DataObject{{ID: "DO-A", Name: "Payload"}},
+			Flows: []model.Flow{{
+				ID:    "FLOW-A",
+				Title: "Flow",
+				Entry: []string{"start"},
+				Steps: []model.FlowStep{
+					{ID: "start", Kind: "system_action", Ref: "FU-A", Action: "Handle request"},
+				},
+			}},
+			Mappings: []model.Mapping{
+				{Type: "calls", From: "FU-A", To: "IF-A"},
+				{Type: "writes", From: "FU-A", To: "DO-A"},
+			},
+		},
+		Views: []model.View{{
+			ID:              "V-FLOW",
+			Kind:            "interaction-flow",
+			Roots:           []string{"FLOW-A"},
+			IncludeKinds:    []string{"flow", "flow_step", "functional_unit", "interface", "data_object"},
+			IncludeMappings: []string{"flow_next", "flow_ref", "calls", "writes"},
+		}},
+	}}
+
+	v, diags := Build(b, "V-FLOW")
+	if len(diags) > 0 {
+		t.Fatalf("unexpected diagnostics: %+v", diags)
+	}
+	hasCalls := false
+	hasWrites := false
+	for _, e := range v.Edges {
+		if e.Type == "calls" && e.From == "FU-A" && e.To == "IF-A" {
+			hasCalls = true
+		}
+		if e.Type == "writes" && e.From == "FU-A" && e.To == "DO-A" {
+			hasWrites = true
+		}
+	}
+	if !hasCalls || !hasWrites {
+		t.Fatalf("expected interaction-flow activity edges, got %+v", v.Edges)
+	}
+}

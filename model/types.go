@@ -162,6 +162,61 @@ type Control struct {
 	Description string `yaml:"description"`
 }
 
+type ControlEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ControlAllocation struct {
+	ID                 string            `yaml:"id"`
+	ControlRef         string            `yaml:"controlRef"`
+	OSCALControlIDs    []string          `yaml:"oscalControlIds"`
+	AppliesTo          []string          `yaml:"appliesTo"`
+	ImplementationType string            `yaml:"implementationType"`
+	Status             string            `yaml:"status"`
+	Narrative          string            `yaml:"narrative"`
+	Evidence           []ControlEvidence `yaml:"evidence"`
+	InheritedFrom      []string          `yaml:"inheritedFrom"`
+	ResponsibleRoles   []string          `yaml:"responsibleRoles"`
+}
+
+type RiskEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type Risk struct {
+	ID              string         `yaml:"id"`
+	Title           string         `yaml:"title"`
+	Statement       string         `yaml:"statement"`
+	Status          string         `yaml:"status"`
+	Likelihood      string         `yaml:"likelihood"`
+	Impact          string         `yaml:"impact"`
+	Response        string         `yaml:"response"`
+	Owner           string         `yaml:"owner"`
+	AppliesTo       []string       `yaml:"appliesTo"`
+	RelatedControls []string       `yaml:"relatedControls"`
+	AttackVectors   []string       `yaml:"attackVectors"`
+	Evidence        []RiskEvidence `yaml:"evidence"`
+	ResidualRisk    string         `yaml:"residualRisk"`
+	Rationale       string         `yaml:"rationale"`
+}
+
+type POAMArtifact struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type POAMItem struct {
+	ID              string         `yaml:"id"`
+	RiskRef         string         `yaml:"riskRef"`
+	Milestone       string         `yaml:"milestone"`
+	DueDate         string         `yaml:"dueDate"`
+	Status          string         `yaml:"status"`
+	ResponsibleRole string         `yaml:"responsibleRole"`
+	Artifacts       []POAMArtifact `yaml:"artifacts"`
+}
+
 type TrustBoundary struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
@@ -211,6 +266,9 @@ type AuthoredArchitecture struct {
 	DataObjects        []DataObject        `yaml:"dataObjects"`
 	DeploymentTargets  []DeploymentTarget  `yaml:"deploymentTargets"`
 	Controls           []Control           `yaml:"controls"`
+	ControlAllocations []ControlAllocation `yaml:"controlAllocations"`
+	Risks              []Risk              `yaml:"risks"`
+	POAMItems          []POAMItem          `yaml:"poamItems"`
 	TrustBoundaries    []TrustBoundary     `yaml:"trustBoundaries"`
 	States             []State             `yaml:"states"`
 	Events             []Event             `yaml:"events"`

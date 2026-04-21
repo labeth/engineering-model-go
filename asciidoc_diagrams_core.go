@@ -8,22 +8,11 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/render/diagramstyle"
 )
 
 func appendMermaidClassDefs(lines []string) []string {
-	return append(lines,
-		"  classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;",
-		"  classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;",
-		"  classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;",
-		"  classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;",
-		"  classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;",
-		"  classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;",
-		"  classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;",
-		"  classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;",
-		"  classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;",
-		"  classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;",
-		"  classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;",
-	)
+	return append(lines, diagramstyle.MermaidClassDefsWithIndent("  ")...)
 }
 
 func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string) string {

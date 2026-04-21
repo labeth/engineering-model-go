@@ -2,10 +2,55 @@ package validate
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/model"
 )
+
+var allowedControlImplementationTypes = map[string]bool{
+	"technical":  true,
+	"procedural": true,
+	"inherited":  true,
+	"hybrid":     true,
+}
+
+var allowedControlAllocationStatuses = map[string]bool{
+	"planned":     true,
+	"partial":     true,
+	"implemented": true,
+	"inherited":   true,
+}
+
+var oscalControlIDRe = regexp.MustCompile(`(?i)^[a-z]{1,4}-\d+(\(\d+\))*$`)
+var isoDateRe = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+
+var allowedRiskStatus = map[string]bool{
+	"open":       true,
+	"mitigating": true,
+	"accepted":   true,
+	"closed":     true,
+}
+
+var allowedRiskLevel = map[string]bool{
+	"low":    true,
+	"medium": true,
+	"high":   true,
+}
+
+var allowedRiskResponse = map[string]bool{
+	"mitigate": true,
+	"accept":   true,
+	"transfer": true,
+	"avoid":    true,
+}
+
+var allowedPOAMStatus = map[string]bool{
+	"planned":     true,
+	"in-progress": true,
+	"completed":   true,
+	"deferred":    true,
+}
 
 var allowedViewKinds = map[string]bool{
 	"architecture-intent": true,
@@ -82,6 +127,8 @@ var allowedViewEntityKinds = map[string]bool{
 	"event":              true,
 	"flow":               true,
 	"flow_step":          true,
+	"risk":               true,
+	"poam_item":          true,
 }
 
 var allowedFlowStepKinds = map[string]bool{
@@ -120,6 +167,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	trustBoundaries := map[string]bool{}
 	states := map[string]bool{}
 	events := map[string]bool{}
+	risks := map[string]bool{}
 	kindByID := map[string]string{}
 
 	for i, g := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -174,6 +222,19 @@ func Bundle(b model.Bundle) []Diagnostic {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.controls[%d]", i))
 		controls[x.ID] = true
 		kindByID[x.ID] = "control"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ControlAllocations {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.controlAllocations[%d]", i))
+		kindByID[x.ID] = "control_allocation"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.Risks {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.risks[%d]", i))
+		risks[x.ID] = true
+		kindByID[x.ID] = "risk"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.POAMItems {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.poamItems[%d]", i))
+		kindByID[x.ID] = "poam_item"
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.TrustBoundaries {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.trustBoundaries[%d]", i))
@@ -231,6 +292,125 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !mappingPairAllowed(m.Type, fromKind, toKind) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_mapping_pair", Severity: SeverityError, Message: fmt.Sprintf("mapping type %q is not valid for %s -> %s", m.Type, fromKind, toKind), Path: path})
+		}
+	}
+
+	for i, a := range b.Architecture.AuthoredArchitecture.ControlAllocations {
+		path := fmt.Sprintf("authoredArchitecture.controlAllocations[%d]", i)
+		if controlRef := strings.TrimSpace(a.ControlRef); controlRef == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_control_ref", Severity: SeverityError, Message: "control allocation must set controlRef", Path: path})
+		} else if !controls[controlRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_ref", Severity: SeverityError, Message: fmt.Sprintf("control allocation references unknown control %q", controlRef), Path: path})
+		}
+		if len(a.OSCALControlIDs) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_oscal_control_ids", Severity: SeverityError, Message: "control allocation must include at least one oscalControlIds entry", Path: path})
+		}
+		for j, cid := range a.OSCALControlIDs {
+			cid = strings.TrimSpace(cid)
+			if cid == "" || !oscalControlIDRe.MatchString(cid) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_oscal_control_id", Severity: SeverityError, Message: fmt.Sprintf("invalid OSCAL control id %q", cid), Path: fmt.Sprintf("%s.oscalControlIds[%d]", path, j)})
+			}
+		}
+		if len(a.AppliesTo) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_control_allocation_scope", Severity: SeverityError, Message: "control allocation must include at least one appliesTo id", Path: path})
+		}
+		for j, target := range a.AppliesTo {
+			target = strings.TrimSpace(target)
+			if target == "" || !validID(target) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_control_allocation_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		if it := strings.ToLower(strings.TrimSpace(a.ImplementationType)); it != "" && !allowedControlImplementationTypes[it] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_implementation_type", Severity: SeverityError, Message: fmt.Sprintf("unknown implementationType %q", a.ImplementationType), Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(a.Status)); st != "" && !allowedControlAllocationStatuses[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_allocation_status", Severity: SeverityError, Message: fmt.Sprintf("unknown status %q", a.Status), Path: path})
+		}
+		for j, role := range a.ResponsibleRoles {
+			role = strings.TrimSpace(role)
+			if role == "" || !actors[role] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_control_responsible_role", Severity: SeverityError, Message: fmt.Sprintf("unknown responsible role %q", role), Path: fmt.Sprintf("%s.responsibleRoles[%d]", path, j)})
+			}
+		}
+		for j, ev := range a.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_control_evidence_path", Severity: SeverityError, Message: "control allocation evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+	}
+
+	for i, r := range b.Architecture.AuthoredArchitecture.Risks {
+		path := fmt.Sprintf("authoredArchitecture.risks[%d]", i)
+		if strings.TrimSpace(r.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_risk_title", Severity: SeverityError, Message: "risk title is required", Path: path})
+		}
+		if strings.TrimSpace(r.Statement) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_risk_statement", Severity: SeverityError, Message: "risk statement is required", Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(r.Status)); st != "" && !allowedRiskStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_risk_status", Severity: SeverityError, Message: fmt.Sprintf("unknown risk status %q", r.Status), Path: path})
+		}
+		if lk := strings.ToLower(strings.TrimSpace(r.Likelihood)); lk != "" && !allowedRiskLevel[lk] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_risk_likelihood", Severity: SeverityError, Message: fmt.Sprintf("unknown likelihood %q", r.Likelihood), Path: path})
+		}
+		if im := strings.ToLower(strings.TrimSpace(r.Impact)); im != "" && !allowedRiskLevel[im] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_risk_impact", Severity: SeverityError, Message: fmt.Sprintf("unknown impact %q", r.Impact), Path: path})
+		}
+		if rr := strings.ToLower(strings.TrimSpace(r.ResidualRisk)); rr != "" && !allowedRiskLevel[rr] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_residual_risk", Severity: SeverityError, Message: fmt.Sprintf("unknown residualRisk %q", r.ResidualRisk), Path: path})
+		}
+		if rsp := strings.ToLower(strings.TrimSpace(r.Response)); rsp != "" && !allowedRiskResponse[rsp] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_risk_response", Severity: SeverityError, Message: fmt.Sprintf("unknown response %q", r.Response), Path: path})
+		}
+		if owner := strings.TrimSpace(r.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_risk_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown risk owner %q", owner), Path: path})
+		}
+		for j, id := range r.AppliesTo {
+			id = strings.TrimSpace(id)
+			if id == "" || !validID(id) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_risk_scope_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", id), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		for j, id := range r.RelatedControls {
+			id = strings.TrimSpace(id)
+			if id == "" || !controls[id] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_risk_control_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown related control %q", id), Path: fmt.Sprintf("%s.relatedControls[%d]", path, j)})
+			}
+		}
+		for j, id := range r.AttackVectors {
+			id = strings.TrimSpace(id)
+			if id == "" || !vectors[id] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_risk_attack_vector_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown attack vector %q", id), Path: fmt.Sprintf("%s.attackVectors[%d]", path, j)})
+			}
+		}
+		for j, ev := range r.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_risk_evidence_path", Severity: SeverityError, Message: "risk evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+	}
+
+	for i, p := range b.Architecture.AuthoredArchitecture.POAMItems {
+		path := fmt.Sprintf("authoredArchitecture.poamItems[%d]", i)
+		if riskRef := strings.TrimSpace(p.RiskRef); riskRef == "" || !risks[riskRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_poam_risk_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown poam riskRef %q", p.RiskRef), Path: path})
+		}
+		if strings.TrimSpace(p.Milestone) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_poam_milestone", Severity: SeverityError, Message: "poam milestone is required", Path: path})
+		}
+		if due := strings.TrimSpace(p.DueDate); due != "" && !isoDateRe.MatchString(due) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_poam_due_date", Severity: SeverityError, Message: fmt.Sprintf("invalid dueDate %q, expected YYYY-MM-DD", p.DueDate), Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(p.Status)); st != "" && !allowedPOAMStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_poam_status", Severity: SeverityError, Message: fmt.Sprintf("unknown poam status %q", p.Status), Path: path})
+		}
+		if role := strings.TrimSpace(p.ResponsibleRole); role != "" && !actors[role] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_poam_responsible_role", Severity: SeverityError, Message: fmt.Sprintf("unknown poam responsibleRole %q", role), Path: path})
+		}
+		for j, art := range p.Artifacts {
+			if strings.TrimSpace(art.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_poam_artifact_path", Severity: SeverityError, Message: "poam artifact path is required", Path: fmt.Sprintf("%s.artifacts[%d]", path, j)})
+			}
 		}
 	}
 

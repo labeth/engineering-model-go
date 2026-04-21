@@ -698,8 +698,8 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		}
 		avNode := "AV_" + sanitizeNode(attackID)
 		tNode := "SEC_TGT_" + sanitizeNode(targetID)
-		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::attack_vector", avNode, escapeMermaidLabel(r.AttackVector)))
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", tNode, escapeMermaidLabel(r.Target)))
+		lines = append(lines, mermaidTypedNodeLine(avNode, r.AttackVector, "attack_vector"))
+		lines = append(lines, mermaidTypedNodeLine(tNode, r.Target, "functional_unit"))
 		lines = append(lines, fmt.Sprintf("  %s -->|targets| %s", avNode, tNode))
 		for _, dep := range strings.Split(r.DependsOn, ",") {
 			dep = strings.TrimSpace(dep)
@@ -707,13 +707,13 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 				continue
 			}
 			dNode := "SEC_DEP_" + sanitizeNode(dep)
-			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", dNode, escapeMermaidLabel(dep)))
+			lines = append(lines, mermaidTypedNodeLine(dNode, dep, "referenced_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|depends_on| %s", tNode, dNode))
 		}
 		runtimeNodes := make([]string, 0, len(runtimeByOwner[targetID]))
 		for _, rt := range runtimeByOwner[targetID] {
 			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-"+rt)
-			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", rtNode, escapeMermaidLabel(rt)))
+			lines = append(lines, mermaidTypedNodeLine(rtNode, rt, "runtime_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
 			runtimeNodes = append(runtimeNodes, rtNode)
 		}
@@ -721,13 +721,13 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		if len(runtimeNodes) == 0 && len(codeByOwner[targetID]) > 0 {
 			rtLabel := nonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
 			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-runtime")
-			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", rtNode, escapeMermaidLabel(rtLabel)))
+			lines = append(lines, mermaidTypedNodeLine(rtNode, rtLabel, "runtime_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
 			runtimeNodes = append(runtimeNodes, rtNode)
 		}
 		for _, mod := range codeByOwner[targetID] {
 			codeNode := "SEC_CODE_" + sanitizeNode(targetID+"-"+mod)
-			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::code_element", codeNode, escapeMermaidLabel(mod)))
+			lines = append(lines, mermaidTypedNodeLine(codeNode, mod, "code_element"))
 			if len(runtimeNodes) > 0 {
 				lines = append(lines, fmt.Sprintf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode))
 			}
@@ -735,6 +735,325 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	}
 	lines = appendMermaidClassDefs(lines)
 	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
+	lines := []string{"flowchart LR"}
+	added := map[string]bool{}
+	connected := map[string]bool{}
+	add := func(line string) {
+		if !added[line] {
+			added[line] = true
+			lines = append(lines, line)
+		}
+	}
+	markEdge := func(fromID, toID string) {
+		fromID = strings.TrimSpace(fromID)
+		toID = strings.TrimSpace(toID)
+		if fromID != "" {
+			connected[fromID] = true
+		}
+		if toID != "" {
+			connected[toID] = true
+		}
+	}
+
+	for _, x := range a.Interfaces {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "CTX_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "interface"))
+	}
+	for _, x := range a.DataObjects {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "CTX_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "data_object"))
+	}
+	for _, x := range a.TrustBoundaries {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "CTX_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "trust_boundary"))
+	}
+
+	for _, m := range a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if t != "interacts_with" && t != "depends_on" && t != "calls" && t != "bounded_by" && t != "contains" && t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" {
+			continue
+		}
+		fn := "CTX_" + sanitizeNode(from)
+		tn := "CTX_" + sanitizeNode(to)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), securityDFDClassForID(from)))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
+		markEdge(from, to)
+	}
+
+	// Explicitly include data-flow and ownership links in context diagrams so
+	// data/interface nodes are visually connected (not floating).
+	for _, m := range a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if t != "contains" && t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" {
+			continue
+		}
+		if !strings.HasPrefix(from, "FU-") {
+			continue
+		}
+		if !strings.HasPrefix(to, "DO-") && !strings.HasPrefix(to, "IF-") && !strings.HasPrefix(to, "TB-") {
+			continue
+		}
+		fn := "CTX_" + sanitizeNode(from)
+		tn := "CTX_" + sanitizeNode(to)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
+		markEdge(from, to)
+	}
+
+	// Keep context diagram connected when data/interface nodes are authored but only weakly linked.
+	for _, iface := range a.Interfaces {
+		id := strings.TrimSpace(iface.ID)
+		owner := strings.TrimSpace(iface.Owner)
+		if id == "" || owner == "" || connected[id] || !strings.HasPrefix(owner, "FU-") {
+			continue
+		}
+		fn := "CTX_" + sanitizeNode(owner)
+		tn := "CTX_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[owner], owner), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[id], id), "interface"))
+		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
+		markEdge(owner, id)
+	}
+	lines = appendMermaidClassDefs(lines)
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func buildSecurityDataFlowDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
+	lines := []string{"flowchart LR"}
+	added := map[string]bool{}
+	connected := map[string]bool{}
+	add := func(line string) {
+		if !added[line] {
+			added[line] = true
+			lines = append(lines, line)
+		}
+	}
+	markEdge := func(fromID, toID string) {
+		fromID = strings.TrimSpace(fromID)
+		toID = strings.TrimSpace(toID)
+		if fromID != "" {
+			connected[fromID] = true
+		}
+		if toID != "" {
+			connected[toID] = true
+		}
+	}
+	isSecurityDataNodeID := func(id string) bool {
+		x := strings.TrimSpace(id)
+		return strings.HasPrefix(x, "DO-") || strings.HasPrefix(x, "IF-") || strings.HasPrefix(x, "TB-")
+	}
+	isFunctionalUnitID := func(id string) bool {
+		return strings.HasPrefix(strings.TrimSpace(id), "FU-")
+	}
+	for _, x := range a.DataObjects {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "DFD_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "data_object"))
+	}
+	for _, x := range a.Interfaces {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "DFD_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "interface"))
+	}
+	for _, x := range a.TrustBoundaries {
+		id := strings.TrimSpace(x.ID)
+		if id == "" {
+			continue
+		}
+		n := "DFD_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "trust_boundary"))
+	}
+
+	hasFlowEdge := false
+	for _, m := range a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" && t != "calls" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" {
+			continue
+		}
+		fn := "DFD_" + sanitizeNode(from)
+		tn := "DFD_" + sanitizeNode(to)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), securityDFDClassForID(from)))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
+		markEdge(from, to)
+		hasFlowEdge = true
+	}
+
+	// Add structural fallback links for unconnected security data nodes so they do not float
+	// when explicit reads/writes-style mappings are incomplete.
+	for _, iface := range a.Interfaces {
+		id := strings.TrimSpace(iface.ID)
+		owner := strings.TrimSpace(iface.Owner)
+		if id == "" || owner == "" || connected[id] || !isFunctionalUnitID(owner) {
+			continue
+		}
+		fn := "DFD_" + sanitizeNode(owner)
+		tn := "DFD_" + sanitizeNode(id)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[owner], owner), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[id], id), "interface"))
+		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
+		markEdge(owner, id)
+	}
+	for _, m := range a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if t != "contains" && t != "bounded_by" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" || !isFunctionalUnitID(from) || !isSecurityDataNodeID(to) || connected[to] {
+			continue
+		}
+		fn := "DFD_" + sanitizeNode(from)
+		tn := "DFD_" + sanitizeNode(to)
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
+		markEdge(from, to)
+	}
+
+	if !hasFlowEdge {
+		add("  DFD_NOTE[\"No authored data-flow mappings found; add reads/writes/publishes/subscribes/streams/calls for richer threat-model flow coverage\"]:::referenced_element")
+	}
+	lines = appendMermaidClassDefs(lines)
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func buildSecurityThreatOverlayMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
+	lines := []string{"flowchart LR"}
+	added := map[string]bool{}
+	add := func(line string) {
+		if !added[line] {
+			added[line] = true
+			lines = append(lines, line)
+		}
+	}
+	for _, m := range a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if t != "targets" && t != "mitigated_by" && t != "bounded_by" {
+			continue
+		}
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if from == "" || to == "" {
+			continue
+		}
+		fn := "THR_" + sanitizeNode(from)
+		tn := "THR_" + sanitizeNode(to)
+		fromClass := securityDFDClassForID(from)
+		toClass := securityDFDClassForID(to)
+		if strings.HasPrefix(from, "AV-") {
+			fromClass = "attack_vector"
+		}
+		if strings.HasPrefix(to, "AV-") {
+			toClass = "attack_vector"
+		}
+		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), fromClass))
+		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), toClass))
+		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
+	}
+	lines = appendMermaidClassDefs(lines)
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+func securityDFDClassForID(id string) string {
+	id = strings.TrimSpace(id)
+	switch {
+	case strings.HasPrefix(id, "ACT-"):
+		return "actor"
+	case strings.HasPrefix(id, "FG-"):
+		return "functional_group"
+	case strings.HasPrefix(id, "FU-"):
+		return "functional_unit"
+	case strings.HasPrefix(id, "AV-"):
+		return "attack_vector"
+	case strings.HasPrefix(id, "IF-"):
+		return "interface"
+	case strings.HasPrefix(id, "DO-"):
+		return "data_object"
+	case strings.HasPrefix(id, "TB-"):
+		return "trust_boundary"
+	case strings.HasPrefix(id, "CTRL-"):
+		return "control"
+	case strings.HasPrefix(id, "DEP-"):
+		return "deployment_target"
+	case strings.HasPrefix(id, "STATE-"):
+		return "state"
+	case strings.HasPrefix(id, "EVT-"):
+		return "event"
+	case strings.HasPrefix(id, "FLOW-"):
+		return "flow"
+	case strings.HasPrefix(id, "REF-"):
+		return "referenced_element"
+	default:
+		return "referenced_element"
+	}
+}
+
+func mermaidTypedNodeLine(nodeID, label, className string) string {
+	l := escapeMermaidLabel(label)
+	switch strings.TrimSpace(className) {
+	case "actor":
+		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
+	case "attack_vector":
+		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
+	case "interface":
+		return fmt.Sprintf("  %s[/\"%s\"/]:::%s", nodeID, l, className)
+	case "data_object":
+		return fmt.Sprintf("  %s[(\"%s\")]:::%s", nodeID, l, className)
+	case "control":
+		return fmt.Sprintf("  %s[[\"%s\"]]:::%s", nodeID, l, className)
+	case "trust_boundary":
+		return fmt.Sprintf("  %s[/\"%s\"\\]:::%s", nodeID, l, className)
+	case "state":
+		return fmt.Sprintf("  %s([\"%s\"]):::%s", nodeID, l, className)
+	case "event":
+		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
+	case "flow":
+		return fmt.Sprintf("  %s{\"%s\"}:::%s", nodeID, l, className)
+	case "flow_step":
+		return fmt.Sprintf("  %s>\"%s\"]:::%s", nodeID, l, className)
+	default:
+		return fmt.Sprintf("  %s[\"%s\"]:::%s", nodeID, l, className)
+	}
 }
 
 func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityObsRow {
