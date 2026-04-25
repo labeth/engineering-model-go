@@ -344,6 +344,45 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 			TrustBoundaries: []model.TrustBoundary{
 				{ID: "TB-MEDIACHESTV-DEVICE", Name: "Device", Description: "device trust boundary"},
 			},
+			ThreatAssumptions: []model.ThreatAssumption{
+				{ID: "ASM-MEDIACHESTV-DEVICE-ROOT", Title: "Device root trust", Statement: "Device root of trust is provisioned securely", Status: "accepted", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}},
+			},
+			ThreatOutOfScope: []model.ThreatOutOfScope{
+				{ID: "OOS-MEDIACHESTV-HW", Title: "Hardware tamper internals", Reason: "Physical tamper model owned by hardware team", Status: "approved", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"DEP-MEDIACHESTV-KAIROS-NODE"}, ExpiresOn: "2027-01-01"},
+			},
+			ThreatScenarios: []model.ThreatScenario{
+				{ID: "TS-MEDIACHESTV-INPUT-SPOOF", Title: "Spoofed update input", AttackVectorRef: "AV-MEDIACHESTV-INPUT-SPOOF", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}, Likelihood: "medium", Impact: "high", Severity: "high", Status: "mitigating", Owner: "ACT-MEDIACHESTV-OPERATOR", RelatedControls: []string{"CTRL-MEDIACHESTV-DIGEST-PINNING"}, AssumptionRefs: []string{"ASM-MEDIACHESTV-DEVICE-ROOT"}, OutOfScopeRefs: []string{"OOS-MEDIACHESTV-HW"}, MitigationRefs: []string{"MIT-MEDIACHESTV-DIGEST"}, VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
+			},
+			ThreatMitigations: []model.ThreatMitigation{
+				{ID: "MIT-MEDIACHESTV-DIGEST", ThreatScenarioRef: "TS-MEDIACHESTV-INPUT-SPOOF", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", Status: "implemented", Effectiveness: "high", Owner: "ACT-MEDIACHESTV-OPERATOR", VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
+			},
+			ControlVerifications: []model.ControlVerification{
+				{ID: "CV-MEDIACHESTV-DIGEST", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", ThreatScenarioRefs: []string{"TS-MEDIACHESTV-INPUT-SPOOF"}, Method: "test", Status: "pass", Owner: "ACT-MEDIACHESTV-OPERATOR", LastTested: "2026-01-01", Findings: []string{"digest mismatch rejected"}},
+			},
+			Flows: []model.Flow{{
+				ID:                  "FLOW-MEDIACHESTV-SECURITY",
+				Title:               "Secure update flow",
+				Kind:                "security",
+				Direction:           "inbound",
+				Frequency:           "on-demand",
+				SourceRef:           "ACT-MEDIACHESTV-OPERATOR",
+				DestinationRef:      "FU-MEDIACHESTV-CORE",
+				Protocol:            "https",
+				Authentication:      "mfa",
+				EncryptionInTransit: "tls1.3",
+				IntegrityProtection: "digest",
+				DataRefs:            []string{"DO-MEDIACHESTV-OCI-LOCK"},
+				Threats:             []string{"TS-MEDIACHESTV-INPUT-SPOOF"},
+				Entry:               []string{"verify"},
+				Steps: []model.FlowStep{{
+					ID:               "verify",
+					Kind:             "security_check",
+					FlowType:         "security",
+					Ref:              "FU-MEDIACHESTV-CORE",
+					BoundaryCrossing: true,
+					TrustBoundaryRef: "TB-MEDIACHESTV-DEVICE",
+				}},
+			}},
 			States: []model.State{
 				{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
 				{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
@@ -397,6 +436,13 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 	}
 	if strings.Contains(stateSection, "depends_on") {
 		t.Fatalf("state lifecycle section should respect includeMappings and exclude depends_on")
+	}
+
+	securitySection := sectionByHeading(res.Document, "== Security View")
+	for _, want := range []string{"Threat Scenario Register", "Threat Mitigation Coverage", "Control Verification Status", "Security Flow Semantics", "Threat Assumptions", "Threat Model Out-of-Scope Decisions", "TS-MEDIACHESTV-INPUT-SPOOF", "MIT-MEDIACHESTV-DIGEST", "CV-MEDIACHESTV-DIGEST", "FLOW-MEDIACHESTV-SECURITY"} {
+		if !strings.Contains(securitySection, want) {
+			t.Fatalf("security section missing %s", want)
+		}
 	}
 
 	for _, id := range []string{"IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED"} {

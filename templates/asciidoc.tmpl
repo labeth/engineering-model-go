@@ -304,6 +304,94 @@ What this diagram shows: attack vectors, targeted components, and mitigation/bou
 ----
 {{ end }}
 
+{{ if and (eq $v.Kind "security") $v.SecurityThreatScenarios }}
+=== Threat Scenario Register
+
+[cols="1,2,1,2,1,1,1,1",options="header"]
+|===
+|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity
+{{ range $v.SecurityThreatScenarios }}
+|{{ .ID }} |{{ .Title }} |{{ .AttackVector }} |{{ .Scope }} |{{ .Flows }} |{{ .Likelihood }} |{{ .Impact }} |{{ .Severity }}
+{{ end }}
+|===
+
+[cols="1,1,1,1,2,2,2,2",options="header"]
+|===
+|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes
+{{ range $v.SecurityThreatScenarios }}
+|{{ .ID }} |{{ .Status }} |{{ .Owner }} |{{ .Risk }} |{{ .Controls }} |{{ .Mitigations }} |{{ .Verifications }} |Track closure through mitigation and verification linkage.
+{{ end }}
+|===
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityThreatMitigations }}
+=== Threat Mitigation Coverage
+
+[cols="1,2,2,1,1,1,2,3",options="header"]
+|===
+|ID |Threat Scenario |Control |Status |Effectiveness |Owner |Verification Links |Notes
+{{ range $v.SecurityThreatMitigations }}
+|{{ .ID }} |{{ .ThreatScenario }} |{{ .Control }} |{{ .Status }} |{{ .Effectiveness }} |{{ .Owner }} |{{ .Verifications }} |{{ .Notes }}
+{{ end }}
+|===
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityControlChecks }}
+=== Control Verification Status
+
+[cols="1,2,2,2,1,1,2,3",options="header"]
+|===
+|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
+{{ range $v.SecurityControlChecks }}
+|{{ .ID }} |{{ .Control }} |{{ .ThreatScenarios }} |{{ .Risks }} |{{ .Method }} |{{ .Status }} |{{ .Owner }} / {{ .LastTested }} |{{ .Findings }}
+{{ end }}
+|===
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityFlowRows }}
+=== Security Flow Semantics
+
+[cols="1,2,1,1,1,2,2,1",options="header"]
+|===
+|ID |Title |Kind |Direction |Frequency |Source |Destination |Protocol
+{{ range $v.SecurityFlowRows }}
+|{{ .ID }} |{{ .Title }} |{{ .Kind }} |{{ .Direction }} |{{ .Frequency }} |{{ .Source }} |{{ .Destination }} |{{ .Protocol }}
+{{ end }}
+|===
+
+[cols="1,1,1,1,1,2,2,2",options="header"]
+|===
+|ID |Auth |Encryption |Integrity |Boundary Crossing |Trust Boundary |Threats |Data
+{{ range $v.SecurityFlowRows }}
+|{{ .ID }} |{{ .Authentication }} |{{ .Encryption }} |{{ .Integrity }} |{{ .BoundaryCrossing }} |{{ .TrustBoundary }} |{{ .Threats }} |{{ .Data }}
+{{ end }}
+|===
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityThreatAssumptions }}
+=== Threat Assumptions
+
+[cols="1,2,1,1,2,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Rationale
+{{ range $v.SecurityThreatAssumptions }}
+|{{ .ID }} |{{ .Title }} |{{ .Status }} |{{ .Owner }} |{{ .AppliesTo }} |{{ .Rationale }}
+{{ end }}
+|===
+{{ end }}
+
+{{ if and (eq $v.Kind "security") $v.SecurityThreatOutOfScope }}
+=== Threat Model Out-of-Scope Decisions
+
+[cols="1,2,1,1,2,1,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Expires On |Reason
+{{ range $v.SecurityThreatOutOfScope }}
+|{{ .ID }} |{{ .Title }} |{{ .Status }} |{{ .Owner }} |{{ .AppliesTo }} |{{ .ExpiresOn }} |{{ .Reason }}
+{{ end }}
+|===
+{{ end }}
+
 {{ if $v.SecurityObsRows }}
 === Security Logging and Observability
 

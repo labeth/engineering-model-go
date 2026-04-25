@@ -10,19 +10,24 @@ import (
 )
 
 type index struct {
-	groups     map[string]model.FunctionalGroup
-	units      map[string]model.FunctionalUnit
-	actors     map[string]model.Actor
-	vectors    map[string]model.AttackVector
-	references map[string]model.ReferencedElement
-	interfaces map[string]model.Interface
-	data       map[string]model.DataObject
-	targets    map[string]model.DeploymentTarget
-	controls   map[string]model.Control
-	boundaries map[string]model.TrustBoundary
-	states     map[string]model.State
-	events     map[string]model.Event
-	flows      map[string]model.Flow
+	groups        map[string]model.FunctionalGroup
+	units         map[string]model.FunctionalUnit
+	actors        map[string]model.Actor
+	vectors       map[string]model.AttackVector
+	references    map[string]model.ReferencedElement
+	interfaces    map[string]model.Interface
+	data          map[string]model.DataObject
+	targets       map[string]model.DeploymentTarget
+	controls      map[string]model.Control
+	boundaries    map[string]model.TrustBoundary
+	states        map[string]model.State
+	events        map[string]model.Event
+	flows         map[string]model.Flow
+	threats       map[string]model.ThreatScenario
+	assumptions   map[string]model.ThreatAssumption
+	outOfScope    map[string]model.ThreatOutOfScope
+	mitigations   map[string]model.ThreatMitigation
+	verifications map[string]model.ControlVerification
 }
 
 func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
@@ -122,19 +127,24 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 
 func buildIndex(b model.Bundle) index {
 	idx := index{
-		groups:     map[string]model.FunctionalGroup{},
-		units:      map[string]model.FunctionalUnit{},
-		actors:     map[string]model.Actor{},
-		vectors:    map[string]model.AttackVector{},
-		references: map[string]model.ReferencedElement{},
-		interfaces: map[string]model.Interface{},
-		data:       map[string]model.DataObject{},
-		targets:    map[string]model.DeploymentTarget{},
-		controls:   map[string]model.Control{},
-		boundaries: map[string]model.TrustBoundary{},
-		states:     map[string]model.State{},
-		events:     map[string]model.Event{},
-		flows:      map[string]model.Flow{},
+		groups:        map[string]model.FunctionalGroup{},
+		units:         map[string]model.FunctionalUnit{},
+		actors:        map[string]model.Actor{},
+		vectors:       map[string]model.AttackVector{},
+		references:    map[string]model.ReferencedElement{},
+		interfaces:    map[string]model.Interface{},
+		data:          map[string]model.DataObject{},
+		targets:       map[string]model.DeploymentTarget{},
+		controls:      map[string]model.Control{},
+		boundaries:    map[string]model.TrustBoundary{},
+		states:        map[string]model.State{},
+		events:        map[string]model.Event{},
+		flows:         map[string]model.Flow{},
+		threats:       map[string]model.ThreatScenario{},
+		assumptions:   map[string]model.ThreatAssumption{},
+		outOfScope:    map[string]model.ThreatOutOfScope{},
+		mitigations:   map[string]model.ThreatMitigation{},
+		verifications: map[string]model.ControlVerification{},
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		idx.groups[x.ID] = x
@@ -174,6 +184,21 @@ func buildIndex(b model.Bundle) index {
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.Flows {
 		idx.flows[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.ThreatScenarios {
+		idx.threats[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.ThreatAssumptions {
+		idx.assumptions[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.ThreatOutOfScope {
+		idx.outOfScope[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.ThreatMitigations {
+		idx.mitigations[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.ControlVerifications {
+		idx.verifications[x.ID] = x
 	}
 	return idx
 }
@@ -227,6 +252,21 @@ func toNode(id string, idx index) Node {
 	if x, ok := idx.flows[id]; ok {
 		return Node{ID: id, Label: nonEmpty(x.Title, id), Kind: "flow"}
 	}
+	if x, ok := idx.threats[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Title, id), Kind: "threat_scenario"}
+	}
+	if x, ok := idx.assumptions[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Title, id), Kind: "threat_assumption"}
+	}
+	if x, ok := idx.outOfScope[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Title, id), Kind: "threat_out_of_scope"}
+	}
+	if _, ok := idx.mitigations[id]; ok {
+		return Node{ID: id, Label: id, Kind: "threat_mitigation"}
+	}
+	if _, ok := idx.verifications[id]; ok {
+		return Node{ID: id, Label: id, Kind: "control_verification"}
+	}
 	return Node{ID: id, Label: id, Kind: "unknown"}
 }
 
@@ -279,7 +319,7 @@ func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[s
 			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "deployment_target", "interface", "referenced_element", "trust_boundary"})
 		case "security":
 			includeMappings = setFromSlice([]string{"targets", "mitigated_by", "bounded_by", "guarded_by", "depends_on"})
-			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "attack_vector", "control", "trust_boundary", "referenced_element", "interface", "deployment_target"})
+			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "attack_vector", "control", "trust_boundary", "referenced_element", "interface", "deployment_target", "flow", "threat_scenario", "threat_assumption", "threat_out_of_scope", "threat_mitigation", "control_verification"})
 		case "traceability":
 			includeMappings = setFromSlice([]string{"implements", "satisfies", "verified_by", "allocated_to", "deployed_to", "depends_on"})
 			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "interface", "data_object", "deployment_target", "control", "referenced_element"})

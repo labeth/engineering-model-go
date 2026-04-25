@@ -1,0 +1,609 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Sample Payments Layered Architecture",
+    "id": "sample-payments-layered-model",
+    "description": "This document describes the payments architecture using authored functional design and inferred runtime/code realization.\nIt is intended to help product, platform, security, and implementation engineers reason about one shared model.\nFunctional design is kept stable while realization details are inferred from infrastructure and source artifacts.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Authorization Decision",
+      "id": "DO-PAYMENTS-AUTH-DECISION",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "pci-dss"
+      },
+      "description": "schemas/auth-decision.json"
+    },
+    {
+      "name": "Authorization Request",
+      "id": "DO-PAYMENTS-AUTH-REQUEST",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "pci-dss"
+      },
+      "description": "schemas/auth-request.json"
+    },
+    {
+      "name": "Manual Review Ticket",
+      "id": "DO-PAYMENTS-REVIEW-TICKET",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "pci-dss,internal-audit"
+      },
+      "description": "schemas/review-ticket.json"
+    },
+    {
+      "name": "Risk Signal",
+      "id": "DO-PAYMENTS-RISK-SIGNAL",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "fraud-monitoring"
+      },
+      "description": "schemas/risk-signal.json"
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TB-PAYMENTS-EXTERNAL-BANK",
+      "name": "External Bank Boundary",
+      "type": "network",
+      "description": "Separates internal payment authorization from external bank services.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TB-PAYMENTS-PLATFORM-CONTROL",
+      "name": "Platform Control Boundary",
+      "type": "control-plane",
+      "description": "Separates app workloads from platform control-plane authority.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-CUSTOMER",
+      "name": "Customer",
+      "type": "actor",
+      "description": "Starts checkout and confirms payment.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-PLATFORM-OPERATOR",
+      "name": "Platform Operator",
+      "type": "actor",
+      "description": "Operates GitOps and platform lifecycle.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-SUPPORT",
+      "name": "Support Agent",
+      "type": "actor",
+      "description": "Reviews high-risk and declined-payment cases.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "DEP-PAYMENTS-BANK-EDGE",
+      "name": "Bank Edge Integration Zone",
+      "type": "deployment-target",
+      "description": "prod us-east-1",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-EXTERNAL-BANK"
+      }
+    },
+    {
+      "id": "DEP-PAYMENTS-CLUSTER-PROD",
+      "name": "Payments Cluster Production",
+      "type": "deployment-target",
+      "description": "prod us-east-1",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-PLATFORM-CONTROL"
+      }
+    },
+    {
+      "id": "FU-CHECKOUT",
+      "name": "Checkout Handling",
+      "type": "service",
+      "description": "Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.\nIt validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.\nIt delegates decision logic to payment authorization while protecting the user experience boundary.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-CHECKOUT-SPOOFING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-CLUSTER-PROVISIONING",
+      "name": "Cluster Provisioning",
+      "type": "service",
+      "description": "Cluster provisioning creates the runtime substrate used by all application workloads.\nIt establishes cluster and namespace structure, baseline controls, and environment-level readiness.\nThis unit is responsible for predictable, repeatable infrastructure foundations.",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-PLATFORM-CONTROL"
+      }
+    },
+    {
+      "id": "FU-GITOPS-OPERATIONS",
+      "name": "GitOps Operations",
+      "type": "service",
+      "description": "GitOps operations continuously reconciles intended release state with actual runtime state.\nIt governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.\nThe unit provides safe and observable release behavior as an ongoing operational capability.",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-PLATFORM-CONTROL"
+      }
+    },
+    {
+      "id": "FU-PAYMENT-AUTHORIZATION",
+      "name": "Payment Authorization",
+      "type": "service",
+      "description": "Payment authorization orchestrates the final transaction decision path.\nIt coordinates fraud scoring, external bank interactions, and escalation to support review when needed.\nThe unit returns deterministic outcomes so downstream behavior remains consistent and testable.",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-EXTERNAL-BANK"
+      },
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-BANK-CALLBACK-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CALLBACK-NONCE-CHECK",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-PAYMENTS-RISK-TICKET-TAMPER",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-MANUAL-REVIEW-AUDIT",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-RISK-SCORING",
+      "name": "Risk Scoring",
+      "type": "service",
+      "description": "Risk scoring computes and classifies transaction risk before approval decisions are finalized.\nIt provides a stable scoring contract to authorization and supports audit context for later analysis.\nThe unit is focused on decision quality, consistency, and policy-driven classification behavior.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-SUPPORT-REVIEW",
+      "name": "Support Review",
+      "type": "service",
+      "description": "Support review handles manual decisions for escalated or ambiguous payment cases.\nIt gives support operators context to approve, reject, or request additional verification in a controlled flow.\nThe unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-RISK-TICKET-TAMPER",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-MANUAL-REVIEW-AUDIT",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-PAYMENTS-BANK-AUTH",
+      "name": "Bank Authorization Interface",
+      "type": "interface",
+      "description": "https /bank/authorize",
+      "parent": {
+        "trustZone": "TB-PAYMENTS-EXTERNAL-BANK"
+      },
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-BANK-CALLBACK-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CALLBACK-NONCE-CHECK",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-PAYMENTS-CHECKOUT-API",
+      "name": "Checkout API Interface",
+      "type": "interface",
+      "description": "https /api/checkout",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-CHECKOUT-SPOOFING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-PAYMENTS-RISK-SCORE-API",
+      "name": "Risk Score Interface",
+      "type": "interface",
+      "description": "https /risk/score",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-BANK-GATEWAY-ENDPOINT",
+      "name": "Bank Gateway Endpoint",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-HELM-PLATFORM",
+      "name": "Helm Runtime Platform",
+      "type": "platform_service",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-POSTGRES-DRIVER",
+      "name": "PostgreSQL Client Driver",
+      "type": "third_party_library",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "0b6b0407-1dd1-5cf3-9770-cb1e03d98523",
+      "name": "Calls external bank authorization interface.",
+      "description": "Calls external bank authorization interface.",
+      "source": "FU-PAYMENT-AUTHORIZATION",
+      "destination": "IF-PAYMENTS-BANK-AUTH",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "0d221826-cc41-59e5-a808-1b56772b95dc",
+      "name": "Relies on provisioned cluster and namespace baseline.",
+      "description": "Relies on provisioned cluster and namespace baseline.",
+      "bidirectional": true,
+      "source": "FU-GITOPS-OPERATIONS",
+      "destination": "FU-CLUSTER-PROVISIONING",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "1638aa94-353a-53be-87d9-1c0dcaf6b3a9",
+      "name": "Requests fraud scoring before final authorization.",
+      "description": "Requests fraud scoring before final authorization.",
+      "bidirectional": true,
+      "source": "FU-PAYMENT-AUTHORIZATION",
+      "destination": "FU-RISK-SCORING",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "173e57aa-4b91-5f4e-ba1d-cf4b8d6849c8",
+      "name": "Operates delivery and release workflows.",
+      "description": "Operates delivery and release workflows.",
+      "bidirectional": true,
+      "source": "ACT-PLATFORM-OPERATOR",
+      "destination": "FU-GITOPS-OPERATIONS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "17ef5281-0670-58d2-9fe3-c0c01b0e192e",
+      "name": "Uses external library for audit persistence.",
+      "description": "Uses external library for audit persistence.",
+      "bidirectional": true,
+      "source": "FU-RISK-SCORING",
+      "destination": "REF-POSTGRES-DRIVER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "25a5bee5-55c7-5fe5-bed8-5cd1aa804c2f",
+      "name": "Delegates payment authorization.",
+      "description": "Delegates payment authorization.",
+      "bidirectional": true,
+      "source": "FU-CHECKOUT",
+      "destination": "FU-PAYMENT-AUTHORIZATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "2b34d9f6-58aa-54ed-8a5e-fcb492b84bd0",
+      "name": "Maintains cluster baseline and environment setup.",
+      "description": "Maintains cluster baseline and environment setup.",
+      "bidirectional": true,
+      "source": "ACT-PLATFORM-OPERATOR",
+      "destination": "FU-CLUSTER-PROVISIONING",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "4689d668-0816-5e83-bb9b-0650aaab8d97",
+      "name": "Receives and validates checkout request payload.",
+      "description": "Receives and validates checkout request payload.",
+      "source": "FU-CHECKOUT",
+      "destination": "IF-PAYMENTS-CHECKOUT-API",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "4c170371-d95b-5880-a383-072b6ae7a3f6",
+      "name": "Submits payment at checkout.",
+      "description": "Submits payment at checkout.",
+      "bidirectional": true,
+      "source": "ACT-CUSTOMER",
+      "destination": "FU-CHECKOUT",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "6a347dd4-016d-5770-99a6-1ccadf1347cb",
+      "name": "Calls risk scoring interface for fraud decision support.",
+      "description": "Calls risk scoring interface for fraud decision support.",
+      "source": "FU-PAYMENT-AUTHORIZATION",
+      "destination": "IF-PAYMENTS-RISK-SCORE-API",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "7197c1d9-3afd-505e-8316-4310feea4df8",
+      "name": "Calls external bank authorization endpoint.",
+      "description": "Calls external bank authorization endpoint.",
+      "bidirectional": true,
+      "source": "FU-PAYMENT-AUTHORIZATION",
+      "destination": "REF-BANK-GATEWAY-ENDPOINT",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "FLOW-CUSTOMER-CHECKOUT",
+      "name": "Customer Checkout Authorization Flow",
+      "description": "End-to-end checkout authorization including fraud and bank integration boundaries.",
+      "source": "ACT-CUSTOMER",
+      "destination": "FU-CHECKOUT",
+      "assets": [
+        "DO-PAYMENTS-AUTH-DECISION",
+        "DO-PAYMENTS-AUTH-REQUEST"
+      ],
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-CHECKOUT-SPOOFING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-PAYMENTS-BANK-CALLBACK-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-CALLBACK-NONCE-CHECK",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "security"
+      ]
+    },
+    {
+      "id": "FLOW-PAYMENTS-MANUAL-REVIEW",
+      "name": "High-Risk Manual Review Flow",
+      "description": "Manual review escalation path for high-risk payment attempts.",
+      "source": "FU-RISK-SCORING",
+      "destination": "FU-SUPPORT-REVIEW",
+      "assets": [
+        "DO-PAYMENTS-REVIEW-TICKET",
+        "DO-PAYMENTS-RISK-SIGNAL"
+      ],
+      "threats": [
+        {
+          "threat": "TS-PAYMENTS-RISK-TICKET-TAMPER",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-PAYMENTS-MANUAL-REVIEW-AUDIT",
+              "state": "partial"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "id": "b51a4261-9351-52e0-8b3d-d694f9c34a46",
+      "name": "Performs manual payment reviews.",
+      "description": "Performs manual payment reviews.",
+      "bidirectional": true,
+      "source": "ACT-SUPPORT",
+      "destination": "FU-SUPPORT-REVIEW",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "c0d8b2ea-ad66-5439-b3f6-fe1f4d18b102",
+      "name": "Uses Helm runtime platform for release orchestration.",
+      "description": "Uses Helm runtime platform for release orchestration.",
+      "bidirectional": true,
+      "source": "FU-GITOPS-OPERATIONS",
+      "destination": "REF-HELM-PLATFORM",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "e716d19e-37fc-570c-8561-542f7f9a7713",
+      "name": "Escalates high-risk payments for manual review.",
+      "description": "Escalates high-risk payments for manual review.",
+      "bidirectional": true,
+      "source": "FU-PAYMENT-AUTHORIZATION",
+      "destination": "FU-SUPPORT-REVIEW",
+      "tags": [
+        "depends_on"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "TS-PAYMENTS-BANK-CALLBACK-REPLAY",
+      "name": "Replayed bank callback triggers duplicate authorization transition",
+      "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+      "categories": [
+        "integration-abuse"
+      ],
+      "cwes": [
+        "CWE-294"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "replay"
+      ]
+    },
+    {
+      "id": "TS-PAYMENTS-CHECKOUT-SPOOFING",
+      "name": "Checkout payload spoofing bypasses normalization checks",
+      "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+      "categories": [
+        "application-abuse"
+      ],
+      "cwes": [
+        "CWE-20",
+        "CWE-345"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "tampering"
+      ]
+    },
+    {
+      "id": "TS-PAYMENTS-RISK-TICKET-TAMPER",
+      "name": "Manual review ticket tampering influences authorization result",
+      "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+      "categories": [
+        "insider-abuse"
+      ],
+      "cwes": [
+        "CWE-285"
+      ],
+      "risk": {
+        "likelihood": 2,
+        "likelihoodComment": "identified",
+        "impact": 8,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "tampering"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "MIT-PAYMENTS-CALLBACK-NONCE-CHECK",
+      "name": "CTRL-PAYMENTS-CALLBACK-NONCE",
+      "description": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+      "riskReduction": 8
+    },
+    {
+      "id": "MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA",
+      "name": "CTRL-PAYMENTS-SSO-MFA",
+      "description": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+      "riskReduction": 5
+    },
+    {
+      "id": "MIT-PAYMENTS-MANUAL-REVIEW-AUDIT",
+      "name": "CTRL-PAYMENTS-SSO-MFA",
+      "description": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+      "riskReduction": 5
+    }
+  ]
+}

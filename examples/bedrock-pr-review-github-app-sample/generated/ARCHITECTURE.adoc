@@ -834,6 +834,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1359,6 +1371,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1651,6 +1675,18 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2322,6 +2358,114 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+=== Threat Scenario Register
+
+[cols="1,2,1,2,1,1,1,1",options="header"]
+|===
+|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity
+
+|TS-BEDROCK-PROMPT-INJECTION |<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt injection in diff>> influences review output integrity |<<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt Injection in Diff>> |<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>, <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,Pull Request Context>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>> |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,PR Review Interaction Flow>> |medium |medium |medium
+
+|TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |Sensitive tokens leak via <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>> payload |<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,Secret Leakage in Review Output>> |<<REF_IDX-DO_DO_BEDROCK_REVIEW_FINDINGS,Review Findings>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,PR Review Interaction Flow>>, <<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,Security Policy Tuning Flow>> |low |high |medium
+
+|TS-BEDROCK-WEBHOOK-SPOOF |Spoofed webhook bypasses ingress verification |<<REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,Spoofed GitHub Webhook>> |<<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,GitHub Webhook Ingress>>, <<REF_IDX-IF_IF_BEDROCK_WEBHOOK_API,Webhook Intake API>> |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,PR Review Interaction Flow>> |medium |high |high
+
+|===
+
+[cols="1,1,1,1,2,2,2,2",options="header"]
+|===
+|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes
+
+|TS-BEDROCK-PROMPT-INJECTION |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |RISK-BEDROCK-PROMPT-INJECTION |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |MIT-BEDROCK-CONTEXT-SANITIZATION |CV-BEDROCK-PROMPT-INJECTION-RESILIENCE |Track closure through mitigation and verification linkage.
+
+|TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |RISK-BEDROCK-SECRET-LEAKAGE |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>> |MIT-BEDROCK-OUTPUT-REDACTION |CV-BEDROCK-REDACTION-CHECK |Track closure through mitigation and verification linkage.
+
+|TS-BEDROCK-WEBHOOK-SPOOF |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |RISK-BEDROCK-WEBHOOK-SPOOFING |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |MIT-BEDROCK-WEBHOOK-HMAC |CV-BEDROCK-WEBHOOK-SIGNATURE |Track closure through mitigation and verification linkage.
+
+|===
+
+
+
+=== Threat Mitigation Coverage
+
+[cols="1,2,2,1,1,1,2,3",options="header"]
+|===
+|ID |Threat Scenario |Control |Status |Effectiveness |Owner |Verification Links |Notes
+
+|MIT-BEDROCK-CONTEXT-SANITIZATION |TS-BEDROCK-PROMPT-INJECTION |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |partial |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |CV-BEDROCK-PROMPT-INJECTION-RESILIENCE |Context sanitizer and deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> reduce injection impact; coverage expansion continues.
+
+|MIT-BEDROCK-OUTPUT-REDACTION |TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>> |partial |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |CV-BEDROCK-REDACTION-CHECK |<<REF_IDX-CATALOG_PUBLICATION,Publication>> redaction pipeline blocks common secret shapes and is being extended.
+
+|MIT-BEDROCK-WEBHOOK-HMAC |TS-BEDROCK-WEBHOOK-SPOOF |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |verified |high |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |CV-BEDROCK-WEBHOOK-SIGNATURE |HMAC signature checks and ingress rejection reduce spoofing attack viability.
+
+|===
+
+
+
+=== Control Verification Status
+
+[cols="1,2,2,2,1,1,2,3",options="header"]
+|===
+|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
+
+|CV-BEDROCK-PROMPT-INJECTION-RESILIENCE |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |TS-BEDROCK-PROMPT-INJECTION |RISK-BEDROCK-PROMPT-INJECTION |analysis |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-19 |deterministic policy merge blocks obvious prompt directives; edge cases remain under review
+
+|CV-BEDROCK-REDACTION-CHECK |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>> |TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |RISK-BEDROCK-SECRET-LEAKAGE |inspection |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-21 |redaction filters exist; custom token patterns are still being expanded
+
+|CV-BEDROCK-WEBHOOK-SIGNATURE |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |TS-BEDROCK-WEBHOOK-SPOOF |RISK-BEDROCK-WEBHOOK-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-11 |invalid <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>> rejected before <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>>
+
+|===
+
+
+
+=== Security Flow Semantics
+
+[cols="1,2,1,1,1,2,2,1",options="header"]
+|===
+|ID |Title |Kind |Direction |Frequency |Source |Destination |Protocol
+
+|<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,FLOW-BEDROCK-POLICY-TUNING>> |<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,Security Policy Tuning Flow>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |internal-api
+
+|<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,FLOW-BEDROCK-PR-REVIEW>> |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,PR Review Interaction Flow>> |security |inbound |realtime |<<REF_IDX-IF_IF_BEDROCK_WEBHOOK_API,Webhook Intake API>> |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |https
+
+|===
+
+[cols="1,1,1,1,1,2,2,2",options="header"]
+|===
+|ID |Auth |Encryption |Integrity |Boundary Crossing |Trust Boundary |Threats |Data
+
+|<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,FLOW-BEDROCK-POLICY-TUNING>> |workforce-sso |tls1.3 |signed-policy-bundle |false |none |TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |<<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,Pull Request Context>>, <<REF_IDX-DO_DO_BEDROCK_REVIEW_FINDINGS,Review Findings>>
+
+|<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,FLOW-BEDROCK-PR-REVIEW>> |hmac-signature |tls1.3 |signed-payload |true |<<REF_IDX-TB_TB_BEDROCK_AWS_CONTROL,AWS Control Boundary>> |TS-BEDROCK-PROMPT-INJECTION, TS-BEDROCK-WEBHOOK-SPOOF |<<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,Pull Request Context>>, <<REF_IDX-DO_DO_BEDROCK_REVIEW_FINDINGS,Review Findings>>
+
+|===
+
+
+
+=== Threat Assumptions
+
+[cols="1,2,1,1,2,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Rationale
+
+|ASM-BEDROCK-GITHUB-SIGNATURE-TRUST |GitHub <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> secret remains uncompromised |accepted |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,GitHub Webhook Ingress>>, <<REF_IDX-IF_IF_BEDROCK_WEBHOOK_API,Webhook Intake API>> |Secret rotation and access controls are centrally governed by platform policy.
+
+|===
+
+
+
+=== Threat Model Out-of-Scope Decisions
+
+[cols="1,2,1,1,2,1,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Expires On |Reason
+
+|OOS-BEDROCK-GITHUB-CLOUD-PLATFORM |GitHub SaaS internal tenant isolation controls |approved |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-DEP_DEP_BEDROCK_GITHUB_BOUNDARY,GitHub Integration Boundary>> |2027-12-31 |Internal platform isolation and abuse controls for GitHub SaaS are external to this system boundary.
+
+|===
+
+
+
 
 
 === Attack Vector Chapters
@@ -2850,6 +2994,18 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2952,6 +3108,18 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3170,6 +3338,18 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4023,7 +4203,7 @@ termRef=DATA-PR-CONTEXT; schemaRef=schemas/pr-context.json; sensitivity=internal
 |Key |Value
 |Kind |Data Object
 |Name |Pull Request Context
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DO_DO_BEDROCK_REVIEW_FINDINGS]]
 [discrete]
@@ -4036,7 +4216,7 @@ termRef=DATA-REVIEW-FINDINGS; schemaRef=schemas/review-findings.json; sensitivit
 |Key |Value
 |Kind |Data Object
 |Name |Review Findings
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>
 |===
 [[REF_IDX-DEP_DEP_BEDROCK_GITHUB_BOUNDARY]]
 [discrete]
@@ -4049,7 +4229,7 @@ environment=external; region=global; account=github; cluster=external; namespace
 |Key |Value
 |Kind |Deployment Target
 |Name |GitHub Integration Boundary
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-DEP_DEP_BEDROCK_LAMBDA_PRIMARY]]
 [discrete]
@@ -4101,7 +4281,7 @@ entry=update-policy-rules; exits=publish-policy-validation; steps=4
 |Key |Value
 |Kind |Flow
 |Name |Security Policy Tuning Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW]]
 [discrete]
@@ -4114,7 +4294,7 @@ entry=receive-webhook; exits=publish-review; steps=4
 |Key |Value
 |Kind |Flow
 |Name |PR Review Interaction Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW-STEP_FLOW_BEDROCK_POLICY_TUNING__ORCHESTRATE_POLICY_VALIDATION]]
 [discrete]
@@ -4244,7 +4424,7 @@ protocol=https; endpoint=/webhook/github; schemaRef=schemas/webhook-event.json; 
 |Key |Value
 |Kind |Interface
 |Name |Webhook Intake API
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-REQ_REQ_PRR_001]]
 [discrete]
@@ -4480,7 +4660,7 @@ Owner of security policy checks and finding triage.
 |Key |Value
 |Kind |Catalog Actor
 |Name |security engineer
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
 |===
 [[REF_IDX-CATALOG_AI_REVIEW_ENABLED]]
 [discrete]
@@ -4584,7 +4764,7 @@ Fetches changed files and prepares bounded review context payloads.
 |Key |Value
 |Kind |Catalog Alias
 |Name |context assembly
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_CONTEXT_PREPARED]]
 [discrete]
@@ -4857,7 +5037,7 @@ Publishes review findings to GitHub checks and comments.
 |Key |Value
 |Kind |Catalog Alias
 |Name |publication
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>
 |===
 [[REF_IDX-CATALOG_PUBLICATION_OUTPUT]]
 [discrete]
@@ -5234,7 +5414,7 @@ Signature used to verify webhook authenticity.
 |Key |Value
 |Kind |Catalog Data Term
 |Name |webhook signature
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
 |===
 [[REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE]]
 [discrete]

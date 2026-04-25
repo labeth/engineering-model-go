@@ -513,3 +513,263 @@ func viewNextActions(kind string, gaps []string) []string {
 		}
 	}
 }
+
+func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatScenarioRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	rows := make([]asciidocThreatScenarioRow, 0, len(inScopeScenarioIDs))
+	for _, ts := range a.ThreatScenarios {
+		id := strings.TrimSpace(ts.ID)
+		if !inScopeScenarioIDs[id] {
+			continue
+		}
+		rows = append(rows, asciidocThreatScenarioRow{
+			ID:            id,
+			Title:         nonEmpty(strings.TrimSpace(ts.Title), id),
+			AttackVector:  labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
+			Scope:         joinLabeledIDs(ts.AppliesTo, labels),
+			Flows:         joinLabeledIDs(ts.FlowRefs, labels),
+			Likelihood:    nonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
+			Impact:        nonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
+			Severity:      nonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
+			Status:        nonEmpty(strings.TrimSpace(ts.Status), "unknown"),
+			Owner:         labelOrID(strings.TrimSpace(ts.Owner), labels),
+			Risk:          labelOrID(strings.TrimSpace(ts.RiskRef), labels),
+			Controls:      joinLabeledIDs(ts.RelatedControls, labels),
+			Mitigations:   joinLabeledIDs(ts.MitigationRefs, labels),
+			Verifications: joinLabeledIDs(ts.VerificationRefs, labels),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		if rows[i].Severity != rows[j].Severity {
+			return rows[i].Severity > rows[j].Severity
+		}
+		return rows[i].ID < rows[j].ID
+	})
+	return rows
+}
+
+func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatAssumptionRow {
+	inScopeAssumptions := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if !securityScenarioInScope(ts, nodeSet) {
+			continue
+		}
+		for _, x := range ts.AssumptionRefs {
+			x = strings.TrimSpace(x)
+			if x != "" {
+				inScopeAssumptions[x] = true
+			}
+		}
+	}
+	rows := []asciidocThreatAssumptionRow{}
+	for _, x := range a.ThreatAssumptions {
+		id := strings.TrimSpace(x.ID)
+		if !(inScopeAssumptions[id] || securityAppliesToInScope(x.AppliesTo, nodeSet) || nodeSet[id]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatAssumptionRow{
+			ID:        id,
+			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
+			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
+			Rationale: nonEmpty(strings.TrimSpace(x.Rationale), strings.TrimSpace(x.Statement)),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatOutOfScopeRow {
+	inScopeOut := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if !securityScenarioInScope(ts, nodeSet) {
+			continue
+		}
+		for _, x := range ts.OutOfScopeRefs {
+			x = strings.TrimSpace(x)
+			if x != "" {
+				inScopeOut[x] = true
+			}
+		}
+	}
+	rows := []asciidocThreatOutOfScopeRow{}
+	for _, x := range a.ThreatOutOfScope {
+		id := strings.TrimSpace(x.ID)
+		if !(inScopeOut[id] || securityAppliesToInScope(x.AppliesTo, nodeSet) || nodeSet[id]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatOutOfScopeRow{
+			ID:        id,
+			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
+			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
+			ExpiresOn: nonEmpty(strings.TrimSpace(x.ExpiresOn), "none"),
+			Reason:    strings.TrimSpace(x.Reason),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatMitigationRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	rows := []asciidocThreatMitigationRow{}
+	for _, m := range a.ThreatMitigations {
+		if !(inScopeScenarioIDs[strings.TrimSpace(m.ThreatScenarioRef)] || nodeSet[strings.TrimSpace(m.ControlRef)] || nodeSet[strings.TrimSpace(m.ID)]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatMitigationRow{
+			ID:             strings.TrimSpace(m.ID),
+			ThreatScenario: labelOrID(strings.TrimSpace(m.ThreatScenarioRef), labels),
+			Control:        labelOrID(strings.TrimSpace(m.ControlRef), labels),
+			Status:         nonEmpty(strings.TrimSpace(m.Status), "unknown"),
+			Effectiveness:  nonEmpty(strings.TrimSpace(m.Effectiveness), "unknown"),
+			Owner:          labelOrID(strings.TrimSpace(m.Owner), labels),
+			Verifications:  joinLabeledIDs(m.VerificationRefs, labels),
+			Notes:          strings.TrimSpace(m.Notes),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocControlVerificationRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	rows := []asciidocControlVerificationRow{}
+	for _, cv := range a.ControlVerifications {
+		if !(nodeSet[strings.TrimSpace(cv.ControlRef)] || nodeSet[strings.TrimSpace(cv.ID)] || anyInSet(cv.ThreatScenarioRefs, inScopeScenarioIDs)) {
+			continue
+		}
+		rows = append(rows, asciidocControlVerificationRow{
+			ID:              strings.TrimSpace(cv.ID),
+			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
+			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
+			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
+			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
+			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocSecurityFlowRow {
+	rows := []asciidocSecurityFlowRow{}
+	for _, f := range a.Flows {
+		id := strings.TrimSpace(f.ID)
+		inScope := nodeSet[id] || nodeSet[strings.TrimSpace(f.SourceRef)] || nodeSet[strings.TrimSpace(f.DestinationRef)]
+		if !inScope {
+			continue
+		}
+		boundaryCrossing := "false"
+		boundary := "none"
+		for _, s := range f.Steps {
+			if s.BoundaryCrossing {
+				boundaryCrossing = "true"
+				if strings.TrimSpace(s.TrustBoundaryRef) != "" {
+					boundary = labelOrID(strings.TrimSpace(s.TrustBoundaryRef), labels)
+					break
+				}
+			}
+		}
+		rows = append(rows, asciidocSecurityFlowRow{
+			ID:               id,
+			Title:            nonEmpty(strings.TrimSpace(f.Title), id),
+			Kind:             nonEmpty(strings.TrimSpace(f.Kind), "flow"),
+			Direction:        nonEmpty(strings.TrimSpace(f.Direction), "unknown"),
+			Frequency:        nonEmpty(strings.TrimSpace(f.Frequency), "unknown"),
+			Source:           labelOrID(strings.TrimSpace(f.SourceRef), labels),
+			Destination:      labelOrID(strings.TrimSpace(f.DestinationRef), labels),
+			Protocol:         nonEmpty(strings.TrimSpace(f.Protocol), "n/a"),
+			Authentication:   nonEmpty(strings.TrimSpace(f.Authentication), "n/a"),
+			Encryption:       nonEmpty(strings.TrimSpace(f.EncryptionInTransit), "n/a"),
+			Integrity:        nonEmpty(strings.TrimSpace(f.IntegrityProtection), "n/a"),
+			TrustBoundary:    boundary,
+			BoundaryCrossing: boundaryCrossing,
+			Threats:          joinLabeledIDs(f.Threats, labels),
+			Data:             joinLabeledIDs(f.DataRefs, labels),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+func securityScenarioInScope(ts model.ThreatScenario, nodeSet map[string]bool) bool {
+	if nodeSet[strings.TrimSpace(ts.ID)] || nodeSet[strings.TrimSpace(ts.AttackVectorRef)] || nodeSet[strings.TrimSpace(ts.RiskRef)] {
+		return true
+	}
+	if securityAppliesToInScope(ts.AppliesTo, nodeSet) {
+		return true
+	}
+	if anyInSet(ts.FlowRefs, nodeSet) || anyInSet(ts.RelatedControls, nodeSet) {
+		return true
+	}
+	return false
+}
+
+func securityAppliesToInScope(ids []string, nodeSet map[string]bool) bool {
+	for _, id := range ids {
+		if nodeSet[strings.TrimSpace(id)] {
+			return true
+		}
+	}
+	return false
+}
+
+func anyInSet(ids []string, set map[string]bool) bool {
+	for _, id := range ids {
+		if set[strings.TrimSpace(id)] {
+			return true
+		}
+	}
+	return false
+}
+
+func joinLabeledIDs(ids []string, labels map[string]string) string {
+	items := make([]string, 0, len(ids))
+	seen := map[string]bool{}
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" || seen[id] {
+			continue
+		}
+		seen[id] = true
+		items = append(items, labelOrID(id, labels))
+	}
+	if len(items) == 0 {
+		return "none"
+	}
+	sort.Strings(items)
+	return strings.Join(items, ", ")
+}
+
+func labelOrID(id string, labels map[string]string) string {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return "none"
+	}
+	if l := strings.TrimSpace(labels[id]); l != "" {
+		return l
+	}
+	return id
+}

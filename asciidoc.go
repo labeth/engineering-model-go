@@ -258,6 +258,12 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		case "security":
 			secRows := buildSecurityPathRows(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityRows = secRows
+			viewSections[i].SecurityThreatScenarios = buildSecurityThreatScenarioRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
+			viewSections[i].SecurityThreatAssumptions = buildSecurityThreatAssumptionRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
+			viewSections[i].SecurityThreatOutOfScope = buildSecurityThreatOutOfScopeRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
+			viewSections[i].SecurityThreatMitigations = buildSecurityThreatMitigationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
+			viewSections[i].SecurityControlChecks = buildSecurityControlVerificationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
+			viewSections[i].SecurityFlowRows = buildSecurityFlowRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
 			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
 			viewSections[i].SecurityContextDFD = buildSecurityContextDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityDataFlowDFD = buildSecurityDataFlowDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
@@ -422,6 +428,77 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 					viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative, linkTargets)
 				}
 			}
+		}
+		for j := range viewSections[i].SecurityThreatScenarios {
+			viewSections[i].SecurityThreatScenarios[j].ID = linkifyText(viewSections[i].SecurityThreatScenarios[j].ID, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Title = linkifyText(viewSections[i].SecurityThreatScenarios[j].Title, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].AttackVector = linkifyText(viewSections[i].SecurityThreatScenarios[j].AttackVector, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Scope = linkifyText(viewSections[i].SecurityThreatScenarios[j].Scope, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Flows = linkifyText(viewSections[i].SecurityThreatScenarios[j].Flows, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Likelihood = linkifyText(viewSections[i].SecurityThreatScenarios[j].Likelihood, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Impact = linkifyText(viewSections[i].SecurityThreatScenarios[j].Impact, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Severity = linkifyText(viewSections[i].SecurityThreatScenarios[j].Severity, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Status = linkifyText(viewSections[i].SecurityThreatScenarios[j].Status, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Owner = linkifyText(viewSections[i].SecurityThreatScenarios[j].Owner, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Risk = linkifyText(viewSections[i].SecurityThreatScenarios[j].Risk, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Controls = linkifyText(viewSections[i].SecurityThreatScenarios[j].Controls, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Mitigations = linkifyText(viewSections[i].SecurityThreatScenarios[j].Mitigations, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Verifications = linkifyText(viewSections[i].SecurityThreatScenarios[j].Verifications, linkTargets)
+		}
+		for j := range viewSections[i].SecurityThreatAssumptions {
+			viewSections[i].SecurityThreatAssumptions[j].ID = linkifyText(viewSections[i].SecurityThreatAssumptions[j].ID, linkTargets)
+			viewSections[i].SecurityThreatAssumptions[j].Title = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Title, linkTargets)
+			viewSections[i].SecurityThreatAssumptions[j].Status = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Status, linkTargets)
+			viewSections[i].SecurityThreatAssumptions[j].Owner = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Owner, linkTargets)
+			viewSections[i].SecurityThreatAssumptions[j].AppliesTo = linkifyText(viewSections[i].SecurityThreatAssumptions[j].AppliesTo, linkTargets)
+			viewSections[i].SecurityThreatAssumptions[j].Rationale = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Rationale, linkTargets)
+		}
+		for j := range viewSections[i].SecurityThreatOutOfScope {
+			viewSections[i].SecurityThreatOutOfScope[j].ID = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].ID, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].Title = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Title, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].Status = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Status, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].Owner = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Owner, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].AppliesTo = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].AppliesTo, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].ExpiresOn = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].ExpiresOn, linkTargets)
+			viewSections[i].SecurityThreatOutOfScope[j].Reason = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Reason, linkTargets)
+		}
+		for j := range viewSections[i].SecurityThreatMitigations {
+			viewSections[i].SecurityThreatMitigations[j].ID = linkifyText(viewSections[i].SecurityThreatMitigations[j].ID, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].ThreatScenario = linkifyText(viewSections[i].SecurityThreatMitigations[j].ThreatScenario, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Control = linkifyText(viewSections[i].SecurityThreatMitigations[j].Control, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Status = linkifyText(viewSections[i].SecurityThreatMitigations[j].Status, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Effectiveness = linkifyText(viewSections[i].SecurityThreatMitigations[j].Effectiveness, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Owner = linkifyText(viewSections[i].SecurityThreatMitigations[j].Owner, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Verifications = linkifyText(viewSections[i].SecurityThreatMitigations[j].Verifications, linkTargets)
+			viewSections[i].SecurityThreatMitigations[j].Notes = linkifyText(viewSections[i].SecurityThreatMitigations[j].Notes, linkTargets)
+		}
+		for j := range viewSections[i].SecurityControlChecks {
+			viewSections[i].SecurityControlChecks[j].ID = linkifyText(viewSections[i].SecurityControlChecks[j].ID, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Control = linkifyText(viewSections[i].SecurityControlChecks[j].Control, linkTargets)
+			viewSections[i].SecurityControlChecks[j].ThreatScenarios = linkifyText(viewSections[i].SecurityControlChecks[j].ThreatScenarios, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Risks = linkifyText(viewSections[i].SecurityControlChecks[j].Risks, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Method = linkifyText(viewSections[i].SecurityControlChecks[j].Method, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Status = linkifyText(viewSections[i].SecurityControlChecks[j].Status, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Owner = linkifyText(viewSections[i].SecurityControlChecks[j].Owner, linkTargets)
+			viewSections[i].SecurityControlChecks[j].LastTested = linkifyText(viewSections[i].SecurityControlChecks[j].LastTested, linkTargets)
+			viewSections[i].SecurityControlChecks[j].Findings = linkifyText(viewSections[i].SecurityControlChecks[j].Findings, linkTargets)
+		}
+		for j := range viewSections[i].SecurityFlowRows {
+			viewSections[i].SecurityFlowRows[j].ID = linkifyText(viewSections[i].SecurityFlowRows[j].ID, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Title = linkifyText(viewSections[i].SecurityFlowRows[j].Title, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Kind = linkifyText(viewSections[i].SecurityFlowRows[j].Kind, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Direction = linkifyText(viewSections[i].SecurityFlowRows[j].Direction, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Frequency = linkifyText(viewSections[i].SecurityFlowRows[j].Frequency, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Source = linkifyText(viewSections[i].SecurityFlowRows[j].Source, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Destination = linkifyText(viewSections[i].SecurityFlowRows[j].Destination, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Protocol = linkifyText(viewSections[i].SecurityFlowRows[j].Protocol, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Authentication = linkifyText(viewSections[i].SecurityFlowRows[j].Authentication, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Encryption = linkifyText(viewSections[i].SecurityFlowRows[j].Encryption, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Integrity = linkifyText(viewSections[i].SecurityFlowRows[j].Integrity, linkTargets)
+			viewSections[i].SecurityFlowRows[j].TrustBoundary = linkifyText(viewSections[i].SecurityFlowRows[j].TrustBoundary, linkTargets)
+			viewSections[i].SecurityFlowRows[j].BoundaryCrossing = linkifyText(viewSections[i].SecurityFlowRows[j].BoundaryCrossing, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Threats = linkifyText(viewSections[i].SecurityFlowRows[j].Threats, linkTargets)
+			viewSections[i].SecurityFlowRows[j].Data = linkifyText(viewSections[i].SecurityFlowRows[j].Data, linkTargets)
 		}
 		if viewSections[i].Inf != "" {
 			viewSections[i].Inf = linkifyText(viewSections[i].Inf, linkTargets)

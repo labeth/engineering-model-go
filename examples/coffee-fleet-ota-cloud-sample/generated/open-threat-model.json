@@ -1,0 +1,800 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Connected Coffee Fleet OTA + Cloud Architecture",
+    "id": "sample-coffee-fleet-ota-cloud-model",
+    "description": "This document models connected coffee machines that send telemetry to a central cloud site,\nreceive OTA firmware updates, and produce operational and audit logging evidence.\nAuthored functional architecture remains stable while runtime, code, and verification layers\nare inferred from infrastructure, source, and test artifacts.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "OTA Rollout Plan",
+      "id": "DO-COFFEE-OTA-PLAN",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "safety-control"
+      },
+      "description": "schemas/ota-plan.json"
+    },
+    {
+      "name": "Telemetry Event",
+      "id": "DO-COFFEE-TELEMETRY-EVENT",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "internal-operations"
+      },
+      "description": "schemas/telemetry-event.json"
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TB-COFFEE-CLOUD-CONTROL",
+      "name": "Cloud Control Boundary",
+      "type": "control-plane",
+      "description": "Boundary between cloud app workloads and privileged platform controls.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TB-COFFEE-EDGE-DEVICE",
+      "name": "Edge Device Boundary",
+      "type": "device-network",
+      "description": "Boundary between managed edge devices and cloud control plane.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-BARISTA",
+      "name": "Barista",
+      "type": "actor",
+      "description": "Operates coffee machines and observes local device status.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-FLEET-OPERATOR",
+      "name": "Fleet Operator",
+      "type": "actor",
+      "description": "Manages OTA campaigns and fleet-wide operational decisions.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-PLATFORM-OPERATOR",
+      "name": "Platform Operator",
+      "type": "actor",
+      "description": "Operates cloud runtime, deployment, and reliability controls.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-SECURITY-ANALYST",
+      "name": "Security Analyst",
+      "type": "actor",
+      "description": "Reviews firmware integrity, identity controls, and audit logging.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "DEP-COFFEE-CLOUD-PROD",
+      "name": "Coffee Cloud Production",
+      "type": "deployment-target",
+      "description": "prod us-east-1",
+      "parent": {
+        "trustZone": "TB-COFFEE-CLOUD-CONTROL"
+      }
+    },
+    {
+      "id": "DEP-COFFEE-EDGE-FLEET",
+      "name": "Coffee Edge Fleet",
+      "type": "deployment-target",
+      "description": "edge global",
+      "parent": {
+        "trustZone": "TB-COFFEE-EDGE-DEVICE"
+      }
+    },
+    {
+      "id": "FU-CLOUD-RUNTIME-OPERATIONS",
+      "name": "Cloud Runtime Operations",
+      "type": "service",
+      "description": "Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.",
+      "parent": {
+        "trustZone": "TB-COFFEE-CLOUD-CONTROL"
+      }
+    },
+    {
+      "id": "FU-DEVICE-IDENTITY-SECRETS",
+      "name": "Device Identity and Secrets",
+      "type": "service",
+      "description": "Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.",
+      "parent": {
+        "trustZone": "TB-COFFEE-CLOUD-CONTROL"
+      }
+    },
+    {
+      "id": "FU-FLEET-INGESTION-API",
+      "name": "Fleet Ingestion API",
+      "type": "service",
+      "description": "Receives telemetry and machine status, applies validation, and emits ingestion events.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-TELEMETRY-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-TELEMETRY-REPLAY-WINDOW",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "name": "Fleet Observability Reporting",
+      "type": "service",
+      "description": "Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-TELEMETRY-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-TELEMETRY-REPLAY-WINDOW",
+              "state": "partial"
+            }
+          ]
+        },
+        {
+          "threat": "TS-COFFEE-LOG-TAMPERING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-AUDIT-IMMUTABILITY",
+              "state": "open"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "name": "Machine Telemetry Collection",
+      "type": "service",
+      "description": "Collects brew/device telemetry and transmits cloud-bound telemetry payloads.",
+      "parent": {
+        "trustZone": "TB-COFFEE-EDGE-DEVICE"
+      }
+    },
+    {
+      "id": "FU-OTA-UPDATE-AGENT",
+      "name": "OTA Update Agent",
+      "type": "service",
+      "description": "Downloads signed firmware bundles, validates integrity, applies updates, and reports status.",
+      "parent": {
+        "trustZone": "TB-COFFEE-EDGE-DEVICE"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-MALICIOUS-OTA-BUNDLE",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-FW-SIGNATURE-VERIFY",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-COFFEE-OTA-COMMAND-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "name": "Update Campaign Orchestration",
+      "type": "service",
+      "description": "Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-MALICIOUS-OTA-BUNDLE",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-FW-SIGNATURE-VERIFY",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-COFFEE-OTA-COMMAND-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-COFFEE-OTA-COMMAND",
+      "name": "OTA Command Interface",
+      "type": "interface",
+      "description": "mqtt mqtt://devices/ota/commands",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-OTA-COMMAND-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-COFFEE-TELEMETRY-INGEST",
+      "name": "Telemetry Ingestion Interface",
+      "type": "interface",
+      "description": "mqtt mqtt://ingest/topics/telemetry",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-CLOUD-LOGGING-SERVICE",
+      "name": "Cloud Logging Service",
+      "type": "platform_service",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-LOG-TAMPERING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-AUDIT-IMMUTABILITY",
+              "state": "open"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REF-CLOUD-RUNTIME-SDK",
+      "name": "Cloud Runtime SDK",
+      "type": "third_party_library",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-FIRMWARE-BUNDLE-STORE",
+      "name": "Firmware Bundle Store",
+      "type": "object_store",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-COFFEE-MALICIOUS-OTA-BUNDLE",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-FW-SIGNATURE-VERIFY",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REF-FIRMWARE-SIGNER-SERVICE",
+      "name": "Firmware Signer Service",
+      "type": "signing_service",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-IOT-INGEST-ENDPOINT",
+      "name": "IoT Ingest Endpoint",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-MQTT-DEVICE-SDK",
+      "name": "MQTT Device SDK",
+      "type": "third_party_library",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "02bc771d-cf8d-54f2-8c5c-4ffc3a37fde4",
+      "name": "Verifies firmware artifact signature metadata.",
+      "description": "Verifies firmware artifact signature metadata.",
+      "bidirectional": true,
+      "source": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "destination": "REF-FIRMWARE-SIGNER-SERVICE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "1d19da17-2318-5008-af0a-009adddb20c6",
+      "name": "Uses controlled credentials for audit-log writes.",
+      "description": "Uses controlled credentials for audit-log writes.",
+      "bidirectional": true,
+      "source": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "1f89eca6-ec6e-5951-a62a-012962fe6811",
+      "name": "Uses trusted control-plane credentials.",
+      "description": "Uses trusted control-plane credentials.",
+      "bidirectional": true,
+      "source": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "2dbe249b-cf07-5687-9963-62af7c5bb49e",
+      "name": "Sends normalized telemetry records to ingestion API.",
+      "description": "Sends normalized telemetry records to ingestion API.",
+      "bidirectional": true,
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "FU-FLEET-INGESTION-API",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "37eb9501-ccde-5f33-8623-43dc900fd36e",
+      "name": "Requires runtime credentials and encrypted config.",
+      "description": "Requires runtime credentials and encrypted config.",
+      "bidirectional": true,
+      "source": "FU-CLOUD-RUNTIME-OPERATIONS",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "46604b51-aedf-5036-ab2f-20382225a3a7",
+      "name": "Publishes telemetry payloads to cloud ingestion.",
+      "description": "Publishes telemetry payloads to cloud ingestion.",
+      "bidirectional": true,
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "REF-IOT-INGEST-ENDPOINT",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "52e07920-83e5-5b45-9f7c-1529b5d7e6c4",
+      "name": "Defines OTA target cohorts and rollout windows.",
+      "description": "Defines OTA target cohorts and rollout windows.",
+      "bidirectional": true,
+      "source": "ACT-FLEET-OPERATOR",
+      "destination": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "5438a7fb-56ed-570e-9196-566df2e16f32",
+      "name": "Persists telemetry, OTA outcomes, and audit records.",
+      "description": "Persists telemetry, OTA outcomes, and audit records.",
+      "bidirectional": true,
+      "source": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "destination": "REF-CLOUD-LOGGING-SERVICE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "5f9fec91-373c-5323-8ce2-99abdac54d12",
+      "name": "Publishes OTA rollout commands to device fleet.",
+      "description": "Publishes OTA rollout commands to device fleet.",
+      "source": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "destination": "IF-COFFEE-OTA-COMMAND",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "65c25029-8189-5858-90d7-19f74ba99bd8",
+      "name": "Uses cloud SDK clients for ingest and routing operations.",
+      "description": "Uses cloud SDK clients for ingest and routing operations.",
+      "bidirectional": true,
+      "source": "FU-FLEET-INGESTION-API",
+      "destination": "REF-CLOUD-RUNTIME-SDK",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "6a7cca80-e591-5c4d-bc4a-87ef911c4022",
+      "name": "Sends telemetry payloads via telemetry ingest interface.",
+      "description": "Sends telemetry payloads via telemetry ingest interface.",
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "IF-COFFEE-TELEMETRY-INGEST",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "7267e5a2-35f5-57a4-9d8d-fc43f7d6080d",
+      "name": "Downloads signed firmware bundle.",
+      "description": "Downloads signed firmware bundle.",
+      "bidirectional": true,
+      "source": "FU-OTA-UPDATE-AGENT",
+      "destination": "REF-FIRMWARE-BUNDLE-STORE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "72fee807-01d1-5bec-90b0-5d695e83291c",
+      "name": "Uses MQTT client for edge publish and command channels.",
+      "description": "Uses MQTT client for edge publish and command channels.",
+      "bidirectional": true,
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "REF-MQTT-DEVICE-SDK",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "7e6121c7-49fd-5abc-a527-327c772ebd7c",
+      "name": "Receives OTA rollout commands and policy constraints.",
+      "description": "Receives OTA rollout commands and policy constraints.",
+      "bidirectional": true,
+      "source": "FU-OTA-UPDATE-AGENT",
+      "destination": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "805ab47b-b429-59f5-abe2-502995808a92",
+      "name": "Operates deployment and runtime controls.",
+      "description": "Operates deployment and runtime controls.",
+      "bidirectional": true,
+      "source": "ACT-PLATFORM-OPERATOR",
+      "destination": "FU-CLOUD-RUNTIME-OPERATIONS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "85976824-cc30-5ba3-931d-71820688f219",
+      "name": "Audits identity trust and secret rotation controls.",
+      "description": "Audits identity trust and secret rotation controls.",
+      "bidirectional": true,
+      "source": "ACT-SECURITY-ANALYST",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "931c0357-093b-5514-8ac7-907a2410b2ac",
+      "name": "Uses machine identity material for authenticated publish.",
+      "description": "Uses machine identity material for authenticated publish.",
+      "bidirectional": true,
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "96efb041-3b7d-59af-b733-602d37d9850a",
+      "name": "Uses trust anchors for firmware and endpoint authentication.",
+      "description": "Uses trust anchors for firmware and endpoint authentication.",
+      "bidirectional": true,
+      "source": "FU-OTA-UPDATE-AGENT",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "9cd36031-88a8-545c-bcdb-66ce4ea624c6",
+      "name": "Emits OTA rollout and rollback events for fleet visibility.",
+      "description": "Emits OTA rollout and rollback events for fleet visibility.",
+      "bidirectional": true,
+      "source": "FU-UPDATE-CAMPAIGN-ORCHESTRATION",
+      "destination": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-OTA-ROLLOUT",
+      "name": "OTA Rollout Interaction Flow",
+      "description": "OTA campaign command path from operator scheduling through edge execution and reporting.",
+      "source": "ACT-FLEET-OPERATOR",
+      "destination": "FU-OTA-UPDATE-AGENT",
+      "assets": [
+        "DO-COFFEE-OTA-PLAN"
+      ],
+      "threats": [
+        {
+          "threat": "TS-COFFEE-MALICIOUS-OTA-BUNDLE",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-FW-SIGNATURE-VERIFY",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-COFFEE-OTA-COMMAND-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "security"
+      ]
+    },
+    {
+      "id": "FLOW-COFFEE-TELEMETRY-INGEST",
+      "name": "Telemetry Ingestion Interaction Flow",
+      "description": "Telemetry path from device event collection to cloud ingest and reporting.",
+      "source": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "destination": "FU-FLEET-INGESTION-API",
+      "assets": [
+        "DO-COFFEE-TELEMETRY-EVENT"
+      ],
+      "threats": [
+        {
+          "threat": "TS-COFFEE-TELEMETRY-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-TELEMETRY-REPLAY-WINDOW",
+              "state": "partial"
+            }
+          ]
+        },
+        {
+          "threat": "TS-COFFEE-LOG-TAMPERING",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-COFFEE-AUDIT-IMMUTABILITY",
+              "state": "open"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "data"
+      ]
+    },
+    {
+      "id": "a9f30312-d8fc-5f8f-af75-74635527dc3e",
+      "name": "Forwards validated telemetry and machine status events.",
+      "description": "Forwards validated telemetry and machine status events.",
+      "bidirectional": true,
+      "source": "FU-FLEET-INGESTION-API",
+      "destination": "FU-FLEET-OBSERVABILITY-REPORTING",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "c7c937c5-7a58-51f0-9bac-92097b4f1508",
+      "name": "Daily machine operation produces brew and status telemetry.",
+      "description": "Daily machine operation produces brew and status telemetry.",
+      "bidirectional": true,
+      "source": "ACT-BARISTA",
+      "destination": "FU-MACHINE-TELEMETRY-COLLECTION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "e02314a1-4332-5d61-9cb3-19cce362dfe4",
+      "name": "Validates device identity and token claims.",
+      "description": "Validates device identity and token claims.",
+      "bidirectional": true,
+      "source": "FU-FLEET-INGESTION-API",
+      "destination": "FU-DEVICE-IDENTITY-SECRETS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "e7edeadb-5577-5a29-b379-eec1242c30b7",
+      "name": "Emits platform operation and deployment events.",
+      "description": "Emits platform operation and deployment events.",
+      "bidirectional": true,
+      "source": "FU-CLOUD-RUNTIME-OPERATIONS",
+      "destination": "REF-CLOUD-LOGGING-SERVICE",
+      "tags": [
+        "depends_on"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "TS-COFFEE-LOG-TAMPERING",
+      "name": "Audit log tampering suppresses OTA incident visibility",
+      "description": "Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.",
+      "categories": [
+        "observability-abuse"
+      ],
+      "cwes": [
+        "CWE-778"
+      ],
+      "risk": {
+        "likelihood": 2,
+        "likelihoodComment": "identified",
+        "impact": 8,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "repudiation"
+      ]
+    },
+    {
+      "id": "TS-COFFEE-MALICIOUS-OTA-BUNDLE",
+      "name": "Tampered firmware bundle executes on edge fleet",
+      "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+      "categories": [
+        "supply-chain"
+      ],
+      "cwes": [
+        "CWE-353"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "tampering"
+      ]
+    },
+    {
+      "id": "TS-COFFEE-OTA-COMMAND-SPOOF",
+      "name": "Spoofed OTA command triggers unauthorized rollout",
+      "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+      "categories": [
+        "command-abuse"
+      ],
+      "cwes": [
+        "CWE-287"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "spoofing"
+      ]
+    },
+    {
+      "id": "TS-COFFEE-TELEMETRY-REPLAY",
+      "name": "Telemetry replay inflates ingest and distorts reporting",
+      "description": "Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.",
+      "categories": [
+        "data-abuse"
+      ],
+      "cwes": [
+        "CWE-294"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 5,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "replay"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "MIT-COFFEE-AUDIT-IMMUTABILITY",
+      "name": "CTRL-COFFEE-DEVICE-IDENTITY",
+      "description": "Planned immutable log retention and append-only controls for OTA incident trails.",
+      "riskReduction": 5
+    },
+    {
+      "id": "MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT",
+      "name": "CTRL-COFFEE-DEVICE-IDENTITY",
+      "description": "Device identity claims gate command and telemetry channels.",
+      "riskReduction": 8
+    },
+    {
+      "id": "MIT-COFFEE-FW-SIGNATURE-VERIFY",
+      "name": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+      "description": "OTA agent enforces signature verification with signer metadata checks.",
+      "riskReduction": 8
+    },
+    {
+      "id": "MIT-COFFEE-TELEMETRY-REPLAY-WINDOW",
+      "name": "CTRL-COFFEE-DEVICE-IDENTITY",
+      "description": "Replay window and dedup controls are active with ongoing burst tuning.",
+      "riskReduction": 5
+    }
+  ]
+}

@@ -113,22 +113,27 @@ var allowedViewMappingTypes = map[string]bool{
 }
 
 var allowedViewEntityKinds = map[string]bool{
-	"functional_group":   true,
-	"functional_unit":    true,
-	"actor":              true,
-	"attack_vector":      true,
-	"referenced_element": true,
-	"interface":          true,
-	"data_object":        true,
-	"deployment_target":  true,
-	"control":            true,
-	"trust_boundary":     true,
-	"state":              true,
-	"event":              true,
-	"flow":               true,
-	"flow_step":          true,
-	"risk":               true,
-	"poam_item":          true,
+	"functional_group":     true,
+	"functional_unit":      true,
+	"actor":                true,
+	"attack_vector":        true,
+	"referenced_element":   true,
+	"interface":            true,
+	"data_object":          true,
+	"deployment_target":    true,
+	"control":              true,
+	"trust_boundary":       true,
+	"state":                true,
+	"event":                true,
+	"flow":                 true,
+	"flow_step":            true,
+	"threat_scenario":      true,
+	"threat_assumption":    true,
+	"threat_out_of_scope":  true,
+	"threat_mitigation":    true,
+	"control_verification": true,
+	"risk":                 true,
+	"poam_item":            true,
 }
 
 var allowedFlowStepKinds = map[string]bool{
@@ -137,6 +142,100 @@ var allowedFlowStepKinds = map[string]bool{
 	"data_move":            true,
 	"decision":             true,
 	"external_interaction": true,
+	"security_check":       true,
+	"control_action":       true,
+	"deployment_action":    true,
+	"notification":         true,
+	"integration_call":     true,
+}
+
+var allowedFlowKinds = map[string]bool{
+	"interaction": true,
+	"data":        true,
+	"control":     true,
+	"deployment":  true,
+	"state":       true,
+	"event":       true,
+	"security":    true,
+	"business":    true,
+}
+
+var allowedFlowTypes = map[string]bool{
+	"interaction":  true,
+	"data":         true,
+	"control":      true,
+	"deployment":   true,
+	"state":        true,
+	"event":        true,
+	"security":     true,
+	"notification": true,
+}
+
+var allowedThreatScenarioStatus = map[string]bool{
+	"identified": true,
+	"triaged":    true,
+	"mitigating": true,
+	"accepted":   true,
+	"resolved":   true,
+}
+
+var allowedThreatAssumptionStatus = map[string]bool{
+	"draft":    true,
+	"accepted": true,
+	"rejected": true,
+	"expired":  true,
+}
+
+var allowedThreatOutOfScopeStatus = map[string]bool{
+	"proposed": true,
+	"approved": true,
+	"expired":  true,
+}
+
+var allowedThreatMitigationStatus = map[string]bool{
+	"planned":     true,
+	"partial":     true,
+	"implemented": true,
+	"verified":    true,
+	"deferred":    true,
+}
+
+var allowedThreatMitigationEffectiveness = map[string]bool{
+	"low":     true,
+	"medium":  true,
+	"high":    true,
+	"unknown": true,
+}
+
+var allowedControlVerificationMethod = map[string]bool{
+	"test":       true,
+	"analysis":   true,
+	"inspection": true,
+	"exercise":   true,
+	"audit":      true,
+	"monitoring": true,
+}
+
+var allowedControlVerificationStatus = map[string]bool{
+	"not-run": true,
+	"pass":    true,
+	"fail":    true,
+	"partial": true,
+	"blocked": true,
+}
+
+var allowedFlowDirection = map[string]bool{
+	"inbound":       true,
+	"outbound":      true,
+	"bidirectional": true,
+	"internal":      true,
+}
+
+var allowedFlowFrequency = map[string]bool{
+	"realtime":  true,
+	"batch":     true,
+	"scheduled": true,
+	"on-demand": true,
 }
 
 func Bundle(b model.Bundle) []Diagnostic {
@@ -168,6 +267,11 @@ func Bundle(b model.Bundle) []Diagnostic {
 	states := map[string]bool{}
 	events := map[string]bool{}
 	risks := map[string]bool{}
+	threatScenarios := map[string]bool{}
+	threatAssumptions := map[string]bool{}
+	threatOutOfScope := map[string]bool{}
+	threatMitigations := map[string]bool{}
+	controlVerifications := map[string]bool{}
 	kindByID := map[string]string{}
 
 	for i, g := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -237,9 +341,13 @@ func Bundle(b model.Bundle) []Diagnostic {
 		kindByID[x.ID] = "poam_item"
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.TrustBoundaries {
-		addID(x.ID, fmt.Sprintf("authoredArchitecture.trustBoundaries[%d]", i))
+		path := fmt.Sprintf("authoredArchitecture.trustBoundaries[%d]", i)
+		addID(x.ID, path)
 		trustBoundaries[x.ID] = true
 		kindByID[x.ID] = "trust_boundary"
+		if parent := strings.TrimSpace(x.ParentRef); parent == strings.TrimSpace(x.ID) && parent != "" {
+			diags = append(diags, Diagnostic{Code: "model.invalid_trust_boundary_parent", Severity: SeverityError, Message: fmt.Sprintf("trust boundary %q cannot parent itself", x.ID), Path: path})
+		}
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.States {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.states[%d]", i))
@@ -255,10 +363,50 @@ func Bundle(b model.Bundle) []Diagnostic {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.flows[%d]", i))
 		kindByID[x.ID] = "flow"
 	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ThreatScenarios {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.threatScenarios[%d]", i))
+		threatScenarios[x.ID] = true
+		kindByID[x.ID] = "threat_scenario"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ThreatAssumptions {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.threatAssumptions[%d]", i))
+		threatAssumptions[x.ID] = true
+		kindByID[x.ID] = "threat_assumption"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ThreatOutOfScope {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.threatOutOfScope[%d]", i))
+		threatOutOfScope[x.ID] = true
+		kindByID[x.ID] = "threat_out_of_scope"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ThreatMitigations {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.threatMitigations[%d]", i))
+		threatMitigations[x.ID] = true
+		kindByID[x.ID] = "threat_mitigation"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.ControlVerifications {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.controlVerifications[%d]", i))
+		controlVerifications[x.ID] = true
+		kindByID[x.ID] = "control_verification"
+	}
 
 	validID := func(id string) bool {
 		_, ok := idOwner[id]
 		return ok
+	}
+
+	for i, boundary := range b.Architecture.AuthoredArchitecture.TrustBoundaries {
+		path := fmt.Sprintf("authoredArchitecture.trustBoundaries[%d]", i)
+		if parent := strings.TrimSpace(boundary.ParentRef); parent != "" {
+			if !trustBoundaries[parent] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_trust_boundary_parent", Severity: SeverityError, Message: fmt.Sprintf("unknown trust boundary parent %q", parent), Path: path})
+			}
+		}
+		for j, member := range boundary.Members {
+			member = strings.TrimSpace(member)
+			if member == "" || !validID(member) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_trust_boundary_member", Severity: SeverityError, Message: fmt.Sprintf("unknown trust boundary member %q", member), Path: fmt.Sprintf("%s.members[%d]", path, j)})
+			}
+		}
 	}
 
 	for i, m := range b.Architecture.AuthoredArchitecture.Mappings {
@@ -383,6 +531,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 				diags = append(diags, Diagnostic{Code: "model.invalid_risk_attack_vector_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown attack vector %q", id), Path: fmt.Sprintf("%s.attackVectors[%d]", path, j)})
 			}
 		}
+		for j, id := range r.ThreatScenarios {
+			id = strings.TrimSpace(id)
+			if id == "" || !threatScenarios[id] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_risk_threat_scenario_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown threat scenario %q", id), Path: fmt.Sprintf("%s.threatScenarios[%d]", path, j)})
+			}
+		}
 		for j, ev := range r.Evidence {
 			if strings.TrimSpace(ev.Path) == "" {
 				diags = append(diags, Diagnostic{Code: "model.empty_risk_evidence_path", Severity: SeverityError, Message: "risk evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
@@ -416,6 +570,33 @@ func Bundle(b model.Bundle) []Diagnostic {
 
 	for i, f := range b.Architecture.AuthoredArchitecture.Flows {
 		flowPath := fmt.Sprintf("authoredArchitecture.flows[%d]", i)
+		if kind := strings.ToLower(strings.TrimSpace(f.Kind)); kind != "" && !allowedFlowKinds[kind] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_flow_kind", Severity: SeverityError, Message: fmt.Sprintf("flow %q uses unknown kind %q", strings.TrimSpace(f.ID), f.Kind), Path: flowPath})
+		}
+		if direction := strings.ToLower(strings.TrimSpace(f.Direction)); direction != "" && !allowedFlowDirection[direction] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_flow_direction", Severity: SeverityError, Message: fmt.Sprintf("flow %q uses unknown direction %q", strings.TrimSpace(f.ID), f.Direction), Path: flowPath})
+		}
+		if frequency := strings.ToLower(strings.TrimSpace(f.Frequency)); frequency != "" && !allowedFlowFrequency[frequency] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_flow_frequency", Severity: SeverityError, Message: fmt.Sprintf("flow %q uses unknown frequency %q", strings.TrimSpace(f.ID), f.Frequency), Path: flowPath})
+		}
+		if source := strings.TrimSpace(f.SourceRef); source != "" && !validID(source) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_flow_source_ref", Severity: SeverityError, Message: fmt.Sprintf("flow %q references unknown source %q", strings.TrimSpace(f.ID), source), Path: flowPath})
+		}
+		if destination := strings.TrimSpace(f.DestinationRef); destination != "" && !validID(destination) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_flow_destination_ref", Severity: SeverityError, Message: fmt.Sprintf("flow %q references unknown destination %q", strings.TrimSpace(f.ID), destination), Path: flowPath})
+		}
+		for j, dataRef := range f.DataRefs {
+			dataRef = strings.TrimSpace(dataRef)
+			if dataRef == "" || !dataObjects[dataRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_data_ref", Severity: SeverityError, Message: fmt.Sprintf("flow %q references unknown data object %q", strings.TrimSpace(f.ID), dataRef), Path: fmt.Sprintf("%s.dataRefs[%d]", flowPath, j)})
+			}
+		}
+		for j, threatID := range f.Threats {
+			threatID = strings.TrimSpace(threatID)
+			if threatID == "" || !threatScenarios[threatID] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_threat_ref", Severity: SeverityError, Message: fmt.Sprintf("flow %q references unknown threat scenario %q", strings.TrimSpace(f.ID), threatID), Path: fmt.Sprintf("%s.threats[%d]", flowPath, j)})
+			}
+		}
 		stepOwner := map[string]string{}
 		for j, s := range f.Steps {
 			stepPath := fmt.Sprintf("%s.steps[%d]", flowPath, j)
@@ -432,10 +613,40 @@ func Bundle(b model.Bundle) []Diagnostic {
 			if kind := strings.TrimSpace(s.Kind); kind != "" && !allowedFlowStepKinds[kind] {
 				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_kind", Severity: SeverityError, Message: fmt.Sprintf("flow step %q uses unknown kind %q", stepID, kind), Path: stepPath})
 			}
+			if flowType := strings.ToLower(strings.TrimSpace(s.FlowType)); flowType != "" && !allowedFlowTypes[flowType] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_type", Severity: SeverityError, Message: fmt.Sprintf("flow step %q uses unknown flowType %q", stepID, s.FlowType), Path: stepPath})
+			}
+			if direction := strings.ToLower(strings.TrimSpace(s.Direction)); direction != "" && !allowedFlowDirection[direction] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_direction", Severity: SeverityError, Message: fmt.Sprintf("flow step %q uses unknown direction %q", stepID, s.Direction), Path: stepPath})
+			}
+			if frequency := strings.ToLower(strings.TrimSpace(s.Frequency)); frequency != "" && !allowedFlowFrequency[frequency] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_frequency", Severity: SeverityError, Message: fmt.Sprintf("flow step %q uses unknown frequency %q", stepID, s.Frequency), Path: stepPath})
+			}
 			if ref := strings.TrimSpace(s.Ref); ref == "" {
 				diags = append(diags, Diagnostic{Code: "model.missing_flow_step_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q must reference an authored id", stepID), Path: stepPath})
 			} else if !validID(ref) {
 				diags = append(diags, Diagnostic{Code: "model.broken_flow_reference", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown id %q", stepID, ref), Path: stepPath})
+			}
+			if source := strings.TrimSpace(s.SourceRef); source != "" && !validID(source) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_source_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown source %q", stepID, source), Path: stepPath})
+			}
+			if destination := strings.TrimSpace(s.DestinationRef); destination != "" && !validID(destination) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_step_destination_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown destination %q", stepID, destination), Path: stepPath})
+			}
+			if interfaceRef := strings.TrimSpace(s.InterfaceRef); interfaceRef != "" && !interfaces[interfaceRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_interface_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown interface %q", stepID, interfaceRef), Path: stepPath})
+			}
+			if trustBoundaryRef := strings.TrimSpace(s.TrustBoundaryRef); trustBoundaryRef != "" && !trustBoundaries[trustBoundaryRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_flow_trust_boundary_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown trust boundary %q", stepID, trustBoundaryRef), Path: stepPath})
+			}
+			if s.BoundaryCrossing && strings.TrimSpace(s.TrustBoundaryRef) == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_flow_boundary_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q marks boundaryCrossing but has no trustBoundaryRef", stepID), Path: stepPath})
+			}
+			for k, dataRef := range s.DataRefs {
+				dataRef = strings.TrimSpace(dataRef)
+				if dataRef == "" || !dataObjects[dataRef] {
+					diags = append(diags, Diagnostic{Code: "model.invalid_flow_data_ref", Severity: SeverityError, Message: fmt.Sprintf("flow step %q references unknown data object %q", stepID, dataRef), Path: fmt.Sprintf("%s.dataRefs[%d]", stepPath, k)})
+				}
 			}
 		}
 		if len(stepOwner) == 0 {
@@ -470,6 +681,207 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if len(f.Exits) > 0 {
 			for _, exit := range f.Exits {
 				validateStepTarget(exit, flowPath, "exit")
+			}
+		}
+	}
+
+	for i, ts := range b.Architecture.AuthoredArchitecture.ThreatScenarios {
+		path := fmt.Sprintf("authoredArchitecture.threatScenarios[%d]", i)
+		if strings.TrimSpace(ts.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_threat_scenario_title", Severity: SeverityError, Message: "threat scenario title is required", Path: path})
+		}
+		if av := strings.TrimSpace(ts.AttackVectorRef); av != "" && !vectors[av] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_attack_vector", Severity: SeverityError, Message: fmt.Sprintf("threat scenario references unknown attack vector %q", av), Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(ts.Status)); st != "" && !allowedThreatScenarioStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_status", Severity: SeverityError, Message: fmt.Sprintf("unknown threat scenario status %q", ts.Status), Path: path})
+		}
+		if owner := strings.TrimSpace(ts.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown threat scenario owner %q", owner), Path: path})
+		}
+		if rr := strings.TrimSpace(ts.RiskRef); rr != "" && !risks[rr] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_risk_ref", Severity: SeverityError, Message: fmt.Sprintf("threat scenario references unknown risk %q", rr), Path: path})
+		}
+		if lk := strings.ToLower(strings.TrimSpace(ts.Likelihood)); lk != "" && !allowedRiskLevel[lk] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_likelihood", Severity: SeverityError, Message: fmt.Sprintf("unknown likelihood %q", ts.Likelihood), Path: path})
+		}
+		if im := strings.ToLower(strings.TrimSpace(ts.Impact)); im != "" && !allowedRiskLevel[im] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_impact", Severity: SeverityError, Message: fmt.Sprintf("unknown impact %q", ts.Impact), Path: path})
+		}
+		if sv := strings.ToLower(strings.TrimSpace(ts.Severity)); sv != "" && !allowedRiskLevel[sv] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_severity", Severity: SeverityError, Message: fmt.Sprintf("unknown severity %q", ts.Severity), Path: path})
+		}
+		for j, target := range ts.AppliesTo {
+			target = strings.TrimSpace(target)
+			if target == "" || !validID(target) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_scope_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		for j, flowRef := range ts.FlowRefs {
+			flowRef = strings.TrimSpace(flowRef)
+			if flowRef == "" || kindByID[flowRef] != "flow" {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_flow_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown flow ref %q", flowRef), Path: fmt.Sprintf("%s.flowRefs[%d]", path, j)})
+			}
+		}
+		for j, controlRef := range ts.RelatedControls {
+			controlRef = strings.TrimSpace(controlRef)
+			if controlRef == "" || !controls[controlRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_control_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown related control %q", controlRef), Path: fmt.Sprintf("%s.relatedControls[%d]", path, j)})
+			}
+		}
+		for j, assumptionRef := range ts.AssumptionRefs {
+			assumptionRef = strings.TrimSpace(assumptionRef)
+			if assumptionRef == "" || !threatAssumptions[assumptionRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_assumption_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown assumption ref %q", assumptionRef), Path: fmt.Sprintf("%s.assumptionRefs[%d]", path, j)})
+			}
+		}
+		for j, outOfScopeRef := range ts.OutOfScopeRefs {
+			outOfScopeRef = strings.TrimSpace(outOfScopeRef)
+			if outOfScopeRef == "" || !threatOutOfScope[outOfScopeRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_out_of_scope_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown out-of-scope ref %q", outOfScopeRef), Path: fmt.Sprintf("%s.outOfScopeRefs[%d]", path, j)})
+			}
+		}
+		for j, mitigationRef := range ts.MitigationRefs {
+			mitigationRef = strings.TrimSpace(mitigationRef)
+			if mitigationRef == "" || !threatMitigations[mitigationRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_mitigation_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown mitigation ref %q", mitigationRef), Path: fmt.Sprintf("%s.mitigationRefs[%d]", path, j)})
+			}
+		}
+		for j, verificationRef := range ts.VerificationRefs {
+			verificationRef = strings.TrimSpace(verificationRef)
+			if verificationRef == "" || !controlVerifications[verificationRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_scenario_verification_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown verification ref %q", verificationRef), Path: fmt.Sprintf("%s.verificationRefs[%d]", path, j)})
+			}
+		}
+		for j, ev := range ts.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_threat_scenario_evidence_path", Severity: SeverityError, Message: "threat scenario evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+		if len(ts.AppliesTo) == 0 && len(ts.FlowRefs) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_threat_scenario_scope", Severity: SeverityError, Message: "threat scenario must include appliesTo or flowRefs", Path: path})
+		}
+	}
+
+	for i, assumption := range b.Architecture.AuthoredArchitecture.ThreatAssumptions {
+		path := fmt.Sprintf("authoredArchitecture.threatAssumptions[%d]", i)
+		if strings.TrimSpace(assumption.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_threat_assumption_title", Severity: SeverityError, Message: "threat assumption title is required", Path: path})
+		}
+		if strings.TrimSpace(assumption.Statement) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_threat_assumption_statement", Severity: SeverityError, Message: "threat assumption statement is required", Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(assumption.Status)); st != "" && !allowedThreatAssumptionStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_assumption_status", Severity: SeverityError, Message: fmt.Sprintf("unknown threat assumption status %q", assumption.Status), Path: path})
+		}
+		if owner := strings.TrimSpace(assumption.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_assumption_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown threat assumption owner %q", assumption.Owner), Path: path})
+		}
+		for j, id := range assumption.AppliesTo {
+			id = strings.TrimSpace(id)
+			if id == "" || !validID(id) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_assumption_scope_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", id), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		for j, ev := range assumption.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_threat_assumption_evidence_path", Severity: SeverityError, Message: "threat assumption evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+	}
+
+	for i, out := range b.Architecture.AuthoredArchitecture.ThreatOutOfScope {
+		path := fmt.Sprintf("authoredArchitecture.threatOutOfScope[%d]", i)
+		if strings.TrimSpace(out.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_threat_out_of_scope_title", Severity: SeverityError, Message: "threat out-of-scope title is required", Path: path})
+		}
+		if strings.TrimSpace(out.Reason) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_threat_out_of_scope_reason", Severity: SeverityError, Message: "threat out-of-scope reason is required", Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(out.Status)); st != "" && !allowedThreatOutOfScopeStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_out_of_scope_status", Severity: SeverityError, Message: fmt.Sprintf("unknown threat out-of-scope status %q", out.Status), Path: path})
+		}
+		if owner := strings.TrimSpace(out.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_out_of_scope_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown threat out-of-scope owner %q", out.Owner), Path: path})
+		}
+		if expires := strings.TrimSpace(out.ExpiresOn); expires != "" && !isoDateRe.MatchString(expires) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_out_of_scope_expiry", Severity: SeverityError, Message: fmt.Sprintf("invalid expiresOn %q, expected YYYY-MM-DD", out.ExpiresOn), Path: path})
+		}
+		for j, id := range out.AppliesTo {
+			id = strings.TrimSpace(id)
+			if id == "" || !validID(id) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_out_of_scope_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", id), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		for j, ev := range out.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_threat_out_of_scope_evidence_path", Severity: SeverityError, Message: "threat out-of-scope evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+	}
+
+	for i, mitigation := range b.Architecture.AuthoredArchitecture.ThreatMitigations {
+		path := fmt.Sprintf("authoredArchitecture.threatMitigations[%d]", i)
+		if scenarioRef := strings.TrimSpace(mitigation.ThreatScenarioRef); scenarioRef == "" || !threatScenarios[scenarioRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_scenario_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown threat scenario ref %q", mitigation.ThreatScenarioRef), Path: path})
+		}
+		if controlRef := strings.TrimSpace(mitigation.ControlRef); controlRef == "" || !controls[controlRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_control_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown control ref %q", mitigation.ControlRef), Path: path})
+		}
+		if st := strings.ToLower(strings.TrimSpace(mitigation.Status)); st != "" && !allowedThreatMitigationStatus[st] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_status", Severity: SeverityError, Message: fmt.Sprintf("unknown threat mitigation status %q", mitigation.Status), Path: path})
+		}
+		if eff := strings.ToLower(strings.TrimSpace(mitigation.Effectiveness)); eff != "" && !allowedThreatMitigationEffectiveness[eff] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_effectiveness", Severity: SeverityError, Message: fmt.Sprintf("unknown threat mitigation effectiveness %q", mitigation.Effectiveness), Path: path})
+		}
+		if owner := strings.TrimSpace(mitigation.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown threat mitigation owner %q", mitigation.Owner), Path: path})
+		}
+		for j, verificationRef := range mitigation.VerificationRefs {
+			verificationRef = strings.TrimSpace(verificationRef)
+			if verificationRef == "" || !controlVerifications[verificationRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_threat_mitigation_verification_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown control verification ref %q", verificationRef), Path: fmt.Sprintf("%s.verificationRefs[%d]", path, j)})
+			}
+		}
+		for j, ev := range mitigation.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_threat_mitigation_evidence_path", Severity: SeverityError, Message: "threat mitigation evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+			}
+		}
+	}
+
+	for i, verification := range b.Architecture.AuthoredArchitecture.ControlVerifications {
+		path := fmt.Sprintf("authoredArchitecture.controlVerifications[%d]", i)
+		if controlRef := strings.TrimSpace(verification.ControlRef); controlRef == "" || !controls[controlRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_control_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown control ref %q", verification.ControlRef), Path: path})
+		}
+		if method := strings.ToLower(strings.TrimSpace(verification.Method)); method != "" && !allowedControlVerificationMethod[method] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_method", Severity: SeverityError, Message: fmt.Sprintf("unknown control verification method %q", verification.Method), Path: path})
+		}
+		if status := strings.ToLower(strings.TrimSpace(verification.Status)); status != "" && !allowedControlVerificationStatus[status] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_status", Severity: SeverityError, Message: fmt.Sprintf("unknown control verification status %q", verification.Status), Path: path})
+		}
+		if owner := strings.TrimSpace(verification.Owner); owner != "" && !actors[owner] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_owner", Severity: SeverityError, Message: fmt.Sprintf("unknown control verification owner %q", verification.Owner), Path: path})
+		}
+		if tested := strings.TrimSpace(verification.LastTested); tested != "" && !isoDateRe.MatchString(tested) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_last_tested", Severity: SeverityError, Message: fmt.Sprintf("invalid lastTested %q, expected YYYY-MM-DD", verification.LastTested), Path: path})
+		}
+		for j, scenarioRef := range verification.ThreatScenarioRefs {
+			scenarioRef = strings.TrimSpace(scenarioRef)
+			if scenarioRef == "" || !threatScenarios[scenarioRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_threat_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown threat scenario ref %q", scenarioRef), Path: fmt.Sprintf("%s.threatScenarioRefs[%d]", path, j)})
+			}
+		}
+		for j, riskRef := range verification.RiskRefs {
+			riskRef = strings.TrimSpace(riskRef)
+			if riskRef == "" || !risks[riskRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_risk_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown risk ref %q", riskRef), Path: fmt.Sprintf("%s.riskRefs[%d]", path, j)})
+			}
+		}
+		for j, ev := range verification.Evidence {
+			if strings.TrimSpace(ev.Path) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_control_verification_evidence_path", Severity: SeverityError, Message: "control verification evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
 			}
 		}
 	}

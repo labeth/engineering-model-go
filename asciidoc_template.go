@@ -222,10 +222,93 @@ type asciidocViewSection struct {
 	SecurityDataFlowDFD       string
 	SecurityThreatOverlayDFD  string
 	SecurityRows              []asciidocSecurityPathRow
+	SecurityThreatScenarios   []asciidocThreatScenarioRow
+	SecurityThreatAssumptions []asciidocThreatAssumptionRow
+	SecurityThreatOutOfScope  []asciidocThreatOutOfScopeRow
+	SecurityThreatMitigations []asciidocThreatMitigationRow
+	SecurityControlChecks     []asciidocControlVerificationRow
+	SecurityFlowRows          []asciidocSecurityFlowRow
 	SecurityObsRows           []asciidocSecurityObsRow
 	SecurityAttackChapters    []asciidocSecurityAttackChapter
 	ProjectedNodes            []asciidocProjectedNode
 	ProjectedMappings         []asciidocMappingSection
+}
+
+type asciidocThreatScenarioRow struct {
+	ID            string
+	Title         string
+	AttackVector  string
+	Scope         string
+	Flows         string
+	Likelihood    string
+	Impact        string
+	Severity      string
+	Status        string
+	Owner         string
+	Risk          string
+	Controls      string
+	Mitigations   string
+	Verifications string
+}
+
+type asciidocThreatAssumptionRow struct {
+	ID        string
+	Title     string
+	Status    string
+	Owner     string
+	AppliesTo string
+	Rationale string
+}
+
+type asciidocThreatOutOfScopeRow struct {
+	ID        string
+	Title     string
+	Status    string
+	Owner     string
+	AppliesTo string
+	ExpiresOn string
+	Reason    string
+}
+
+type asciidocThreatMitigationRow struct {
+	ID             string
+	ThreatScenario string
+	Control        string
+	Status         string
+	Effectiveness  string
+	Owner          string
+	Verifications  string
+	Notes          string
+}
+
+type asciidocControlVerificationRow struct {
+	ID              string
+	Control         string
+	ThreatScenarios string
+	Risks           string
+	Method          string
+	Status          string
+	Owner           string
+	LastTested      string
+	Findings        string
+}
+
+type asciidocSecurityFlowRow struct {
+	ID               string
+	Title            string
+	Kind             string
+	Direction        string
+	Frequency        string
+	Source           string
+	Destination      string
+	Protocol         string
+	Authentication   string
+	Encryption       string
+	Integrity        string
+	TrustBoundary    string
+	BoundaryCrossing string
+	Threats          string
+	Data             string
 }
 
 type asciidocSecurityAttackChapter struct {

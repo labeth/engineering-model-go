@@ -143,19 +143,43 @@ authoredArchitecture:
       termRef: DATA-PAYMENT-REQUEST
       schemaRef: schemas/auth-request.json
       sensitivity: confidential
+      classification: pci
+      regulatoryTags: [pci-dss]
+      retention: 400_days
+      confidentiality: high
+      integrity: high
+      availability: medium
     - id: DO-PAYMENTS-AUTH-DECISION
       name: Authorization Decision
       termRef: DATA-AUTH-DECISION
       schemaRef: schemas/auth-decision.json
       sensitivity: internal
+      classification: regulated-internal
+      regulatoryTags: [pci-dss]
+      retention: 400_days
+      confidentiality: medium
+      integrity: high
+      availability: high
     - id: DO-PAYMENTS-RISK-SIGNAL
       name: Risk Signal
       schemaRef: schemas/risk-signal.json
       sensitivity: internal
+      classification: fraud-analytics
+      regulatoryTags: [fraud-monitoring]
+      retention: 365_days
+      confidentiality: medium
+      integrity: high
+      availability: medium
     - id: DO-PAYMENTS-REVIEW-TICKET
       name: Manual Review Ticket
       schemaRef: schemas/review-ticket.json
       sensitivity: confidential
+      classification: pii
+      regulatoryTags: [pci-dss, internal-audit]
+      retention: 730_days
+      confidentiality: high
+      integrity: high
+      availability: medium
 
   deploymentTargets:
     - id: DEP-PAYMENTS-CLUSTER-PROD
@@ -178,59 +202,245 @@ authoredArchitecture:
   flows:
     - id: FLOW-CUSTOMER-CHECKOUT
       title: Customer Checkout Authorization Flow
+      kind: security
+      methodology: owasp-tm
+      direction: inbound
+      frequency: realtime
+      sourceRef: ACT-CUSTOMER
+      destinationRef: FU-CHECKOUT
+      protocol: https
+      channel: public-api
+      authentication: session-token
+      encryptionInTransit: tls1.3
+      integrityProtection: request-signature
+      dataRefs: [DO-PAYMENTS-AUTH-REQUEST, DO-PAYMENTS-AUTH-DECISION]
+      description: End-to-end checkout authorization including fraud and bank integration boundaries.
       entry: [submit-payment]
       exits: [show-outcome]
+      threats: [TS-PAYMENTS-CHECKOUT-SPOOFING, TS-PAYMENTS-BANK-CALLBACK-REPLAY]
       steps:
         - id: submit-payment
           kind: user_action
+          flowType: interaction
+          direction: inbound
+          frequency: realtime
+          sourceRef: ACT-CUSTOMER
+          destinationRef: FU-CHECKOUT
           ref: ACT-CUSTOMER
           action: Customer submits checkout payment form
           dataIn: [payment_method, billing_address, amount]
+          dataRefs: [DO-PAYMENTS-AUTH-REQUEST]
           next: [normalize-request]
         - id: normalize-request
           kind: system_action
+          flowType: security
+          direction: internal
+          frequency: realtime
+          sourceRef: FU-CHECKOUT
+          destinationRef: DO-PAYMENTS-AUTH-REQUEST
           ref: FU-CHECKOUT
           action: Normalize and validate checkout payload
           dataOut: [normalized_payment_request]
+          dataRefs: [DO-PAYMENTS-AUTH-REQUEST]
+          interfaceRef: IF-PAYMENTS-CHECKOUT-API
+          authentication: schema-validation
+          integrityProtection: strict-decoder
           onError: [show-outcome]
           next: [authorize-payment]
         - id: authorize-payment
           kind: system_action
+          flowType: security
+          direction: outbound
+          frequency: realtime
+          sourceRef: FU-PAYMENT-AUTHORIZATION
+          destinationRef: IF-PAYMENTS-BANK-AUTH
           ref: FU-PAYMENT-AUTHORIZATION
           action: Request fraud score and external authorization
           dataIn: [normalized_payment_request]
           dataOut: [authorization_decision]
+          dataRefs: [DO-PAYMENTS-AUTH-REQUEST, DO-PAYMENTS-AUTH-DECISION, DO-PAYMENTS-RISK-SIGNAL]
+          interfaceRef: IF-PAYMENTS-BANK-AUTH
+          trustBoundaryRef: TB-PAYMENTS-EXTERNAL-BANK
+          boundaryCrossing: true
+          authentication: mtls
+          encryptionInTransit: tls1.3
+          integrityProtection: nonce-hmac
           async: true
           onError: [show-outcome]
           next: [show-outcome]
         - id: show-outcome
           kind: system_action
+          flowType: interaction
+          direction: outbound
+          frequency: realtime
+          sourceRef: FU-CHECKOUT
+          destinationRef: ACT-CUSTOMER
           ref: FU-CHECKOUT
           action: Return approval or decline outcome to customer
           dataIn: [authorization_decision]
+          dataRefs: [DO-PAYMENTS-AUTH-DECISION]
     - id: FLOW-PAYMENTS-MANUAL-REVIEW
       title: High-Risk Manual Review Flow
+      kind: control
+      methodology: owasp-tm
+      direction: internal
+      frequency: on-demand
+      sourceRef: FU-RISK-SCORING
+      destinationRef: FU-SUPPORT-REVIEW
+      protocol: internal-event
+      channel: review-queue
+      authentication: workload-identity
+      encryptionInTransit: tls1.3
+      integrityProtection: signed-event
+      dataRefs: [DO-PAYMENTS-RISK-SIGNAL, DO-PAYMENTS-REVIEW-TICKET]
+      description: Manual review escalation path for high-risk payment attempts.
       entry: [detect-high-risk]
       exits: [complete-review]
+      threats: [TS-PAYMENTS-RISK-TICKET-TAMPER]
       steps:
         - id: detect-high-risk
           kind: system_action
+          flowType: control
+          direction: internal
+          frequency: on-demand
+          sourceRef: FU-RISK-SCORING
+          destinationRef: DO-PAYMENTS-RISK-SIGNAL
           ref: FU-RISK-SCORING
           action: Detect high-risk signal and emit escalation trigger
           dataOut: [risk_signal]
+          dataRefs: [DO-PAYMENTS-RISK-SIGNAL]
           next: [create-review-ticket]
         - id: create-review-ticket
           kind: system_action
+          flowType: control
+          direction: internal
+          frequency: on-demand
+          sourceRef: FU-SUPPORT-REVIEW
+          destinationRef: DO-PAYMENTS-REVIEW-TICKET
           ref: FU-SUPPORT-REVIEW
           action: Create manual review ticket for support operations
           dataIn: [risk_signal]
           dataOut: [review_ticket]
+          dataRefs: [DO-PAYMENTS-RISK-SIGNAL, DO-PAYMENTS-REVIEW-TICKET]
+          authentication: workforce-sso-mfa
+          integrityProtection: append-only-audit-log
           next: [complete-review]
         - id: complete-review
           kind: system_action
+          flowType: control
+          direction: internal
+          frequency: on-demand
+          sourceRef: FU-PAYMENT-AUTHORIZATION
+          destinationRef: FU-CHECKOUT
           ref: FU-PAYMENT-AUTHORIZATION
           action: Complete authorization using manual review outcome
           dataIn: [review_ticket]
+          dataRefs: [DO-PAYMENTS-REVIEW-TICKET, DO-PAYMENTS-AUTH-DECISION]
+
+  threatAssumptions:
+    - id: ASM-PAYMENTS-BANK-SIGNING-VALID
+      title: Bank callback signatures are managed securely
+      statement: External bank callbacks include valid timestamped signatures generated from managed key material.
+      status: accepted
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [IF-PAYMENTS-BANK-AUTH, FU-PAYMENT-AUTHORIZATION, TB-PAYMENTS-EXTERNAL-BANK]
+      rationale: Contractual controls and quarterly partner assurance reviews support this assumption.
+      evidence:
+        - path: docs/security/bank-callback-signed-contract.md
+          description: Partner integration contract requiring signed callback payloads.
+
+  threatOutOfScope:
+    - id: OOS-PAYMENTS-BANK-HSM-OPERATIONS
+      title: Bank partner HSM internals
+      reason: Key management implementation details within the partner bank infrastructure are not accessible to this team.
+      status: approved
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [REF-BANK-GATEWAY-ENDPOINT, TB-PAYMENTS-EXTERNAL-BANK]
+      expiresOn: 2027-12-31
+      evidence:
+        - path: docs/security/partner-boundary-statement.md
+          description: Shared responsibility statement for partner cryptographic infrastructure.
+
+  threatScenarios:
+    - id: TS-PAYMENTS-CHECKOUT-SPOOFING
+      title: Checkout payload spoofing bypasses normalization checks
+      summary: Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.
+      category: application-abuse
+      stride: tampering
+      cwe: [CWE-20, CWE-345]
+      attackVectorRef: AV-MALICIOUS-API-REQUEST
+      appliesTo: [FU-CHECKOUT, IF-PAYMENTS-CHECKOUT-API, DO-PAYMENTS-AUTH-REQUEST]
+      flowRefs: [FLOW-CUSTOMER-CHECKOUT]
+      entryPoint: IF-PAYMENTS-CHECKOUT-API
+      preconditions: [invalid-schema-acceptance, weak-normalization-rules]
+      exploitPath: [submit-payment, normalize-request, authorize-payment]
+      likelihood: medium
+      impact: high
+      severity: high
+      status: mitigating
+      owner: ACT-PLATFORM-OPERATOR
+      riskRef: RISK-PAYMENTS-CHECKOUT-SPOOFING
+      relatedControls: [CTRL-PAYMENTS-SSO-MFA]
+      assumptionRefs: [ASM-PAYMENTS-BANK-SIGNING-VALID]
+      outOfScopeRefs: [OOS-PAYMENTS-BANK-HSM-OPERATIONS]
+      mitigationRefs: [MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA]
+      verificationRefs: [CV-PAYMENTS-CHECKOUT-SCHEMA-TEST]
+      detection: [api-validation-errors, unusual-checkout-failure-ratio]
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Contract tests for malformed request behavior.
+    - id: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+      title: Replayed bank callback triggers duplicate authorization transition
+      summary: Replayed callback message tries to overwrite or duplicate prior decision outcomes.
+      category: integration-abuse
+      stride: replay
+      cwe: [CWE-294]
+      attackVectorRef: AV-REPLAYED-AUTH-CALLBACK
+      appliesTo: [FU-PAYMENT-AUTHORIZATION, IF-PAYMENTS-BANK-AUTH, DO-PAYMENTS-AUTH-DECISION]
+      flowRefs: [FLOW-CUSTOMER-CHECKOUT]
+      entryPoint: IF-PAYMENTS-BANK-AUTH
+      preconditions: [nonce-window-too-wide, callback-idempotency-gap]
+      exploitPath: [authorize-payment, show-outcome]
+      likelihood: medium
+      impact: high
+      severity: high
+      status: mitigating
+      owner: ACT-PLATFORM-OPERATOR
+      riskRef: RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+      relatedControls: [CTRL-PAYMENTS-CALLBACK-NONCE]
+      assumptionRefs: [ASM-PAYMENTS-BANK-SIGNING-VALID]
+      outOfScopeRefs: [OOS-PAYMENTS-BANK-HSM-OPERATIONS]
+      mitigationRefs: [MIT-PAYMENTS-CALLBACK-NONCE-CHECK]
+      verificationRefs: [CV-PAYMENTS-CALLBACK-REPLAY-TEST]
+      detection: [duplicate-callback-id, replay-window-alert]
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Contract test suite includes repeated callback handling checks.
+    - id: TS-PAYMENTS-RISK-TICKET-TAMPER
+      title: Manual review ticket tampering influences authorization result
+      summary: A compromised support or workflow path modifies review ticket outcomes before authorization completes.
+      category: insider-abuse
+      stride: tampering
+      cwe: [CWE-285]
+      attackVectorRef: AV-FRAUDULENT-TRANSACTION-PATTERN
+      appliesTo: [FU-SUPPORT-REVIEW, DO-PAYMENTS-REVIEW-TICKET, FU-PAYMENT-AUTHORIZATION]
+      flowRefs: [FLOW-PAYMENTS-MANUAL-REVIEW]
+      entryPoint: FU-SUPPORT-REVIEW
+      preconditions: [excessive-privileges, weak-audit-integrity]
+      exploitPath: [create-review-ticket, complete-review]
+      likelihood: low
+      impact: high
+      severity: medium
+      status: identified
+      owner: ACT-PLATFORM-OPERATOR
+      riskRef: RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+      relatedControls: [CTRL-PAYMENTS-SSO-MFA]
+      mitigationRefs: [MIT-PAYMENTS-MANUAL-REVIEW-AUDIT]
+      verificationRefs: [CV-PAYMENTS-MANUAL-REVIEW-TRACE]
+      detection: [review-ticket-diff-alert, privileged-action-audit]
+      evidence:
+        - path: docs/security/manual-review-control-notes.md
+          description: Control notes for support review action integrity.
 
   controls:
     - id: CTRL-PAYMENTS-SSO-MFA
@@ -241,6 +451,10 @@ authoredArchitecture:
       name: Immutable Image Digests
       category: supply-chain
       description: Enforce immutable digest-pinned container image references.
+    - id: CTRL-PAYMENTS-CALLBACK-NONCE
+      name: Callback Nonce and Idempotency Guard
+      category: protocol-integrity
+      description: Enforce nonce freshness and idempotency on bank callback processing.
 
   controlAllocations:
     - id: ALLOC-AC-2-IA-2-SSO
@@ -271,14 +485,31 @@ authoredArchitecture:
         - path: infra/helm/values-prod.yaml
           description: Production chart values pin immutable digest references.
       responsibleRoles: [ACT-PLATFORM-OPERATOR]
+    - id: ALLOC-SI-10-CALLBACK-NONCE
+      controlRef: CTRL-PAYMENTS-CALLBACK-NONCE
+      oscalControlIds: [si-10]
+      appliesTo: [FU-PAYMENT-AUTHORIZATION, IF-PAYMENTS-BANK-AUTH]
+      implementationType: technical
+      status: implemented
+      narrative: |
+        Authorization callback handling validates nonce freshness and request idempotency before writing decisions.
+        Duplicate callback identifiers are rejected and emitted as security-relevant telemetry.
+      evidence:
+        - path: src/payment_authorization.go
+          description: Callback nonce and idempotency enforcement path.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
 
   trustBoundaries:
     - id: TB-PAYMENTS-EXTERNAL-BANK
       name: External Bank Boundary
       description: Separates internal payment authorization from external bank services.
+      boundaryType: network
+      members: [FU-PAYMENT-AUTHORIZATION, IF-PAYMENTS-BANK-AUTH, DEP-PAYMENTS-BANK-EDGE]
     - id: TB-PAYMENTS-PLATFORM-CONTROL
       name: Platform Control Boundary
       description: Separates app workloads from platform control-plane authority.
+      boundaryType: control-plane
+      members: [FU-GITOPS-OPERATIONS, FU-CLUSTER-PROVISIONING, DEP-PAYMENTS-CLUSTER-PROD]
 
   states:
     - id: STATE-PAYMENTS-CHECKOUT-RECEIVED
@@ -308,11 +539,139 @@ authoredArchitecture:
       appliesTo: [FU-GITOPS-OPERATIONS, FU-SUPPORT-REVIEW]
       relatedControls: [CTRL-PAYMENTS-SSO-MFA]
       attackVectors: [AV-MALICIOUS-API-REQUEST]
+      threatScenarios: [TS-PAYMENTS-RISK-TICKET-TAMPER]
       evidence:
         - path: infra/identity/sso-policy.yaml
           description: Active MFA policy configuration.
       residualRisk: medium
       rationale: Legacy operator account cleanup still in progress.
+    - id: RISK-PAYMENTS-CHECKOUT-SPOOFING
+      title: Checkout payload spoofing risk
+      statement: Crafted checkout payloads may bypass validation and force unintended authorization paths.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [FU-CHECKOUT, IF-PAYMENTS-CHECKOUT-API]
+      relatedControls: [CTRL-PAYMENTS-SSO-MFA]
+      attackVectors: [AV-MALICIOUS-API-REQUEST]
+      threatScenarios: [TS-PAYMENTS-CHECKOUT-SPOOFING]
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Contract tests for malformed request decline behavior.
+      residualRisk: medium
+      rationale: Validation controls are implemented but continuously tuned as payload variants evolve.
+    - id: RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+      title: Bank callback replay risk
+      statement: Replayed authorization callbacks may produce duplicate or stale decision transitions.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [FU-PAYMENT-AUTHORIZATION, IF-PAYMENTS-BANK-AUTH]
+      relatedControls: [CTRL-PAYMENTS-CALLBACK-NONCE]
+      attackVectors: [AV-REPLAYED-AUTH-CALLBACK]
+      threatScenarios: [TS-PAYMENTS-BANK-CALLBACK-REPLAY]
+      evidence:
+        - path: src/payment_authorization.go
+          description: Callback nonce and idempotency checks.
+      residualRisk: low
+      rationale: Nonce and idempotency controls sharply reduce replay window impact.
+    - id: RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+      title: Manual review decision tampering risk
+      statement: Privileged workflow manipulation may alter manual review outcomes before final decision publication.
+      status: open
+      likelihood: low
+      impact: high
+      response: mitigate
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [FU-SUPPORT-REVIEW, DO-PAYMENTS-REVIEW-TICKET]
+      relatedControls: [CTRL-PAYMENTS-SSO-MFA]
+      attackVectors: [AV-FRAUDULENT-TRANSACTION-PATTERN]
+      threatScenarios: [TS-PAYMENTS-RISK-TICKET-TAMPER]
+      evidence:
+        - path: docs/security/manual-review-control-notes.md
+          description: Current integrity controls for support workflow.
+      residualRisk: medium
+      rationale: Audit coverage is present but needs tighter immutable trail enforcement.
+
+  controlVerifications:
+    - id: CV-PAYMENTS-CHECKOUT-SCHEMA-TEST
+      controlRef: CTRL-PAYMENTS-SSO-MFA
+      threatScenarioRefs: [TS-PAYMENTS-CHECKOUT-SPOOFING]
+      riskRefs: [RISK-PAYMENTS-CHECKOUT-SPOOFING]
+      method: test
+      status: pass
+      owner: ACT-PLATFORM-OPERATOR
+      lastTested: 2026-04-10
+      findings:
+        - malformed checkout payloads rejected with deterministic decline path
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Payload validation regression test.
+    - id: CV-PAYMENTS-CALLBACK-REPLAY-TEST
+      controlRef: CTRL-PAYMENTS-CALLBACK-NONCE
+      threatScenarioRefs: [TS-PAYMENTS-BANK-CALLBACK-REPLAY]
+      riskRefs: [RISK-PAYMENTS-BANK-CALLBACK-REPLAY]
+      method: test
+      status: pass
+      owner: ACT-PLATFORM-OPERATOR
+      lastTested: 2026-04-15
+      findings:
+        - duplicate callback identifiers correctly rejected
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Replay and idempotency assertions for callback path.
+    - id: CV-PAYMENTS-MANUAL-REVIEW-TRACE
+      controlRef: CTRL-PAYMENTS-SSO-MFA
+      threatScenarioRefs: [TS-PAYMENTS-RISK-TICKET-TAMPER]
+      riskRefs: [RISK-PAYMENTS-MANUAL-REVIEW-TAMPER]
+      method: analysis
+      status: partial
+      owner: ACT-PLATFORM-OPERATOR
+      lastTested: 2026-04-20
+      findings:
+        - review ticket mutation trail exists but immutability controls are incomplete
+      evidence:
+        - path: docs/security/manual-review-control-notes.md
+          description: Manual review trail analysis.
+
+  threatMitigations:
+    - id: MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA
+      threatScenarioRef: TS-PAYMENTS-CHECKOUT-SPOOFING
+      controlRef: CTRL-PAYMENTS-SSO-MFA
+      status: implemented
+      effectiveness: medium
+      owner: ACT-PLATFORM-OPERATOR
+      notes: Strict schema decoding and normalized request construction reduce spoofing surface.
+      verificationRefs: [CV-PAYMENTS-CHECKOUT-SCHEMA-TEST]
+      evidence:
+        - path: tests/contract/checkout_decline_response_test.go
+          description: Schema-hardening behavior tests.
+    - id: MIT-PAYMENTS-CALLBACK-NONCE-CHECK
+      threatScenarioRef: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+      controlRef: CTRL-PAYMENTS-CALLBACK-NONCE
+      status: verified
+      effectiveness: high
+      owner: ACT-PLATFORM-OPERATOR
+      notes: Nonce freshness and idempotency lock reduce replay acceptance probability.
+      verificationRefs: [CV-PAYMENTS-CALLBACK-REPLAY-TEST]
+      evidence:
+        - path: src/payment_authorization.go
+          description: Nonce + idempotency callback handler.
+    - id: MIT-PAYMENTS-MANUAL-REVIEW-AUDIT
+      threatScenarioRef: TS-PAYMENTS-RISK-TICKET-TAMPER
+      controlRef: CTRL-PAYMENTS-SSO-MFA
+      status: partial
+      effectiveness: medium
+      owner: ACT-PLATFORM-OPERATOR
+      notes: MFA-gated support actions are in place; append-only integrity controls are being expanded.
+      verificationRefs: [CV-PAYMENTS-MANUAL-REVIEW-TRACE]
+      evidence:
+        - path: docs/security/manual-review-control-notes.md
+          description: Current state of manual review action auditability.
 
   poamItems:
     - id: POAM-PAYMENTS-SSO-LEGACY-CLEANUP

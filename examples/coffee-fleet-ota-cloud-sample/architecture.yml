@@ -140,11 +140,23 @@ authoredArchitecture:
       termRef: DATA-TELEMETRY-EVENT
       schemaRef: schemas/telemetry-event.json
       sensitivity: internal
+      classification: operational-metrics
+      regulatoryTags: [internal-operations]
+      retention: 180_days
+      confidentiality: medium
+      integrity: high
+      availability: high
     - id: DO-COFFEE-OTA-PLAN
       name: OTA Rollout Plan
       termRef: DATA-OTA-PLAN
       schemaRef: schemas/ota-plan.json
       sensitivity: internal
+      classification: deployment-control
+      regulatoryTags: [safety-control]
+      retention: 365_days
+      confidentiality: medium
+      integrity: high
+      availability: medium
 
   deploymentTargets:
     - id: DEP-COFFEE-CLOUD-PROD
@@ -200,9 +212,13 @@ authoredArchitecture:
     - id: TB-COFFEE-EDGE-DEVICE
       name: Edge Device Boundary
       description: Boundary between managed edge devices and cloud control plane.
+      boundaryType: device-network
+      members: [FU-OTA-UPDATE-AGENT, FU-MACHINE-TELEMETRY-COLLECTION, DEP-COFFEE-EDGE-FLEET]
     - id: TB-COFFEE-CLOUD-CONTROL
       name: Cloud Control Boundary
       description: Boundary between cloud app workloads and privileged platform controls.
+      boundaryType: control-plane
+      members: [FU-CLOUD-RUNTIME-OPERATIONS, FU-DEVICE-IDENTITY-SECRETS, DEP-COFFEE-CLOUD-PROD]
 
   states:
     - id: STATE-COFFEE-OTA-SCHEDULED
@@ -223,59 +239,275 @@ authoredArchitecture:
   flows:
     - id: FLOW-COFFEE-OTA-ROLLOUT
       title: OTA Rollout Interaction Flow
+      kind: security
+      methodology: owasp-tm
+      direction: outbound
+      frequency: scheduled
+      sourceRef: ACT-FLEET-OPERATOR
+      destinationRef: FU-OTA-UPDATE-AGENT
+      protocol: mqtt
+      channel: ota-command
+      authentication: device-mtls
+      encryptionInTransit: tls1.3
+      integrityProtection: firmware-signature
+      dataRefs: [DO-COFFEE-OTA-PLAN]
+      description: OTA campaign command path from operator scheduling through edge execution and reporting.
       entry: [operator-schedules-rollout]
       exits: [report-outcome]
+      threats: [TS-COFFEE-MALICIOUS-OTA-BUNDLE, TS-COFFEE-OTA-COMMAND-SPOOF]
       steps:
         - id: operator-schedules-rollout
           kind: user_action
+          flowType: control
+          direction: inbound
+          frequency: scheduled
+          sourceRef: ACT-FLEET-OPERATOR
+          destinationRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
           ref: ACT-FLEET-OPERATOR
           action: Fleet operator schedules OTA campaign
           next: [plan-campaign]
         - id: plan-campaign
           kind: system_action
+          flowType: control
+          direction: internal
+          frequency: scheduled
+          sourceRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+          destinationRef: DO-COFFEE-OTA-PLAN
           ref: FU-UPDATE-CAMPAIGN-ORCHESTRATION
           action: Build rollout cohorts and policy checks
           dataOut: [ota_rollout_plan]
+          dataRefs: [DO-COFFEE-OTA-PLAN]
           next: [execute-update]
         - id: execute-update
           kind: system_action
+          flowType: security
+          direction: outbound
+          frequency: scheduled
+          sourceRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+          destinationRef: FU-OTA-UPDATE-AGENT
           ref: FU-OTA-UPDATE-AGENT
           action: Execute signed OTA update on edge devices
           dataIn: [ota_rollout_plan]
+          dataRefs: [DO-COFFEE-OTA-PLAN]
+          interfaceRef: IF-COFFEE-OTA-COMMAND
+          trustBoundaryRef: TB-COFFEE-EDGE-DEVICE
+          boundaryCrossing: true
+          authentication: device-mtls
+          encryptionInTransit: tls1.3
+          integrityProtection: signature-verification
           async: true
           onError: [report-outcome]
           next: [report-outcome]
         - id: report-outcome
           kind: system_action
+          flowType: notification
+          direction: inbound
+          frequency: scheduled
+          sourceRef: FU-OTA-UPDATE-AGENT
+          destinationRef: FU-FLEET-OBSERVABILITY-REPORTING
           ref: FU-FLEET-OBSERVABILITY-REPORTING
           action: Emit rollout status and observability summary
+          dataRefs: [DO-COFFEE-OTA-PLAN]
     - id: FLOW-COFFEE-TELEMETRY-INGEST
       title: Telemetry Ingestion Interaction Flow
+      kind: data
+      methodology: owasp-tm
+      direction: inbound
+      frequency: realtime
+      sourceRef: FU-MACHINE-TELEMETRY-COLLECTION
+      destinationRef: FU-FLEET-INGESTION-API
+      protocol: mqtt
+      channel: telemetry
+      authentication: device-identity-token
+      encryptionInTransit: tls1.3
+      integrityProtection: signed-telemetry-envelope
+      dataRefs: [DO-COFFEE-TELEMETRY-EVENT]
+      description: Telemetry path from device event collection to cloud ingest and reporting.
       entry: [capture-machine-telemetry]
       exits: [publish-fleet-observability]
+      threats: [TS-COFFEE-TELEMETRY-REPLAY, TS-COFFEE-LOG-TAMPERING]
       steps:
         - id: capture-machine-telemetry
           kind: user_action
+          flowType: interaction
+          direction: internal
+          frequency: realtime
+          sourceRef: ACT-BARISTA
+          destinationRef: FU-MACHINE-TELEMETRY-COLLECTION
           ref: ACT-BARISTA
           action: Barista machine activity produces telemetry events
           next: [collect-and-send-telemetry]
         - id: collect-and-send-telemetry
           kind: system_action
+          flowType: data
+          direction: outbound
+          frequency: realtime
+          sourceRef: FU-MACHINE-TELEMETRY-COLLECTION
+          destinationRef: IF-COFFEE-TELEMETRY-INGEST
           ref: FU-MACHINE-TELEMETRY-COLLECTION
           action: Collect and send telemetry payloads to cloud ingest
           dataOut: [telemetry_event]
+          dataRefs: [DO-COFFEE-TELEMETRY-EVENT]
+          interfaceRef: IF-COFFEE-TELEMETRY-INGEST
+          trustBoundaryRef: TB-COFFEE-EDGE-DEVICE
+          boundaryCrossing: true
+          authentication: device-identity-token
+          encryptionInTransit: tls1.3
+          integrityProtection: signed-telemetry-envelope
           next: [ingest-telemetry]
         - id: ingest-telemetry
           kind: system_action
+          flowType: security
+          direction: inbound
+          frequency: realtime
+          sourceRef: IF-COFFEE-TELEMETRY-INGEST
+          destinationRef: FU-FLEET-INGESTION-API
           ref: FU-FLEET-INGESTION-API
           action: Validate and ingest telemetry records
           dataIn: [telemetry_event]
+          dataRefs: [DO-COFFEE-TELEMETRY-EVENT]
+          authentication: device-identity-validation
+          integrityProtection: replay-window-check
           next: [publish-fleet-observability]
         - id: publish-fleet-observability
           kind: system_action
+          flowType: notification
+          direction: internal
+          frequency: realtime
+          sourceRef: FU-FLEET-INGESTION-API
+          destinationRef: FU-FLEET-OBSERVABILITY-REPORTING
           ref: FU-FLEET-OBSERVABILITY-REPORTING
           action: Publish fleet observability and audit summaries
           dataIn: [telemetry_event]
+          dataRefs: [DO-COFFEE-TELEMETRY-EVENT]
+
+  threatAssumptions:
+    - id: ASM-COFFEE-DEVICE-ROOT-OF-TRUST
+      title: Device trust anchors are provisioned securely
+      statement: Device trust anchors and certificates are provisioned via controlled manufacturing and onboarding process.
+      status: accepted
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [FU-DEVICE-IDENTITY-SECRETS, FU-OTA-UPDATE-AGENT, TB-COFFEE-EDGE-DEVICE]
+      rationale: Secure provisioning path is audited by platform security and manufacturing controls.
+      evidence:
+        - path: docs/security/device-provisioning-trust.md
+          description: Provisioning trust and key-injection process.
+
+  threatOutOfScope:
+    - id: OOS-COFFEE-HARDWARE-PHYSICAL-TAMPER
+      title: Physical tamper resistance of device enclosure
+      reason: Hardware anti-tamper sensor design and physical sealing are owned by hardware product teams.
+      status: approved
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [DEP-COFFEE-EDGE-FLEET]
+      expiresOn: 2027-12-31
+      evidence:
+        - path: docs/security/hardware-shared-responsibility.md
+          description: Hardware vs cloud security shared ownership statement.
+
+  threatScenarios:
+    - id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+      title: Tampered firmware bundle executes on edge fleet
+      summary: Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.
+      category: supply-chain
+      stride: tampering
+      cwe: [CWE-353]
+      attackVectorRef: AV-MALICIOUS-FIRMWARE-BUNDLE
+      appliesTo: [FU-OTA-UPDATE-AGENT, FU-UPDATE-CAMPAIGN-ORCHESTRATION, REF-FIRMWARE-BUNDLE-STORE]
+      flowRefs: [FLOW-COFFEE-OTA-ROLLOUT]
+      entryPoint: IF-COFFEE-OTA-COMMAND
+      preconditions: [signature-check-bypass, compromised-artifact-store]
+      exploitPath: [plan-campaign, execute-update]
+      likelihood: medium
+      impact: high
+      severity: high
+      status: mitigating
+      owner: ACT-SECURITY-ANALYST
+      riskRef: RISK-COFFEE-MALICIOUS-OTA
+      relatedControls: [CTRL-COFFEE-FIRMWARE-SIGNATURE]
+      assumptionRefs: [ASM-COFFEE-DEVICE-ROOT-OF-TRUST]
+      outOfScopeRefs: [OOS-COFFEE-HARDWARE-PHYSICAL-TAMPER]
+      mitigationRefs: [MIT-COFFEE-FW-SIGNATURE-VERIFY]
+      verificationRefs: [CV-COFFEE-FW-SIGNATURE-TEST]
+      detection: [signature-failure-rate, firmware-hash-mismatch]
+      evidence:
+        - path: src/ota_agent.rs
+          description: Firmware signature verification path.
+    - id: TS-COFFEE-OTA-COMMAND-SPOOF
+      title: Spoofed OTA command triggers unauthorized rollout
+      summary: Unauthorized sender attempts to push OTA command messages to device fleet topic.
+      category: command-abuse
+      stride: spoofing
+      cwe: [CWE-287]
+      attackVectorRef: AV-SPOOFED-DEVICE-IDENTITY
+      appliesTo: [FU-UPDATE-CAMPAIGN-ORCHESTRATION, IF-COFFEE-OTA-COMMAND, FU-OTA-UPDATE-AGENT]
+      flowRefs: [FLOW-COFFEE-OTA-ROLLOUT]
+      entryPoint: IF-COFFEE-OTA-COMMAND
+      preconditions: [identity-validation-gap]
+      exploitPath: [operator-schedules-rollout, execute-update]
+      likelihood: medium
+      impact: high
+      severity: high
+      status: mitigating
+      owner: ACT-SECURITY-ANALYST
+      riskRef: RISK-COFFEE-DEVICE-SPOOFING
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      mitigationRefs: [MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT]
+      verificationRefs: [CV-COFFEE-DEVICE-IDENTITY-TEST]
+      detection: [unauthorized-topic-publish, certificate-anomaly]
+      evidence:
+        - path: src/ota_agent.rs
+          description: OTA command identity validation.
+    - id: TS-COFFEE-TELEMETRY-REPLAY
+      title: Telemetry replay inflates ingest and distorts reporting
+      summary: Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.
+      category: data-abuse
+      stride: replay
+      cwe: [CWE-294]
+      attackVectorRef: AV-TELEMETRY-REPLAY-ABUSE
+      appliesTo: [FU-FLEET-INGESTION-API, DO-COFFEE-TELEMETRY-EVENT, FU-FLEET-OBSERVABILITY-REPORTING]
+      flowRefs: [FLOW-COFFEE-TELEMETRY-INGEST]
+      entryPoint: IF-COFFEE-TELEMETRY-INGEST
+      preconditions: [weak-replay-window, duplicate-id-acceptance]
+      exploitPath: [collect-and-send-telemetry, ingest-telemetry, publish-fleet-observability]
+      likelihood: medium
+      impact: medium
+      severity: medium
+      status: mitigating
+      owner: ACT-SECURITY-ANALYST
+      riskRef: RISK-COFFEE-TELEMETRY-REPLAY
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      mitigationRefs: [MIT-COFFEE-TELEMETRY-REPLAY-WINDOW]
+      verificationRefs: [CV-COFFEE-TELEMETRY-REPLAY]
+      detection: [duplicate-event-id-alert, ingest-rate-anomaly]
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Replay window and dedup logic.
+    - id: TS-COFFEE-LOG-TAMPERING
+      title: Audit log tampering suppresses OTA incident visibility
+      summary: Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.
+      category: observability-abuse
+      stride: repudiation
+      cwe: [CWE-778]
+      attackVectorRef: AV-LOG-TAMPERING
+      appliesTo: [FU-FLEET-OBSERVABILITY-REPORTING, REF-CLOUD-LOGGING-SERVICE]
+      flowRefs: [FLOW-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-OTA-ROLLOUT]
+      entryPoint: FU-FLEET-OBSERVABILITY-REPORTING
+      preconditions: [insufficient-log-immutability]
+      exploitPath: [report-outcome, publish-fleet-observability]
+      likelihood: low
+      impact: high
+      severity: medium
+      status: identified
+      owner: ACT-SECURITY-ANALYST
+      riskRef: RISK-COFFEE-LOG-TAMPERING
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      mitigationRefs: [MIT-COFFEE-AUDIT-IMMUTABILITY]
+      verificationRefs: [CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS]
+      detection: [audit-gap-alert, log-write-authz-failure]
+      evidence:
+        - path: docs/security/log-integrity-review.md
+          description: Audit integrity assessment notes.
 
   mappings:
     - type: contains
@@ -503,10 +735,162 @@ authoredArchitecture:
       appliesTo: [FU-FLEET-INGESTION-API, IF-COFFEE-TELEMETRY-INGEST]
       relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
       attackVectors: [AV-SPOOFED-DEVICE-IDENTITY]
+      threatScenarios: [TS-COFFEE-OTA-COMMAND-SPOOF]
       evidence:
         - path: src/telemetry_ingest.ts
       residualRisk: medium
       rationale: Identity validation is active; replay hardening remains under review.
+    - id: RISK-COFFEE-MALICIOUS-OTA
+      title: Malicious OTA payload execution risk
+      statement: Tampered firmware artifacts could execute on fleet devices if signature enforcement drifts.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [FU-OTA-UPDATE-AGENT, FU-UPDATE-CAMPAIGN-ORCHESTRATION]
+      relatedControls: [CTRL-COFFEE-FIRMWARE-SIGNATURE]
+      attackVectors: [AV-MALICIOUS-FIRMWARE-BUNDLE]
+      threatScenarios: [TS-COFFEE-MALICIOUS-OTA-BUNDLE]
+      evidence:
+        - path: src/ota_agent.rs
+          description: Signature verification flow in OTA agent.
+      residualRisk: low
+      rationale: Verification and signer controls are strong with regular regression checks.
+    - id: RISK-COFFEE-TELEMETRY-REPLAY
+      title: Telemetry replay distortion risk
+      statement: Replayed telemetry can distort observability and trigger noisy operational decisions.
+      status: mitigating
+      likelihood: medium
+      impact: medium
+      response: mitigate
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [FU-FLEET-INGESTION-API, DO-COFFEE-TELEMETRY-EVENT]
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      attackVectors: [AV-TELEMETRY-REPLAY-ABUSE]
+      threatScenarios: [TS-COFFEE-TELEMETRY-REPLAY]
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Replay-window filtering and dedup checks.
+      residualRisk: medium
+      rationale: Replay controls are present but require aggressive tuning under burst traffic.
+    - id: RISK-COFFEE-LOG-TAMPERING
+      title: Audit log tampering risk
+      statement: Log tampering could conceal OTA incident traces and delay response.
+      status: open
+      likelihood: low
+      impact: high
+      response: mitigate
+      owner: ACT-SECURITY-ANALYST
+      appliesTo: [FU-FLEET-OBSERVABILITY-REPORTING, REF-CLOUD-LOGGING-SERVICE]
+      relatedControls: [CTRL-COFFEE-DEVICE-IDENTITY]
+      attackVectors: [AV-LOG-TAMPERING]
+      threatScenarios: [TS-COFFEE-LOG-TAMPERING]
+      evidence:
+        - path: docs/security/log-integrity-review.md
+          description: Current audit immutability gap analysis.
+      residualRisk: medium
+      rationale: Core logging exists; immutability hardening is incomplete.
+
+  controlVerifications:
+    - id: CV-COFFEE-FW-SIGNATURE-TEST
+      controlRef: CTRL-COFFEE-FIRMWARE-SIGNATURE
+      threatScenarioRefs: [TS-COFFEE-MALICIOUS-OTA-BUNDLE]
+      riskRefs: [RISK-COFFEE-MALICIOUS-OTA]
+      method: test
+      status: pass
+      owner: ACT-SECURITY-ANALYST
+      lastTested: 2026-04-12
+      findings:
+        - unsigned or tampered bundles rejected during OTA execution
+      evidence:
+        - path: src/ota_agent.rs
+          description: Signature verify and rejection path.
+    - id: CV-COFFEE-DEVICE-IDENTITY-TEST
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      threatScenarioRefs: [TS-COFFEE-OTA-COMMAND-SPOOF]
+      riskRefs: [RISK-COFFEE-DEVICE-SPOOFING]
+      method: test
+      status: pass
+      owner: ACT-SECURITY-ANALYST
+      lastTested: 2026-04-13
+      findings:
+        - unauthorized command publishers rejected by identity policy
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Identity enforcement checks in ingress path.
+    - id: CV-COFFEE-TELEMETRY-REPLAY
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      threatScenarioRefs: [TS-COFFEE-TELEMETRY-REPLAY]
+      riskRefs: [RISK-COFFEE-TELEMETRY-REPLAY]
+      method: analysis
+      status: partial
+      owner: ACT-SECURITY-ANALYST
+      lastTested: 2026-04-18
+      findings:
+        - replay detection works for standard windows; high-burst tuning still in progress
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Replay window logic and dedup analysis.
+    - id: CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      threatScenarioRefs: [TS-COFFEE-LOG-TAMPERING]
+      riskRefs: [RISK-COFFEE-LOG-TAMPERING]
+      method: inspection
+      status: partial
+      owner: ACT-SECURITY-ANALYST
+      lastTested: 2026-04-20
+      findings:
+        - log write permissions are constrained but immutable retention still being expanded
+      evidence:
+        - path: docs/security/log-integrity-review.md
+          description: Inspection notes for audit integrity controls.
+
+  threatMitigations:
+    - id: MIT-COFFEE-FW-SIGNATURE-VERIFY
+      threatScenarioRef: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+      controlRef: CTRL-COFFEE-FIRMWARE-SIGNATURE
+      status: verified
+      effectiveness: high
+      owner: ACT-SECURITY-ANALYST
+      notes: OTA agent enforces signature verification with signer metadata checks.
+      verificationRefs: [CV-COFFEE-FW-SIGNATURE-TEST]
+      evidence:
+        - path: src/ota_agent.rs
+          description: Signature validation implementation.
+    - id: MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT
+      threatScenarioRef: TS-COFFEE-OTA-COMMAND-SPOOF
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      status: implemented
+      effectiveness: high
+      owner: ACT-SECURITY-ANALYST
+      notes: Device identity claims gate command and telemetry channels.
+      verificationRefs: [CV-COFFEE-DEVICE-IDENTITY-TEST]
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Identity verification guardrail.
+    - id: MIT-COFFEE-TELEMETRY-REPLAY-WINDOW
+      threatScenarioRef: TS-COFFEE-TELEMETRY-REPLAY
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      status: partial
+      effectiveness: medium
+      owner: ACT-SECURITY-ANALYST
+      notes: Replay window and dedup controls are active with ongoing burst tuning.
+      verificationRefs: [CV-COFFEE-TELEMETRY-REPLAY]
+      evidence:
+        - path: src/telemetry_ingest.ts
+          description: Replay dedup behavior.
+    - id: MIT-COFFEE-AUDIT-IMMUTABILITY
+      threatScenarioRef: TS-COFFEE-LOG-TAMPERING
+      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      status: planned
+      effectiveness: medium
+      owner: ACT-SECURITY-ANALYST
+      notes: Planned immutable log retention and append-only controls for OTA incident trails.
+      verificationRefs: [CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS]
+      evidence:
+        - path: docs/security/log-integrity-review.md
+          description: Planned hardening backlog and analysis.
 
   poamItems:
     - id: POAM-COFFEE-REPLAY-WINDOW-HARDENING

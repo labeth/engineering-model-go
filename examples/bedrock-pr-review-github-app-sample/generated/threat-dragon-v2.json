@@ -1,0 +1,1489 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Bedrock Lambda GitHub PR Review App Architecture",
+    "owner": "engineering-model-go",
+    "description": "This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.\nThe authored functional architecture remains stable while deployment/runtime/code evidence is inferred\nfrom infrastructure manifests, source files, and verification artifacts.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Bedrock Lambda GitHub PR Review App Architecture Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "f73875e8-99de-5c45-87e0-e8bd3ab8c783",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Developer"
+              }
+            },
+            "data": {
+              "description": "Opens pull requests and receives review feedback.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Developer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "da068248-848c-532f-b22a-2d3cded9ca22",
+            "shape": "actor",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Platform Operator"
+              }
+            },
+            "data": {
+              "description": "Operates Lambda deployment and runtime controls.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Platform Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "ff7b7979-a75d-574d-a5fa-eceb14b17e98",
+            "shape": "actor",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Repository Maintainer"
+              }
+            },
+            "data": {
+              "description": "Owns merge decisions and repository-level quality gates.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Repository Maintainer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "472d8d2c-56f8-525e-82ca-e81320194bb2",
+            "shape": "actor",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Engineer"
+              }
+            },
+            "data": {
+              "description": "Curates policy checks and triages security findings.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Engineer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "abd113df-6701-509a-bf60-e3ba8e2d4f74",
+            "shape": "store",
+            "zIndex": 5,
+            "position": {
+              "x": 60,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Pull Request Context"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/pr-context.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Pull Request Context",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "38663851-0f7b-5a99-8ce1-121fae55b965",
+            "shape": "store",
+            "zIndex": 6,
+            "position": {
+              "x": 320,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Review Findings"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/review-findings.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Review Findings",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "ba069808-611c-59cc-892f-f35ba841397f",
+            "shape": "process",
+            "zIndex": 7,
+            "position": {
+              "x": 580,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "GitHub Webhook Ingress"
+              }
+            },
+            "data": {
+              "description": "Verifies webhook signatures, validates event type, and starts review workflow routing.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "GitHub Webhook Ingress",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Forged pull request webhook attempts to trigger unauthorized review execution.",
+                  "mitigation": "HMAC signature checks and ingress rejection reduce spoofing attack viability.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "53fd3d9f-e5a9-57c2-8000-111d5c462cc4",
+                  "title": "Spoofed webhook bypasses ingress verification",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "0bcfb403-65bf-5e39-8e88-da5f99c1374a",
+            "shape": "process",
+            "zIndex": 8,
+            "position": {
+              "x": 840,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Lambda Runtime Operations"
+              }
+            },
+            "data": {
+              "description": "Manages Lambda packaging/deployment lifecycle and operational health guardrails.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Lambda Runtime Operations",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "755af05a-2305-53bc-82f4-e232d3a5309b",
+            "shape": "process",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Policy Checks"
+              }
+            },
+            "data": {
+              "description": "Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Policy Checks",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "49439eda-d15f-58d8-bc2c-eb6d518c69dd",
+            "shape": "process",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "PR Context Assembly"
+              }
+            },
+            "data": {
+              "description": "Fetches changed files and diff metadata and prepares bounded review context payloads.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "PR Context Assembly",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "95ab7713-ad63-5584-b026-dda0305356cc",
+            "shape": "process",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Review Orchestration"
+              }
+            },
+            "data": {
+              "description": "Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Review Orchestration",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "d12d2540-73e0-5384-91c3-8bb12f2284af",
+            "shape": "process",
+            "zIndex": 12,
+            "position": {
+              "x": 840,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Review Publication"
+              }
+            },
+            "data": {
+              "description": "Publishes check-run summaries and inline comments back to GitHub pull requests.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Review Publication",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "517173dd-a9a8-5ebc-8669-42135d69287e",
+            "shape": "process",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Secrets and Configuration"
+              }
+            },
+            "data": {
+              "description": "Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Secrets and Configuration",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "bf28d15c-7c93-5cd6-83aa-6d974ac0ac0a",
+            "shape": "process",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Review Publish API"
+              }
+            },
+            "data": {
+              "description": "https /github/check-runs",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Review Publish API",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "add379d5-24dd-5730-8cbd-c7794184a83d",
+            "shape": "process",
+            "zIndex": 15,
+            "position": {
+              "x": 580,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Webhook Intake API"
+              }
+            },
+            "data": {
+              "description": "https /webhook/github",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Webhook Intake API",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Forged pull request webhook attempts to trigger unauthorized review execution.",
+                  "mitigation": "HMAC signature checks and ingress rejection reduce spoofing attack viability.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "53fd3d9f-e5a9-57c2-8000-111d5c462cc4",
+                  "title": "Spoofed webhook bypasses ingress verification",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "f1645b1a-09e6-5b7d-95b0-03786766dee3",
+            "shape": "trust-boundary-box",
+            "zIndex": 16,
+            "position": {
+              "x": 330,
+              "y": 1130
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "GitHub External Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary between external GitHub traffic and internal review processing.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "GitHub External Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "628e3ac1-c7d9-5008-961f-b96454c1be08",
+            "shape": "trust-boundary-box",
+            "zIndex": 17,
+            "position": {
+              "x": 630,
+              "y": 1130
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "AWS Control Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary between app workloads and privileged platform controls.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "AWS Control Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "40dbaa7f-3600-59ee-9bd9-31dafcb4fa8e",
+            "shape": "flow",
+            "zIndex": 27,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Developer push/update activity triggers pull request webhook events.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Developer push/update activity triggers pull request webhook events.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "f73875e8-99de-5c45-87e0-e8bd3ab8c783"
+            },
+            "target": {
+              "cell": "ba069808-611c-59cc-892f-f35ba841397f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Developer push/update activity triggers pull request webhook events."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "16ce547f-7ad2-5478-ab27-9a3ac3b94c4e",
+            "shape": "flow",
+            "zIndex": 28,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Maintains and evolves deterministic security checks.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Maintains and evolves deterministic security checks.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "472d8d2c-56f8-525e-82ca-e81320194bb2"
+            },
+            "target": {
+              "cell": "755af05a-2305-53bc-82f4-e232d3a5309b"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Maintains and evolves deterministic security checks."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "6fb9a351-9e40-5990-b13d-29c1672035ea",
+            "shape": "flow",
+            "zIndex": 29,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Operates deployments, scaling controls, and runtime observability.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Operates deployments, scaling controls, and runtime observability.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "da068248-848c-532f-b22a-2d3cded9ca22"
+            },
+            "target": {
+              "cell": "0bcfb403-65bf-5e39-8e88-da5f99c1374a"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Operates deployments, scaling controls, and runtime observability."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "67eb9cb9-2422-508c-b45d-469997a3676d",
+            "shape": "flow",
+            "zIndex": 30,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Rotates credentials and manages secure configuration lifecycle.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Rotates credentials and manages secure configuration lifecycle.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "da068248-848c-532f-b22a-2d3cded9ca22"
+            },
+            "target": {
+              "cell": "517173dd-a9a8-5ebc-8669-42135d69287e"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Rotates credentials and manages secure configuration lifecycle."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "fb0f5cb2-64d1-5d96-9d1c-34533784b663",
+            "shape": "flow",
+            "zIndex": 31,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reviews findings and gate decisions before merge.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reviews findings and gate decisions before merge.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "ff7b7979-a75d-574d-a5fa-eceb14b17e98"
+            },
+            "target": {
+              "cell": "d12d2540-73e0-5384-91c3-8bb12f2284af"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reviews findings and gate decisions before merge."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "a47f0d85-5e03-593c-b29c-e823fc3b75b0",
+            "shape": "flow",
+            "zIndex": 32,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Receives webhook payload through signed API endpoint.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Receives webhook payload through signed API endpoint.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Forged pull request webhook attempts to trigger unauthorized review execution.",
+                  "mitigation": "HMAC signature checks and ingress rejection reduce spoofing attack viability.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "53fd3d9f-e5a9-57c2-8000-111d5c462cc4",
+                  "title": "Spoofed webhook bypasses ingress verification",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "ba069808-611c-59cc-892f-f35ba841397f"
+            },
+            "target": {
+              "cell": "add379d5-24dd-5730-8cbd-c7794184a83d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Receives webhook payload through signed API endpoint."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "ac4935d5-108c-5e15-a6ce-ac5591150674",
+            "shape": "flow",
+            "zIndex": 33,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists normalized context payload.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists normalized context payload.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "49439eda-d15f-58d8-bc2c-eb6d518c69dd"
+            },
+            "target": {
+              "cell": "abd113df-6701-509a-bf60-e3ba8e2d4f74"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists normalized context payload."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "47021271-1b5d-5ea3-9108-ecd4123cf424",
+            "shape": "flow",
+            "zIndex": 34,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads normalized context before model call.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads normalized context before model call.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "95ab7713-ad63-5584-b026-dda0305356cc"
+            },
+            "target": {
+              "cell": "abd113df-6701-509a-bf60-e3ba8e2d4f74"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads normalized context before model call."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "48af6054-bf5a-58ba-9a4c-8d57e95fcfd2",
+            "shape": "flow",
+            "zIndex": 35,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists merged deterministic and AI findings.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists merged deterministic and AI findings.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "95ab7713-ad63-5584-b026-dda0305356cc"
+            },
+            "target": {
+              "cell": "38663851-0f7b-5a99-8ce1-121fae55b965"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists merged deterministic and AI findings."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "8f344863-9dad-5b53-892a-5b987fb25b56",
+            "shape": "flow",
+            "zIndex": 36,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Calls publication API for check-run output.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Calls publication API for check-run output.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "d12d2540-73e0-5384-91c3-8bb12f2284af"
+            },
+            "target": {
+              "cell": "bf28d15c-7c93-5cd6-83aa-6d974ac0ac0a"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Calls publication API for check-run output."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "25139149-7632-5438-814c-c1bce3711061",
+            "shape": "flow",
+            "zIndex": 37,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads final findings for publication.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads final findings for publication.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "d12d2540-73e0-5384-91c3-8bb12f2284af"
+            },
+            "target": {
+              "cell": "38663851-0f7b-5a99-8ce1-121fae55b965"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads final findings for publication."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "42117325-3da9-5ffe-bed0-a56bdf2d24e6",
+            "shape": "flow",
+            "zIndex": 38,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Webhook-driven PR review path from ingress through context assembly, analysis, and publication.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": true,
+              "isTrustBoundary": false,
+              "name": "PR Review Interaction Flow",
+              "outOfScope": false,
+              "protocol": "https",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Forged pull request webhook attempts to trigger unauthorized review execution.",
+                  "mitigation": "HMAC signature checks and ingress rejection reduce spoofing attack viability.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "53fd3d9f-e5a9-57c2-8000-111d5c462cc4",
+                  "title": "Spoofed webhook bypasses ingress verification",
+                  "type": "spoofing"
+                },
+                {
+                  "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+                  "mitigation": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49e29eeb-1590-5ce3-ad9f-a297cd744554",
+                  "title": "Prompt injection in diff influences review output integrity",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "add379d5-24dd-5730-8cbd-c7794184a83d"
+            },
+            "target": {
+              "cell": "d12d2540-73e0-5384-91c3-8bb12f2284af"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "PR Review Interaction Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "15b4d7c5-6df2-5634-83a5-941202a0287d",
+            "shape": "flow",
+            "zIndex": 39,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Policy rule update and dry-run validation path before policy promotion.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Security Policy Tuning Flow",
+              "outOfScope": false,
+              "protocol": "internal-api",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+                  "mitigation": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "0601292e-fbac-567f-b68b-3f904b9a0f68",
+                  "title": "Sensitive tokens leak via review publication payload",
+                  "type": "information-disclosure"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "472d8d2c-56f8-525e-82ca-e81320194bb2"
+            },
+            "target": {
+              "cell": "d12d2540-73e0-5384-91c3-8bb12f2284af"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Security Policy Tuning Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 3
+  }
+}

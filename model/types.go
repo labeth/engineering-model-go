@@ -137,11 +137,17 @@ type Interface struct {
 }
 
 type DataObject struct {
-	ID          string `yaml:"id"`
-	Name        string `yaml:"name"`
-	TermRef     string `yaml:"termRef"`
-	SchemaRef   string `yaml:"schemaRef"`
-	Sensitivity string `yaml:"sensitivity"`
+	ID              string   `yaml:"id"`
+	Name            string   `yaml:"name"`
+	TermRef         string   `yaml:"termRef"`
+	SchemaRef       string   `yaml:"schemaRef"`
+	Sensitivity     string   `yaml:"sensitivity"`
+	Classification  string   `yaml:"classification"`
+	RegulatoryTags  []string `yaml:"regulatoryTags"`
+	Retention       string   `yaml:"retention"`
+	Confidentiality string   `yaml:"confidentiality"`
+	Integrity       string   `yaml:"integrity"`
+	Availability    string   `yaml:"availability"`
 }
 
 type DeploymentTarget struct {
@@ -197,6 +203,7 @@ type Risk struct {
 	AppliesTo       []string       `yaml:"appliesTo"`
 	RelatedControls []string       `yaml:"relatedControls"`
 	AttackVectors   []string       `yaml:"attackVectors"`
+	ThreatScenarios []string       `yaml:"threatScenarios"`
 	Evidence        []RiskEvidence `yaml:"evidence"`
 	ResidualRisk    string         `yaml:"residualRisk"`
 	Rationale       string         `yaml:"rationale"`
@@ -218,9 +225,12 @@ type POAMItem struct {
 }
 
 type TrustBoundary struct {
-	ID          string `yaml:"id"`
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
+	ID           string   `yaml:"id"`
+	Name         string   `yaml:"name"`
+	Description  string   `yaml:"description"`
+	BoundaryType string   `yaml:"boundaryType"`
+	ParentRef    string   `yaml:"parentRef"`
+	Members      []string `yaml:"members"`
 }
 
 type State struct {
@@ -236,44 +246,179 @@ type Event struct {
 }
 
 type FlowStep struct {
-	ID       string   `yaml:"id"`
-	Ref      string   `yaml:"ref"`
-	Kind     string   `yaml:"kind"`
-	Action   string   `yaml:"action"`
-	DataIn   []string `yaml:"dataIn"`
-	DataOut  []string `yaml:"dataOut"`
-	Next     []string `yaml:"next"`
-	OnError  []string `yaml:"onError"`
-	Async    bool     `yaml:"async"`
-	Optional bool     `yaml:"optional"`
+	ID                  string   `yaml:"id"`
+	Ref                 string   `yaml:"ref"`
+	Kind                string   `yaml:"kind"`
+	FlowType            string   `yaml:"flowType"`
+	Direction           string   `yaml:"direction"`
+	Frequency           string   `yaml:"frequency"`
+	SourceRef           string   `yaml:"sourceRef"`
+	DestinationRef      string   `yaml:"destinationRef"`
+	Action              string   `yaml:"action"`
+	Channel             string   `yaml:"channel"`
+	Protocol            string   `yaml:"protocol"`
+	DataIn              []string `yaml:"dataIn"`
+	DataOut             []string `yaml:"dataOut"`
+	DataRefs            []string `yaml:"dataRefs"`
+	InterfaceRef        string   `yaml:"interfaceRef"`
+	TrustBoundaryRef    string   `yaml:"trustBoundaryRef"`
+	BoundaryCrossing    bool     `yaml:"boundaryCrossing"`
+	Authentication      string   `yaml:"authentication"`
+	EncryptionInTransit string   `yaml:"encryptionInTransit"`
+	IntegrityProtection string   `yaml:"integrityProtection"`
+	Next                []string `yaml:"next"`
+	OnError             []string `yaml:"onError"`
+	Async               bool     `yaml:"async"`
+	Optional            bool     `yaml:"optional"`
 }
 
 type Flow struct {
-	ID    string     `yaml:"id"`
-	Title string     `yaml:"title"`
-	Entry []string   `yaml:"entry"`
-	Exits []string   `yaml:"exits"`
-	Steps []FlowStep `yaml:"steps"`
+	ID                  string            `yaml:"id"`
+	Title               string            `yaml:"title"`
+	Kind                string            `yaml:"kind"`
+	Methodology         string            `yaml:"methodology"`
+	Direction           string            `yaml:"direction"`
+	Frequency           string            `yaml:"frequency"`
+	SourceRef           string            `yaml:"sourceRef"`
+	DestinationRef      string            `yaml:"destinationRef"`
+	Protocol            string            `yaml:"protocol"`
+	Channel             string            `yaml:"channel"`
+	Authentication      string            `yaml:"authentication"`
+	EncryptionInTransit string            `yaml:"encryptionInTransit"`
+	IntegrityProtection string            `yaml:"integrityProtection"`
+	DataRefs            []string          `yaml:"dataRefs"`
+	Description         string            `yaml:"description"`
+	Criticality         string            `yaml:"criticality"`
+	Threats             []string          `yaml:"threats"`
+	Entry               []string          `yaml:"entry"`
+	Exits               []string          `yaml:"exits"`
+	Steps               []FlowStep        `yaml:"steps"`
+	Properties          map[string]string `yaml:"properties"`
+}
+
+type ThreatScenarioEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ThreatScenario struct {
+	ID               string                   `yaml:"id"`
+	Title            string                   `yaml:"title"`
+	Summary          string                   `yaml:"summary"`
+	Category         string                   `yaml:"category"`
+	Stride           string                   `yaml:"stride"`
+	CWE              []string                 `yaml:"cwe"`
+	AttackVectorRef  string                   `yaml:"attackVectorRef"`
+	AppliesTo        []string                 `yaml:"appliesTo"`
+	FlowRefs         []string                 `yaml:"flowRefs"`
+	EntryPoint       string                   `yaml:"entryPoint"`
+	Preconditions    []string                 `yaml:"preconditions"`
+	ExploitPath      []string                 `yaml:"exploitPath"`
+	Likelihood       string                   `yaml:"likelihood"`
+	Impact           string                   `yaml:"impact"`
+	Severity         string                   `yaml:"severity"`
+	Status           string                   `yaml:"status"`
+	Owner            string                   `yaml:"owner"`
+	RiskRef          string                   `yaml:"riskRef"`
+	RelatedControls  []string                 `yaml:"relatedControls"`
+	AssumptionRefs   []string                 `yaml:"assumptionRefs"`
+	OutOfScopeRefs   []string                 `yaml:"outOfScopeRefs"`
+	MitigationRefs   []string                 `yaml:"mitigationRefs"`
+	VerificationRefs []string                 `yaml:"verificationRefs"`
+	Detection        []string                 `yaml:"detection"`
+	Evidence         []ThreatScenarioEvidence `yaml:"evidence"`
+}
+
+type ThreatAssumptionEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ThreatAssumption struct {
+	ID        string                     `yaml:"id"`
+	Title     string                     `yaml:"title"`
+	Statement string                     `yaml:"statement"`
+	Status    string                     `yaml:"status"`
+	Owner     string                     `yaml:"owner"`
+	AppliesTo []string                   `yaml:"appliesTo"`
+	Rationale string                     `yaml:"rationale"`
+	Evidence  []ThreatAssumptionEvidence `yaml:"evidence"`
+}
+
+type ThreatOutOfScopeEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ThreatOutOfScope struct {
+	ID        string                     `yaml:"id"`
+	Title     string                     `yaml:"title"`
+	Reason    string                     `yaml:"reason"`
+	Status    string                     `yaml:"status"`
+	Owner     string                     `yaml:"owner"`
+	AppliesTo []string                   `yaml:"appliesTo"`
+	ExpiresOn string                     `yaml:"expiresOn"`
+	Evidence  []ThreatOutOfScopeEvidence `yaml:"evidence"`
+}
+
+type ThreatMitigationEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ThreatMitigation struct {
+	ID                string                     `yaml:"id"`
+	ThreatScenarioRef string                     `yaml:"threatScenarioRef"`
+	ControlRef        string                     `yaml:"controlRef"`
+	Status            string                     `yaml:"status"`
+	Effectiveness     string                     `yaml:"effectiveness"`
+	Owner             string                     `yaml:"owner"`
+	Notes             string                     `yaml:"notes"`
+	VerificationRefs  []string                   `yaml:"verificationRefs"`
+	Evidence          []ThreatMitigationEvidence `yaml:"evidence"`
+}
+
+type ControlVerificationEvidence struct {
+	Path        string `yaml:"path"`
+	Description string `yaml:"description"`
+}
+
+type ControlVerification struct {
+	ID                 string                        `yaml:"id"`
+	ControlRef         string                        `yaml:"controlRef"`
+	ThreatScenarioRefs []string                      `yaml:"threatScenarioRefs"`
+	RiskRefs           []string                      `yaml:"riskRefs"`
+	Method             string                        `yaml:"method"`
+	Status             string                        `yaml:"status"`
+	Owner              string                        `yaml:"owner"`
+	LastTested         string                        `yaml:"lastTested"`
+	Findings           []string                      `yaml:"findings"`
+	Evidence           []ControlVerificationEvidence `yaml:"evidence"`
 }
 
 type AuthoredArchitecture struct {
-	FunctionalGroups   []FunctionalGroup   `yaml:"functionalGroups"`
-	FunctionalUnits    []FunctionalUnit    `yaml:"functionalUnits"`
-	Actors             []Actor             `yaml:"actors"`
-	AttackVectors      []AttackVector      `yaml:"attackVectors"`
-	ReferencedElements []ReferencedElement `yaml:"referencedElements"`
-	Interfaces         []Interface         `yaml:"interfaces"`
-	DataObjects        []DataObject        `yaml:"dataObjects"`
-	DeploymentTargets  []DeploymentTarget  `yaml:"deploymentTargets"`
-	Controls           []Control           `yaml:"controls"`
-	ControlAllocations []ControlAllocation `yaml:"controlAllocations"`
-	Risks              []Risk              `yaml:"risks"`
-	POAMItems          []POAMItem          `yaml:"poamItems"`
-	TrustBoundaries    []TrustBoundary     `yaml:"trustBoundaries"`
-	States             []State             `yaml:"states"`
-	Events             []Event             `yaml:"events"`
-	Flows              []Flow              `yaml:"flows"`
-	Mappings           []Mapping           `yaml:"mappings"`
+	FunctionalGroups     []FunctionalGroup     `yaml:"functionalGroups"`
+	FunctionalUnits      []FunctionalUnit      `yaml:"functionalUnits"`
+	Actors               []Actor               `yaml:"actors"`
+	AttackVectors        []AttackVector        `yaml:"attackVectors"`
+	ReferencedElements   []ReferencedElement   `yaml:"referencedElements"`
+	Interfaces           []Interface           `yaml:"interfaces"`
+	DataObjects          []DataObject          `yaml:"dataObjects"`
+	DeploymentTargets    []DeploymentTarget    `yaml:"deploymentTargets"`
+	Controls             []Control             `yaml:"controls"`
+	ControlAllocations   []ControlAllocation   `yaml:"controlAllocations"`
+	Risks                []Risk                `yaml:"risks"`
+	POAMItems            []POAMItem            `yaml:"poamItems"`
+	TrustBoundaries      []TrustBoundary       `yaml:"trustBoundaries"`
+	States               []State               `yaml:"states"`
+	Events               []Event               `yaml:"events"`
+	Flows                []Flow                `yaml:"flows"`
+	ThreatScenarios      []ThreatScenario      `yaml:"threatScenarios"`
+	ThreatAssumptions    []ThreatAssumption    `yaml:"threatAssumptions"`
+	ThreatOutOfScope     []ThreatOutOfScope    `yaml:"threatOutOfScope"`
+	ThreatMitigations    []ThreatMitigation    `yaml:"threatMitigations"`
+	ControlVerifications []ControlVerification `yaml:"controlVerifications"`
+	Mappings             []Mapping             `yaml:"mappings"`
 }
 
 type InferenceHints struct {

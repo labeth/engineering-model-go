@@ -1,0 +1,1989 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Sample Payments Layered Architecture",
+    "owner": "engineering-model-go",
+    "description": "This document describes the payments architecture using authored functional design and inferred runtime/code realization.\nIt is intended to help product, platform, security, and implementation engineers reason about one shared model.\nFunctional design is kept stable while realization details are inferred from infrastructure and source artifacts.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Sample Payments Layered Architecture Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "0268cebb-7bad-53b1-9da9-b6585c7bac31",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Customer"
+              }
+            },
+            "data": {
+              "description": "Starts checkout and confirms payment.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Customer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "f008817a-fd7c-54a8-a6a6-2e9c67efa870",
+            "shape": "actor",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Platform Operator"
+              }
+            },
+            "data": {
+              "description": "Operates GitOps and platform lifecycle.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Platform Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "c0f94122-e3f3-54f2-978c-7b72e9effdfe",
+            "shape": "actor",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Support Agent"
+              }
+            },
+            "data": {
+              "description": "Reviews high-risk and declined-payment cases.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Support Agent",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "c42be491-6943-5c9c-8297-15d7b717272f",
+            "shape": "store",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Authorization Decision"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/auth-decision.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Authorization Decision",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "63fe8736-95d8-5ee0-b5bd-eba28c058572",
+            "shape": "store",
+            "zIndex": 5,
+            "position": {
+              "x": 60,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Authorization Request"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/auth-request.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Authorization Request",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "bc59130b-3f95-563c-95ea-da24c9a74e98",
+            "shape": "store",
+            "zIndex": 6,
+            "position": {
+              "x": 320,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Manual Review Ticket"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/review-ticket.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Manual Review Ticket",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "486974c9-4e66-5432-bd97-dbfd7fd9d94d",
+            "shape": "store",
+            "zIndex": 7,
+            "position": {
+              "x": 580,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Risk Signal"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/risk-signal.json",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Risk Signal",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "057516d8-a784-5c5e-9d47-a53a3582529f",
+            "shape": "process",
+            "zIndex": 8,
+            "position": {
+              "x": 840,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Checkout Handling"
+              }
+            },
+            "data": {
+              "description": "Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.\nIt validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.\nIt delegates decision logic to payment authorization while protecting the user experience boundary.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Checkout Handling",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "bef94fd8-03be-5e43-b7f8-c2f3200439da",
+            "shape": "process",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cluster Provisioning"
+              }
+            },
+            "data": {
+              "description": "Cluster provisioning creates the runtime substrate used by all application workloads.\nIt establishes cluster and namespace structure, baseline controls, and environment-level readiness.\nThis unit is responsible for predictable, repeatable infrastructure foundations.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cluster Provisioning",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "a7ff66af-f092-5460-bc48-72929c085542",
+            "shape": "process",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "GitOps Operations"
+              }
+            },
+            "data": {
+              "description": "GitOps operations continuously reconciles intended release state with actual runtime state.\nIt governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.\nThe unit provides safe and observable release behavior as an ongoing operational capability.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "GitOps Operations",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "84826799-eb30-56c0-9620-154665c62ed5",
+            "shape": "process",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Payment Authorization"
+              }
+            },
+            "data": {
+              "description": "Payment authorization orchestrates the final transaction decision path.\nIt coordinates fraud scoring, external bank interactions, and escalation to support review when needed.\nThe unit returns deterministic outcomes so downstream behavior remains consistent and testable.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Payment Authorization",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "e0a2338f-138c-53e6-9549-c4dd597110e5",
+            "shape": "process",
+            "zIndex": 12,
+            "position": {
+              "x": 840,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Risk Scoring"
+              }
+            },
+            "data": {
+              "description": "Risk scoring computes and classifies transaction risk before approval decisions are finalized.\nIt provides a stable scoring contract to authorization and supports audit context for later analysis.\nThe unit is focused on decision quality, consistency, and policy-driven classification behavior.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Risk Scoring",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "a9f2414a-84eb-5c63-9b51-0fab91435289",
+            "shape": "process",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Support Review"
+              }
+            },
+            "data": {
+              "description": "Support review handles manual decisions for escalated or ambiguous payment cases.\nIt gives support operators context to approve, reject, or request additional verification in a controlled flow.\nThe unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Support Review",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "a3e617c4-ce37-56ac-bc29-8f00bb04d0d6",
+            "shape": "process",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Bank Authorization Interface"
+              }
+            },
+            "data": {
+              "description": "https /bank/authorize",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Bank Authorization Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "5b43809a-1cbc-5af1-96de-6097dbdc72e8",
+            "shape": "process",
+            "zIndex": 15,
+            "position": {
+              "x": 580,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Checkout API Interface"
+              }
+            },
+            "data": {
+              "description": "https /api/checkout",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Checkout API Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "082ac9c4-a5b2-5caf-96d0-8179e2b3ddf9",
+            "shape": "process",
+            "zIndex": 16,
+            "position": {
+              "x": 840,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Risk Score Interface"
+              }
+            },
+            "data": {
+              "description": "https /risk/score",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Risk Score Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "d07ed43b-0434-55bd-8431-68dbafaed136",
+            "shape": "trust-boundary-box",
+            "zIndex": 17,
+            "position": {
+              "x": 630,
+              "y": 1130
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "External Bank Boundary"
+              }
+            },
+            "data": {
+              "description": "Separates internal payment authorization from external bank services.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "External Bank Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "d76a94fd-4dd0-54bf-b453-4e2d395e2e24",
+            "shape": "trust-boundary-box",
+            "zIndex": 18,
+            "position": {
+              "x": 30,
+              "y": 1350
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Platform Control Boundary"
+              }
+            },
+            "data": {
+              "description": "Separates app workloads from platform control-plane authority.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "Platform Control Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "353be51f-b870-5c0f-a626-a99eba623f3d",
+            "shape": "flow",
+            "zIndex": 28,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Submits payment at checkout.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Submits payment at checkout.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "0268cebb-7bad-53b1-9da9-b6585c7bac31"
+            },
+            "target": {
+              "cell": "057516d8-a784-5c5e-9d47-a53a3582529f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Submits payment at checkout."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "856fb8a6-009e-5926-ad32-6bb150d8d1b8",
+            "shape": "flow",
+            "zIndex": 29,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Performs manual payment reviews.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Performs manual payment reviews.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "c0f94122-e3f3-54f2-978c-7b72e9effdfe"
+            },
+            "target": {
+              "cell": "a9f2414a-84eb-5c63-9b51-0fab91435289"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Performs manual payment reviews."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "b19cad49-3b97-55f2-aa83-8ea8946a469d",
+            "shape": "flow",
+            "zIndex": 30,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Operates delivery and release workflows.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Operates delivery and release workflows.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "f008817a-fd7c-54a8-a6a6-2e9c67efa870"
+            },
+            "target": {
+              "cell": "a7ff66af-f092-5460-bc48-72929c085542"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Operates delivery and release workflows."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "80d09fb9-a765-5528-888f-45eec81f5296",
+            "shape": "flow",
+            "zIndex": 31,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Maintains cluster baseline and environment setup.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Maintains cluster baseline and environment setup.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "f008817a-fd7c-54a8-a6a6-2e9c67efa870"
+            },
+            "target": {
+              "cell": "bef94fd8-03be-5e43-b7f8-c2f3200439da"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Maintains cluster baseline and environment setup."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "81ebced1-1ff5-5a39-ae6a-b89da894274c",
+            "shape": "flow",
+            "zIndex": 32,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Receives and validates checkout request payload.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Receives and validates checkout request payload.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "057516d8-a784-5c5e-9d47-a53a3582529f"
+            },
+            "target": {
+              "cell": "5b43809a-1cbc-5af1-96de-6097dbdc72e8"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Receives and validates checkout request payload."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "533fe52e-723e-58c4-98ed-3031bea38981",
+            "shape": "flow",
+            "zIndex": 33,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists normalized authorization request.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists normalized authorization request.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "057516d8-a784-5c5e-9d47-a53a3582529f"
+            },
+            "target": {
+              "cell": "63fe8736-95d8-5ee0-b5bd-eba28c058572"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists normalized authorization request."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "e99ac403-74c5-5422-a7e4-ced6bf6a2d3e",
+            "shape": "flow",
+            "zIndex": 34,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads final authorization decision for user-facing response.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads final authorization decision for user-facing response.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "057516d8-a784-5c5e-9d47-a53a3582529f"
+            },
+            "target": {
+              "cell": "c42be491-6943-5c9c-8297-15d7b717272f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads final authorization decision for user-facing response."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "7df4f2ff-733b-5ea3-86e2-b60811a3cc7b",
+            "shape": "flow",
+            "zIndex": 35,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Calls risk scoring interface for fraud decision support.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Calls risk scoring interface for fraud decision support.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "082ac9c4-a5b2-5caf-96d0-8179e2b3ddf9"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Calls risk scoring interface for fraud decision support."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "83d47a8e-00e9-5200-b0ab-3773b4fbd08b",
+            "shape": "flow",
+            "zIndex": 36,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Calls external bank authorization interface.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Calls external bank authorization interface.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "a3e617c4-ce37-56ac-bc29-8f00bb04d0d6"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Calls external bank authorization interface."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "450a676e-d8a9-5082-b910-7ab1f3a39b50",
+            "shape": "flow",
+            "zIndex": 37,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads normalized request for authorization pipeline.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads normalized request for authorization pipeline.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "63fe8736-95d8-5ee0-b5bd-eba28c058572"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads normalized request for authorization pipeline."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "80149656-061b-5819-9cb6-4de926f9eb41",
+            "shape": "flow",
+            "zIndex": 38,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists final authorization decision.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists final authorization decision.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "c42be491-6943-5c9c-8297-15d7b717272f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists final authorization decision."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "1d6ca5eb-dfc9-555e-ab62-1fcaa40f6a94",
+            "shape": "flow",
+            "zIndex": 39,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists computed risk signal.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists computed risk signal.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e0a2338f-138c-53e6-9549-c4dd597110e5"
+            },
+            "target": {
+              "cell": "486974c9-4e66-5432-bd97-dbfd7fd9d94d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists computed risk signal."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "eb237530-d6f6-5d41-8ea0-dc8dcfa54e32",
+            "shape": "flow",
+            "zIndex": 40,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads normalized request to compute risk signal.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads normalized request to compute risk signal.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e0a2338f-138c-53e6-9549-c4dd597110e5"
+            },
+            "target": {
+              "cell": "63fe8736-95d8-5ee0-b5bd-eba28c058572"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads normalized request to compute risk signal."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "3cafc274-f2e8-5936-a825-faafedeaff5e",
+            "shape": "flow",
+            "zIndex": 41,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads risk signal before final authorization decision.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads risk signal before final authorization decision.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "486974c9-4e66-5432-bd97-dbfd7fd9d94d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads risk signal before final authorization decision."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "74080840-40ef-5b63-a539-d81df22bb02f",
+            "shape": "flow",
+            "zIndex": 42,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Publishes risk signal updates for downstream consumers.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Publishes risk signal updates for downstream consumers.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e0a2338f-138c-53e6-9549-c4dd597110e5"
+            },
+            "target": {
+              "cell": "486974c9-4e66-5432-bd97-dbfd7fd9d94d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Publishes risk signal updates for downstream consumers."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "ac468b56-8a56-5062-977c-1b9a91130d8f",
+            "shape": "flow",
+            "zIndex": 43,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Subscribes to high-risk signal updates.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Subscribes to high-risk signal updates.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "a9f2414a-84eb-5c63-9b51-0fab91435289"
+            },
+            "target": {
+              "cell": "486974c9-4e66-5432-bd97-dbfd7fd9d94d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Subscribes to high-risk signal updates."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "d6d8e8a6-ff63-5896-b7b7-c10ec5525150",
+            "shape": "flow",
+            "zIndex": 44,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists manual review ticket records.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists manual review ticket records.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "a9f2414a-84eb-5c63-9b51-0fab91435289"
+            },
+            "target": {
+              "cell": "bc59130b-3f95-563c-95ea-da24c9a74e98"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists manual review ticket records."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "54360623-7451-5018-a0df-f62241cf3939",
+            "shape": "flow",
+            "zIndex": 45,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads manual review outcome before returning decision.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads manual review outcome before returning decision.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                },
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "84826799-eb30-56c0-9620-154665c62ed5"
+            },
+            "target": {
+              "cell": "bc59130b-3f95-563c-95ea-da24c9a74e98"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads manual review outcome before returning decision."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "1f1fafda-61cc-5ef8-b49e-a61ddfd932b6",
+            "shape": "flow",
+            "zIndex": 46,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "End-to-end checkout authorization including fraud and bank integration boundaries.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": true,
+              "isTrustBoundary": false,
+              "name": "Customer Checkout Authorization Flow",
+              "outOfScope": false,
+              "protocol": "https",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.",
+                  "mitigation": "Strict schema decoding and normalized request construction reduce spoofing surface.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "2d8e23c6-52db-5214-b937-e2f1f3bd1334",
+                  "title": "Checkout payload spoofing bypasses normalization checks",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Replayed callback message tries to overwrite or duplicate prior decision outcomes.",
+                  "mitigation": "Nonce freshness and idempotency lock reduce replay acceptance probability.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "6ded3ab7-0398-59dc-b07d-891d1b2db106",
+                  "title": "Replayed bank callback triggers duplicate authorization transition",
+                  "type": "replay"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "0268cebb-7bad-53b1-9da9-b6585c7bac31"
+            },
+            "target": {
+              "cell": "057516d8-a784-5c5e-9d47-a53a3582529f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Customer Checkout Authorization Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "e690e253-3112-5265-8642-4b0bd64d6e2b",
+            "shape": "flow",
+            "zIndex": 47,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Manual review escalation path for high-risk payment attempts.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "High-Risk Manual Review Flow",
+              "outOfScope": false,
+              "protocol": "internal-event",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "A compromised support or workflow path modifies review ticket outcomes before authorization completes.",
+                  "mitigation": "MFA-gated support actions are in place; append-only integrity controls are being expanded.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "49fdf926-1739-5f7f-875b-6d9a706aeb52",
+                  "title": "Manual review ticket tampering influences authorization result",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e0a2338f-138c-53e6-9549-c4dd597110e5"
+            },
+            "target": {
+              "cell": "a9f2414a-84eb-5c63-9b51-0fab91435289"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "High-Risk Manual Review Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 3
+  }
+}

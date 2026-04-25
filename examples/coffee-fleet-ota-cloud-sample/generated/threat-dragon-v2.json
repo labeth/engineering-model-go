@@ -1,0 +1,1418 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Connected Coffee Fleet OTA + Cloud Architecture",
+    "owner": "engineering-model-go",
+    "description": "This document models connected coffee machines that send telemetry to a central cloud site,\nreceive OTA firmware updates, and produce operational and audit logging evidence.\nAuthored functional architecture remains stable while runtime, code, and verification layers\nare inferred from infrastructure, source, and test artifacts.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Connected Coffee Fleet OTA + Cloud Architecture Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "e2d49cc8-1267-587d-bf69-746c98ec69b2",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Barista"
+              }
+            },
+            "data": {
+              "description": "Operates coffee machines and observes local device status.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Barista",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "56b60747-b4e6-57b1-86fd-2489a0b6f501",
+            "shape": "actor",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Fleet Operator"
+              }
+            },
+            "data": {
+              "description": "Manages OTA campaigns and fleet-wide operational decisions.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Fleet Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "e08f8e45-3a14-578d-af7e-87e60e1e454d",
+            "shape": "actor",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Platform Operator"
+              }
+            },
+            "data": {
+              "description": "Operates cloud runtime, deployment, and reliability controls.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Platform Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "7d218ac7-a290-599e-af4d-da6d5677d82e",
+            "shape": "actor",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Analyst"
+              }
+            },
+            "data": {
+              "description": "Reviews firmware integrity, identity controls, and audit logging.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Analyst",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "39cd4bea-6934-5987-ac5a-34e07b152495",
+            "shape": "store",
+            "zIndex": 5,
+            "position": {
+              "x": 60,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Rollout Plan"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/ota-plan.json",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Rollout Plan",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "eb2f10df-564f-520e-aa8e-6fc7c2d51373",
+            "shape": "store",
+            "zIndex": 6,
+            "position": {
+              "x": 320,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Event"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "schemas/telemetry-event.json",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Event",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.",
+                  "mitigation": "Replay window and dedup controls are active with ongoing burst tuning.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "01b98820-2c52-5b25-bdc8-93cc4851a955",
+                  "title": "Telemetry replay inflates ingest and distorts reporting",
+                  "type": "replay"
+                }
+              ],
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "ba2801d4-4f91-5334-8b81-280ffd6ec530",
+            "shape": "process",
+            "zIndex": 7,
+            "position": {
+              "x": 580,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Runtime Operations"
+              }
+            },
+            "data": {
+              "description": "Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Runtime Operations",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "4f968431-9d7e-50d1-b31e-ddda1641f8ea",
+            "shape": "process",
+            "zIndex": 8,
+            "position": {
+              "x": 840,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Device Identity and Secrets"
+              }
+            },
+            "data": {
+              "description": "Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Device Identity and Secrets",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "3aa2162a-7428-5223-b5d5-4a001aa42455",
+            "shape": "process",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Fleet Ingestion API"
+              }
+            },
+            "data": {
+              "description": "Receives telemetry and machine status, applies validation, and emits ingestion events.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Fleet Ingestion API",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.",
+                  "mitigation": "Replay window and dedup controls are active with ongoing burst tuning.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "01b98820-2c52-5b25-bdc8-93cc4851a955",
+                  "title": "Telemetry replay inflates ingest and distorts reporting",
+                  "type": "replay"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "156d59f7-5347-5a4e-a160-71a1fa828458",
+            "shape": "process",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Fleet Observability Reporting"
+              }
+            },
+            "data": {
+              "description": "Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Fleet Observability Reporting",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.",
+                  "mitigation": "Replay window and dedup controls are active with ongoing burst tuning.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "01b98820-2c52-5b25-bdc8-93cc4851a955",
+                  "title": "Telemetry replay inflates ingest and distorts reporting",
+                  "type": "replay"
+                },
+                {
+                  "description": "Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.",
+                  "mitigation": "Planned immutable log retention and append-only controls for OTA incident trails.",
+                  "modelType": "STRIDE",
+                  "number": 3,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "cadd56a4-79fb-5789-b05f-7e0f983be96b",
+                  "title": "Audit log tampering suppresses OTA incident visibility",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "d62b0b29-81fe-51f1-829c-c2a6cd6db1c9",
+            "shape": "process",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Machine Telemetry Collection"
+              }
+            },
+            "data": {
+              "description": "Collects brew/device telemetry and transmits cloud-bound telemetry payloads.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Machine Telemetry Collection",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "1b42be70-9662-51d6-9d80-6cf7dd783ef9",
+            "shape": "process",
+            "zIndex": 12,
+            "position": {
+              "x": 840,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Update Agent"
+              }
+            },
+            "data": {
+              "description": "Downloads signed firmware bundles, validates integrity, applies updates, and reports status.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Update Agent",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "809c10f1-33f0-5818-85b9-fe80f6d65857",
+            "shape": "process",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Update Campaign Orchestration"
+              }
+            },
+            "data": {
+              "description": "Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Update Campaign Orchestration",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "212e0e5c-6bd6-5c91-85ff-bfb5aadfd75f",
+            "shape": "process",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Command Interface"
+              }
+            },
+            "data": {
+              "description": "mqtt mqtt://devices/ota/commands",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Command Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "5d61dead-9793-5d21-9d43-a69eee95d088",
+            "shape": "process",
+            "zIndex": 15,
+            "position": {
+              "x": 580,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Ingestion Interface"
+              }
+            },
+            "data": {
+              "description": "mqtt mqtt://ingest/topics/telemetry",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Ingestion Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "14e86be2-29f5-5112-b8ab-c51c5537cd77",
+            "shape": "trust-boundary-box",
+            "zIndex": 16,
+            "position": {
+              "x": 330,
+              "y": 1130
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Edge Device Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary between managed edge devices and cloud control plane.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "Edge Device Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "46be6994-af61-5e84-bc7f-7479ba1be285",
+            "shape": "trust-boundary-box",
+            "zIndex": 17,
+            "position": {
+              "x": 630,
+              "y": 1130
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Control Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary between cloud app workloads and privileged platform controls.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "Cloud Control Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "f09e4061-b881-5e3c-9730-a3da8d1b8ab5",
+            "shape": "flow",
+            "zIndex": 27,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Daily machine operation produces brew and status telemetry.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Daily machine operation produces brew and status telemetry.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e2d49cc8-1267-587d-bf69-746c98ec69b2"
+            },
+            "target": {
+              "cell": "d62b0b29-81fe-51f1-829c-c2a6cd6db1c9"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Daily machine operation produces brew and status telemetry."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "340c2487-1725-54ac-b0c0-9199563e154f",
+            "shape": "flow",
+            "zIndex": 28,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Defines OTA target cohorts and rollout windows.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Defines OTA target cohorts and rollout windows.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "56b60747-b4e6-57b1-86fd-2489a0b6f501"
+            },
+            "target": {
+              "cell": "809c10f1-33f0-5818-85b9-fe80f6d65857"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Defines OTA target cohorts and rollout windows."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "0961a1c4-7d7e-5887-83fe-84829fd66976",
+            "shape": "flow",
+            "zIndex": 29,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Operates deployment and runtime controls.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Operates deployment and runtime controls.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "e08f8e45-3a14-578d-af7e-87e60e1e454d"
+            },
+            "target": {
+              "cell": "ba2801d4-4f91-5334-8b81-280ffd6ec530"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Operates deployment and runtime controls."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "6abfd94b-7323-5706-aeed-906b9156f3e6",
+            "shape": "flow",
+            "zIndex": 30,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Audits identity trust and secret rotation controls.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Audits identity trust and secret rotation controls.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7d218ac7-a290-599e-af4d-da6d5677d82e"
+            },
+            "target": {
+              "cell": "4f968431-9d7e-50d1-b31e-ddda1641f8ea"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Audits identity trust and secret rotation controls."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "6d4c75c3-0793-54b0-b628-db2e408154e0",
+            "shape": "flow",
+            "zIndex": 31,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Sends telemetry payloads via telemetry ingest interface.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Sends telemetry payloads via telemetry ingest interface.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "d62b0b29-81fe-51f1-829c-c2a6cd6db1c9"
+            },
+            "target": {
+              "cell": "5d61dead-9793-5d21-9d43-a69eee95d088"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Sends telemetry payloads via telemetry ingest interface."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "8b4d2c5e-748b-5624-bebd-c2012c87d2fc",
+            "shape": "flow",
+            "zIndex": 32,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Writes normalized telemetry event payload.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Writes normalized telemetry event payload.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "d62b0b29-81fe-51f1-829c-c2a6cd6db1c9"
+            },
+            "target": {
+              "cell": "eb2f10df-564f-520e-aa8e-6fc7c2d51373"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Writes normalized telemetry event payload."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "721507d3-c610-5b43-8f10-210f472073b4",
+            "shape": "flow",
+            "zIndex": 33,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Publishes OTA rollout commands to device fleet.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Publishes OTA rollout commands to device fleet.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "809c10f1-33f0-5818-85b9-fe80f6d65857"
+            },
+            "target": {
+              "cell": "212e0e5c-6bd6-5c91-85ff-bfb5aadfd75f"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Publishes OTA rollout commands to device fleet."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "29c1456a-3797-5768-8196-422240e97acf",
+            "shape": "flow",
+            "zIndex": 34,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Persists rollout plan and cohort metadata.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Persists rollout plan and cohort metadata.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "809c10f1-33f0-5818-85b9-fe80f6d65857"
+            },
+            "target": {
+              "cell": "39cd4bea-6934-5987-ac5a-34e07b152495"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Persists rollout plan and cohort metadata."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "0f606a92-eaac-586a-8d23-89011a363e5e",
+            "shape": "flow",
+            "zIndex": 35,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Reads rollout plan before applying firmware.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Reads rollout plan before applying firmware.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "1b42be70-9662-51d6-9d80-6cf7dd783ef9"
+            },
+            "target": {
+              "cell": "39cd4bea-6934-5987-ac5a-34e07b152495"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Reads rollout plan before applying firmware."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "47e4c30f-78e6-563a-bef9-67439929f52d",
+            "shape": "flow",
+            "zIndex": 36,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "OTA campaign command path from operator scheduling through edge execution and reporting.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": true,
+              "isTrustBoundary": false,
+              "name": "OTA Rollout Interaction Flow",
+              "outOfScope": false,
+              "protocol": "mqtt",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.",
+                  "mitigation": "OTA agent enforces signature verification with signer metadata checks.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "f85ce6b5-69f2-51a0-81ef-81419072627e",
+                  "title": "Tampered firmware bundle executes on edge fleet",
+                  "type": "tampering"
+                },
+                {
+                  "description": "Unauthorized sender attempts to push OTA command messages to device fleet topic.",
+                  "mitigation": "Device identity claims gate command and telemetry channels.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "db94f82c-40a8-5f4b-ae16-2591826ca7a0",
+                  "title": "Spoofed OTA command triggers unauthorized rollout",
+                  "type": "spoofing"
+                },
+                {
+                  "description": "Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.",
+                  "mitigation": "Planned immutable log retention and append-only controls for OTA incident trails.",
+                  "modelType": "STRIDE",
+                  "number": 3,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "cadd56a4-79fb-5789-b05f-7e0f983be96b",
+                  "title": "Audit log tampering suppresses OTA incident visibility",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "56b60747-b4e6-57b1-86fd-2489a0b6f501"
+            },
+            "target": {
+              "cell": "1b42be70-9662-51d6-9d80-6cf7dd783ef9"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "OTA Rollout Interaction Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "dbc09994-b0ea-57aa-9a06-b07b1a24496b",
+            "shape": "flow",
+            "zIndex": 37,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Telemetry path from device event collection to cloud ingest and reporting.",
+              "hasOpenThreats": true,
+              "isEncrypted": true,
+              "isPublicNetwork": true,
+              "isTrustBoundary": false,
+              "name": "Telemetry Ingestion Interaction Flow",
+              "outOfScope": false,
+              "protocol": "mqtt",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.",
+                  "mitigation": "Replay window and dedup controls are active with ongoing burst tuning.",
+                  "modelType": "STRIDE",
+                  "number": 2,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "01b98820-2c52-5b25-bdc8-93cc4851a955",
+                  "title": "Telemetry replay inflates ingest and distorts reporting",
+                  "type": "replay"
+                },
+                {
+                  "description": "Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.",
+                  "mitigation": "Planned immutable log retention and append-only controls for OTA incident trails.",
+                  "modelType": "STRIDE",
+                  "number": 3,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "cadd56a4-79fb-5789-b05f-7e0f983be96b",
+                  "title": "Audit log tampering suppresses OTA incident visibility",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "d62b0b29-81fe-51f1-829c-c2a6cd6db1c9"
+            },
+            "target": {
+              "cell": "3aa2162a-7428-5223-b5d5-4a001aa42455"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Telemetry Ingestion Interaction Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 4
+  }
+}

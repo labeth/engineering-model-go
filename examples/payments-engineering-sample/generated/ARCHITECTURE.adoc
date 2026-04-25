@@ -808,6 +808,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1295,6 +1307,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1597,6 +1621,18 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2213,6 +2249,114 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+=== Threat Scenario Register
+
+[cols="1,2,1,2,1,1,1,1",options="header"]
+|===
+|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity
+
+|TS-PAYMENTS-RISK-TICKET-TAMPER |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual review ticket>> tampering influences authorization result |<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>> |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>> |<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,High-Risk Manual Review Flow>> |low |high |medium
+
+|TS-PAYMENTS-BANK-CALLBACK-REPLAY |Replayed bank callback triggers duplicate authorization transition |<<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>, <<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>> |medium |high |high
+
+|TS-PAYMENTS-CHECKOUT-SPOOFING |<<REF_IDX-CATALOG_CHECKOUT,Checkout>> payload spoofing bypasses normalization checks |<<REF_IDX-CATALOG_AV_MALICIOUS_API_REQUEST,Malicious API Request>> |<<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,Authorization Request>>, <<REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API,Checkout API Interface>>, <<REF_IDX-CATALOG_FU_CHECKOUT,Checkout Handling>> |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>> |medium |high |high
+
+|===
+
+[cols="1,1,1,1,2,2,2,2",options="header"]
+|===
+|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes
+
+|TS-PAYMENTS-RISK-TICKET-TAMPER |identified |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |RISK-PAYMENTS-MANUAL-REVIEW-TAMPER |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |MIT-PAYMENTS-MANUAL-REVIEW-AUDIT |CV-PAYMENTS-MANUAL-REVIEW-TRACE |Track closure through mitigation and verification linkage.
+
+|TS-PAYMENTS-BANK-CALLBACK-REPLAY |mitigating |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |RISK-PAYMENTS-BANK-CALLBACK-REPLAY |<<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>> |MIT-PAYMENTS-CALLBACK-NONCE-CHECK |CV-PAYMENTS-CALLBACK-REPLAY-TEST |Track closure through mitigation and verification linkage.
+
+|TS-PAYMENTS-CHECKOUT-SPOOFING |mitigating |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |RISK-PAYMENTS-CHECKOUT-SPOOFING |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA |CV-PAYMENTS-CHECKOUT-SCHEMA-TEST |Track closure through mitigation and verification linkage.
+
+|===
+
+
+
+=== Threat Mitigation Coverage
+
+[cols="1,2,2,1,1,1,2,3",options="header"]
+|===
+|ID |Threat Scenario |Control |Status |Effectiveness |Owner |Verification Links |Notes
+
+|MIT-PAYMENTS-CALLBACK-NONCE-CHECK |TS-PAYMENTS-BANK-CALLBACK-REPLAY |<<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>> |verified |high |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |CV-PAYMENTS-CALLBACK-REPLAY-TEST |Nonce freshness and idempotency lock reduce replay acceptance probability.
+
+|MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA |TS-PAYMENTS-CHECKOUT-SPOOFING |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |implemented |medium |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |CV-PAYMENTS-CHECKOUT-SCHEMA-TEST |Strict schema decoding and normalized request construction reduce spoofing surface.
+
+|MIT-PAYMENTS-MANUAL-REVIEW-AUDIT |TS-PAYMENTS-RISK-TICKET-TAMPER |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |partial |medium |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |CV-PAYMENTS-MANUAL-REVIEW-TRACE |MFA-gated <<REF_IDX-CATALOG_ACT_SUPPORT,support>> actions are in place; append-only integrity controls are being expanded.
+
+|===
+
+
+
+=== Control Verification Status
+
+[cols="1,2,2,2,1,1,2,3",options="header"]
+|===
+|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
+
+|CV-PAYMENTS-CALLBACK-REPLAY-TEST |<<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>> |TS-PAYMENTS-BANK-CALLBACK-REPLAY |RISK-PAYMENTS-BANK-CALLBACK-REPLAY |test |pass |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-15 |duplicate callback identifiers correctly rejected
+
+|CV-PAYMENTS-CHECKOUT-SCHEMA-TEST |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |TS-PAYMENTS-CHECKOUT-SPOOFING |RISK-PAYMENTS-CHECKOUT-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-10 |malformed <<REF_IDX-CATALOG_CHECKOUT,checkout>> payloads rejected with deterministic <<REF_IDX-CATALOG_DECLINE,decline>> path
+
+|CV-PAYMENTS-MANUAL-REVIEW-TRACE |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |TS-PAYMENTS-RISK-TICKET-TAMPER |RISK-PAYMENTS-MANUAL-REVIEW-TAMPER |analysis |partial |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-20 |review ticket mutation trail exists but immutability controls are incomplete
+
+|===
+
+
+
+=== Security Flow Semantics
+
+[cols="1,2,1,1,1,2,2,1",options="header"]
+|===
+|ID |Title |Kind |Direction |Frequency |Source |Destination |Protocol
+
+|<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,FLOW-CUSTOMER-CHECKOUT>> |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>> |security |inbound |realtime |<<REF_IDX-CATALOG_ACT_CUSTOMER,Customer>> |<<REF_IDX-CATALOG_FU_CHECKOUT,Checkout Handling>> |https
+
+|<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW>> |<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,High-Risk Manual Review Flow>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>> |<<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>> |internal-event
+
+|===
+
+[cols="1,1,1,1,1,2,2,2",options="header"]
+|===
+|ID |Auth |Encryption |Integrity |Boundary Crossing |Trust Boundary |Threats |Data
+
+|<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,FLOW-CUSTOMER-CHECKOUT>> |session-token |tls1.3 |request-signature |true |<<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>> |TS-PAYMENTS-BANK-CALLBACK-REPLAY, TS-PAYMENTS-CHECKOUT-SPOOFING |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>, <<REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST,Authorization Request>>
+
+|<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,FLOW-PAYMENTS-MANUAL-REVIEW>> |workload-identity |tls1.3 |signed-event |false |none |TS-PAYMENTS-RISK-TICKET-TAMPER |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>, <<REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL,Risk Signal>>
+
+|===
+
+
+
+=== Threat Assumptions
+
+[cols="1,2,1,1,2,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Rationale
+
+|ASM-PAYMENTS-BANK-SIGNING-VALID |Bank callback signatures are managed securely |accepted |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Contractual controls and quarterly partner assurance reviews <<REF_IDX-CATALOG_ACT_SUPPORT,support>> this assumption.
+
+|===
+
+
+
+=== Threat Model Out-of-Scope Decisions
+
+[cols="1,2,1,1,2,1,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Expires On |Reason
+
+|OOS-PAYMENTS-BANK-HSM-OPERATIONS |Bank partner HSM internals |approved |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>> |2027-12-31 |Key management implementation details within the partner bank infrastructure are not accessible to this team.
+
+|===
+
+
+
 === Security Logging and Observability
 
 [cols="2,1,1,3",options="header"]
@@ -2666,6 +2810,18 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2768,6 +2924,18 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3028,6 +3196,18 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3741,6 +3921,19 @@ What this section shows: verification checks inferred from test artifacts, linke
 == Reference Index
 
 === Authored References
+[[REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE]]
+[discrete]
+==== CTRL-PAYMENTS-CALLBACK-NONCE
+
+category=protocol-integrity; description=Enforce nonce freshness and idempotency on bank callback processing.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |Callback Nonce and Idempotency Guard
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
+|===
 [[REF_IDX-CTRL_CTRL_PAYMENTS_IMAGE_DIGEST]]
 [discrete]
 ==== CTRL-PAYMENTS-IMAGE-DIGEST
@@ -3778,7 +3971,7 @@ termRef=DATA-AUTH-DECISION; schemaRef=schemas/auth-decision.json; sensitivity=in
 |Key |Value
 |Kind |Data Object
 |Name |Authorization Decision
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |===
 [[REF_IDX-DO_DO_PAYMENTS_AUTH_REQUEST]]
 [discrete]
@@ -3791,7 +3984,7 @@ termRef=DATA-PAYMENT-REQUEST; schemaRef=schemas/auth-request.json; sensitivity=c
 |Key |Value
 |Kind |Data Object
 |Name |Authorization Request
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET]]
 [discrete]
@@ -3804,7 +3997,7 @@ termRef=n/a; schemaRef=schemas/review-ticket.json; sensitivity=confidential
 |Key |Value
 |Kind |Data Object
 |Name |Manual Review Ticket
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DO_DO_PAYMENTS_RISK_SIGNAL]]
 [discrete]
@@ -3817,7 +4010,7 @@ termRef=n/a; schemaRef=schemas/risk-signal.json; sensitivity=internal
 |Key |Value
 |Kind |Data Object
 |Name |Risk Signal
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DEP_DEP_PAYMENTS_BANK_EDGE]]
 [discrete]
@@ -3882,7 +4075,7 @@ entry=submit-payment; exits=show-outcome; steps=4
 |Key |Value
 |Kind |Flow
 |Name |Customer Checkout Authorization Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW]]
 [discrete]
@@ -3895,7 +4088,7 @@ entry=detect-high-risk; exits=complete-review; steps=3
 |Key |Value
 |Kind |Flow
 |Name |High-Risk Manual Review Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW-STEP_FLOW_CUSTOMER_CHECKOUT__AUTHORIZE_PAYMENT]]
 [discrete]
@@ -3999,7 +4192,7 @@ protocol=https; endpoint=/bank/authorize; schemaRef=schemas/bank-auth.json; owne
 |Key |Value
 |Kind |Interface
 |Name |Bank Authorization Interface
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-IF_IF_PAYMENTS_CHECKOUT_API]]
 [discrete]
@@ -4012,7 +4205,7 @@ protocol=https; endpoint=/api/checkout; schemaRef=schemas/checkout-request.json;
 |Key |Value
 |Kind |Interface
 |Name |Checkout API Interface
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-IF_IF_PAYMENTS_RISK_SCORE_API]]
 [discrete]
@@ -4222,7 +4415,7 @@ Role responsible for GitOps and platform lifecycle operations.
 |Key |Value
 |Kind |Catalog Actor
 |Name |platform operator
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_009,REQ-PAY-009>>
 |===
 [[REF_IDX-CATALOG_ACT_SUPPORT]]
 [discrete]
@@ -4352,7 +4545,7 @@ Handles checkout session start and customer-facing payment messaging.
 |Key |Value
 |Kind |Catalog Alias
 |Name |checkout
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_001,REQ-PAY-001>>
 |===
 [[REF_IDX-CATALOG_CHECKOUT_ACTIVE]]
 [discrete]
@@ -4404,7 +4597,7 @@ Event indicating authorization was rejected and customer decline handling must e
 |Key |Value
 |Kind |Catalog Alias
 |Name |decline
-|Mentioned In |<<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_REQ_REQ_PAY_008,REQ-PAY-008>>
 |===
 [[REF_IDX-CATALOG_DECLINE_CODE]]
 [discrete]

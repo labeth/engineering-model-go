@@ -858,6 +858,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1398,6 +1410,18 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 === Functional Groups and Units (View Scoped)
 
 
@@ -1725,6 +1749,18 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2423,6 +2459,122 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+=== Threat Scenario Register
+
+[cols="1,2,1,2,1,1,1,1",options="header"]
+|===
+|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity
+
+|TS-COFFEE-LOG-TAMPERING |Audit <<REF_IDX-CATALOG_AV_LOG_TAMPERING,log tampering>> suppresses OTA incident visibility |<<REF_IDX-CATALOG_AV_LOG_TAMPERING,Log Tampering>> |<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>> |<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,OTA Rollout Interaction Flow>>, <<REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST,Telemetry Ingestion Interaction Flow>> |low |high |medium
+
+|TS-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CATALOG_TELEMETRY_REPLAY,Telemetry replay>> inflates ingest and distorts reporting |<<REF_IDX-CATALOG_AV_TELEMETRY_REPLAY_ABUSE,Telemetry Replay Abuse>> |<<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>, <<REF_IDX-DO_DO_COFFEE_TELEMETRY_EVENT,Telemetry Event>> |<<REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST,Telemetry Ingestion Interaction Flow>> |medium |medium |medium
+
+|TS-COFFEE-MALICIOUS-OTA-BUNDLE |Tampered <<REF_IDX-CATALOG_FIRMWARE_BUNDLE,firmware bundle>> executes on edge fleet |<<REF_IDX-CATALOG_AV_MALICIOUS_FIRMWARE_BUNDLE,Malicious Firmware Bundle>> |<<REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,OTA Update Agent>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>> |<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,OTA Rollout Interaction Flow>> |medium |high |high
+
+|TS-COFFEE-OTA-COMMAND-SPOOF |Spoofed OTA command triggers unauthorized rollout |<<REF_IDX-CATALOG_AV_SPOOFED_DEVICE_IDENTITY,Spoofed Device Identity>> |<<REF_IDX-IF_IF_COFFEE_OTA_COMMAND,OTA Command Interface>>, <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,OTA Update Agent>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>> |<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,OTA Rollout Interaction Flow>> |medium |high |high
+
+|===
+
+[cols="1,1,1,1,2,2,2,2",options="header"]
+|===
+|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes
+
+|TS-COFFEE-LOG-TAMPERING |identified |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |RISK-COFFEE-LOG-TAMPERING |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |MIT-COFFEE-AUDIT-IMMUTABILITY |CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS |Track closure through mitigation and verification linkage.
+
+|TS-COFFEE-TELEMETRY-REPLAY |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |RISK-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |MIT-COFFEE-TELEMETRY-REPLAY-WINDOW |CV-COFFEE-TELEMETRY-REPLAY |Track closure through mitigation and verification linkage.
+
+|TS-COFFEE-MALICIOUS-OTA-BUNDLE |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |RISK-COFFEE-MALICIOUS-OTA |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>> |MIT-COFFEE-FW-SIGNATURE-VERIFY |CV-COFFEE-FW-SIGNATURE-TEST |Track closure through mitigation and verification linkage.
+
+|TS-COFFEE-OTA-COMMAND-SPOOF |mitigating |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |RISK-COFFEE-DEVICE-SPOOFING |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT |CV-COFFEE-DEVICE-IDENTITY-TEST |Track closure through mitigation and verification linkage.
+
+|===
+
+
+
+=== Threat Mitigation Coverage
+
+[cols="1,2,2,1,1,1,2,3",options="header"]
+|===
+|ID |Threat Scenario |Control |Status |Effectiveness |Owner |Verification Links |Notes
+
+|MIT-COFFEE-AUDIT-IMMUTABILITY |TS-COFFEE-LOG-TAMPERING |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |planned |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS |Planned immutable log retention and append-only controls for OTA incident trails.
+
+|MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT |TS-COFFEE-OTA-COMMAND-SPOOF |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |implemented |high |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-DEVICE-IDENTITY-TEST |<<REF_IDX-CATALOG_DEVICE_IDENTITY,Device identity>> claims gate command and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> channels.
+
+|MIT-COFFEE-FW-SIGNATURE-VERIFY |TS-COFFEE-MALICIOUS-OTA-BUNDLE |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>> |verified |high |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-FW-SIGNATURE-TEST |OTA agent enforces signature verification with signer metadata checks.
+
+|MIT-COFFEE-TELEMETRY-REPLAY-WINDOW |TS-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |partial |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-TELEMETRY-REPLAY |Replay window and dedup controls are active with ongoing burst tuning.
+
+|===
+
+
+
+=== Control Verification Status
+
+[cols="1,2,2,2,1,1,2,3",options="header"]
+|===
+|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
+
+|CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-LOG-TAMPERING |RISK-COFFEE-LOG-TAMPERING |inspection |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-20 |log write permissions are constrained but immutable retention still being expanded
+
+|CV-COFFEE-DEVICE-IDENTITY-TEST |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-OTA-COMMAND-SPOOF |RISK-COFFEE-DEVICE-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-13 |unauthorized command publishers rejected by identity policy
+
+|CV-COFFEE-FW-SIGNATURE-TEST |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>> |TS-COFFEE-MALICIOUS-OTA-BUNDLE |RISK-COFFEE-MALICIOUS-OTA |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-12 |unsigned or tampered bundles rejected during OTA execution
+
+|CV-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-TELEMETRY-REPLAY |RISK-COFFEE-TELEMETRY-REPLAY |analysis |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-18 |replay detection works for standard windows; high-burst tuning still in progress
+
+|===
+
+
+
+=== Security Flow Semantics
+
+[cols="1,2,1,1,1,2,2,1",options="header"]
+|===
+|ID |Title |Kind |Direction |Frequency |Source |Destination |Protocol
+
+|<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,FLOW-COFFEE-OTA-ROLLOUT>> |<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,OTA Rollout Interaction Flow>> |security |outbound |scheduled |<<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,Fleet Operator>> |<<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,OTA Update Agent>> |mqtt
+
+|<<REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST,FLOW-COFFEE-TELEMETRY-INGEST>> |<<REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST,Telemetry Ingestion Interaction Flow>> |data |inbound |realtime |<<REF_IDX-CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,Machine Telemetry Collection>> |<<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,Fleet Ingestion API>> |mqtt
+
+|===
+
+[cols="1,1,1,1,1,2,2,2",options="header"]
+|===
+|ID |Auth |Encryption |Integrity |Boundary Crossing |Trust Boundary |Threats |Data
+
+|<<REF_IDX-FLOW_FLOW_COFFEE_OTA_ROLLOUT,FLOW-COFFEE-OTA-ROLLOUT>> |device-mtls |tls1.3 |firmware-signature |true |<<REF_IDX-TB_TB_COFFEE_EDGE_DEVICE,Edge Device Boundary>> |TS-COFFEE-MALICIOUS-OTA-BUNDLE, TS-COFFEE-OTA-COMMAND-SPOOF |<<REF_IDX-DO_DO_COFFEE_OTA_PLAN,OTA Rollout Plan>>
+
+|<<REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST,FLOW-COFFEE-TELEMETRY-INGEST>> |device-identity-token |tls1.3 |signed-telemetry-envelope |true |<<REF_IDX-TB_TB_COFFEE_EDGE_DEVICE,Edge Device Boundary>> |TS-COFFEE-LOG-TAMPERING, TS-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-DO_DO_COFFEE_TELEMETRY_EVENT,Telemetry Event>>
+
+|===
+
+
+
+=== Threat Assumptions
+
+[cols="1,2,1,1,2,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Rationale
+
+|ASM-COFFEE-DEVICE-ROOT-OF-TRUST |Device trust anchors are provisioned securely |accepted |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-TB_TB_COFFEE_EDGE_DEVICE,Edge Device Boundary>>, <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,OTA Update Agent>> |Secure provisioning path is audited by platform security and manufacturing controls.
+
+|===
+
+
+
+=== Threat Model Out-of-Scope Decisions
+
+[cols="1,2,1,1,2,1,3",options="header"]
+|===
+|ID |Title |Status |Owner |Applies To |Expires On |Reason
+
+|OOS-COFFEE-HARDWARE-PHYSICAL-TAMPER |Physical tamper resistance of device enclosure |approved |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |<<REF_IDX-DEP_DEP_COFFEE_EDGE_FLEET,Coffee Edge Fleet>> |2027-12-31 |Hardware anti-tamper sensor design and physical sealing are owned by hardware product teams.
+
+|===
+
+
+
 
 
 === Attack Vector Chapters
@@ -2981,6 +3133,18 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -3083,6 +3247,18 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3310,6 +3486,18 @@ Coverage summary: 5/5 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4335,7 +4523,7 @@ termRef=DATA-OTA-PLAN; schemaRef=schemas/ota-plan.json; sensitivity=internal
 |Key |Value
 |Kind |Data Object
 |Name |OTA Rollout Plan
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DO_DO_COFFEE_TELEMETRY_EVENT]]
 [discrete]
@@ -4348,7 +4536,7 @@ termRef=DATA-TELEMETRY-EVENT; schemaRef=schemas/telemetry-event.json; sensitivit
 |Key |Value
 |Kind |Data Object
 |Name |Telemetry Event
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-DEP_DEP_COFFEE_CLOUD_PROD]]
 [discrete]
@@ -4374,7 +4562,7 @@ environment=edge; region=global; account=device; cluster=edge-fleet; namespace=d
 |Key |Value
 |Kind |Deployment Target
 |Name |Coffee Edge Fleet
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-EVT_EVT_COFFEE_OTA_COMPLETED]]
 [discrete]
@@ -4413,7 +4601,7 @@ entry=operator-schedules-rollout; exits=report-outcome; steps=4
 |Key |Value
 |Kind |Flow
 |Name |OTA Rollout Interaction Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW_FLOW_COFFEE_TELEMETRY_INGEST]]
 [discrete]
@@ -4426,7 +4614,7 @@ entry=capture-machine-telemetry; exits=publish-fleet-observability; steps=4
 |Key |Value
 |Kind |Flow
 |Name |Telemetry Ingestion Interaction Flow
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-FLOW-STEP_FLOW_COFFEE_OTA_ROLLOUT__EXECUTE_UPDATE]]
 [discrete]
@@ -4543,7 +4731,7 @@ protocol=mqtt; endpoint=mqtt://devices/ota/commands; schemaRef=schemas/ota-comma
 |Key |Value
 |Kind |Interface
 |Name |OTA Command Interface
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 [[REF_IDX-IF_IF_COFFEE_TELEMETRY_INGEST]]
 [discrete]
@@ -4792,7 +4980,7 @@ Owns OTA rollout campaigns and fleet-level reliability.
 |Key |Value
 |Kind |Catalog Actor
 |Name |fleet operator
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_COF_002,REQ-COF-002>>, <<REF_REQ_REQ_COF_009,REQ-COF-009>>
 |===
 [[REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR]]
 [discrete]
@@ -4818,7 +5006,7 @@ Reviews identity, firmware integrity, and logging controls.
 |Key |Value
 |Kind |Catalog Actor
 |Name |security analyst
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_COF_012,REQ-COF-012>>
 |===
 [[REF_IDX-CATALOG_APPLY_STATUS]]
 [discrete]
@@ -5039,7 +5227,7 @@ Device identity material used for authenticated publish, ingest, and audit attri
 |Key |Value
 |Kind |Catalog Alias
 |Name |device identity
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_DEVICE_SECRETS]]
 [discrete]
@@ -5741,7 +5929,7 @@ Replayed telemetry floods ingestion and distorts reporting.
 |Key |Value
 |Kind |Catalog Alias
 |Name |telemetry replay
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
 [[REF_IDX-CATALOG_TELEMETRY_REPLAY_DETECTED]]
 [discrete]

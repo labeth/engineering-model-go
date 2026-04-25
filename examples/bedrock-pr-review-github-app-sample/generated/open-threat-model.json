@@ -1,0 +1,680 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Bedrock Lambda GitHub PR Review App Architecture",
+    "id": "sample-bedrock-pr-review-model",
+    "description": "This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.\nThe authored functional architecture remains stable while deployment/runtime/code evidence is inferred\nfrom infrastructure manifests, source files, and verification artifacts.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Pull Request Context",
+      "id": "DO-BEDROCK-PR-CONTEXT",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "internal-code"
+      },
+      "description": "schemas/pr-context.json"
+    },
+    {
+      "name": "Review Findings",
+      "id": "DO-BEDROCK-REVIEW-FINDINGS",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "internal-security"
+      },
+      "description": "schemas/review-findings.json"
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TB-BEDROCK-AWS-CONTROL",
+      "name": "AWS Control Boundary",
+      "type": "control-plane",
+      "description": "Boundary between app workloads and privileged platform controls.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TB-BEDROCK-GITHUB-EXTERNAL",
+      "name": "GitHub External Boundary",
+      "type": "network",
+      "description": "Boundary between external GitHub traffic and internal review processing.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-DEVELOPER",
+      "name": "Developer",
+      "type": "actor",
+      "description": "Opens pull requests and receives review feedback.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-PLATFORM-OPERATOR",
+      "name": "Platform Operator",
+      "type": "actor",
+      "description": "Operates Lambda deployment and runtime controls.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-REPOSITORY-MAINTAINER",
+      "name": "Repository Maintainer",
+      "type": "actor",
+      "description": "Owns merge decisions and repository-level quality gates.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-SECURITY-ENGINEER",
+      "name": "Security Engineer",
+      "type": "actor",
+      "description": "Curates policy checks and triages security findings.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "DEP-BEDROCK-GITHUB-BOUNDARY",
+      "name": "GitHub Integration Boundary",
+      "type": "deployment-target",
+      "description": "external global",
+      "parent": {
+        "trustZone": "TB-BEDROCK-GITHUB-EXTERNAL"
+      }
+    },
+    {
+      "id": "DEP-BEDROCK-LAMBDA-PRIMARY",
+      "name": "Primary Lambda Runtime",
+      "type": "deployment-target",
+      "description": "prod us-east-1",
+      "parent": {
+        "trustZone": "TB-BEDROCK-AWS-CONTROL"
+      }
+    },
+    {
+      "id": "FU-GITHUB-WEBHOOK-INGRESS",
+      "name": "GitHub Webhook Ingress",
+      "type": "service",
+      "description": "Verifies webhook signatures, validates event type, and starts review workflow routing.",
+      "parent": {
+        "trustZone": "TB-BEDROCK-GITHUB-EXTERNAL"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-WEBHOOK-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-WEBHOOK-HMAC",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "name": "Lambda Runtime Operations",
+      "type": "service",
+      "description": "Manages Lambda packaging/deployment lifecycle and operational health guardrails.",
+      "parent": {
+        "trustZone": "TB-BEDROCK-AWS-CONTROL"
+      }
+    },
+    {
+      "id": "FU-POLICY-CHECKS",
+      "name": "Policy Checks",
+      "type": "service",
+      "description": "Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-PR-CONTEXT-ASSEMBLY",
+      "name": "PR Context Assembly",
+      "type": "service",
+      "description": "Fetches changed files and diff metadata and prepares bounded review context payloads.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-PROMPT-INJECTION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-CONTEXT-SANITIZATION",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-REVIEW-ORCHESTRATION",
+      "name": "Review Orchestration",
+      "type": "service",
+      "description": "Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-PROMPT-INJECTION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-CONTEXT-SANITIZATION",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-REVIEW-PUBLICATION",
+      "name": "Review Publication",
+      "type": "service",
+      "description": "Publishes check-run summaries and inline comments back to GitHub pull requests.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-OUTPUT-REDACTION",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-SECRETS-CONFIGURATION",
+      "name": "Secrets and Configuration",
+      "type": "service",
+      "description": "Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.",
+      "parent": {
+        "trustZone": "TB-BEDROCK-AWS-CONTROL"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-OUTPUT-REDACTION",
+              "state": "partial"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IF-BEDROCK-REVIEW-PUBLISH-API",
+      "name": "Review Publish API",
+      "type": "interface",
+      "description": "https /github/check-runs",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-BEDROCK-WEBHOOK-API",
+      "name": "Webhook Intake API",
+      "type": "interface",
+      "description": "https /webhook/github",
+      "parent": {
+        "trustZone": "TB-BEDROCK-GITHUB-EXTERNAL"
+      },
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-WEBHOOK-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-WEBHOOK-HMAC",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "REF-AWS-BEDROCK-RUNTIME",
+      "name": "AWS Bedrock Runtime API",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-AWS-SDK-GO",
+      "name": "AWS SDK for Go",
+      "type": "third_party_library",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-AWS-SECRETS-MANAGER",
+      "name": "AWS Secrets Manager",
+      "type": "platform_service",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-GITHUB-APP-API",
+      "name": "GitHub App API",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-GITHUB-REST-SDK",
+      "name": "GitHub REST SDK",
+      "type": "third_party_library",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-POLICY-RULESET",
+      "name": "Review Policy Ruleset",
+      "type": "policy_bundle",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "0ff6795c-ccc1-5640-82a4-eaf3c53fee1a",
+      "name": "Requests model analysis for code review findings.",
+      "description": "Requests model analysis for code review findings.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-ORCHESTRATION",
+      "destination": "REF-AWS-BEDROCK-RUNTIME",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "16b194b2-d7ce-5ad5-991f-526750ba16b0",
+      "name": "Developer push/update activity triggers pull request webhook events.",
+      "description": "Developer push/update activity triggers pull request webhook events.",
+      "bidirectional": true,
+      "source": "ACT-DEVELOPER",
+      "destination": "FU-GITHUB-WEBHOOK-INGRESS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "1a4fc101-08c3-5391-8a22-9fd3a9c61fd2",
+      "name": "Rotates credentials and manages secure configuration lifecycle.",
+      "description": "Rotates credentials and manages secure configuration lifecycle.",
+      "bidirectional": true,
+      "source": "ACT-PLATFORM-OPERATOR",
+      "destination": "FU-SECRETS-CONFIGURATION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "2033be64-999c-5943-bc3b-1664e2797815",
+      "name": "Receives webhook payload through signed API endpoint.",
+      "description": "Receives webhook payload through signed API endpoint.",
+      "source": "FU-GITHUB-WEBHOOK-INGRESS",
+      "destination": "IF-BEDROCK-WEBHOOK-API",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "2a28dee6-76db-5cf8-b5e7-a7dc6dd5b786",
+      "name": "Fetches pull request files and metadata.",
+      "description": "Fetches pull request files and metadata.",
+      "bidirectional": true,
+      "source": "FU-PR-CONTEXT-ASSEMBLY",
+      "destination": "REF-GITHUB-APP-API",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "2c71edfd-e732-53d1-9ae1-14487588c32b",
+      "name": "Operates deployments, scaling controls, and runtime observability.",
+      "description": "Operates deployments, scaling controls, and runtime observability.",
+      "bidirectional": true,
+      "source": "ACT-PLATFORM-OPERATOR",
+      "destination": "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "2e0cdc1a-a569-562f-947c-5463cd36a07f",
+      "name": "Publishes check runs and inline review comments.",
+      "description": "Publishes check runs and inline review comments.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-PUBLICATION",
+      "destination": "REF-GITHUB-APP-API",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "3eafd659-c969-523f-820f-5c775b8b66e1",
+      "name": "Requires secure runtime configuration and credential access.",
+      "description": "Requires secure runtime configuration and credential access.",
+      "bidirectional": true,
+      "source": "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "destination": "FU-SECRETS-CONFIGURATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "54f6cc6f-900f-54ae-a9da-a80dae73a0ca",
+      "name": "Merges deterministic policy findings with model output.",
+      "description": "Merges deterministic policy findings with model output.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-ORCHESTRATION",
+      "destination": "FU-POLICY-CHECKS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "55fbd478-17e1-512a-a6ea-6411fe0c6fe9",
+      "name": "Forwards authenticated PR events for context assembly.",
+      "description": "Forwards authenticated PR events for context assembly.",
+      "bidirectional": true,
+      "source": "FU-GITHUB-WEBHOOK-INGRESS",
+      "destination": "FU-PR-CONTEXT-ASSEMBLY",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "76c3fcca-275d-53d0-a0a9-2234f6849a61",
+      "name": "Retrieves model configuration and safety settings.",
+      "description": "Retrieves model configuration and safety settings.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-ORCHESTRATION",
+      "destination": "FU-SECRETS-CONFIGURATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "95b216f3-cb2e-5a12-a054-624573b79c4f",
+      "name": "Maintains and evolves deterministic security checks.",
+      "description": "Maintains and evolves deterministic security checks.",
+      "bidirectional": true,
+      "source": "ACT-SECURITY-ENGINEER",
+      "destination": "FU-POLICY-CHECKS",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "97b8083e-4738-56e1-86fe-251986b82b36",
+      "name": "Reviews findings and gate decisions before merge.",
+      "description": "Reviews findings and gate decisions before merge.",
+      "bidirectional": true,
+      "source": "ACT-REPOSITORY-MAINTAINER",
+      "destination": "FU-REVIEW-PUBLICATION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "FLOW-BEDROCK-POLICY-TUNING",
+      "name": "Security Policy Tuning Flow",
+      "description": "Policy rule update and dry-run validation path before policy promotion.",
+      "source": "ACT-SECURITY-ENGINEER",
+      "destination": "FU-REVIEW-PUBLICATION",
+      "assets": [
+        "DO-BEDROCK-PR-CONTEXT",
+        "DO-BEDROCK-REVIEW-FINDINGS"
+      ],
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-OUTPUT-REDACTION",
+              "state": "partial"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "id": "FLOW-BEDROCK-PR-REVIEW",
+      "name": "PR Review Interaction Flow",
+      "description": "Webhook-driven PR review path from ingress through context assembly, analysis, and publication.",
+      "source": "IF-BEDROCK-WEBHOOK-API",
+      "destination": "FU-REVIEW-PUBLICATION",
+      "assets": [
+        "DO-BEDROCK-PR-CONTEXT",
+        "DO-BEDROCK-REVIEW-FINDINGS"
+      ],
+      "threats": [
+        {
+          "threat": "TS-BEDROCK-WEBHOOK-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-WEBHOOK-HMAC",
+              "state": "mitigated"
+            }
+          ]
+        },
+        {
+          "threat": "TS-BEDROCK-PROMPT-INJECTION",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-BEDROCK-CONTEXT-SANITIZATION",
+              "state": "partial"
+            }
+          ]
+        }
+      ],
+      "tags": [
+        "security"
+      ]
+    },
+    {
+      "id": "a8fd1b35-4720-5d56-95ad-b6461749ad29",
+      "name": "Calls publication API for check-run output.",
+      "description": "Calls publication API for check-run output.",
+      "source": "FU-REVIEW-PUBLICATION",
+      "destination": "IF-BEDROCK-REVIEW-PUBLISH-API",
+      "tags": [
+        "calls"
+      ]
+    },
+    {
+      "id": "bd348d13-e109-5a4b-9d14-dccc731905e5",
+      "name": "Sends normalized review context.",
+      "description": "Sends normalized review context.",
+      "bidirectional": true,
+      "source": "FU-PR-CONTEXT-ASSEMBLY",
+      "destination": "FU-REVIEW-ORCHESTRATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "c6ca1ee0-8f38-5312-9c9c-216a95ffea0f",
+      "name": "Evaluates repository policy and risk rules.",
+      "description": "Evaluates repository policy and risk rules.",
+      "bidirectional": true,
+      "source": "FU-POLICY-CHECKS",
+      "destination": "REF-POLICY-RULESET",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "cd03c883-01bc-5ab6-8c16-c1f9b1e0e498",
+      "name": "Retrieves app credentials and redaction rules.",
+      "description": "Retrieves app credentials and redaction rules.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-PUBLICATION",
+      "destination": "FU-SECRETS-CONFIGURATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "e97ea3d8-4478-5c76-8202-6152f8368645",
+      "name": "Uses managed secret store for runtime credentials.",
+      "description": "Uses managed secret store for runtime credentials.",
+      "bidirectional": true,
+      "source": "FU-LAMBDA-RUNTIME-OPERATIONS",
+      "destination": "REF-AWS-SECRETS-MANAGER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "fc1d7832-c145-55fc-97d0-9dfa28266c98",
+      "name": "Submits final findings for publication.",
+      "description": "Submits final findings for publication.",
+      "bidirectional": true,
+      "source": "FU-REVIEW-ORCHESTRATION",
+      "destination": "FU-REVIEW-PUBLICATION",
+      "tags": [
+        "depends_on"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "TS-BEDROCK-PROMPT-INJECTION",
+      "name": "Prompt injection in diff influences review output integrity",
+      "description": "Malicious prompts in diff content attempt to coerce model output away from policy intent.",
+      "categories": [
+        "model-abuse"
+      ],
+      "cwes": [
+        "CWE-20"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 5,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "tampering"
+      ]
+    },
+    {
+      "id": "TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION",
+      "name": "Sensitive tokens leak via review publication payload",
+      "description": "Review output includes sensitive content due to incomplete redaction before publication.",
+      "categories": [
+        "data-exposure"
+      ],
+      "cwes": [
+        "CWE-200"
+      ],
+      "risk": {
+        "likelihood": 2,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "information-disclosure"
+      ]
+    },
+    {
+      "id": "TS-BEDROCK-WEBHOOK-SPOOF",
+      "name": "Spoofed webhook bypasses ingress verification",
+      "description": "Forged pull request webhook attempts to trigger unauthorized review execution.",
+      "categories": [
+        "ingress-abuse"
+      ],
+      "cwes": [
+        "CWE-345"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "spoofing"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "MIT-BEDROCK-CONTEXT-SANITIZATION",
+      "name": "CTRL-BEDROCK-WEBHOOK-SIGNATURE",
+      "description": "Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.",
+      "riskReduction": 5
+    },
+    {
+      "id": "MIT-BEDROCK-OUTPUT-REDACTION",
+      "name": "CTRL-BEDROCK-SECRETS-ROTATION",
+      "description": "Publication redaction pipeline blocks common secret shapes and is being extended.",
+      "riskReduction": 5
+    },
+    {
+      "id": "MIT-BEDROCK-WEBHOOK-HMAC",
+      "name": "CTRL-BEDROCK-WEBHOOK-SIGNATURE",
+      "description": "HMAC signature checks and ingress rejection reduce spoofing attack viability.",
+      "riskReduction": 8
+    }
+  ]
+}
