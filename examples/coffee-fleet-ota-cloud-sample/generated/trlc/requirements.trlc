@@ -1,0 +1,73 @@
+package CoffeeFleetRequirements
+Requirement REQ_COF_001 {
+  id         = "REQ-COF-001"
+  text       = "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations."
+  notes      = "Primary machine-to-cloud telemetry contract."
+  applies_to = ["FU-FLEET-INGESTION-API", "FU-MACHINE-TELEMETRY-COLLECTION"]
+}
+Requirement REQ_COF_002 {
+  id         = "REQ-COF-002"
+  text       = "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics for fleet operator."
+  notes      = "Operational observability requirement."
+  applies_to = ["FU-FLEET-INGESTION-API", "FU-FLEET-OBSERVABILITY-REPORTING"]
+}
+Requirement REQ_COF_003 {
+  id         = "REQ-COF-003"
+  text       = "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort using ota campaign policy."
+  notes      = "OTA rollout behavior from central cloud control."
+  applies_to = ["FU-OTA-UPDATE-AGENT", "FU-UPDATE-CAMPAIGN-ORCHESTRATION"]
+}
+Requirement REQ_COF_004 {
+  id         = "REQ-COF-004"
+  text       = "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid."
+  notes      = "Firmware integrity and trust boundary control."
+  applies_to = ["FU-DEVICE-IDENTITY-SECRETS", "FU-OTA-UPDATE-AGENT"]
+}
+Requirement REQ_COF_005 {
+  id         = "REQ-COF-005"
+  text       = "If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply."
+  notes      = "Rollback and failure signaling path."
+  applies_to = ["FU-FLEET-OBSERVABILITY-REPORTING", "FU-OTA-UPDATE-AGENT", "FU-UPDATE-CAMPAIGN-ORCHESTRATION"]
+}
+Requirement REQ_COF_006 {
+  id         = "REQ-COF-006"
+  text       = "If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry."
+  notes      = "Resilience for temporary cloud outage."
+  applies_to = ["FU-FLEET-INGESTION-API", "FU-MACHINE-TELEMETRY-COLLECTION"]
+}
+Requirement REQ_COF_007 {
+  id         = "REQ-COF-007"
+  text       = "Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record with machine identity plus campaign id."
+  notes      = "Audit/compliance logging requirement."
+  applies_to = ["FU-DEVICE-IDENTITY-SECRETS", "FU-FLEET-OBSERVABILITY-REPORTING"]
+}
+Requirement REQ_COF_008 {
+  id         = "REQ-COF-008"
+  text       = "If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry."
+  notes      = "Abuse control and security response requirement."
+  applies_to = ["FU-CLOUD-RUNTIME-OPERATIONS", "FU-FLEET-INGESTION-API", "FU-FLEET-OBSERVABILITY-REPORTING"]
+}
+Requirement REQ_COF_009 {
+  id         = "REQ-COF-009"
+  text       = "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist logging records for fleet operator."
+  notes      = "Operational logging persistence requirement."
+  applies_to = ["FU-FLEET-INGESTION-API", "FU-FLEET-OBSERVABILITY-REPORTING"]
+}
+Requirement REQ_COF_010 {
+  id         = "REQ-COF-010"
+  text       = "If firmware validation failed event is received, then the coffee fleet system shall report ota status to platform operator."
+  notes      = "OTA failure status signaling requirement."
+  applies_to = ["FU-FLEET-OBSERVABILITY-REPORTING", "FU-OTA-UPDATE-AGENT", "FU-UPDATE-CAMPAIGN-ORCHESTRATION"]
+}
+Requirement REQ_COF_011 {
+  id         = "REQ-COF-011"
+  text       = "If cloud ingest endpoint is unavailable, then the coffee fleet system shall flush queued telemetry when normal mode is active."
+  notes      = "Queued telemetry drain behavior after endpoint recovery."
+  applies_to = ["FU-FLEET-INGESTION-API", "FU-MACHINE-TELEMETRY-COLLECTION"]
+}
+Requirement REQ_COF_012 {
+  id         = "REQ-COF-012"
+  text       = "If telemetry replay abuse is detected, then the coffee fleet system shall notify security analyst."
+  notes      = "Security notification requirement for replay abuse events."
+  applies_to = ["FU-CLOUD-RUNTIME-OPERATIONS", "FU-FLEET-INGESTION-API", "FU-FLEET-OBSERVABILITY-REPORTING"]
+}

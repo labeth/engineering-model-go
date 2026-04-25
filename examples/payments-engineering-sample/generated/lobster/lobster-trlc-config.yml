@@ -1,0 +1,9 @@
+inputs:
+  - /home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/model.rsl
+  - /home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc
+conversion-rules:
+  - package: PaymentsRequirements
+    record-type: Requirement
+    namespace: req
+    description-fields:
+      - text

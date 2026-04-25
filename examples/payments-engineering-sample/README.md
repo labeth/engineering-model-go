@@ -15,7 +15,7 @@ Inferred layers are represented by example ownership and runtime hints:
 
 - Runtime inferred from `infra/terraform`, `infra/flux`, `infra/helm`
 - Code ownership inferred from package/module-level owner annotations in `src/`
-- Fine-grained requirement traces from `TRACE-REQS` markers in code
+- Fine-grained requirement traces from `TRLC-LINKS` markers in code
 - Verification mappings and outcomes inferred from `tests/` and `test-results/` artifacts
 
 The implementation files are intentionally dummy but believable:

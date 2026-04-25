@@ -1,4 +1,5 @@
 # ENGMODEL-VERIFICATION-DESCRIPTION: exercises end-to-end pull request opened flow from webhook ingest to published review
+# TRLC-LINKS: REQ-PRR-001, REQ-PRR-002, REQ-PRR-003, REQ-PRR-005
 name: e2e-pr-opened-review-flow
 steps:
   - given: pull request opened event is received

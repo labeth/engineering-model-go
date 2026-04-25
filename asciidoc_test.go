@@ -173,11 +173,11 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 	}
 
 	validationTest := filepath.Join(testsDir, "validation.test.js")
-	if err := os.WriteFile(validationTest, []byte("// TRACE-REQS: REQ-PAY-001\n"), 0o644); err != nil {
+	if err := os.WriteFile(validationTest, []byte("// TRLC-LINKS: REQ-PAY-001\n"), 0o644); err != nil {
 		t.Fatalf("write validation test fixture: %v", err)
 	}
 	otherTest := filepath.Join(testsDir, "e2e-requirements.test.js")
-	if err := os.WriteFile(otherTest, []byte("// TRACE-REQS: REQ-PAY-001\n"), 0o644); err != nil {
+	if err := os.WriteFile(otherTest, []byte("// TRLC-LINKS: REQ-PAY-001\n"), 0o644); err != nil {
 		t.Fatalf("write e2e test fixture: %v", err)
 	}
 	if err := os.WriteFile(filepath.Join(resultsDir, "validation.json"), []byte(`{"results":[{"requirement":"REQ-PAY-001","status":"pass"}]}`), 0o644); err != nil {

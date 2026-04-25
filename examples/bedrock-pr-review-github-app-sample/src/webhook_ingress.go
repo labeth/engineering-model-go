@@ -11,7 +11,7 @@ import (
 
 type WebhookIngress struct{}
 
-// TRACE-REQS: REQ-PRR-001
+// TRLC-LINKS: REQ-PRR-001
 func (w *WebhookIngress) VerifySignature(payload []byte, signatureHeader, secret string) bool {
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write(payload)
@@ -21,7 +21,7 @@ func (w *WebhookIngress) VerifySignature(payload []byte, signatureHeader, secret
 	return valid
 }
 
-// TRACE-REQS: REQ-PRR-002, REQ-PRR-008
+// TRLC-LINKS: REQ-PRR-002, REQ-PRR-008
 func (w *WebhookIngress) RoutePullRequestEvent(eventType, repo, pr string) {
 	fmt.Printf("webhook-ingress: route event=%s repo=%s pr=%s\n", eventType, repo, pr)
 }

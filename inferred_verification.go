@@ -37,6 +37,7 @@ type inferredVerificationCheck struct {
 }
 
 var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
+var trlcLinksMarkerRe = regexp.MustCompile(`(?i)^\s*(?://+|#|--|/\*+|\*)?\s*TRLC-LINKS:\s*(.+?)\s*(?:\*/)?\s*$`)
 var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-run|flaky)\b`)
 
 func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
@@ -95,7 +96,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				return nil
 			}
 			content := string(data)
-			reqs := uniqueStrings(requirementIDRe.FindAllString(content, -1))
+			reqs := extractTRLCLinkedRequirements(content)
 			if len(reqs) == 0 {
 				return nil
 			}
@@ -401,7 +402,7 @@ func parseResultJSON(data []byte) []inferredVerificationResult {
 }
 
 func parseResultText(text string) []inferredVerificationResult {
-	reqs := uniqueStrings(requirementIDRe.FindAllString(text, -1))
+	reqs := extractTRLCLinkedRequirements(text)
 	if len(reqs) == 0 {
 		return nil
 	}
@@ -414,6 +415,19 @@ func parseResultText(text string) []inferredVerificationResult {
 		out = append(out, inferredVerificationResult{Requirement: req, Status: status})
 	}
 	return out
+}
+
+func extractTRLCLinkedRequirements(text string) []string {
+	out := []string{}
+	lines := strings.Split(text, "\n")
+	for _, line := range lines {
+		m := trlcLinksMarkerRe.FindStringSubmatch(line)
+		if len(m) < 2 {
+			continue
+		}
+		out = append(out, requirementIDRe.FindAllString(m[1], -1)...)
+	}
+	return uniqueStrings(out)
 }
 
 func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]string {

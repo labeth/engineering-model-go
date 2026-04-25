@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createAuditEnvelope } from "./support/audit_envelope";
 
 export class RiskScoringService {
-  // TRACE-REQS: REQ-PAY-002
+  // TRLC-LINKS: REQ-PAY-002
   calculateRiskScore(paymentId: string, amountCents: number): number {
     const requestSchema = z.object({
       paymentId: z.string().min(1),
@@ -17,7 +17,7 @@ export class RiskScoringService {
     return 72;
   }
 
-  // TRACE-REQS: REQ-PAY-002
+  // TRLC-LINKS: REQ-PAY-002
   classifyRisk(riskScore: number): "low" | "medium" | "high" {
     console.log(`risk-scoring-service: classify score ${riskScore}`);
     if (riskScore >= 70) return "high";
@@ -25,7 +25,7 @@ export class RiskScoringService {
     return "low";
   }
 
-  // TRACE-REQS: REQ-PAY-004
+  // TRLC-LINKS: REQ-PAY-004
   isHighRisk(riskScore: number): boolean {
     console.log(`risk-scoring-service: high-risk gate check for ${riskScore}`);
     return riskScore >= 70;
@@ -33,7 +33,7 @@ export class RiskScoringService {
 }
 
 export class FraudAuditService {
-  // TRACE-REQS: REQ-PAY-005
+  // TRLC-LINKS: REQ-PAY-005
   createAuditRecord(paymentId: string, riskScore: number): void {
     const envelope = createAuditEnvelope(paymentId, riskScore);
     console.log(
@@ -41,12 +41,12 @@ export class FraudAuditService {
     );
   }
 
-  // TRACE-REQS: REQ-PAY-005
+  // TRLC-LINKS: REQ-PAY-005
   enrichAuditMetadata(paymentId: string): void {
     console.log(`fraud-audit-service: enrich metadata for ${paymentId}`);
   }
 
-  // TRACE-REQS: REQ-PAY-004
+  // TRLC-LINKS: REQ-PAY-004
   buildReviewReason(riskScore: number): string {
     console.log(`fraud-audit-service: build review reason for score ${riskScore}`);
     return `risk-score-${riskScore}-above-threshold`;

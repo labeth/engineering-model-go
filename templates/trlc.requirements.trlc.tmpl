@@ -1,0 +1,13 @@
+package {{ .PackageName }}
+
+{{- range .Requirements }}
+Requirement {{ .ObjectName }} {
+  id         = {{ printf "%q" .ID }}
+  text       = {{ printf "%q" .Text }}
+{{- if .HasNotes }}
+  notes      = {{ printf "%q" .Notes }}
+{{- end }}
+  applies_to = [{{- range $i, $a := .AppliesTo }}{{ if gt $i 0 }}, {{ end }}{{ printf "%q" $a }}{{- end }}]
+}
+
+{{- end }}

@@ -1,0 +1,61 @@
+package BedrockPRReviewRequirements
+Requirement REQ_PRR_001 {
+  id         = "REQ-PRR-001"
+  text       = "While normal mode is active, when pull request synchronize event is received and webhook signature is valid, the pr review system shall verify webhook signature before processing review workflow."
+  notes      = "Webhook trust boundary validation."
+  applies_to = ["FU-GITHUB-WEBHOOK-INGRESS"]
+}
+Requirement REQ_PRR_002 {
+  id         = "REQ-PRR-002"
+  text       = "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for developer review execution."
+  notes      = "Context ingestion from GitHub API."
+  applies_to = ["FU-PR-CONTEXT-ASSEMBLY"]
+}
+Requirement REQ_PRR_003 {
+  id         = "REQ-PRR-003"
+  text       = "Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for review findings."
+  notes      = "AI-assisted review path."
+  applies_to = ["FU-REVIEW-ORCHESTRATION"]
+}
+Requirement REQ_PRR_004 {
+  id         = "REQ-PRR-004"
+  text       = "Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure plus infrastructure risk plus dependency changes."
+  notes      = "Deterministic non-LLM review checks."
+  applies_to = ["FU-POLICY-CHECKS"]
+}
+Requirement REQ_PRR_005 {
+  id         = "REQ-PRR-005"
+  text       = "While pull request review is active, when review findings are generated, the pr review system shall publish check run summary to repository maintainer."
+  notes      = "Result publication contract."
+  applies_to = ["FU-REVIEW-PUBLICATION"]
+}
+Requirement REQ_PRR_006 {
+  id         = "REQ-PRR-006"
+  text       = "If bedrock runtime is unavailable, then the pr review system shall publish deterministic policy-only review outcome."
+  notes      = "Graceful degradation requirement."
+  applies_to = ["FU-POLICY-CHECKS", "FU-REVIEW-ORCHESTRATION", "FU-REVIEW-PUBLICATION"]
+}
+Requirement REQ_PRR_007 {
+  id         = "REQ-PRR-007"
+  text       = "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted audit metadata for security engineer audit traceability."
+  notes      = "Evidence and audit lineage."
+  applies_to = ["FU-REVIEW-PUBLICATION", "FU-SECRETS-CONFIGURATION"]
+}
+Requirement REQ_PRR_008 {
+  id         = "REQ-PRR-008"
+  text       = "If review request rate limit is exceeded, then the pr review system shall defer processing."
+  notes      = "Abuse and capacity protection behavior."
+  applies_to = ["FU-GITHUB-WEBHOOK-INGRESS", "FU-REVIEW-PUBLICATION"]
+}
+Requirement REQ_PRR_009 {
+  id         = "REQ-PRR-009"
+  text       = "While pull request review is active, when review findings are generated, the pr review system shall publish inline comments with result metadata to repository maintainer."
+  notes      = "Inline-annotation publication contract."
+  applies_to = ["FU-REVIEW-PUBLICATION"]
+}
+Requirement REQ_PRR_010 {
+  id         = "REQ-PRR-010"
+  text       = "If review request rate limit is exceeded, then the pr review system shall notify platform operator."
+  notes      = "Maintainer notification for deferred review processing."
+  applies_to = ["FU-GITHUB-WEBHOOK-INGRESS", "FU-REVIEW-PUBLICATION"]
+}

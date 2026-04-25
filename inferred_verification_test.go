@@ -29,7 +29,7 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 
 	testPath := filepath.Join(testsDir, "policy_only_fallback_test.go")
 	testContent := `// ENGMODEL-VERIFICATION-DESCRIPTION: validates policy-only fallback behavior when model inference is unavailable
-// REQ-PRR-004
+// TRLC-LINKS: REQ-PRR-004
 package sample
 `
 	if err := os.WriteFile(testPath, []byte(testContent), 0o644); err != nil {
@@ -70,13 +70,13 @@ func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIden
 	}
 
 	validationPath := filepath.Join(testsDir, "validation.test.js")
-	validationTest := "// TRACE-REQS: REQ-PRR-004\n"
+	validationTest := "// TRLC-LINKS: REQ-PRR-004\n"
 	if err := os.WriteFile(validationPath, []byte(validationTest), 0o644); err != nil {
 		t.Fatalf("write validation test fixture: %v", err)
 	}
 
 	e2ePath := filepath.Join(testsDir, "e2e-requirements.test.js")
-	e2eTest := "// TRACE-REQS: REQ-PRR-004\n"
+	e2eTest := "// TRLC-LINKS: REQ-PRR-004\n"
 	if err := os.WriteFile(e2ePath, []byte(e2eTest), 0o644); err != nil {
 		t.Fatalf("write e2e test fixture: %v", err)
 	}

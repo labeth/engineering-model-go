@@ -1,0 +1,55 @@
+package PaymentsRequirements
+Requirement REQ_PAY_001 {
+  id         = "REQ-PAY-001"
+  text       = "While normal mode is active, when payment authorization is requested, the payments system shall create a payment session."
+  notes      = "Core authorization path from checkout to bank gateway."
+  applies_to = ["FU-CHECKOUT", "FU-PAYMENT-AUTHORIZATION"]
+}
+Requirement REQ_PAY_002 {
+  id         = "REQ-PAY-002"
+  text       = "Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval."
+  notes      = "Fraud scoring gate before approval."
+  applies_to = ["FU-RISK-SCORING"]
+}
+Requirement REQ_PAY_003 {
+  id         = "REQ-PAY-003"
+  text       = "If payment is declined, then the payments system shall present a decline reason to customer."
+  notes      = "Decline handling and customer feedback."
+  applies_to = ["FU-CHECKOUT"]
+}
+Requirement REQ_PAY_004 {
+  id         = "REQ-PAY-004"
+  text       = "While checkout is active, when payment authorization is requested and risk score is high and risk threshold is exceeded, the payments system shall place the payment in payment review is pending."
+  notes      = "Escalation flow for high-risk payments."
+  applies_to = ["FU-PAYMENT-AUTHORIZATION", "FU-SUPPORT-REVIEW"]
+}
+Requirement REQ_PAY_005 {
+  id         = "REQ-PAY-005"
+  text       = "Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id plus risk score."
+  notes      = "Auditability for authorization decisions."
+  applies_to = ["FU-RISK-SCORING"]
+}
+Requirement REQ_PAY_006 {
+  id         = "REQ-PAY-006"
+  text       = "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer until bank link is available."
+  notes      = "Fallback behavior when external banking path is down."
+  applies_to = ["FU-CHECKOUT", "FU-PAYMENT-AUTHORIZATION"]
+}
+Requirement REQ_PAY_007 {
+  id         = "REQ-PAY-007"
+  text       = "While checkout is active, when payment authorization is requested and 3DS verification is required, the payments system shall request authorization from bank gateway endpoint."
+  notes      = "External authorization call contract."
+  applies_to = ["FU-CHECKOUT", "FU-PAYMENT-AUTHORIZATION"]
+}
+Requirement REQ_PAY_008 {
+  id         = "REQ-PAY-008"
+  text       = "If payment is declined, then the payments system shall present a retry option to customer."
+  notes      = "Customer retry path requirement after decline."
+  applies_to = ["FU-CHECKOUT"]
+}
+Requirement REQ_PAY_009 {
+  id         = "REQ-PAY-009"
+  text       = "While checkout is active, when payment authorization is requested and risk threshold is exceeded, the payments system shall notify platform operator when support agent is notified."
+  notes      = "Support notification requirement for high-risk review."
+  applies_to = ["FU-PAYMENT-AUTHORIZATION", "FU-SUPPORT-REVIEW"]
+}

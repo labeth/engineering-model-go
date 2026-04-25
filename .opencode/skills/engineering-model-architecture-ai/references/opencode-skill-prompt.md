@@ -15,7 +15,7 @@ Hard requirements:
 2. For each changed requirement (`REQ-*`), report affected `FU/RT/CODE/VER` IDs.
 3. Use supported tagging markers in changed code:
 - `ENGMODEL-OWNER-UNIT: FU-*` (file owner)
-- `TRACE-REQS: REQ-*` (preferred requirement trace marker)
+- `TRLC-LINKS: REQ-*` (required requirement trace marker)
 4. Keep authored vs inferred semantics separate.
 - Do not add inferred `RT-*` or `CODE-*` IDs to authored architecture mappings.
 5. Regenerate AI artifacts after changes and run tests.

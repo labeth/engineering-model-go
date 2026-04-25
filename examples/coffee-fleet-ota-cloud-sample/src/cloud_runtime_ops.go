@@ -2,7 +2,7 @@
 // ENGMODEL-CODE-DESCRIPTION: wires cloud runtime handlers and integration entrypoints
 package src
 
-// TRACE-REQS: REQ-COF-008
+// TRLC-LINKS: REQ-COF-008
 func RaiseSecurityNotification(machineID string) string {
 	if machineID == "" {
 		return "noop"

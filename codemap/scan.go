@@ -150,21 +150,7 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 			}
 			continue
 		}
-		if v, ok := markerValue(trimmed, "TRACE-IMPLEMENTS:"); ok {
-			pending.implements = splitCSV(v)
-			if pending.firstLine == 0 {
-				pending.firstLine = lineNo
-			}
-			continue
-		}
-		if v, ok := markerValue(trimmed, "TRACE-REQS:"); ok {
-			pending.implements = splitCSV(v)
-			if pending.firstLine == 0 {
-				pending.firstLine = lineNo
-			}
-			continue
-		}
-		if v, ok := markerValue(trimmed, "TRACE-REQUIREMENTS:"); ok {
+		if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
 			pending.implements = splitCSV(v)
 			if pending.firstLine == 0 {
 				pending.firstLine = lineNo

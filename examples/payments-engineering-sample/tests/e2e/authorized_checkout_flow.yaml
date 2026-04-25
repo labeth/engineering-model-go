@@ -1,4 +1,5 @@
 # ENGMODEL-VERIFICATION-DESCRIPTION: executes authorized checkout flow from session start through payment authorization success
+# TRLC-LINKS: REQ-PAY-001
 name: authorized-checkout-flow
 suite: payments-e2e
 requirements:

@@ -36,7 +36,7 @@ Human AsciiDoc/PDF outputs remain publication outputs, not the primary machine n
 - If new code is added, tag ownership and requirement trace markers (see Tagging Rules).
 
 4. Update/extend verification with requirement traces.
-- Add or update tests that include `REQ-*` tokens.
+- Add or update tests that include `TRLC-LINKS: REQ-*` markers.
 - Ensure test-result artifacts can be parsed for status where applicable.
 
 5. Regenerate AI artifacts.
@@ -74,26 +74,22 @@ Examples:
 
 ### Requirement trace tags (near behavior)
 
-Use one of these supported markers near declarations/logic:
+Use this required marker near declarations/logic:
 
-- `TRACE-REQS: REQ-...`
-- `TRACE-REQUIREMENTS: REQ-...`
-- `TRACE-IMPLEMENTS: REQ-...`
-
-Preferred form: `TRACE-REQS`.
+- `TRLC-LINKS: REQ-...`
 
 Examples:
 
 ```go
-// TRACE-REQS: REQ-PRR-001, REQ-PRR-008
+// TRLC-LINKS: REQ-PRR-001, REQ-PRR-008
 ```
 
 ```ts
-// TRACE-REQS: REQ-PRR-003
+// TRLC-LINKS: REQ-PRR-003
 ```
 
 ```rust
-// TRACE-REQS: REQ-PRR-006
+// TRLC-LINKS: REQ-PRR-006
 ```
 
 ### Optional symbolic trace tags
@@ -105,7 +101,7 @@ When useful for stable symbol-level mapping:
 
 ### Test trace requirements
 
-- Test code must include `REQ-*` tokens to be linked as verification checks.
+- Test code must include `TRLC-LINKS: REQ-*` markers to be linked as verification checks.
 - If result artifacts are produced, ensure statuses map cleanly (`pass`, `fail`, `partial`, `blocked`, `not-run`, `flaky`).
 
 ## What Not To Do

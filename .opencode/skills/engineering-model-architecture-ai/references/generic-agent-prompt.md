@@ -21,7 +21,7 @@ Requirements:
 2. For each requirement change, provide a support chain using `support_paths`.
 3. Use repository tagging markers in code/tests:
 - `ENGMODEL-OWNER-UNIT: FU-*`
-- `TRACE-REQS: REQ-*` (preferred)
+- `TRLC-LINKS: REQ-*` (required)
 4. Keep authored architecture separate from inferred evidence.
 5. Regenerate AI artifacts and run validation tests.
 6. Output a final impact map by stable IDs with source references.

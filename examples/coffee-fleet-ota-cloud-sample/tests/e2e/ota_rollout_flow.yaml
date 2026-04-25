@@ -1,4 +1,5 @@
 # ENGMODEL-VERIFICATION-DESCRIPTION: runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation
+# TRLC-LINKS: REQ-COF-003, REQ-COF-005
 scenario: ota rollout
 requirements:
   - REQ-COF-003

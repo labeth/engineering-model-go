@@ -6,6 +6,10 @@ It combines:
 - architecture model loading and validation
 - viewpoint projection (architecture-intent/communication/deployment/security/traceability)
 - Mermaid rendering
+- Structurizr DSL export
+- Threat Dragon/Open Threat Model JSON export
+- TRLC requirements export
+- LOBSTER activity trace export
 - design + requirement narrative generation to AsciiDoc
 - EARS requirement preflight linting
 - code trace mapping (Go, TypeScript, Rust)
@@ -50,6 +54,10 @@ Primary entry points:
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath, options)`
+- `GenerateStructurizrDSLFromFile(architecturePath)`
+- `GenerateThreatModelExportFromFile(architecturePath, options)`
+- `GenerateTRLCRequirementsFromFile(requirementsPath, options)`
+- `GenerateLobsterActivityTraceFromDir(testsDir, options)`
 
 Example:
 
@@ -121,7 +129,8 @@ Optional per-view publication metadata (in `architecture.yml`):
 Verification metadata is inferred from test artifacts (not authored in `architecture.yml`):
 - test sources under `tests/` (for inferred verification checks and test code element links)
 - result artifacts under `test-results/` (for inferred requirement-level outcomes)
-- requirement IDs are inferred by matching `REQ-*` tokens in test and result artifacts
+- requirement IDs in test sources are inferred from `TRLC-LINKS: REQ-*` markers
+- requirement IDs in result artifacts are inferred by matching `REQ-*` tokens in result content
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are not referenced by any requirement text (`catalog.term_unreferenced`)
@@ -159,6 +168,31 @@ go run ./cmd/engdoc \
   --ai-json-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.json \
   --ai-md-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.md \
   --ai-edges-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.edges.ndjson
+```
+
+Generate Threat Dragon/Open Threat Model exports:
+
+```bash
+go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format threat-dragon-v2 --out examples/payments-engineering-sample/generated/threat-dragon-v2.json
+go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format open-otm --out examples/payments-engineering-sample/generated/open-threat-model.json
+```
+
+Generate Structurizr DSL:
+
+```bash
+go run ./cmd/engstruct --model examples/payments-engineering-sample/architecture.yml --out examples/payments-engineering-sample/generated/STRUCTURIZR.dsl
+```
+
+Generate TRLC requirements package:
+
+```bash
+go run ./cmd/engtrlc --requirements examples/payments-engineering-sample/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
+```
+
+Generate LOBSTER activity trace from tests:
+
+```bash
+go run ./cmd/englobster --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
 ```
 
 Render PDF with proven-docs:
@@ -206,6 +240,13 @@ AI-first export includes:
 AI export entity index/counts include authored semantic kinds when present:
 
 - `interface`, `data_object`, `deployment_target`, `control`, `trust_boundary`, `state`, `event`
+
+Additional export/validation docs:
+
+- Threat Dragon export and schema checks: `docs/threat-dragon-export-testing.md`
+- Structurizr export and validation: `docs/structurizr-export-testing.md`
+- TRLC requirements export and validation: `docs/trlc-export-testing.md`
+- TRLC + LOBSTER traceability report pipeline: `docs/lobster-traceability.md`
 
 ## OSCAL chain generation
 

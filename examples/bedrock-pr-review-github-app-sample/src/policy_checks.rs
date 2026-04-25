@@ -3,7 +3,7 @@
 pub struct PolicyChecks;
 
 impl PolicyChecks {
-    // TRACE-REQS: REQ-PRR-004
+    // TRLC-LINKS: REQ-PRR-004
     pub fn run_deterministic_checks(&self, changed_files: &[String]) -> Vec<String> {
         let mut findings = Vec::new();
         for file in changed_files {
@@ -17,7 +17,7 @@ impl PolicyChecks {
         findings
     }
 
-    // TRACE-REQS: REQ-PRR-006
+    // TRLC-LINKS: REQ-PRR-006
     pub fn policy_only_summary(&self, findings: &[String]) -> String {
         format!("policy-findings:{}", findings.len())
     }
