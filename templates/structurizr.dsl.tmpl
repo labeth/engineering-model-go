@@ -1,0 +1,33 @@
+workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
+  model {
+    {{ .RootIdentifier }} = softwareSystem {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
+{{- range .Containers }}
+      {{ .Identifier }} = container {{ printf "%q" .Name }} {{ printf "%q" .Description }} {{ printf "%q" .Technology }}
+{{- end }}
+    }
+{{- range .Elements }}
+    {{ .Identifier }} = {{ .Keyword }} {{ printf "%q" .Name }} {{ printf "%q" .Description }}
+{{- end }}
+
+{{- range .Relationships }}
+    {{ .From }} -> {{ .To }} {{ printf "%q" .Label }}
+{{- end }}
+  }
+
+  views {
+    systemLandscape "landscape" {
+      include *
+      autolayout lr
+    }
+
+    systemContext {{ .RootIdentifier }} "context" {
+      include *
+      autolayout lr
+    }
+
+    container {{ .RootIdentifier }} "containers" {
+      include *
+      autolayout lr
+    }
+  }
+}
