@@ -51,6 +51,17 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 		b.WriteString("\n\n")
 	}
 
+	b.WriteString("## Gaps\n\n")
+	b.WriteString("- Requirements without verification: ")
+	b.WriteString(strings.Join(doc.Gaps.RequirementsWithoutVerification, ", "))
+	b.WriteString("\n")
+	b.WriteString("- Requirements low confidence: ")
+	b.WriteString(strings.Join(doc.Gaps.RequirementsLowConfidence, ", "))
+	b.WriteString("\n")
+	b.WriteString("- Functional units without tests: ")
+	b.WriteString(strings.Join(doc.Gaps.FunctionalUnitsWithoutTests, ", "))
+	b.WriteString("\n\n")
+
 	b.WriteString("## Support Paths\n\n")
 	for _, sp := range doc.SupportPaths {
 		b.WriteString("- `")
@@ -110,6 +121,35 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 		if len(e.SourceRefs) > 0 {
 			b.WriteString("- Source Refs: ")
 			b.WriteString(strings.Join(e.SourceRefs, ", "))
+			b.WriteString("\n")
+		}
+		b.WriteString("\n")
+	}
+
+	b.WriteString("## Implementation Paths\n\n")
+	for _, ip := range doc.ImplementationPaths {
+		b.WriteString("### ")
+		b.WriteString(ip.ID)
+		b.WriteString("\n\n")
+		b.WriteString("- Requirement: `")
+		b.WriteString(ip.RequirementID)
+		b.WriteString("`\n")
+		b.WriteString("- Priority: `")
+		b.WriteString(ip.Priority)
+		b.WriteString("`\n")
+		b.WriteString("- Goal: ")
+		b.WriteString(ip.Goal)
+		b.WriteString("\n")
+		for _, step := range ip.Steps {
+			b.WriteString("  - ")
+			b.WriteString(intToString(step.Order))
+			b.WriteString(". ")
+			b.WriteString(step.Action)
+			if strings.TrimSpace(step.EntityID) != "" {
+				b.WriteString(" (`")
+				b.WriteString(step.EntityID)
+				b.WriteString("`)")
+			}
 			b.WriteString("\n")
 		}
 		b.WriteString("\n")

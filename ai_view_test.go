@@ -64,6 +64,9 @@ func TestGenerateAIViewFromFiles_BedrockShapeAndOrdering(t *testing.T) {
 	if len(res.Document.SupportPaths) == 0 {
 		t.Fatalf("expected support paths")
 	}
+	if len(res.Document.ImplementationPaths) == 0 {
+		t.Fatalf("expected implementation paths")
+	}
 	if len(res.Document.SourceBlocks) == 0 {
 		t.Fatalf("expected source blocks")
 	}
@@ -107,6 +110,9 @@ func TestGenerateAIViewFromFiles_BedrockShapeAndOrdering(t *testing.T) {
 
 	if !strings.Contains(res.Markdown, "# AI View") {
 		t.Fatalf("expected markdown header")
+	}
+	if !strings.Contains(res.Markdown, "## Gaps") {
+		t.Fatalf("expected markdown gaps section")
 	}
 
 	scanner := bufio.NewScanner(strings.NewReader(res.EdgesNDJSON))
@@ -237,5 +243,25 @@ func TestGenerateAIView_IncludesFlowEntities(t *testing.T) {
 	}
 	if !foundSupportPath {
 		t.Fatalf("expected requirement support path to include flow step evidence")
+	}
+}
+
+func TestGenerateAIView_GapReportIncludesUntestedRequirements(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
+			FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Name: "Unit", Group: "FG-A"}},
+		},
+		Views: []model.View{{ID: "VIEW-A", Kind: "traceability", Roots: []string{"FU-A"}}},
+	}}
+	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-A", Text: "system shall do A", AppliesTo: []string{"FU-A"}}}}
+
+	doc := buildAIViewDocument(bundle, requirements, model.DesignDocument{}, nil, nil, nil, "", "", AIViewOptions{})
+	if len(doc.Gaps.RequirementsWithoutVerification) == 0 || doc.Gaps.RequirementsWithoutVerification[0] != "REQ-A" {
+		t.Fatalf("expected REQ-A in requirements_without_verification, got %+v", doc.Gaps.RequirementsWithoutVerification)
+	}
+	if len(doc.ImplementationPaths) == 0 {
+		t.Fatalf("expected implementation paths")
 	}
 }

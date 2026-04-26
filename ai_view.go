@@ -690,6 +690,8 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 
 	supportPaths := buildAISupportPaths(entities)
 	entryPoints := buildAIEntryPoints(entities, supportPaths)
+	implementationPaths := buildAIImplementationPaths(entities, supportPaths)
+	gaps := buildAIGapReport(entities, supportPaths)
 
 	modelSummary := AIModelSummary{
 		ID:    strings.TrimSpace(bundle.Architecture.Model.ID),
@@ -721,13 +723,15 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	sourceBlocks := ctx.finalizeSourceBlocks()
 
 	return AIViewDocument{
-		SchemaVersion: "ai-view/v1",
-		Model:         modelSummary,
-		EntryPoints:   entryPoints,
-		EntityIndex:   index,
-		SupportPaths:  supportPaths,
-		Entities:      entities,
-		SourceBlocks:  sourceBlocks,
+		SchemaVersion:       "ai-view/v1",
+		Model:               modelSummary,
+		EntryPoints:         entryPoints,
+		Gaps:                gaps,
+		EntityIndex:         index,
+		SupportPaths:        supportPaths,
+		ImplementationPaths: implementationPaths,
+		Entities:            entities,
+		SourceBlocks:        sourceBlocks,
 	}
 }
 
@@ -1109,6 +1113,193 @@ func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIE
 		return entryPoints[i].ID < entryPoints[j].ID
 	})
 	return entryPoints
+}
+
+func buildAIGapReport(entities []AIEntity, supportPaths []AISupportPath) AIGapReport {
+	entityByID := map[string]AIEntity{}
+	for _, e := range entities {
+		entityByID[e.ID] = e
+	}
+
+	reqWithoutVerification := []string{}
+	reqLowConfidence := []string{}
+	for _, sp := range supportPaths {
+		if strings.TrimSpace(sp.FromID) == "" {
+			continue
+		}
+		reqEntity, ok := entityByID[sp.FromID]
+		if !ok || reqEntity.Kind != "requirement" {
+			continue
+		}
+		if len(reqEntity.VerificationIDs) == 0 {
+			reqWithoutVerification = append(reqWithoutVerification, reqEntity.ID)
+		}
+		if strings.ToLower(strings.TrimSpace(sp.Confidence)) == "low" {
+			reqLowConfidence = append(reqLowConfidence, reqEntity.ID)
+		}
+	}
+
+	fuWithoutCode := []string{}
+	fuWithoutRuntime := []string{}
+	fuWithoutTests := []string{}
+	verificationFailures := []string{}
+	lowConfidenceInferred := []string{}
+
+	for _, e := range entities {
+		switch e.Kind {
+		case "functional_unit":
+			if len(e.CodeIDs) == 0 {
+				fuWithoutCode = append(fuWithoutCode, e.ID)
+			}
+			if len(e.RuntimeIDs) == 0 {
+				fuWithoutRuntime = append(fuWithoutRuntime, e.ID)
+			}
+			if len(e.VerificationIDs) == 0 {
+				fuWithoutTests = append(fuWithoutTests, e.ID)
+			}
+		case "verification":
+			st := strings.ToLower(strings.TrimSpace(e.Status))
+			if st == "fail" || st == "blocked" || st == "partial" {
+				verificationFailures = append(verificationFailures, e.ID)
+			}
+		case "runtime_element", "code_element":
+			for _, p := range e.FieldProvenance {
+				if strings.ToLower(strings.TrimSpace(p.Confidence)) == "low" {
+					lowConfidenceInferred = append(lowConfidenceInferred, e.ID)
+					break
+				}
+			}
+		}
+	}
+
+	return AIGapReport{
+		RequirementsWithoutVerification: uniqueSorted(reqWithoutVerification),
+		RequirementsLowConfidence:       uniqueSorted(reqLowConfidence),
+		FunctionalUnitsWithoutCode:      uniqueSorted(fuWithoutCode),
+		FunctionalUnitsWithoutRuntime:   uniqueSorted(fuWithoutRuntime),
+		FunctionalUnitsWithoutTests:     uniqueSorted(fuWithoutTests),
+		VerificationFailures:            uniqueSorted(verificationFailures),
+		LowConfidenceInferred:           uniqueSorted(lowConfidenceInferred),
+	}
+}
+
+func buildAIImplementationPaths(entities []AIEntity, supportPaths []AISupportPath) []AIImplementationPath {
+	entityByID := map[string]AIEntity{}
+	for _, e := range entities {
+		entityByID[e.ID] = e
+	}
+
+	paths := []AIImplementationPath{}
+	for _, sp := range supportPaths {
+		req, ok := entityByID[sp.FromID]
+		if !ok || req.Kind != "requirement" {
+			continue
+		}
+		fuIDs := []string{}
+		for _, id := range req.RelatedIDs {
+			if strings.HasPrefix(strings.TrimSpace(id), "FU-") {
+				fuIDs = append(fuIDs, strings.TrimSpace(id))
+			}
+		}
+		fuIDs = uniqueSorted(fuIDs)
+
+		impacted := []string{req.ID}
+		impacted = append(impacted, fuIDs...)
+		steps := []AIImplementationStep{{
+			Order:      1,
+			Action:     "Confirm requirement intent and acceptance criteria before code changes",
+			EntityID:   req.ID,
+			EntityKind: req.Kind,
+			SourceRefs: req.SourceRefs,
+		}}
+
+		stepOrder := 2
+		for _, fuID := range fuIDs {
+			fu, ok := entityByID[fuID]
+			if !ok {
+				continue
+			}
+			impacted = append(impacted, fu.InterfaceIDs...)
+			impacted = append(impacted, fu.DataObjectIDs...)
+			impacted = append(impacted, fu.ControlIDs...)
+			impacted = append(impacted, fu.FlowIDs...)
+			impacted = append(impacted, fu.FlowStepIDs...)
+			impacted = append(impacted, fu.CodeIDs...)
+			impacted = append(impacted, fu.VerificationIDs...)
+
+			steps = append(steps, AIImplementationStep{
+				Order:      stepOrder,
+				Action:     "Implement or update behavior in functional unit scope and dependent interfaces/flows",
+				EntityID:   fu.ID,
+				EntityKind: fu.Kind,
+				SourceRefs: fu.SourceRefs,
+			})
+			stepOrder++
+
+			if len(fu.CodeIDs) > 0 {
+				steps = append(steps, AIImplementationStep{
+					Order:      stepOrder,
+					Action:     "Update code evidence linked to this unit",
+					EntityID:   fu.CodeIDs[0],
+					EntityKind: "code_element",
+					SourceRefs: sourceRefsForEntities(entityByID, fu.CodeIDs),
+				})
+				stepOrder++
+			}
+		}
+
+		if len(req.VerificationIDs) > 0 {
+			steps = append(steps, AIImplementationStep{
+				Order:      stepOrder,
+				Action:     "Update or add tests so verification stays passing for this requirement",
+				EntityID:   req.VerificationIDs[0],
+				EntityKind: "verification",
+				SourceRefs: sourceRefsForEntities(entityByID, req.VerificationIDs),
+			})
+		} else {
+			steps = append(steps, AIImplementationStep{
+				Order:      stepOrder,
+				Action:     "Add new verification coverage (tests/checks) for this requirement",
+				EntityKind: "verification",
+				SourceRefs: req.SourceRefs,
+			})
+		}
+
+		priority := "medium"
+		if strings.EqualFold(sp.Confidence, "low") || len(req.VerificationIDs) == 0 {
+			priority = "high"
+		}
+
+		allRefs := []string{}
+		allRefs = append(allRefs, req.SourceRefs...)
+		allRefs = append(allRefs, sourceRefsForEntities(entityByID, impacted)...)
+		paths = append(paths, AIImplementationPath{
+			ID:                "IMPL-" + strings.TrimPrefix(req.ID, "REQ-"),
+			RequirementID:     req.ID,
+			Goal:              req.Summary,
+			Priority:          priority,
+			Confidence:        sp.Confidence,
+			ImpactedEntityIDs: uniqueSorted(impacted),
+			VerificationIDs:   uniqueSorted(req.VerificationIDs),
+			Steps:             steps,
+			SourceRefs:        uniqueSorted(allRefs),
+		})
+	}
+
+	sort.SliceStable(paths, func(i, j int) bool {
+		return paths[i].ID < paths[j].ID
+	})
+	return paths
+}
+
+func sourceRefsForEntities(entityByID map[string]AIEntity, ids []string) []string {
+	refs := []string{}
+	for _, id := range ids {
+		if e, ok := entityByID[strings.TrimSpace(id)]; ok {
+			refs = append(refs, e.SourceRefs...)
+		}
+	}
+	return uniqueSorted(refs)
 }
 
 func parsePathAndLine(source string) (string, int) {

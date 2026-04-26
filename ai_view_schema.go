@@ -16,13 +16,45 @@ type AIViewResult struct {
 }
 
 type AIViewDocument struct {
-	SchemaVersion string          `json:"schema_version"`
-	Model         AIModelSummary  `json:"model"`
-	EntryPoints   []AIEntryPoint  `json:"entry_points"`
-	EntityIndex   AIEntityIndex   `json:"entity_index"`
-	SupportPaths  []AISupportPath `json:"support_paths"`
-	Entities      []AIEntity      `json:"entities"`
-	SourceBlocks  []AISourceBlock `json:"source_blocks"`
+	SchemaVersion       string                 `json:"schema_version"`
+	Model               AIModelSummary         `json:"model"`
+	EntryPoints         []AIEntryPoint         `json:"entry_points"`
+	Gaps                AIGapReport            `json:"gaps"`
+	EntityIndex         AIEntityIndex          `json:"entity_index"`
+	SupportPaths        []AISupportPath        `json:"support_paths"`
+	ImplementationPaths []AIImplementationPath `json:"implementation_paths,omitempty"`
+	Entities            []AIEntity             `json:"entities"`
+	SourceBlocks        []AISourceBlock        `json:"source_blocks"`
+}
+
+type AIGapReport struct {
+	RequirementsWithoutVerification []string `json:"requirements_without_verification,omitempty"`
+	RequirementsLowConfidence       []string `json:"requirements_low_confidence,omitempty"`
+	FunctionalUnitsWithoutCode      []string `json:"functional_units_without_code,omitempty"`
+	FunctionalUnitsWithoutRuntime   []string `json:"functional_units_without_runtime,omitempty"`
+	FunctionalUnitsWithoutTests     []string `json:"functional_units_without_tests,omitempty"`
+	VerificationFailures            []string `json:"verification_failures,omitempty"`
+	LowConfidenceInferred           []string `json:"low_confidence_inferred,omitempty"`
+}
+
+type AIImplementationPath struct {
+	ID                string                 `json:"id"`
+	RequirementID     string                 `json:"requirement_id"`
+	Goal              string                 `json:"goal"`
+	Priority          string                 `json:"priority"`
+	Confidence        string                 `json:"confidence"`
+	ImpactedEntityIDs []string               `json:"impacted_entity_ids"`
+	VerificationIDs   []string               `json:"verification_ids,omitempty"`
+	Steps             []AIImplementationStep `json:"steps"`
+	SourceRefs        []string               `json:"source_refs,omitempty"`
+}
+
+type AIImplementationStep struct {
+	Order      int      `json:"order"`
+	Action     string   `json:"action"`
+	EntityID   string   `json:"entity_id,omitempty"`
+	EntityKind string   `json:"entity_kind,omitempty"`
+	SourceRefs []string `json:"source_refs,omitempty"`
 }
 
 type AIModelSummary struct {
