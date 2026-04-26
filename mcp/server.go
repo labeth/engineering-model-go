@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -38,9 +39,56 @@ type Server struct {
 const (
 	maxIndexedFileBytes = 512 * 1024
 	maxIndexedFiles     = 5000
+	toolSchemaVersion   = "mcp.tool-response.v1"
 )
 
 var errRepoIndexLimit = errors.New("repo index file limit reached")
+
+var stableIDPattern = regexp.MustCompile(`^[A-Z][A-Z0-9-]*$`)
+
+var toolArgsAllowlist = map[string][]string{
+	"requirements.get":             {"requirementId", "id", "reqId"},
+	"requirements.impact":          {"requirementId", "id", "reqId"},
+	"requirements.supportPath":     {"requirementId", "id", "reqId"},
+	"requirements.suggestEditPlan": {"requirementId", "id", "reqId"},
+	"files.forRequirement":         {"requirementId", "id", "reqId"},
+	"files.forControl":             {"controlId", "id"},
+	"files.forThreat":              {"threatId", "id"},
+	"files.owner":                  {"path", "file"},
+	"verification.status":          {"entityId", "id"},
+	"verification.gaps":            {},
+	"verification.recommend":       {},
+	"threats.forRequirement":       {"requirementId", "id", "reqId"},
+	"threats.coverage":             {},
+	"threats.unmitigated":          {},
+	"flows.forRequirement":         {"requirementId", "id", "reqId"},
+	"flows.diff":                   {"fromFlowId", "toFlowId", "left", "right"},
+	"graph.neighborhood":           {"query", "q", "name", "id"},
+	"graph.explainEdge":            {"from", "to"},
+	"graph.search":                 {"query", "q", "name", "id"},
+	"views.recommend":              {"taskType", "task"},
+	"views.renderContext":          {"viewId", "id"},
+	"generation.plan":              {},
+	"generation.status":            {},
+	"governance.policy":            {},
+	"governance.checkPatch":        {"diff"},
+	"tasks.entryPoints":            {},
+	"tasks.nextBestActions":        {},
+	"interfaces.resolve":           {"interfaceId", "id", "name", "environment", "env"},
+	"interfaces.matchFromCode":     {"path", "file"},
+	"interfaces.ambiguities":       {},
+	"environments.resolve":         {"environment", "env"},
+	"endpoints.resolve":            {"interfaceId", "id", "name", "environment", "env"},
+	"identity.resolve":             {"interfaceId", "id", "name"},
+	"policy.resolve":               {"interfaceId", "id", "name"},
+	"schema.resolve":               {"interfaceId", "id", "name"},
+	"schema.diff":                  {"fromSchemaRef", "leftSchemaRef", "toSchemaRef", "rightSchemaRef", "fromInterfaceId", "leftInterfaceId", "toInterfaceId", "rightInterfaceId"},
+	"ownership.resolve":            {"entityId", "id"},
+	"runtime.resolve":              {"entityId", "id"},
+	"confidence.explain":           {"entityId", "id"},
+	"staleness.check":              {"path"},
+	"changes.preflight":            {"requirementId", "id", "reqId"},
+}
 
 type indexedFile struct {
 	Path    string
@@ -160,7 +208,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 		tools := make([]map[string]any, 0, len(s.tools))
 		for _, name := range s.ToolNames() {
 			t := s.tools[name]
-			tools = append(tools, map[string]any{"name": t.Name, "description": t.Description, "inputSchema": map[string]any{"type": "object", "additionalProperties": true}})
+			tools = append(tools, map[string]any{"name": t.Name, "description": t.Description, "inputSchema": inputSchemaForTool(t.Name)})
 		}
 		return map[string]any{"tools": tools}, 0, nil
 	case "tools/call":
@@ -186,9 +234,23 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 			}
 			args = typedArgs
 		}
+		if err := validateToolArguments(name, args); err != nil {
+			return nil, -32602, err
+		}
 		payload, err := s.callTool(name, args)
 		if err != nil {
-			return map[string]any{"content": []map[string]any{{"type": "text", "text": err.Error()}}, "isError": true}, 0, nil
+			errPayload, _ := json.Marshal(map[string]any{
+				"ok":            false,
+				"tool":          name,
+				"schemaVersion": toolSchemaVersion,
+				"error": map[string]any{
+					"code":    "INVALID_ARGUMENT",
+					"message": err.Error(),
+					"hint":    "see tools/list.inputSchema for accepted arguments",
+				},
+				"generatedAt": time.Now().UTC().Format(time.RFC3339),
+			})
+			return map[string]any{"content": []map[string]any{{"type": "text", "text": string(errPayload)}}, "isError": true}, 0, nil
 		}
 		buf, _ := json.Marshal(payload)
 		return map[string]any{"content": []map[string]any{{"type": "text", "text": string(buf)}}, "isError": false}, 0, nil
@@ -281,6 +343,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	simple := func(data map[string]any) (map[string]any, error) {
 		data["ok"] = true
 		data["tool"] = name
+		data["schemaVersion"] = toolSchemaVersion
 		data["generatedAt"] = time.Now().UTC().Format(time.RFC3339)
 		return data, nil
 	}
@@ -290,11 +353,17 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if reqID == "" {
 			return nil, fmt.Errorf("requirements.get requires requirementId")
 		}
+		if err := requireStableID(reqID, "REQ-"); err != nil {
+			return nil, err
+		}
 		r := s.findRequirement(reqID)
 		return simple(map[string]any{"requirement": r, "exists": r != nil})
 	case "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan":
 		if reqID == "" {
 			return nil, fmt.Errorf("%s requires requirementId", name)
+		}
+		if err := requireStableID(reqID, "REQ-"); err != nil {
+			return nil, err
 		}
 		r := s.findRequirement(reqID)
 		flows := s.flowsForRequirement(reqID)
@@ -305,17 +374,26 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if reqID == "" {
 			return nil, fmt.Errorf("files.forRequirement requires requirementId")
 		}
+		if err := requireStableID(reqID, "REQ-"); err != nil {
+			return nil, err
+		}
 		return simple(map[string]any{"files": s.filesForRequirement(reqID)})
 	case "files.forControl":
 		controlID := strings.TrimSpace(firstNonEmptyArg(args, "controlId", "id"))
 		if controlID == "" {
 			return nil, fmt.Errorf("files.forControl requires controlId")
 		}
+		if err := requireStableID(controlID, "CTRL-"); err != nil {
+			return nil, err
+		}
 		return simple(map[string]any{"files": s.filesContaining(controlID)})
 	case "files.forThreat":
 		threatID := strings.TrimSpace(firstNonEmptyArg(args, "threatId", "id"))
 		if threatID == "" {
 			return nil, fmt.Errorf("files.forThreat requires threatId")
+		}
+		if err := requireStableID(threatID, "TS-", "THREAT-"); err != nil {
+			return nil, err
 		}
 		return simple(map[string]any{"files": s.filesContaining(threatID)})
 	case "files.owner":
@@ -358,6 +436,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if reqID == "" {
 			return nil, fmt.Errorf("threats.forRequirement requires requirementId")
 		}
+		if err := requireStableID(reqID, "REQ-"); err != nil {
+			return nil, err
+		}
 		return simple(map[string]any{"threatScenarios": s.threatsForRequirement(reqID)})
 	case "threats.coverage":
 		rows := []map[string]any{}
@@ -377,12 +458,21 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if reqID == "" {
 			return nil, fmt.Errorf("flows.forRequirement requires requirementId")
 		}
+		if err := requireStableID(reqID, "REQ-"); err != nil {
+			return nil, err
+		}
 		return simple(map[string]any{"flows": s.flowsForRequirement(reqID)})
 	case "flows.diff":
 		left := firstNonEmptyArg(args, "fromFlowId", "left")
 		right := firstNonEmptyArg(args, "toFlowId", "right")
 		if left == "" || right == "" {
 			return nil, fmt.Errorf("flows.diff requires fromFlowId and toFlowId")
+		}
+		if err := requireStableID(left, "FLOW-"); err != nil {
+			return nil, err
+		}
+		if err := requireStableID(right, "FLOW-"); err != nil {
+			return nil, err
 		}
 		return simple(map[string]any{"from": left, "to": right, "note": "flow diff not yet semantic; compare ids and metadata"})
 	case "graph.neighborhood":
@@ -412,6 +502,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if viewID == "" {
 			return nil, fmt.Errorf("views.renderContext requires viewId")
 		}
+		if err := requireStableID(viewID, "VIEW-"); err != nil {
+			return nil, err
+		}
 		for _, v := range s.bundle.Architecture.Views {
 			if v.ID == viewID {
 				return simple(map[string]any{"view": v, "rootCount": len(v.Roots)})
@@ -439,6 +532,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "interfaces.resolve", "endpoints.resolve":
 		if interfaceID == "" {
 			return nil, fmt.Errorf("%s requires interfaceId", name)
+		}
+		if err := requireStableID(interfaceID, "IF-"); err != nil {
+			return nil, err
 		}
 		iface := s.findInterface(interfaceID)
 		if iface == nil {
@@ -494,6 +590,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if interfaceID == "" {
 			return nil, fmt.Errorf("identity.resolve requires interfaceId")
 		}
+		if err := requireStableID(interfaceID, "IF-"); err != nil {
+			return nil, err
+		}
 		iface := s.findInterface(interfaceID)
 		if iface == nil {
 			return nil, fmt.Errorf("identity.resolve interface not found: %s", interfaceID)
@@ -513,6 +612,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "schema.resolve":
 		if interfaceID == "" {
 			return nil, fmt.Errorf("schema.resolve requires interfaceId")
+		}
+		if err := requireStableID(interfaceID, "IF-"); err != nil {
+			return nil, err
 		}
 		iface := s.findInterface(interfaceID)
 		if iface == nil {
@@ -546,6 +648,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if entityID == "" {
 			return nil, fmt.Errorf("ownership.resolve requires entityId")
 		}
+		if err := requireStableID(entityID, "REQ-", "IF-", "FU-", "CTRL-", "TS-", "RISK-"); err != nil {
+			return nil, err
+		}
 		return simple(map[string]any{"id": entityID, "owner": s.ownerFor(entityID)})
 	case "runtime.resolve":
 		targets := []string{}
@@ -559,6 +664,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "confidence.explain":
 		if entityID == "" {
 			return nil, fmt.Errorf("confidence.explain requires entityId")
+		}
+		if err := requireStableID(entityID, "REQ-", "IF-", "FU-", "CTRL-", "TS-", "RISK-", "FLOW-", "VIEW-"); err != nil {
+			return nil, err
 		}
 		return simple(map[string]any{"id": entityID, "confidence": "high", "basis": "authored model links"})
 	case "staleness.check":
@@ -582,6 +690,9 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		r := firstNonEmptyArg(args, "requirementId", "id")
 		if r == "" {
 			return nil, fmt.Errorf("changes.preflight requires requirementId")
+		}
+		if err := requireStableID(r, "REQ-"); err != nil {
+			return nil, err
 		}
 		return simple(map[string]any{"requirementId": r, "impactedFiles": s.filesForRequirement(r), "rerun": []string{"go test ./...", "engdoc", "engdragon", "engstruct", "engtrlc"}})
 	default:
@@ -944,4 +1055,47 @@ func uniqueStrings(in []string) []string {
 		out = append(out, x)
 	}
 	return out
+}
+
+func inputSchemaForTool(name string) map[string]any {
+	allowed := toolArgsAllowlist[name]
+	props := map[string]any{}
+	for _, k := range allowed {
+		props[k] = map[string]any{"type": "string"}
+	}
+	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}
+}
+
+func validateToolArguments(name string, args map[string]any) error {
+	allowedKeys := map[string]bool{}
+	for _, k := range toolArgsAllowlist[name] {
+		allowedKeys[k] = true
+	}
+	for k := range args {
+		if !allowedKeys[k] {
+			allowed := append([]string{}, toolArgsAllowlist[name]...)
+			sort.Strings(allowed)
+			if len(allowed) == 0 {
+				return fmt.Errorf("%s accepts no arguments; got %q", name, k)
+			}
+			return fmt.Errorf("unexpected argument %q for %s (allowed: %s)", k, name, strings.Join(allowed, ", "))
+		}
+	}
+	return nil
+}
+
+func requireStableID(id string, allowedPrefixes ...string) error {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return fmt.Errorf("missing stable ID")
+	}
+	if !stableIDPattern.MatchString(id) {
+		return fmt.Errorf("invalid stable ID format: %s", id)
+	}
+	for _, p := range allowedPrefixes {
+		if strings.HasPrefix(id, p) {
+			return nil
+		}
+	}
+	return fmt.Errorf("ID %s must start with one of: %s", id, strings.Join(allowedPrefixes, ", "))
 }

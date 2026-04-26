@@ -49,22 +49,7 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 
 	for i, name := range s.ToolNames() {
-		args := map[string]any{
-			"probe":           true,
-			"id":              "REQ-PAY-001",
-			"entityId":        "IF-PAYMENTS-CHECKOUT-API",
-			"requirementId":   "REQ-PAY-001",
-			"interfaceId":     "IF-PAYMENTS-CHECKOUT-API",
-			"environment":     "prod",
-			"path":            filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go"),
-			"fromInterfaceId": "IF-PAYMENTS-CHECKOUT-API",
-			"toInterfaceId":   "IF-PAYMENTS-BANK-AUTH",
-			"fromFlowId":      "FLOW-CUSTOMER-CHECKOUT",
-			"toFlowId":        "FLOW-PAYMENTS-MANUAL-REVIEW",
-			"viewId":          "VIEW-SECURITY",
-			"controlId":       "CTRL-PAYMENTS-SSO-MFA",
-			"threatId":        "TS-PAYMENTS-CHECKOUT-SPOOFING",
-		}
+		args := argsForTool(name)
 		resp := rpcCall(t, s, map[string]any{
 			"jsonrpc": "2.0",
 			"id":      100 + i,
@@ -96,6 +81,9 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 		}
 		if payload["ok"] != true {
 			t.Fatalf("tool %s missing ok=true", name)
+		}
+		if payload["schemaVersion"] == "" {
+			t.Fatalf("tool %s missing schemaVersion", name)
 		}
 		if payload["tool"] != name {
 			t.Fatalf("tool %s echo mismatch, got %v", name, payload["tool"])
@@ -162,8 +150,13 @@ func TestPathTraversalIsRejected(t *testing.T) {
 	if text == "" {
 		t.Fatalf("expected traversal error message")
 	}
-	if text != "interfaces.matchFromCode path must be inside repoRoot" {
-		t.Fatalf("unexpected traversal message: %s", text)
+	var payload map[string]any
+	if err := json.Unmarshal([]byte(text), &payload); err != nil {
+		t.Fatalf("error payload json: %v", err)
+	}
+	errObj, _ := payload["error"].(map[string]any)
+	if errObj["message"] != "interfaces.matchFromCode path must be inside repoRoot" {
+		t.Fatalf("unexpected traversal message: %v", errObj["message"])
 	}
 }
 
@@ -238,8 +231,50 @@ func TestToolMissingRequiredArgument(t *testing.T) {
 	content, _ := result["content"].([]any)
 	chunk, _ := content[0].(map[string]any)
 	text, _ := chunk["text"].(string)
-	if text != "requirements.get requires requirementId" {
-		t.Fatalf("unexpected error message: %s", text)
+	var payload map[string]any
+	if err := json.Unmarshal([]byte(text), &payload); err != nil {
+		t.Fatalf("error payload json: %v", err)
+	}
+	errObj, _ := payload["error"].(map[string]any)
+	if errObj["message"] != "requirements.get requires requirementId" {
+		t.Fatalf("unexpected error message: %v", errObj["message"])
+	}
+}
+
+func argsForTool(name string) map[string]any {
+	switch name {
+	case "requirements.get", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight":
+		return map[string]any{"requirementId": "REQ-PAY-001"}
+	case "files.forControl":
+		return map[string]any{"controlId": "CTRL-PAYMENTS-SSO-MFA"}
+	case "files.forThreat":
+		return map[string]any{"threatId": "TS-PAYMENTS-CHECKOUT-SPOOFING"}
+	case "files.owner", "interfaces.matchFromCode":
+		return map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}
+	case "verification.status", "ownership.resolve", "runtime.resolve", "confidence.explain":
+		return map[string]any{"entityId": "IF-PAYMENTS-CHECKOUT-API"}
+	case "flows.diff":
+		return map[string]any{"fromFlowId": "FLOW-CUSTOMER-CHECKOUT", "toFlowId": "FLOW-PAYMENTS-MANUAL-REVIEW"}
+	case "graph.neighborhood", "graph.search":
+		return map[string]any{"query": "payments"}
+	case "graph.explainEdge":
+		return map[string]any{"from": "FU-PAYMENTS-CHECKOUT-API", "to": "IF-PAYMENTS-CHECKOUT-API"}
+	case "views.recommend":
+		return map[string]any{"taskType": "security"}
+	case "views.renderContext":
+		return map[string]any{"viewId": "VIEW-SECURITY"}
+	case "governance.checkPatch":
+		return map[string]any{"diff": "tests/x_test.go"}
+	case "interfaces.resolve", "endpoints.resolve":
+		return map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API", "environment": "prod"}
+	case "identity.resolve", "policy.resolve", "schema.resolve":
+		return map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"}
+	case "environments.resolve":
+		return map[string]any{"environment": "prod"}
+	case "schema.diff":
+		return map[string]any{"fromInterfaceId": "IF-PAYMENTS-CHECKOUT-API", "toInterfaceId": "IF-PAYMENTS-BANK-AUTH"}
+	default:
+		return map[string]any{}
 	}
 }
 
