@@ -57,6 +57,52 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
+func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+		Model: model.ModelMeta{ID: "decisions-sample", Title: "Decisions Sample"},
+		Decisions: []model.Decision{{
+			ID:           "ADR-SAMPLE-001",
+			Title:        "Publish ADRs separately",
+			Status:       "accepted",
+			Date:         "2026-04-29",
+			Context:      "The main architecture document should stay compact.",
+			Decision:     "Generate a separate decisions document and link it from the main document.",
+			Consequences: []string{"Readers can inspect rationale without bloating the main document."},
+		}},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+			FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Name: "Unit A", Group: "FG-A"}},
+		},
+		Views: []model.View{{ID: "VIEW-A", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
+	}}
+
+	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{
+		DecisionsDocPath: "DECISIONS.adoc",
+	})
+	if err != nil {
+		t.Fatalf("generate asciidoc failed: %v", err)
+	}
+	if !strings.Contains(res.Document, "== Architecture Decision Records") {
+		t.Fatalf("main document missing ADR index")
+	}
+	if !strings.Contains(res.Document, "xref:DECISIONS.adoc#ADR-SAMPLE-001[ADR-SAMPLE-001]") {
+		t.Fatalf("main document missing ADR xref: %s", res.Document)
+	}
+	if !strings.Contains(res.DecisionsDocument, "= Architecture Decision Records") {
+		t.Fatalf("missing decisions document title")
+	}
+	if !strings.Contains(res.DecisionsDocument, "[[ADR-SAMPLE-001]]") {
+		t.Fatalf("missing decision anchor")
+	}
+	if !strings.Contains(res.DecisionsDocument, "== ADR-SAMPLE-001: Publish ADRs separately") {
+		t.Fatalf("missing decision section")
+	}
+	if !strings.Contains(res.DecisionsDocument, "=== Consequences") {
+		t.Fatalf("missing consequences section")
+	}
+}
+
 func TestEngdocCLI_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
@@ -77,6 +123,41 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 	}
 	if !strings.Contains(text, "== Deployment View") {
 		t.Fatalf("cli output missing deployment view chapter")
+	}
+}
+
+func TestEngdocCLI_DecisionsOut(t *testing.T) {
+	modelPath := "architecture.yml"
+	requirementsPath := "requirements.yml"
+	designPath := "design.yml"
+	outDir := t.TempDir()
+	mainOut := filepath.Join(outDir, "ARCHITECTURE.adoc")
+	decisionsOut := filepath.Join(outDir, "DECISIONS.adoc")
+
+	cmd := exec.Command("go", "run", "./cmd/engdoc",
+		"--model", modelPath,
+		"--requirements", requirementsPath,
+		"--design", designPath,
+		"--out", mainOut,
+		"--decisions-out", decisionsOut,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))
+	}
+	mainDoc, err := os.ReadFile(mainOut)
+	if err != nil {
+		t.Fatalf("read main doc: %v", err)
+	}
+	decisionsDoc, err := os.ReadFile(decisionsOut)
+	if err != nil {
+		t.Fatalf("read decisions doc: %v", err)
+	}
+	if !strings.Contains(string(mainDoc), "xref:DECISIONS.adoc#ADR-EMG-001[ADR-EMG-001]") {
+		t.Fatalf("main document missing root ADR link")
+	}
+	if !strings.Contains(string(decisionsDoc), "== ADR-EMG-001:") {
+		t.Fatalf("decisions document missing root ADR")
 	}
 }
 

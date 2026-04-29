@@ -248,6 +248,19 @@ a[href^="#SEC_VIEW_"] {
 |Condition indicating webhook HMAC verification succeeded. Aliases:signature valid
 |===
 
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+|xref:DECISIONS.adoc#ADR-PRR-001[ADR-PRR-001]
+|Separate webhook ingress from review orchestration
+|accepted
+|2026-04-29
+|===
+
 === Diagram Color and Shape Legend
 
 This legend applies to all Mermaid diagrams in this document.
@@ -3477,31 +3490,27 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
 |<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>
 |pass
-|test-results/integration-policy-fallback.json + 
-deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> executed
+|test-results/integration-policy-fallback.json; deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> executed
 
 |<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5>>
 |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
 |pass
-|test-results/contract-checkrun.json + 
-check run payload includes summary and neutral conclusion
+|test-results/contract-checkrun.json; check run payload includes summary and neutral conclusion
 
 |<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6>>
 |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
 |<<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
 |pass
-|test-results/integration-policy-fallback.json + 
-policy-only fallback published
+|test-results/integration-policy-fallback.json; policy-only fallback published
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1>>
 |<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
-|pass
-|test-results/audit-redaction-report.md
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2>>
 |<<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
@@ -3870,7 +3879,7 @@ flowchart LR
   CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION["secrets_configuration"]:::code_element
   RTC_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION
   REQC_REQ_PRR_007 -->|code trace| CDC_FU_SECRETS_CONFIGURATION_SECRETS_CONFIGURATION
-  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1["VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1 (pass)"]:::verification
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1["VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1 (not-run)"]:::verification
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|verifies| REQC_REQ_PRR_007
   VEC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS["tests/integration"]:::code_element
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|implemented_by| VEC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS
@@ -4089,12 +4098,12 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Field |Value
 |ID |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1>>
 |Kind |integration
-|Status |pass
+|Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
 |Test Code Elements |tests/integration/audit_redaction_test.ts
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,FU-SECRETS-CONFIGURATION>>
-|Result Summary |pass:1
-|Evidence |test-results/audit-redaction-report.md, tests/integration/audit_redaction_test.ts
+|Result Summary |not-run:1
+|Evidence |tests/integration/audit_redaction_test.ts
 
 |Notes |checks audit evidence redaction for secrets and sensitive payload fields
 
@@ -6531,8 +6540,8 @@ checks audit evidence redaction for secrets and sensitive payload fields
 |===
 |Key |Value
 |Kind |integration
-|Status |pass
-|Source |test-results/audit-redaction-report.md (+1)
+|Status |not-run
+|Source |tests/integration/audit_redaction_test.ts
 |Name |Audit Redaction Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
 |===

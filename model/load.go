@@ -31,11 +31,24 @@ func LoadBundle(architecturePath string) (Bundle, error) {
 		return Bundle{}, fmt.Errorf("decode catalog file: %w", err)
 	}
 
+	decisionsPath := filepath.Join(baseDir, "decisions.yml")
+	var decisions DecisionsDocument
+	if _, err := os.Stat(decisionsPath); err == nil {
+		if err := decodeYAMLFile(decisionsPath, &decisions); err != nil {
+			return Bundle{}, fmt.Errorf("decode decisions file: %w", err)
+		}
+		arch.Decisions = decisions.Decisions
+	} else if !os.IsNotExist(err) {
+		return Bundle{}, fmt.Errorf("stat decisions file: %w", err)
+	}
+
 	return Bundle{
 		ArchitecturePath: archPath,
 		CatalogPath:      catalogPath,
+		DecisionsPath:    decisionsPath,
 		Architecture:     arch,
 		Catalog:          catalog,
+		Decisions:        decisions,
 	}, nil
 }
 

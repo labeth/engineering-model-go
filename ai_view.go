@@ -220,6 +220,38 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		})
 	}
 
+	for _, d := range bundle.Architecture.Decisions {
+		id := strings.TrimSpace(d.ID)
+		if id == "" {
+			continue
+		}
+		consequences := make([]string, 0, len(d.Consequences))
+		for _, c := range d.Consequences {
+			if c = strings.TrimSpace(c); c != "" {
+				consequences = append(consequences, c)
+			}
+		}
+		decisionPath := bundle.DecisionsPath
+		if strings.TrimSpace(decisionPath) == "" {
+			decisionPath = bundle.ArchitecturePath
+		}
+		sid := ctx.addAuthoredYAMLSource(decisionPath, id, "decision", fmt.Sprintf("authored architecture decision %s", id), id)
+		entities = append(entities, AIEntity{
+			ID:      id,
+			Kind:    "decision",
+			Title:   nonEmpty(strings.TrimSpace(d.Title), id),
+			Summary: strings.TrimSpace(d.Decision),
+			Origin:  "authored",
+			Status:  strings.TrimSpace(d.Status),
+			Fields: AIEntityFields{
+				Context:      strings.TrimSpace(d.Context),
+				Decision:     strings.TrimSpace(d.Decision),
+				Consequences: consequences,
+			},
+			SourceRefs: uniqueSorted([]string{sid}),
+		})
+	}
+
 	for _, itf := range a.Interfaces {
 		id := strings.TrimSpace(itf.ID)
 		if id == "" {
@@ -672,6 +704,7 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 		FunctionalGroupIDs:  collectEntityIDsByKind(entities, "functional_group"),
 		FunctionalUnitIDs:   collectEntityIDsByKind(entities, "functional_unit"),
 		RequirementIDs:      collectEntityIDsByKind(entities, "requirement"),
+		DecisionIDs:         collectEntityIDsByKind(entities, "decision"),
 		RuntimeIDs:          collectEntityIDsByKind(entities, "runtime_element"),
 		CodeIDs:             collectEntityIDsByKind(entities, "code_element"),
 		VerificationIDs:     collectEntityIDsByKind(entities, "verification"),
@@ -702,6 +735,7 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 			FunctionalGroups:  len(index.FunctionalGroupIDs),
 			FunctionalUnits:   len(index.FunctionalUnitIDs),
 			Requirements:      len(index.RequirementIDs),
+			Decisions:         len(index.DecisionIDs),
 			Runtime:           len(index.RuntimeIDs),
 			Code:              len(index.CodeIDs),
 			Verification:      len(index.VerificationIDs),
@@ -915,14 +949,16 @@ func aiEntityKindRank(kind string) int {
 		return 2
 	case "requirement":
 		return 3
-	case "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event", "flow", "flow_step":
+	case "decision":
 		return 4
-	case "runtime_element":
+	case "interface", "data_object", "deployment_target", "control", "trust_boundary", "state", "event", "flow", "flow_step":
 		return 5
-	case "code_element":
+	case "runtime_element":
 		return 6
-	case "verification":
+	case "code_element":
 		return 7
+	case "verification":
+		return 8
 	default:
 		return 99
 	}

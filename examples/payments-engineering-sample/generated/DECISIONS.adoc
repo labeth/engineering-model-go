@@ -1,0 +1,26 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-PAY-001]]
+== ADR-PAY-001: Keep payment authorization separate from checkout handling
+
+Status:: accepted
+Date:: 2026-04-29
+
+=== Context
+
+Checkout handling owns the customer-facing payment journey, while payment authorization owns
+transaction decisions that depend on fraud scoring and external bank behavior.
+
+=== Decision
+
+Model checkout handling and payment authorization as separate functional units with explicit
+calls and dependency mappings between them.
+
+=== Consequences
+
+- Customer messaging can remain stable while authorization logic changes independently.
+- Fraud scoring and support review stay closer to authorization decisions than UI flow.
+- Traceability can distinguish customer experience requirements from transaction decision requirements.

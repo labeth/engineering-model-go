@@ -114,6 +114,10 @@ a[href^="#SEC_VIEW_"] {
 |Feature enabling AI JSON, markdown, and edge artifacts. Aliases:ai export
 |[[REF_CATALOG_ACT_ARCHITECTURE_AUTHOR]]<<REF_IDX-CATALOG_ACT_ARCHITECTURE_AUTHOR,architecture author>> (ACT-ARCHITECTURE-AUTHOR)
 |Maintains model structure, mappings, and architecture intent. Aliases:model author
+|[[REF_CATALOG_FEAT_ARCHITECTURE_DECISION_RECORDS]]<<REF_IDX-CATALOG_FEAT_ARCHITECTURE_DECISION_RECORDS,architecture decision records are authored>> (FEAT-ARCHITECTURE-DECISION-RECORDS)
+|Feature indicating the architecture model includes first-class ADR entries. Aliases:adrs authored
+|[[REF_CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS]]<<REF_IDX-CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS,architecture decision records document>> (DATA-ARCHITECTURE-DECISION-RECORDS)
+|Generated document containing authored architecture decision records. Aliases:adr document, decisions document
 |[[REF_CATALOG_DATA_ARCHITECTURE_MODEL]]<<REF_IDX-CATALOG_DATA_ARCHITECTURE_MODEL,architecture model>> (DATA-ARCHITECTURE-MODEL)
 |Authored architecture source describing functional intent and mappings. Aliases:architecture yml
 |[[REF_CATALOG_EVT_ARTIFACT_GENERATED]]<<REF_IDX-CATALOG_EVT_ARTIFACT_GENERATED,artifact generated event is raised>> (EVT-ARTIFACT-GENERATED)
@@ -264,6 +268,23 @@ a[href^="#SEC_VIEW_"] {
 |An inferred or authored verification artifact that validates requirement behavior with test evidence.
 |[[REF_CATALOG_FU_VIEW_PROJECTION]]<<REF_IDX-CATALOG_FU_VIEW_PROJECTION,view projection>> (FU-VIEW-PROJECTION)
 |Builds view-specific projections for architecture communication and traceability outputs. Aliases:projection
+|===
+
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+|xref:DECISIONS.adoc#ADR-EMG-001[ADR-EMG-001]
+|Generate architecture decision records separately from the main architecture document
+|accepted
+|2026-04-29
+|xref:DECISIONS.adoc#ADR-EMG-002[ADR-EMG-002]
+|Keep architecture decision records model-authored and separate from code links
+|accepted
+|2026-04-29
 |===
 
 === Diagram Color and Shape Legend
@@ -1018,7 +1039,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,cli orchest
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
 
 
 
@@ -1218,7 +1239,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
+<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
 
 
 
@@ -3056,6 +3077,18 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|REQ-EMG-014
+|
+|X
+|X
+|
+|
+|
+|
+|
+|
+|
+|
 |===
 
 === Verification Result Mapping
@@ -3069,266 +3102,227 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_5811E2,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-5811E2>>
 |REQ-COF-001
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_6E4BE8,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-6E4BE8>>
 |REQ-COF-002
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_45BCCC,VER-INF-E2E-OTA_ROLLOUT_FLOW-45BCCC>>
 |REQ-COF-003
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,VER-INF-UNIT-OTA_CAMPAIGN_TEST-9000FB>>
 |REQ-COF-003
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,VER-INF-UNIT-OTA_CAMPAIGN_TEST-9000FB>>
 |REQ-COF-004
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_45BCCC,VER-INF-E2E-OTA_ROLLOUT_FLOW-45BCCC>>
 |REQ-COF-005
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_6E4BE8,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-6E4BE8>>
 |REQ-COF-007
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,VER-INF-TEST-CATALOG_SYSTEMS_TEST-6807D7>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_E2E_TEST_BE56F8,VER-INF-TEST-E2E_TEST-BE56F8>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,VER-INF-TEST-EARS_PREFLIGHT_TEST-1ABE26>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_LOAD_TEST_A58EB3,VER-INF-TEST-LOAD_TEST-A58EB3>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_RENDER_TEST_EECC23,VER-INF-TEST-RENDER_TEST-EECC23>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_VALIDATE_TEST_498C59,VER-INF-TEST-VALIDATE_TEST-498C59>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,VER-INF-TEST-AI_VIEW_TEST-DFDEE3>>
 |<<REF_IDX-REQ_REQ_EMG_002,REQ-EMG-002>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_TEST_F60765,VER-INF-TEST-ASCIIDOC_TEST-F60765>>
 |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-721A8D>>
 |<<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,VER-INF-TEST-STRUCTURIZR_EXPORT_TEST-886374>>
 |<<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,VER-INF-TEST-LOBSTER_EXPORT_TEST-1C1C7E>>
 |<<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,VER-INF-TEST-TRLC_EXPORT_TEST-DD1345>>
 |<<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_MAIN_TEST_6B61AE,VER-INF-TEST-MAIN_TEST-6B61AE>>
 |<<REF_IDX-REQ_REQ_EMG_007,REQ-EMG-007>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_SERVER_TEST_389957,VER-INF-TEST-SERVER_TEST-389957>>
 |<<REF_IDX-REQ_REQ_EMG_007,REQ-EMG-007>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_MAIN_TEST_6B61AE,VER-INF-TEST-MAIN_TEST-6B61AE>>
 |<<REF_IDX-REQ_REQ_EMG_008,REQ-EMG-008>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_SERVER_TEST_389957,VER-INF-TEST-SERVER_TEST-389957>>
 |<<REF_IDX-REQ_REQ_EMG_008,REQ-EMG-008>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,VER-INF-TEST-EARS_PREFLIGHT_TEST-1ABE26>>
 |<<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_VALIDATE_TEST_498C59,VER-INF-TEST-VALIDATE_TEST-498C59>>
 |<<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,VER-INF-TEST-INFERRED_CODE_TEST-3CA82E>>
 |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,VER-INF-TEST-INFERRED_VERIFICATION_TEST-6715F6>>
 |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_SCAN_TEST_B04F81,VER-INF-TEST-SCAN_TEST-B04F81>>
 |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-721A8D>>
 |<<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_VALIDATE_TEST_498C59,VER-INF-TEST-VALIDATE_TEST-498C59>>
 |<<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,VER-INF-TEST-AI_VIEW_TEST-DFDEE3>>
 |<<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,VER-INF-TEST-OSCAL_CHAIN_TEST-C12EF9>>
 |<<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,VER-INF-TEST-OSCAL_SSP_TEST-4B08EF>>
 |<<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_TEST_F60765,VER-INF-TEST-ASCIIDOC_TEST-F60765>>
+|<<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_1B5367,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-1B5367>>
 |REQ-PAY-001
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_7E76F6,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-7E76F6>>
 |REQ-PRR-001
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_7E76F6,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-7E76F6>>
 |REQ-PRR-002
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_7E76F6,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-7E76F6>>
 |REQ-PRR-003
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_99C003,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-99C003>>
 |REQ-PRR-004
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_7E76F6,VER-INF-E2E-PR_OPENED_REVIEW_FLOW-7E76F6>>
 |REQ-PRR-005
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_3F4D3F,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-3F4D3F>>
 |REQ-PRR-005
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_99C003,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-99C003>>
 |REQ-PRR-006
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_75E1E4,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-75E1E4>>
 |REQ-PRR-007
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_4C4AEE,VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-4C4AEE>>
 |REQ-PRR-008
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |===
 
@@ -3610,6 +3604,9 @@ flowchart LR
   CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS["asciidoc_backlinks"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS
   REQC_REQ_EMG_003 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS["asciidoc_decisions"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS
+  REQC_REQ_EMG_003 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS
   CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS["asciidoc_design_refs"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS
   REQC_REQ_EMG_003 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS
@@ -3655,6 +3652,8 @@ flowchart LR
   REQC_REQ_EMG_003 -->|code trace| CDC_FU_CLI_ORCHESTRATION_GENERATE
   VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765["VER-INF-TEST-ASCIIDOC_TEST-F60765 (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|verifies| REQC_REQ_EMG_003
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS["CODE-TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS
   VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCFROMFILESENDTOEND["CODE-TESTGENERATEASCIIDOCFROMFILESENDTOEND"]:::code_element
   VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCFROMFILESENDTOEND
   VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_ASCIIDOC_TEST_GO["asciidoc_test"]:::code_element
@@ -4637,6 +4636,124 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+[[REF_REQ_REQ_EMG_014]]
+==== REQ-EMG-014
+
+Where <<REF_IDX-CATALOG_FEAT_ARCHITECTURE_DECISION_RECORDS,architecture decision records are authored>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall publish <<REF_IDX-CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS,architecture decision records document>> linked from AsciiDoc architecture publication output.
+
+
+NOTE: ADRs are first-class model content but are published separately from the main architecture narrative.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_014["REQ-EMG-014"]:::requirement
+  FU_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
+  REQC_REQ_EMG_014 -->|applies_to| FU_FU_ASCIIDOC_GENERATOR
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME["AsciiDoc Generator runtime (inferred)"]:::runtime_element
+  FU_FU_ASCIIDOC_GENERATOR -->|runtime evidence| RTC_FU_ASCIIDOC_GENERATOR_RUNTIME
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC["asciidoc"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS["asciidoc_backlinks"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_BACKLINKS
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS["asciidoc_decisions"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DECISIONS
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS["asciidoc_design_refs"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DESIGN_REFS
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE["asciidoc_diagrams_core"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE_TEST["asciidoc_diagrams_core_test"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE_TEST
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_CORE_TEST
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME["asciidoc_diagrams_runtime"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME_TEST["asciidoc_diagrams_runtime_test"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME_TEST
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_DIAGRAMS_RUNTIME_TEST
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS["asciidoc_linking_units"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS_TEST["asciidoc_linking_units_test"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS_TEST
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_LINKING_UNITS_TEST
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEMPLATE["asciidoc_template"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEMPLATE
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEMPLATE
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEST["asciidoc_test"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEST
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_TEST
+  CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_VIEWS["asciidoc_views"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_VIEWS
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_ASCIIDOC_GENERATOR_ASCIIDOC_VIEWS
+  FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+  REQC_REQ_EMG_014 -->|applies_to| FU_FU_CLI_ORCHESTRATION
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
+  FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
+  CDC_FU_CLI_ORCHESTRATION_CMD_ENGDOC["cmd/engdoc"]:::code_element
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CDC_FU_CLI_ORCHESTRATION_CMD_ENGDOC
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_CLI_ORCHESTRATION_CMD_ENGDOC
+  CDC_FU_CLI_ORCHESTRATION_E2E_TEST["e2e_test"]:::code_element
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CDC_FU_CLI_ORCHESTRATION_E2E_TEST
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_CLI_ORCHESTRATION_E2E_TEST
+  CDC_FU_CLI_ORCHESTRATION_GENERATE["generate"]:::code_element
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CDC_FU_CLI_ORCHESTRATION_GENERATE
+  REQC_REQ_EMG_014 -->|code trace| CDC_FU_CLI_ORCHESTRATION_GENERATE
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765["VER-INF-TEST-ASCIIDOC_TEST-F60765 (not-run)"]:::verification
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|verifies| REQC_REQ_EMG_014
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS["CODE-TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCFROMFILESENDTOEND["CODE-TESTGENERATEASCIIDOCFROMFILESENDTOEND"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_CODE_TESTGENERATEASCIIDOCFROMFILESENDTOEND
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_ASCIIDOC_TEST_GO["asciidoc_test"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_ASCIIDOC_TEST_GO
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL["github.com/labeth/engineering-model-go"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE["github.com/labeth/engineering-model-go"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_OS["os"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_OS
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_OS_EXEC["os"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_OS_EXEC
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_PATH_FILEPATH["path"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_PATH_FILEPATH
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_STRINGS["strings"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_STRINGS
+  VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_TESTING["testing"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765 -->|implemented_by| VEC_VER_INF_TEST_ASCIIDOC_TEST_F60765_TESTING
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 
 === Verification Inventory
 
@@ -4792,10 +4909,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_TEST_F60765,VER-INF-TEST-ASCIIDOC_TEST-F60765>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
-|Test Code Elements |CODE-TESTGENERATEASCIIDOCFROMFILESENDTOEND, asciidoc_test.go, <<REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO,github.com/labeth/engineering-model-go>>/model, <<REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO,github.com/labeth/engineering-model-go>>/validate, os, os/exec, path/filepath, strings, testing
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
+|Test Code Elements |CODE-TESTGENERATEASCIIDOCDECISIONSDOCUMENTANDMAINDOCLINKS, CODE-TESTGENERATEASCIIDOCFROMFILESENDTOEND, asciidoc_test.go, <<REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO,github.com/labeth/engineering-model-go>>/model, <<REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO,github.com/labeth/engineering-model-go>>/validate, os, os/exec, path/filepath, strings, testing
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
-|Result Summary |not-run:1
+|Result Summary |not-run:2
 |Evidence |asciidoc_test.go
 
 |Notes |Inferred from test source artifact.
@@ -5729,6 +5846,19 @@ Where traceability export is enabled, when generation run is requested, the engi
 |Name |REQ-EMG-013
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>
 |===
+[[REF_IDX-REQ_REQ_EMG_014]]
+[discrete]
+==== REQ-EMG-014
+
+Where architecture decision records are authored, when generation run is requested, the engineering model go shall publish architecture decision records document linked from AsciiDoc architecture publication output.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-014
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>
+|===
 [[REF_IDX-TB_TB_EXTERNAL_VALIDATION_TOOLS]]
 [discrete]
 ==== TB-EXTERNAL-VALIDATION-TOOLS
@@ -5821,6 +5951,32 @@ Implements code changes guided by model requirements and support paths.
 |Kind |Catalog Actor
 |Name |implementation engineer
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
+|===
+[[REF_IDX-CATALOG_ADR_DOCUMENT]]
+[discrete]
+==== adr document
+
+Generated document containing authored architecture decision records.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |adr document
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_ADRS_AUTHORED]]
+[discrete]
+==== adrs authored
+
+Feature indicating the architecture model includes first-class ADR entries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |adrs authored
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_AI_EXPORT]]
 [discrete]
@@ -6016,6 +6172,19 @@ Requirement trace exports and compliance-oriented output generation.
 |Kind |Catalog Alias
 |Name |compliance
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>
+|===
+[[REF_IDX-CATALOG_DECISIONS_DOCUMENT]]
+[discrete]
+==== decisions document
+
+Generated document containing authored architecture decision records.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |decisions document
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_DSL]]
 [discrete]
@@ -6719,6 +6888,19 @@ Machine-oriented architecture view for AI planning and implementation workflows.
 |Name |ai json artifact
 |Mentioned In |n/a
 |===
+[[REF_IDX-CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS]]
+[discrete]
+==== DATA-ARCHITECTURE-DECISION-RECORDS
+
+Generated document containing authored architecture decision records.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |architecture decision records document
+|Mentioned In |<<REF_REQ_REQ_EMG_014,REQ-EMG-014>>
+|===
 [[REF_IDX-CATALOG_DATA_ARCHITECTURE_MODEL]]
 [discrete]
 ==== DATA-ARCHITECTURE-MODEL
@@ -6834,7 +7016,7 @@ Event indicating documentation or export generation execution starts.
 |Key |Value
 |Kind |Catalog Event
 |Name |generation run is requested
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>
 |===
 [[REF_IDX-CATALOG_EVT_MCP_TOOL_CALL_RECEIVED]]
 [discrete]
@@ -6887,6 +7069,19 @@ Feature enabling AI JSON, markdown, and edge artifacts.
 |Kind |Catalog Feature
 |Name |ai view export is enabled
 |Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_FEAT_ARCHITECTURE_DECISION_RECORDS]]
+[discrete]
+==== FEAT-ARCHITECTURE-DECISION-RECORDS
+
+Feature indicating the architecture model includes first-class ADR entries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |architecture decision records are authored
+|Mentioned In |<<REF_REQ_REQ_EMG_014,REQ-EMG-014>>
 |===
 [[REF_IDX-CATALOG_FEAT_MCP_SERVER]]
 [discrete]
@@ -7328,7 +7523,7 @@ Go-based architecture modeling system that generates docs, analysis views, and c
 |Key |Value
 |Kind |Catalog System
 |Name |engineering model go
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>
 |===
 [[REF_IDX-ENGMODEL_EM_ACTOR]]
 [discrete]

@@ -204,6 +204,10 @@ catalog:
       name: traceability export is enabled
       definition: Feature enabling TRLC and LOBSTER generation flows.
       aliases: [trace export]
+    - id: FEAT-ARCHITECTURE-DECISION-RECORDS
+      name: architecture decision records are authored
+      definition: Feature indicating the architecture model includes first-class ADR entries.
+      aliases: [adrs authored]
 
   modes:
     - id: MODE-LOCAL-DEVELOPMENT
@@ -262,3 +266,7 @@ catalog:
       name: oscal ssp artifact
       definition: Generated OSCAL system security plan JSON output.
       aliases: [ssp json]
+    - id: DATA-ARCHITECTURE-DECISION-RECORDS
+      name: architecture decision records document
+      definition: Generated document containing authored architecture decision records.
+      aliases: [adr document, decisions document]

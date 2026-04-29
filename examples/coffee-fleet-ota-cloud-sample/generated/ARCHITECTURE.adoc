@@ -251,6 +251,19 @@ a[href^="#SEC_VIEW_"] {
 |An inferred or authored verification artifact that validates requirement behavior with test evidence.
 |===
 
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+|xref:DECISIONS.adoc#ADR-COF-001[ADR-COF-001]
+|Separate edge OTA execution from cloud campaign orchestration
+|accepted
+|2026-04-29
+|===
+
 === Diagram Color and Shape Legend
 
 This legend applies to all Mermaid diagrams in this document.
@@ -3637,20 +3650,17 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794>>
 |<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>
 |pass
-|test-results/contract-telemetry.json + 
-ingest payload accepted with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> fields
+|test-results/contract-telemetry.json; ingest payload accepted with <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>> and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> fields
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
 |<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
 |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
 |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
@@ -3664,14 +3674,13 @@ No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requir
 
 |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
 |<<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>
-|partial
-|test-results/ota-rollback-report.md
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF>>
 |<<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>
 |pass
-|test-results/integration-logging.json + 
-<<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> persisted with redacted <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>>
+|test-results/integration-logging.json; <<REF_IDX-CATALOG_DATA_AUDIT_LOG_RECORD,audit log record>> persisted with redacted <<REF_IDX-CATALOG_DATA_MACHINE_IDENTITY,machine identity>>
 
 |===
 
@@ -3827,7 +3836,7 @@ flowchart LR
   CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
   REQC_REQ_COF_003 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (partial)"]:::verification
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
   VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML["tests/e2e"]:::code_element
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML
@@ -3954,7 +3963,7 @@ flowchart LR
   CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR["update_campaign_orchestrator"]:::code_element
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
   REQC_REQ_COF_005 -->|code trace| CDC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATOR
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (partial)"]:::verification
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_005
   VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML["tests/e2e"]:::code_element
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VEC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_TESTS_E2E_OTA_ROLLOUT_FLOW_YAML
@@ -4409,12 +4418,12 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Field |Value
 |ID |<<REF_IDX-VER_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC>>
 |Kind |e2e
-|Status |partial
+|Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>
 |Test Code Elements |tests/e2e/ota_rollout_flow.yaml
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,FU-FLEET-OBSERVABILITY-REPORTING>>, <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,FU-OTA-UPDATE-AGENT>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,FU-UPDATE-CAMPAIGN-ORCHESTRATION>>
-|Result Summary |not-run:1, partial:1
-|Evidence |test-results/ota-rollback-report.md, tests/e2e/ota_rollout_flow.yaml
+|Result Summary |not-run:2
+|Evidence |tests/e2e/ota_rollout_flow.yaml
 
 |Notes |runs fleet <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollout>> scenario including scheduling, deployment, and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> confirmation
 
@@ -7210,8 +7219,8 @@ runs fleet OTA rollout scenario including scheduling, deployment, and telemetry 
 |===
 |Key |Value
 |Kind |e2e
-|Status |partial
-|Source |test-results/ota-rollback-report.md (+1)
+|Status |not-run
+|Source |tests/e2e/ota_rollout_flow.yaml
 |Name |Ota Rollout Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
 |===

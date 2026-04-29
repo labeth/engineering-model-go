@@ -1,0 +1,26 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-PRR-001]]
+== ADR-PRR-001: Separate webhook ingress from review orchestration
+
+Status:: accepted
+Date:: 2026-04-29
+
+=== Context
+
+GitHub webhook handling has different trust-boundary and failure-mode concerns than AI review
+orchestration and publication back to GitHub.
+
+=== Decision
+
+Model webhook ingress, review orchestration, policy checks, and publication as separate
+functional units with explicit interface and flow relationships.
+
+=== Consequences
+
+- Signature verification and event intake stay isolated from Bedrock review behavior.
+- Deterministic policy checks can be traced independently from AI-generated findings.
+- Review publication contracts remain visible as a separate integration boundary.

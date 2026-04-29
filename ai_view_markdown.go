@@ -27,6 +27,8 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 	b.WriteString(intToString(doc.Model.Counts.FunctionalUnits))
 	b.WriteString(", REQ=")
 	b.WriteString(intToString(doc.Model.Counts.Requirements))
+	b.WriteString(", ADR=")
+	b.WriteString(intToString(doc.Model.Counts.Decisions))
 	b.WriteString(", RT=")
 	b.WriteString(intToString(doc.Model.Counts.Runtime))
 	b.WriteString(", CODE=")
@@ -49,19 +51,19 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 		b.WriteString(ep.Title)
 		b.WriteString("\n")
 		b.WriteString("- Entities: ")
-		b.WriteString(strings.Join(ep.EntityIDs, ", "))
+		b.WriteString(nonEmptyJoined(ep.EntityIDs))
 		b.WriteString("\n\n")
 	}
 
 	b.WriteString("## Gaps\n\n")
 	b.WriteString("- Requirements without verification: ")
-	b.WriteString(strings.Join(doc.Gaps.RequirementsWithoutVerification, ", "))
+	b.WriteString(nonEmptyJoined(doc.Gaps.RequirementsWithoutVerification))
 	b.WriteString("\n")
 	b.WriteString("- Requirements low confidence: ")
-	b.WriteString(strings.Join(doc.Gaps.RequirementsLowConfidence, ", "))
+	b.WriteString(nonEmptyJoined(doc.Gaps.RequirementsLowConfidence))
 	b.WriteString("\n")
 	b.WriteString("- Functional units without tests: ")
-	b.WriteString(strings.Join(doc.Gaps.FunctionalUnitsWithoutTests, ", "))
+	b.WriteString(nonEmptyJoined(doc.Gaps.FunctionalUnitsWithoutTests))
 	b.WriteString("\n\n")
 
 	b.WriteString("## Support Paths\n\n")
@@ -179,4 +181,11 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 
 func intToString(n int) string {
 	return strconv.Itoa(n)
+}
+
+func nonEmptyJoined(items []string) string {
+	if len(items) == 0 {
+		return "none"
+	}
+	return strings.Join(items, ", ")
 }

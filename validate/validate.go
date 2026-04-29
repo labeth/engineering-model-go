@@ -53,6 +53,14 @@ var allowedPOAMStatus = map[string]bool{
 	"deferred":    true,
 }
 
+var allowedDecisionStatus = map[string]bool{
+	"proposed":   true,
+	"accepted":   true,
+	"superseded": true,
+	"deprecated": true,
+	"rejected":   true,
+}
+
 var allowedViewKinds = map[string]bool{
 	"architecture-intent": true,
 	"communication":       true,
@@ -276,6 +284,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 	controlVerifications := map[string]bool{}
 	kindByID := map[string]string{}
 
+	for i, d := range b.Architecture.Decisions {
+		addID(d.ID, fmt.Sprintf("decisions[%d]", i))
+		kindByID[d.ID] = "decision"
+	}
 	for i, g := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		addID(g.ID, fmt.Sprintf("authoredArchitecture.functionalGroups[%d]", i))
 		groups[g.ID] = true
@@ -394,6 +406,38 @@ func Bundle(b model.Bundle) []Diagnostic {
 	validID := func(id string) bool {
 		_, ok := idOwner[id]
 		return ok
+	}
+
+	for i, d := range b.Architecture.Decisions {
+		path := fmt.Sprintf("decisions[%d]", i)
+		if strings.TrimSpace(d.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_decision_title", Severity: SeverityError, Message: "decision title is required", Path: path})
+		}
+		status := strings.ToLower(strings.TrimSpace(d.Status))
+		if status == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_decision_status", Severity: SeverityError, Message: "decision status is required", Path: path})
+		} else if !allowedDecisionStatus[status] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_decision_status", Severity: SeverityError, Message: fmt.Sprintf("unknown decision status %q", d.Status), Path: path})
+		}
+		if date := strings.TrimSpace(d.Date); date == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_decision_date", Severity: SeverityError, Message: "decision date is required", Path: path})
+		} else if !isoDateRe.MatchString(date) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_decision_date", Severity: SeverityError, Message: fmt.Sprintf("invalid decision date %q", d.Date), Path: path})
+		}
+		if strings.TrimSpace(d.Context) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_decision_context", Severity: SeverityError, Message: "decision context is required", Path: path})
+		}
+		if strings.TrimSpace(d.Decision) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_decision_text", Severity: SeverityError, Message: "decision text is required", Path: path})
+		}
+		if len(d.Consequences) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_decision_consequences", Severity: SeverityError, Message: "decision must include at least one consequence", Path: path})
+		}
+		for j, consequence := range d.Consequences {
+			if strings.TrimSpace(consequence) == "" {
+				diags = append(diags, Diagnostic{Code: "model.empty_decision_consequence", Severity: SeverityError, Message: "decision consequence must not be empty", Path: fmt.Sprintf("%s.consequences[%d]", path, j)})
+			}
+		}
 	}
 
 	for i, boundary := range b.Architecture.AuthoredArchitecture.TrustBoundaries {

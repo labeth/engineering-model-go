@@ -77,3 +77,9 @@ Requirement REQ_EMG_013 {
   notes      = "OSCAL export set for compliance workflows."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-OSCAL-EXPORTER"]
 }
+Requirement REQ_EMG_014 {
+  id         = "REQ-EMG-014"
+  text       = "Where architecture decision records are authored, when generation run is requested, the engineering model go shall publish architecture decision records document linked from AsciiDoc architecture publication output."
+  notes      = "ADRs are first-class model content but are published separately from the main architecture narrative."
+  applies_to = ["FU-ASCIIDOC-GENERATOR", "FU-CLI-ORCHESTRATION"]
+}

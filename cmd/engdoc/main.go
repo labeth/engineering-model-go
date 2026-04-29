@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
@@ -26,13 +27,14 @@ func (v *viewFlags) Set(value string) error {
 	return nil
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012, REQ-EMG-014
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	reqPath := flag.String("requirements", "", "path to requirements YAML")
 	designPath := flag.String("design", "", "path to design mapping YAML")
 	codeRoot := flag.String("code-root", "", "optional source tree root for TRACE-* code mapping")
 	outPath := flag.String("out", "", "optional output .adoc path; defaults to stdout")
+	decisionsOut := flag.String("decisions-out", "", "optional output path for generated architecture decision records .adoc")
 	aiJSONOut := flag.String("ai-json-out", "", "optional output path for AI JSON export")
 	aiMarkdownOut := flag.String("ai-md-out", "", "optional output path for derived AI markdown export")
 	aiEdgesOut := flag.String("ai-edges-out", "", "optional output path for AI edge stream NDJSON export")
@@ -41,18 +43,23 @@ func main() {
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*reqPath) == "" || strings.TrimSpace(*designPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engdoc --model <architecture.yml> --requirements <requirements.yml> --design <design.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--ai-json-out <file>] [--ai-md-out <file>] [--ai-edges-out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engdoc --model <architecture.yml> --requirements <requirements.yml> --design <design.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>] [--ai-json-out <file>] [--ai-md-out <file>] [--ai-edges-out <file>]")
 		os.Exit(2)
 	}
 
 	useAI := strings.TrimSpace(*aiJSONOut) != "" || strings.TrimSpace(*aiMarkdownOut) != "" || strings.TrimSpace(*aiEdgesOut) != ""
-	useAsciiDoc := strings.TrimSpace(*outPath) != "" || !useAI
+	useAsciiDoc := strings.TrimSpace(*outPath) != "" || strings.TrimSpace(*decisionsOut) != "" || !useAI
 	allDiagnostics := []validate.Diagnostic{}
 
 	if useAsciiDoc {
+		decisionsDocPath := strings.TrimSpace(*decisionsOut)
+		if decisionsDocPath != "" {
+			decisionsDocPath = filepath.Base(decisionsDocPath)
+		}
 		res, err := engmodel.GenerateAsciiDocFromFiles(*modelPath, *reqPath, *designPath, engmodel.AsciiDocOptions{
-			ViewIDs:  views,
-			CodeRoot: strings.TrimSpace(*codeRoot),
+			ViewIDs:          views,
+			CodeRoot:         strings.TrimSpace(*codeRoot),
+			DecisionsDocPath: decisionsDocPath,
 		})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)
@@ -66,6 +73,12 @@ func main() {
 		} else {
 			if err := os.WriteFile(*outPath, []byte(res.Document), 0o644); err != nil {
 				fmt.Fprintln(os.Stderr, "error writing output:", err)
+				os.Exit(1)
+			}
+		}
+		if strings.TrimSpace(*decisionsOut) != "" {
+			if err := os.WriteFile(*decisionsOut, []byte(res.DecisionsDocument), 0o644); err != nil {
+				fmt.Fprintln(os.Stderr, "error writing decisions output:", err)
 				os.Exit(1)
 			}
 		}

@@ -77,6 +77,24 @@ a[href^="#SEC_VIEW_"] {
 {{- end }}
 |===
 
+{{- if .Decisions }}
+
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+{{- range .Decisions }}
+|xref:{{ $root.DecisionsDocPath }}#{{ .ID }}[{{ .ID }}]
+|{{ .Title }}
+|{{ .Status }}
+|{{ .Date }}
+{{- end }}
+|===
+{{- end }}
+
 === Diagram Color and Shape Legend
 
 This legend applies to all Mermaid diagrams in this document.
@@ -588,8 +606,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |{{ .CheckID }}
 |{{ .Requirement }}
 |{{ .Status }}
-|{{ .Evidence }}{{ if .Notes }} + 
-{{ .Notes }}{{ end }}
+|{{ .Evidence }}{{ if .Notes }}; {{ .Notes }}{{ end }}
 {{ end }}
 |===
 {{- end }}

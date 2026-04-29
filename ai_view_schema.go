@@ -69,6 +69,7 @@ type AIModelCounts struct {
 	FunctionalGroups  int `json:"fg"`
 	FunctionalUnits   int `json:"fu"`
 	Requirements      int `json:"req"`
+	Decisions         int `json:"decisions,omitempty"`
 	Runtime           int `json:"rt"`
 	Code              int `json:"code"`
 	Verification      int `json:"verification"`
@@ -95,6 +96,7 @@ type AIEntityIndex struct {
 	FunctionalGroupIDs  []string         `json:"fg_ids"`
 	FunctionalUnitIDs   []string         `json:"fu_ids"`
 	RequirementIDs      []string         `json:"req_ids"`
+	DecisionIDs         []string         `json:"decision_ids,omitempty"`
 	RuntimeIDs          []string         `json:"rt_ids"`
 	CodeIDs             []string         `json:"code_ids"`
 	VerificationIDs     []string         `json:"verification_ids"`
@@ -154,10 +156,13 @@ type AIEntity struct {
 }
 
 type AIEntityFields struct {
-	Triggers []string `json:"triggers,omitempty"`
-	Consumes []string `json:"consumes,omitempty"`
-	Produces []string `json:"produces,omitempty"`
-	Threats  []string `json:"threats,omitempty"`
+	Triggers     []string `json:"triggers,omitempty"`
+	Consumes     []string `json:"consumes,omitempty"`
+	Produces     []string `json:"produces,omitempty"`
+	Threats      []string `json:"threats,omitempty"`
+	Context      string   `json:"context,omitempty"`
+	Decision     string   `json:"decision,omitempty"`
+	Consequences []string `json:"consequences,omitempty"`
 }
 
 type AIFieldProvenance struct {

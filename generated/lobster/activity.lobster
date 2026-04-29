@@ -92,7 +92,8 @@
       "name": "asciidoc.go",
       "refs": [
         "req EngineeringModelGoRequirements.REQ_EMG_001",
-        "req EngineeringModelGoRequirements.REQ_EMG_003"
+        "req EngineeringModelGoRequirements.REQ_EMG_003",
+        "req EngineeringModelGoRequirements.REQ_EMG_014"
       ],
       "just_up": [],
       "just_down": [],
@@ -112,6 +113,7 @@
       "name": "asciidoc_test.go",
       "refs": [
         "req EngineeringModelGoRequirements.REQ_EMG_003",
+        "req EngineeringModelGoRequirements.REQ_EMG_014",
         "req EngineeringModelGoRequirements.REQ_PAY_001"
       ],
       "just_up": [],
@@ -174,7 +176,8 @@
         "req EngineeringModelGoRequirements.REQ_EMG_002",
         "req EngineeringModelGoRequirements.REQ_EMG_003",
         "req EngineeringModelGoRequirements.REQ_EMG_009",
-        "req EngineeringModelGoRequirements.REQ_EMG_012"
+        "req EngineeringModelGoRequirements.REQ_EMG_012",
+        "req EngineeringModelGoRequirements.REQ_EMG_014"
       ],
       "just_up": [],
       "just_down": [],

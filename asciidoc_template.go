@@ -41,6 +41,8 @@ type asciidocTemplateData struct {
 	Verifications              []asciidocVerificationSection
 	VerificationResults        []asciidocVerificationResultRow
 	ReferenceIndex             asciidocReferenceIndex
+	Decisions                  []asciidocDecisionSection
+	DecisionsDocPath           string
 }
 
 type asciidocHealthRow struct {
@@ -387,6 +389,16 @@ type asciidocVerificationResultRow struct {
 	Status      string
 	Evidence    string
 	Notes       string
+}
+
+type asciidocDecisionSection struct {
+	ID           string
+	Title        string
+	Status       string
+	Date         string
+	Context      string
+	Decision     string
+	Consequences []string
 }
 
 func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {

@@ -1,0 +1,26 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-COF-001]]
+== ADR-COF-001: Separate edge OTA execution from cloud campaign orchestration
+
+Status:: accepted
+Date:: 2026-04-29
+
+=== Context
+
+Coffee machines execute updates locally, while the cloud controls fleet rollout planning,
+cohort selection, and operational reporting.
+
+=== Decision
+
+Model OTA update execution as an edge functional unit and update campaign orchestration as
+a cloud functional unit connected by explicit command and telemetry flows.
+
+=== Consequences
+
+- Device-local safety checks remain distinct from cloud rollout policy.
+- Fleet operators can reason about campaign behavior without owning edge update mechanics.
+- Security and traceability views can show identity, telemetry, and update boundaries separately.

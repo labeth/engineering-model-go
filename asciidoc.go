@@ -13,16 +13,18 @@ import (
 )
 
 type AsciiDocOptions struct {
-	ViewIDs  []string
-	CodeRoot string
+	ViewIDs          []string
+	CodeRoot         string
+	DecisionsDocPath string
 }
 
 type AsciiDocResult struct {
-	Document    string
-	Diagnostics []validate.Diagnostic
+	Document          string
+	DecisionsDocument string
+	Diagnostics       []validate.Diagnostic
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -384,6 +386,11 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	refIndex := buildReferenceIndex(bundle, requirements, inferredRuntime, inferredCode, inferredVerification)
 	linkTargets := buildLinkTargets(refIndex)
 	terms := buildTermsFromCatalog(bundle.Catalog)
+	decisionSections := buildDecisionSections(bundle.Architecture.Decisions)
+	decisionsDocPath := strings.TrimSpace(options.DecisionsDocPath)
+	if decisionsDocPath == "" {
+		decisionsDocPath = "DECISIONS.adoc"
+	}
 	sort.SliceStable(terms, func(i, j int) bool {
 		leftName := strings.ToLower(strings.TrimSpace(terms[i].Name))
 		rightName := strings.ToLower(strings.TrimSpace(terms[j].Name))
@@ -597,6 +604,8 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		Verifications:       verificationSections,
 		VerificationResults: verificationResultRows,
 		ReferenceIndex:      refIndex,
+		Decisions:           decisionSections,
+		DecisionsDocPath:    decisionsDocPath,
 	}
 
 	doc, err := renderAsciiDocTemplate(templateData)
@@ -610,5 +619,5 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
 
-	return AsciiDocResult{Document: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
+	return AsciiDocResult{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
 }

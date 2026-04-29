@@ -234,6 +234,19 @@ a[href^="#SEC_VIEW_"] {
 |An inferred or authored verification artifact that validates requirement behavior with test evidence.
 |===
 
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+|xref:DECISIONS.adoc#ADR-PAY-001[ADR-PAY-001]
+|Keep payment authorization separate from checkout handling
+|accepted
+|2026-04-29
+|===
+
 === Diagram Color and Shape Legend
 
 This legend applies to all Mermaid diagrams in this document.
@@ -3293,10 +3306,9 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597>>
 |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
 |not-run
-|none + 
-No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
-|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-VER_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1>>
 |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>
 |pass
 |test-results/integration-fraud-gate.json
@@ -3306,15 +3318,10 @@ No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requir
 |pass
 |test-results/contract-checkout-decline.json
 
-|<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
+|<<REF_IDX-VER_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1>>
 |<<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
 |pass
 |test-results/integration-fraud-gate.json
-
-|<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
-|<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
-|partial
-|test-results/audit-persistence-report.md
 
 |<<REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26>>
 |<<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
@@ -3420,10 +3427,8 @@ flowchart LR
   CDC_FU_RISK_SCORING_SUPPORT["support"]:::code_element
   RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_SUPPORT
   REQC_REQ_PAY_002 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_002
-  VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
+  VERC_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1["VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1 (pass)"]:::verification
+  VERC_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1 -->|verifies| REQC_REQ_PAY_002
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3527,10 +3532,8 @@ flowchart LR
   REQC_REQ_PAY_004 -->|code trace| CDC_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
   FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_SUPPORT_REVIEW
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_004
-  VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS["tests/integration"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VEC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS
+  VERC_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1["VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1 (pass)"]:::verification
+  VERC_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1 -->|verifies| REQC_REQ_PAY_004
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3583,10 +3586,6 @@ flowchart LR
   CDC_FU_RISK_SCORING_SUPPORT["support"]:::code_element
   RTC_FU_RISK_SCORING_RISK -->|implemented_by| CDC_FU_RISK_SCORING_SUPPORT
   REQC_REQ_PAY_005 -->|code trace| CDC_FU_RISK_SCORING_SUPPORT
-  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2["VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2 (partial)"]:::verification
-  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|verifies| REQC_REQ_PAY_005
-  VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS["tests/integration"]:::code_element
-  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| VEC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3856,46 +3855,6 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
-[[REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
-==== Audit Record Persistence Test
-
-[cols="1,4",options="header"]
-|===
-|Field |Value
-|ID |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2>>
-|Kind |integration
-|Status |partial
-|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
-|Test Code Elements |tests/integration/audit_record_persistence_test.ts
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>
-|Result Summary |partial:1
-|Evidence |test-results/audit-persistence-report.md, tests/integration/audit_record_persistence_test.ts
-
-|Notes |checks audit record persistence includes <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> and computed <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>
-
-|===
-
-
-[[REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
-==== Fraud Gate Test
-
-[cols="1,4",options="header"]
-|===
-|Field |Value
-|ID |<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
-|Kind |integration
-|Status |pass
-|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
-|Test Code Elements |tests/integration/fraud_gate_test.rs
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
-|Result Summary |pass:2
-|Evidence |test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
-
-|Notes |validates fraud gate escalation and block decisions before authorization completion
-
-|===
-
-
 [[REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
 ==== Contract Checkout Decline
 
@@ -3910,6 +3869,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 |Result Summary |pass:2
 |Evidence |test-results/contract-checkout-decline.json
+
+|Notes |Inferred from test result artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1]]
+==== Integration Fraud Gate
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1>>
+|Kind |test
+|Status |pass
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
+|Test Code Elements |none
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
+|Result Summary |pass:2
+|Evidence |test-results/integration-fraud-gate.json
 
 |Notes |Inferred from test result artifact.
 
@@ -4244,7 +4223,7 @@ Where fraud check is enabled, when payment authorization is requested, the fraud
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-002
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===
 [[REF_IDX-REQ_REQ_PAY_003]]
 [discrete]
@@ -4270,7 +4249,7 @@ While checkout is active, when payment authorization is requested and risk score
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-004
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===
 [[REF_IDX-REQ_REQ_PAY_005]]
 [discrete]
@@ -4283,7 +4262,7 @@ Where fraud check is enabled, when payment authorization is requested, the payme
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-005
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-REQ_REQ_PAY_006]]
 [discrete]
@@ -5078,7 +5057,7 @@ Stable identifier used to correlate a payment across services and records.
 |Key |Value
 |Kind |Catalog Data Term
 |Name |payment id
-|Mentioned In |<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
+|Mentioned In |<<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |===
 [[REF_IDX-CATALOG_DATA_RISK_SCORE]]
 [discrete]
@@ -5091,7 +5070,7 @@ Numeric fraud score produced by risk evaluation logic.
 |Key |Value
 |Kind |Catalog Data Term
 |Name |risk score
-|Mentioned In |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
+|Mentioned In |<<REF_REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_REQ_REQ_PAY_005,REQ-PAY-005>>
 |===
 [[REF_IDX-CATALOG_EVT_BANK_LINK_UNAVAILABLE]]
 [discrete]
@@ -5260,7 +5239,7 @@ Coordinates authorization flow and bank gateway interaction.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |payment authorization
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===
 [[REF_IDX-CATALOG_FU_RISK_SCORING]]
 [discrete]
@@ -5273,7 +5252,7 @@ Evaluates transaction risk and returns score classification.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |risk scoring
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===
 [[REF_IDX-CATALOG_FU_SUPPORT_REVIEW]]
 [discrete]
@@ -5286,7 +5265,7 @@ Supports manual review and escalation handling for risky transactions.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |support review
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -6245,36 +6224,6 @@ executes authorized checkout flow from session start through payment authorizati
 |Name |Authorized Checkout Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
 |===
-[[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
-[discrete]
-==== VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2
-
-checks audit record persistence includes payment id and computed risk score
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |integration
-|Status |partial
-|Source |test-results/audit-persistence-report.md (+1)
-|Name |Audit Record Persistence Test
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
-|===
-[[REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD]]
-[discrete]
-==== VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD
-
-validates fraud gate escalation and block decisions before authorization completion
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |integration
-|Status |pass
-|Source |test-results/integration-fraud-gate.json (+1)
-|Name |Fraud Gate Test
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
-|===
 [[REF_IDX-VER_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26]]
 [discrete]
 ==== VER-INF-TEST-CONTRACT_CHECKOUT_DECLINE-5D1F26
@@ -6289,4 +6238,19 @@ Inferred from test result artifact.
 |Source |test-results/contract-checkout-decline.json
 |Name |Contract Checkout Decline
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CONTRACT_CHECKOUT_DECLINE_5D1F26,Contract Checkout Decline>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1]]
+[discrete]
+==== VER-INF-TEST-INTEGRATION_FRAUD_GATE-FEDAF1
+
+Inferred from test result artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |pass
+|Source |test-results/integration-fraud-gate.json
+|Name |Integration Fraud Gate
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_FRAUD_GATE_FEDAF1,Integration Fraud Gate>>
 |===

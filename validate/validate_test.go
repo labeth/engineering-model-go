@@ -57,6 +57,52 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	}
 }
 
+func TestBundleValidation_Decisions(t *testing.T) {
+	b := model.Bundle{Architecture: model.ArchitectureDocument{
+		Decisions: []model.Decision{{
+			ID:           "ADR-A",
+			Title:        "Use generated decisions document",
+			Status:       "accepted",
+			Date:         "2026-04-29",
+			Context:      "Decision context.",
+			Decision:     "Decision text.",
+			Consequences: []string{"Decision consequence."},
+		}},
+		AuthoredArchitecture: model.AuthoredArchitecture{
+			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+			FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		},
+		Views: []model.View{{ID: "V", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
+	}}
+
+	if diags := Bundle(b); HasErrors(diags) {
+		t.Fatalf("expected valid decision to pass, got: %+v", diags)
+	}
+
+	b.Architecture.Decisions[0].Date = ""
+	b.Architecture.Decisions[0].Status = "done"
+	b.Architecture.Decisions[0].Consequences = nil
+	diags := Bundle(b)
+	if !HasErrors(diags) {
+		t.Fatalf("expected invalid decision to fail")
+	}
+	want := map[string]bool{
+		"model.missing_decision_date":       false,
+		"model.invalid_decision_status":     false,
+		"model.empty_decision_consequences": false,
+	}
+	for _, d := range diags {
+		if _, ok := want[d.Code]; ok {
+			want[d.Code] = true
+		}
+	}
+	for code, found := range want {
+		if !found {
+			t.Fatalf("missing %s in diagnostics: %+v", code, diags)
+		}
+	}
+}
+
 func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},

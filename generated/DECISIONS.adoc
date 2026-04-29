@@ -1,0 +1,51 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-EMG-001]]
+== ADR-EMG-001: Generate architecture decision records separately from the main architecture document
+
+Status:: accepted
+Date:: 2026-04-29
+
+=== Context
+
+Architecture decision records explain why durable model and generator choices were made.
+The main architecture publication should stay focused on the current structure, views,
+and evidence instead of embedding the full decision history inline.
+
+=== Decision
+
+Model architecture decision records as first-class authored data and generate them into
+a separate Architecture Decision Records document. The main architecture document links
+to the generated decision records document through a compact decision index.
+
+=== Consequences
+
+- The main architecture document remains focused on current architecture and traceability.
+- Decision rationale remains reviewable as structured model content.
+- Generation workflows need a separate decisions output alongside the main AsciiDoc output.
+
+[[ADR-EMG-002]]
+== ADR-EMG-002: Keep architecture decision records model-authored and separate from code links
+
+Status:: accepted
+Date:: 2026-04-29
+
+=== Context
+
+Architecture decision records capture durable reasoning about model and generator choices.
+Linking decisions directly to implementation files would create noisy trace paths and imply
+code-level ownership that decisions are not meant to carry.
+
+=== Decision
+
+Store architecture decision records as first-class authored model data with required context,
+decision, status, date, and consequences. Do not add code-link fields to the ADR model.
+
+=== Consequences
+
+- ADRs remain focused on architectural rationale instead of implementation inventory.
+- Code traceability continues to use requirement and owner markers.
+- Main architecture outputs can link to ADRs without embedding code-level decision links.

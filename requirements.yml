@@ -94,3 +94,10 @@ requirements:
     appliesTo:
       - FU-OSCAL-EXPORTER
       - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-014
+    text: "Where architecture decision records are authored, when generation run is requested, the engineering model go shall publish architecture decision records document linked from AsciiDoc architecture publication output."
+    notes: "ADRs are first-class model content but are published separately from the main architecture narrative."
+    appliesTo:
+      - FU-ASCIIDOC-GENERATOR
+      - FU-CLI-ORCHESTRATION

@@ -47,6 +47,10 @@ type RequirementsDocument struct {
 	Expected     []Expected    `yaml:"expected"`
 }
 
+type DecisionsDocument struct {
+	Decisions []Decision `yaml:"decisions"`
+}
+
 type Expected struct {
 	ID      string `yaml:"id"`
 	Pattern string `yaml:"pattern"`
@@ -84,6 +88,16 @@ type ModelMeta struct {
 	Title          string `yaml:"title"`
 	Introduction   string `yaml:"introduction"`
 	BaseCatalogRef string `yaml:"baseCatalogRef"`
+}
+
+type Decision struct {
+	ID           string   `yaml:"id"`
+	Title        string   `yaml:"title"`
+	Status       string   `yaml:"status"`
+	Date         string   `yaml:"date"`
+	Context      string   `yaml:"context"`
+	Decision     string   `yaml:"decision"`
+	Consequences []string `yaml:"consequences"`
 }
 
 type FunctionalGroup struct {
@@ -446,6 +460,7 @@ type View struct {
 
 type ArchitectureDocument struct {
 	Model                ModelMeta            `yaml:"model"`
+	Decisions            []Decision           `yaml:"-"`
 	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
 	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
 	Views                []View               `yaml:"views"`
@@ -454,7 +469,9 @@ type ArchitectureDocument struct {
 type Bundle struct {
 	ArchitecturePath string
 	CatalogPath      string
+	DecisionsPath    string
 
 	Architecture ArchitectureDocument
 	Catalog      CatalogDocument
+	Decisions    DecisionsDocument
 }
