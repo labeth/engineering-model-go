@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package engmodel
 
 import (
@@ -86,6 +87,7 @@ type oscalARRisk struct {
 	Props       []oscalProperty `json:"props,omitempty"`
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
 package engmodel
 
 import (
@@ -16,6 +17,7 @@ type Result struct {
 	Diagnostics []validate.Diagnostic
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

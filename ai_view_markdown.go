@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-AI-VIEW-BUILDER
 package engmodel
 
 import (
@@ -5,6 +6,7 @@ import (
 	"strings"
 )
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func renderAIViewMarkdown(doc AIViewDocument) string {
 	var b strings.Builder
 	b.WriteString("# AI View\n\n")

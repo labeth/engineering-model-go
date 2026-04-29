@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-THREAT-EXPORTER
 package engmodel
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExport_EndToEnd(t *testing.T) {
 	examples := []string{
 		filepath.Join("examples", "payments-engineering-sample", "architecture.yml"),

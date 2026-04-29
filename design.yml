@@ -1,0 +1,368 @@
+design:
+  id: engineering-model-go-design
+  title: Engineering Model Go Repository Design
+
+  functionalGroups:
+    - id: FG-MODEL-AUTHORING
+      views:
+        architecture_intent:
+          title: Model Authoring Architecture Intent
+          narrative: |
+            Model Authoring defines how authored architecture inputs remain stable and composable across the repository.
+            It establishes document contracts for catalog, architecture, requirements, and design files.
+        communication:
+          title: Model Authoring Communication
+          narrative: |
+            Model Authoring coordinates loading and command entrypoints so downstream generation and validation receive normalized inputs.
+        deployment:
+          title: Model Authoring Deployment
+          narrative: |
+            Model Authoring is deployed as CLI and package boundaries that can evolve without disrupting validation and export engines.
+        security:
+          title: Model Authoring Security
+          narrative: |
+            Model Authoring enforces input sanity and reference consistency to reduce malformed model ingestion risk.
+        traceability:
+          title: Model Authoring Traceability
+          narrative: |
+            Model Authoring maintains stable IDs that anchor requirement and ownership traces across generated artifacts.
+
+    - id: FG-VALIDATION-ANALYSIS
+      views:
+        architecture_intent:
+          title: Validation and Analysis Architecture Intent
+          narrative: |
+            Validation and Analysis preserves model correctness and derives implementation evidence from repository artifacts.
+        communication:
+          title: Validation and Analysis Communication
+          narrative: |
+            Validation and Analysis exchanges diagnostics and inferred evidence with generation and MCP surfaces.
+        deployment:
+          title: Validation and Analysis Deployment
+          narrative: |
+            Validation and Analysis ships as shared libraries consumed by CLIs and server workflows.
+        security:
+          title: Validation and Analysis Security
+          narrative: |
+            Validation and Analysis defends against ambiguous references and stale traces through strict checks.
+        traceability:
+          title: Validation and Analysis Traceability
+          narrative: |
+            Validation and Analysis links requirements to code/runtime/test evidence for impact-oriented planning.
+
+    - id: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: Artifact Generation Architecture Intent
+          narrative: |
+            Artifact Generation turns modeled intent into publication and exchange outputs used by engineers and tools.
+        communication:
+          title: Artifact Generation Communication
+          narrative: |
+            Artifact Generation coordinates projections, templates, and exporters while preserving stable output contracts.
+        deployment:
+          title: Artifact Generation Deployment
+          narrative: |
+            Artifact Generation runs in local and CI contexts with deterministic output expectations.
+        security:
+          title: Artifact Generation Security
+          narrative: |
+            Artifact Generation validates output schema boundaries before publishing external artifacts.
+        traceability:
+          title: Artifact Generation Traceability
+          narrative: |
+            Artifact Generation carries stable IDs and evidence references into AI, docs, and exchange formats.
+
+    - id: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: Traceability and Compliance Architecture Intent
+          narrative: |
+            Traceability and Compliance ensures requirement lineage and assurance artifacts remain verifiable.
+        communication:
+          title: Traceability and Compliance Communication
+          narrative: |
+            Traceability and Compliance integrates requirement, test, and report surfaces through shared ID contracts.
+        deployment:
+          title: Traceability and Compliance Deployment
+          narrative: |
+            Traceability and Compliance components execute in export pipelines and are validated against external toolchains.
+        security:
+          title: Traceability and Compliance Security
+          narrative: |
+            Traceability and Compliance protects evidence integrity and detects drift in requirement-test links.
+        traceability:
+          title: Traceability and Compliance Traceability
+          narrative: |
+            Traceability and Compliance is the system-of-record path for requirement linkage quality.
+
+    - id: FG-MCP-INTEGRATION
+      views:
+        architecture_intent:
+          title: MCP Integration Architecture Intent
+          narrative: |
+            MCP Integration exposes model-aware APIs for AI agents with explicit tool contracts.
+        communication:
+          title: MCP Integration Communication
+          narrative: |
+            MCP Integration processes JSON-RPC requests and returns structured, schema-versioned tool payloads.
+        deployment:
+          title: MCP Integration Deployment
+          narrative: |
+            MCP Integration runs as stdio server endpoints invoked by agent runtimes.
+        security:
+          title: MCP Integration Security
+          narrative: |
+            MCP Integration enforces strict argument validation and repository path boundaries.
+        traceability:
+          title: MCP Integration Traceability
+          narrative: |
+            MCP Integration reports tool-specific IDs to keep agent actions tied to model entities.
+
+  functionalUnits:
+    - id: FU-MODEL-LOADER
+      group: FG-MODEL-AUTHORING
+      views:
+        architecture_intent:
+          title: Model Loader Intent
+          narrative: Loads architecture, catalog, requirements, and design inputs into a single normalized bundle.
+        communication:
+          title: Model Loader Communication
+          narrative: Provides canonical model structures to validators, generators, and MCP handlers.
+        deployment:
+          title: Model Loader Deployment
+          narrative: Shipped as reusable package APIs consumed by command entrypoints.
+        security:
+          title: Model Loader Security
+          narrative: Rejects invalid parsing states and unresolved core model references.
+        traceability:
+          title: Model Loader Traceability
+          narrative: Preserves stable ID fidelity from source YAML through runtime structures.
+
+    - id: FU-VALIDATION-ENGINE
+      group: FG-VALIDATION-ANALYSIS
+      views:
+        architecture_intent:
+          title: Validation Engine Intent
+          narrative: Enforces correctness of IDs, mappings, and cross-reference relationships.
+        communication:
+          title: Validation Engine Communication
+          narrative: Emits diagnostics consumed by CLIs, CI, and MCP preflight logic.
+        deployment:
+          title: Validation Engine Deployment
+          narrative: Runs as core library checks in local and CI execution paths.
+        security:
+          title: Validation Engine Security
+          narrative: Blocks malformed or unsafe model transitions before downstream processing.
+        traceability:
+          title: Validation Engine Traceability
+          narrative: Ensures requirement/entity links remain analyzable and deterministic.
+
+    - id: FU-CODEMAP-INFERENCE
+      group: FG-VALIDATION-ANALYSIS
+      views:
+        architecture_intent:
+          title: Codemap Inference Intent
+          narrative: Infers runtime/code/verification evidence to connect authored intent with implementation reality.
+        communication:
+          title: Codemap Inference Communication
+          narrative: Supplies inferred ownership and trace candidates to AI view and reporting flows.
+        deployment:
+          title: Codemap Inference Deployment
+          narrative: Executes during generation and analysis workflows using repository-local sources.
+        security:
+          title: Codemap Inference Security
+          narrative: Limits inference scope to trusted repo paths and evidence formats.
+        traceability:
+          title: Codemap Inference Traceability
+          narrative: Converts TRLC-LINKS and ownership markers into stable evidence relationships.
+
+    - id: FU-VIEW-PROJECTION
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: View Projection Intent
+          narrative: Projects architecture graphs for view-specific rendering and analysis.
+        communication:
+          title: View Projection Communication
+          narrative: Delivers filtered entities and mappings to docs, AI outputs, and exports.
+        deployment:
+          title: View Projection Deployment
+          narrative: Embedded as reusable generation pipeline functionality.
+        security:
+          title: View Projection Security
+          narrative: Ensures views respect include/exclude boundaries and stable root scopes.
+        traceability:
+          title: View Projection Traceability
+          narrative: Maintains link continuity across architecture, security, and traceability projections.
+
+    - id: FU-AI-VIEW-BUILDER
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: AI View Builder Intent
+          narrative: Produces AI-first artifacts for planning, impact analysis, and implementation guidance.
+        communication:
+          title: AI View Builder Communication
+          narrative: Combines authored and inferred data into JSON, markdown, and edge outputs.
+        deployment:
+          title: AI View Builder Deployment
+          narrative: Runs via engdoc generation flows and library invocations.
+        security:
+          title: AI View Builder Security
+          narrative: Preserves source provenance and confidence metadata for trustworthy agent decisions.
+        traceability:
+          title: AI View Builder Traceability
+          narrative: Emits support paths, implementation paths, and gaps keyed by stable IDs.
+
+    - id: FU-ASCIIDOC-GENERATOR
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: AsciiDoc Generator Intent
+          narrative: Renders authoritative human-facing architecture documents from modeled content.
+        communication:
+          title: AsciiDoc Generator Communication
+          narrative: Integrates projections and design narratives into publication templates.
+        deployment:
+          title: AsciiDoc Generator Deployment
+          narrative: Invoked through engdoc for local and CI document generation.
+        security:
+          title: AsciiDoc Generator Security
+          narrative: Carries security model sections in deterministic, reviewable output format.
+        traceability:
+          title: AsciiDoc Generator Traceability
+          narrative: Preserves requirement and evidence identifiers in generated docs.
+
+    - id: FU-THREAT-EXPORTER
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: Threat Exporter Intent
+          narrative: Converts modeled security content into Threat Dragon and Open OTM artifacts.
+        communication:
+          title: Threat Exporter Communication
+          narrative: Maps flows, boundaries, threats, and controls into external schema structures.
+        deployment:
+          title: Threat Exporter Deployment
+          narrative: Executed via engdragon with schema validation scripts in CI.
+        security:
+          title: Threat Exporter Security
+          narrative: Protects export integrity through strict schema validation and deterministic mapping.
+        traceability:
+          title: Threat Exporter Traceability
+          narrative: Maintains stable threat and control IDs through export outputs.
+
+    - id: FU-STRUCTURIZR-EXPORTER
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: Structurizr Exporter Intent
+          narrative: Projects architecture and deployment metadata into Structurizr DSL.
+        communication:
+          title: Structurizr Exporter Communication
+          narrative: Builds templated DSL artifacts validated by external Structurizr tooling.
+        deployment:
+          title: Structurizr Exporter Deployment
+          narrative: Runs via engstruct in local and CI validation pipelines.
+        security:
+          title: Structurizr Exporter Security
+          narrative: Ensures exported topology reflects intended trust boundaries and relationships.
+        traceability:
+          title: Structurizr Exporter Traceability
+          narrative: Preserves architecture IDs across DSL elements for cross-tool alignment.
+
+    - id: FU-TRLC-EXPORTER
+      group: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: TRLC Exporter Intent
+          narrative: Exports requirements and model metadata for formal traceability processing.
+        communication:
+          title: TRLC Exporter Communication
+          narrative: Produces package and requirement artifacts consumed by LOBSTER and checks.
+        deployment:
+          title: TRLC Exporter Deployment
+          narrative: Executed through engtrlc in CI and local assurance workflows.
+        security:
+          title: TRLC Exporter Security
+          narrative: Enforces stable requirement IDs and deterministic formatting for downstream verification.
+        traceability:
+          title: TRLC Exporter Traceability
+          narrative: Serves as canonical requirement export for trace-chain continuity.
+
+    - id: FU-LOBSTER-EXPORTER
+      group: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: LOBSTER Exporter Intent
+          narrative: Converts requirement and test link evidence into LOBSTER activity traces.
+        communication:
+          title: LOBSTER Exporter Communication
+          narrative: Integrates TRLC outputs and inferred verification links for report generation.
+        deployment:
+          title: LOBSTER Exporter Deployment
+          narrative: Runs through englobster and report scripts in validation workflows.
+        security:
+          title: LOBSTER Exporter Security
+          narrative: Protects trace integrity by surfacing missing or inconsistent requirement coverage.
+        traceability:
+          title: LOBSTER Exporter Traceability
+          narrative: Produces requirement-to-test visibility and coverage diagnostics.
+
+    - id: FU-OSCAL-EXPORTER
+      group: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: OSCAL Exporter Intent
+          narrative: Maps modeled controls, risks, and implementations into OSCAL SSP structures.
+        communication:
+          title: OSCAL Exporter Communication
+          narrative: Publishes compliance-focused output for security and audit consumers.
+        deployment:
+          title: OSCAL Exporter Deployment
+          narrative: Executed via engoscal as part of assurance pipelines.
+        security:
+          title: OSCAL Exporter Security
+          narrative: Preserves control and risk semantics during model-to-OSCAL transformation.
+        traceability:
+          title: OSCAL Exporter Traceability
+          narrative: Carries control references and evidence links into SSP outputs.
+
+    - id: FU-MCP-SERVER
+      group: FG-MCP-INTEGRATION
+      views:
+        architecture_intent:
+          title: MCP Server Intent
+          narrative: Exposes model-aware operations for AI agents using a stable tool contract.
+        communication:
+          title: MCP Server Communication
+          narrative: Processes initialize/list/call JSON-RPC messages and returns structured payloads.
+        deployment:
+          title: MCP Server Deployment
+          narrative: Runs as stdio server executable in local and automated agent environments.
+        security:
+          title: MCP Server Security
+          narrative: Enforces strict schemas, panic containment, and repo-root path constraints.
+        traceability:
+          title: MCP Server Traceability
+          narrative: Keeps tool results tied to stable architecture IDs for explainable agent actions.
+
+    - id: FU-CLI-ORCHESTRATION
+      group: FG-MODEL-AUTHORING
+      views:
+        architecture_intent:
+          title: CLI Orchestration Intent
+          narrative: Coordinates generation and validation command workflows from repo entrypoints.
+        communication:
+          title: CLI Orchestration Communication
+          narrative: Connects user/CI invocation context to loader, validator, and exporter units.
+        deployment:
+          title: CLI Orchestration Deployment
+          narrative: Shipped as command binaries under cmd for task-specific execution.
+        security:
+          title: CLI Orchestration Security
+          narrative: Applies validation gates before producing or publishing artifacts.
+        traceability:
+          title: CLI Orchestration Traceability
+          narrative: Maintains deterministic invocation paths for reproducible artifact updates.

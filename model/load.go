@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MODEL-LOADER
 package model
 
 import (
@@ -10,6 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func LoadBundle(architecturePath string) (Bundle, error) {
 	archPath, err := filepath.Abs(architecturePath)
 	if err != nil {

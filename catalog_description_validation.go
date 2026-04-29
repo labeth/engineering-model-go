@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package engmodel
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func validateCatalogDescriptions(doc model.CatalogDocument) []validate.Diagnostic {
 	type catalogGroup struct {
 		pathKey string

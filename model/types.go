@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MODEL-LOADER
 package model
 
 type CatalogEntry struct {

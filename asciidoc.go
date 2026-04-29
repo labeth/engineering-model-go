@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-ASCIIDOC-GENERATOR
 package engmodel
 
 import (
@@ -21,6 +22,7 @@ type AsciiDocResult struct {
 	Diagnostics []validate.Diagnostic
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

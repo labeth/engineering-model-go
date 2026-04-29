@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-ASCIIDOC-GENERATOR
 package engmodel
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")

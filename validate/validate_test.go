@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package validate
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidationNoErrors(t *testing.T) {
 	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
 	b, err := model.LoadBundle(p)

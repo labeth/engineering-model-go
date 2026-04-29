@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package codemap
 
 import (
@@ -52,6 +53,7 @@ var supportedExt = map[string]bool{
 	".rs":  true,
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {
@@ -136,26 +138,28 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		line := scanner.Text()
 		trimmed := strings.TrimSpace(line)
 
-		if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
-			pending.traceID = strings.TrimSpace(v)
-			if pending.firstLine == 0 {
-				pending.firstLine = lineNo
+		if isCommentLike(trimmed) {
+			if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
+				pending.traceID = strings.TrimSpace(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
 			}
-			continue
-		}
-		if v, ok := markerValue(trimmed, "TRACE-PART-OF:"); ok {
-			pending.partOf = splitCSV(v)
-			if pending.firstLine == 0 {
-				pending.firstLine = lineNo
+			if v, ok := markerValue(trimmed, "TRACE-PART-OF:"); ok {
+				pending.partOf = splitCSV(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
 			}
-			continue
-		}
-		if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
-			pending.implements = splitCSV(v)
-			if pending.firstLine == 0 {
-				pending.firstLine = lineNo
+			if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
+				pending.implements = splitCSV(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
 			}
-			continue
 		}
 
 		if pending.firstLine == 0 {

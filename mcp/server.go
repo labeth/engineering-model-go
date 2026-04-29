@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MCP-SERVER
 package mcp
 
 import (
@@ -155,6 +156,7 @@ func (s *Server) ToolNames() []string {
 	return names
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 	defer func() {
 		if recovered := recover(); recovered != nil {
@@ -874,6 +876,7 @@ func (s *Server) schemaRefForInterface(interfaceID string) string {
 	return strings.TrimSpace(iface.SchemaRef)
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func (s *Server) resolvePathInRepo(path string) (string, bool) {
 	path = strings.TrimSpace(path)
 	if path == "" || strings.TrimSpace(s.repoRoot) == "" {

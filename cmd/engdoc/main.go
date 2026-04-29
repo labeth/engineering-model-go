@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
 package main
 
 import (
@@ -25,6 +26,7 @@ func (v *viewFlags) Set(value string) error {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	reqPath := flag.String("requirements", "", "path to requirements YAML")

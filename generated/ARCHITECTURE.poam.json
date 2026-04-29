@@ -1,0 +1,15 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "ec12490d-cf84-5f95-b580-10585bf80c49",
+    "metadata": {
+      "title": "Engineering Model Go Repository Architecture POA\u0026M",
+      "last-modified": "2026-04-29T18:48:16Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./ARCHITECTURE.ssp.json"
+    },
+    "poam-items": []
+  }
+}

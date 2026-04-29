@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-ASCIIDOC-GENERATOR
 package engmodel
 
 import (
@@ -7,7 +8,7 @@ import (
 )
 
 var (
-	anchorLinePattern = regexp.MustCompile(`^\[\[([^\]]+)\]\]\s*$`)
+	anchorLinePattern  = regexp.MustCompile(`^\[\[([^\]]+)\]\]\s*$`)
 	headingLinePattern = regexp.MustCompile(`^(=+)\s+(.+)$`)
 	sectionLinkPattern = regexp.MustCompile(`<<([^>,]+)(?:,[^>]+)?>>`)
 )
@@ -103,4 +104,3 @@ func applyReferenceBacklinks(document string, ref asciidocReferenceIndex) asciid
 	ref.Verification = apply(ref.Verification)
 	return ref
 }
-

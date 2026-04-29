@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MCP-SERVER
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestReadMessageRejectsOversizedPayload(t *testing.T) {
 	var input bytes.Buffer
 	_, _ = fmt.Fprintf(&input, "Content-Length: %d\r\n\r\n", maxMessageBytes+1)

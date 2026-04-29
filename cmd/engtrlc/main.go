@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-TRLC-EXPORTER
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	engmodel "github.com/labeth/engineering-model-go"
 )
 
+// TRLC-LINKS: REQ-EMG-006
 func main() {
 	requirementsPath := flag.String("requirements", "", "path to requirements YAML")
 	outDir := flag.String("out-dir", "", "output directory for model.rsl and requirements.trlc")

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -36,6 +37,7 @@ type inferredCodeItem struct {
 	Source      string
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	items := []inferredRuntimeItem{}

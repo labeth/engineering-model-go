@@ -1,0 +1,692 @@
+{
+  "assessment-results": {
+    "uuid": "98eaf6c0-91d6-5a78-93b8-4d958fefbee6",
+    "metadata": {
+      "title": "Engineering Model Go Repository Architecture Assessment Results",
+      "last-modified": "2026-04-29T18:48:16Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./ASSESSMENT-PLAN.json"
+    },
+    "results": [
+      {
+        "uuid": "552b5375-26b1-5f1a-ab6b-642a6ef09628",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
+        "start": "2026-04-29T18:48:16Z",
+        "end": "2026-04-29T18:48:16Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived allocations."
+            }
+          ]
+        },
+        "findings": [
+          {
+            "uuid": "07105c48-4447-5fd6-924d-7ecb3dfa448b",
+            "title": "Structurizr Export Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-005",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-STRUCTURIZR_EXPORT_TEST-886374"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "0e961332-a211-5e9b-85c2-9950362f6f5a",
+            "title": "Oscal Ssp Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-013",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-OSCAL_SSP_TEST-4B08EF"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "105bb3e2-bf2f-5675-bbbc-b4add3ad6cc5",
+            "title": "Inferred Layers Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "126b82db-ed58-588a-a3be-b56e6001d75d",
+            "title": "Ears Preflight Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-EARS_PREFLIGHT_TEST-1ABE26"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "17c7ca98-008e-5d9c-98f0-48af78d8be18",
+            "title": "Github Check Run Contract Test",
+            "description": "validates GitHub check-run contract shape and required review result fields",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-005",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-3F4D3F"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "24b7b3c3-8f63-5774-ada8-6354f236cae2",
+            "title": "Main Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-007",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-MAIN_TEST-6B61AE"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "2c7ae79d-8462-5b1c-a034-1a5094698f15",
+            "title": "Telemetry Ingest Contract Test",
+            "description": "validates telemetry ingest contract fields and accepted request semantics",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-5811E2"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "30b6c998-a145-53d3-b778-ca5dbd5aef82",
+            "title": "Scan Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-010",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-SCAN_TEST-B04F81"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "3fc0c11d-381c-5f9b-9328-1e05b004d2ad",
+            "title": "Catalog Systems Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-CATALOG_SYSTEMS_TEST-6807D7"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "453fe3ed-f379-5a23-8187-87b7ca2d71e5",
+            "title": "Oscal Chain Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-013",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-OSCAL_CHAIN_TEST-C12EF9"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "5cef95a4-b2e2-5e65-8926-09c5758da63b",
+            "title": "Render Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-RENDER_TEST-EECC23"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "5d30d113-02a4-54aa-ae68-9c6fa7aa9a76",
+            "title": "Lobster Export Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-006",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-LOBSTER_EXPORT_TEST-1C1C7E"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "5d4cb99e-f876-5442-97be-5630befc061b",
+            "title": "Validate Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-VALIDATE_TEST-498C59"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "633f93e6-62ad-518b-b52e-2698cf404686",
+            "title": "Policy Only Fallback Test",
+            "description": "verifies policy-only fallback when Bedrock inference is unavailable",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-004",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-99C003"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "6443685f-edff-5678-9824-ba055d911ad2",
+            "title": "Server Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-007",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-SERVER_TEST-389957"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "65ac6b57-a92d-5cad-a33c-0faa336ba3d9",
+            "title": "Inferred Code Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-010",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-INFERRED_CODE_TEST-3CA82E"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "73e82b72-9282-59ec-ac9f-73a0a3af0949",
+            "title": "Authorized Checkout Flow",
+            "description": "executes authorized checkout flow from session start through payment authorization success",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-1B5367"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "83f0a5f5-5ed6-5310-9c36-742c0e434fac",
+            "title": "Load Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-LOAD_TEST-A58EB3"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "85fa85c9-4b8d-5167-98f7-ddeb1280205f",
+            "title": "Ota Rollout Flow",
+            "description": "runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-E2E-OTA_ROLLOUT_FLOW-45BCCC"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "92ba0702-6ed2-5d88-9d4c-cb188942457e",
+            "title": "Rate Limit Deferral Test",
+            "description": "verifies rate-limit deferral behavior for pull request review processing",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-008",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-4C4AEE"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "a1d3626f-0b7c-5c57-a161-c9fdb5d03062",
+            "title": "Logging Pipeline Test",
+            "description": "validates telemetry logging pipeline persistence and operational reporting signals",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-002",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-6E4BE8"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "a9bda182-5fce-54a5-90e7-ba84b7128dfd",
+            "title": "Audit Redaction Test",
+            "description": "checks audit evidence redaction for secrets and sensitive payload fields",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-007",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-75E1E4"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "aab305f0-5724-587f-bf67-f3866eb2c7af",
+            "title": "Ota Campaign Test",
+            "description": "verifies OTA campaign signature validation and rollout trigger behavior",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-UNIT-OTA_CAMPAIGN_TEST-9000FB"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "b8aab43c-b96f-59a0-81ff-b884e7c57ebb",
+            "title": "E2e Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-E2E_TEST-BE56F8"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "c1f77183-efbd-5ddf-9594-09aa1e5371f5",
+            "title": "Trlc Export Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-006",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-TRLC_EXPORT_TEST-DD1345"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "c3cfb1db-2578-5978-b911-cae394b41971",
+            "title": "Inferred Verification Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-010",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-INFERRED_VERIFICATION_TEST-6715F6"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "c75924ff-9446-55d5-b6c3-09f8831127fa",
+            "title": "Asciidoc Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-ASCIIDOC_TEST-F60765"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "cdc0b4be-6176-52a2-bffd-6e68ef445e7f",
+            "title": "Pr Opened Review Flow",
+            "description": "exercises end-to-end pull request opened flow from webhook ingest to published review",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-7E76F6"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "ebd785ca-82c1-506b-97d1-59c8a709ca03",
+            "title": "Ai View Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-002",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-AI_VIEW_TEST-DFDEE3"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "fc121f08-5091-5af9-a360-6a2bb3138690",
+            "title": "Threat Model Export Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-004",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-721A8D"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

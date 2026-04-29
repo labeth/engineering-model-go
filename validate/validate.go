@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package validate
 
 import (
@@ -238,6 +239,7 @@ var allowedFlowFrequency = map[string]bool{
 	"on-demand": true,
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}

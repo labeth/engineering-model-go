@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestNormalizeTerraformKind_AWSLambdaFunction(t *testing.T) {
 	got := normalizeTerraformKind("aws_lambda_function")
 	if got != "lambda_function" {

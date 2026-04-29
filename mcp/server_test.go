@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MCP-SERVER
 package mcp
 
 import (
@@ -6,6 +7,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	s := NewServer()
 	modelPath := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")

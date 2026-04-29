@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-STRUCTURIZR-EXPORTER
 package engmodel
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-005
 func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 	examples := []string{
 		filepath.Join("examples", "payments-engineering-sample", "architecture.yml"),
@@ -25,7 +27,7 @@ func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 			if validate.HasErrors(res.Diagnostics) {
 				t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
 			}
-			for _, want := range []string{"workspace ", "model {", "views {", "systemLandscape", "systemContext", "container ", " -> "} {
+			for _, want := range []string{"workspace ", "model {", "views {", "systemLandscape", "systemContext", "container ", "deploymentEnvironment", "deployment ", "dynamic ", "styles {", "terminology {", " -> "} {
 				if !strings.Contains(res.DSL, want) {
 					t.Fatalf("expected generated dsl to contain %q", want)
 				}
@@ -42,7 +44,7 @@ func TestGenerateStructurizrDSL_CLI(t *testing.T) {
 		t.Fatalf("engstruct CLI failed: %v\noutput:\n%s", err, string(out))
 	}
 	s := string(out)
-	for _, want := range []string{"workspace ", "model {", "views {"} {
+	for _, want := range []string{"workspace ", "model {", "views {", "deploymentEnvironment", "deployment ", "dynamic "} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("expected CLI output to contain %q", want)
 		}

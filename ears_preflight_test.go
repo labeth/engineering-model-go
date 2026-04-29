@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package engmodel
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestLintRequirementsEARS_UnresolvedCatalogTermsAreBlocking(t *testing.T) {
 	requirements := model.RequirementsDocument{
 		LintRun: model.LintRun{

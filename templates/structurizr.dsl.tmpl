@@ -1,16 +1,117 @@
 workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
   model {
     {{ .RootIdentifier }} = softwareSystem {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
+{{- if .ContainerGroups }}
+{{- range .ContainerGroups }}
+      group {{ printf "%q" .Name }} {
 {{- range .Containers }}
-      {{ .Identifier }} = container {{ printf "%q" .Name }} {{ printf "%q" .Description }} {{ printf "%q" .Technology }}
+        {{ .Identifier }} = container {{ printf "%q" .Name }} {{ printf "%q" .Description }} {{ printf "%q" .Technology }} {
+{{- if .Tags }}
+          tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+          properties {
+{{- range .Properties }}
+            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+          }
+{{- end }}
+        }
+{{- end }}
+      }
+{{- end }}
+{{- else }}
+{{- range .Containers }}
+      {{ .Identifier }} = container {{ printf "%q" .Name }} {{ printf "%q" .Description }} {{ printf "%q" .Technology }} {
+{{- if .Tags }}
+        tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+        properties {
+{{- range .Properties }}
+          {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+        }
+{{- end }}
+      }
+{{- end }}
 {{- end }}
     }
 {{- range .Elements }}
-    {{ .Identifier }} = {{ .Keyword }} {{ printf "%q" .Name }} {{ printf "%q" .Description }}
+    {{ .Identifier }} = {{ .Keyword }} {{ printf "%q" .Name }} {{ printf "%q" .Description }} {
+{{- if .Tags }}
+      tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+      properties {
+{{- range .Properties }}
+        {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+      }
+{{- end }}
+    }
 {{- end }}
 
 {{- range .Relationships }}
-    {{ .From }} -> {{ .To }} {{ printf "%q" .Label }}
+    {{ .From }} -> {{ .To }} {{ printf "%q" .Label }} {
+{{- if .Tags }}
+      tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+      properties {
+{{- range .Properties }}
+        {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+      }
+{{- end }}
+    }
+{{- end }}
+
+{{- range .DeploymentEnvironments }}
+    deploymentEnvironment {{ printf "%q" .Name }} {
+{{- range .Nodes }}
+      {{ .Identifier }} = deploymentNode {{ printf "%q" .Name }} {{ printf "%q" .Description }} {{ printf "%q" .Technology }} {
+{{- if .Tags }}
+        tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+        properties {
+{{- range .Properties }}
+          {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+        }
+{{- end }}
+{{- range .ContainerInstances }}
+        containerInstance {{ .Identifier }} {
+{{- if .Tags }}
+          tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+          properties {
+{{- range .Properties }}
+            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+          }
+{{- end }}
+        }
+{{- end }}
+{{- range .SoftwareSystemInstances }}
+        softwareSystemInstance {{ .Identifier }} {
+{{- if .Tags }}
+          tags {{ printf "%q" (joinCSV .Tags) }}
+{{- end }}
+{{- if .Properties }}
+          properties {
+{{- range .Properties }}
+            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
+{{- end }}
+          }
+{{- end }}
+        }
+{{- end }}
+      }
+{{- end }}
+    }
 {{- end }}
   }
 
@@ -29,5 +130,49 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
       include *
       autolayout lr
     }
+
+{{- range .DynamicViews }}
+    dynamic {{ .Scope }} {{ printf "%q" .Key }} {{ printf "%q" .Description }} {
+{{- range .Steps }}
+      {{ .From }} -> {{ .To }} {{ printf "%q" .Label }}
+{{- end }}
+      autolayout lr
+    }
+
+{{- end }}
+{{- range .DeploymentViews }}
+    deployment {{ .Scope }} {{ printf "%q" .Environment }} {{ printf "%q" .Key }} {{ printf "%q" .Description }} {
+      include *
+      autolayout lr
+    }
+
+{{- end }}
+    styles {
+      element "FunctionalUnit" {
+        shape RoundedBox
+        background "#f8f5ec"
+        color "#1f2a30"
+      }
+      element "DeploymentTarget" {
+        shape Hexagon
+        background "#edf4ff"
+        color "#1f2a30"
+      }
+      element "ThreatScenario" {
+        shape Diamond
+        background "#ffeceb"
+        color "#1f2a30"
+      }
+      relationship "Mapping" {
+        color "#4b5b63"
+      }
+    }
+
+    terminology {
+      softwareSystem "System"
+      container "Functional Unit"
+      relationship "Mapping"
+    }
   }
+
 }

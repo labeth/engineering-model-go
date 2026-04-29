@@ -1,0 +1,1643 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Engineering Model Go Repository Architecture",
+    "owner": "engineering-model-go",
+    "description": "This architecture models the engineering-model-go repository as a model-driven toolchain.\nIt captures authored functional intent, export surfaces, and verification-oriented traceability.\nThe model is intended to guide implementation work in this repository using stable IDs and support paths.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Engineering Model Go Repository Architecture Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "7e568f64-e826-54f2-9fee-fee85c8d1a6b",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "AI Agent"
+              }
+            },
+            "data": {
+              "description": "Uses MCP tools and AI JSON to plan and execute scoped implementation work.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "AI Agent",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "b9e6a212-a02e-53be-8bae-0f9ac5754ac8",
+            "shape": "actor",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Architecture Author"
+              }
+            },
+            "data": {
+              "description": "Maintains modeled structure, mappings, and architecture intent.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Architecture Author",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "66da471f-9e43-5cbe-9068-c2a842c48b00",
+            "shape": "actor",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "CI Pipeline"
+              }
+            },
+            "data": {
+              "description": "Executes regression tests, validation checks, and artifact generation.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "CI Pipeline",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "12665769-bd4b-515f-9648-6eedc8b18f27",
+            "shape": "actor",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Compliance Engineer"
+              }
+            },
+            "data": {
+              "description": "Uses control/risk and traceability outputs for assurance workflows.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Compliance Engineer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "7c06b34b-308c-5195-96ac-6b98dca7ac3f",
+            "shape": "actor",
+            "zIndex": 5,
+            "position": {
+              "x": 60,
+              "y": 230
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Implementation Engineer"
+              }
+            },
+            "data": {
+              "description": "Implements code and tests guided by requirement support paths.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Implementation Engineer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "5b9307a9-5e44-5627-b7bf-42715fd59a25",
+            "shape": "store",
+            "zIndex": 6,
+            "position": {
+              "x": 320,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "AI JSON Artifact"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "generated/ARCHITECTURE.ai.json",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "AI JSON Artifact",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "cba19e37-b38c-507b-925a-0092fa934018",
+            "shape": "store",
+            "zIndex": 7,
+            "position": {
+              "x": 580,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Architecture Model"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "architecture.yml",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Architecture Model",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "a910aa8f-c15c-5bf6-bfa4-8dd1ba655e33",
+            "shape": "store",
+            "zIndex": 8,
+            "position": {
+              "x": 840,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "MCP Tool Result"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "mcp.tool-response.v1",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "MCP Tool Result",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "2cec4e0e-959f-5181-a801-f4f2402a9505",
+            "shape": "store",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Structurizr DSL"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "generated/STRUCTURIZR.dsl",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Structurizr DSL",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "779d7a4e-220e-5d4f-a99a-25ad6b4bcc18",
+            "shape": "store",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Threat Dragon JSON"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "generated/threat-dragon-v2.json",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Threat Dragon JSON",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "fb107a3f-aefe-5135-b368-134f1f76d83e",
+            "shape": "process",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "AI View Builder"
+              }
+            },
+            "data": {
+              "description": "Emits AI JSON, edges, and markdown views with support paths and implementation paths.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "AI View Builder",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "002343d9-721e-561b-a004-9bbf2e33a0be",
+            "shape": "process",
+            "zIndex": 12,
+            "position": {
+              "x": 840,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "AsciiDoc Generator"
+              }
+            },
+            "data": {
+              "description": "Renders architecture publication docs and view narratives for human consumption.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "AsciiDoc Generator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "7ff313c5-7dc3-5193-806c-af6a699ebaa1",
+            "shape": "process",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "CLI Orchestration"
+              }
+            },
+            "data": {
+              "description": "Command entrypoints orchestrating model load, validation, generation, and exports.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "CLI Orchestration",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "63fdfb9f-97e9-5008-b5eb-972c8bdd3284",
+            "shape": "process",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Codemap Inference"
+              }
+            },
+            "data": {
+              "description": "Infers code/runtime ownership and verification links from source and tests.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Codemap Inference",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Code and tests change without corresponding requirement trace updates.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "e2b1dda7-e0c8-5469-8700-c938853ab856",
+                  "title": "Requirement traceability drifts from implementation",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "6b02063a-6002-5e2b-9df9-34ca2b92be2a",
+            "shape": "process",
+            "zIndex": 15,
+            "position": {
+              "x": 580,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "LOBSTER Exporter"
+              }
+            },
+            "data": {
+              "description": "Generates LOBSTER traceability inputs and reports.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "LOBSTER Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Code and tests change without corresponding requirement trace updates.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "e2b1dda7-e0c8-5469-8700-c938853ab856",
+                  "title": "Requirement traceability drifts from implementation",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "0fdb3e74-195f-569f-b10d-846194107c4e",
+            "shape": "process",
+            "zIndex": 16,
+            "position": {
+              "x": 840,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "MCP Server"
+              }
+            },
+            "data": {
+              "description": "Serves model-backed tools over MCP with path safety and structured errors.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "MCP Server",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Untrusted MCP input attempts to escape repo root for sensitive file reads.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "576c70f5-b085-5f52-bbb5-a993d8db54e8",
+                  "title": "MCP path traversal accesses non-repo files",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "06edb649-5267-5a38-8a3b-12020c58b25d",
+            "shape": "process",
+            "zIndex": 17,
+            "position": {
+              "x": 60,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Model Loader"
+              }
+            },
+            "data": {
+              "description": "Loads and normalizes architecture, catalog, requirements, and design documents.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Model Loader",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "b3bec3d2-9395-5fa8-be48-11bb495974c9",
+            "shape": "process",
+            "zIndex": 18,
+            "position": {
+              "x": 320,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OSCAL Exporter"
+              }
+            },
+            "data": {
+              "description": "Exports OSCAL SSP control and risk views.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OSCAL Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "7b1897fd-763b-5917-91bf-21cf69c25b21",
+            "shape": "process",
+            "zIndex": 19,
+            "position": {
+              "x": 580,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Structurizr Exporter"
+              }
+            },
+            "data": {
+              "description": "Emits Structurizr DSL and deployment-aware model views.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Structurizr Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "4a3741ca-6d92-5873-995f-b0b452b4499e",
+            "shape": "process",
+            "zIndex": 20,
+            "position": {
+              "x": 840,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Threat Exporter"
+              }
+            },
+            "data": {
+              "description": "Exports Threat Dragon and Open OTM model artifacts.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Threat Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "1b0aa39e-5e97-5fb5-a0b3-8faa23a4affd",
+            "shape": "process",
+            "zIndex": 21,
+            "position": {
+              "x": 60,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "TRLC Exporter"
+              }
+            },
+            "data": {
+              "description": "Emits TRLC model and requirement artifacts.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "TRLC Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "Code and tests change without corresponding requirement trace updates.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "medium",
+                  "severity": "Medium",
+                  "status": "Open",
+                  "threatId": "e2b1dda7-e0c8-5469-8700-c938853ab856",
+                  "title": "Requirement traceability drifts from implementation",
+                  "type": "repudiation"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "dc739d03-100e-5958-9a98-1c87f6f7d871",
+            "shape": "process",
+            "zIndex": 22,
+            "position": {
+              "x": 320,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Validation Engine"
+              }
+            },
+            "data": {
+              "description": "Validates authored entities, IDs, references, and mapping consistency.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Validation Engine",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "0d8ebf81-654b-5228-aef7-dcb87dd10bcb",
+            "shape": "process",
+            "zIndex": 23,
+            "position": {
+              "x": 580,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "View Projection"
+              }
+            },
+            "data": {
+              "description": "Builds projection graphs for architecture, traceability, security, and flow views.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "View Projection",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "4ce660d9-3b03-54dd-8510-dda2b3c7454c",
+            "shape": "process",
+            "zIndex": 24,
+            "position": {
+              "x": 840,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engdoc CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engdoc",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engdoc CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "68ca5cd0-b8cf-5bf2-b323-a2b859f088e3",
+            "shape": "process",
+            "zIndex": 25,
+            "position": {
+              "x": 60,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engdragon CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engdragon",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engdragon CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "7d3de86a-c730-5dc6-ad64-eff258887512",
+            "shape": "process",
+            "zIndex": 26,
+            "position": {
+              "x": 320,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "englobster CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/englobster",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "englobster CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "17bbfe18-bd10-5dec-a8cf-dd3082d5f186",
+            "shape": "process",
+            "zIndex": 27,
+            "position": {
+              "x": 580,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engmcp CLI"
+              }
+            },
+            "data": {
+              "description": "stdio-jsonrpc cmd/engmcp",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engmcp CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "65165ca1-1f2c-532c-8f37-f9c752c851de",
+            "shape": "process",
+            "zIndex": 28,
+            "position": {
+              "x": 840,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engoscal CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engoscal",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engoscal CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "1b702e6d-b4c2-579b-b26f-a48600104542",
+            "shape": "process",
+            "zIndex": 29,
+            "position": {
+              "x": 60,
+              "y": 1250
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engstruct CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engstruct",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engstruct CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "ec9f757c-f9bc-57bb-b5f2-e16cef99dac1",
+            "shape": "process",
+            "zIndex": 30,
+            "position": {
+              "x": 320,
+              "y": 1250
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engtrlc CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engtrlc",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engtrlc CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "8ab83f3e-cb9d-5feb-9c61-f3cc86f81933",
+            "shape": "process",
+            "zIndex": 31,
+            "position": {
+              "x": 580,
+              "y": 1250
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engview CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engview",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engview CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "dc1cd078-7112-5a37-8b60-a4e010f95aa1",
+            "shape": "trust-boundary-box",
+            "zIndex": 32,
+            "position": {
+              "x": 630,
+              "y": 2230
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Repository Workspace Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary limiting file operations to repository-root owned paths.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "Repository Workspace Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "fc4fa542-8f91-5062-b475-ffd03aa522e8",
+            "shape": "trust-boundary-box",
+            "zIndex": 33,
+            "position": {
+              "x": 30,
+              "y": 2450
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "External Validation Tools Boundary"
+              }
+            },
+            "data": {
+              "description": "Boundary for external validators, schemas, and compliance toolchains.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "External Validation Tools Boundary",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "7f29f48c-26c7-5263-80ce-b4a77130c757",
+            "shape": "flow",
+            "zIndex": 43,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "fb107a3f-aefe-5135-b368-134f1f76d83e"
+            },
+            "target": {
+              "cell": "5b9307a9-5e44-5627-b7bf-42715fd59a25"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "874ef990-af81-5700-90b8-eb00f80a2f28",
+            "shape": "flow",
+            "zIndex": 44,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Untrusted MCP input attempts to escape repo root for sensitive file reads.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "576c70f5-b085-5f52-bbb5-a993d8db54e8",
+                  "title": "MCP path traversal accesses non-repo files",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "0fdb3e74-195f-569f-b10d-846194107c4e"
+            },
+            "target": {
+              "cell": "a910aa8f-c15c-5bf6-bfa4-8dd1ba655e33"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "ad595953-1810-5427-a538-0f1cf554a3c6",
+            "shape": "flow",
+            "zIndex": 45,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7b1897fd-763b-5917-91bf-21cf69c25b21"
+            },
+            "target": {
+              "cell": "2cec4e0e-959f-5181-a801-f4f2402a9505"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "de33ac1c-f295-51bb-9438-386c393623fe",
+            "shape": "flow",
+            "zIndex": 46,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "4a3741ca-6d92-5873-995f-b0b452b4499e"
+            },
+            "target": {
+              "cell": "779d7a4e-220e-5d4f-a99a-25ad6b4bcc18"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "8015b7a3-7e34-5fce-bb21-682d70b12f81",
+            "shape": "flow",
+            "zIndex": 47,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "reads",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "06edb649-5267-5a38-8a3b-12020c58b25d"
+            },
+            "target": {
+              "cell": "cba19e37-b38c-507b-925a-0092fa934018"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "reads"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "26354948-9fd7-5ba5-af36-50b092dfaafe",
+            "shape": "flow",
+            "zIndex": 48,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Primary engineering workflow from authored model update through validation and artifact generation.",
+              "hasOpenThreats": true,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Model Change to Verified Artifacts Flow",
+              "outOfScope": false,
+              "protocol": "cli",
+              "reasonOutOfScope": "",
+              "threats": [
+                {
+                  "description": "Untrusted MCP input attempts to escape repo root for sensitive file reads.",
+                  "mitigation": "See mapped control mitigations and verification evidence.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "576c70f5-b085-5f52-bbb5-a993d8db54e8",
+                  "title": "MCP path traversal accesses non-repo files",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7c06b34b-308c-5195-96ac-6b98dca7ac3f"
+            },
+            "target": {
+              "cell": "7ff313c5-7dc3-5193-806c-af6a699ebaa1"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Model Change to Verified Artifacts Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 2
+  }
+}

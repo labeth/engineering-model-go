@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package engmodel
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestToEarsCatalog_IncludesCatalogSystems(t *testing.T) {
 	doc := model.CatalogDocument{
 		Catalog: model.CatalogGroups{

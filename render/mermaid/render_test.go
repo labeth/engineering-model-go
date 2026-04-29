@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VIEW-PROJECTION
 package mermaid
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/labeth/engineering-model-go/view"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestRender_IncludesFlowClassDefsAndNodeKinds(t *testing.T) {
 	v := view.ProjectedView{
 		ID:   "V-FLOW",

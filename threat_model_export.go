@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-THREAT-EXPORTER
 package engmodel
 
 import (
@@ -26,6 +27,7 @@ type ThreatModelExportResult struct {
 	Diagnostics []validate.Diagnostic
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func GenerateThreatModelExportFromFile(architecturePath string, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

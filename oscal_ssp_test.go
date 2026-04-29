@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package engmodel
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-013
 func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{Model: model.ModelMeta{ID: "sample-system", Title: "Sample System", Introduction: "Sample introduction."}, AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},

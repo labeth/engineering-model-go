@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -6,6 +7,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-010
 func TestScanCodeMetadata_DescriptionMarker(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "handler.go")

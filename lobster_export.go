@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-LOBSTER-EXPORTER
 package engmodel
 
 import (
@@ -50,6 +51,7 @@ type lobsterActivityDoc struct {
 var lobsterReqIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
 var lobsterTRLCMarkerRe = regexp.MustCompile(`(?i)TRLC-LINKS:\s*(.*)$`)
 
+// TRLC-LINKS: REQ-EMG-006
 func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivityExportOptions) (LobsterActivityExportResult, error) {
 	absTestsDir, err := filepath.Abs(testsDir)
 	if err != nil {

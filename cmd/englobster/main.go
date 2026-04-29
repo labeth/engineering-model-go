@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-LOBSTER-EXPORTER
 package main
 
 import (
@@ -9,6 +10,7 @@ import (
 	engmodel "github.com/labeth/engineering-model-go"
 )
 
+// TRLC-LINKS: REQ-EMG-006
 func main() {
 	testsDir := flag.String("tests-dir", "", "path to tests directory")
 	reqPackage := flag.String("requirements-package", "Requirements", "TRLC requirements package name")

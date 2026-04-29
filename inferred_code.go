@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -16,6 +17,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-010
 func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	roots := make([]string, 0, len(bundle.Architecture.InferenceHints.CodeSources)+1)

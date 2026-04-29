@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-AI-VIEW-BUILDER
 package engmodel
 
 import (
@@ -14,6 +15,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-010, REQ-EMG-012
 func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

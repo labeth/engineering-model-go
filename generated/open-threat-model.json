@@ -1,0 +1,618 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Engineering Model Go Repository Architecture",
+    "id": "engineering-model-go",
+    "description": "This architecture models the engineering-model-go repository as a model-driven toolchain.\nIt captures authored functional intent, export surfaces, and verification-oriented traceability.\nThe model is intended to guide implementation work in this repository using stable IDs and support paths.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "AI JSON Artifact",
+      "id": "DO-AI-JSON-ARTIFACT",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "generated/ARCHITECTURE.ai.json"
+    },
+    {
+      "name": "Architecture Model",
+      "id": "DO-ARCHITECTURE-MODEL",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "architecture.yml"
+    },
+    {
+      "name": "MCP Tool Result",
+      "id": "DO-MCP-TOOL-RESULT",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "mcp.tool-response.v1"
+    },
+    {
+      "name": "Structurizr DSL",
+      "id": "DO-STRUCTURIZR-DSL",
+      "risk": {
+        "confidentiality": 2,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "generated/STRUCTURIZR.dsl"
+    },
+    {
+      "name": "Threat Dragon JSON",
+      "id": "DO-THREAT-DRAGON-JSON",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "generated/threat-dragon-v2.json"
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TB-EXTERNAL-VALIDATION-TOOLS",
+      "name": "External Validation Tools Boundary",
+      "type": "external-tooling",
+      "description": "Boundary for external validators, schemas, and compliance toolchains.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TB-REPO-WORKSPACE",
+      "name": "Repository Workspace Boundary",
+      "type": "filesystem",
+      "description": "Boundary limiting file operations to repository-root owned paths.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-AI-AGENT",
+      "name": "AI Agent",
+      "type": "actor",
+      "description": "Uses MCP tools and AI JSON to plan and execute scoped implementation work.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-ARCHITECTURE-AUTHOR",
+      "name": "Architecture Author",
+      "type": "actor",
+      "description": "Maintains modeled structure, mappings, and architecture intent.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-CI-PIPELINE",
+      "name": "CI Pipeline",
+      "type": "actor",
+      "description": "Executes regression tests, validation checks, and artifact generation.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-COMPLIANCE-ENGINEER",
+      "name": "Compliance Engineer",
+      "type": "actor",
+      "description": "Uses control/risk and traceability outputs for assurance workflows.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-IMPLEMENTATION-ENGINEER",
+      "name": "Implementation Engineer",
+      "type": "actor",
+      "description": "Implements code and tests guided by requirement support paths.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "DEP-CI-PIPELINE",
+      "name": "CI Pipeline Runner",
+      "type": "deployment-target",
+      "description": "ci hosted",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "DEP-LOCAL-WORKSPACE",
+      "name": "Local Workspace",
+      "type": "deployment-target",
+      "description": "dev local",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-AI-VIEW-BUILDER",
+      "name": "AI View Builder",
+      "type": "service",
+      "description": "Emits AI JSON, edges, and markdown views with support paths and implementation paths.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-ASCIIDOC-GENERATOR",
+      "name": "AsciiDoc Generator",
+      "type": "service",
+      "description": "Renders architecture publication docs and view narratives for human consumption.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-CLI-ORCHESTRATION",
+      "name": "CLI Orchestration",
+      "type": "service",
+      "description": "Command entrypoints orchestrating model load, validation, generation, and exports.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-CODEMAP-INFERENCE",
+      "name": "Codemap Inference",
+      "type": "service",
+      "description": "Infers code/runtime ownership and verification links from source and tests.",
+      "parent": {
+        "trustZone": "TB-REPO-WORKSPACE"
+      },
+      "threats": [
+        {
+          "threat": "TS-TRACEABILITY-DRIFT",
+          "state": "open"
+        }
+      ]
+    },
+    {
+      "id": "FU-LOBSTER-EXPORTER",
+      "name": "LOBSTER Exporter",
+      "type": "service",
+      "description": "Generates LOBSTER traceability inputs and reports.",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      },
+      "threats": [
+        {
+          "threat": "TS-TRACEABILITY-DRIFT",
+          "state": "open"
+        }
+      ]
+    },
+    {
+      "id": "FU-MCP-SERVER",
+      "name": "MCP Server",
+      "type": "service",
+      "description": "Serves model-backed tools over MCP with path safety and structured errors.",
+      "parent": {
+        "trustZone": "TB-REPO-WORKSPACE"
+      },
+      "threats": [
+        {
+          "threat": "TS-MCP-PATH-TRAVERSAL",
+          "state": "open"
+        }
+      ]
+    },
+    {
+      "id": "FU-MODEL-LOADER",
+      "name": "Model Loader",
+      "type": "service",
+      "description": "Loads and normalizes architecture, catalog, requirements, and design documents.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-OSCAL-EXPORTER",
+      "name": "OSCAL Exporter",
+      "type": "service",
+      "description": "Exports OSCAL SSP control and risk views.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-STRUCTURIZR-EXPORTER",
+      "name": "Structurizr Exporter",
+      "type": "service",
+      "description": "Emits Structurizr DSL and deployment-aware model views.",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "FU-THREAT-EXPORTER",
+      "name": "Threat Exporter",
+      "type": "service",
+      "description": "Exports Threat Dragon and Open OTM model artifacts.",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "FU-TRLC-EXPORTER",
+      "name": "TRLC Exporter",
+      "type": "service",
+      "description": "Emits TRLC model and requirement artifacts.",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      },
+      "threats": [
+        {
+          "threat": "TS-TRACEABILITY-DRIFT",
+          "state": "open"
+        }
+      ]
+    },
+    {
+      "id": "FU-VALIDATION-ENGINE",
+      "name": "Validation Engine",
+      "type": "service",
+      "description": "Validates authored entities, IDs, references, and mapping consistency.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-VIEW-PROJECTION",
+      "name": "View Projection",
+      "type": "service",
+      "description": "Builds projection graphs for architecture, traceability, security, and flow views.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGDOC",
+      "name": "engdoc CLI",
+      "type": "interface",
+      "description": "cli cmd/engdoc",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGDRAGON",
+      "name": "engdragon CLI",
+      "type": "interface",
+      "description": "cli cmd/engdragon",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGLOBSTER",
+      "name": "englobster CLI",
+      "type": "interface",
+      "description": "cli cmd/englobster",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGMCP",
+      "name": "engmcp CLI",
+      "type": "interface",
+      "description": "stdio-jsonrpc cmd/engmcp",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGOSCAL",
+      "name": "engoscal CLI",
+      "type": "interface",
+      "description": "cli cmd/engoscal",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGSTRUCT",
+      "name": "engstruct CLI",
+      "type": "interface",
+      "description": "cli cmd/engstruct",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGTRLC",
+      "name": "engtrlc CLI",
+      "type": "interface",
+      "description": "cli cmd/engtrlc",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGVIEW",
+      "name": "engview CLI",
+      "type": "interface",
+      "description": "cli cmd/engview",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-GO-TOOLCHAIN",
+      "name": "Go Toolchain",
+      "type": "platform_service",
+      "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-LOBSTER-TOOLCHAIN",
+      "name": "LOBSTER Toolchain",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "REF-OPEN-OTM-SCHEMA",
+      "name": "Open OTM Schema",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "REF-STRUCTURIZR-VALIDATOR",
+      "name": "Structurizr Validator",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "REF-THREAT-DRAGON-SCHEMAS",
+      "name": "Threat Dragon Schemas",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "REF-TRLC-TOOLCHAIN",
+      "name": "TRLC Toolchain",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "02fd573b-d645-5ed5-8b71-0c2be059b613",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-AI-VIEW-BUILDER",
+      "destination": "FU-VIEW-PROJECTION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "211b3f82-481e-5c84-b611-1215f5ac319f",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-LOBSTER-EXPORTER",
+      "destination": "REF-LOBSTER-TOOLCHAIN",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "26aa638c-76f3-5745-8ff3-e76bc8e52932",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-CLI-ORCHESTRATION",
+      "destination": "FU-VALIDATION-ENGINE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "3c7e1a11-fcfb-575a-b6d9-8b6279dd5f28",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-STRUCTURIZR-EXPORTER",
+      "destination": "REF-STRUCTURIZR-VALIDATOR",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "52e88bb3-7500-50c9-9d29-40c1581c246b",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-MCP-SERVER",
+      "destination": "FU-VALIDATION-ENGINE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "559ea615-0dcc-5d8f-ab44-5235bde14a92",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-THREAT-EXPORTER",
+      "destination": "REF-OPEN-OTM-SCHEMA",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "599a6d38-2623-569d-94ab-0f5c43a4441e",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-THREAT-EXPORTER",
+      "destination": "REF-THREAT-DRAGON-SCHEMAS",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "6009db5c-1cc1-532e-959e-7ddc9ba9130d",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-CLI-ORCHESTRATION",
+      "destination": "FU-ASCIIDOC-GENERATOR",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "640b86bb-6aa7-5a0c-8b24-b84231cc8b3e",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-CLI-ORCHESTRATION",
+      "destination": "FU-MODEL-LOADER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "774971b4-0c92-525b-85cf-9a4009e8837e",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-MCP-SERVER",
+      "destination": "FU-AI-VIEW-BUILDER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
+      "name": "Model Change to Verified Artifacts Flow",
+      "description": "Primary engineering workflow from authored model update through validation and artifact generation.",
+      "source": "ACT-IMPLEMENTATION-ENGINEER",
+      "destination": "FU-CLI-ORCHESTRATION",
+      "assets": [
+        "DO-AI-JSON-ARTIFACT",
+        "DO-ARCHITECTURE-MODEL",
+        "DO-STRUCTURIZR-DSL",
+        "DO-THREAT-DRAGON-JSON"
+      ],
+      "tags": [
+        "control"
+      ]
+    },
+    {
+      "id": "b4c741e6-ca0e-5b4a-9e4d-c8e65ad70397",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-AI-VIEW-BUILDER",
+      "destination": "FU-CODEMAP-INFERENCE",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "bf1788ff-0e59-53b4-ac40-a1ad35c7f7f5",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-TRLC-EXPORTER",
+      "destination": "REF-TRLC-TOOLCHAIN",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "f159921e-c4c9-5f61-bd44-5f051cd01184",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-CLI-ORCHESTRATION",
+      "destination": "FU-AI-VIEW-BUILDER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "f5ee372d-8448-5b44-93c9-3e433da8ffc4",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-MCP-SERVER",
+      "destination": "FU-MODEL-LOADER",
+      "tags": [
+        "depends_on"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "TS-MCP-PATH-TRAVERSAL",
+      "name": "MCP path traversal accesses non-repo files",
+      "description": "Untrusted MCP input attempts to escape repo root for sensitive file reads.",
+      "categories": [
+        "input-validation"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "tampering"
+      ]
+    },
+    {
+      "id": "TS-TRACEABILITY-DRIFT",
+      "name": "Requirement traceability drifts from implementation",
+      "description": "Code and tests change without corresponding requirement trace updates.",
+      "categories": [
+        "assurance"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 5,
+        "impactComment": "medium"
+      },
+      "tags": [
+        "repudiation"
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package engmodel
 
 import (
@@ -150,6 +151,7 @@ type oscalProperty struct {
 	Value string `json:"value"`
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

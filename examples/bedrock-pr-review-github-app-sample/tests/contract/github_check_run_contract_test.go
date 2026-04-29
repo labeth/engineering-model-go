@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-REVIEW-PUBLICATION
 // ENGMODEL-VERIFICATION-DESCRIPTION: validates GitHub check-run contract shape and required review result fields
 package contract
 

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
 package engmodel
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestGenerateFromFile_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	views := []string{"VIEW-ARCHITECTURE-INTENT", "VIEW-COMMUNICATION", "VIEW-DEPLOYMENT", "VIEW-SECURITY", "VIEW-TRACEABILITY"}

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-TRLC-EXPORTER
 package engmodel
 
 import (
@@ -45,6 +46,7 @@ type trlcRequirementRecord struct {
 	AppliesTo  []string
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func GenerateTRLCRequirementsFromFile(requirementsPath string, options TRLCExportOptions) (TRLCExportResult, error) {
 	reqDoc, err := model.LoadRequirements(requirementsPath)
 	if err != nil {

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MODEL-LOADER
 package model
 
 import (
@@ -5,6 +6,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestLoadBundle(t *testing.T) {
 	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
 	b, err := LoadBundle(p)

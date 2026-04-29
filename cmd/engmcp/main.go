@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-MCP-SERVER
 package main
 
 import (
@@ -44,6 +45,7 @@ func main() {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func readMessage(r *bufio.Reader) ([]byte, error) {
 	headers := map[string]string{}
 	for {

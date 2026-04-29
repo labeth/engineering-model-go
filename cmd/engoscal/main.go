@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-013
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	outPath := flag.String("out", "", "legacy SSP output path; equivalent to --ssp-out")

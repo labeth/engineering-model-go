@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-STRUCTURIZR-EXPORTER
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-005
 func main() {
 	modelPath := flag.String("model", "", "path to architecture YAML")
 	outPath := flag.String("out", "", "optional output file path; defaults to stdout")

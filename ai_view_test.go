@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-AI-VIEW-BUILDER
 package engmodel
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func TestGenerateAIViewFromFiles_Deterministic(t *testing.T) {
 	sample := filepath.Join("examples", "bedrock-pr-review-github-app-sample")
 	modelPath := filepath.Join(sample, "architecture.yml")

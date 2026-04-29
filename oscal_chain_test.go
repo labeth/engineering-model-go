@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package engmodel
 
 import (
@@ -6,6 +7,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-013
 func TestGenerateOSCALAssessmentResultsFromFile_PaymentsSample(t *testing.T) {
 	res, err := GenerateOSCALAssessmentResultsFromFile(filepath.Join("examples", "payments-engineering-sample", "architecture.yml"), OSCALAROptions{
 		RequirementsPath: filepath.Join("examples", "payments-engineering-sample", "requirements.yml"),

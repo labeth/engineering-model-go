@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-TRLC-EXPORTER
 package engmodel
 
 import (
@@ -8,6 +9,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-006
 func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 	paths := []string{
 		filepath.Join("examples", "payments-engineering-sample", "requirements.yml"),

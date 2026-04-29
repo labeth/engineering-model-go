@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-OSCAL-EXPORTER
 package engmodel
 
 import (
@@ -59,6 +60,7 @@ type oscalPOAMRisk struct {
 	Props       []oscalProperty `json:"props,omitempty"`
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {

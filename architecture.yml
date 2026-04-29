@@ -1,0 +1,656 @@
+model:
+  id: engineering-model-go
+  title: Engineering Model Go Repository Architecture
+  introduction: |
+    This architecture models the engineering-model-go repository as a model-driven toolchain.
+    It captures authored functional intent, export surfaces, and verification-oriented traceability.
+    The model is intended to guide implementation work in this repository using stable IDs and support paths.
+  baseCatalogRef: ./catalog.yml
+
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-MODEL-AUTHORING
+      name: Model Authoring
+      description: Inputs and model loading responsibilities.
+      prose: Maintains authored architecture, requirements, design, and catalog handling.
+    - id: FG-VALIDATION-ANALYSIS
+      name: Validation and Analysis
+      description: Validation and inference responsibilities.
+      prose: Performs consistency checks and derives runtime, code, and verification evidence.
+    - id: FG-ARTIFACT-GENERATION
+      name: Artifact Generation
+      description: Publication and exchange artifact generation.
+      prose: Produces AsciiDoc, AI view, and external modeling outputs.
+    - id: FG-TRACEABILITY-COMPLIANCE
+      name: Traceability and Compliance
+      description: Trace and compliance export responsibilities.
+      prose: Produces TRLC, LOBSTER, and OSCAL outputs from modeled content.
+    - id: FG-MCP-INTEGRATION
+      name: MCP Integration
+      description: AI-agent integration and runtime API responsibilities.
+      prose: Exposes model-aware tools over MCP with strict input and error contracts.
+
+  functionalUnits:
+    - id: FU-MODEL-LOADER
+      name: Model Loader
+      group: FG-MODEL-AUTHORING
+      prose: Loads and normalizes architecture, catalog, requirements, and design documents.
+    - id: FU-VALIDATION-ENGINE
+      name: Validation Engine
+      group: FG-VALIDATION-ANALYSIS
+      prose: Validates authored entities, IDs, references, and mapping consistency.
+    - id: FU-CODEMAP-INFERENCE
+      name: Codemap Inference
+      group: FG-VALIDATION-ANALYSIS
+      prose: Infers code/runtime ownership and verification links from source and tests.
+    - id: FU-VIEW-PROJECTION
+      name: View Projection
+      group: FG-ARTIFACT-GENERATION
+      prose: Builds projection graphs for architecture, traceability, security, and flow views.
+    - id: FU-AI-VIEW-BUILDER
+      name: AI View Builder
+      group: FG-ARTIFACT-GENERATION
+      prose: Emits AI JSON, edges, and markdown views with support paths and implementation paths.
+    - id: FU-ASCIIDOC-GENERATOR
+      name: AsciiDoc Generator
+      group: FG-ARTIFACT-GENERATION
+      prose: Renders architecture publication docs and view narratives for human consumption.
+    - id: FU-THREAT-EXPORTER
+      name: Threat Exporter
+      group: FG-ARTIFACT-GENERATION
+      prose: Exports Threat Dragon and Open OTM model artifacts.
+    - id: FU-STRUCTURIZR-EXPORTER
+      name: Structurizr Exporter
+      group: FG-ARTIFACT-GENERATION
+      prose: Emits Structurizr DSL and deployment-aware model views.
+    - id: FU-TRLC-EXPORTER
+      name: TRLC Exporter
+      group: FG-TRACEABILITY-COMPLIANCE
+      prose: Emits TRLC model and requirement artifacts.
+    - id: FU-LOBSTER-EXPORTER
+      name: LOBSTER Exporter
+      group: FG-TRACEABILITY-COMPLIANCE
+      prose: Generates LOBSTER traceability inputs and reports.
+    - id: FU-OSCAL-EXPORTER
+      name: OSCAL Exporter
+      group: FG-TRACEABILITY-COMPLIANCE
+      prose: Exports OSCAL SSP control and risk views.
+    - id: FU-MCP-SERVER
+      name: MCP Server
+      group: FG-MCP-INTEGRATION
+      prose: Serves model-backed tools over MCP with path safety and structured errors.
+    - id: FU-CLI-ORCHESTRATION
+      name: CLI Orchestration
+      group: FG-MODEL-AUTHORING
+      prose: Command entrypoints orchestrating model load, validation, generation, and exports.
+
+  actors:
+    - id: ACT-ARCHITECTURE-AUTHOR
+      name: Architecture Author
+      description: Maintains modeled structure, mappings, and architecture intent.
+    - id: ACT-IMPLEMENTATION-ENGINEER
+      name: Implementation Engineer
+      description: Implements code and tests guided by requirement support paths.
+    - id: ACT-COMPLIANCE-ENGINEER
+      name: Compliance Engineer
+      description: Uses control/risk and traceability outputs for assurance workflows.
+    - id: ACT-AI-AGENT
+      name: AI Agent
+      description: Uses MCP tools and AI JSON to plan and execute scoped implementation work.
+    - id: ACT-CI-PIPELINE
+      name: CI Pipeline
+      description: Executes regression tests, validation checks, and artifact generation.
+
+  attackVectors:
+    - id: AV-MALFORMED-MODEL-INPUT
+      name: Malformed Model Input
+      description: Invalid or ambiguous model content causing incorrect parsing or graph interpretation.
+    - id: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+      name: Schema Supply Chain Tamper
+      description: Drift or tampering in external schemas used by export validation.
+    - id: AV-PATH-TRAVERSAL-IN-MCP
+      name: Path Traversal in MCP Calls
+      description: Attempts to read files outside repository root via MCP path arguments.
+    - id: AV-TRACEABILITY-GAP-DRIFT
+      name: Traceability Gap Drift
+      description: Requirement and verification links diverge from implementation over time.
+
+  referencedElements:
+    - id: REF-GO-TOOLCHAIN
+      kind: platform_service
+      layer: code
+      name: Go Toolchain
+    - id: REF-THREAT-DRAGON-SCHEMAS
+      kind: external_service_endpoint
+      layer: runtime
+      name: Threat Dragon Schemas
+    - id: REF-OPEN-OTM-SCHEMA
+      kind: external_service_endpoint
+      layer: runtime
+      name: Open OTM Schema
+    - id: REF-STRUCTURIZR-VALIDATOR
+      kind: external_service_endpoint
+      layer: runtime
+      name: Structurizr Validator
+    - id: REF-TRLC-TOOLCHAIN
+      kind: external_service_endpoint
+      layer: runtime
+      name: TRLC Toolchain
+    - id: REF-LOBSTER-TOOLCHAIN
+      kind: external_service_endpoint
+      layer: runtime
+      name: LOBSTER Toolchain
+
+  interfaces:
+    - id: IF-CLI-ENGDOC
+      name: engdoc CLI
+      protocol: cli
+      endpoint: cmd/engdoc
+      schemaRef: docs/asciidoc-architecture-generator-design.md
+      owner: FU-ASCIIDOC-GENERATOR
+    - id: IF-CLI-ENGMCP
+      name: engmcp CLI
+      protocol: stdio-jsonrpc
+      endpoint: cmd/engmcp
+      schemaRef: mcp/server.go
+      owner: FU-MCP-SERVER
+    - id: IF-CLI-ENGDRAGON
+      name: engdragon CLI
+      protocol: cli
+      endpoint: cmd/engdragon
+      schemaRef: threat_model_export.go
+      owner: FU-THREAT-EXPORTER
+    - id: IF-CLI-ENGSTRUCT
+      name: engstruct CLI
+      protocol: cli
+      endpoint: cmd/engstruct
+      schemaRef: structurizr_export.go
+      owner: FU-STRUCTURIZR-EXPORTER
+    - id: IF-CLI-ENGTRLC
+      name: engtrlc CLI
+      protocol: cli
+      endpoint: cmd/engtrlc
+      schemaRef: trlc_export.go
+      owner: FU-TRLC-EXPORTER
+    - id: IF-CLI-ENGLOBSTER
+      name: englobster CLI
+      protocol: cli
+      endpoint: cmd/englobster
+      schemaRef: lobster_export.go
+      owner: FU-LOBSTER-EXPORTER
+    - id: IF-CLI-ENGOSCAL
+      name: engoscal CLI
+      protocol: cli
+      endpoint: cmd/engoscal
+      schemaRef: oscal_ssp.go
+      owner: FU-OSCAL-EXPORTER
+    - id: IF-CLI-ENGVIEW
+      name: engview CLI
+      protocol: cli
+      endpoint: cmd/engview
+      schemaRef: view/project.go
+      owner: FU-VIEW-PROJECTION
+
+  dataObjects:
+    - id: DO-ARCHITECTURE-MODEL
+      name: Architecture Model
+      termRef: DATA-ARCHITECTURE-MODEL
+      schemaRef: architecture.yml
+      sensitivity: internal
+      classification: design-source
+      retention: repository-history
+      confidentiality: medium
+      integrity: high
+      availability: high
+    - id: DO-AI-JSON-ARTIFACT
+      name: AI JSON Artifact
+      termRef: DATA-AI-JSON-ARTIFACT
+      schemaRef: generated/ARCHITECTURE.ai.json
+      sensitivity: internal
+      classification: machine-interface
+      retention: build-artifact
+      confidentiality: medium
+      integrity: high
+      availability: high
+    - id: DO-MCP-TOOL-RESULT
+      name: MCP Tool Result
+      termRef: DATA-MCP-TOOL-RESULT
+      schemaRef: mcp.tool-response.v1
+      sensitivity: internal
+      classification: runtime-api
+      retention: ephemeral
+      confidentiality: medium
+      integrity: high
+      availability: high
+    - id: DO-STRUCTURIZR-DSL
+      name: Structurizr DSL
+      termRef: DATA-STRUCTURIZR-DSL
+      schemaRef: generated/STRUCTURIZR.dsl
+      sensitivity: internal
+      classification: exchange-artifact
+      retention: build-artifact
+      confidentiality: low
+      integrity: high
+      availability: high
+    - id: DO-THREAT-DRAGON-JSON
+      name: Threat Dragon JSON
+      termRef: DATA-THREAT-DRAGON-JSON
+      schemaRef: generated/threat-dragon-v2.json
+      sensitivity: internal
+      classification: exchange-artifact
+      retention: build-artifact
+      confidentiality: medium
+      integrity: high
+      availability: high
+
+  deploymentTargets:
+    - id: DEP-LOCAL-WORKSPACE
+      name: Local Workspace
+      environment: dev
+      region: local
+      account: workstation
+      cluster: local-shell
+      namespace: engineering-model-go
+      trustZone: developer
+    - id: DEP-CI-PIPELINE
+      name: CI Pipeline Runner
+      environment: ci
+      region: hosted
+      account: github-actions
+      cluster: shared-runner
+      namespace: engineering-model-go
+      trustZone: automation
+
+  controls:
+    - id: CTRL-MCP-PATH-BOUNDARY
+      name: MCP Path Boundary Enforcement
+      category: input-validation
+      description: Enforce repo-root path constraints and reject traversal paths in MCP tools.
+    - id: CTRL-STRICT-MCP-INPUT-SCHEMA
+      name: Strict MCP Input Schemas
+      category: input-validation
+      description: Enforce per-tool input schema and reject unknown arguments.
+    - id: CTRL-TRACEABILITY-COVERAGE
+      name: Requirement Traceability Coverage
+      category: assurance
+      description: Require requirement-linked verification evidence for modeled behavior.
+
+  trustBoundaries:
+    - id: TB-REPO-WORKSPACE
+      name: Repository Workspace Boundary
+      description: Boundary limiting file operations to repository-root owned paths.
+      boundaryType: filesystem
+      members: [FU-MCP-SERVER, FU-CODEMAP-INFERENCE]
+    - id: TB-EXTERNAL-VALIDATION-TOOLS
+      name: External Validation Tools Boundary
+      description: Boundary for external validators, schemas, and compliance toolchains.
+      boundaryType: external-tooling
+      members: [REF-THREAT-DRAGON-SCHEMAS, REF-OPEN-OTM-SCHEMA, REF-STRUCTURIZR-VALIDATOR, REF-TRLC-TOOLCHAIN, REF-LOBSTER-TOOLCHAIN]
+
+  states:
+    - id: STATE-MODEL-VALID
+      name: Model Valid
+      description: Model passes architecture and relationship validation checks.
+    - id: STATE-MODEL-INVALID
+      name: Model Invalid
+      description: Model has validation diagnostics that block generation or trusted use.
+    - id: STATE-ARTIFACTS-FRESH
+      name: Artifacts Fresh
+      description: Generated artifacts are aligned with current authored model and code evidence.
+
+  events:
+    - id: EVT-MODEL-UPDATED
+      name: Model Updated
+      description: Model file changed and requires re-validation and potential regeneration.
+    - id: EVT-GENERATION-RUN-REQUESTED
+      name: Generation Run Requested
+      description: Request to generate documentation or exchange artifacts from the model.
+    - id: EVT-VALIDATION-FAILED
+      name: Validation Failed
+      description: Validation or schema checks failed for model or generated output.
+    - id: EVT-ARTIFACT-GENERATED
+      name: Artifact Generated
+      description: One or more generated artifacts were produced successfully.
+    - id: EVT-MCP-TOOL-CALL-RECEIVED
+      name: MCP Tool Call Received
+      description: MCP server receives a structured tool invocation request.
+
+  flows:
+    - id: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+      title: Model Change to Verified Artifacts Flow
+      kind: control
+      methodology: architecture-ai
+      direction: internal
+      frequency: on-demand
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-CLI-ORCHESTRATION
+      protocol: cli
+      channel: local-shell
+      authentication: repository-access
+      encryptionInTransit: none
+      integrityProtection: git-history
+      dataRefs: [DO-ARCHITECTURE-MODEL, DO-AI-JSON-ARTIFACT, DO-STRUCTURIZR-DSL, DO-THREAT-DRAGON-JSON]
+      description: Primary engineering workflow from authored model update through validation and artifact generation.
+      entry: [edit-model]
+      exits: [publish-artifacts]
+      steps:
+        - id: edit-model
+          kind: user_action
+          ref: ACT-IMPLEMENTATION-ENGINEER
+          action: Update model and requirements artifacts
+          dataOut: [architecture_update]
+          next: [validate-model]
+        - id: validate-model
+          kind: system_action
+          ref: FU-VALIDATION-ENGINE
+          action: Validate authored model references and relationships
+          dataIn: [architecture_update]
+          onError: [fail-validation]
+          next: [generate-artifacts]
+        - id: generate-artifacts
+          kind: system_action
+          ref: FU-CLI-ORCHESTRATION
+          action: Run generation and export commands
+          dataOut: [generated_artifacts]
+          next: [publish-artifacts]
+        - id: fail-validation
+          kind: system_action
+          ref: FU-VALIDATION-ENGINE
+          action: Emit validation diagnostics and block publication
+        - id: publish-artifacts
+          kind: system_action
+          ref: FU-ASCIIDOC-GENERATOR
+          action: Persist generated outputs for downstream use
+
+  threatScenarios:
+    - id: TS-MCP-PATH-TRAVERSAL
+      title: MCP path traversal accesses non-repo files
+      summary: Untrusted MCP input attempts to escape repo root for sensitive file reads.
+      category: input-validation
+      stride: tampering
+      attackVectorRef: AV-PATH-TRAVERSAL-IN-MCP
+      appliesTo: [FU-MCP-SERVER]
+      flowRefs: [FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS]
+      likelihood: medium
+      impact: high
+      severity: high
+      status: mitigating
+      owner: ACT-ARCHITECTURE-AUTHOR
+      relatedControls: [CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA]
+    - id: TS-TRACEABILITY-DRIFT
+      title: Requirement traceability drifts from implementation
+      summary: Code and tests change without corresponding requirement trace updates.
+      category: assurance
+      stride: repudiation
+      attackVectorRef: AV-TRACEABILITY-GAP-DRIFT
+      appliesTo: [FU-CODEMAP-INFERENCE, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
+      likelihood: medium
+      impact: medium
+      severity: medium
+      status: mitigating
+      owner: ACT-COMPLIANCE-ENGINEER
+      relatedControls: [CTRL-TRACEABILITY-COVERAGE]
+
+  controlVerifications:
+    - id: VER-MCP-PATH-BOUNDARY
+      controlRef: CTRL-MCP-PATH-BOUNDARY
+      threatScenarioRefs: [TS-MCP-PATH-TRAVERSAL]
+      method: test
+      status: pass
+      owner: ACT-ARCHITECTURE-AUTHOR
+      findings: [Path traversal rejected and error payload returned in MCP tests.]
+      evidence:
+        - path: mcp/server_test.go
+          description: Traversal rejection tests for MCP path arguments.
+    - id: VER-TRACEABILITY-COVERAGE
+      controlRef: CTRL-TRACEABILITY-COVERAGE
+      threatScenarioRefs: [TS-TRACEABILITY-DRIFT]
+      method: analysis
+      status: partial
+      owner: ACT-COMPLIANCE-ENGINEER
+      findings: [Coverage depends on TRLC-LINKS completeness in source and tests.]
+      evidence:
+        - path: inferred_verification_test.go
+          description: Verification inference and trace marker coverage tests.
+
+  mappings:
+    - type: contains
+      from: FG-MODEL-AUTHORING
+      to: FU-MODEL-LOADER
+    - type: contains
+      from: FG-MODEL-AUTHORING
+      to: FU-CLI-ORCHESTRATION
+    - type: contains
+      from: FG-VALIDATION-ANALYSIS
+      to: FU-VALIDATION-ENGINE
+    - type: contains
+      from: FG-VALIDATION-ANALYSIS
+      to: FU-CODEMAP-INFERENCE
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-VIEW-PROJECTION
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-AI-VIEW-BUILDER
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-ASCIIDOC-GENERATOR
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-THREAT-EXPORTER
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-STRUCTURIZR-EXPORTER
+    - type: contains
+      from: FG-TRACEABILITY-COMPLIANCE
+      to: FU-TRLC-EXPORTER
+    - type: contains
+      from: FG-TRACEABILITY-COMPLIANCE
+      to: FU-LOBSTER-EXPORTER
+    - type: contains
+      from: FG-TRACEABILITY-COMPLIANCE
+      to: FU-OSCAL-EXPORTER
+    - type: contains
+      from: FG-MCP-INTEGRATION
+      to: FU-MCP-SERVER
+
+    - type: depends_on
+      from: FU-CLI-ORCHESTRATION
+      to: FU-MODEL-LOADER
+    - type: depends_on
+      from: FU-CLI-ORCHESTRATION
+      to: FU-VALIDATION-ENGINE
+    - type: depends_on
+      from: FU-CLI-ORCHESTRATION
+      to: FU-AI-VIEW-BUILDER
+    - type: depends_on
+      from: FU-CLI-ORCHESTRATION
+      to: FU-ASCIIDOC-GENERATOR
+    - type: depends_on
+      from: FU-AI-VIEW-BUILDER
+      to: FU-CODEMAP-INFERENCE
+    - type: depends_on
+      from: FU-AI-VIEW-BUILDER
+      to: FU-VIEW-PROJECTION
+    - type: depends_on
+      from: FU-THREAT-EXPORTER
+      to: REF-THREAT-DRAGON-SCHEMAS
+    - type: depends_on
+      from: FU-THREAT-EXPORTER
+      to: REF-OPEN-OTM-SCHEMA
+    - type: depends_on
+      from: FU-STRUCTURIZR-EXPORTER
+      to: REF-STRUCTURIZR-VALIDATOR
+    - type: depends_on
+      from: FU-TRLC-EXPORTER
+      to: REF-TRLC-TOOLCHAIN
+    - type: depends_on
+      from: FU-LOBSTER-EXPORTER
+      to: REF-LOBSTER-TOOLCHAIN
+    - type: depends_on
+      from: FU-MCP-SERVER
+      to: FU-MODEL-LOADER
+    - type: depends_on
+      from: FU-MCP-SERVER
+      to: FU-VALIDATION-ENGINE
+    - type: depends_on
+      from: FU-MCP-SERVER
+      to: FU-AI-VIEW-BUILDER
+
+    - type: contains
+      from: FU-ASCIIDOC-GENERATOR
+      to: IF-CLI-ENGDOC
+    - type: contains
+      from: FU-MCP-SERVER
+      to: IF-CLI-ENGMCP
+    - type: contains
+      from: FU-THREAT-EXPORTER
+      to: IF-CLI-ENGDRAGON
+    - type: contains
+      from: FU-STRUCTURIZR-EXPORTER
+      to: IF-CLI-ENGSTRUCT
+    - type: contains
+      from: FU-TRLC-EXPORTER
+      to: IF-CLI-ENGTRLC
+    - type: contains
+      from: FU-LOBSTER-EXPORTER
+      to: IF-CLI-ENGLOBSTER
+    - type: contains
+      from: FU-OSCAL-EXPORTER
+      to: IF-CLI-ENGOSCAL
+    - type: contains
+      from: FU-VIEW-PROJECTION
+      to: IF-CLI-ENGVIEW
+
+    - type: writes
+      from: FU-AI-VIEW-BUILDER
+      to: DO-AI-JSON-ARTIFACT
+    - type: writes
+      from: FU-MCP-SERVER
+      to: DO-MCP-TOOL-RESULT
+    - type: writes
+      from: FU-STRUCTURIZR-EXPORTER
+      to: DO-STRUCTURIZR-DSL
+    - type: writes
+      from: FU-THREAT-EXPORTER
+      to: DO-THREAT-DRAGON-JSON
+    - type: reads
+      from: FU-MODEL-LOADER
+      to: DO-ARCHITECTURE-MODEL
+
+    - type: deployed_to
+      from: FU-MCP-SERVER
+      to: DEP-LOCAL-WORKSPACE
+    - type: deployed_to
+      from: FU-CLI-ORCHESTRATION
+      to: DEP-CI-PIPELINE
+
+    - type: bounded_by
+      from: FU-MCP-SERVER
+      to: TB-REPO-WORKSPACE
+    - type: bounded_by
+      from: FU-CODEMAP-INFERENCE
+      to: TB-REPO-WORKSPACE
+    - type: bounded_by
+      from: FU-THREAT-EXPORTER
+      to: TB-EXTERNAL-VALIDATION-TOOLS
+    - type: bounded_by
+      from: FU-STRUCTURIZR-EXPORTER
+      to: TB-EXTERNAL-VALIDATION-TOOLS
+    - type: bounded_by
+      from: FU-TRLC-EXPORTER
+      to: TB-EXTERNAL-VALIDATION-TOOLS
+    - type: bounded_by
+      from: FU-LOBSTER-EXPORTER
+      to: TB-EXTERNAL-VALIDATION-TOOLS
+
+    - type: targets
+      from: AV-MALFORMED-MODEL-INPUT
+      to: FU-MODEL-LOADER
+    - type: targets
+      from: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+      to: REF-THREAT-DRAGON-SCHEMAS
+    - type: targets
+      from: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+      to: REF-OPEN-OTM-SCHEMA
+    - type: targets
+      from: AV-PATH-TRAVERSAL-IN-MCP
+      to: FU-MCP-SERVER
+    - type: targets
+      from: AV-TRACEABILITY-GAP-DRIFT
+      to: FU-CODEMAP-INFERENCE
+
+    - type: mitigated_by
+      from: AV-PATH-TRAVERSAL-IN-MCP
+      to: CTRL-MCP-PATH-BOUNDARY
+    - type: mitigated_by
+      from: AV-PATH-TRAVERSAL-IN-MCP
+      to: CTRL-STRICT-MCP-INPUT-SCHEMA
+    - type: mitigated_by
+      from: AV-TRACEABILITY-GAP-DRIFT
+      to: CTRL-TRACEABILITY-COVERAGE
+
+    - type: transitions_to
+      from: STATE-MODEL-INVALID
+      to: STATE-MODEL-VALID
+      description: Model becomes valid after diagnostics are resolved.
+    - type: triggered_by
+      from: STATE-MODEL-VALID
+      to: EVT-MODEL-UPDATED
+      description: Any model update can invalidate freshness and trigger regeneration.
+    - type: triggered_by
+      from: STATE-ARTIFACTS-FRESH
+      to: EVT-ARTIFACT-GENERATED
+      description: Fresh-state reached after successful generation cycle.
+    - type: guarded_by
+      from: STATE-MODEL-VALID
+      to: CTRL-STRICT-MCP-INPUT-SCHEMA
+      description: Model-aware tool usage requires strict MCP input semantics.
+
+inferenceHints:
+  runtimeSources:
+    - ./cmd
+    - ./mcp
+    - ./scripts
+    - ./.github/workflows
+  codeSources:
+    - ./
+  expectedRuntimeKinds:
+    - workload
+    - service
+    - deployment
+  ownershipResolutionOrder:
+    - explicit_annotation
+    - path_convention
+    - unresolved_warning
+
+views:
+  - id: VIEW-ARCHITECTURE-INTENT
+    kind: architecture-intent
+    roots: [FG-MODEL-AUTHORING, FG-VALIDATION-ANALYSIS, FG-ARTIFACT-GENERATION, FG-TRACEABILITY-COMPLIANCE, FG-MCP-INTEGRATION]
+    authoredStatus: in-review
+    authoredStatusExplanation: Initial repository self-model with stable top-level domains; implementation details will be expanded iteratively.
+  - id: VIEW-TRACEABILITY
+    kind: traceability
+    roots: [FU-MODEL-LOADER, FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE, FU-AI-VIEW-BUILDER, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
+    authoredStatus: in-review
+    authoredStatusExplanation: Traceability scope is seeded and will be tightened as requirements are added.
+  - id: VIEW-SECURITY
+    kind: security
+    roots: [FU-MCP-SERVER, AV-PATH-TRAVERSAL-IN-MCP, AV-SCHEMA-SUPPLY-CHAIN-TAMPER, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA]
+    authoredStatus: in-review
+    authoredStatusExplanation: Security scope starts from MCP boundary and export-validation supply chain paths.
+  - id: VIEW-INTERACTION-FLOW
+    kind: interaction-flow
+    roots: [FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS]
+    includeKinds: [flow, flow_step, actor, functional_unit, data_object]
+    includeMappings: [flow_next, flow_error, flow_async, flow_ref, contains, depends_on, reads, writes]
+    authoredStatus: draft
+    authoredStatusExplanation: Core implementation workflow is captured to guide model-driven repository changes.
+  - id: VIEW-STATE-LIFECYCLE
+    kind: state-lifecycle
+    roots: [STATE-MODEL-INVALID]
+    includeKinds: [state, event, control]
+    includeMappings: [transitions_to, triggered_by, guarded_by]
+    authoredStatus: draft
+    authoredStatusExplanation: Captures model validity and artifact freshness lifecycle behavior.

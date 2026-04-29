@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-010
 func TestExtractVerificationDescriptionMarker(t *testing.T) {
 	line := "// ENGMODEL-VERIFICATION-DESCRIPTION: validates policy-only fallback behavior for unavailable model calls"
 	got, ok := extractVerificationDescriptionMarker(line)
@@ -28,10 +30,9 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 	}
 
 	testPath := filepath.Join(testsDir, "policy_only_fallback_test.go")
-	testContent := `// ENGMODEL-VERIFICATION-DESCRIPTION: validates policy-only fallback behavior when model inference is unavailable
-// TRLC-LINKS: REQ-PRR-004
-package sample
-`
+	testContent := "// ENGMODEL-VERIFICATION-DESCRIPTION: validates policy-only fallback behavior when model inference is unavailable\n" +
+		"// TRLC-" + "LINKS: REQ-PRR-004\n" +
+		"package sample\n"
 	if err := os.WriteFile(testPath, []byte(testContent), 0o644); err != nil {
 		t.Fatalf("write test fixture: %v", err)
 	}
@@ -55,6 +56,41 @@ package sample
 	want := "validates policy-only fallback behavior when model inference is unavailable"
 	if checks[0].Description != want {
 		t.Fatalf("unexpected check description: got %q want %q", checks[0].Description, want)
+	}
+}
+
+func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
+	root := t.TempDir()
+	testPath := filepath.Join(root, "root_feature_test.go")
+	testContent := "package sample\n\n" +
+		"// TRLC-" + "LINKS: REQ-ROOT-001\n" +
+		"func TestRootFeature() {}\n"
+	if err := os.WriteFile(testPath, []byte(testContent), 0o644); err != nil {
+		t.Fatalf("write test fixture: %v", err)
+	}
+
+	bundle := model.Bundle{
+		ArchitecturePath: filepath.Join(root, "architecture.yml"),
+		Architecture: model.ArchitectureDocument{
+			InferenceHints: model.InferenceHints{CodeSources: []string{"./"}},
+		},
+	}
+	requirements := model.RequirementsDocument{
+		Requirements: []model.Requirement{{ID: "REQ-ROOT-001", AppliesTo: []string{"FU-ROOT"}}},
+	}
+
+	checks, diags := inferVerificationChecks(bundle, requirements, nil, "")
+	if len(diags) != 0 {
+		t.Fatalf("expected no diagnostics, got: %+v", diags)
+	}
+	if len(checks) != 1 {
+		t.Fatalf("expected one inferred verification check, got %d", len(checks))
+	}
+	if checks[0].Evidence[0] != "root_feature_test.go" {
+		t.Fatalf("unexpected evidence: %+v", checks[0].Evidence)
+	}
+	if checks[0].Verifies[0] != "REQ-ROOT-001" {
+		t.Fatalf("unexpected verifies: %+v", checks[0].Verifies)
 	}
 }
 

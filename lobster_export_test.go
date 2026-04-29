@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-LOBSTER-EXPORTER
 package engmodel
 
 import (
@@ -7,6 +8,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-006
 func TestGenerateLobsterActivityTraceFromDir(t *testing.T) {
 	dir := t.TempDir()
 	testsDir := filepath.Join(dir, "tests")

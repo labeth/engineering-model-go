@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
 package engmodel
 
 import (
@@ -40,6 +41,7 @@ var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
 var trlcLinksMarkerRe = regexp.MustCompile(`(?i)^\s*(?://+|#|--|/\*+|\*)?\s*TRLC-LINKS:\s*(.+?)\s*(?:\*/)?\s*$`)
 var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-run|flaky)\b`)
 
+// TRLC-LINKS: REQ-EMG-010
 func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	reqOwners := requirementOwners(requirements.Requirements)
@@ -51,6 +53,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		},
 		inferredSiblingDirs(baseDir, bundle, codeRootOption, "tests")...,
 	))
+	testRoots = uniqueExistingDirs(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
 	resultRoots := uniqueExistingDirs(append(
 		[]string{
 			filepath.Join(baseDir, "test-results"),
@@ -81,6 +84,11 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			if err != nil || d.IsDir() {
 				return nil
 			}
+			rel, _ := filepath.Rel(baseDir, path)
+			rel = filepath.ToSlash(rel)
+			if !isVerificationTestPath(rel) {
+				return nil
+			}
 			ext := strings.ToLower(filepath.Ext(path))
 			if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".py" && ext != ".js" && ext != ".java" && ext != ".yaml" && ext != ".yml" {
 				return nil
@@ -104,8 +112,6 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			if desc == "" {
 				desc = "Inferred from test source artifact."
 			}
-			rel, _ := filepath.Rel(baseDir, path)
-			rel = filepath.ToSlash(rel)
 			id := verificationIDFromPath(rel)
 			check := &inferredVerificationCheck{
 				ID:            id,
@@ -484,7 +490,27 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
-	return strings.HasPrefix(p, "tests/") || strings.Contains(p, "/tests/")
+	base := filepath.Base(p)
+	return strings.HasPrefix(p, "tests/") ||
+		strings.Contains(p, "/tests/") ||
+		strings.HasSuffix(base, "_test.go") ||
+		strings.HasSuffix(base, ".test.js") ||
+		strings.HasSuffix(base, ".test.ts") ||
+		strings.HasSuffix(base, ".test.tsx") ||
+		strings.HasSuffix(base, ".spec.js") ||
+		strings.HasSuffix(base, ".spec.ts") ||
+		strings.HasSuffix(base, ".spec.tsx")
+}
+
+func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption string) []string {
+	out := []string{}
+	if strings.TrimSpace(codeRootOption) != "" {
+		out = append(out, resolveSourcePath(baseDir, codeRootOption))
+	}
+	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
+		out = append(out, resolveSourcePath(baseDir, src))
+	}
+	return out
 }
 
 func requirementOwners(reqs []model.Requirement) map[string][]string {

@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-THREAT-EXPORTER
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	format := flag.String("format", string(engmodel.ThreatModelFormatThreatDragonV2), "export format: threat-dragon-v2 or open-otm")

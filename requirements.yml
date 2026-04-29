@@ -1,0 +1,96 @@
+lintRun:
+  id: engineering-model-go-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-EMG-001
+    text: "While local development mode is active, when model updated event is received, the engineering model go shall validate architecture model before generation run is requested."
+    notes: "Validation must gate all generation flows."
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-002
+    text: "While model is valid, when generation run is requested, the engineering model go shall produce ai json artifact for ai agent planning workflows."
+    notes: "AI JSON is a first-class machine artifact."
+    appliesTo:
+      - FU-AI-VIEW-BUILDER
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-003
+    text: "While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output."
+    notes: "Human-readable architecture output remains required."
+    appliesTo:
+      - FU-ASCIIDOC-GENERATOR
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-004
+    text: "Where threat export is enabled, when generation run is requested, the engineering model go shall export threat dragon json artifact plus open threat model artifact."
+    notes: "Threat model interchange output contract."
+    appliesTo:
+      - FU-THREAT-EXPORTER
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-005
+    text: "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact and validate it with structurizr validator."
+    notes: "Structurizr generation must remain validator-clean."
+    appliesTo:
+      - FU-STRUCTURIZR-EXPORTER
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-006
+    text: "Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package and lobster trace report artifacts."
+    notes: "Traceability outputs required for assurance workflows."
+    appliesTo:
+      - FU-TRLC-EXPORTER
+      - FU-LOBSTER-EXPORTER
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-007
+    text: "While mcp server is enabled, when mcp tool call is received and catalog references resolve successfully, the engineering model go shall return mcp tool result with schema version and structured error fields."
+    notes: "MCP response contract stability requirement."
+    appliesTo:
+      - FU-MCP-SERVER
+
+  - id: REQ-EMG-008
+    text: "When mcp tool call is received, the engineering model go shall reject path arguments outside repository workspace boundary."
+    notes: "Filesystem trust boundary guardrail."
+    appliesTo:
+      - FU-MCP-SERVER
+
+  - id: REQ-EMG-009
+    text: "While ci validation mode is active, when generation run is requested, the engineering model go shall execute validation plus tests before artifact generated event is raised."
+    notes: "CI gate behavior for deterministic quality."
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-010
+    text: "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer verification links from TRLC-LINKS markers to keep traceability coverage current."
+    notes: "Links code/test markers to modeled requirement coverage."
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FU-AI-VIEW-BUILDER
+
+  - id: REQ-EMG-011
+    text: "Where external schema dependencies are available, when generation run is requested, the engineering model go shall fail validation if schema checks do not match expected constraints."
+    notes: "Protect export integrity when schema trust fails."
+    appliesTo:
+      - FU-THREAT-EXPORTER
+      - FU-STRUCTURIZR-EXPORTER
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-012
+    text: "While model is valid, when generation run is requested, the engineering model go shall include support paths plus implementation paths plus gaps in ai json artifact."
+    notes: "AI implementation planning fields must be present and current."
+    appliesTo:
+      - FU-AI-VIEW-BUILDER
+
+  - id: REQ-EMG-013
+    text: "Where traceability export is enabled, when generation run is requested, the engineering model go shall export OSCAL SSP plus assessment results plus POA&M artifacts."
+    notes: "OSCAL export set for compliance workflows."
+    appliesTo:
+      - FU-OSCAL-EXPORTER
+      - FU-CLI-ORCHESTRATION

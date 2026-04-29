@@ -1,0 +1,264 @@
+catalog:
+  systems:
+    - id: SYS-ENGINEERING-MODEL-GO
+      name: engineering model go
+      definition: Go-based architecture modeling system that generates docs, analysis views, and compliance artifacts.
+      aliases: [engmodel, engineering model toolchain]
+
+  functionalGroups:
+    - id: FG-MODEL-AUTHORING
+      name: model authoring
+      definition: Authoring and loading of architecture, catalog, requirements, and design inputs.
+      aliases: [authoring]
+    - id: FG-VALIDATION-ANALYSIS
+      name: validation and analysis
+      definition: Validation, inference, and evidence analysis over authored and inferred model content.
+      aliases: [analysis]
+    - id: FG-ARTIFACT-GENERATION
+      name: artifact generation
+      definition: Generation of AsciiDoc, AI view, and exchange artifacts from model inputs.
+      aliases: [generation]
+    - id: FG-TRACEABILITY-COMPLIANCE
+      name: traceability and compliance
+      definition: Requirement trace exports and compliance-oriented output generation.
+      aliases: [compliance]
+    - id: FG-MCP-INTEGRATION
+      name: mcp integration
+      definition: MCP server interfaces that expose model-aware tooling for AI agents.
+      aliases: [mcp]
+
+  functionalUnits:
+    - id: FU-MODEL-LOADER
+      name: model loader
+      definition: Loads and normalizes architecture, catalog, requirements, and design documents.
+      aliases: [bundle loader]
+    - id: FU-VALIDATION-ENGINE
+      name: validation engine
+      definition: Validates IDs, references, and model consistency across authored entities and mappings.
+      aliases: [validator]
+    - id: FU-CODEMAP-INFERENCE
+      name: codemap inference
+      definition: Infers runtime, code, and verification evidence from repository sources and test markers.
+      aliases: [inference]
+    - id: FU-VIEW-PROJECTION
+      name: view projection
+      definition: Builds view-specific projections for architecture communication and traceability outputs.
+      aliases: [projection]
+    - id: FU-AI-VIEW-BUILDER
+      name: ai view builder
+      definition: Produces AI-oriented JSON, markdown, and edge views including support and implementation paths.
+      aliases: [ai json export]
+    - id: FU-ASCIIDOC-GENERATOR
+      name: asciidoc generator
+      definition: Renders architecture documentation and view narratives to AsciiDoc and PDF artifacts.
+      aliases: [engdoc]
+    - id: FU-THREAT-EXPORTER
+      name: threat exporter
+      definition: Exports threat model views to Threat Dragon and Open OTM representations.
+      aliases: [engdragon]
+    - id: FU-STRUCTURIZR-EXPORTER
+      name: structurizr exporter
+      definition: Exports Structurizr DSL and supports validation/static-site workflows.
+      aliases: [engstruct]
+    - id: FU-TRLC-EXPORTER
+      name: trlc exporter
+      definition: Exports requirements and model structures to TRLC artifacts.
+      aliases: [engtrlc]
+    - id: FU-LOBSTER-EXPORTER
+      name: lobster exporter
+      definition: Generates LOBSTER traceability inputs and reports from model and verification links.
+      aliases: [englobster]
+    - id: FU-OSCAL-EXPORTER
+      name: oscal exporter
+      definition: Exports security and control content to OSCAL system security plan outputs.
+      aliases: [engoscal]
+    - id: FU-MCP-SERVER
+      name: mcp server
+      definition: Serves model-backed MCP tools with validated inputs and structured responses.
+      aliases: [engmcp]
+    - id: FU-CLI-ORCHESTRATION
+      name: cli orchestration
+      definition: Command entrypoints that orchestrate loading, validation, generation, and export flows.
+      aliases: [cmd layer]
+
+  referencedElements:
+    - id: REF-GO-TOOLCHAIN
+      name: go toolchain
+      definition: Go compiler, test runner, and module tooling used by the repository.
+      aliases: [go]
+    - id: REF-THREAT-DRAGON-SCHEMAS
+      name: threat dragon schemas
+      definition: External JSON schemas used to validate Threat Dragon exports.
+      aliases: [threat dragon]
+    - id: REF-OPEN-OTM-SCHEMA
+      name: open otm schema
+      definition: Open Threat Model schema used to validate OTM output artifacts.
+      aliases: [otm schema]
+    - id: REF-STRUCTURIZR-VALIDATOR
+      name: structurizr validator
+      definition: Structurizr DSL validation runtime used to verify generated DSL.
+      aliases: [structurizr]
+    - id: REF-TRLC-TOOLCHAIN
+      name: trlc toolchain
+      definition: TRLC parser and runtime used for requirements language validation.
+      aliases: [trlc]
+    - id: REF-LOBSTER-TOOLCHAIN
+      name: lobster toolchain
+      definition: LOBSTER core and TRLC integration tools used for traceability reporting.
+      aliases: [lobster]
+
+  actors:
+    - id: ACT-ARCHITECTURE-AUTHOR
+      name: architecture author
+      definition: Maintains model structure, mappings, and architecture intent.
+      aliases: [model author]
+    - id: ACT-IMPLEMENTATION-ENGINEER
+      name: implementation engineer
+      definition: Implements code changes guided by model requirements and support paths.
+      aliases: [engineer]
+    - id: ACT-COMPLIANCE-ENGINEER
+      name: compliance engineer
+      definition: Reviews controls, risks, and traceability outputs for compliance needs.
+      aliases: [assurance]
+    - id: ACT-AI-AGENT
+      name: ai agent
+      definition: Consumes MCP and AI JSON outputs to plan and execute model-guided edits.
+      aliases: [coding agent]
+    - id: ACT-CI-PIPELINE
+      name: ci pipeline
+      definition: Runs automated validation and export checks for pull requests.
+      aliases: [ci]
+
+  attackVectors:
+    - id: AV-MALFORMED-MODEL-INPUT
+      name: malformed model input
+      definition: Invalid or ambiguous model content that causes incorrect graph construction.
+      aliases: [invalid model]
+    - id: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+      name: schema supply chain tamper
+      definition: Tampering or drift in external schemas used for export validation.
+      aliases: [schema tamper]
+    - id: AV-PATH-TRAVERSAL-IN-MCP
+      name: path traversal in mcp calls
+      definition: Host file access attempts through untrusted path arguments in MCP tools.
+      aliases: [path traversal]
+    - id: AV-TRACEABILITY-GAP-DRIFT
+      name: traceability gap drift
+      definition: Requirement links or tests drifting from implementation over time.
+      aliases: [trace drift]
+
+  events:
+    - id: EVT-MODEL-UPDATED
+      name: model updated event is received
+      definition: Event indicating architecture or requirement model source changed.
+      aliases: [model change]
+    - id: EVT-GENERATION-RUN-REQUESTED
+      name: generation run is requested
+      definition: Event indicating documentation or export generation execution starts.
+      aliases: [generation requested]
+    - id: EVT-VALIDATION-FAILED
+      name: validation failed event is raised
+      definition: Event indicating model or export validation failed.
+      aliases: [validation failure]
+    - id: EVT-ARTIFACT-GENERATED
+      name: artifact generated event is raised
+      definition: Event indicating one or more generated outputs were produced successfully.
+      aliases: [artifact generated]
+    - id: EVT-MCP-TOOL-CALL-RECEIVED
+      name: mcp tool call is received
+      definition: Event indicating the MCP server received a tool invocation request.
+      aliases: [tool call]
+
+  states:
+    - id: STATE-MODEL-VALID
+      name: model is valid
+      definition: State where authored model passes validation checks.
+      aliases: [valid]
+    - id: STATE-MODEL-INVALID
+      name: model is invalid
+      definition: State where validation diagnostics include one or more errors.
+      aliases: [invalid]
+    - id: STATE-ARTIFACTS-FRESH
+      name: generated artifacts are fresh
+      definition: State where generated outputs reflect the latest authored model inputs.
+      aliases: [up to date]
+
+  features:
+    - id: FEAT-AI-VIEW-EXPORT
+      name: ai view export is enabled
+      definition: Feature enabling AI JSON, markdown, and edge artifacts.
+      aliases: [ai export]
+    - id: FEAT-MCP-SERVER
+      name: mcp server is enabled
+      definition: Feature enabling MCP runtime APIs for model-aware tooling.
+      aliases: [mcp enabled]
+    - id: FEAT-THREAT-EXPORT
+      name: threat export is enabled
+      definition: Feature enabling Threat Dragon and Open OTM exports.
+      aliases: [threat modeling export]
+    - id: FEAT-STRUCTURIZR-EXPORT
+      name: structurizr export is enabled
+      definition: Feature enabling Structurizr DSL generation and validation.
+      aliases: [dsl export]
+    - id: FEAT-TRACEABILITY-EXPORT
+      name: traceability export is enabled
+      definition: Feature enabling TRLC and LOBSTER generation flows.
+      aliases: [trace export]
+
+  modes:
+    - id: MODE-LOCAL-DEVELOPMENT
+      name: local development mode is active
+      definition: Local developer mode for iterative model and code updates.
+      aliases: [local mode]
+    - id: MODE-CI-VALIDATION
+      name: ci validation mode is active
+      definition: Automated pipeline mode focused on deterministic checks and artifacts.
+      aliases: [ci mode]
+
+  conditions:
+    - id: COND-CATALOG-REFERENCES-RESOLVE
+      name: catalog references resolve successfully
+      definition: Condition requiring all authored references to match known catalog entries.
+      aliases: [catalog resolved]
+    - id: COND-REQUIREMENT-TRACE-COMPLETE
+      name: requirement trace is complete
+      definition: Condition requiring requirements to map to implementation and verification evidence.
+      aliases: [trace complete]
+    - id: COND-EXTERNAL-SCHEMA-AVAILABLE
+      name: external schema dependencies are available
+      definition: Condition requiring external schema artifacts to be present for validation.
+      aliases: [schema available]
+
+  dataTerms:
+    - id: DATA-ARCHITECTURE-MODEL
+      name: architecture model
+      definition: Authored architecture source describing functional intent and mappings.
+      aliases: [architecture yml]
+    - id: DATA-AI-JSON-ARTIFACT
+      name: ai json artifact
+      definition: Machine-oriented architecture view for AI planning and implementation workflows.
+      aliases: [architecture ai json]
+    - id: DATA-MCP-TOOL-RESULT
+      name: mcp tool result
+      definition: Structured MCP tool response payload carrying model-aware query results.
+      aliases: [tool result]
+    - id: DATA-STRUCTURIZR-DSL
+      name: structurizr dsl artifact
+      definition: Generated Structurizr workspace DSL document.
+      aliases: [dsl]
+    - id: DATA-THREAT-DRAGON-JSON
+      name: threat dragon json artifact
+      definition: Generated threat model artifact for OWASP Threat Dragon.
+      aliases: [threat dragon output]
+    - id: DATA-TRLC-PACKAGE
+      name: trlc package
+      definition: Generated TRLC requirements package and model metadata.
+      aliases: [trlc output]
+    - id: DATA-LOBSTER-TRACE-REPORT
+      name: lobster trace report
+      definition: Traceability report output generated from TRLC and test links.
+      aliases: [lobster report]
+    - id: DATA-OSCAL-SSP
+      name: oscal ssp artifact
+      definition: Generated OSCAL system security plan JSON output.
+      aliases: [ssp json]

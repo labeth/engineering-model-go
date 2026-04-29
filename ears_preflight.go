@@ -1,3 +1,4 @@
+// ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package engmodel
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc model.CatalogDocument) []validate.Diagnostic {
 	items := make([][2]string, 0, len(requirements.Requirements))
 	for _, req := range requirements.Requirements {
