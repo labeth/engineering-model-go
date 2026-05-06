@@ -52,6 +52,7 @@ func LoadBundle(architecturePath string) (Bundle, error) {
 	}, nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func LoadRequirements(path string) (RequirementsDocument, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -64,6 +65,7 @@ func LoadRequirements(path string) (RequirementsDocument, error) {
 	return requirements, nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func LoadDesign(path string) (DesignDocument, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -76,6 +78,7 @@ func LoadDesign(path string) (DesignDocument, error) {
 	return design, nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func decodeYAMLFile(path string, out any) error {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -92,6 +95,7 @@ func decodeYAMLFile(path string, out any) error {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func ensureSingleYAMLDocument(dec *yaml.Decoder) error {
 	var extra any
 	err := dec.Decode(&extra)

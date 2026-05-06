@@ -45,6 +45,7 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExport_SchemaValidation(t *testing.T) {
 	tdSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "threat-dragon-v2.schema.json")
 	otmSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "open-threat-model.schema.json")
@@ -74,6 +75,7 @@ func TestThreatModelExport_SchemaValidation(t *testing.T) {
 	})
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExportCLI_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	for _, format := range []string{"threat-dragon-v2", "open-otm"} {
@@ -92,6 +94,7 @@ func TestThreatModelExportCLI_EndToEnd(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func validateJSONWithSchema(t *testing.T, jsonText, schemaPath string) {
 	t.Helper()
 	c := jsonschema.NewCompiler()

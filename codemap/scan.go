@@ -36,14 +36,17 @@ type pendingTrace struct {
 }
 
 type declaration struct {
-	Name      string
-	Line      int
-	Signature string
+	Name         string
+	Kind         string
+	Line         int
+	Signature    string
+	RequiresTRLC bool
 }
 
 type languageSpec struct {
-	Language        *sitter.Language
-	DeclarationKind map[string]bool
+	Language          *sitter.Language
+	DeclarationKind   map[string]bool
+	TraceRequiredKind map[string]bool
 }
 
 var supportedExt = map[string]bool{
@@ -103,6 +106,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	return symbols, diags, nil
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	src, err := os.ReadFile(path)
 	if err != nil {
@@ -115,20 +119,25 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	}
 	relPath = filepath.ToSlash(relPath)
 
-	decls, parseDiags, err := extractDeclarations(path, src)
+	decls, commentLines, parseDiags, err := extractDeclarations(path, src)
 	if err != nil {
 		return nil, nil, err
 	}
 	diags := append([]validate.Diagnostic(nil), parseDiags...)
 
 	declByLine := map[int]declaration{}
+	traceRequiredByLine := map[int]declaration{}
 	for _, d := range decls {
 		if _, exists := declByLine[d.Line]; !exists {
 			declByLine[d.Line] = d
 		}
+		if d.RequiresTRLC {
+			traceRequiredByLine[d.Line] = d
+		}
 	}
 
 	symbols := []Symbol{}
+	linkedLines := map[int]bool{}
 	var pending pendingTrace
 
 	scanner := bufio.NewScanner(strings.NewReader(string(src)))
@@ -138,7 +147,7 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		line := scanner.Text()
 		trimmed := strings.TrimSpace(line)
 
-		if isCommentLike(trimmed) {
+		if commentLines[lineNo] && isCommentLike(trimmed) {
 			if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
 				pending.traceID = strings.TrimSpace(v)
 				if pending.firstLine == 0 {
@@ -155,6 +164,16 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 			}
 			if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
 				pending.implements = splitCSV(v)
+				for _, link := range pending.implements {
+					if !validRequirementID(link) {
+						diags = append(diags, validate.Diagnostic{
+							Code:     "code.invalid_trlc_link",
+							Severity: validate.SeverityError,
+							Message:  fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link),
+							Path:     fmt.Sprintf("%s:%d", relPath, lineNo),
+						})
+					}
+				}
 				if pending.firstLine == 0 {
 					pending.firstLine = lineNo
 				}
@@ -167,22 +186,11 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		}
 
 		if d, ok := declByLine[lineNo]; ok {
-			traceID := strings.TrimSpace(pending.traceID)
-			if traceID == "" {
-				traceID = autoTraceID(d.Name, relPath, lineNo)
+			implements := append([]string(nil), pending.implements...)
+			symbols = append(symbols, symbolForDeclaration(d, relPath, lineNo, trimmed, pending.traceID, pending.partOf, implements))
+			if len(implements) > 0 {
+				linkedLines[lineNo] = true
 			}
-			signature := strings.TrimSpace(d.Signature)
-			if signature == "" {
-				signature = strings.TrimSpace(trimmed)
-			}
-			symbols = append(symbols, Symbol{
-				TraceID:    traceID,
-				PartOf:     append([]string(nil), pending.partOf...),
-				Implements: append([]string(nil), pending.implements...),
-				Path:       relPath,
-				Line:       lineNo,
-				Signature:  signature,
-			})
 			pending = pendingTrace{}
 			continue
 		}
@@ -211,27 +219,64 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 			Path:     fmt.Sprintf("%s:%d", relPath, pending.firstLine),
 		})
 	}
+	missingLines := make([]int, 0, len(traceRequiredByLine))
+	for line := range traceRequiredByLine {
+		if !linkedLines[line] {
+			missingLines = append(missingLines, line)
+		}
+	}
+	sort.Ints(missingLines)
+	if len(missingLines) > 0 {
+		lineList := joinLineNumbers(missingLines)
+		diags = append(diags, validate.Diagnostic{
+			Code:     "code.missing_trlc_link",
+			Severity: validate.SeverityError,
+			Message:  fmt.Sprintf("functions missing TRLC-LINKS at lines %s", strings.ReplaceAll(lineList, ",", ", ")),
+			Path:     fmt.Sprintf("%s:%s", relPath, lineList),
+		})
+	}
 
 	return symbols, diags, nil
 }
 
-func extractDeclarations(path string, src []byte) ([]declaration, []validate.Diagnostic, error) {
+// TRLC-LINKS: REQ-EMG-010
+func symbolForDeclaration(d declaration, relPath string, lineNo int, line string, traceID string, partOf []string, implements []string) Symbol {
+	traceID = strings.TrimSpace(traceID)
+	if traceID == "" {
+		traceID = autoTraceID(d.Name, relPath, lineNo)
+	}
+	signature := strings.TrimSpace(d.Signature)
+	if signature == "" {
+		signature = strings.TrimSpace(line)
+	}
+	return Symbol{
+		TraceID:    traceID,
+		PartOf:     append([]string(nil), partOf...),
+		Implements: append([]string(nil), implements...),
+		Path:       relPath,
+		Line:       lineNo,
+		Signature:  signature,
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, []validate.Diagnostic, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	spec, ok := treeSitterSpec(ext)
 	if !ok {
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
 
 	parser := sitter.NewParser()
 	defer parser.Close()
 	if err := parser.SetLanguage(spec.Language); err != nil {
-		return nil, nil, fmt.Errorf("set parser language for %s: %w", path, err)
+		return nil, nil, nil, fmt.Errorf("set parser language for %s: %w", path, err)
 	}
 	tree := parser.Parse(src, nil)
 	defer tree.Close()
 	root := tree.RootNode()
 	if root == nil {
-		return nil, []validate.Diagnostic{{
+		return nil, nil, []validate.Diagnostic{{
 			Code:     "code.parse_error",
 			Severity: validate.SeverityWarning,
 			Message:  "tree-sitter produced no syntax tree",
@@ -240,17 +285,31 @@ func extractDeclarations(path string, src []byte) ([]declaration, []validate.Dia
 	}
 
 	out := []declaration{}
+	commentLines := map[int]bool{}
 	var visit func(n *sitter.Node)
 	visit = func(n *sitter.Node) {
 		if n == nil {
 			return
+		}
+		if n.IsNamed() && strings.Contains(n.Kind(), "comment") {
+			start := int(n.StartPosition().Row) + 1
+			end := int(n.EndPosition().Row) + 1
+			for line := start; line <= end; line++ {
+				commentLines[line] = true
+			}
 		}
 		if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
 			name := declarationName(n, src)
 			line := int(n.StartPosition().Row) + 1
 			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
 			if name != "" {
-				out = append(out, declaration{Name: name, Line: line, Signature: signature})
+				out = append(out, declaration{
+					Name:         name,
+					Kind:         n.Kind(),
+					Line:         line,
+					Signature:    signature,
+					RequiresTRLC: spec.TraceRequiredKind[n.Kind()],
+				})
 			}
 		}
 		count := n.NamedChildCount()
@@ -267,9 +326,10 @@ func extractDeclarations(path string, src []byte) ([]declaration, []validate.Dia
 		}
 		return out[i].Name < out[j].Name
 	})
-	return out, nil, nil
+	return out, commentLines, nil, nil
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
 	switch ext {
 	case ".go":
@@ -280,6 +340,10 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 				"method_declaration":   true,
 				"type_declaration":     true,
 			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_declaration":   true,
+			},
 		}, true
 	case ".ts":
 		return languageSpec{
@@ -288,6 +352,10 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 				"function_declaration": true,
 				"method_definition":    true,
 				"class_declaration":    true,
+			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
 			},
 		}, true
 	case ".tsx":
@@ -298,6 +366,10 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 				"method_definition":    true,
 				"class_declaration":    true,
 			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
+			},
 		}, true
 	case ".rs":
 		return languageSpec{
@@ -307,12 +379,16 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 				"struct_item":   true,
 				"impl_item":     true,
 			},
+			TraceRequiredKind: map[string]bool{
+				"function_item": true,
+			},
 		}, true
 	default:
 		return languageSpec{}, false
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func declarationName(n *sitter.Node, src []byte) string {
 	if n == nil {
 		return ""
@@ -334,6 +410,7 @@ func declarationName(n *sitter.Node, src []byte) string {
 	return ""
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func firstLine(s string) string {
 	if s == "" {
 		return ""
@@ -344,6 +421,7 @@ func firstLine(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func markerValue(line, marker string) (string, bool) {
 	idx := strings.Index(line, marker)
 	if idx < 0 {
@@ -352,6 +430,7 @@ func markerValue(line, marker string) (string, bool) {
 	return strings.TrimSpace(line[idx+len(marker):]), true
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func splitCSV(v string) []string {
 	parts := strings.Split(v, ",")
 	out := make([]string, 0, len(parts))
@@ -364,6 +443,21 @@ func splitCSV(v string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
+func joinLineNumbers(lines []int) string {
+	parts := make([]string, 0, len(lines))
+	for _, line := range lines {
+		parts = append(parts, fmt.Sprintf("%d", line))
+	}
+	return strings.Join(parts, ",")
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func validRequirementID(id string) bool {
+	return requirementIDPattern.MatchString(strings.TrimSpace(id))
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func isCommentLike(trimmed string) bool {
 	return strings.HasPrefix(trimmed, "//") ||
 		strings.HasPrefix(trimmed, "#") ||
@@ -372,10 +466,12 @@ func isCommentLike(trimmed string) bool {
 		strings.HasPrefix(trimmed, "--")
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func isAttributeLike(trimmed string) bool {
 	return strings.HasPrefix(trimmed, "@") || strings.HasPrefix(trimmed, "#[")
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func autoTraceID(symbolName, relPath string, lineNo int) string {
 	name := strings.TrimSpace(symbolName)
 	if name != "" {
@@ -385,7 +481,9 @@ func autoTraceID(symbolName, relPath string, lineNo int) string {
 }
 
 var nonAlnum = regexp.MustCompile(`[^A-Za-z0-9]+`)
+var requirementIDPattern = regexp.MustCompile(`^REQ-[A-Z0-9]+-[0-9]+$`)
 
+// TRLC-LINKS: REQ-EMG-010
 func slugUpper(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {

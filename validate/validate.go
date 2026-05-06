@@ -976,6 +976,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	return SortDiagnostics(diags)
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 	t := strings.TrimSpace(mappingType)
 	from := strings.TrimSpace(fromKind)

@@ -56,6 +56,7 @@ func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func TestGenerateOSCALSSPFromFile_PaymentsSample(t *testing.T) {
 	path := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	res, err := GenerateOSCALSSPFromFile(path, OSCALSSPOptions{})

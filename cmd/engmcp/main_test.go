@@ -18,6 +18,7 @@ func TestReadMessageRejectsOversizedPayload(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestReadWriteMessageRoundTrip(t *testing.T) {
 	body := []byte(`{"jsonrpc":"2.0","id":1,"method":"ping"}`)
 	var out bytes.Buffer

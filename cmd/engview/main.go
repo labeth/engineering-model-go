@@ -11,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func main() {
 	modelPath := flag.String("model", "", "path to architecture YAML (e.g. 03-architecture-model.yml)")
 	viewID := flag.String("view", "", "viewpoint ID to render")
@@ -44,6 +45,7 @@ func main() {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

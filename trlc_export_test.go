@@ -40,6 +40,7 @@ func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func TestEngTRLC_CLIAndValidation(t *testing.T) {
 	reqPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
 	outDir := filepath.Join(t.TempDir(), "trlc")

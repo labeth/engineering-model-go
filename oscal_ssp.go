@@ -160,6 +160,7 @@ func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) 
 	return GenerateOSCALSSP(bundle, options)
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -340,6 +341,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 	return OSCALSSPResult{JSON: string(b), Document: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func deterministicUUID(seed string) string {
 	h := sha1.Sum([]byte(seed))
 	b := h[:16]
@@ -349,6 +351,7 @@ func deterministicUUID(seed string) string {
 	return fmt.Sprintf("%s-%s-%s-%s-%s", x[0:8], x[8:12], x[12:16], x[16:20], x[20:32])
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -390,6 +393,7 @@ func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -431,6 +435,7 @@ func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func componentTypeForKind(kind string) string {
 	k := strings.TrimSpace(kind)
 	if k == "" {
@@ -439,6 +444,7 @@ func componentTypeForKind(kind string) string {
 	return k
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func normalizeOSCALControlID(raw string) string {
 	x := strings.ToLower(strings.TrimSpace(raw))
 	if x == "" {

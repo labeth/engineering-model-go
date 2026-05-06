@@ -36,6 +36,7 @@ func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-005
 func TestGenerateStructurizrDSL_CLI(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	cmd := exec.Command("go", "run", "./cmd/engstruct", "--model", modelPath)

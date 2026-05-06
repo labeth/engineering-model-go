@@ -542,6 +542,10 @@ authoredArchitecture:
       description: Fetches pull request files and metadata.
     - type: depends_on
       from: FU-PR-CONTEXT-ASSEMBLY
+      to: REF-GITHUB-REST-SDK
+      description: Uses the GitHub REST SDK to fetch pull request files and metadata.
+    - type: depends_on
+      from: FU-PR-CONTEXT-ASSEMBLY
       to: FU-REVIEW-ORCHESTRATION
       description: Sends normalized review context.
     - type: writes
@@ -600,6 +604,10 @@ authoredArchitecture:
       from: FU-LAMBDA-RUNTIME-OPERATIONS
       to: REF-AWS-SECRETS-MANAGER
       description: Uses managed secret store for runtime credentials.
+    - type: depends_on
+      from: FU-SECRETS-CONFIGURATION
+      to: REF-AWS-SDK-GO
+      description: Uses AWS SDK for Go clients to load managed secret configuration.
     - type: deployed_to
       from: FU-GITHUB-WEBHOOK-INGRESS
       to: DEP-BEDROCK-LAMBDA-PRIMARY

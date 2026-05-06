@@ -15,6 +15,7 @@ import (
 
 const maxMessageBytes = 8 * 1024 * 1024
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func main() {
 	s := mcp.NewServer()
 	r := bufio.NewReader(os.Stdin)
@@ -80,6 +81,7 @@ func readMessage(r *bufio.Reader) ([]byte, error) {
 	return body, nil
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func writeMessage(w *bufio.Writer, body []byte) error {
 	var b bytes.Buffer
 	_, _ = fmt.Fprintf(&b, "Content-Length: %d\r\n\r\n", len(body))

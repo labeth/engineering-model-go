@@ -163,28 +163,27 @@ flowchart LR
 - {{ . }}
 {{ end }}
 
-=== View-Scoped Projection
+{{- if eq $v.Kind "state-lifecycle" }}
+=== State Lifecycle Diagram
+
+What this diagram shows: authored lifecycle states, triggering events, guard controls, trust boundaries, and lifecycle transitions for this view.
 
 [source,mermaid]
 ----
 {{ $v.Mermaid }}
 ----
+{{- end }}
 
-[cols="1,1,3",options="header"]
-|===
-|Node ID |Kind |Label
-{{ range $v.ProjectedNodes }}
-|{{ .ID }} |{{ .Kind }} |{{ .Label }}
-{{ end }}
-|===
+{{- if eq $v.Kind "interaction-flow" }}
+=== Interaction Flow Diagram
 
-[cols="1,2,2",options="header"]
-|===
-|Mapping Type |From |To
-{{ range $v.ProjectedMappings }}
-|{{ .Type }} |{{ .From }} |{{ .To }}
-{{ end }}
-|===
+What this diagram shows: authored interaction flow steps, step ordering, async markers, and referenced actors/interfaces/units for this view.
+
+[source,mermaid]
+----
+{{ $v.Mermaid }}
+----
+{{- end }}
 
 {{- if ne $v.Kind "architecture-intent" }}
 === Coverage Gaps
@@ -228,15 +227,6 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 {{ $v.FuncMatrixTable }}
 
-=== Functional Unit Dependency Diagram
-
-What this diagram shows: dependency paths between functional units (grouped in Functional Group containers) and key referenced elements.
-Arrow meaning: `A -->|depends_on| B` means unit `A` requires behavior or data from `B` to fulfill its responsibility.
-
-[source,mermaid]
-----
-{{ $v.FuncCollabGraph }}
-----
 {{- end }}
 
 {{- if and $v.InferredGraph (ne $v.Kind "traceability") }}
@@ -289,57 +279,47 @@ NOTE: Platform operations links are inferred from authored actor mappings plus d
 ----
 {{- end }}
 
-{{ if and (eq $v.Kind "security") $v.SecurityContextDFD }}
+{{ if and (eq $v.Kind "security") $v.SecurityContextDiagrams }}
 === Threat Model Context Diagram
 
-What this diagram shows: OWASP-style context view of actors, core processes, interfaces, and trust boundary-relevant entities.
+What these diagrams show: OWASP-style context views split by functional group. Each group diagram keeps owned functional units and owned security-relevant entities inside the functional-group container; connected actors, referenced elements, external functional units, and other external entities are rendered outside it.
+
+{{ range $v.SecurityContextDiagrams }}
+==== {{ .GroupName }} ({{ .GroupID }})
 
 [source,mermaid]
 ----
-{{ $v.SecurityContextDFD }}
+{{ .Mermaid }}
 ----
 {{ end }}
-
-{{ if and (eq $v.Kind "security") $v.SecurityDataFlowDFD }}
-=== Threat Model Data Flow Diagram
-
-What this diagram shows: primary security-relevant data flows (reads/writes/publishes/subscribes/streams) between processes and data objects.
-
-[source,mermaid]
-----
-{{ $v.SecurityDataFlowDFD }}
-----
-{{ end }}
-
-{{ if and (eq $v.Kind "security") $v.SecurityThreatOverlayDFD }}
-=== Threat-to-Control Overlay Diagram
-
-What this diagram shows: attack vectors, targeted components, and mitigation/boundary relationships.
-
-[source,mermaid]
-----
-{{ $v.SecurityThreatOverlayDFD }}
-----
 {{ end }}
 
 {{ if and (eq $v.Kind "security") $v.SecurityThreatScenarios }}
 === Threat Scenario Register
 
-[cols="1,2,1,2,1,1,1,1",options="header"]
-|===
-|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity
 {{ range $v.SecurityThreatScenarios }}
-|{{ .ID }} |{{ .Title }} |{{ .AttackVector }} |{{ .Scope }} |{{ .Flows }} |{{ .Likelihood }} |{{ .Impact }} |{{ .Severity }}
-{{ end }}
-|===
+==== {{ .Title }} ({{ .ID }})
 
-[cols="1,1,1,1,2,2,2,2",options="header"]
+{{ .Summary }}
+
+[cols="1,3",options="header"]
 |===
-|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes
-{{ range $v.SecurityThreatScenarios }}
-|{{ .ID }} |{{ .Status }} |{{ .Owner }} |{{ .Risk }} |{{ .Controls }} |{{ .Mitigations }} |{{ .Verifications }} |Track closure through mitigation and verification linkage.
+|Field |Value
+|Status |{{ .Status }}
+|Owner |{{ .Owner }}
+|Attack Vector |{{ .AttackVector }}
+|Scope |{{ .Scope }}
+|Flows |{{ .Flows }}
+|Likelihood |{{ .Likelihood }}
+|Impact |{{ .Impact }}
+|Severity |{{ .Severity }}
+|Risk |{{ .Risk }}
+|Controls |{{ .Controls }}
+|Mitigations |{{ .Mitigations }}
+|Verifications |{{ .Verifications }}
+|Operational Notes |Track closure through mitigation and verification linkage.
+|===
 {{ end }}
-|===
 {{ end }}
 
 {{ if and (eq $v.Kind "security") $v.SecurityThreatMitigations }}
@@ -432,6 +412,10 @@ What this diagram shows: attack vectors, targeted components, and mitigation/bou
 {{ $c.Description }}
 {{ end }}
 
+Mitigated by: {{ $c.MitigatedBy }}
+
+Trust boundaries: {{ $c.TrustBoundaries }}
+
 [source,mermaid]
 ----
 {{ $c.Diagram }}
@@ -468,12 +452,23 @@ What this diagram shows: attack vectors, targeted components, and mitigation/bou
 {{ if eq $viewKind "architecture-intent" }}
 {{ $g.Description }}
 {{ end }}
-{{ if eq $viewKind "architecture-intent" }}
+	{{ if eq $viewKind "architecture-intent" }}
 
-{{ $g.Intro }}
-{{ end }}
+	{{ $g.Intro }}
+	{{ end }}
 
-{{ if ne $viewKind "architecture-intent" }}
+	{{ if and (eq $viewKind "architecture-intent") $g.DependencyGraph }}
+===== Functional Unit Dependency Diagram
+
+What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
+
+[source,mermaid]
+----
+{{ $g.DependencyGraph }}
+----
+	{{ end }}
+
+	{{ if ne $viewKind "architecture-intent" }}
 {{ range $g.Details }}
 {{ .Narrative }}
 {{ end }}

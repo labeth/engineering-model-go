@@ -21,6 +21,7 @@ func TestBundleValidationNoErrors(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
 	b, err := model.LoadBundle(p)
@@ -57,6 +58,7 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_Decisions(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		Decisions: []model.Decision{{
@@ -103,6 +105,7 @@ func TestBundleValidation_Decisions(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -150,6 +153,7 @@ func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ViewSpecFields(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -190,6 +194,7 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_InteractionFlowValid(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -215,6 +220,7 @@ func TestBundleValidation_InteractionFlowValid(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -245,6 +251,7 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ControlAllocations(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -286,6 +293,7 @@ func TestBundleValidation_ControlAllocations(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_RisksAndPOAM(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -340,6 +348,7 @@ func TestBundleValidation_RisksAndPOAM(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
@@ -443,6 +452,7 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},

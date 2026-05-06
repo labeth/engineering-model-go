@@ -35,6 +35,7 @@ type diagramTemplateData struct {
 	ClassDefs []string
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func Render(v view.ProjectedView) string {
 	nodes := append([]view.Node(nil), v.Nodes...)
 	sort.SliceStable(nodes, func(i, j int) bool {
@@ -89,6 +90,7 @@ func Render(v view.ProjectedView) string {
 	return b.String()
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func renderNode(n view.Node) string {
 	id := mermaidID(n.ID)
 	label := escapeLabel(n.Label)
@@ -126,6 +128,7 @@ func renderNode(n view.Node) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func mermaidID(raw string) string {
 	r := nonID.ReplaceAllString(raw, "_")
 	if r == "" {
@@ -137,6 +140,7 @@ func mermaidID(raw string) string {
 	return "N_" + r
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func escapeLabel(s string) string {
 	s = strings.ReplaceAll(s, "\\", "\\\\")
 	s = strings.ReplaceAll(s, "\"", "\\\"")
@@ -154,6 +158,7 @@ func escapeLabel(s string) string {
 	return s
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func escapeComment(s string) string {
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.TrimSpace(s)
@@ -163,6 +168,7 @@ func escapeComment(s string) string {
 	return s
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func compactEdgeLabel(edgeType, fallback string) string {
 	// Keep labels selective: show interaction/activity semantics so flow diagrams
 	// communicate behavior directly, while avoiding noisy labels everywhere.

@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-003
 func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
 	fuToRuntime := map[string]string{}
 	servicePorts := map[string]string{}
@@ -67,6 +68,7 @@ func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
 	if len(rows) == 0 {
 		return ""
@@ -83,6 +85,7 @@ func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func runtimeShortName(s string) string {
 	x := strings.TrimSpace(s)
 	if x == "" {
@@ -95,6 +98,7 @@ func runtimeShortName(s string) string {
 	return x
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow {
 	var sourceName, kustomName string
 	releases := []string{}
@@ -203,6 +207,7 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 	lines := []string{"flowchart TB"}
 
@@ -502,6 +507,7 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 	return strings.Join(lines, "\n")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func deploymentNodeName(r inferredRuntimeItem) string {
 	name := strings.TrimSpace(strings.ReplaceAll(r.Name, "\\", "/"))
 	if name == "" {
@@ -515,6 +521,7 @@ func deploymentNodeName(r inferredRuntimeItem) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntimeItem) []asciidocPlatformOpRow {
 	platformUnits := map[string]string{}
 	for _, u := range a.FunctionalUnits {
@@ -573,6 +580,7 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range rows {
@@ -594,6 +602,7 @@ func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityPathRow {
 	depsByTarget := map[string][]string{}
 	for _, m := range a.Mappings {
@@ -641,6 +650,7 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
 	runtimeByOwner := map[string][]string{}
 	for _, r := range runtime {
@@ -658,7 +668,8 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		runtimeByOwner[owner] = uniqueSorted(items)
 	}
 
-	codeByOwner := map[string][]string{}
+	codeRawByOwner := map[string][]string{}
+	allCodeRaw := []string{}
 	for _, c := range code {
 		owner := strings.TrimSpace(c.Owner)
 		if owner == "" || owner == "unresolved" {
@@ -671,20 +682,20 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 			if path == "" {
 				continue
 			}
-			label = moduleFromPath(path)
-			if strings.TrimSpace(label) == "" {
-				label = path
-			}
+			label = codeItemEvidenceElement(c)
 		default:
-			label = strings.TrimSpace(c.Element)
+			continue
 		}
 		if strings.TrimSpace(label) == "" {
 			continue
 		}
-		codeByOwner[owner] = append(codeByOwner[owner], label)
+		codeRawByOwner[owner] = append(codeRawByOwner[owner], label)
+		allCodeRaw = append(allCodeRaw, label)
 	}
-	for owner, items := range codeByOwner {
-		codeByOwner[owner] = uniqueSorted(items)
+	codeByOwner := map[string][]string{}
+	codeLabelLookup := codeElementEvidenceLabelLookup(allCodeRaw)
+	for owner, items := range codeRawByOwner {
+		codeByOwner[owner] = groupedCodeElementEvidenceLabels(items, codeLabelLookup)
 	}
 
 	lines := []string{"flowchart LR"}
@@ -727,7 +738,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 			runtimeNodes = append(runtimeNodes, rtNode)
 		}
 		for _, mod := range codeByOwner[targetID] {
-			codeNode := "SEC_CODE_" + sanitizeNode(targetID+"-"+mod)
+			codeNode := "CODE_" + sanitizeNode(codeElementEvidenceFileKey(mod))
 			lines = append(lines, mermaidTypedNodeLine(codeNode, mod, "code_element"))
 			if len(runtimeNodes) > 0 {
 				lines = append(lines, fmt.Sprintf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode))
@@ -738,6 +749,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
 	added := map[string]bool{}
@@ -846,155 +858,195 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
-func buildSecurityDataFlowDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
-	lines := []string{"flowchart LR"}
-	added := map[string]bool{}
-	connected := map[string]bool{}
-	add := func(line string) {
-		if !added[line] {
-			added[line] = true
-			lines = append(lines, line)
-		}
-	}
-	markEdge := func(fromID, toID string) {
-		fromID = strings.TrimSpace(fromID)
-		toID = strings.TrimSpace(toID)
-		if fromID != "" {
-			connected[fromID] = true
-		}
-		if toID != "" {
-			connected[toID] = true
-		}
-	}
-	isSecurityDataNodeID := func(id string) bool {
-		x := strings.TrimSpace(id)
-		return strings.HasPrefix(x, "DO-") || strings.HasPrefix(x, "IF-") || strings.HasPrefix(x, "TB-")
-	}
-	isFunctionalUnitID := func(id string) bool {
-		return strings.HasPrefix(strings.TrimSpace(id), "FU-")
-	}
-	for _, x := range a.DataObjects {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityContextDiagram {
+	unitGroupByID := map[string]string{}
+	groupUnits := map[string]map[string]bool{}
+	for _, fu := range a.FunctionalUnits {
+		id := strings.TrimSpace(fu.ID)
+		gid := strings.TrimSpace(fu.Group)
+		if id == "" || gid == "" {
 			continue
 		}
-		n := "DFD_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "data_object"))
-	}
-	for _, x := range a.Interfaces {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
-			continue
+		unitGroupByID[id] = gid
+		if groupUnits[gid] == nil {
+			groupUnits[gid] = map[string]bool{}
 		}
-		n := "DFD_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "interface"))
+		groupUnits[gid][id] = true
 	}
-	for _, x := range a.TrustBoundaries {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
-			continue
-		}
-		n := "DFD_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "trust_boundary"))
-	}
+	ownedByGroup := securityContextOwnedIDsByGroup(a, unitGroupByID, groupUnits)
 
-	hasFlowEdge := false
-	for _, m := range a.Mappings {
-		t := strings.TrimSpace(m.Type)
-		if t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" && t != "calls" {
+	out := []asciidocSecurityContextDiagram{}
+	for _, fg := range a.FunctionalGroups {
+		groupID := strings.TrimSpace(fg.ID)
+		if groupID == "" || len(groupUnits[groupID]) == 0 {
 			continue
 		}
-		from := strings.TrimSpace(m.From)
-		to := strings.TrimSpace(m.To)
-		if from == "" || to == "" {
-			continue
+		owned := map[string]bool{}
+		for id := range ownedByGroup[groupID] {
+			owned[id] = true
 		}
-		fn := "DFD_" + sanitizeNode(from)
-		tn := "DFD_" + sanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), securityDFDClassForID(from)))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
-		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
-		markEdge(from, to)
-		hasFlowEdge = true
-	}
+		for id := range groupUnits[groupID] {
+			owned[id] = true
+		}
 
-	// Add structural fallback links for unconnected security data nodes so they do not float
-	// when explicit reads/writes-style mappings are incomplete.
+		included := map[string]bool{}
+		for id := range owned {
+			included[id] = true
+		}
+		edges := []string{}
+		edgeSet := map[string]bool{}
+		addEdge := func(from, to, label string) {
+			edge := fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", sanitizeNode(from), escapeMermaidLabel(label), sanitizeNode(to))
+			if edgeSet[edge] {
+				return
+			}
+			edgeSet[edge] = true
+			edges = append(edges, edge)
+		}
+
+		for _, m := range a.Mappings {
+			t := strings.TrimSpace(m.Type)
+			if !securityContextMappingType(t) {
+				continue
+			}
+			from := strings.TrimSpace(m.From)
+			to := strings.TrimSpace(m.To)
+			if from == "" || to == "" {
+				continue
+			}
+			if t == "contains" && from == groupID && groupUnits[groupID][to] {
+				continue
+			}
+			if !(owned[from] || owned[to]) {
+				continue
+			}
+			included[from] = true
+			included[to] = true
+			addEdge(from, to, t)
+		}
+
+		lines := []string{"flowchart LR"}
+		boxID := "CTXGROUP_" + sanitizeNode(groupID)
+		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(nonEmpty(labels[groupID], nonEmpty(fg.Name, groupID)))))
+		lines = append(lines, "    direction TB")
+		for _, id := range keysSorted(owned) {
+			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+sanitizeNode(id), nonEmpty(labels[id], id), securityDFDClassForID(id)))
+		}
+		lines = append(lines, "  end")
+		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
+
+		external := map[string]bool{}
+		for id := range included {
+			if !owned[id] && id != groupID {
+				external[id] = true
+			}
+		}
+		for _, id := range keysSorted(external) {
+			lines = append(lines, mermaidTypedNodeLine("CTX_"+sanitizeNode(id), nonEmpty(labels[id], id), securityDFDClassForID(id)))
+		}
+		lines = append(lines, edges...)
+		lines = appendMermaidClassDefs(lines)
+		out = append(out, asciidocSecurityContextDiagram{
+			GroupID:   groupID,
+			GroupName: nonEmpty(labels[groupID], nonEmpty(fg.Name, groupID)),
+			Mermaid:   strings.Join(uniquePreserve(lines), "\n"),
+		})
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, unitGroupByID map[string]string, groupUnits map[string]map[string]bool) map[string]map[string]bool {
+	owned := map[string]map[string]bool{}
+	add := func(groupID, id string) {
+		groupID = strings.TrimSpace(groupID)
+		id = strings.TrimSpace(id)
+		if groupID == "" || id == "" || strings.HasPrefix(id, "ACT-") || strings.HasPrefix(id, "REF-") {
+			return
+		}
+		if owned[groupID] == nil {
+			owned[groupID] = map[string]bool{}
+		}
+		owned[groupID][id] = true
+	}
+	for _, fu := range a.FunctionalUnits {
+		add(unitGroupByID[strings.TrimSpace(fu.ID)], strings.TrimSpace(fu.ID))
+	}
 	for _, iface := range a.Interfaces {
-		id := strings.TrimSpace(iface.ID)
-		owner := strings.TrimSpace(iface.Owner)
-		if id == "" || owner == "" || connected[id] || !isFunctionalUnitID(owner) {
+		add(unitGroupByID[strings.TrimSpace(iface.Owner)], strings.TrimSpace(iface.ID))
+	}
+	for _, alloc := range a.ControlAllocations {
+		controlRef := strings.TrimSpace(alloc.ControlRef)
+		for _, target := range alloc.AppliesTo {
+			target = strings.TrimSpace(target)
+			if strings.HasPrefix(target, "FU-") {
+				add(unitGroupByID[target], controlRef)
+			}
+			if strings.HasPrefix(target, "FG-") {
+				add(target, controlRef)
+			}
+		}
+	}
+	for _, tb := range a.TrustBoundaries {
+		id := strings.TrimSpace(tb.ID)
+		if id == "" || len(tb.Members) == 0 {
 			continue
 		}
-		fn := "DFD_" + sanitizeNode(owner)
-		tn := "DFD_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[owner], owner), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[id], id), "interface"))
-		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
-		markEdge(owner, id)
+		groupID := ""
+		allLocalFUs := true
+		for _, member := range tb.Members {
+			member = strings.TrimSpace(member)
+			if !strings.HasPrefix(member, "FU-") {
+				allLocalFUs = false
+				break
+			}
+			memberGroup := unitGroupByID[member]
+			if memberGroup == "" {
+				allLocalFUs = false
+				break
+			}
+			if groupID == "" {
+				groupID = memberGroup
+			}
+			if groupID != memberGroup || !groupUnits[groupID][member] {
+				allLocalFUs = false
+				break
+			}
+		}
+		if allLocalFUs {
+			add(groupID, id)
+		}
 	}
 	for _, m := range a.Mappings {
 		t := strings.TrimSpace(m.Type)
-		if t != "contains" && t != "bounded_by" {
-			continue
-		}
 		from := strings.TrimSpace(m.From)
 		to := strings.TrimSpace(m.To)
-		if from == "" || to == "" || !isFunctionalUnitID(from) || !isSecurityDataNodeID(to) || connected[to] {
+		groupID := unitGroupByID[from]
+		if groupID == "" {
 			continue
 		}
-		fn := "DFD_" + sanitizeNode(from)
-		tn := "DFD_" + sanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
-		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
-		markEdge(from, to)
+		switch {
+		case t == "contains":
+			add(groupID, to)
+		case (t == "writes" || t == "publishes") && (strings.HasPrefix(to, "DO-") || strings.HasPrefix(to, "IF-")):
+			add(groupID, to)
+		}
 	}
-
-	if !hasFlowEdge {
-		add("  DFD_NOTE[\"No authored data-flow mappings found; add reads/writes/publishes/subscribes/streams/calls for richer threat-model flow coverage\"]:::referenced_element")
-	}
-	lines = appendMermaidClassDefs(lines)
-	return strings.Join(uniquePreserve(lines), "\n")
+	return owned
 }
 
-func buildSecurityThreatOverlayMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
-	lines := []string{"flowchart LR"}
-	added := map[string]bool{}
-	add := func(line string) {
-		if !added[line] {
-			added[line] = true
-			lines = append(lines, line)
-		}
+// TRLC-LINKS: REQ-EMG-003
+func securityContextMappingType(t string) bool {
+	switch strings.TrimSpace(t) {
+	case "interacts_with", "depends_on", "calls", "bounded_by", "contains", "reads", "writes", "publishes", "subscribes", "streams":
+		return true
+	default:
+		return false
 	}
-	for _, m := range a.Mappings {
-		t := strings.TrimSpace(m.Type)
-		if t != "targets" && t != "mitigated_by" && t != "bounded_by" {
-			continue
-		}
-		from := strings.TrimSpace(m.From)
-		to := strings.TrimSpace(m.To)
-		if from == "" || to == "" {
-			continue
-		}
-		fn := "THR_" + sanitizeNode(from)
-		tn := "THR_" + sanitizeNode(to)
-		fromClass := securityDFDClassForID(from)
-		toClass := securityDFDClassForID(to)
-		if strings.HasPrefix(from, "AV-") {
-			fromClass = "attack_vector"
-		}
-		if strings.HasPrefix(to, "AV-") {
-			toClass = "attack_vector"
-		}
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), fromClass))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), toClass))
-		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
-	}
-	lines = appendMermaidClassDefs(lines)
-	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func securityDFDClassForID(id string) string {
 	id = strings.TrimSpace(id)
 	switch {
@@ -1029,6 +1081,7 @@ func securityDFDClassForID(id string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func mermaidTypedNodeLine(nodeID, label, className string) string {
 	l := escapeMermaidLabel(label)
 	switch strings.TrimSpace(className) {
@@ -1057,6 +1110,12 @@ func mermaidTypedNodeLine(nodeID, label, className string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
+func mermaidTypedNodeLineIndented(indent, nodeID, label, className string) string {
+	return indent + strings.TrimLeft(mermaidTypedNodeLine(nodeID, label, className), " ")
+}
+
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityObsRow {
 	out := []asciidocSecurityObsRow{}
 	seen := map[string]bool{}

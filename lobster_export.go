@@ -122,6 +122,7 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 	return LobsterActivityExportResult{JSON: string(b) + "\n"}, nil
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func extractTRLCMarkerReqs(content string) []string {
 	reqs := []string{}
 	seen := map[string]bool{}

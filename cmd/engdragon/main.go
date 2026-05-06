@@ -45,6 +45,7 @@ func main() {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

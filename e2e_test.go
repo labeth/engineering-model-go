@@ -35,6 +35,7 @@ func TestGenerateFromFile_EndToEnd(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestCLI_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	cmd := exec.Command("go", "run", "./cmd/engview", "--model", modelPath, "--view", "VIEW-ARCHITECTURE-INTENT")

@@ -17,6 +17,7 @@ func TestNormalizeTerraformKind_AWSLambdaFunction(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestResolveRuntimeOwner_ByFunctionalUnitSimilarity(t *testing.T) {
 	units := []model.FunctionalUnit{
 		{ID: "FU-GITHUB-WEBHOOK-INGRESS", Name: "GitHub Webhook Ingress"},
@@ -35,6 +36,7 @@ func TestResolveRuntimeOwner_ByFunctionalUnitSimilarity(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestResolveRuntimeOwner_PublisherMapsToPublication(t *testing.T) {
 	units := []model.FunctionalUnit{
 		{ID: "FU-REVIEW-ORCHESTRATION", Name: "Review Orchestration"},
@@ -52,6 +54,7 @@ func TestResolveRuntimeOwner_PublisherMapsToPublication(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestParseTerraformRuntime_DescriptionHintComment(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "main.tf")
@@ -77,6 +80,7 @@ func TestParseTerraformRuntime_DescriptionHintComment(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestParseManifestRuntime_AnnotationDescription(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "runtime.yaml")
@@ -110,6 +114,7 @@ spec:
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestResolveRuntimeOwner_PrefersFunctionalUnitFromDeploymentSourcePath(t *testing.T) {
 	units := []model.FunctionalUnit{
 		{ID: "FU-MEDIACHESTV-OCI-PACKAGING", Name: "OCI Packaging"},

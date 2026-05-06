@@ -69,6 +69,7 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 	return GenerateOSCALPOAM(bundle, options)
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

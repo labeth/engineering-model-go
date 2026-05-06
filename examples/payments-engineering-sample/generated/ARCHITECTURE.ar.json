@@ -3,7 +3,7 @@
     "uuid": "feb3a254-f078-59e8-b66d-b7015be52e53",
     "metadata": {
       "title": "Sample Payments Layered Architecture Assessment Results",
-      "last-modified": "2026-04-21T19:01:00Z",
+      "last-modified": "2026-05-06T18:44:20Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -15,8 +15,8 @@
         "uuid": "5b5abe26-c8a5-5ef4-a195-d9f9cc21839e",
         "title": "Automated architecture assessment",
         "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
-        "start": "2026-04-21T19:01:00Z",
-        "end": "2026-04-21T19:01:00Z",
+        "start": "2026-05-06T18:44:20Z",
+        "end": "2026-05-06T18:44:20Z",
         "reviewed-controls": {
           "control-selections": [
             {
@@ -30,6 +30,9 @@
                 },
                 {
                   "control-id": "ia-2.1"
+                },
+                {
+                  "control-id": "si-10"
                 }
               ]
             }
@@ -54,7 +57,7 @@
               },
               {
                 "name": "verification-status",
-                "value": "partial"
+                "value": "not-run"
               }
             ]
           },
@@ -79,15 +82,58 @@
                 "value": "not-run"
               }
             ]
+          },
+          {
+            "uuid": "ead4ec25-cfc9-52f7-a084-18e87ce8f520",
+            "title": "Checkout Decline Reason Test",
+            "description": "validates checkout decline reason normalization and retry policy messaging",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
           }
         ],
         "risks": [
+          {
+            "uuid": "01e1bc97-d5b4-5719-b22d-e4a3cd9dbfdc",
+            "title": "Manual review decision tampering risk",
+            "description": "Privileged workflow manipulation may alter manual review outcomes before final decision publication.",
+            "status": "open",
+            "statement": "Audit coverage is present but needs tighter immutable trail enforcement."
+          },
           {
             "uuid": "705ea5a2-bf1f-56e6-af5c-39498ad3ef76",
             "title": "Privileged SSO path bypass risk",
             "description": "Privileged operational actions may bypass MFA if SSO policy enforcement drifts.",
             "status": "mitigating",
             "statement": "Legacy operator account cleanup still in progress."
+          },
+          {
+            "uuid": "74707044-88e8-5a5b-bba6-6c106ff61cef",
+            "title": "Checkout payload spoofing risk",
+            "description": "Crafted checkout payloads may bypass validation and force unintended authorization paths.",
+            "status": "mitigating",
+            "statement": "Validation controls are implemented but continuously tuned as payload variants evolve."
+          },
+          {
+            "uuid": "ede324e5-0967-5514-be65-8c79430205e6",
+            "title": "Bank callback replay risk",
+            "description": "Replayed authorization callbacks may produce duplicate or stale decision transitions.",
+            "status": "mitigating",
+            "statement": "Nonce and idempotency controls sharply reduce replay window impact."
           }
         ]
       }

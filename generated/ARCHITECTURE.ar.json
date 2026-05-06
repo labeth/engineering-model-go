@@ -3,7 +3,7 @@
     "uuid": "98eaf6c0-91d6-5a78-93b8-4d958fefbee6",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture Assessment Results",
-      "last-modified": "2026-04-29T19:40:12Z",
+      "last-modified": "2026-05-06T18:44:07Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -15,8 +15,8 @@
         "uuid": "552b5375-26b1-5f1a-ab6b-642a6ef09628",
         "title": "Automated architecture assessment",
         "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
-        "start": "2026-04-29T19:40:12Z",
-        "end": "2026-04-29T19:40:12Z",
+        "start": "2026-05-06T18:44:07Z",
+        "end": "2026-05-06T18:44:07Z",
         "reviewed-controls": {
           "control-selections": [
             {
@@ -202,6 +202,28 @@
             ]
           },
           {
+            "uuid": "3a476317-fdd8-5c62-92cb-db9b08b1e770",
+            "title": "Audit Record Persistence Test",
+            "description": "checks audit record persistence includes payment id and computed risk score",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-005",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-7F02A4"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "3fc0c11d-381c-5f9b-9328-1e05b004d2ad",
             "title": "Catalog Systems Test",
             "description": "Inferred from test source artifact.",
@@ -334,6 +356,28 @@
             ]
           },
           {
+            "uuid": "6378e639-d931-5308-82ed-72966288fd83",
+            "title": "Asciidoc Diagrams Core Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "6443685f-edff-5678-9824-ba055d911ad2",
             "title": "Server Test",
             "description": "Inferred from test source artifact.",
@@ -370,6 +414,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-TEST-INFERRED_CODE_TEST-3CA82E"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "6d44f366-b111-5d85-8819-d3a559c8a80f",
+            "title": "Asciidoc Diagrams Runtime Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-ASCIIDOC_DIAGRAMS_RUNTIME_TEST-A8483D"
               },
               {
                 "name": "verification-status",
@@ -444,6 +510,28 @@
             ]
           },
           {
+            "uuid": "890613da-0a40-53c9-aba4-b9fc2def173a",
+            "title": "Checkout Decline Response Test",
+            "description": "validates checkout decline response contract includes reason and retry guidance",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-A14671"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "92ba0702-6ed2-5d88-9d4c-cb188942457e",
             "title": "Rate Limit Deferral Test",
             "description": "verifies rate-limit deferral behavior for pull request review processing",
@@ -466,6 +554,50 @@
             ]
           },
           {
+            "uuid": "938b4ba9-9b08-5a5b-8bc2-8923b24e972e",
+            "title": "Fraud Gate Test",
+            "description": "validates fraud gate escalation and block decisions before authorization completion",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-002",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-INTEGRATION-FRAUD_GATE_TEST-C0B163"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "a11ebb9f-3e01-5e38-b83e-d789a052b1cc",
+            "title": "Asciidoc Linking Units Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-ASCIIDOC_LINKING_UNITS_TEST-22FDE2"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "a1d3626f-0b7c-5c57-a161-c9fdb5d03062",
             "title": "Logging Pipeline Test",
             "description": "validates telemetry logging pipeline persistence and operational reporting signals",
@@ -480,6 +612,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-6E4BE8"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "a7ddceba-1483-5f64-b738-bf9d601c3fd8",
+            "title": "Checkout Decline Reason Test",
+            "description": "validates checkout decline reason normalization and retry policy messaging",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PAY-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-B8BCCD"
               },
               {
                 "name": "verification-status",
@@ -524,6 +678,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-UNIT-OTA_CAMPAIGN_TEST-9000FB"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "af706ce5-5342-5904-b292-a02480d01144",
+            "title": "Asciidoc Views Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-ASCIIDOC_VIEWS_TEST-BFC7F2"
               },
               {
                 "name": "verification-status",
@@ -612,6 +788,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-TEST-ASCIIDOC_TEST-F60765"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "c9c4b24f-b80a-5ad9-8f71-22659dd8f0ef",
+            "title": "Project Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-001",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-PROJECT_TEST-2ECF72"
               },
               {
                 "name": "verification-status",

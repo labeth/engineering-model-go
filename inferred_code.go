@@ -27,6 +27,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
 		roots = append(roots, resolveSourcePath(baseDir, src))
 	}
+	roots = uniqueExistingDirs(roots)
 	if len(roots) == 0 {
 		return nil, nil
 	}
@@ -100,10 +101,11 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 			}
 			seen[key] = true
 			items = append(items, inferredCodeItem{
-				Element: label,
-				Kind:    "symbol",
-				Owner:   owner,
-				Source:  fmt.Sprintf("%s:%d", s.Path, s.Line),
+				Element:    label,
+				Kind:       "symbol",
+				Owner:      owner,
+				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
+				Implements: uniqueSorted(s.Implements),
 			})
 		}
 	}
@@ -120,6 +122,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 	return items, validate.SortDiagnostics(diags)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	path := filepath.Join(root, filepath.FromSlash(rel))
 	data, err := os.ReadFile(path)
@@ -148,6 +151,7 @@ type codeFileMetadata struct {
 	Description string
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	full := filepath.ToSlash(filepath.Clean(rel))
 	fset := token.NewFileSet()
@@ -177,6 +181,7 @@ func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeIt
 	return out, nil
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func goImportKind(path string) string {
 	switch {
 	case strings.HasPrefix(path, "github.com/labeth/engineering-model-go/"):
@@ -194,6 +199,7 @@ var (
 	rsUseRe     = regexp.MustCompile(`(?m)^\s*use\s+([A-Za-z0-9_:\{\}]+)\s*;`)
 )
 
+// TRLC-LINKS: REQ-EMG-010
 func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem {
 	out := []inferredCodeItem{}
 	add := func(dep string) {
@@ -225,6 +231,7 @@ func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem 
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 	out := []inferredCodeItem{}
 	for _, m := range rsUseRe.FindAllStringSubmatch(content, -1) {
@@ -249,6 +256,7 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func scanCodeMetadata(root string) map[string]codeFileMetadata {
 	out := map[string]codeFileMetadata{}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -291,6 +299,7 @@ func scanCodeMetadata(root string) map[string]codeFileMetadata {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func extractCodeDescriptionMarker(line string) (string, bool) {
 	markers := []string{
 		"ENGMODEL-CODE-DESCRIPTION:",
@@ -310,6 +319,7 @@ func extractCodeDescriptionMarker(line string) (string, bool) {
 	return "", false
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func ownerForPath(path string, owners map[string]string) string {
 	if x := strings.TrimSpace(owners[path]); x != "" && x != "unresolved" {
 		return x

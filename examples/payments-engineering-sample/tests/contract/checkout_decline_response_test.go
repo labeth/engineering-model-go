@@ -3,11 +3,12 @@ package contract
 
 import "testing"
 
+// TRLC-LINKS: REQ-PAY-003, REQ-PAY-006
 func TestCheckoutDeclineResponseIncludesReasonAndRetry(t *testing.T) {
 	resp := map[string]string{
-		"reason":      "insufficient_funds",
+		"reason":       "insufficient_funds",
 		"retryAllowed": "true",
-		"message":     "Temporary unavailable",
+		"message":      "Temporary unavailable",
 	}
 	if resp["reason"] == "" || resp["retryAllowed"] == "" || resp["message"] == "" {
 		t.Fatalf("decline response missing required fields")

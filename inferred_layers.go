@@ -35,6 +35,7 @@ type inferredCodeItem struct {
 	Owner       string
 	Description string
 	Source      string
+	Implements  []string
 }
 
 // TRLC-LINKS: REQ-EMG-001
@@ -124,6 +125,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 	return items, validate.SortDiagnostics(diags)
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	descHints, hintErr := parseTerraformRuntimeDescriptions(path)
 	if hintErr != nil {
@@ -192,6 +194,7 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 
 var terraformResourceLinePattern = regexp.MustCompile(`^\s*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{`)
 
+// TRLC-LINKS: REQ-EMG-001
 func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -230,6 +233,7 @@ func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
 	return out, nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func normalizeTerraformKind(resourceType string) string {
 	t := strings.TrimSpace(strings.ToLower(resourceType))
 	switch {
@@ -252,6 +256,7 @@ func normalizeTerraformKind(resourceType string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func inferOwnerByConvention(kind, name string) string {
 	k := strings.ToLower(strings.TrimSpace(kind))
 	n := strings.ToLower(strings.TrimSpace(name))
@@ -273,6 +278,7 @@ func inferOwnerByConvention(kind, name string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit) string {
 	owner := strings.TrimSpace(item.Owner)
 	if owner != "" && owner != "unresolved" && functionalUnitExists(owner, units) {
@@ -297,6 +303,7 @@ func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit)
 	return "unresolved"
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func functionalUnitExists(id string, units []model.FunctionalUnit) bool {
 	id = strings.TrimSpace(id)
 	if id == "" {
@@ -310,6 +317,7 @@ func functionalUnitExists(id string, units []model.FunctionalUnit) bool {
 	return false
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func inferDeploymentArtifactItems(baseDir, path string) []inferredRuntimeItem {
 	if !isDeploymentEvidencePath(path) {
 		return nil
@@ -324,6 +332,7 @@ func inferDeploymentArtifactItems(baseDir, path string) []inferredRuntimeItem {
 	}}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func isDeploymentEvidencePath(path string) bool {
 	p := filepath.ToSlash(strings.ToLower(strings.TrimSpace(path)))
 	if p == "" {
@@ -336,6 +345,7 @@ func isDeploymentEvidencePath(path string) bool {
 	return strings.Contains(p, "/deploy/oci/") || strings.Contains(p, "/deploy/kairos/") || strings.Contains(p, "/infra/flux/")
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func deploymentArtifactDisplayPath(baseDir, path string) string {
 	abs := strings.TrimSpace(path)
 	if abs == "" {
@@ -350,6 +360,7 @@ func deploymentArtifactDisplayPath(baseDir, path string) string {
 	return filepath.ToSlash(abs)
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) string {
 	nameTokens := normalizeOwnerTokens(name)
 	if len(nameTokens) == 0 {
@@ -377,6 +388,7 @@ func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) stri
 	return bestID
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func tokenMatchScore(left, right []string) int {
 	score := 0
 	for _, l := range left {
@@ -394,6 +406,7 @@ func tokenMatchScore(left, right []string) int {
 	return score
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func normalizeOwnerTokens(s string) []string {
 	parts := strings.FieldsFunc(strings.ToLower(strings.TrimSpace(s)), func(r rune) bool {
 		return !(unicode.IsLetter(r) || unicode.IsDigit(r))
@@ -414,6 +427,7 @@ func normalizeOwnerTokens(s string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func normalizeOwnerToken(token string) string {
 	x := strings.TrimSpace(token)
 	if len(x) < 3 {
@@ -463,6 +477,7 @@ type manifestPort struct {
 	TargetPort any    `yaml:"targetPort"`
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	raw, readErr := os.ReadFile(path)
 	if readErr == nil {
@@ -540,6 +555,7 @@ func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagno
 	return out, nil
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func normalizePorts(in []manifestPort) []string {
 	out := make([]string, 0, len(in))
 	for _, p := range in {
@@ -560,6 +576,7 @@ func normalizePorts(in []manifestPort) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func portsFromHelmValues(values map[string]any) []string {
 	if values == nil {
 		return nil
@@ -593,6 +610,7 @@ func portsFromHelmValues(values map[string]any) []string {
 	return []string{fmt.Sprintf("%d/TCP", port)}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func resolveSourcePath(baseDir, source string) string {
 	s := strings.TrimSpace(source)
 	if s == "" {
@@ -604,6 +622,7 @@ func resolveSourcePath(baseDir, source string) string {
 	return filepath.Join(baseDir, s)
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func extractMarkerValue(line, marker string) (string, bool) {
 	x := strings.TrimSpace(line)
 	x = strings.TrimPrefix(x, "//")
@@ -617,6 +636,7 @@ func extractMarkerValue(line, marker string) (string, bool) {
 	return "", false
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func extractRuntimeDescriptionMarker(line string) (string, bool) {
 	markers := []string{
 		"engmodel:runtime-description:",

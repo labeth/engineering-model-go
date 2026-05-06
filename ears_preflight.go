@@ -67,6 +67,7 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 	return validate.SortDiagnostics(out)
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	systems := append([]earslint.CatalogEntry{}, toEarsEntries(doc.Catalog.Systems)...)
 	systems = append(systems, toEarsEntries(doc.Catalog.FunctionalGroups)...)
@@ -83,6 +84,7 @@ func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsCoverageCatalog(doc model.CatalogDocument) earslint.Catalog {
 	return earslint.Catalog{
 		Systems:    toEarsEntries(doc.Catalog.Systems),
@@ -96,6 +98,7 @@ func toEarsCoverageCatalog(doc model.CatalogDocument) earslint.Catalog {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsEntries(in []model.CatalogEntry) []earslint.CatalogEntry {
 	out := make([]earslint.CatalogEntry, 0, len(in))
 	for _, e := range in {
@@ -108,6 +111,7 @@ func toEarsEntries(in []model.CatalogEntry) []earslint.CatalogEntry {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func dedupeEarsEntries(in []earslint.CatalogEntry) []earslint.CatalogEntry {
 	if len(in) == 0 {
 		return nil
@@ -130,6 +134,7 @@ func dedupeEarsEntries(in []earslint.CatalogEntry) []earslint.CatalogEntry {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func mapEarsSeverity(in earslint.Severity) validate.Severity {
 	switch in {
 	case earslint.SeverityError:
@@ -142,6 +147,7 @@ func mapEarsSeverity(in earslint.Severity) validate.Severity {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func isBlockingCatalogDiagnostic(code string) bool {
 	if code == "expr.unknown_term" {
 		return true
@@ -149,6 +155,7 @@ func isBlockingCatalogDiagnostic(code string) bool {
 	return strings.HasPrefix(code, "catalog.") && strings.HasSuffix(code, "_unresolved")
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func requirementPath(id string) string {
 	id = strings.TrimSpace(id)
 	if id == "" {

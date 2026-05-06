@@ -3,7 +3,7 @@
     "uuid": "6e40afb6-9bc6-549a-8815-7657c282fb9a",
     "metadata": {
       "title": "Sample Payments Layered Architecture POA\u0026M",
-      "last-modified": "2026-04-21T19:01:00Z",
+      "last-modified": "2026-05-06T18:44:20Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -44,6 +44,27 @@
         "description": "Privileged operational actions may bypass MFA if SSO policy enforcement drifts.",
         "status": "mitigating",
         "statement": "Legacy operator account cleanup still in progress."
+      },
+      {
+        "uuid": "a0ce2457-13e3-5e1d-b519-1fac497715ef",
+        "title": "Bank callback replay risk",
+        "description": "Replayed authorization callbacks may produce duplicate or stale decision transitions.",
+        "status": "mitigating",
+        "statement": "Nonce and idempotency controls sharply reduce replay window impact."
+      },
+      {
+        "uuid": "a1fd5c0f-94b1-5f6b-81a3-b4f80bcd3868",
+        "title": "Checkout payload spoofing risk",
+        "description": "Crafted checkout payloads may bypass validation and force unintended authorization paths.",
+        "status": "mitigating",
+        "statement": "Validation controls are implemented but continuously tuned as payload variants evolve."
+      },
+      {
+        "uuid": "a7b706db-246f-5da3-8707-fa1ea57469e5",
+        "title": "Manual review decision tampering risk",
+        "description": "Privileged workflow manipulation may alter manual review outcomes before final decision publication.",
+        "status": "open",
+        "statement": "Audit coverage is present but needs tighter immutable trail enforcement."
       }
     ]
   }

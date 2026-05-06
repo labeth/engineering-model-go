@@ -22,6 +22,7 @@ func TestExtractVerificationDescriptionMarker(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.T) {
 	root := t.TempDir()
 	testsDir := filepath.Join(root, "tests", "unit")
@@ -59,6 +60,7 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
 	root := t.TempDir()
 	testPath := filepath.Join(root, "root_feature_test.go")
@@ -94,6 +96,40 @@ func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
+func TestInferVerificationChecks_UsesTestFunctionCodeElement(t *testing.T) {
+	root := t.TempDir()
+	testsDir := filepath.Join(root, "tests", "unit")
+	if err := os.MkdirAll(testsDir, 0o755); err != nil {
+		t.Fatalf("create tests dir: %v", err)
+	}
+	testPath := filepath.Join(testsDir, "feature_test.go")
+	testContent := "package unit\n\n" +
+		"// TRLC-" + "LINKS: REQ-FEATURE-001\n" +
+		"func TestFeature() {}\n"
+	if err := os.WriteFile(testPath, []byte(testContent), 0o644); err != nil {
+		t.Fatalf("write test fixture: %v", err)
+	}
+
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "architecture.yml")}
+	requirements := model.RequirementsDocument{
+		Requirements: []model.Requirement{{ID: "REQ-FEATURE-001", AppliesTo: []string{"FU-FEATURE"}}},
+	}
+
+	checks, diags := inferVerificationChecks(bundle, requirements, nil, "")
+	if len(diags) != 0 {
+		t.Fatalf("expected no diagnostics, got: %+v", diags)
+	}
+	if len(checks) != 1 {
+		t.Fatalf("expected one inferred verification check, got %d", len(checks))
+	}
+	want := "feature_test.go:4"
+	if len(checks[0].CodeElements) != 1 || checks[0].CodeElements[0] != want {
+		t.Fatalf("unexpected code elements: got %+v want %q", checks[0].CodeElements, want)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIdentity(t *testing.T) {
 	root := t.TempDir()
 	testsDir := filepath.Join(root, "tests")
@@ -152,6 +188,31 @@ func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIden
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
+func TestBuildVerificationCodeElementIndex_PrefersSymbolsAndSkipsDependencies(t *testing.T) {
+	items := []inferredCodeItem{
+		{Element: "tests/unit/feature_test.go", Kind: "source_file", Source: "tests/unit/feature_test.go"},
+		{Element: "testing", Kind: "library_stdlib", Source: "tests/unit/feature_test.go"},
+		{Element: "os", Kind: "library_stdlib", Source: "tests/unit/feature_test.go"},
+		{Element: "CODE-TESTFEATURE", Kind: "symbol", Source: "tests/unit/feature_test.go:12"},
+		{Element: "CODE-TESTFEATUREOTHER", Kind: "symbol", Source: "tests/unit/feature_test.go:31"},
+		{Element: "path/filepath", Kind: "library_stdlib", Source: "tests/unit/feature_test.go"},
+		{Element: "tests/e2e/flow.yaml", Kind: "source_file", Source: "tests/e2e/flow.yaml"},
+	}
+
+	index := buildVerificationCodeElementIndex(items)
+
+	got := index["tests/unit/feature_test.go"]
+	want := []string{"feature_test.go:12,31"}
+	if len(got) != len(want) || got[0] != want[0] {
+		t.Fatalf("unexpected symbol-backed code elements: got %+v want %+v", got, want)
+	}
+	if got := index["tests/e2e/flow.yaml"]; len(got) != 1 || got[0] != "flow.yaml" {
+		t.Fatalf("expected yaml fallback to filename, got %+v", got)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func findCheckByEvidence(checks []inferredVerificationCheck, evidence string) (inferredVerificationCheck, bool) {
 	for _, check := range checks {
 		for _, ev := range check.Evidence {

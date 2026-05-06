@@ -63,6 +63,7 @@ func GenerateTRLCRequirementsFromFile(requirementsPath string, options TRLCExpor
 	return GenerateTRLCRequirements(reqDoc, TRLCExportOptions{PackageName: pkg})
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func GenerateTRLCRequirements(requirements model.RequirementsDocument, options TRLCExportOptions) (TRLCExportResult, error) {
 	pkg := sanitizeTRLCIdentifier(strings.TrimSpace(options.PackageName))
 	if pkg == "" {
@@ -105,6 +106,7 @@ func GenerateTRLCRequirements(requirements model.RequirementsDocument, options T
 	return TRLCExportResult{PackageName: pkg, ModelRSL: modelRSL, RequirementsTRLC: reqTRLC}, nil
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func executeTRLCTemplate(t *template.Template, data any) (string, error) {
 	var b bytes.Buffer
 	if err := t.Execute(&b, data); err != nil {
@@ -113,6 +115,7 @@ func executeTRLCTemplate(t *template.Template, data any) (string, error) {
 	return b.String(), nil
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func sanitizeTRLCIdentifier(in string) string {
 	in = strings.TrimSpace(in)
 	if in == "" {
@@ -150,6 +153,7 @@ func sanitizeTRLCIdentifier(in string) string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func sanitizeTRLCString(in string) string {
 	in = strings.ReplaceAll(in, "\\", "\\\\")
 	in = strings.ReplaceAll(in, "\"", "\\\"")
@@ -159,6 +163,7 @@ func sanitizeTRLCString(in string) string {
 	return strings.TrimSpace(in)
 }
 
+// TRLC-LINKS: REQ-EMG-006
 func uniqueTRLCObjectName(base string, used map[string]bool) string {
 	base = strings.TrimSpace(base)
 	if base == "" {

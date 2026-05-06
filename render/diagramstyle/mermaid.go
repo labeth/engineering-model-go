@@ -23,14 +23,16 @@ var mermaidClassDefs = []string{
 	"classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;",
 	"classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;",
 	"classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;",
-	"classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;",
+	"classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;",
 	"classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;",
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func MermaidClassDefs() []string {
 	return append([]string(nil), mermaidClassDefs...)
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func MermaidClassDefsWithIndent(indent string) []string {
 	defs := MermaidClassDefs()
 	if strings.TrimSpace(indent) == "" {
@@ -43,6 +45,7 @@ func MermaidClassDefsWithIndent(indent string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func MermaidClassDefsBlock(indent string) string {
 	return strings.Join(MermaidClassDefsWithIndent(indent), "\n")
 }

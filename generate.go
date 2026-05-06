@@ -26,6 +26,7 @@ func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	return Generate(bundle, viewID)
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func Generate(bundle model.Bundle, viewID string) (Result, error) {
 	diags := validate.Bundle(bundle)
 	pv, viewDiags := view.Build(bundle, viewID)

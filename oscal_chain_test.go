@@ -24,6 +24,7 @@ func TestGenerateOSCALAssessmentResultsFromFile_PaymentsSample(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func TestGenerateOSCALPOAMFromFile_PaymentsSample(t *testing.T) {
 	res, err := GenerateOSCALPOAMFromFile(filepath.Join("examples", "payments-engineering-sample", "architecture.yml"), OSCALPOAMOptions{})
 	if err != nil {

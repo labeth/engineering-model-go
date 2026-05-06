@@ -3,6 +3,7 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "aws-sdk-go-v2/secretsmanager";
 
 export class SecretsConfiguration {
+  // TRLC-LINKS: REQ-PRR-007
   constructor(private readonly sm: SecretsManagerClient) {}
 
   // TRLC-LINKS: REQ-PRR-007

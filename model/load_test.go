@@ -21,6 +21,7 @@ func TestLoadBundle(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestLoadBundle_Decisions(t *testing.T) {
 	p := filepath.Join("..", "architecture.yml")
 	b, err := LoadBundle(p)

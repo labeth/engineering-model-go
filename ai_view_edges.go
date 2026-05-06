@@ -136,6 +136,7 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 	return edges
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func renderAIEdgesNDJSON(edges []AIEdge) (string, error) {
 	buf := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buf)
@@ -148,6 +149,7 @@ func renderAIEdgesNDJSON(edges []AIEdge) (string, error) {
 	return buf.String(), nil
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func combineSourceRefs(parts ...[]string) []string {
 	out := []string{}
 	for _, p := range parts {

@@ -107,6 +107,7 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 	return GenerateOSCALAssessmentResults(bundle, req, options)
 }
 
+// TRLC-LINKS: REQ-EMG-013
 func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

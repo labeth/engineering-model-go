@@ -40,6 +40,7 @@ func TestGenerateAIViewFromFiles_Deterministic(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func TestGenerateAIViewFromFiles_BedrockShapeAndOrdering(t *testing.T) {
 	sample := filepath.Join("examples", "bedrock-pr-review-github-app-sample")
 	modelPath := filepath.Join(sample, "architecture.yml")
@@ -141,6 +142,7 @@ func TestGenerateAIViewFromFiles_BedrockShapeAndOrdering(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func TestGenerateAIView_IncludesNewAuthoredEntityKindsAndSupportPath(t *testing.T) {
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
@@ -190,6 +192,7 @@ func TestGenerateAIView_IncludesNewAuthoredEntityKindsAndSupportPath(t *testing.
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func TestGenerateAIView_IncludesFlowEntities(t *testing.T) {
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
@@ -248,6 +251,7 @@ func TestGenerateAIView_IncludesFlowEntities(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func TestGenerateAIView_GapReportIncludesUntestedRequirements(t *testing.T) {
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},

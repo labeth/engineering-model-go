@@ -56,6 +56,7 @@ func TestLintRequirementsEARS_UnresolvedCatalogTermsAreBlocking(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestLintRequirementsEARS_UnreferencedCatalogTermsWarnInStrict(t *testing.T) {
 	requirements := model.RequirementsDocument{
 		LintRun: model.LintRun{
@@ -100,6 +101,7 @@ func TestLintRequirementsEARS_UnreferencedCatalogTermsWarnInStrict(t *testing.T)
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestLintRequirementsEARS_UnreferencedCatalogTermsNotEmittedInGuided(t *testing.T) {
 	requirements := model.RequirementsDocument{
 		LintRun: model.LintRun{

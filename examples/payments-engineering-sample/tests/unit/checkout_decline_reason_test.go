@@ -3,6 +3,7 @@ package unit
 
 import "testing"
 
+// TRLC-LINKS: REQ-PAY-003, REQ-PAY-008
 func normalizeDeclineReason(raw string) string {
 	if raw == "" {
 		return "unknown"
@@ -10,10 +11,12 @@ func normalizeDeclineReason(raw string) string {
 	return raw
 }
 
+// TRLC-LINKS: REQ-PAY-003, REQ-PAY-008
 func retryAllowed(reason string) bool {
 	return reason != "fraud_suspected"
 }
 
+// TRLC-LINKS: REQ-PAY-003, REQ-PAY-008
 func TestDeclineReasonAndRetryPolicy(t *testing.T) {
 	reason := normalizeDeclineReason("insufficient_funds")
 	if reason == "" {

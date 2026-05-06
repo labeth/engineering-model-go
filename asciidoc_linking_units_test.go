@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// TRLC-LINKS: REQ-EMG-003
 func TestBuildLinkTargets_UsesRegistryAnchorAndPluralVariants(t *testing.T) {
 	ref := asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -41,6 +42,7 @@ func TestBuildLinkTargets_UsesRegistryAnchorAndPluralVariants(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_ConnectsPluralPhrases(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -69,6 +71,7 @@ func TestLinkifyText_ConnectsPluralPhrases(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestBuildLinkTargets_ProvidesTitleAndNaturalCaseVariants(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -94,6 +97,7 @@ func TestBuildLinkTargets_ProvidesTitleAndNaturalCaseVariants(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_PreservesExistingLinksAndAddsNewOnes(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -121,6 +125,7 @@ func TestLinkifyText_PreservesExistingLinksAndAddsNewOnes(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_LinksAcronymCasedCatalogPhrase(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -139,6 +144,7 @@ func TestLinkifyText_LinksAcronymCasedCatalogPhrase(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_LinksMQTTAcronymPhrase(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -157,6 +163,7 @@ func TestLinkifyText_LinksMQTTAcronymPhrase(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_LinksMixedCaseIoTPhrase(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
@@ -175,6 +182,7 @@ func TestLinkifyText_LinksMixedCaseIoTPhrase(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestLinkifyText_LinksCatalogAliasPhrase(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{

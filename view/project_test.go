@@ -7,6 +7,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuild_AppliesViewFiltersAndDepth(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{
@@ -47,6 +48,7 @@ func TestBuild_AppliesViewFiltersAndDepth(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuild_StateLifecycleDefaults(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{
@@ -80,6 +82,7 @@ func TestBuild_StateLifecycleDefaults(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuild_InteractionFlowProjection(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{
@@ -130,6 +133,7 @@ func TestBuild_InteractionFlowProjection(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuild_InteractionFlowRespectsIncludeMappings(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{
@@ -160,6 +164,7 @@ func TestBuild_InteractionFlowRespectsIncludeMappings(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuild_InteractionFlowIncludesActivityEdgesWhenConfigured(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{

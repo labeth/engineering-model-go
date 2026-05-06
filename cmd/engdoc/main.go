@@ -14,10 +14,12 @@ import (
 
 type viewFlags []string
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012, REQ-EMG-014
 func (v *viewFlags) String() string {
 	return strings.Join(*v, ",")
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012, REQ-EMG-014
 func (v *viewFlags) Set(value string) error {
 	value = strings.TrimSpace(value)
 	if value == "" {
@@ -123,6 +125,7 @@ func main() {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-003, REQ-EMG-009, REQ-EMG-012, REQ-EMG-014
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

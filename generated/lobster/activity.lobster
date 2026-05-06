@@ -31,7 +31,6 @@
       "name": "ai_view.go",
       "refs": [
         "req EngineeringModelGoRequirements.REQ_EMG_002",
-        "req EngineeringModelGoRequirements.REQ_EMG_010",
         "req EngineeringModelGoRequirements.REQ_EMG_012"
       ],
       "just_up": [],
@@ -82,6 +81,140 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.asciidoc_backlinks_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_backlinks.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_backlinks.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003",
+        "req EngineeringModelGoRequirements.REQ_EMG_014"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_decisions_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_decisions.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_decisions.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_014"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_design_refs_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_design_refs.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_design_refs.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_diagrams_core_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_diagrams_core.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_diagrams_core.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_diagrams_core_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_diagrams_core_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_diagrams_core_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_diagrams_runtime_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_diagrams_runtime.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_diagrams_runtime.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_diagrams_runtime_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_diagrams_runtime_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_diagrams_runtime_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.asciidoc_go",
       "location": {
         "kind": "file",
@@ -103,6 +236,63 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.asciidoc_linking_units_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_linking_units.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_linking_units.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_linking_units_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_linking_units_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_linking_units_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_template_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_template.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_template.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.asciidoc_test_go",
       "location": {
         "kind": "file",
@@ -115,6 +305,25 @@
         "req EngineeringModelGoRequirements.REQ_EMG_003",
         "req EngineeringModelGoRequirements.REQ_EMG_014",
         "req EngineeringModelGoRequirements.REQ_PAY_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.asciidoc_views_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/asciidoc_views.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "asciidoc_views.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_003"
       ],
       "just_up": [],
       "just_down": [],
@@ -323,6 +532,25 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.cmd_engview_main_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/cmd/engview/main.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "main.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.codemap_scan_go",
       "location": {
         "kind": "file",
@@ -352,7 +580,9 @@
       "name": "scan_test.go",
       "refs": [
         "req EngineeringModelGoRequirements.REQ_EMG_010",
-        "req EngineeringModelGoRequirements.REQ_IGNORED_001"
+        "req EngineeringModelGoRequirements.REQ_IGNORED_001",
+        "req EngineeringModelGoRequirements.REQ_SAMPLE_001",
+        "req EngineeringModelGoRequirements.REQ_SAMPLE_002"
       ],
       "just_up": [],
       "just_down": [],
@@ -412,6 +642,30 @@
       "refs": [
         "req EngineeringModelGoRequirements.REQ_EMG_001",
         "req EngineeringModelGoRequirements.REQ_EMG_009"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_lambda_runtime_ops_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/bedrock-pr-review-github-app-sample/src/lambda_runtime_ops.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "lambda_runtime_ops.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PRR_001",
+        "req EngineeringModelGoRequirements.REQ_PRR_003",
+        "req EngineeringModelGoRequirements.REQ_PRR_005",
+        "req EngineeringModelGoRequirements.REQ_PRR_006",
+        "req EngineeringModelGoRequirements.REQ_PRR_007",
+        "req EngineeringModelGoRequirements.REQ_PRR_008"
       ],
       "just_up": [],
       "just_down": [],
@@ -883,6 +1137,25 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.examples_payments_engineering_sample_src_domain_events_rs",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/src/domain/events.rs",
+        "line": 1,
+        "column": 1
+      },
+      "name": "events.rs",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.examples_payments_engineering_sample_src_payment_engine_rs",
       "location": {
         "kind": "file",
@@ -926,6 +1199,45 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.examples_payments_engineering_sample_src_support_audit_envelope_ts",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/src/support/audit_envelope.ts",
+        "line": 1,
+        "column": 1
+      },
+      "name": "audit_envelope.ts",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_005"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.examples_payments_engineering_sample_tests_contract_checkout_decline_response_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/tests/contract/checkout_decline_response_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "checkout_decline_response_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_003",
+        "req EngineeringModelGoRequirements.REQ_PAY_006"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.examples_payments_engineering_sample_tests_e2e_authorized_checkout_flow_yaml",
       "location": {
         "kind": "file",
@@ -936,6 +1248,65 @@
       "name": "authorized_checkout_flow.yaml",
       "refs": [
         "req EngineeringModelGoRequirements.REQ_PAY_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.examples_payments_engineering_sample_tests_integration_audit_record_persistence_test_ts",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/tests/integration/audit_record_persistence_test.ts",
+        "line": 1,
+        "column": 1
+      },
+      "name": "audit_record_persistence_test.ts",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_005"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.examples_payments_engineering_sample_tests_integration_fraud_gate_test_rs",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/tests/integration/fraud_gate_test.rs",
+        "line": 1,
+        "column": 1
+      },
+      "name": "fraud_gate_test.rs",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_002",
+        "req EngineeringModelGoRequirements.REQ_PAY_004"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.examples_payments_engineering_sample_tests_unit_checkout_decline_reason_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/tests/unit/checkout_decline_reason_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "checkout_decline_reason_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_PAY_003",
+        "req EngineeringModelGoRequirements.REQ_PAY_008"
       ],
       "just_up": [],
       "just_down": [],
@@ -1292,6 +1663,44 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.render_diagramstyle_mermaid_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/render/diagramstyle/mermaid.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "mermaid.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.render_mermaid_render_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/render/mermaid/render.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "render.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.render_mermaid_render_test_go",
       "location": {
         "kind": "file",
@@ -1427,6 +1836,27 @@
       "status": "ok"
     },
     {
+      "tag": "act tests.validate_diagnostic_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/validate/diagnostic.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "diagnostic.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001",
+        "req EngineeringModelGoRequirements.REQ_EMG_009",
+        "req EngineeringModelGoRequirements.REQ_EMG_011"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
       "tag": "act tests.validate_validate_go",
       "location": {
         "kind": "file",
@@ -1460,6 +1890,44 @@
         "req EngineeringModelGoRequirements.REQ_EMG_001",
         "req EngineeringModelGoRequirements.REQ_EMG_009",
         "req EngineeringModelGoRequirements.REQ_EMG_011"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.view_project_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/view/project.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "project.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    },
+    {
+      "tag": "act tests.view_project_test_go",
+      "location": {
+        "kind": "file",
+        "file": "/home/labeth/ws/engineering-model-go/view/project_test.go",
+        "line": 1,
+        "column": 1
+      },
+      "name": "project_test.go",
+      "refs": [
+        "req EngineeringModelGoRequirements.REQ_EMG_001"
       ],
       "just_up": [],
       "just_down": [],

@@ -454,6 +454,27 @@ authoredArchitecture:
       from: FG-MCP-INTEGRATION
       to: FU-MCP-SERVER
 
+    - type: interacts_with
+      from: ACT-ARCHITECTURE-AUTHOR
+      to: FU-CLI-ORCHESTRATION
+      description: Maintains model and design artifacts through CLI generation workflows.
+    - type: interacts_with
+      from: ACT-IMPLEMENTATION-ENGINEER
+      to: FU-CLI-ORCHESTRATION
+      description: Runs validation, generation, and export commands during implementation work.
+    - type: interacts_with
+      from: ACT-COMPLIANCE-ENGINEER
+      to: FU-OSCAL-EXPORTER
+      description: Uses OSCAL and traceability outputs for assurance workflows.
+    - type: interacts_with
+      from: ACT-AI-AGENT
+      to: FU-MCP-SERVER
+      description: Uses model-backed MCP tools to inspect and update implementation scope.
+    - type: interacts_with
+      from: ACT-CI-PIPELINE
+      to: FU-CLI-ORCHESTRATION
+      description: Executes validation and generation commands in automated checks.
+
     - type: depends_on
       from: FU-CLI-ORCHESTRATION
       to: FU-MODEL-LOADER
@@ -472,6 +493,10 @@ authoredArchitecture:
     - type: depends_on
       from: FU-AI-VIEW-BUILDER
       to: FU-VIEW-PROJECTION
+    - type: depends_on
+      from: FU-VALIDATION-ENGINE
+      to: REF-GO-TOOLCHAIN
+      description: Runs Go tests and static checks as part of repository validation.
     - type: depends_on
       from: FU-THREAT-EXPORTER
       to: REF-THREAT-DRAGON-SCHEMAS

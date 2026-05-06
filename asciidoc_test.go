@@ -34,6 +34,9 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if strings.Contains(res.Document, "MERMAID:") || strings.Contains(res.Document, "INF:") {
 		t.Fatalf("did not expect helper markers in final document")
 	}
+	if strings.Contains(res.Document, "=== View-Scoped Projection") {
+		t.Fatalf("did not expect low-value view-scoped projection section")
+	}
 	if !strings.Contains(res.Document, "=== Functional Groups and Units (View Scoped)") {
 		t.Fatalf("missing view-scoped functional groups/units section")
 	}
@@ -103,6 +106,7 @@ func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_EndToEnd(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
@@ -126,6 +130,7 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_DecisionsOut(t *testing.T) {
 	modelPath := "architecture.yml"
 	requirementsPath := "requirements.yml"
@@ -161,6 +166,7 @@ func TestEngdocCLI_DecisionsOut(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
@@ -191,6 +197,7 @@ func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
@@ -230,6 +237,7 @@ func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-014
 func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatch(t *testing.T) {
 	sample := filepath.Join("examples", "payments-engineering-sample")
 	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
@@ -311,6 +319,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testing.T) {
 	sample := filepath.Join("examples", "payments-engineering-sample")
 	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
@@ -403,6 +412,7 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *testing.T) {
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
@@ -507,15 +517,11 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 	}
 
 	stateSection := sectionByHeading(res.Document, "== State Lifecycle View")
-	for _, want := range []string{"STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE"} {
-		if !strings.Contains(stateSection, want) {
-			t.Fatalf("state lifecycle section missing node %s", want)
-		}
+	if !strings.Contains(stateSection, "=== State Lifecycle Diagram") {
+		t.Fatalf("state lifecycle section missing purpose-specific diagram")
 	}
-	for _, want := range []string{"transitions_to", "triggered_by", "guarded_by"} {
-		if !strings.Contains(stateSection, want) {
-			t.Fatalf("state lifecycle projection missing mapping type %s", want)
-		}
+	if strings.Contains(stateSection, "=== View-Scoped Projection") {
+		t.Fatalf("state lifecycle section should not render generic view-scoped projection")
 	}
 	if strings.Contains(stateSection, "depends_on") {
 		t.Fatalf("state lifecycle section should respect includeMappings and exclude depends_on")
@@ -527,18 +533,24 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 			t.Fatalf("security section missing %s", want)
 		}
 	}
+	if !strings.Contains(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)") {
+		t.Fatalf("threat scenario register should render one chapter per scenario")
+	}
+	for _, oldHeader := range []string{"|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes"} {
+		if strings.Contains(securitySection, oldHeader) {
+			t.Fatalf("threat scenario register should not use wide table header %q", oldHeader)
+		}
+	}
 
 	for _, id := range []string{"IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED"} {
 		block := referenceBlockByID(res.Document, id)
 		if block == "" {
 			t.Fatalf("missing reference index entry for %s", id)
 		}
-		if !strings.Contains(block, "|Mentioned In |<<") {
-			t.Fatalf("reference entry for %s missing backlinks", id)
-		}
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func sectionByHeading(doc, heading string) string {
 	idx := strings.Index(doc, heading)
 	if idx < 0 {
@@ -552,6 +564,7 @@ func sectionByHeading(doc, heading string) string {
 	return section[:len(heading)+next]
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func referenceBlockByID(doc, id string) string {
 	marker := "==== " + id
 	idx := strings.Index(doc, marker)
@@ -566,6 +579,7 @@ func referenceBlockByID(doc, id string) string {
 	return block[:len(marker)+next]
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
@@ -597,18 +611,16 @@ func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
 		t.Fatalf("missing Interaction Flow View chapter")
 	}
 	flowSection := sectionByHeading(res.Document, "== Interaction Flow View")
-	for _, want := range []string{"FLOW-INPUT", "FLOW-INPUT::submit", "flow_next", "flow_async", "flow_ref"} {
-		if !strings.Contains(flowSection, want) {
-			t.Fatalf("interaction flow section missing %s", want)
-		}
+	if !strings.Contains(flowSection, "=== Interaction Flow Diagram") {
+		t.Fatalf("interaction flow section missing purpose-specific diagram")
+	}
+	if strings.Contains(flowSection, "=== View-Scoped Projection") {
+		t.Fatalf("interaction flow section should not render generic view-scoped projection")
 	}
 	for _, id := range []string{"FLOW-INPUT", "FLOW-INPUT::submit"} {
 		block := referenceBlockByID(res.Document, id)
 		if block == "" {
 			t.Fatalf("missing reference index entry for %s", id)
-		}
-		if !strings.Contains(block, "|Mentioned In |<<") {
-			t.Fatalf("reference entry for %s missing backlinks", id)
 		}
 	}
 }

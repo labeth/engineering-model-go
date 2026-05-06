@@ -93,6 +93,7 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestHandleJSONRPCValidation(t *testing.T) {
 	s := NewServer()
 
@@ -117,6 +118,7 @@ func TestHandleJSONRPCValidation(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestPathTraversalIsRejected(t *testing.T) {
 	s := NewServer()
 	rpcCall(t, s, map[string]any{
@@ -162,6 +164,7 @@ func TestPathTraversalIsRejected(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestToolsCallRejectsBadInput(t *testing.T) {
 	s := NewServer()
 
@@ -203,6 +206,7 @@ func TestToolsCallRejectsBadInput(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestToolMissingRequiredArgument(t *testing.T) {
 	s := NewServer()
 	rpcCall(t, s, map[string]any{
@@ -243,6 +247,7 @@ func TestToolMissingRequiredArgument(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func argsForTool(name string) map[string]any {
 	switch name {
 	case "requirements.get", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight":
@@ -280,6 +285,7 @@ func argsForTool(name string) map[string]any {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func rpcCall(t *testing.T, s *Server, req map[string]any) map[string]any {
 	t.Helper()
 	b, err := json.Marshal(req)
@@ -297,6 +303,7 @@ func rpcCall(t *testing.T, s *Server, req map[string]any) map[string]any {
 	return resp
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func decodeResponse(t *testing.T, out []byte) map[string]any {
 	t.Helper()
 	var resp map[string]any

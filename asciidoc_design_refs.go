@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-003
 func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGroup {
 	out := map[string]model.DesignFunctionalGroup{}
 	for _, x := range d.Design.FunctionalGroups {
@@ -17,6 +18,7 @@ func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGr
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func mapDesignUnits(d model.DesignDocument) map[string]model.DesignFunctionalUnit {
 	out := map[string]model.DesignFunctionalUnit{}
 	for _, x := range d.Design.FunctionalUnits {
@@ -25,6 +27,7 @@ func mapDesignUnits(d model.DesignDocument) map[string]model.DesignFunctionalUni
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewDesignKey(kind string) string {
 	switch kind {
 	case "architecture-intent":
@@ -44,6 +47,7 @@ func viewDesignKey(kind string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildDesignDetails(entityID, intro string, source interface{}, views []model.View) []asciidocDesignDetail {
 	out := make([]asciidocDesignDetail, 0, len(views))
 	for _, v := range views {
@@ -72,6 +76,7 @@ func buildDesignDetails(entityID, intro string, source interface{}, views []mode
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func detailForView(details []asciidocDesignDetail, viewID string) asciidocDesignDetail {
 	for _, d := range details {
 		if d.ViewID == viewID {
@@ -84,6 +89,7 @@ func detailForView(details []asciidocDesignDetail, viewID string) asciidocDesign
 	return asciidocDesignDetail{ViewID: viewID, Title: "Design", Narrative: ""}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func nonEmpty(v, fallback string) string {
 	if strings.TrimSpace(v) == "" {
 		return fallback
@@ -91,6 +97,7 @@ func nonEmpty(v, fallback string) string {
 	return v
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -147,10 +154,12 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func referenceAnchor(kind, id string) string {
 	return "REF_" + strings.ToUpper(strings.TrimSpace(kind)) + "_" + sanitizeNode(id)
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDocument, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck) asciidocReferenceIndex {
 	authored := []asciidocReferenceEntry{}
 	catalogIDs := catalogEntryIDSet(bundle.Catalog)
@@ -254,6 +263,7 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
@@ -340,6 +350,7 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func catalogEntryIDSet(doc model.CatalogDocument) map[string]bool {
 	out := map[string]bool{}
 	add := func(entries []model.CatalogEntry) {
@@ -367,6 +378,7 @@ func catalogEntryIDSet(doc model.CatalogDocument) map[string]bool {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func aliasDescription(e model.CatalogEntry) string {
 	name := nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID))
 	def := strings.TrimSpace(e.Definition)
@@ -376,6 +388,7 @@ func aliasDescription(e model.CatalogEntry) string {
 	return def
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
@@ -415,11 +428,12 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
 	for _, c := range in {
-		id := strings.TrimSpace(c.Element)
+		id := codeItemDisplayName(c)
 		key := c.Kind + "|" + id + "|" + c.Source
 		if id == "" || seen[key] {
 			continue
@@ -439,7 +453,7 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 			}
 		}
 		out = append(out, asciidocReferenceEntry{
-			Anchor:      referenceAnchor("code", c.Kind+"-"+id),
+			Anchor:      referenceAnchor("code", c.Kind+"-"+id+"-"+source),
 			ID:          id,
 			Name:        id,
 			Kind:        "Code " + c.Kind,
@@ -460,6 +474,7 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildVerificationReferences(in []inferredVerificationCheck) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
@@ -497,6 +512,7 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 	out := []asciidocTerm{}
 	out = append(out, builtInEngineeringModelTerms()...)
@@ -536,6 +552,7 @@ func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func builtInEngineeringModelTerms() []asciidocTerm {
 	return []asciidocTerm{
 		{

@@ -15,7 +15,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// TRLC-LINKS: REQ-EMG-002, REQ-EMG-010, REQ-EMG-012
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -38,6 +38,7 @@ func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath stri
 	return generateAIView(bundle, requirements, design, reqPath, designAbsPath, options)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AIViewOptions) (AIViewResult, error) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	reqPath := filepath.Join(baseDir, "requirements.yml")
@@ -45,6 +46,7 @@ func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument
 	return generateAIView(bundle, requirements, design, reqPath, designPath, options)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func generateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
@@ -106,6 +108,7 @@ type aiBuildContext struct {
 	codeEntityIDFor    map[string]string
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, inferredRuntime []inferredRuntimeItem, inferredCode []inferredCodeItem, inferredVerification []inferredVerificationCheck, requirementsPath, designPath string, options AIViewOptions) AIViewDocument {
 	ctx := aiBuildContext{
 		bundle:             bundle,
@@ -547,13 +550,13 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 			if ce == "" {
 				continue
 			}
-			if strings.HasPrefix(ce, "CODE-") {
-				codeIDs = append(codeIDs, ce)
-				continue
-			}
 			mapped := findAIEntityCodeIDByElement(ce, inferredCode)
 			if mapped != "" {
 				codeIDs = append(codeIDs, mapped)
+				continue
+			}
+			if strings.HasPrefix(ce, "CODE-") {
+				codeIDs = append(codeIDs, ce)
 			}
 		}
 
@@ -771,6 +774,7 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func resolveAICodeRoots(bundle model.Bundle, codeRoot string) []string {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	roots := []string{}
@@ -802,6 +806,7 @@ func resolveAICodeRoots(bundle model.Bundle, codeRoot string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func splitCSVOrNone(s string) []string {
 	t := strings.TrimSpace(s)
 	if t == "" || t == "none" || strings.HasPrefix(strings.ToLower(t), "no explicit") {
@@ -818,6 +823,7 @@ func splitCSVOrNone(s string) []string {
 	return uniqueSorted(out)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func dependsOnTargets(unitID string, mappings []model.Mapping) []string {
 	out := []string{}
 	for _, m := range mappings {
@@ -828,6 +834,7 @@ func dependsOnTargets(unitID string, mappings []model.Mapping) []string {
 	return uniqueSorted(out)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func unitProducedRelations(unitID string, mappings []model.Mapping) []string {
 	out := []string{}
 	for _, m := range mappings {
@@ -842,38 +849,45 @@ func unitProducedRelations(unitID string, mappings []model.Mapping) []string {
 	return uniqueSorted(out)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func aiRuntimeItemKey(r inferredRuntimeItem) string {
 	return strings.TrimSpace(r.Kind) + "|" + strings.TrimSpace(r.Name) + "|" + strings.TrimSpace(r.Source)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func aiCodeItemKey(c inferredCodeItem) string {
 	return strings.TrimSpace(c.Kind) + "|" + strings.TrimSpace(c.Element) + "|" + strings.TrimSpace(c.Source)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func aiRuntimeEntityID(r inferredRuntimeItem) string {
 	return "RT-" + strings.ToUpper(sanitizeNode(strings.TrimSpace(r.Kind)+"-"+strings.TrimSpace(r.Name)+"-"+shortHash(strings.TrimSpace(r.Source))))
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func aiCodeEntityID(c inferredCodeItem) string {
 	return "CODE-" + strings.ToUpper(sanitizeNode(strings.TrimSpace(c.Kind)+"-"+strings.TrimSpace(c.Element)+"-"+shortHash(strings.TrimSpace(c.Source))))
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func shortHash(in string) string {
 	h := fnv.New32a()
 	_, _ = h.Write([]byte(in))
 	return fmt.Sprintf("%06X", h.Sum32())[:6]
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func findAIEntityCodeIDByElement(element string, inferredCode []inferredCodeItem) string {
 	element = strings.TrimSpace(element)
 	for _, c := range inferredCode {
-		if strings.TrimSpace(c.Element) == element {
+		if strings.TrimSpace(c.Element) == element || codeItemDisplayName(c) == element || sanitizeSourcePath(c.Source) == element {
 			return aiCodeEntityID(c)
 		}
 	}
 	return ""
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func runtimeStatus(r inferredRuntimeItem) string {
 	if strings.TrimSpace(r.Owner) == "" || strings.TrimSpace(r.Owner) == "unresolved" {
 		return "owner-unresolved"
@@ -881,6 +895,7 @@ func runtimeStatus(r inferredRuntimeItem) string {
 	return "inferred"
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func runtimeConfidence(r inferredRuntimeItem) string {
 	if strings.TrimSpace(r.Owner) == "" || strings.TrimSpace(r.Owner) == "unresolved" {
 		return "low"
@@ -895,6 +910,7 @@ func runtimeConfidence(r inferredRuntimeItem) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func codeStatus(c inferredCodeItem) string {
 	if strings.TrimSpace(c.Owner) == "" || strings.TrimSpace(c.Owner) == "unresolved" {
 		return "owner-unresolved"
@@ -902,6 +918,7 @@ func codeStatus(c inferredCodeItem) string {
 	return "inferred"
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func codeConfidence(c inferredCodeItem) string {
 	if strings.TrimSpace(c.Owner) == "" || strings.TrimSpace(c.Owner) == "unresolved" {
 		return "low"
@@ -916,6 +933,7 @@ func codeConfidence(c inferredCodeItem) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func verificationConfidence(v inferredVerificationCheck) string {
 	if len(v.Results) == 0 {
 		return "low"
@@ -931,6 +949,7 @@ func verificationConfidence(v inferredVerificationCheck) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func collectEntityIDsByKind(entities []AIEntity, kind string) []string {
 	out := []string{}
 	for _, e := range entities {
@@ -941,6 +960,7 @@ func collectEntityIDsByKind(entities []AIEntity, kind string) []string {
 	return uniqueSorted(out)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func aiEntityKindRank(kind string) int {
 	switch kind {
 	case "functional_group":
@@ -964,6 +984,7 @@ func aiEntityKindRank(kind string) int {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 	entityByID := map[string]AIEntity{}
 	for _, e := range entities {
@@ -1075,6 +1096,7 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 	return support
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIEntryPoint {
 	requirementsWithSupport := []string{}
 	requirementsWithGaps := []string{}
@@ -1153,6 +1175,7 @@ func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIE
 	return entryPoints
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIGapReport(entities []AIEntity, supportPaths []AISupportPath) AIGapReport {
 	entityByID := map[string]AIEntity{}
 	for _, e := range entities {
@@ -1221,6 +1244,7 @@ func buildAIGapReport(entities []AIEntity, supportPaths []AISupportPath) AIGapRe
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIImplementationPaths(entities []AIEntity, supportPaths []AISupportPath) []AIImplementationPath {
 	entityByID := map[string]AIEntity{}
 	for _, e := range entities {
@@ -1330,6 +1354,7 @@ func buildAIImplementationPaths(entities []AIEntity, supportPaths []AISupportPat
 	return paths
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func sourceRefsForEntities(entityByID map[string]AIEntity, ids []string) []string {
 	refs := []string{}
 	for _, id := range ids {
@@ -1340,6 +1365,7 @@ func sourceRefsForEntities(entityByID map[string]AIEntity, ids []string) []strin
 	return uniqueSorted(refs)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func parsePathAndLine(source string) (string, int) {
 	s := filepath.ToSlash(strings.TrimSpace(source))
 	if s == "" {
@@ -1355,6 +1381,7 @@ func parsePathAndLine(source string) (string, int) {
 	return s, 0
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addAuthoredYAMLSource(path, id, kind, summary, entityID string) string {
 	line := findLineForYAMLID(path, id)
 	if line == 0 {
@@ -1363,6 +1390,7 @@ func (ctx *aiBuildContext) addAuthoredYAMLSource(path, id, kind, summary, entity
 	return ctx.addSourceBlock(kind, path, line, line, summary, []string{entityID})
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addArtifactSource(source, kind, entityID, summary, hint string) string {
 	path, line := parsePathAndLine(source)
 	absPath, displayPath := ctx.resolveReadablePath(path)
@@ -1372,6 +1400,7 @@ func (ctx *aiBuildContext) addArtifactSource(source, kind, entityID, summary, hi
 	return ctx.addSourceBlock(kind, displayPath, line, line, summary, []string{entityID})
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addSourceBlock(kind, path string, lineStart, lineEnd int, summary string, entityIDs []string) string {
 	p := sanitizeSourcePath(path)
 	if strings.TrimSpace(p) == "" {
@@ -1405,6 +1434,7 @@ func (ctx *aiBuildContext) addSourceBlock(kind, path string, lineStart, lineEnd 
 	return id
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) linkEntitySource(entityID, sourceID string) {
 	entityID = strings.TrimSpace(entityID)
 	sourceID = strings.TrimSpace(sourceID)
@@ -1417,6 +1447,7 @@ func (ctx *aiBuildContext) linkEntitySource(entityID, sourceID string) {
 	ctx.sourceByEntityID[entityID][sourceID] = true
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) sourceRefsForEntityIDs(entityIDs []string) []string {
 	out := []string{}
 	for _, entityID := range entityIDs {
@@ -1427,6 +1458,7 @@ func (ctx *aiBuildContext) sourceRefsForEntityIDs(entityIDs []string) []string {
 	return uniqueSorted(out)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) finalizeSourceBlocks() []AISourceBlock {
 	out := make([]AISourceBlock, 0, len(ctx.sourceBlocksByKey))
 	for _, block := range ctx.sourceBlocksByKey {
@@ -1445,6 +1477,7 @@ func (ctx *aiBuildContext) finalizeSourceBlocks() []AISourceBlock {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) resolveReadablePath(path string) (string, string) {
 	p := strings.TrimSpace(path)
 	if p == "" {
@@ -1466,6 +1499,7 @@ func (ctx *aiBuildContext) resolveReadablePath(path string) (string, string) {
 	return p, p
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func findLineForYAMLID(path, id string) int {
 	id = strings.TrimSpace(id)
 	if id == "" {
@@ -1485,6 +1519,7 @@ func findLineForYAMLID(path, id string) int {
 	return 0
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func findLineContaining(path, token string) int {
 	token = strings.TrimSpace(token)
 	if token == "" {
@@ -1499,6 +1534,7 @@ func findLineContaining(path, token string) int {
 	return 0
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func readFileLines(path string) []string {
 	if strings.TrimSpace(path) == "" {
 		return nil

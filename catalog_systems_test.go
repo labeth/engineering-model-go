@@ -32,6 +32,7 @@ func TestToEarsCatalog_IncludesCatalogSystems(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestCatalogSystems_AppearInTermsAndRegistry(t *testing.T) {
 	doc := model.CatalogDocument{
 		Catalog: model.CatalogGroups{
@@ -77,6 +78,7 @@ func TestCatalogSystems_AppearInTermsAndRegistry(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-001
 func TestBuiltInTerms_IncludeNewAuthoredConcepts(t *testing.T) {
 	terms := buildTermsFromCatalog(model.CatalogDocument{})
 	seen := map[string]bool{}

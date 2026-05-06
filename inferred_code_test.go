@@ -33,6 +33,7 @@ package sample
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func TestBuildCodeReferences_UsesOwnerAndDescriptionFields(t *testing.T) {
 	refs := buildCodeReferences([]inferredCodeItem{{
 		Element:     "src/webhook_ingress.go",

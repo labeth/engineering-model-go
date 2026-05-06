@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/codemap"
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
 )
@@ -45,7 +46,6 @@ var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-ru
 func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	reqOwners := requirementOwners(requirements.Requirements)
-	codeBySource := buildVerificationCodeElementIndex(inferredCode)
 
 	testRoots := uniqueExistingDirs(append(
 		[]string{
@@ -62,6 +62,14 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 	))
 
 	diags := []validate.Diagnostic{}
+	codeBySource := buildVerificationCodeElementIndex(inferredCode)
+	testSymbols, symbolDiags := buildVerificationTestSymbolIndex(baseDir, testRoots)
+	diags = append(diags, symbolDiags...)
+	for path, symbols := range testSymbols {
+		if len(symbols) > 0 {
+			codeBySource[path] = symbols
+		}
+	}
 	checkByID := map[string]*inferredVerificationCheck{}
 	checkIDsByIdentity := map[string][]string{}
 	checkIdentityByID := map[string]map[string]bool{}
@@ -303,6 +311,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 	return out, validate.SortDiagnostics(diags)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseVerificationArtifact(path string) ([]inferredVerificationResult, bool) {
 	ext := strings.ToLower(filepath.Ext(path))
 	data, err := os.ReadFile(path)
@@ -338,6 +347,7 @@ type junitSuites struct {
 	Suite  []junitSuite `xml:"testsuites>testsuite"`
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseResultXML(data []byte) []inferredVerificationResult {
 	out := []inferredVerificationResult{}
 	decoder := junitSuites{}
@@ -374,6 +384,7 @@ func parseResultXML(data []byte) []inferredVerificationResult {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseResultJSON(data []byte) []inferredVerificationResult {
 	out := []inferredVerificationResult{}
 	var v any
@@ -407,6 +418,7 @@ func parseResultJSON(data []byte) []inferredVerificationResult {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func parseResultText(text string) []inferredVerificationResult {
 	reqs := extractTRLCLinkedRequirements(text)
 	if len(reqs) == 0 {
@@ -423,6 +435,7 @@ func parseResultText(text string) []inferredVerificationResult {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func extractTRLCLinkedRequirements(text string) []string {
 	out := []string{}
 	lines := strings.Split(text, "\n")
@@ -436,19 +449,13 @@ func extractTRLCLinkedRequirements(text string) []string {
 	return uniqueStrings(out)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]string {
-	out := map[string][]string{}
-	add := func(path, elem string) {
-		path = filepath.ToSlash(strings.TrimSpace(path))
-		elem = strings.TrimSpace(elem)
-		if path == "" || elem == "" {
-			return
-		}
-		if !isVerificationTestPath(path) {
-			return
-		}
-		out[path] = appendUnique(out[path], elem)
+	type pathEvidence struct {
+		hasSourceFile bool
+		symbols       []string
 	}
+	byPath := map[string]pathEvidence{}
 	for _, it := range items {
 		src := filepath.ToSlash(strings.TrimSpace(it.Source))
 		if src == "" {
@@ -461,15 +468,72 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 		if !isVerificationTestPath(srcPath) {
 			continue
 		}
-		add(srcPath, srcPath)
-		add(srcPath, strings.TrimSpace(it.Element))
+		ev := byPath[srcPath]
+		switch strings.TrimSpace(it.Kind) {
+		case "symbol":
+			ev.symbols = appendUnique(ev.symbols, codeItemDisplayName(it))
+		case "source_file":
+			ev.hasSourceFile = true
+		default:
+			continue
+		}
+		byPath[srcPath] = ev
 	}
-	for k := range out {
-		sort.Strings(out[k])
+	out := map[string][]string{}
+	for path, ev := range byPath {
+		if len(ev.symbols) > 0 {
+			out[path] = groupedCodeElementEvidenceLabels(ev.symbols, nil)
+			continue
+		}
+		if ev.hasSourceFile {
+			out[path] = groupedCodeElementEvidenceLabels([]string{path}, nil)
+		}
 	}
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
+func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[string][]string, []validate.Diagnostic) {
+	out := map[string][]string{}
+	diags := []validate.Diagnostic{}
+	for _, root := range uniqueExistingDirs(roots) {
+		symbols, scanDiags, err := codemap.Scan(root)
+		if err != nil {
+			diags = append(diags, validate.Diagnostic{
+				Code:     "verification.code_scan_failed",
+				Severity: validate.SeverityWarning,
+				Message:  err.Error(),
+				Path:     root,
+			})
+			continue
+		}
+		diags = append(diags, scanDiags...)
+		for _, s := range symbols {
+			absPath := filepath.Join(root, filepath.FromSlash(s.Path))
+			rel, err := filepath.Rel(baseDir, absPath)
+			if err != nil {
+				rel = absPath
+			}
+			rel = filepath.ToSlash(rel)
+			if !isVerificationTestPath(rel) {
+				continue
+			}
+			if s.Line > 0 {
+				label := codeElementEvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
+				out[rel] = appendUnique(out[rel], label)
+			} else {
+				label := codeElementEvidenceLabel(rel)
+				out[rel] = appendUnique(out[rel], label)
+			}
+		}
+	}
+	for path, elems := range out {
+		out[path] = groupedCodeElementEvidenceLabels(elems, nil)
+	}
+	return out, validate.SortDiagnostics(diags)
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func verificationCodeElementsForPath(path string, index map[string][]string) []string {
 	p := filepath.ToSlash(strings.TrimSpace(path))
 	if p == "" {
@@ -488,6 +552,7 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
 	base := filepath.Base(p)
@@ -502,6 +567,7 @@ func isVerificationTestPath(path string) bool {
 		strings.HasSuffix(base, ".spec.tsx")
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption string) []string {
 	out := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
@@ -513,6 +579,7 @@ func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption strin
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func requirementOwners(reqs []model.Requirement) map[string][]string {
 	out := map[string][]string{}
 	for _, r := range reqs {
@@ -531,6 +598,7 @@ func requirementOwners(reqs []model.Requirement) map[string][]string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func ownersForRequirements(reqOwners map[string][]string, reqs []string) []string {
 	out := []string{}
 	for _, req := range reqs {
@@ -539,6 +607,7 @@ func ownersForRequirements(reqOwners map[string][]string, reqs []string) []strin
 	return uniqueStrings(out)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func inferredSiblingDirs(baseDir string, bundle model.Bundle, codeRootOption, sibling string) []string {
 	out := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
@@ -555,6 +624,7 @@ func inferredSiblingDirs(baseDir string, bundle model.Bundle, codeRootOption, si
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func uniqueExistingDirs(in []string) []string {
 	out := []string{}
 	seen := map[string]bool{}
@@ -576,6 +646,7 @@ func uniqueExistingDirs(in []string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationKindFromPath(path string) string {
 	p := strings.ToLower(filepath.ToSlash(path))
 	switch {
@@ -592,6 +663,7 @@ func verificationKindFromPath(path string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationNameFromPath(path string) string {
 	base := filepath.Base(path)
 	ext := filepath.Ext(base)
@@ -608,6 +680,7 @@ func verificationNameFromPath(path string) string {
 	return strings.Join(parts, " ")
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationIDFromPath(rel string) string {
 	rel = filepath.ToSlash(strings.TrimSpace(rel))
 	kind := strings.ToUpper(sanitizeNode(verificationKindFromPath(rel)))
@@ -625,6 +698,7 @@ func verificationIDFromPath(rel string) string {
 	return "VER-INF-" + kind + "-" + base + "-" + suffix
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func normalizeResultStatus(s string) string {
 	x := strings.ToLower(strings.TrimSpace(s))
 	switch x {
@@ -648,6 +722,7 @@ func normalizeResultStatus(s string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func summarizeCheckStatus(results []inferredVerificationResult) string {
 	if len(results) == 0 {
 		return "not-run"
@@ -676,6 +751,7 @@ func summarizeCheckStatus(results []inferredVerificationResult) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationIdentityKeysFromPath(path string) []string {
 	p := filepath.ToSlash(strings.TrimSpace(path))
 	if p == "" {
@@ -698,6 +774,7 @@ func verificationIdentityKeysFromPath(path string) []string {
 	return keys
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func normalizeVerificationIdentity(raw string) string {
 	x := strings.ToLower(strings.TrimSpace(raw))
 	if x == "" {
@@ -709,6 +786,7 @@ func normalizeVerificationIdentity(raw string) string {
 
 var nonAlnumRe = regexp.MustCompile(`[^a-z0-9]+`)
 
+// TRLC-LINKS: REQ-EMG-010
 func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
 	bestID := ""
 	bestKeyMatches := -1
@@ -742,6 +820,7 @@ func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVeri
 	return bestID
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
 	path := strings.TrimSpace(relPath)
 	if path == "" {
@@ -761,6 +840,7 @@ func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
 	return "Inferred from test result artifact."
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func extractVerificationDescription(content string) string {
 	for _, line := range strings.Split(content, "\n") {
 		if desc, ok := extractVerificationDescriptionMarker(line); ok {
@@ -770,6 +850,7 @@ func extractVerificationDescription(content string) string {
 	return ""
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func extractVerificationDescriptionMarker(line string) (string, bool) {
 	markers := []string{
 		"ENGMODEL-VERIFICATION-DESCRIPTION:",
@@ -789,6 +870,7 @@ func extractVerificationDescriptionMarker(line string) (string, bool) {
 	return "", false
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func uniqueStrings(in []string) []string {
 	out := []string{}
 	seen := map[string]bool{}
@@ -804,6 +886,7 @@ func uniqueStrings(in []string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func appendUnique(in []string, x string) []string {
 	x = strings.TrimSpace(x)
 	if x == "" {
@@ -817,6 +900,7 @@ func appendUnique(in []string, x string) []string {
 	return append(in, x)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func appendUniqueSlice(in []string, items []string) []string {
 	out := append([]string(nil), in...)
 	for _, x := range items {
@@ -825,6 +909,7 @@ func appendUniqueSlice(in []string, items []string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func appendOrMergeResult(in []inferredVerificationResult, r inferredVerificationResult) []inferredVerificationResult {
 	for i := range in {
 		if in[i].Requirement == r.Requirement {
@@ -835,6 +920,7 @@ func appendOrMergeResult(in []inferredVerificationResult, r inferredVerification
 	return append(in, r)
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func mergeVerificationResult(existing, incoming inferredVerificationResult) inferredVerificationResult {
 	existingStatus := normalizeResultStatus(existing.Status)
 	incomingStatus := normalizeResultStatus(incoming.Status)
@@ -853,6 +939,7 @@ func mergeVerificationResult(existing, incoming inferredVerificationResult) infe
 	return existing
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func verificationStatusRank(status string) int {
 	switch normalizeResultStatus(status) {
 	case "fail":

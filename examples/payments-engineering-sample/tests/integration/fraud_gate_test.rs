@@ -1,6 +1,7 @@
 // ENGMODEL-VERIFICATION-DESCRIPTION: validates fraud gate escalation and block decisions before authorization completion
 // Sample integration fixture for architecture verification mapping.
 // Verifies REQ-PAY-002 and REQ-PAY-004.
+// TRLC-LINKS: REQ-PAY-002, REQ-PAY-004
 #[test]
 fn fraud_gate_blocks_or_escalates_before_final_authorization() {
     let risk_score = 92;

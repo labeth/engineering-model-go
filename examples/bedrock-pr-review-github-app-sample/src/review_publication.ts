@@ -3,6 +3,7 @@
 import { Octokit } from "github-rest-sdk/publication-client";
 
 export class ReviewPublication {
+  // TRLC-LINKS: REQ-PRR-005, REQ-PRR-007, REQ-PRR-008
   constructor(private readonly github: Octokit) {}
 
   // TRLC-LINKS: REQ-PRR-005

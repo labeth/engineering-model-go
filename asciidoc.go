@@ -45,6 +45,7 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 	return GenerateAsciiDoc(bundle, requirements, design, options)
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
@@ -204,6 +205,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 				Details: []asciidocDesignDetail{
 					detail,
 				},
+				DependencyGraph: g.DependencyGraph,
 			})
 		}
 		us := make([]asciidocUnitSection, 0, len(fuSections))
@@ -247,7 +249,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
 			viewSections[i].FuncDecompGraph = buildFunctionalDecompositionMermaid(bundle.Architecture.AuthoredArchitecture)
 			viewSections[i].FuncMatrixTable = buildFunctionalManhattanTable(bundle.Architecture.AuthoredArchitecture)
-			viewSections[i].FuncCollabGraph = buildFunctionalCollaborationMermaid(bundle.Architecture.AuthoredArchitecture)
+			for j := range viewSections[i].Groups {
+				viewSections[i].Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(bundle.Architecture.AuthoredArchitecture, viewSections[i].Groups[j].ID, inferredRuntime, inferredCode)
+			}
 		case "communication":
 			apiRows := buildRuntimeAPIRows(inferredRuntime, bundle.Architecture.AuthoredArchitecture.Mappings)
 			viewSections[i].RuntimeAPIRows = apiRows
@@ -269,11 +273,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			viewSections[i].SecurityControlChecks = buildSecurityControlVerificationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
 			viewSections[i].SecurityFlowRows = buildSecurityFlowRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
 			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
-			viewSections[i].SecurityContextDFD = buildSecurityContextDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
-			viewSections[i].SecurityDataFlowDFD = buildSecurityDataFlowDFDMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
-			viewSections[i].SecurityThreatOverlayDFD = buildSecurityThreatOverlayMermaid(bundle.Architecture.AuthoredArchitecture, labelByID)
+			viewSections[i].SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(bundle.Architecture.AuthoredArchitecture, labelByID)
 			viewSections[i].SecurityObsRows = buildSecurityObservabilityRows(inferredRuntime, inferredCode)
-			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, inferredRuntime, inferredCode)
+			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, labelByID, inferredRuntime, inferredCode)
 		case "traceability":
 			codeRows := buildCodeOwnershipRows(inferredCode)
 			viewSections[i].InferredGraph = buildCodeOwnershipMermaid(codeRows, bundle.Architecture.AuthoredArchitecture)
@@ -441,6 +443,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		for j := range viewSections[i].SecurityThreatScenarios {
 			viewSections[i].SecurityThreatScenarios[j].ID = linkifyText(viewSections[i].SecurityThreatScenarios[j].ID, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].Title = linkifyText(viewSections[i].SecurityThreatScenarios[j].Title, linkTargets)
+			viewSections[i].SecurityThreatScenarios[j].Summary = linkifyText(viewSections[i].SecurityThreatScenarios[j].Summary, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].AttackVector = linkifyText(viewSections[i].SecurityThreatScenarios[j].AttackVector, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].Scope = linkifyText(viewSections[i].SecurityThreatScenarios[j].Scope, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].Flows = linkifyText(viewSections[i].SecurityThreatScenarios[j].Flows, linkTargets)

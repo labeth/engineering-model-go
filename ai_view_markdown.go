@@ -179,10 +179,12 @@ func renderAIViewMarkdown(doc AIViewDocument) string {
 	return b.String()
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func intToString(n int) string {
 	return strconv.Itoa(n)
 }
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func nonEmptyJoined(items []string) string {
 	if len(items) == 0 {
 		return "none"

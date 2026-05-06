@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-003
 func renderViewConfig(in []model.View) []asciidocViewConfig {
 	out := make([]asciidocViewConfig, 0, len(in))
 	for _, x := range in {
@@ -22,6 +23,7 @@ func renderViewConfig(in []model.View) []asciidocViewConfig {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderActors(in []model.Actor) []asciidocActorSection {
 	out := make([]asciidocActorSection, 0, len(in))
 	for _, x := range in {
@@ -35,6 +37,7 @@ func renderActors(in []model.Actor) []asciidocActorSection {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderAttackVectors(in []model.AttackVector) []asciidocAttackVectorSection {
 	out := make([]asciidocAttackVectorSection, 0, len(in))
 	for _, x := range in {
@@ -48,6 +51,7 @@ func renderAttackVectors(in []model.AttackVector) []asciidocAttackVectorSection 
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderReferencedElements(in []model.ReferencedElement) []asciidocReferencedSection {
 	out := make([]asciidocReferencedSection, 0, len(in))
 	for _, x := range in {
@@ -62,6 +66,7 @@ func renderReferencedElements(in []model.ReferencedElement) []asciidocReferenced
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderMappings(in []model.Mapping) []asciidocMappingSection {
 	out := make([]asciidocMappingSection, 0, len(in))
 	for _, x := range in {
@@ -84,6 +89,7 @@ func renderMappings(in []model.Mapping) []asciidocMappingSection {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
 	for _, x := range in {
@@ -92,14 +98,16 @@ func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderInferredCode(in []inferredCodeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
 	for _, x := range in {
-		out = append(out, asciidocInferredRow{Name: x.Element, Kind: x.Kind, Owner: x.Owner, Source: x.Source})
+		out = append(out, asciidocInferredRow{Name: codeItemDisplayName(x), Kind: x.Kind, Owner: x.Owner, Source: sanitizeSourcePath(x.Source)})
 	}
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewHeading(kind string) string {
 	switch kind {
 	case "architecture-intent":
@@ -121,6 +129,7 @@ func viewHeading(kind string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
 	if len(options.ViewIDs) > 0 {
 		return append([]string(nil), options.ViewIDs...)
@@ -157,6 +166,7 @@ func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func inferredDescription(kind string) string {
 	switch kind {
 	case "architecture-intent":
@@ -178,6 +188,7 @@ func inferredDescription(kind string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewQuestions(kind string) []string {
 	switch kind {
 	case "architecture-intent":
@@ -227,6 +238,7 @@ func viewQuestions(kind string) []string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
 	gaps := []string{}
 	for _, u := range units {
@@ -256,6 +268,7 @@ func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
 	return gaps
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 	if len(units) == 0 {
 		return "No functional units are in scope for this view."
@@ -283,7 +296,8 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
 }
 
-func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, labels map[string]string, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
 	unitByID := map[string]asciidocUnitSection{}
 	for _, u := range units {
 		unitByID[strings.TrimSpace(u.ID)] = u
@@ -308,6 +322,29 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 			unitIDsByAttack[attackID] = map[string]bool{}
 		}
 		unitIDsByAttack[attackID][unitID] = true
+	}
+
+	mitigationsByAttack := map[string][]string{}
+	boundariesByUnit := map[string][]string{}
+	for _, m := range a.Mappings {
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		switch strings.TrimSpace(m.Type) {
+		case "mitigated_by":
+			if strings.HasPrefix(from, "AV-") && to != "" {
+				mitigationsByAttack[from] = append(mitigationsByAttack[from], labelOrID(to, labels))
+			}
+		case "bounded_by":
+			if strings.HasPrefix(from, "FU-") && to != "" {
+				boundariesByUnit[from] = append(boundariesByUnit[from], labelOrID(to, labels))
+			}
+		}
+	}
+	for attackID, items := range mitigationsByAttack {
+		mitigationsByAttack[attackID] = uniqueSorted(items)
+	}
+	for unitID, items := range boundariesByUnit {
+		boundariesByUnit[unitID] = uniqueSorted(items)
 	}
 
 	attackByID := map[string]model.AttackVector{}
@@ -365,17 +402,24 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 			}
 			return attackRows[i].TargetID < attackRows[j].TargetID
 		})
+		boundaries := []string{}
+		for _, unitID := range unitIDs {
+			boundaries = append(boundaries, boundariesByUnit[unitID]...)
+		}
 		out = append(out, asciidocSecurityAttackChapter{
-			ID:          attackID,
-			Name:        nonEmpty(strings.TrimSpace(av.Name), attackID),
-			Description: strings.TrimSpace(av.Description),
-			Diagram:     buildSecurityPathMermaid(attackRows, runtime, code),
-			Units:       chapterUnits,
+			ID:              attackID,
+			Name:            nonEmpty(strings.TrimSpace(av.Name), attackID),
+			Description:     strings.TrimSpace(av.Description),
+			MitigatedBy:     joinOrNone(mitigationsByAttack[attackID]),
+			TrustBoundaries: joinOrNone(uniqueSorted(boundaries)),
+			Diagram:         buildSecurityPathMermaid(attackRows, runtime, code),
+			Units:           chapterUnits,
 		})
 	}
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
 	withEvidence := 0
 	for _, u := range units {
@@ -400,6 +444,7 @@ func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
 	return withEvidence
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
 	rows := make([]asciidocHealthRow, 0, len(views))
 	for _, v := range views {
@@ -423,6 +468,7 @@ func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func normalizeAuthoredStatus(s string) string {
 	x := strings.TrimSpace(strings.ToLower(s))
 	if x == "" {
@@ -431,6 +477,7 @@ func normalizeAuthoredStatus(s string) string {
 	return x
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func normalizeAuthoredStatusExplanation(s string) string {
 	x := strings.TrimSpace(s)
 	if x == "" {
@@ -439,6 +486,7 @@ func normalizeAuthoredStatusExplanation(s string) string {
 	return x
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewHeuristicBasis(kind string) string {
 	switch kind {
 	case "communication", "deployment":
@@ -458,6 +506,7 @@ func viewHeuristicBasis(kind string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewCoverageConfidence(total, covered int) string {
 	if total <= 0 {
 		return "n/a"
@@ -473,6 +522,7 @@ func viewCoverageConfidence(total, covered int) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func viewNextActions(kind string, gaps []string) []string {
 	if len(gaps) == 0 || (len(gaps) == 1 && strings.Contains(strings.ToLower(gaps[0]), "no major coverage gaps")) {
 		return []string{"No immediate evidence additions are required for this view."}
@@ -515,6 +565,7 @@ func viewNextActions(kind string, gaps []string) []string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatScenarioRow {
 	inScopeScenarioIDs := map[string]bool{}
 	for _, ts := range a.ThreatScenarios {
@@ -531,6 +582,7 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 		rows = append(rows, asciidocThreatScenarioRow{
 			ID:            id,
 			Title:         nonEmpty(strings.TrimSpace(ts.Title), id),
+			Summary:       nonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
 			AttackVector:  labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
 			Scope:         joinLabeledIDs(ts.AppliesTo, labels),
 			Flows:         joinLabeledIDs(ts.FlowRefs, labels),
@@ -554,6 +606,7 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatAssumptionRow {
 	inScopeAssumptions := map[string]bool{}
 	for _, ts := range a.ThreatScenarios {
@@ -586,6 +639,7 @@ func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatOutOfScopeRow {
 	inScopeOut := map[string]bool{}
 	for _, ts := range a.ThreatScenarios {
@@ -619,6 +673,7 @@ func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatMitigationRow {
 	inScopeScenarioIDs := map[string]bool{}
 	for _, ts := range a.ThreatScenarios {
@@ -646,6 +701,7 @@ func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocControlVerificationRow {
 	inScopeScenarioIDs := map[string]bool{}
 	for _, ts := range a.ThreatScenarios {
@@ -674,6 +730,7 @@ func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet 
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocSecurityFlowRow {
 	rows := []asciidocSecurityFlowRow{}
 	for _, f := range a.Flows {
@@ -715,6 +772,7 @@ func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool
 	return rows
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func securityScenarioInScope(ts model.ThreatScenario, nodeSet map[string]bool) bool {
 	if nodeSet[strings.TrimSpace(ts.ID)] || nodeSet[strings.TrimSpace(ts.AttackVectorRef)] || nodeSet[strings.TrimSpace(ts.RiskRef)] {
 		return true
@@ -728,6 +786,7 @@ func securityScenarioInScope(ts model.ThreatScenario, nodeSet map[string]bool) b
 	return false
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func securityAppliesToInScope(ids []string, nodeSet map[string]bool) bool {
 	for _, id := range ids {
 		if nodeSet[strings.TrimSpace(id)] {
@@ -737,6 +796,7 @@ func securityAppliesToInScope(ids []string, nodeSet map[string]bool) bool {
 	return false
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func anyInSet(ids []string, set map[string]bool) bool {
 	for _, id := range ids {
 		if set[strings.TrimSpace(id)] {
@@ -746,6 +806,7 @@ func anyInSet(ids []string, set map[string]bool) bool {
 	return false
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func joinLabeledIDs(ids []string, labels map[string]string) string {
 	items := make([]string, 0, len(ids))
 	seen := map[string]bool{}
@@ -764,6 +825,16 @@ func joinLabeledIDs(ids []string, labels map[string]string) string {
 	return strings.Join(items, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
+func joinOrNone(items []string) string {
+	items = uniqueSorted(items)
+	if len(items) == 0 {
+		return "none"
+	}
+	return strings.Join(items, ", ")
+}
+
+// TRLC-LINKS: REQ-EMG-003
 func labelOrID(id string, labels map[string]string) string {
 	id = strings.TrimSpace(id)
 	if id == "" {

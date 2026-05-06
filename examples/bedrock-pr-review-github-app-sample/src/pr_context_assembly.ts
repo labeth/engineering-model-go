@@ -3,6 +3,7 @@
 import { Octokit } from "github-rest-sdk";
 
 export class PRContextAssembly {
+  // TRLC-LINKS: REQ-PRR-002
   constructor(private readonly github: Octokit) {}
 
   // TRLC-LINKS: REQ-PRR-002

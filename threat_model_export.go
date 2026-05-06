@@ -36,6 +36,7 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 	return GenerateThreatModelExport(bundle, options)
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -116,6 +117,7 @@ type tdv2Cell struct {
 	Connector string               `json:"connector,omitempty"`
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	a := bundle.Architecture.AuthoredArchitecture
 
@@ -376,6 +378,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func tdSeverity(in ...string) string {
 	for _, s := range in {
 		s = strings.ToLower(strings.TrimSpace(s))
@@ -391,6 +394,7 @@ func tdSeverity(in ...string) string {
 	return "Medium"
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func tdStatus(status string) string {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "resolved", "closed", "verified", "completed", "mitigated":
@@ -400,6 +404,7 @@ func tdStatus(status string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func tdHasOpenThreats(threats []map[string]any) bool {
 	for _, t := range threats {
 		if strings.EqualFold(strings.TrimSpace(fmt.Sprintf("%v", t["status"])), "open") {
@@ -518,6 +523,7 @@ type otmMitigationRef struct {
 	State      string `json:"state"`
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func buildOpenOTM(bundle model.Bundle) otmDocument {
 	a := bundle.Architecture.AuthoredArchitecture
 	doc := otmDocument{
@@ -733,6 +739,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 	return doc
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func otmState(status string) string {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "resolved", "closed", "completed", "verified", "mitigated", "implemented":
@@ -744,6 +751,7 @@ func otmState(status string) string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func scoreLevel(level string) float64 {
 	switch strings.ToLower(strings.TrimSpace(level)) {
 	case "high":
@@ -757,6 +765,7 @@ func scoreLevel(level string) float64 {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func findThreatScenarioByID(all []model.ThreatScenario, id string) model.ThreatScenario {
 	id = strings.TrimSpace(id)
 	for _, ts := range all {

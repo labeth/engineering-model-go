@@ -96,6 +96,7 @@ type indexedFile struct {
 	Content string
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func NewServer() *Server {
 	all := []Tool{
 		{Name: "requirements.get", Description: "Get requirement detail card"},
@@ -147,6 +148,7 @@ func NewServer() *Server {
 	return &Server{tools: m}
 }
 
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func (s *Server) ToolNames() []string {
 	names := make([]string, 0, len(s.tools))
 	for n := range s.tools {
@@ -188,6 +190,7 @@ func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 	return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "result": result})
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) dispatch(method string, params any) (any, int, error) {
 	switch method {
 	case "initialize":
@@ -261,6 +264,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) loadContext(params any) error {
 	p, _ := params.(map[string]any)
 	init, _ := p["initializationOptions"].(map[string]any)
@@ -331,6 +335,7 @@ func (s *Server) loadContext(params any) error {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
 		return map[string]any{"ok": false, "tool": name, "error": "model not loaded; pass initializationOptions.modelPath"}, nil
@@ -702,6 +707,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) findRequirement(id string) *model.Requirement {
 	if s.requirements == nil || strings.TrimSpace(id) == "" {
 		return nil
@@ -714,6 +720,7 @@ func (s *Server) findRequirement(id string) *model.Requirement {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) requirementIDs() []string {
 	if s.requirements == nil {
 		return nil
@@ -726,6 +733,7 @@ func (s *Server) requirementIDs() []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) flowsForRequirement(reqID string) []model.Flow {
 	if s.bundle == nil {
 		return nil
@@ -758,6 +766,7 @@ func (s *Server) flowsForRequirement(reqID string) []model.Flow {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) threatsForRequirement(reqID string) []model.ThreatScenario {
 	if s.bundle == nil {
 		return nil
@@ -786,6 +795,7 @@ func (s *Server) threatsForRequirement(reqID string) []model.ThreatScenario {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) filesForRequirement(reqID string) []string {
 	if strings.TrimSpace(reqID) == "" {
 		return nil
@@ -793,6 +803,7 @@ func (s *Server) filesForRequirement(reqID string) []string {
 	return s.filesContaining(reqID)
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) filesContaining(token string) []string {
 	token = strings.TrimSpace(token)
 	if token == "" || s.repoRoot == "" {
@@ -814,6 +825,7 @@ func (s *Server) filesContaining(token string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) ensureRepoIndex() error {
 	s.indexOnce.Do(func() {
 		s.indexErr = filepath.Walk(s.repoRoot, func(path string, info os.FileInfo, err error) error {
@@ -854,6 +866,7 @@ func (s *Server) ensureRepoIndex() error {
 	return s.indexErr
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) findInterface(idOrName string) *model.Interface {
 	idOrName = strings.TrimSpace(idOrName)
 	if s.bundle == nil || idOrName == "" {
@@ -868,6 +881,7 @@ func (s *Server) findInterface(idOrName string) *model.Interface {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-007
 func (s *Server) schemaRefForInterface(interfaceID string) string {
 	iface := s.findInterface(interfaceID)
 	if iface == nil {
@@ -902,6 +916,7 @@ func (s *Server) resolvePathInRepo(path string) (string, bool) {
 	return cleanTarget, true
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func endpointForEnv(i *model.Interface, env string) string {
 	if i == nil {
 		return ""
@@ -912,6 +927,7 @@ func endpointForEnv(i *model.Interface, env string) string {
 	return fmt.Sprintf("%s [%s]", i.Endpoint, env)
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func (s *Server) authHintsForInterface(interfaceID string) []string {
 	if s.bundle == nil {
 		return nil
@@ -930,6 +946,7 @@ func (s *Server) authHintsForInterface(interfaceID string) []string {
 	return uniqueStrings(hints)
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func (s *Server) ownerFor(id string) string {
 	if s.bundle == nil || strings.TrimSpace(id) == "" {
 		return ""
@@ -958,6 +975,7 @@ func (s *Server) ownerFor(id string) string {
 	return ""
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func (s *Server) graphNodes(query string, max int) []map[string]any {
 	if s.bundle == nil {
 		return nil
@@ -1001,6 +1019,7 @@ func (s *Server) graphNodes(query string, max int) []map[string]any {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func (s *Server) graphEdges(query string, max int) []map[string]any {
 	if s.bundle == nil {
 		return nil
@@ -1021,6 +1040,7 @@ func (s *Server) graphEdges(query string, max int) []map[string]any {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func firstNonEmptyArg(args map[string]any, keys ...string) string {
 	for _, k := range keys {
 		if v, ok := args[k]; ok {
@@ -1033,6 +1053,7 @@ func firstNonEmptyArg(args map[string]any, keys ...string) string {
 	return ""
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func nonEmptyString(v any, fallback string) string {
 	s := strings.TrimSpace(toString(v))
 	if s == "" {
@@ -1041,11 +1062,13 @@ func nonEmptyString(v any, fallback string) string {
 	return s
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func toString(v any) string {
 	s, _ := v.(string)
 	return s
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func uniqueStrings(in []string) []string {
 	seen := map[string]bool{}
 	out := []string{}
@@ -1060,6 +1083,7 @@ func uniqueStrings(in []string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func inputSchemaForTool(name string) map[string]any {
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
@@ -1069,6 +1093,7 @@ func inputSchemaForTool(name string) map[string]any {
 	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func validateToolArguments(name string, args map[string]any) error {
 	allowedKeys := map[string]bool{}
 	for _, k := range toolArgsAllowlist[name] {
@@ -1087,6 +1112,7 @@ func validateToolArguments(name string, args map[string]any) error {
 	return nil
 }
 
+// TRLC-LINKS: REQ-EMG-008
 func requireStableID(id string, allowedPrefixes ...string) error {
 	id = strings.TrimSpace(id)
 	if id == "" {

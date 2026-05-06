@@ -24,8 +24,10 @@ N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
 N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
 N_IF_BEDROCK_WEBHOOK_API[/"Webhook Intake API"/]:::interface
 N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
 N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
 N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
 N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
 N_STATE_BEDROCK_PR_RECEIVED(["PR Received"]):::state
 N_STATE_BEDROCK_REVIEW_PUBLISHED(["Review Published"]):::state
@@ -55,6 +57,7 @@ N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
 N_FU_PR_CONTEXT_ASSEMBLY -->|writes| N_DO_BEDROCK_PR_CONTEXT
 N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
 N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
 N_FU_REVIEW_ORCHESTRATION --> N_DEP_BEDROCK_LAMBDA_PRIMARY
 N_FU_REVIEW_ORCHESTRATION -->|contains| N_DO_BEDROCK_PR_CONTEXT
 N_FU_REVIEW_ORCHESTRATION -->|reads| N_DO_BEDROCK_PR_CONTEXT
@@ -69,6 +72,7 @@ N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
 N_FU_REVIEW_PUBLICATION -->|calls| N_IF_BEDROCK_REVIEW_PUBLISH_API
 N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
 N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
 N_IF_BEDROCK_REVIEW_PUBLISH_API --> N_DEP_BEDROCK_GITHUB_BOUNDARY
 N_STATE_BEDROCK_PR_RECEIVED --> N_EVT_BEDROCK_REVIEW_REQUESTED
 N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_PUBLISHED
@@ -94,5 +98,5 @@ classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
 classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
 classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
 classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
-classDef code_element fill:#eceff1,stroke:#37474f,stroke-width:1px,color:#263238;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;

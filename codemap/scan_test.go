@@ -44,11 +44,13 @@ func TestScan(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-010
 func TestScan_IgnoresMarkerTextInsideStringLiterals(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "sample_test.go")
 	content := `package sample
 
+// TRLC-LINKS: REQ-SAMPLE-001
 func TestFixture(t interface{}) {
 	marker := "// TRLC-LINKS: REQ-IGNORED-001\n"
 	_ = marker
@@ -65,4 +67,124 @@ func TestFixture(t interface{}) {
 	if len(diags) != 0 {
 		t.Fatalf("expected no diagnostics, got: %+v", diags)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestScan_RequiresTraceMarkersOnDeclarationLevel(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "sample_test.go")
+	content := `package sample
+
+// TRLC-LINKS: REQ-SAMPLE-001
+var fixture = "not a declaration-level trace target"
+
+// TRLC-LINKS: REQ-SAMPLE-002
+func TestFixture(t interface{}) {
+	_ = fixture
+}
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+
+	symbols, diags, err := Scan(root)
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+	if len(symbols) != 1 {
+		t.Fatalf("expected one symbol for attached function marker, got %+v", symbols)
+	}
+	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-002" {
+		t.Fatalf("expected attached function marker to be used, got %+v", symbols[0])
+	}
+	found := false
+	for _, d := range diags {
+		if d.Code == "code.trace_unattached" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected code.trace_unattached diagnostic, got %+v", diags)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestScan_RequiresTRLCLinksOnEveryFunction(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "sample.go")
+	content := `package sample
+
+type Fixture struct{}
+
+func missingOne() {}
+
+// TRLC-LINKS: REQ-SAMPLE-001
+func linked() {}
+
+func missingTwo() {}
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+
+	_, diags, err := Scan(root)
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+	var missing *validateDiagnostic
+	for i := range diags {
+		if diags[i].Code == "code.missing_trlc_link" {
+			missing = &validateDiagnostic{
+				Severity: string(diags[i].Severity),
+				Message:  diags[i].Message,
+				Path:     diags[i].Path,
+			}
+			break
+		}
+	}
+	if missing == nil {
+		t.Fatalf("expected code.missing_trlc_link diagnostic, got %+v", diags)
+	}
+	if missing.Severity != "error" {
+		t.Fatalf("expected error severity, got %+v", missing)
+	}
+	if missing.Path != "sample.go:5,10" {
+		t.Fatalf("expected file path with comma-listed lines, got %+v", missing)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestScan_RejectsMalformedTRLCLinks(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "sample.go")
+	content := `package sample
+
+// TRLC-` + `LINKS: "); ok {
+func broken() {}
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+
+	_, diags, err := Scan(root)
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+	foundInvalid := false
+	for _, d := range diags {
+		if d.Code == "code.invalid_trlc_link" && d.Severity == "error" {
+			foundInvalid = true
+			break
+		}
+	}
+	if !foundInvalid {
+		t.Fatalf("expected code.invalid_trlc_link diagnostic, got %+v", diags)
+	}
+}
+
+type validateDiagnostic struct {
+	Severity string
+	Message  string
+	Path     string
 }

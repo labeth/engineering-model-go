@@ -17,6 +17,7 @@ type Diagnostic struct {
 	Path     string   `json:"path,omitempty"`
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func SortDiagnostics(in []Diagnostic) []Diagnostic {
 	out := append([]Diagnostic(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool {
@@ -33,9 +34,22 @@ func SortDiagnostics(in []Diagnostic) []Diagnostic {
 		}
 		return string(a.Severity) < string(b.Severity)
 	})
-	return out
+	if len(out) < 2 {
+		return out
+	}
+	unique := out[:0]
+	var prev Diagnostic
+	for i, d := range out {
+		if i > 0 && d.Code == prev.Code && d.Severity == prev.Severity && d.Message == prev.Message && d.Path == prev.Path {
+			continue
+		}
+		unique = append(unique, d)
+		prev = d
+	}
+	return unique
 }
 
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func HasErrors(diags []Diagnostic) bool {
 	for _, d := range diags {
 		if d.Severity == SeverityError {

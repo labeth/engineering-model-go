@@ -209,7 +209,6 @@ type asciidocViewSection struct {
 	FuncContextGraph          string
 	FuncDecompGraph           string
 	FuncMatrixTable           string
-	FuncCollabGraph           string
 	Groups                    []asciidocEntitySection
 	Units                     []asciidocUnitSection
 	InferredGraph             string
@@ -222,8 +221,7 @@ type asciidocViewSection struct {
 	PlatformOpsRows           []asciidocPlatformOpRow
 	SecurityGraph             string
 	SecurityContextDFD        string
-	SecurityDataFlowDFD       string
-	SecurityThreatOverlayDFD  string
+	SecurityContextDiagrams   []asciidocSecurityContextDiagram
 	SecurityRows              []asciidocSecurityPathRow
 	SecurityThreatScenarios   []asciidocThreatScenarioRow
 	SecurityThreatAssumptions []asciidocThreatAssumptionRow
@@ -237,9 +235,16 @@ type asciidocViewSection struct {
 	ProjectedMappings         []asciidocMappingSection
 }
 
+type asciidocSecurityContextDiagram struct {
+	GroupID   string
+	GroupName string
+	Mermaid   string
+}
+
 type asciidocThreatScenarioRow struct {
 	ID            string
 	Title         string
+	Summary       string
 	AttackVector  string
 	Scope         string
 	Flows         string
@@ -315,11 +320,13 @@ type asciidocSecurityFlowRow struct {
 }
 
 type asciidocSecurityAttackChapter struct {
-	ID          string
-	Name        string
-	Description string
-	Diagram     string
-	Units       []asciidocUnitSection
+	ID              string
+	Name            string
+	Description     string
+	MitigatedBy     string
+	TrustBoundaries string
+	Diagram         string
+	Units           []asciidocUnitSection
 }
 
 type asciidocDesignDetail struct {
@@ -329,13 +336,14 @@ type asciidocDesignDetail struct {
 }
 
 type asciidocEntitySection struct {
-	Anchor      string
-	ID          string
-	Name        string
-	Description string
-	Tags        string
-	Intro       string
-	Details     []asciidocDesignDetail
+	Anchor          string
+	ID              string
+	Name            string
+	Description     string
+	Tags            string
+	Intro           string
+	Details         []asciidocDesignDetail
+	DependencyGraph string
 }
 
 type asciidocUnitSection struct {
@@ -401,6 +409,7 @@ type asciidocDecisionSection struct {
 	Consequences []string
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {
 	var b bytes.Buffer
 	if err := asciidocTemplate.Execute(&b, data); err != nil {

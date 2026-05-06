@@ -6,6 +6,7 @@ export type AuditEnvelope = {
   recordType: "fraud-audit";
 };
 
+// TRLC-LINKS: REQ-PAY-005
 export function createAuditEnvelope(paymentId: string, riskScore: number): AuditEnvelope {
   return {
     paymentId,

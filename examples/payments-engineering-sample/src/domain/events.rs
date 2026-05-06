@@ -6,6 +6,7 @@ pub struct PaymentEvent {
 }
 
 impl PaymentEvent {
+    // TRLC-LINKS: REQ-PAY-001
     pub fn new(payment_id: &str, amount_cents: u64) -> Self {
         Self {
             payment_id: payment_id.to_string(),

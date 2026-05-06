@@ -13,6 +13,7 @@ var (
 	sectionLinkPattern = regexp.MustCompile(`<<([^>,]+)(?:,[^>]+)?>>`)
 )
 
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-014
 func applyReferenceBacklinks(document string, ref asciidocReferenceIndex) asciidocReferenceIndex {
 	refAnchors := map[string]bool{}
 	addRefAnchors := func(entries []asciidocReferenceEntry) {

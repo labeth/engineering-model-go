@@ -18,6 +18,7 @@ type linkTarget struct {
 var modelIDPattern = regexp.MustCompile(`^[A-Z0-9]+-[A-Z0-9-]+$`)
 var inlineLinkPattern = regexp.MustCompile(`<<[^>\n]+>>`)
 
+// TRLC-LINKS: REQ-EMG-003
 func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	out := map[string]linkTarget{}
 	add := func(token, anchor, label string) {
@@ -92,6 +93,7 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func linkifyText(text string, targets map[string]linkTarget) string {
 	in := strings.TrimSpace(text)
 	if in == "" {
@@ -193,6 +195,7 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 	return b.String()
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func linkTokenVariants(token string) []string {
 	token = strings.TrimSpace(token)
 	if token == "" {
@@ -237,6 +240,7 @@ func linkTokenVariants(token string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func singleWordPlural(word string) (string, bool) {
 	switch strings.TrimSpace(strings.ToLower(word)) {
 	case "actor":
@@ -260,6 +264,7 @@ func singleWordPlural(word string) (string, bool) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func pluralizePhrase(phrase string) string {
 	parts := strings.Fields(strings.TrimSpace(phrase))
 	if len(parts) == 0 {
@@ -269,6 +274,7 @@ func pluralizePhrase(phrase string) string {
 	return strings.Join(parts, " ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func pluralizeWord(word string) string {
 	w := strings.TrimSpace(strings.ToLower(word))
 	if w == "" {
@@ -289,6 +295,7 @@ func pluralizeWord(word string) string {
 	return w + "s"
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func titleWords(s string) string {
 	parts := strings.Fields(strings.TrimSpace(s))
 	if len(parts) == 0 {
@@ -307,6 +314,7 @@ func titleWords(s string) string {
 	return strings.Join(parts, " ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func titleWordsNatural(s string) string {
 	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
 	if len(parts) == 0 {
@@ -333,6 +341,7 @@ func titleWordsNatural(s string) string {
 	return strings.Join(parts, " ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func titleWordsWithAcronyms(s string) string {
 	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
 	if len(parts) == 0 {
@@ -369,6 +378,7 @@ func titleWordsWithAcronyms(s string) string {
 	return strings.Join(parts, " ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func requirementsByUnit(reqs []model.Requirement) map[string]string {
 	set := map[string][]string{}
 	for _, r := range reqs {
@@ -384,6 +394,7 @@ func requirementsByUnit(reqs []model.Requirement) map[string]string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitDependencies(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
@@ -398,6 +409,7 @@ func unitDependencies(unitID string, mappings []model.Mapping, labels map[string
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
@@ -412,6 +424,7 @@ func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]st
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
@@ -437,6 +450,7 @@ type interfaceDetail struct {
 	Description string
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func renderInterfaceSubchapters(in []interfaceDetail) string {
 	if len(in) == 0 {
 		return "none"
@@ -470,6 +484,7 @@ func renderInterfaceSubchapters(in []interfaceDetail) string {
 	return b.String()
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	items := []interfaceDetail{}
 	seen := map[string]bool{}
@@ -499,6 +514,7 @@ func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labe
 	return renderInterfaceSubchapters(items)
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	items := []interfaceDetail{}
 	seen := map[string]bool{}
@@ -530,6 +546,7 @@ func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, lab
 	return renderInterfaceSubchapters(items)
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
@@ -559,6 +576,7 @@ func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[st
 	return strings.Join(out, "; ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqByUnit map[string]string, labels map[string]string) string {
 	areas := []string{}
 	for _, m := range mappings {
@@ -587,6 +605,7 @@ func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqB
 	return base
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func attackVectorsByTarget(mappings []model.Mapping, labels map[string]string) map[string]string {
 	set := map[string][]string{}
 	for _, m := range mappings {
@@ -602,6 +621,7 @@ func attackVectorsByTarget(mappings []model.Mapping, labels map[string]string) m
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func listNamesFG(in []model.FunctionalGroup) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
@@ -611,6 +631,7 @@ func listNamesFG(in []model.FunctionalGroup) string {
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func listNamesFU(in []model.FunctionalUnit) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
@@ -620,6 +641,7 @@ func listNamesFU(in []model.FunctionalUnit) string {
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func listNamesActors(in []model.Actor) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
@@ -629,6 +651,7 @@ func listNamesActors(in []model.Actor) string {
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func listNamesVectors(in []model.AttackVector) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
@@ -638,6 +661,7 @@ func listNamesVectors(in []model.AttackVector) string {
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func listNamesRefs(in []model.ReferencedElement) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
@@ -647,6 +671,7 @@ func listNamesRefs(in []model.ReferencedElement) string {
 	return strings.Join(out, ", ")
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func uniqueSorted(in []string) []string {
 	set := map[string]bool{}
 	for _, s := range in {
@@ -663,6 +688,7 @@ func uniqueSorted(in []string) []string {
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) map[string]string {
 	rtSet := map[string]map[string]bool{}
 	for _, r := range runtime {
@@ -715,6 +741,7 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 	return out
 }
 
+// TRLC-LINKS: REQ-EMG-003
 func sanitizeSourcePath(in string) string {
 	s := filepath.ToSlash(strings.TrimSpace(in))
 	if s == "" {
