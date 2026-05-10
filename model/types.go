@@ -1,6 +1,7 @@
 // ENGMODEL-OWNER-UNIT: FU-MODEL-LOADER
 package model
 
+// TRLC-LINKS: REQ-EMG-001
 type CatalogEntry struct {
 	ID         string   `yaml:"id"`
 	Name       string   `yaml:"name"`

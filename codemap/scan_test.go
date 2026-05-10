@@ -110,6 +110,42 @@ func TestFixture(t interface{}) {
 }
 
 // TRLC-LINKS: REQ-EMG-010
+func TestScan_AttachesTRLCLinksToGoTypeDeclarations(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "schema.go")
+	content := `package sample
+
+// TRLC-LINKS: REQ-SAMPLE-001
+type Document struct {
+	ID string
+}
+
+// TRLC-LINKS: REQ-SAMPLE-002
+type Alias = string
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+
+	symbols, diags, err := Scan(root)
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+	if len(diags) != 0 {
+		t.Fatalf("expected no diagnostics, got %+v", diags)
+	}
+	if len(symbols) != 2 {
+		t.Fatalf("expected two type symbols, got %+v", symbols)
+	}
+	if symbols[0].TraceID != "CODE-DOCUMENT" || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
+		t.Fatalf("unexpected first type symbol: %+v", symbols[0])
+	}
+	if symbols[1].TraceID != "CODE-ALIAS" || symbols[1].Implements[0] != "REQ-SAMPLE-002" {
+		t.Fatalf("unexpected second type symbol: %+v", symbols[1])
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func TestScan_RequiresTRLCLinksOnEveryFunction(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "sample.go")

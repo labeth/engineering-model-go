@@ -17,7 +17,7 @@ type Result struct {
 	Diagnostics []validate.Diagnostic
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
 func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -26,7 +26,7 @@ func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	return Generate(bundle, viewID)
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
 func Generate(bundle model.Bundle, viewID string) (Result, error) {
 	diags := validate.Bundle(bundle)
 	pv, viewDiags := view.Build(bundle, viewID)

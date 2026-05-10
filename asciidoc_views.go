@@ -573,6 +573,36 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
 		}
 	}
+	verificationsByScenario := map[string][]asciidocControlVerificationRow{}
+	for _, cv := range a.ControlVerifications {
+		id := strings.TrimSpace(cv.ID)
+		if id == "" {
+			continue
+		}
+		row := asciidocControlVerificationRow{
+			ID:              id,
+			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
+			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
+			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
+			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
+			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+		}
+		for _, scenarioID := range cv.ThreatScenarioRefs {
+			scenarioID = strings.TrimSpace(scenarioID)
+			if !inScopeScenarioIDs[scenarioID] {
+				continue
+			}
+			verificationsByScenario[scenarioID] = append(verificationsByScenario[scenarioID], row)
+		}
+	}
+	for scenarioID := range verificationsByScenario {
+		sort.SliceStable(verificationsByScenario[scenarioID], func(i, j int) bool {
+			return verificationsByScenario[scenarioID][i].ID < verificationsByScenario[scenarioID][j].ID
+		})
+	}
 	rows := make([]asciidocThreatScenarioRow, 0, len(inScopeScenarioIDs))
 	for _, ts := range a.ThreatScenarios {
 		id := strings.TrimSpace(ts.ID)
@@ -580,21 +610,22 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 			continue
 		}
 		rows = append(rows, asciidocThreatScenarioRow{
-			ID:            id,
-			Title:         nonEmpty(strings.TrimSpace(ts.Title), id),
-			Summary:       nonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
-			AttackVector:  labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
-			Scope:         joinLabeledIDs(ts.AppliesTo, labels),
-			Flows:         joinLabeledIDs(ts.FlowRefs, labels),
-			Likelihood:    nonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
-			Impact:        nonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
-			Severity:      nonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
-			Status:        nonEmpty(strings.TrimSpace(ts.Status), "unknown"),
-			Owner:         labelOrID(strings.TrimSpace(ts.Owner), labels),
-			Risk:          labelOrID(strings.TrimSpace(ts.RiskRef), labels),
-			Controls:      joinLabeledIDs(ts.RelatedControls, labels),
-			Mitigations:   joinLabeledIDs(ts.MitigationRefs, labels),
-			Verifications: joinLabeledIDs(ts.VerificationRefs, labels),
+			ID:                   id,
+			Title:                nonEmpty(strings.TrimSpace(ts.Title), id),
+			Summary:              nonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
+			AttackVector:         labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
+			Scope:                joinLabeledIDs(ts.AppliesTo, labels),
+			Flows:                joinLabeledIDs(ts.FlowRefs, labels),
+			Likelihood:           nonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
+			Impact:               nonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
+			Severity:             nonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
+			Status:               nonEmpty(strings.TrimSpace(ts.Status), "unknown"),
+			Owner:                labelOrID(strings.TrimSpace(ts.Owner), labels),
+			Risk:                 labelOrID(strings.TrimSpace(ts.RiskRef), labels),
+			Controls:             joinLabeledIDs(ts.RelatedControls, labels),
+			Mitigations:          joinLabeledIDs(ts.MitigationRefs, labels),
+			Verifications:        joinLabeledIDs(ts.VerificationRefs, labels),
+			ControlVerifications: verificationsByScenario[id],
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool {

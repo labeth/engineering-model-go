@@ -599,8 +599,6 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -749,7 +747,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 
 
 
@@ -1067,7 +1065,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,ai view build
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_002,REQ-EMG-002>>, <<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>
 
 
 
@@ -1095,7 +1093,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
 
 
 
@@ -1123,7 +1121,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,structur
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
 
 
 
@@ -1151,7 +1149,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,threat export
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
 
 
 
@@ -1179,7 +1177,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
+<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 
 
 
@@ -1349,7 +1347,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>
 
 
 
@@ -1864,6 +1862,26 @@ Code and tests change without corresponding <<REF_IDX-ENGMODEL_EM_REQUIREMENT,re
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
 
+
+===== Control Verification Status
+
+
+====== VER-TRACEABILITY-COVERAGE
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_TRACEABILITY_COVERAGE,Requirement Traceability Coverage>>
+|Method |<<REF_IDX-CATALOG_ANALYSIS,analysis>>
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,Compliance Engineer>>
+|Last Tested |unknown
+|Risks |none
+|Findings |Coverage depends on TRLC-LINKS completeness in source and tests.
+|===
+
+
+
 ==== MCP <<REF_IDX-CATALOG_PATH_TRAVERSAL,path traversal>> accesses non-repo files (TS-MCP-PATH-TRAVERSAL)
 
 Untrusted MCP input attempts to escape repo root for sensitive file reads.
@@ -1887,21 +1905,27 @@ Untrusted MCP input attempts to escape repo root for sensitive file reads.
 |===
 
 
+===== Control Verification Status
 
 
+====== VER-MCP-PATH-BOUNDARY
 
-
-=== Control Verification Status
-
-[cols="1,2,2,2,1,1,2,3",options="header"]
+[cols="1,3",options="header"]
 |===
-|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
-
-|VER-MCP-PATH-BOUNDARY |<<REF_IDX-CTRL_CTRL_MCP_PATH_BOUNDARY,MCP Path Boundary Enforcement>> |TS-MCP-PATH-TRAVERSAL |none |test |pass |<<REF_IDX-CATALOG_ACT_ARCHITECTURE_AUTHOR,Architecture Author>> / unknown |<<REF_IDX-CATALOG_PATH_TRAVERSAL,Path traversal>> rejected and error payload returned in MCP tests.
-
-|VER-TRACEABILITY-COVERAGE |<<REF_IDX-CTRL_CTRL_TRACEABILITY_COVERAGE,Requirement Traceability Coverage>> |TS-TRACEABILITY-DRIFT |none |<<REF_IDX-CATALOG_ANALYSIS,analysis>> |partial |<<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,Compliance Engineer>> / unknown |Coverage depends on TRLC-LINKS completeness in source and tests.
-
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_MCP_PATH_BOUNDARY,MCP Path Boundary Enforcement>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_ARCHITECTURE_AUTHOR,Architecture Author>>
+|Last Tested |unknown
+|Risks |none
+|Findings |<<REF_IDX-CATALOG_PATH_TRAVERSAL,Path traversal>> rejected and error payload returned in MCP tests.
 |===
+
+
+
+
+
 
 
 
@@ -1980,9 +2004,9 @@ flowchart LR
   AV_AV_MALFORMED_MODEL_INPUT -->|targets| SEC_TGT_FU_MODEL_LOADER
   SEC_RT_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MODEL_LOADER -->|runtime| SEC_RT_FU_MODEL_LOADER_RUNTIME
-  CODE_LOAD_GO["load.go:15,56,69,82,99"]:::code_element
+  CODE_LOAD_GO["load.go"]:::code_element
   SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
-  CODE_LOAD_TEST_GO["load_test.go:10,25"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go"]:::code_element
   SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   CODE_TYPES_GO["types.go"]:::code_element
   SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
@@ -2052,13 +2076,13 @@ flowchart LR
   SEC_TGT_FU_MCP_SERVER -->|depends_on| SEC_DEP_VALIDATION_ENGINE
   SEC_RT_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MCP_SERVER -->|runtime| SEC_RT_FU_MCP_SERVER_RUNTIME
-  CODE_MAIN_GO["main.go:14,15,18,19,23,33,48,49,50,85,107,129"]:::code_element
+  CODE_MAIN_GO["main.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
-  CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
+  CODE_MAIN_TEST_GO["main_test.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_TEST_GO
-  CODE_SERVER_GO["server.go:100,152,162,194,268,339,711,724,737,770,799,807,829,870,885,894,920,931,950,979,1023,1044,1057,1066,1072,1087,1097,1116"]:::code_element
+  CODE_SERVER_GO["server.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_GO
-  CODE_SERVER_TEST_GO["server_test.go:11,97,122,168,210,251,289,307"]:::code_element
+  CODE_SERVER_TEST_GO["server_test.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2120,21 +2144,21 @@ flowchart LR
   AV_AV_TRACEABILITY_GAP_DRIFT -->|targets| SEC_TGT_FU_CODEMAP_INFERENCE
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_CODEMAP_INFERENCE -->|runtime| SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_INFERRED_CODE_GO["inferred_code.go:21,126,155,185,203,235,260,303,323"]:::code_element
+  CODE_INFERRED_CODE_GO["inferred_code.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_GO
-  CODE_INFERRED_CODE_TEST_GO["inferred_code_test.go:11,37"]:::code_element
+  CODE_INFERRED_CODE_TEST_GO["inferred_code_test.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_TEST_GO
-  CODE_INFERRED_LAYERS_GO["inferred_layers.go:42,129,198,237,260,282,307,321,336,349,364,392,410,431,481,559,580,614,626,640"]:::code_element
+  CODE_INFERRED_LAYERS_GO["inferred_layers.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_GO
-  CODE_INFERRED_LAYERS_TEST_GO["inferred_layers_test.go:13,21,40,58,84,118"]:::code_element
+  CODE_INFERRED_LAYERS_TEST_GO["inferred_layers_test.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_TEST_GO
-  CODE_INFERRED_VERIFICATION_GO["inferred_verification.go:46,315,351,388,422,439,453,496,537,556,571,583,602,611,628,650,667,684,702,726,755,778,790,824,844,854,874,890,904,913,924,943"]:::code_element
+  CODE_INFERRED_VERIFICATION_GO["inferred_verification.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_GO
-  CODE_INFERRED_VERIFICATION_TEST_GO["inferred_verification_test.go:13,26,64,100,133,192,216"]:::code_element
+  CODE_INFERRED_VERIFICATION_TEST_GO["inferred_verification_test.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_TEST_GO
-  CODE_SCAN_GO["scan.go:60,110,243,263,333,392,414,425,434,447,456,461,470,475,487"]:::code_element
+  CODE_SCAN_GO["scan.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_GO
-  CODE_SCAN_TEST_GO["scan_test.go:11,48,73,113,158"]:::code_element
+  CODE_SCAN_TEST_GO["scan_test.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2248,8 +2272,6 @@ Coverage summary: 10/10 units have direct evidence coverage in this view.
 
 
 
-
-
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2315,8 +2337,6 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 
@@ -2435,8 +2455,6 @@ Coverage summary: 3/3 units have direct evidence coverage in this view.
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -2457,15 +2475,15 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |FU-CODEMAP-INFERENCE
 |FU-LOBSTER-EXPORTER
 |FU-MCP-SERVER
-|FU-OSCAL-EXPORTER
+|FU-MODEL-LOADER
 |REQ-EMG-001
-|
-|
+|X
+|X
 |X
 |
 |
 |
-|
+|X
 |REQ-EMG-002
 |X
 |
@@ -2561,7 +2579,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-014
 |
 |X
@@ -2572,21 +2590,27 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |===
 
-*Functional Unit Columns 8-11*
+*Functional Unit Columns 8-13*
 
-[cols="2,1,1,1,1",options="header"]
+[cols="2,1,1,1,1,1,1",options="header"]
 |===
 |Requirement
+|FU-OSCAL-EXPORTER
 |FU-STRUCTURIZR-EXPORTER
 |FU-THREAT-EXPORTER
 |FU-TRLC-EXPORTER
 |FU-VALIDATION-ENGINE
+|FU-VIEW-PROJECTION
 |REQ-EMG-001
-|
-|
+|X
+|X
+|X
 |
 |X
+|
 |REQ-EMG-002
+|
+|
 |
 |
 |
@@ -2596,22 +2620,32 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|REQ-EMG-004
 |
 |X
+|REQ-EMG-004
+|
+|
+|X
+|
 |
 |
 |REQ-EMG-005
+|
 |X
+|
 |
 |
 |
 |REQ-EMG-006
 |
 |
+|
 |X
 |
+|
 |REQ-EMG-007
+|
+|
 |
 |
 |
@@ -2621,32 +2655,46 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
+|
 |REQ-EMG-009
 |
 |
 |
+|
 |X
+|
 |REQ-EMG-010
 |
 |
 |
 |
+|
+|
 |REQ-EMG-011
+|
 |X
 |X
 |
 |X
+|
 |REQ-EMG-012
 |
 |
 |
 |
+|
+|
 |REQ-EMG-013
+|X
+|
 |
 |
 |
 |
 |REQ-EMG-014
+|
+|
 |
 |
 |
@@ -2711,22 +2759,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
-|<<REF_IDX-VER_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF>>
-|<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
-|not-run
-|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-
 |<<REF_IDX-VER_VER_INF_TEST_LOAD_TEST_A58EB3,VER-INF-TEST-LOAD_TEST-A58EB3>>
-|<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
-|not-run
-|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-
-|<<REF_IDX-VER_VER_INF_TEST_PROJECT_TEST_2ECF72,VER-INF-TEST-PROJECT_TEST-2ECF72>>
-|<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
-|not-run
-|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
-
-|<<REF_IDX-VER_VER_INF_TEST_RENDER_TEST_EECC23,VER-INF-TEST-RENDER_TEST-EECC23>>
 |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
@@ -2762,6 +2795,16 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,VER-INF-TEST-ASCIIDOC_VIEWS_TEST-BFC7F2>>
+|<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_PROJECT_TEST_2ECF72,VER-INF-TEST-PROJECT_TEST-2ECF72>>
+|<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_RENDER_TEST_EECC23,VER-INF-TEST-RENDER_TEST-EECC23>>
 |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
@@ -2817,6 +2860,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,VER-INF-TEST-INFERRED_CODE_TEST-3CA82E>>
+|<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF>>
 |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
@@ -2980,6 +3028,20 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 ----
 flowchart LR
   REQC_REQ_EMG_001["REQ-EMG-001"]:::requirement
+  FU_FU_AI_VIEW_BUILDER["AI View Builder"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_AI_VIEW_BUILDER
+  RTC_FU_AI_VIEW_BUILDER_RUNTIME["AI View Builder runtime (inferred)"]:::runtime_element
+  FU_FU_AI_VIEW_BUILDER -->|runtime evidence| RTC_FU_AI_VIEW_BUILDER_RUNTIME
+  CODE_AI_VIEW_GO["ai_view.go:19,42,50,112,778,810,827,838,853,858,863,868,873,880,891,899,914,922,937,953,964,988,1100,1179,1248,1358,1369,1385,1394,1404,1438,1451,1462,1481,1503,1523,1538"]:::code_element
+  RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_AI_VIEW_GO
+  FU_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_ASCIIDOC_GENERATOR
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME["AsciiDoc Generator runtime (inferred)"]:::runtime_element
+  FU_FU_ASCIIDOC_GENERATOR -->|runtime evidence| RTC_FU_ASCIIDOC_GENERATOR_RUNTIME
+  CODE_ASCIIDOC_GO["asciidoc.go:28,49"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_ASCIIDOC_GO
   FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
   REQC_REQ_EMG_001 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
@@ -2993,6 +3055,46 @@ flowchart LR
   CODE_MAIN_GO["main.go:14,15,18,19,23,33,48,49,50,85,107,129"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_MAIN_GO
+  FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_MODEL_LOADER
+  RTC_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
+  FU_FU_MODEL_LOADER -->|runtime evidence| RTC_FU_MODEL_LOADER_RUNTIME
+  CODE_LOAD_GO["load.go:15,56,69,82,99"]:::code_element
+  RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_LOAD_GO
+  CODE_LOAD_TEST_GO["load_test.go:10,25"]:::code_element
+  RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_LOAD_TEST_GO
+  CODE_TYPES_GO["types.go:5"]:::code_element
+  RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_TYPES_GO
+  FU_FU_OSCAL_EXPORTER["OSCAL Exporter"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_OSCAL_EXPORTER
+  RTC_FU_OSCAL_EXPORTER_RUNTIME["OSCAL Exporter runtime (inferred)"]:::runtime_element
+  FU_FU_OSCAL_EXPORTER -->|runtime evidence| RTC_FU_OSCAL_EXPORTER_RUNTIME
+  CODE_OSCAL_AR_GO["oscal_ar.go:91,111"]:::code_element
+  RTC_FU_OSCAL_EXPORTER_RUNTIME -->|implemented_by| CODE_OSCAL_AR_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_OSCAL_AR_GO
+  CODE_OSCAL_POAM_GO["oscal_poam.go:64,73"]:::code_element
+  RTC_FU_OSCAL_EXPORTER_RUNTIME -->|implemented_by| CODE_OSCAL_POAM_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_OSCAL_POAM_GO
+  CODE_OSCAL_SSP_GO["oscal_ssp.go:155,164,345,355,397,439,448"]:::code_element
+  RTC_FU_OSCAL_EXPORTER_RUNTIME -->|implemented_by| CODE_OSCAL_SSP_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_OSCAL_SSP_GO
+  FU_FU_STRUCTURIZR_EXPORTER["Structurizr Exporter"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_STRUCTURIZR_EXPORTER
+  RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME["Structurizr Exporter runtime (inferred)"]:::runtime_element
+  FU_FU_STRUCTURIZR_EXPORTER -->|runtime evidence| RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME
+  CODE_STRUCTURIZR_EXPORT_GO["structurizr_export.go:115,124,259,299,371,393,408,418,444,458,477,511,526,533,540,547,554,561,568,575,582,589,596,603,612,620,657,672"]:::code_element
+  RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME -->|implemented_by| CODE_STRUCTURIZR_EXPORT_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_STRUCTURIZR_EXPORT_GO
+  FU_FU_THREAT_EXPORTER["Threat Exporter"]:::functional_unit
+  REQC_REQ_EMG_001 -->|applies_to| FU_FU_THREAT_EXPORTER
+  RTC_FU_THREAT_EXPORTER_RUNTIME["Threat Exporter runtime (inferred)"]:::runtime_element
+  FU_FU_THREAT_EXPORTER -->|runtime evidence| RTC_FU_THREAT_EXPORTER_RUNTIME
+  CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go:31,40,121,382,398,408,527,743,755,769"]:::code_element
+  RTC_FU_THREAT_EXPORTER_RUNTIME -->|implemented_by| CODE_THREAT_MODEL_EXPORT_GO
+  REQC_REQ_EMG_001 -->|code trace| CODE_THREAT_MODEL_EXPORT_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_001 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
@@ -3027,22 +3129,9 @@ flowchart LR
   VERC_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26["VER-INF-TEST-EARS_PREFLIGHT_TEST-1ABE26 (not-run)"]:::verification
   VERC_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26 -->|verifies| REQC_REQ_EMG_001
   VERC_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26 -->|implemented_by| CODE_EARS_PREFLIGHT_TEST_GO
-  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF["VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF (not-run)"]:::verification
-  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF -->|verifies| REQC_REQ_EMG_001
-  CODE_INFERRED_LAYERS_TEST_GO["inferred_layers_test.go:13,21,40,58,84,118"]:::code_element
-  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF -->|implemented_by| CODE_INFERRED_LAYERS_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|verifies| REQC_REQ_EMG_001
-  CODE_LOAD_TEST_GO["load_test.go:10,25"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|implemented_by| CODE_LOAD_TEST_GO
-  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72["VER-INF-TEST-PROJECT_TEST-2ECF72 (not-run)"]:::verification
-  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72 -->|verifies| REQC_REQ_EMG_001
-  CODE_PROJECT_TEST_GO["project_test.go:11,52,86,137,168"]:::code_element
-  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72 -->|implemented_by| CODE_PROJECT_TEST_GO
-  VERC_VER_INF_TEST_RENDER_TEST_EECC23["VER-INF-TEST-RENDER_TEST-EECC23 (not-run)"]:::verification
-  VERC_VER_INF_TEST_RENDER_TEST_EECC23 -->|verifies| REQC_REQ_EMG_001
-  CODE_RENDER_TEST_GO["render_test.go:12"]:::code_element
-  VERC_VER_INF_TEST_RENDER_TEST_EECC23 -->|implemented_by| CODE_RENDER_TEST_GO
   VERC_VER_INF_TEST_VALIDATE_TEST_498C59["VER-INF-TEST-VALIDATE_TEST-498C59 (not-run)"]:::verification
   VERC_VER_INF_TEST_VALIDATE_TEST_498C59 -->|verifies| REQC_REQ_EMG_001
   VERC_VER_INF_TEST_VALIDATE_TEST_498C59 -->|implemented_by| CODE_VALIDATE_TEST_GO
@@ -3099,6 +3188,9 @@ flowchart LR
   CODE_AI_VIEW_MARKDOWN_GO["ai_view_markdown.go:10,183,188"]:::code_element
   RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_MARKDOWN_GO
   REQC_REQ_EMG_002 -->|code trace| CODE_AI_VIEW_MARKDOWN_GO
+  CODE_AI_VIEW_SCHEMA_GO["ai_view_schema.go:7"]:::code_element
+  RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_SCHEMA_GO
+  REQC_REQ_EMG_002 -->|code trace| CODE_AI_VIEW_SCHEMA_GO
   CODE_AI_VIEW_TEST_GO["ai_view_test.go:15,44,146,196,255"]:::code_element
   RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_TEST_GO
   REQC_REQ_EMG_002 -->|code trace| CODE_AI_VIEW_TEST_GO
@@ -3183,13 +3275,13 @@ flowchart LR
   CODE_ASCIIDOC_LINKING_UNITS_TEST_GO["asciidoc_linking_units_test.go:10,46,75,101,129,148,167,186"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_LINKING_UNITS_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_LINKING_UNITS_TEST_GO
-  CODE_ASCIIDOC_TEMPLATE_GO["asciidoc_template.go:413"]:::code_element
+  CODE_ASCIIDOC_TEMPLATE_GO["asciidoc_template.go:414"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEMPLATE_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_TEMPLATE_GO
-  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,323,416,554,568,583"]:::code_element
+  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,323,416,561,575,590"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_TEST_GO
-  CODE_ASCIIDOC_VIEWS_GO["asciidoc_views.go:13,27,41,55,70,93,102,111,133,170,192,242,272,300,423,448,472,481,490,510,526,569,610,643,677,705,734,776,790,800,810,829,838"]:::code_element
+  CODE_ASCIIDOC_VIEWS_GO["asciidoc_views.go:13,27,41,55,70,93,102,111,133,170,192,242,272,300,423,448,472,481,490,510,526,569,641,674,708,736,765,807,821,831,841,860,869"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_VIEWS_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_VIEWS_GO
   CODE_ASCIIDOC_VIEWS_TEST_GO["asciidoc_views_test.go:11"]:::code_element
@@ -3199,9 +3291,34 @@ flowchart LR
   REQC_REQ_EMG_003 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
+  CODE_GENERATE_GO["generate.go:21,30"]:::code_element
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_GENERATE_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_GENERATE_GO
   CODE_MAIN_GO["main.go:14,15,18,19,23,33,48,49,50,85,107,129"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_MAIN_GO
+  FU_FU_VIEW_PROJECTION["View Projection"]:::functional_unit
+  REQC_REQ_EMG_003 -->|applies_to| FU_FU_VIEW_PROJECTION
+  RTC_FU_VIEW_PROJECTION_RUNTIME["View Projection runtime (inferred)"]:::runtime_element
+  FU_FU_VIEW_PROJECTION -->|runtime evidence| RTC_FU_VIEW_PROJECTION_RUNTIME
+  CODE_MERMAID_GO["mermaid.go:31,36,49"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_MERMAID_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_MERMAID_GO
+  CODE_PROJECT_GO["project.go:35,131,210,220,279,284,299,314,348,361,554,562"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_PROJECT_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_PROJECT_GO
+  CODE_PROJECT_TEST_GO["project_test.go:11,52,86,137,168"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_PROJECT_TEST_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_PROJECT_TEST_GO
+  CODE_RENDER_GO["render.go:39,94,132,144,162,172"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_RENDER_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_RENDER_GO
+  CODE_RENDER_TEST_GO["render_test.go:12"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_RENDER_TEST_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_RENDER_TEST_GO
+  CODE_TYPES_GO["types.go:5"]:::code_element
+  RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_TYPES_GO
+  REQC_REQ_EMG_003 -->|code trace| CODE_TYPES_GO
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84["VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84 (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 -->|verifies| REQC_REQ_EMG_003
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 -->|implemented_by| CODE_ASCIIDOC_DIAGRAMS_CORE_TEST_GO
@@ -3217,6 +3334,12 @@ flowchart LR
   VERC_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2["VER-INF-TEST-ASCIIDOC_VIEWS_TEST-BFC7F2 (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2 -->|verifies| REQC_REQ_EMG_003
   VERC_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2 -->|implemented_by| CODE_ASCIIDOC_VIEWS_TEST_GO
+  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72["VER-INF-TEST-PROJECT_TEST-2ECF72 (not-run)"]:::verification
+  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72 -->|verifies| REQC_REQ_EMG_003
+  VERC_VER_INF_TEST_PROJECT_TEST_2ECF72 -->|implemented_by| CODE_PROJECT_TEST_GO
+  VERC_VER_INF_TEST_RENDER_TEST_EECC23["VER-INF-TEST-RENDER_TEST-EECC23 (not-run)"]:::verification
+  VERC_VER_INF_TEST_RENDER_TEST_EECC23 -->|verifies| REQC_REQ_EMG_003
+  VERC_VER_INF_TEST_RENDER_TEST_EECC23 -->|implemented_by| CODE_RENDER_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3629,10 +3752,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[REF_REQ_REQ_EMG_010]]
 ==== REQ-EMG-010
 
-Where <<REF_IDX-CATALOG_COND_REQUIREMENT_TRACE_COMPLETE,requirement trace is complete>>, when <<REF_IDX-CATALOG_EVT_MODEL_UPDATED,model updated event is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall infer verification links from TRLC-LINKS markers to keep traceability coverage current.
+Where <<REF_IDX-CATALOG_COND_REQUIREMENT_TRACE_COMPLETE,requirement trace is complete>>, when <<REF_IDX-CATALOG_EVT_MODEL_UPDATED,model updated event is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall infer traceability coverage from trace markers.
 
 
-NOTE: Links code/test markers to modeled <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> coverage.
+NOTE: Links runtime, code, and test markers to modeled <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> coverage.
 
 
 
@@ -3656,21 +3779,30 @@ flowchart LR
   CODE_INFERRED_CODE_TEST_GO["inferred_code_test.go:11,37"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_TEST_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_CODE_TEST_GO
+  CODE_INFERRED_LAYERS_GO["inferred_layers.go:42,129,198,237,260,282,307,321,336,349,364,392,410,431,481,559,580,614,626,640"]:::code_element
+  RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_GO
+  REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_LAYERS_GO
+  CODE_INFERRED_LAYERS_TEST_GO["inferred_layers_test.go:13,21,40,58,84,118"]:::code_element
+  RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_TEST_GO
+  REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_LAYERS_TEST_GO
   CODE_INFERRED_VERIFICATION_GO["inferred_verification.go:46,315,351,388,422,439,453,496,537,556,571,583,602,611,628,650,667,684,702,726,755,778,790,824,844,854,874,890,904,913,924,943"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_VERIFICATION_GO
   CODE_INFERRED_VERIFICATION_TEST_GO["inferred_verification_test.go:13,26,64,100,133,192,216"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_TEST_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_VERIFICATION_TEST_GO
-  CODE_SCAN_GO["scan.go:60,110,243,263,333,392,414,425,434,447,456,461,470,475,487"]:::code_element
+  CODE_SCAN_GO["scan.go:60,110,243,263,333,392,428,439,448,461,470,475,484,489,501"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_SCAN_GO
-  CODE_SCAN_TEST_GO["scan_test.go:11,48,73,113,158"]:::code_element
+  CODE_SCAN_TEST_GO["scan_test.go:11,48,73,113,149,194"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_TEST_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_SCAN_TEST_GO
   VERC_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E["VER-INF-TEST-INFERRED_CODE_TEST-3CA82E (not-run)"]:::verification
   VERC_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E -->|verifies| REQC_REQ_EMG_010
   VERC_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E -->|implemented_by| CODE_INFERRED_CODE_TEST_GO
+  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF["VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF (not-run)"]:::verification
+  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF -->|verifies| REQC_REQ_EMG_010
+  VERC_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF -->|implemented_by| CODE_INFERRED_LAYERS_TEST_GO
   VERC_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6["VER-INF-TEST-INFERRED_VERIFICATION_TEST-6715F6 (not-run)"]:::verification
   VERC_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6 -->|verifies| REQC_REQ_EMG_010
   VERC_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6 -->|implemented_by| CODE_INFERRED_VERIFICATION_TEST_GO
@@ -3804,6 +3936,9 @@ flowchart LR
   CODE_AI_VIEW_MARKDOWN_GO["ai_view_markdown.go:10,183,188"]:::code_element
   RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_MARKDOWN_GO
   REQC_REQ_EMG_012 -->|code trace| CODE_AI_VIEW_MARKDOWN_GO
+  CODE_AI_VIEW_SCHEMA_GO["ai_view_schema.go:7"]:::code_element
+  RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_SCHEMA_GO
+  REQC_REQ_EMG_012 -->|code trace| CODE_AI_VIEW_SCHEMA_GO
   CODE_AI_VIEW_TEST_GO["ai_view_test.go:15,44,146,196,255"]:::code_element
   RTC_FU_AI_VIEW_BUILDER_RUNTIME -->|implemented_by| CODE_AI_VIEW_TEST_GO
   REQC_REQ_EMG_012 -->|code trace| CODE_AI_VIEW_TEST_GO
@@ -3933,7 +4068,7 @@ flowchart LR
   CODE_ASCIIDOC_DECISIONS_GO["asciidoc_decisions.go:12,39"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_DECISIONS_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_ASCIIDOC_DECISIONS_GO
-  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,323,416,554,568,583"]:::code_element
+  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,323,416,561,575,590"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEST_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_ASCIIDOC_TEST_GO
   FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
@@ -4165,7 +4300,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |asciidoc_diagrams_core_test.go:14,41,135,161,197,223,254,273,293,327,355,383
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |asciidoc_diagrams_core_test.go
 
@@ -4185,7 +4320,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |asciidoc_diagrams_runtime_test.go:12,50,72,95
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |asciidoc_diagrams_runtime_test.go
 
@@ -4205,7 +4340,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |asciidoc_linking_units_test.go:10,46,75,101,129,148,167,186
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |asciidoc_linking_units_test.go
 
@@ -4224,8 +4359,8 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
-|Test Code Elements |asciidoc_test.go:16,64,110,134,170,201,241,323,416,554,568,583
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Test Code Elements |asciidoc_test.go:16,64,110,134,170,201,241,323,416,561,575,590
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:2
 |Evidence |asciidoc_test.go
 
@@ -4245,7 +4380,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |asciidoc_views_test.go:11
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |asciidoc_views_test.go
 
@@ -4265,7 +4400,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |Test Code Elements |catalog_systems_test.go:11,36,82
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:1
 |Evidence |catalog_systems_test.go
 
@@ -4305,7 +4440,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |Test Code Elements |e2e_test.go:14,39
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:1
 |Evidence |e2e_test.go
 
@@ -4325,7 +4460,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>
 |Test Code Elements |ears_preflight_test.go:11,60,105
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:2
 |Evidence |ears_preflight_test.go
 
@@ -4383,9 +4518,9 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |Test Code Elements |inferred_layers_test.go:13,21,40,58,84,118
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>
 |Result Summary |not-run:1
 |Evidence |inferred_layers_test.go
 
@@ -4425,7 +4560,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
 |Test Code Elements |load_test.go:10,25
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:1
 |Evidence |model/load_test.go
 
@@ -4523,9 +4658,9 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_PROJECT_TEST_2ECF72,VER-INF-TEST-PROJECT_TEST-2ECF72>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |project_test.go:11,52,86,137,168
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |view/project_test.go
 
@@ -4543,9 +4678,9 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_RENDER_TEST_EECC23,VER-INF-TEST-RENDER_TEST-EECC23>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
 |Test Code Elements |render_test.go:12
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:1
 |Evidence |render/mermaid/render_test.go
 
@@ -4564,7 +4699,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>, REQ-SAMPLE-001, REQ-SAMPLE-002
-|Test Code Elements |scan_test.go:11,48,73,113,158
+|Test Code Elements |scan_test.go:11,48,73,113,149,194
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>
 |Result Summary |not-run:3
 |Evidence |codemap/scan_test.go
@@ -4685,7 +4820,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>
 |Test Code Elements |validate_test.go:12,25,62,109,157,198,224,255,297,352,456
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_AI_VIEW_BUILDER,FU-AI-VIEW-BUILDER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:3
 |Evidence |validate/validate_test.go
 
@@ -5082,7 +5217,7 @@ While local development mode is active, when model updated event is received, th
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-001
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_002]]
 [discrete]
@@ -5108,7 +5243,7 @@ While model is valid, when generation run is requested, the engineering model go
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-003
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_004]]
 [discrete]
@@ -5192,14 +5327,14 @@ While ci validation mode is active, when generation run is requested, the engine
 [discrete]
 ==== REQ-EMG-010
 
-Where requirement trace is complete, when model updated event is received, the engineering model go shall infer verification links from TRLC-LINKS markers to keep traceability coverage current.
+Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-010
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_011]]
 [discrete]
@@ -6605,7 +6740,7 @@ Produces AI-oriented JSON, markdown, and edge views including support and implem
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |ai view builder
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,Ai View Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,Ai View Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR]]
 [discrete]
@@ -6618,7 +6753,7 @@ Renders architecture documentation and view narratives to AsciiDoc and PDF artif
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |asciidoc generator
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_CLI_ORCHESTRATION]]
 [discrete]
@@ -6631,7 +6766,7 @@ Command entrypoints that orchestrate loading, validation, generation, and export
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |cli orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,Ai View Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AI_VIEW_TEST_DFDEE3,Ai View Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_CODEMAP_INFERENCE]]
 [discrete]
@@ -6644,7 +6779,7 @@ Infers runtime, code, and verification evidence from repository sources and test
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |codemap inference
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>
 |===
 [[REF_IDX-CATALOG_FU_LOBSTER_EXPORTER]]
 [discrete]
@@ -6683,7 +6818,7 @@ Loads and normalizes architecture, catalog, requirements, and design documents.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |model loader
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_OSCAL_EXPORTER]]
 [discrete]
@@ -6696,7 +6831,7 @@ Exports security and control content to OSCAL system security plan outputs.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |oscal exporter
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER]]
 [discrete]
@@ -6709,7 +6844,7 @@ Exports Structurizr DSL and supports validation/static-site workflows.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |structurizr exporter
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_THREAT_EXPORTER]]
 [discrete]
@@ -6722,7 +6857,7 @@ Exports threat model views to Threat Dragon and Open OTM representations.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |threat exporter
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_TRLC_EXPORTER]]
 [discrete]
@@ -6748,7 +6883,7 @@ Validates IDs, references, and model consistency across authored entities and ma
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |validation engine
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_VIEW_PROJECTION]]
 [discrete]
@@ -6761,7 +6896,7 @@ Builds view-specific projections for architecture communication and traceability
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |view projection
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>
 |===
 [[REF_IDX-CATALOG_MODE_CI_VALIDATION]]
 [discrete]
@@ -7564,13 +7699,13 @@ Inferred library_external dependency owned by FU-TRLC-EXPORTER from cmd/engtrlc/
 [discrete]
 ==== github.com/labeth/engineering-model-go (main.go)
 
-Inferred library_external dependency owned by FU-VIEW-PROJECTION from cmd/engview/main.go.
+Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from cmd/engview/main.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
-|Owner |FU-VIEW-PROJECTION
+|Owner |FU-CLI-ORCHESTRATION
 |Source |cmd/engview/main.go
 |Mentioned In |n/a
 |===

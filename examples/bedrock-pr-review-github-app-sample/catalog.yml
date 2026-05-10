@@ -140,6 +140,10 @@ catalog:
       name: review request rate limit is exceeded
       definition: Event raised when PR review rate guardrails are hit.
       aliases: [rate limit exceeded]
+    - id: EVT-RELEASE-APPROVED
+      name: release artifact is approved
+      definition: Event raised when a Lambda runtime release artifact has passed approval.
+      aliases: [release approved]
 
   states:
     - id: STATE-PR-REVIEW-ACTIVE
@@ -160,6 +164,10 @@ catalog:
       name: audit logging is enabled
       definition: Feature flag enabling audit metadata persistence.
       aliases: [audit enabled]
+    - id: FEAT-LAMBDA-RUNTIME-OPS
+      name: lambda runtime operations are enabled
+      definition: Feature flag enabling Lambda runtime deployment lifecycle operations.
+      aliases: [lambda runtime ops enabled]
 
   modes:
     - id: MODE-NORMAL

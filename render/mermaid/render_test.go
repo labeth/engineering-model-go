@@ -8,7 +8,7 @@ import (
 	"github.com/labeth/engineering-model-go/view"
 )
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-003
 func TestRender_IncludesFlowClassDefsAndNodeKinds(t *testing.T) {
 	v := view.ProjectedView{
 		ID:   "V-FLOW",

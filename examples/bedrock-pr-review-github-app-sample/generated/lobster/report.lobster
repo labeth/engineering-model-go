@@ -233,9 +233,30 @@
           "kind": "Requirement",
           "text": "If review request rate limit is exceeded, then the pr review system shall notify platform operator.",
           "status": null
+        },
+        {
+          "tag": "req BedrockPRReviewRequirements.REQ_PRR_011",
+          "location": {
+            "kind": "file",
+            "file": "/home/labeth/ws/engineering-model-go/examples/bedrock-pr-review-github-app-sample/generated/trlc/requirements.trlc",
+            "line": 62,
+            "column": 13
+          },
+          "name": "BedrockPRReviewRequirements.REQ_PRR_011",
+          "messages": [
+            "missing reference to Tests"
+          ],
+          "just_up": [],
+          "just_down": [],
+          "just_global": [],
+          "tracing_status": "MISSING",
+          "framework": "TRLC",
+          "kind": "Requirement",
+          "text": "Where lambda runtime operations are enabled, when release artifact is approved, the pr review system shall deploy lambda function image to primary runtime.",
+          "status": null
         }
       ],
-      "coverage": 80.0
+      "coverage": 72.72727272727273
     },
     {
       "name": "Tests",

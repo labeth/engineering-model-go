@@ -319,6 +319,26 @@ What these diagrams show: OWASP-style context views split by functional group. E
 |Verifications |{{ .Verifications }}
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
+
+{{ if .ControlVerifications }}
+===== Control Verification Status
+
+{{ range .ControlVerifications }}
+====== {{ .ID }}
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |{{ .Control }}
+|Method |{{ .Method }}
+|Status |{{ .Status }}
+|Owner |{{ .Owner }}
+|Last Tested |{{ .LastTested }}
+|Risks |{{ .Risks }}
+|Findings |{{ .Findings }}
+|===
+{{ end }}
+{{ end }}
 {{ end }}
 {{ end }}
 
@@ -330,18 +350,6 @@ What these diagrams show: OWASP-style context views split by functional group. E
 |ID |Threat Scenario |Control |Status |Effectiveness |Owner |Verification Links |Notes
 {{ range $v.SecurityThreatMitigations }}
 |{{ .ID }} |{{ .ThreatScenario }} |{{ .Control }} |{{ .Status }} |{{ .Effectiveness }} |{{ .Owner }} |{{ .Verifications }} |{{ .Notes }}
-{{ end }}
-|===
-{{ end }}
-
-{{ if and (eq $v.Kind "security") $v.SecurityControlChecks }}
-=== Control Verification Status
-
-[cols="1,2,2,2,1,1,2,3",options="header"]
-|===
-|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
-{{ range $v.SecurityControlChecks }}
-|{{ .ID }} |{{ .Control }} |{{ .ThreatScenarios }} |{{ .Risks }} |{{ .Method }} |{{ .Status }} |{{ .Owner }} / {{ .LastTested }} |{{ .Findings }}
 {{ end }}
 |===
 {{ end }}

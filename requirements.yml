@@ -9,8 +9,14 @@ requirements:
     text: "While local development mode is active, when model updated event is received, the engineering model go shall validate architecture model before generation run is requested."
     notes: "Validation must gate all generation flows."
     appliesTo:
+      - FU-MODEL-LOADER
       - FU-CLI-ORCHESTRATION
       - FU-VALIDATION-ENGINE
+      - FU-AI-VIEW-BUILDER
+      - FU-ASCIIDOC-GENERATOR
+      - FU-THREAT-EXPORTER
+      - FU-STRUCTURIZR-EXPORTER
+      - FU-OSCAL-EXPORTER
 
   - id: REQ-EMG-002
     text: "While model is valid, when generation run is requested, the engineering model go shall produce ai json artifact for ai agent planning workflows."
@@ -24,6 +30,7 @@ requirements:
     notes: "Human-readable architecture output remains required."
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
+      - FU-VIEW-PROJECTION
       - FU-CLI-ORCHESTRATION
 
   - id: REQ-EMG-004
@@ -68,8 +75,8 @@ requirements:
       - FU-VALIDATION-ENGINE
 
   - id: REQ-EMG-010
-    text: "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer verification links from TRLC-LINKS markers to keep traceability coverage current."
-    notes: "Links code/test markers to modeled requirement coverage."
+    text: "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers."
+    notes: "Links runtime, code, and test markers to modeled requirement coverage."
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-AI-VIEW-BUILDER

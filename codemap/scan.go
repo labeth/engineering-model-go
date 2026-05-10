@@ -397,6 +397,20 @@ func declarationName(n *sitter.Node, src []byte) string {
 		return strings.TrimSpace(name.Utf8Text(src))
 	}
 	count := n.NamedChildCount()
+	if n.Kind() == "type_declaration" {
+		for i := uint(0); i < count; i++ {
+			child := n.NamedChild(i)
+			if child == nil {
+				continue
+			}
+			if child.Kind() != "type_spec" && child.Kind() != "type_alias" {
+				continue
+			}
+			if name := child.ChildByFieldName("name"); name != nil {
+				return strings.TrimSpace(name.Utf8Text(src))
+			}
+		}
+	}
 	for i := uint(0); i < count; i++ {
 		child := n.NamedChild(i)
 		if child == nil {

@@ -27,7 +27,7 @@ type ThreatModelExportResult struct {
 	Diagnostics []validate.Diagnostic
 }
 
-// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
 func GenerateThreatModelExportFromFile(architecturePath string, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -36,7 +36,7 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 	return GenerateThreatModelExport(bundle, options)
 }
 
-// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

@@ -3,6 +3,7 @@ package engmodel
 
 import "github.com/labeth/engineering-model-go/validate"
 
+// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 type AIViewOptions struct {
 	ViewIDs  []string
 	CodeRoot string

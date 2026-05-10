@@ -9,7 +9,7 @@ Requirement REQ_PRR_002 {
   id         = "REQ-PRR-002"
   text       = "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for developer review execution."
   notes      = "Context ingestion from GitHub API."
-  applies_to = ["FU-PR-CONTEXT-ASSEMBLY"]
+  applies_to = ["FU-GITHUB-WEBHOOK-INGRESS", "FU-PR-CONTEXT-ASSEMBLY"]
 }
 Requirement REQ_PRR_003 {
   id         = "REQ-PRR-003"
@@ -58,4 +58,10 @@ Requirement REQ_PRR_010 {
   text       = "If review request rate limit is exceeded, then the pr review system shall notify platform operator."
   notes      = "Maintainer notification for deferred review processing."
   applies_to = ["FU-GITHUB-WEBHOOK-INGRESS", "FU-REVIEW-PUBLICATION"]
+}
+Requirement REQ_PRR_011 {
+  id         = "REQ-PRR-011"
+  text       = "Where lambda runtime operations are enabled, when release artifact is approved, the pr review system shall deploy lambda function image to primary runtime."
+  notes      = "Runtime deployment lifecycle for the Lambda-hosted review application."
+  applies_to = ["FU-LAMBDA-RUNTIME-OPERATIONS"]
 }

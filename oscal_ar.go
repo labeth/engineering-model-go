@@ -87,7 +87,7 @@ type oscalARRisk struct {
 	Props       []oscalProperty `json:"props,omitempty"`
 }
 
-// TRLC-LINKS: REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -107,7 +107,7 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 	return GenerateOSCALAssessmentResults(bundle, req, options)
 }
 
-// TRLC-LINKS: REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

@@ -533,8 +533,15 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 			t.Fatalf("security section missing %s", want)
 		}
 	}
+	if strings.Contains(securitySection, "\n=== Control Verification Status") {
+		t.Fatalf("control verification status should be nested under threat scenarios, not rendered as a standalone security section")
+	}
 	if !strings.Contains(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)") {
 		t.Fatalf("threat scenario register should render one chapter per scenario")
+	}
+	scenarioSection := sectionByHeading(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)")
+	if !strings.Contains(scenarioSection, "===== Control Verification Status") || !strings.Contains(scenarioSection, "====== CV-MEDIACHESTV-DIGEST") {
+		t.Fatalf("threat scenario should include nested control verification status")
 	}
 	for _, oldHeader := range []string{"|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes"} {
 		if strings.Contains(securitySection, oldHeader) {

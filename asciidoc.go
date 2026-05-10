@@ -456,6 +456,17 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			viewSections[i].SecurityThreatScenarios[j].Controls = linkifyText(viewSections[i].SecurityThreatScenarios[j].Controls, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].Mitigations = linkifyText(viewSections[i].SecurityThreatScenarios[j].Mitigations, linkTargets)
 			viewSections[i].SecurityThreatScenarios[j].Verifications = linkifyText(viewSections[i].SecurityThreatScenarios[j].Verifications, linkTargets)
+			for k := range viewSections[i].SecurityThreatScenarios[j].ControlVerifications {
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ID = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ID, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Control = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Control, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ThreatScenarios = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ThreatScenarios, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Risks = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Risks, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Method = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Method, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Status = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Status, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Owner = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Owner, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].LastTested = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].LastTested, linkTargets)
+				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Findings = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Findings, linkTargets)
+			}
 		}
 		for j := range viewSections[i].SecurityThreatAssumptions {
 			viewSections[i].SecurityThreatAssumptions[j].ID = linkifyText(viewSections[i].SecurityThreatAssumptions[j].ID, linkTargets)

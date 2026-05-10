@@ -60,7 +60,7 @@ type oscalPOAMRisk struct {
 	Props       []oscalProperty `json:"props,omitempty"`
 }
 
-// TRLC-LINKS: REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -69,7 +69,7 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 	return GenerateOSCALPOAM(bundle, options)
 }
 
-// TRLC-LINKS: REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

@@ -490,8 +490,6 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -1022,8 +1020,6 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -1177,8 +1173,6 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-
-
 
 
 
@@ -1663,6 +1657,26 @@ A compromised <<REF_IDX-CATALOG_ACT_SUPPORT,support>> or workflow path modifies 
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
 
+
+===== Control Verification Status
+
+
+====== CV-PAYMENTS-MANUAL-REVIEW-TRACE
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>>
+|Method |analysis
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
+|Last Tested |2026-04-20
+|Risks |RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+|Findings |review ticket mutation trail exists but immutability controls are incomplete
+|===
+
+
+
 ==== Replayed bank callback triggers duplicate authorization transition (TS-PAYMENTS-BANK-CALLBACK-REPLAY)
 
 Replayed callback message tries to overwrite or duplicate prior decision outcomes.
@@ -1684,6 +1698,26 @@ Replayed callback message tries to overwrite or duplicate prior decision outcome
 |Verifications |CV-PAYMENTS-CALLBACK-REPLAY-TEST
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
+
+
+===== Control Verification Status
+
+
+====== CV-PAYMENTS-CALLBACK-REPLAY-TEST
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
+|Last Tested |2026-04-15
+|Risks |RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+|Findings |duplicate callback identifiers correctly rejected
+|===
+
+
 
 ==== <<REF_IDX-CATALOG_CHECKOUT,Checkout>> payload spoofing bypasses normalization checks (TS-PAYMENTS-CHECKOUT-SPOOFING)
 
@@ -1708,6 +1742,26 @@ Crafted payload shape attempts to force ambiguous authorization behavior and byp
 |===
 
 
+===== Control Verification Status
+
+
+====== CV-PAYMENTS-CHECKOUT-SCHEMA-TEST
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
+|Last Tested |2026-04-10
+|Risks |RISK-PAYMENTS-CHECKOUT-SPOOFING
+|Findings |malformed <<REF_IDX-CATALOG_CHECKOUT,checkout>> payloads rejected with deterministic <<REF_IDX-CATALOG_DECLINE,decline>> path
+|===
+
+
+
+
 
 
 === Threat Mitigation Coverage
@@ -1721,22 +1775,6 @@ Crafted payload shape attempts to force ambiguous authorization behavior and byp
 |MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA |TS-PAYMENTS-CHECKOUT-SPOOFING |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |implemented |medium |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |CV-PAYMENTS-CHECKOUT-SCHEMA-TEST |Strict schema decoding and normalized request construction reduce spoofing surface.
 
 |MIT-PAYMENTS-MANUAL-REVIEW-AUDIT |TS-PAYMENTS-RISK-TICKET-TAMPER |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |partial |medium |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |CV-PAYMENTS-MANUAL-REVIEW-TRACE |MFA-gated <<REF_IDX-CATALOG_ACT_SUPPORT,support>> actions are in place; append-only integrity controls are being expanded.
-
-|===
-
-
-
-=== Control Verification Status
-
-[cols="1,2,2,2,1,1,2,3",options="header"]
-|===
-|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
-
-|CV-PAYMENTS-CALLBACK-REPLAY-TEST |<<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>> |TS-PAYMENTS-BANK-CALLBACK-REPLAY |RISK-PAYMENTS-BANK-CALLBACK-REPLAY |test |pass |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-15 |duplicate callback identifiers correctly rejected
-
-|CV-PAYMENTS-CHECKOUT-SCHEMA-TEST |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |TS-PAYMENTS-CHECKOUT-SPOOFING |RISK-PAYMENTS-CHECKOUT-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-10 |malformed <<REF_IDX-CATALOG_CHECKOUT,checkout>> payloads rejected with deterministic <<REF_IDX-CATALOG_DECLINE,decline>> path
-
-|CV-PAYMENTS-MANUAL-REVIEW-TRACE |<<REF_IDX-CTRL_CTRL_PAYMENTS_SSO_MFA,SSO MFA Enforcement>> |TS-PAYMENTS-RISK-TICKET-TAMPER |RISK-PAYMENTS-MANUAL-REVIEW-TAMPER |analysis |partial |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> / 2026-04-20 |review ticket mutation trail exists but immutability controls are incomplete
 
 |===
 
@@ -1853,9 +1891,9 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_EVENTS_RS["events.rs:10"]:::code_element
+  CODE_EVENTS_RS["events.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
-  CODE_PAYMENT_ENGINE_RS["payment_engine.rs:11,26,34,44,52,60"]:::code_element
+  CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
   SEC_TGT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_RISK_SCORING
@@ -1865,9 +1903,9 @@ flowchart LR
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK
   SEC_RT_FU_RISK_SCORING_RISK_SCORER["risk-scorer"]:::runtime_element
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK_SCORER
-  CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts:10"]:::code_element
+  CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts"]:::code_element
   SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_AUDIT_ENVELOPE_TS
-  CODE_RISK_SCORER_TS["risk_scorer.ts:8,21,29,37,45,50"]:::code_element
+  CODE_RISK_SCORER_TS["risk_scorer.ts"]:::code_element
   SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_RISK_SCORER_TS
   SEC_TGT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_SUPPORT_REVIEW
@@ -1970,7 +2008,7 @@ flowchart LR
   SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_CHECKOUT_API
   SEC_RT_FU_CHECKOUT_PAYMENTS["payments"]:::runtime_element
   SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_PAYMENTS
-  CODE_CHECKOUT_API_GO["checkout_api.go:16,27,32,37,42,47"]:::code_element
+  CODE_CHECKOUT_API_GO["checkout_api.go"]:::code_element
   SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| CODE_CHECKOUT_API_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2040,9 +2078,9 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_EVENTS_RS["events.rs:10"]:::code_element
+  CODE_EVENTS_RS["events.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
-  CODE_PAYMENT_ENGINE_RS["payment_engine.rs:11,26,34,44,52,60"]:::code_element
+  CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2145,8 +2183,6 @@ Coverage summary: 5/6 units have direct evidence coverage in this view.
 
 
 
-
-
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2216,8 +2252,6 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 
@@ -2357,8 +2391,6 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 

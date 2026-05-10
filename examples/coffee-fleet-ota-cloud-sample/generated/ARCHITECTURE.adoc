@@ -523,8 +523,6 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -1104,8 +1102,6 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -1245,8 +1241,6 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-
-
 
 
 
@@ -1763,6 +1757,26 @@ Adversary attempts to alter or suppress security-relevant logs to hide malicious
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
 
+
+===== Control Verification Status
+
+
+====== CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>>
+|Method |inspection
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>>
+|Last Tested |2026-04-20
+|Risks |RISK-COFFEE-LOG-TAMPERING
+|Findings |log write permissions are constrained but immutable retention still being expanded
+|===
+
+
+
 ==== <<REF_IDX-CATALOG_TELEMETRY_REPLAY,Telemetry replay>> inflates ingest and distorts reporting (TS-COFFEE-TELEMETRY-REPLAY)
 
 Replayed <<REF_IDX-CATALOG_TELEMETRY,telemetry>> bursts attempt to pollute fleet metrics and trigger false alerts.
@@ -1785,6 +1799,26 @@ Replayed <<REF_IDX-CATALOG_TELEMETRY,telemetry>> bursts attempt to pollute fleet
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
 
+
+===== Control Verification Status
+
+
+====== CV-COFFEE-TELEMETRY-REPLAY
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>>
+|Method |analysis
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>>
+|Last Tested |2026-04-18
+|Risks |RISK-COFFEE-TELEMETRY-REPLAY
+|Findings |replay detection works for standard windows; high-burst tuning still in progress
+|===
+
+
+
 ==== Tampered <<REF_IDX-CATALOG_FIRMWARE_BUNDLE,firmware bundle>> executes on edge fleet (TS-COFFEE-MALICIOUS-OTA-BUNDLE)
 
 Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.
@@ -1806,6 +1840,26 @@ Attacker attempts to deliver malicious firmware by replacing or tampering rollou
 |Verifications |CV-COFFEE-FW-SIGNATURE-TEST
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
+
+
+===== Control Verification Status
+
+
+====== CV-COFFEE-FW-SIGNATURE-TEST
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>>
+|Last Tested |2026-04-12
+|Risks |RISK-COFFEE-MALICIOUS-OTA
+|Findings |unsigned or tampered bundles rejected during OTA execution
+|===
+
+
 
 ==== Spoofed OTA command triggers unauthorized rollout (TS-COFFEE-OTA-COMMAND-SPOOF)
 
@@ -1830,6 +1884,26 @@ Unauthorized sender attempts to push OTA command messages to device fleet topic.
 |===
 
 
+===== Control Verification Status
+
+
+====== CV-COFFEE-DEVICE-IDENTITY-TEST
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>>
+|Last Tested |2026-04-13
+|Risks |RISK-COFFEE-DEVICE-SPOOFING
+|Findings |unauthorized command publishers rejected by identity policy
+|===
+
+
+
+
 
 
 === Threat Mitigation Coverage
@@ -1845,24 +1919,6 @@ Unauthorized sender attempts to push OTA command messages to device fleet topic.
 |MIT-COFFEE-FW-SIGNATURE-VERIFY |TS-COFFEE-MALICIOUS-OTA-BUNDLE |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>> |verified |high |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-FW-SIGNATURE-TEST |OTA agent enforces signature verification with signer metadata checks.
 
 |MIT-COFFEE-TELEMETRY-REPLAY-WINDOW |TS-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |partial |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> |CV-COFFEE-TELEMETRY-REPLAY |Replay window and dedup controls are active with ongoing burst tuning.
-
-|===
-
-
-
-=== Control Verification Status
-
-[cols="1,2,2,2,1,1,2,3",options="header"]
-|===
-|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
-
-|CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-LOG-TAMPERING |RISK-COFFEE-LOG-TAMPERING |inspection |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-20 |log write permissions are constrained but immutable retention still being expanded
-
-|CV-COFFEE-DEVICE-IDENTITY-TEST |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-OTA-COMMAND-SPOOF |RISK-COFFEE-DEVICE-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-13 |unauthorized command publishers rejected by identity policy
-
-|CV-COFFEE-FW-SIGNATURE-TEST |<<REF_IDX-CTRL_CTRL_COFFEE_FIRMWARE_SIGNATURE,Firmware Signature Enforcement>> |TS-COFFEE-MALICIOUS-OTA-BUNDLE |RISK-COFFEE-MALICIOUS-OTA |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-12 |unsigned or tampered bundles rejected during OTA execution
-
-|CV-COFFEE-TELEMETRY-REPLAY |<<REF_IDX-CTRL_CTRL_COFFEE_DEVICE_IDENTITY,Device Identity Validation>> |TS-COFFEE-TELEMETRY-REPLAY |RISK-COFFEE-TELEMETRY-REPLAY |analysis |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ANALYST,Security Analyst>> / 2026-04-18 |replay detection works for standard windows; high-burst tuning still in progress
 
 |===
 
@@ -1939,7 +1995,7 @@ flowchart LR
   AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_DEVICE_IDENTITY_SECRETS
   SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_DEVICE_IDENTITY_SECRETS -->|runtime| SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
-  CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts:5,10"]:::code_element
+  CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts"]:::code_element
   SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_DEVICE_IDENTITY_SECRETS_TS
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
@@ -1949,7 +2005,7 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
-  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:5,10,15"]:::code_element
+  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2033,7 +2089,7 @@ flowchart LR
   SEC_TGT_FU_OTA_UPDATE_AGENT -->|depends_on| SEC_DEP_UPDATE_CAMPAIGN_ORCHESTRATION
   SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_OTA_UPDATE_AGENT -->|runtime| SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME
-  CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs:5,14"]:::code_element
+  CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs"]:::code_element
   SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   AV_AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
@@ -2044,7 +2100,7 @@ flowchart LR
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime| SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
-  CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts:5,10"]:::code_element
+  CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts"]:::code_element
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2128,7 +2184,7 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
-  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go:11,16"]:::code_element
+  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   AV_AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION
@@ -2141,7 +2197,7 @@ flowchart LR
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_MQTT_DEVICE_SDK
   SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime| SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
-  CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs:10,15"]:::code_element
+  CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs"]:::code_element
   SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2225,7 +2281,7 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
-  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go:11,16"]:::code_element
+  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
@@ -2234,7 +2290,7 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
-  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:5,10,15"]:::code_element
+  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2350,8 +2406,6 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 
 
 
-
-
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2421,8 +2475,6 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 
@@ -2551,8 +2603,6 @@ Coverage summary: 5/5 units have direct evidence coverage in this view.
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 

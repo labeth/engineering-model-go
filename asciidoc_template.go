@@ -242,21 +242,22 @@ type asciidocSecurityContextDiagram struct {
 }
 
 type asciidocThreatScenarioRow struct {
-	ID            string
-	Title         string
-	Summary       string
-	AttackVector  string
-	Scope         string
-	Flows         string
-	Likelihood    string
-	Impact        string
-	Severity      string
-	Status        string
-	Owner         string
-	Risk          string
-	Controls      string
-	Mitigations   string
-	Verifications string
+	ID                   string
+	Title                string
+	Summary              string
+	AttackVector         string
+	Scope                string
+	Flows                string
+	Likelihood           string
+	Impact               string
+	Severity             string
+	Status               string
+	Owner                string
+	Risk                 string
+	Controls             string
+	Mitigations          string
+	Verifications        string
+	ControlVerifications []asciidocControlVerificationRow
 }
 
 type asciidocThreatAssumptionRow struct {

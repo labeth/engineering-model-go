@@ -174,6 +174,8 @@ a[href^="#SEC_VIEW_"] {
 |An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
 |[[REF_CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS]]<<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>> (FU-LAMBDA-RUNTIME-OPERATIONS)
 |Manages runtime deployment and operational controls. Aliases:lambda ops
+|[[REF_CATALOG_FEAT_LAMBDA_RUNTIME_OPS]]<<REF_IDX-CATALOG_FEAT_LAMBDA_RUNTIME_OPS,lambda runtime operations are enabled>> (FEAT-LAMBDA-RUNTIME-OPS)
+|Feature flag enabling Lambda runtime deployment lifecycle operations. Aliases:lambda runtime ops enabled
 |[[REF_CATALOG_MODE_NORMAL]]<<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>> (MODE-NORMAL)
 |Default operating mode using AI plus deterministic checks. Aliases:normal mode
 |[[REF_CATALOG_FG_PLATFORM_OPERATIONS]]<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>> (FG-PLATFORM-OPERATIONS)
@@ -206,6 +208,8 @@ a[href^="#SEC_VIEW_"] {
 |Sanitized prompt and finding metadata retained for audit.
 |[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT,referenced element>> (EM-REFERENCED-ELEMENT)
 |An architecture-relevant external, platform, or third-party dependency represented by role.
+|[[REF_CATALOG_EVT_RELEASE_APPROVED]]<<REF_IDX-CATALOG_EVT_RELEASE_APPROVED,release artifact is approved>> (EVT-RELEASE-APPROVED)
+|Event raised when a Lambda runtime release artifact has passed approval. Aliases:release approved
 |[[REF_CATALOG_ACT_REPOSITORY_MAINTAINER]]<<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>> (ACT-REPOSITORY-MAINTAINER)
 |Owner of merge decisions and repository quality gates. Aliases:maintainer
 |[[REF_ENGMODEL_EM_REQUIREMENT]]<<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> (EM-REQUIREMENT)
@@ -521,8 +525,6 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -628,7 +630,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
+<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 
 
 
@@ -939,7 +941,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lam
 [discrete]
 ====== Linked Requirements
 
-no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
+<<REF_IDX-REQ_REQ_PRR_011,REQ-PRR-011>>
 
 
 
@@ -1059,8 +1061,6 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-
-
 
 
 
@@ -1218,8 +1218,6 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -1259,7 +1257,7 @@ Deploys as an independently managed Lambda runtime boundary.
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 |Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 |===
@@ -1428,7 +1426,7 @@ Governs source-to-release pipeline behavior and runtime placement boundaries.
 [cols="1,3",options="header"]
 |===
 |Deployment Aspect |View-Scoped Detail
-|Deployment trigger context |no explicit authored <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> trigger
+|Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_011,REQ-PRR-011>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 |Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_LAMBDA_RUNTIME_OPS_GO,lambda_runtime_ops>>
 |===
@@ -1709,6 +1707,26 @@ Malicious prompts in diff content attempt to coerce model output away from polic
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
 
+
+===== Control Verification Status
+
+
+====== CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>>
+|Method |analysis
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>>
+|Last Tested |2026-04-19
+|Risks |RISK-BEDROCK-PROMPT-INJECTION
+|Findings |deterministic policy merge blocks obvious prompt directives; edge cases remain under review
+|===
+
+
+
 ==== Sensitive tokens leak via <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>> payload (TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION)
 
 Review output includes sensitive content due to incomplete redaction before <<REF_IDX-CATALOG_PUBLICATION,publication>>.
@@ -1730,6 +1748,26 @@ Review output includes sensitive content due to incomplete redaction before <<RE
 |Verifications |CV-BEDROCK-REDACTION-CHECK
 |Operational Notes |Track closure through mitigation and verification linkage.
 |===
+
+
+===== Control Verification Status
+
+
+====== CV-BEDROCK-REDACTION-CHECK
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>>
+|Method |inspection
+|Status |partial
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>>
+|Last Tested |2026-04-21
+|Risks |RISK-BEDROCK-SECRET-LEAKAGE
+|Findings |redaction filters exist; custom token patterns are still being expanded
+|===
+
+
 
 ==== Spoofed webhook bypasses ingress verification (TS-BEDROCK-WEBHOOK-SPOOF)
 
@@ -1754,6 +1792,26 @@ Forged pull request webhook attempts to trigger unauthorized review execution.
 |===
 
 
+===== Control Verification Status
+
+
+====== CV-BEDROCK-WEBHOOK-SIGNATURE
+
+[cols="1,3",options="header"]
+|===
+|Field |Value
+|Control |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>>
+|Method |test
+|Status |pass
+|Owner |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>>
+|Last Tested |2026-04-11
+|Risks |RISK-BEDROCK-WEBHOOK-SPOOFING
+|Findings |invalid <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>> rejected before <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>>
+|===
+
+
+
+
 
 
 === Threat Mitigation Coverage
@@ -1767,22 +1825,6 @@ Forged pull request webhook attempts to trigger unauthorized review execution.
 |MIT-BEDROCK-OUTPUT-REDACTION |TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>> |partial |medium |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |CV-BEDROCK-REDACTION-CHECK |<<REF_IDX-CATALOG_PUBLICATION,Publication>> redaction pipeline blocks common secret shapes and is being extended.
 
 |MIT-BEDROCK-WEBHOOK-HMAC |TS-BEDROCK-WEBHOOK-SPOOF |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |verified |high |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |CV-BEDROCK-WEBHOOK-SIGNATURE |HMAC signature checks and ingress rejection reduce spoofing attack viability.
-
-|===
-
-
-
-=== Control Verification Status
-
-[cols="1,2,2,2,1,1,2,3",options="header"]
-|===
-|ID |Control |Threat Scenarios |Risks |Method |Status |Owner / Last Tested |Findings
-
-|CV-BEDROCK-PROMPT-INJECTION-RESILIENCE |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |TS-BEDROCK-PROMPT-INJECTION |RISK-BEDROCK-PROMPT-INJECTION |analysis |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-19 |deterministic policy merge blocks obvious prompt directives; edge cases remain under review
-
-|CV-BEDROCK-REDACTION-CHECK |<<REF_IDX-CTRL_CTRL_BEDROCK_SECRETS_ROTATION,Secret Rotation Enforcement>> |TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION |RISK-BEDROCK-SECRET-LEAKAGE |inspection |partial |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-21 |redaction filters exist; custom token patterns are still being expanded
-
-|CV-BEDROCK-WEBHOOK-SIGNATURE |<<REF_IDX-CTRL_CTRL_BEDROCK_WEBHOOK_SIGNATURE,Webhook Signature Verification>> |TS-BEDROCK-WEBHOOK-SPOOF |RISK-BEDROCK-WEBHOOK-SPOOFING |test |pass |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> / 2026-04-11 |invalid <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>> rejected before <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>>
 
 |===
 
@@ -1865,7 +1907,7 @@ flowchart LR
   SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|depends_on| SEC_DEP_REVIEW_ORCHESTRATION
   SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|runtime| SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
-  CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts:7,10,16"]:::code_element
+  CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts"]:::code_element
   SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_PR_CONTEXT_ASSEMBLY_TS
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   AV_AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
@@ -1879,7 +1921,7 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:9,19"]:::code_element
+  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -1959,7 +2001,7 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
+  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   AV_AV_PR_SPAM_ABUSE -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
@@ -1973,7 +2015,7 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:9,19"]:::code_element
+  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2055,7 +2097,7 @@ flowchart LR
   SEC_TGT_FU_REVIEW_PUBLICATION -->|depends_on| SEC_DEP_SECRETS_AND_CONFIGURATION
   SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   SEC_TGT_FU_REVIEW_PUBLICATION -->|runtime| SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:7,10,23,28"]:::code_element
+  CODE_REVIEW_PUBLICATION_TS["review_publication.ts"]:::code_element
   SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
   SEC_TGT_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   AV_AV_SECRET_LEAKAGE_IN_REVIEW -->|targets| SEC_TGT_FU_SECRETS_CONFIGURATION
@@ -2063,7 +2105,7 @@ flowchart LR
   SEC_TGT_FU_SECRETS_CONFIGURATION -->|depends_on| SEC_DEP_AWS_SDK_FOR_GO
   SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME["Secrets and Configuration runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_SECRETS_CONFIGURATION -->|runtime| SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME
-  CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts:7,10"]:::code_element
+  CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts"]:::code_element
   SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SECRETS_CONFIGURATION_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2143,7 +2185,7 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
+  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2245,8 +2287,6 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 
 
 
-
-
 <<<
 
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
@@ -2316,8 +2356,6 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 
 
 - No immediate evidence additions are required for this view.
-
-
 
 
 
@@ -2460,8 +2498,6 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 
 
-
-
 === Functional Groups and Units (View Scoped)
 
 
@@ -2471,10 +2507,11 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 
 What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-[cols="2,1,1,1,1,1,1",options="header"]
+[cols="2,1,1,1,1,1,1,1",options="header"]
 |===
 |Requirement
 |FU-GITHUB-WEBHOOK-INGRESS
+|FU-LAMBDA-RUNTIME-OPERATIONS
 |FU-POLICY-CHECKS
 |FU-PR-CONTEXT-ASSEMBLY
 |FU-REVIEW-ORCHESTRATION
@@ -2487,7 +2524,9 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |REQ-PRR-002
+|X
 |
 |
 |X
@@ -2498,10 +2537,12 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |X
 |
 |
 |REQ-PRR-004
+|
 |
 |X
 |
@@ -2513,9 +2554,11 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |X
 |
 |REQ-PRR-006
+|
 |
 |X
 |
@@ -2527,6 +2570,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |X
 |X
 |REQ-PRR-008
@@ -2534,9 +2578,11 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |X
 |
 |REQ-PRR-009
+|
 |
 |
 |
@@ -2548,7 +2594,16 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|
 |X
+|
+|REQ-PRR-011
+|
+|X
+|
+|
+|
+|
 |
 |===
 
@@ -2680,6 +2735,13 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 ----
 flowchart LR
   REQC_REQ_PRR_002["REQ-PRR-002"]:::requirement
+  FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+  REQC_REQ_PRR_002 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
+  FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
+  REQC_REQ_PRR_002 -->|code trace| CODE_WEBHOOK_INGRESS_GO
   FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_PR_CONTEXT_ASSEMBLY
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
@@ -3012,9 +3074,6 @@ flowchart LR
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
-  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
-  REQC_REQ_PRR_008 -->|code trace| CODE_WEBHOOK_INGRESS_GO
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
@@ -3118,6 +3177,53 @@ flowchart LR
   REQC_REQ_PRR_010 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_PRR_011]]
+==== REQ-PRR-011
+
+Where <<REF_IDX-CATALOG_FEAT_LAMBDA_RUNTIME_OPS,lambda runtime operations are enabled>>, when <<REF_IDX-CATALOG_EVT_RELEASE_APPROVED,release artifact is approved>>, <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall deploy lambda function image to primary runtime.
+
+
+NOTE: Runtime deployment lifecycle for the Lambda-hosted review application.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_PRR_011["REQ-PRR-011"]:::requirement
+  FU_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
+  REQC_REQ_PRR_011 -->|applies_to| FU_FU_LAMBDA_RUNTIME_OPERATIONS
+  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME["Lambda Runtime Operations runtime (inferred)"]:::runtime_element
+  FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME
+  CODE_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go:10"]:::code_element
+  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CODE_LAMBDA_RUNTIME_OPS_GO
+  REQC_REQ_PRR_011 -->|code trace| CODE_LAMBDA_RUNTIME_OPS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3641,6 +3747,19 @@ If review request rate limit is exceeded, then the pr review system shall notify
 |Name |REQ-PRR-010
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
+[[REF_IDX-REQ_REQ_PRR_011]]
+[discrete]
+==== REQ-PRR-011
+
+Where lambda runtime operations are enabled, when release artifact is approved, the pr review system shall deploy lambda function image to primary runtime.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-PRR-011
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|===
 [[REF_IDX-STATE_STATE_BEDROCK_PR_RECEIVED]]
 [discrete]
 ==== STATE-BEDROCK-PR-RECEIVED
@@ -3955,6 +4074,19 @@ Manages runtime deployment and operational controls.
 |Name |lambda ops
 |Mentioned In |n/a
 |===
+[[REF_IDX-CATALOG_LAMBDA_RUNTIME_OPS_ENABLED]]
+[discrete]
+==== lambda runtime ops enabled
+
+Feature flag enabling Lambda runtime deployment lifecycle operations.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |lambda runtime ops enabled
+|Mentioned In |n/a
+|===
 [[REF_IDX-CATALOG_MAINTAINER]]
 [discrete]
 ==== maintainer
@@ -4176,6 +4308,19 @@ Event raised when PR review rate guardrails are hit.
 |Name |rate limit exceeded
 |Mentioned In |n/a
 |===
+[[REF_IDX-CATALOG_RELEASE_APPROVED]]
+[discrete]
+==== release approved
+
+Event raised when a Lambda runtime release artifact has passed approval.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |release approved
+|Mentioned In |n/a
+|===
 [[REF_IDX-CATALOG_REVIEW_ACTIVE]]
 [discrete]
 ==== review active
@@ -4330,7 +4475,7 @@ GitHub App review system-of-interest that ingests PR events and publishes review
 |Key |Value
 |Kind |Catalog Alias
 |Name |the pr review system
-|Mentioned In |<<REF_REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>
+|Mentioned In |<<REF_REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>, <<REF_REQ_REQ_PRR_011,REQ-PRR-011>>
 |===
 [[REF_IDX-CATALOG_WEBHOOK_EVENTS]]
 [discrete]
@@ -4592,6 +4737,19 @@ Event raised when PR review rate guardrails are hit.
 |Name |review request rate limit is exceeded
 |Mentioned In |<<REF_REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_REQ_REQ_PRR_010,REQ-PRR-010>>
 |===
+[[REF_IDX-CATALOG_EVT_RELEASE_APPROVED]]
+[discrete]
+==== EVT-RELEASE-APPROVED
+
+Event raised when a Lambda runtime release artifact has passed approval.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |release artifact is approved
+|Mentioned In |<<REF_REQ_REQ_PRR_011,REQ-PRR-011>>
+|===
 [[REF_IDX-CATALOG_FEAT_AI_REVIEW]]
 [discrete]
 ==== FEAT-AI-REVIEW
@@ -4617,6 +4775,19 @@ Feature flag enabling audit metadata persistence.
 |Kind |Catalog Feature
 |Name |audit logging is enabled
 |Mentioned In |<<REF_REQ_REQ_PRR_007,REQ-PRR-007>>
+|===
+[[REF_IDX-CATALOG_FEAT_LAMBDA_RUNTIME_OPS]]
+[discrete]
+==== FEAT-LAMBDA-RUNTIME-OPS
+
+Feature flag enabling Lambda runtime deployment lifecycle operations.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |lambda runtime operations are enabled
+|Mentioned In |<<REF_REQ_REQ_PRR_011,REQ-PRR-011>>
 |===
 [[REF_IDX-CATALOG_FEAT_POLICY_CHECKS]]
 [discrete]
@@ -5084,7 +5255,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>
+|Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>
 |===
 [[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
 [discrete]

@@ -83,11 +83,11 @@ func TestBuildSecurityPathMermaid_GroupsCodeNodesByFile(t *testing.T) {
 
 	out := buildSecurityPathMermaid(rows, nil, code)
 
-	if got := strings.Count(out, `["payment_engine.rs:11,25"]:::code_element`); got != 1 {
-		t.Fatalf("expected one security code box with comma-separated lines, got %d:\n%s", got, out)
+	if got := strings.Count(out, `["payment_engine.rs"]:::code_element`); got != 1 {
+		t.Fatalf("expected one security code box at file granularity, got %d:\n%s", got, out)
 	}
-	if strings.Contains(out, `["payment_engine.rs:11"]`) || strings.Contains(out, `["payment_engine.rs:25"]`) {
-		t.Fatalf("did not expect separate security code boxes per line:\n%s", out)
+	if strings.Contains(out, `payment_engine.rs:11`) || strings.Contains(out, `payment_engine.rs:25`) || strings.Contains(out, `payment_engine.rs:11,25`) {
+		t.Fatalf("did not expect line numbers in security attack-vector code boxes:\n%s", out)
 	}
 }
 

@@ -1,6 +1,7 @@
 // ENGMODEL-OWNER-UNIT: FU-VIEW-PROJECTION
 package view
 
+// TRLC-LINKS: REQ-EMG-003
 type Node struct {
 	ID    string
 	Label string

@@ -695,7 +695,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	codeByOwner := map[string][]string{}
 	codeLabelLookup := codeElementEvidenceLabelLookup(allCodeRaw)
 	for owner, items := range codeRawByOwner {
-		codeByOwner[owner] = groupedCodeElementEvidenceLabels(items, codeLabelLookup)
+		codeByOwner[owner] = groupedCodeElementFileLabels(items, codeLabelLookup)
 	}
 
 	lines := []string{"flowchart LR"}

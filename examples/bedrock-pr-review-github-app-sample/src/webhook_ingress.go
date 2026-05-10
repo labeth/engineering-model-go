@@ -21,7 +21,7 @@ func (w *WebhookIngress) VerifySignature(payload []byte, signatureHeader, secret
 	return valid
 }
 
-// TRLC-LINKS: REQ-PRR-002, REQ-PRR-008
+// TRLC-LINKS: REQ-PRR-002
 func (w *WebhookIngress) RoutePullRequestEvent(eventType, repo, pr string) {
 	fmt.Printf("webhook-ingress: route event=%s repo=%s pr=%s\n", eventType, repo, pr)
 }

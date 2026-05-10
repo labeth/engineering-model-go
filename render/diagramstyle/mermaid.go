@@ -27,12 +27,12 @@ var mermaidClassDefs = []string{
 	"classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;",
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-003
 func MermaidClassDefs() []string {
 	return append([]string(nil), mermaidClassDefs...)
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-003
 func MermaidClassDefsWithIndent(indent string) []string {
 	defs := MermaidClassDefs()
 	if strings.TrimSpace(indent) == "" {
@@ -45,7 +45,7 @@ func MermaidClassDefsWithIndent(indent string) []string {
 	return out
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-003
 func MermaidClassDefsBlock(indent string) string {
 	return strings.Join(MermaidClassDefsWithIndent(indent), "\n")
 }

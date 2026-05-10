@@ -111,7 +111,7 @@ type structurizrDeploymentView struct {
 	Description string
 }
 
-// TRLC-LINKS: REQ-EMG-005
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
 func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -120,7 +120,7 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 	return GenerateStructurizrDSL(bundle)
 }
 
-// TRLC-LINKS: REQ-EMG-005
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
 func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

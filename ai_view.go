@@ -15,7 +15,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -38,7 +38,7 @@ func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath stri
 	return generateAIView(bundle, requirements, design, reqPath, designAbsPath, options)
 }
 
-// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AIViewOptions) (AIViewResult, error) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
 	reqPath := filepath.Join(baseDir, "requirements.yml")
@@ -46,7 +46,7 @@ func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument
 	return generateAIView(bundle, requirements, design, reqPath, designPath, options)
 }
 
-// TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func generateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)

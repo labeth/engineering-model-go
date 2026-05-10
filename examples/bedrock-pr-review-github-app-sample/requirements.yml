@@ -15,6 +15,7 @@ requirements:
     text: "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for developer review execution."
     notes: "Context ingestion from GitHub API."
     appliesTo:
+      - FU-GITHUB-WEBHOOK-INGRESS
       - FU-PR-CONTEXT-ASSEMBLY
 
   - id: REQ-PRR-003
@@ -69,3 +70,9 @@ requirements:
     appliesTo:
       - FU-GITHUB-WEBHOOK-INGRESS
       - FU-REVIEW-PUBLICATION
+
+  - id: REQ-PRR-011
+    text: "Where lambda runtime operations are enabled, when release artifact is approved, the pr review system shall deploy lambda function image to primary runtime."
+    notes: "Runtime deployment lifecycle for the Lambda-hosted review application."
+    appliesTo:
+      - FU-LAMBDA-RUNTIME-OPERATIONS
