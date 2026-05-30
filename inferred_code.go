@@ -17,7 +17,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-INFERENCE-HINT, EM-REQUIREMENT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
@@ -124,7 +124,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 	return items, validate.SortDiagnostics(diags)
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	path := filepath.Join(root, filepath.FromSlash(rel))
@@ -149,13 +149,13 @@ func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []valid
 	}
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-FUNCTIONAL-UNIT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type codeFileMetadata struct {
 	Owner       string
 	Description string
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	full := filepath.ToSlash(filepath.Clean(rel))
@@ -186,7 +186,7 @@ func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeIt
 	return out, nil
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func goImportKind(path string) string {
 	switch {
@@ -205,7 +205,7 @@ var (
 	rsUseRe     = regexp.MustCompile(`(?m)^\s*use\s+([A-Za-z0-9_:\{\}]+)\s*;`)
 )
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem {
 	out := []inferredCodeItem{}
@@ -238,7 +238,7 @@ func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem 
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 	out := []inferredCodeItem{}
@@ -264,7 +264,7 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-FUNCTIONAL-UNIT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func scanCodeMetadata(root string) map[string]codeFileMetadata {
 	out := map[string]codeFileMetadata{}
@@ -308,7 +308,7 @@ func scanCodeMetadata(root string) map[string]codeFileMetadata {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func extractCodeDescriptionMarker(line string) (string, bool) {
 	markers := []string{
@@ -329,7 +329,7 @@ func extractCodeDescriptionMarker(line string) (string, bool) {
 	return "", false
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-FUNCTIONAL-UNIT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func ownerForPath(path string, owners map[string]string) string {
 	if x := strings.TrimSpace(owners[path]); x != "" && x != "unresolved" {

@@ -11,9 +11,9 @@ func TestBuildLinkTargets_UsesRegistryAnchorAndPluralVariants(t *testing.T) {
 	ref := asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
 			{
-				Anchor:       "REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP",
-				TargetAnchor: "REF_ENGMODEL_EM_FUNCTIONAL_GROUP",
-				ID:           "EM-FUNCTIONAL-GROUP",
+				Anchor:       "REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP",
+				TargetAnchor: "REF_ENGMODEL_TERM_FUNCTIONAL_GROUP",
+				ID:           "TERM-FUNCTIONAL-GROUP",
 				Name:         "functional group",
 				Kind:         "Engineering Model Term",
 			},
@@ -25,7 +25,7 @@ func TestBuildLinkTargets_UsesRegistryAnchorAndPluralVariants(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing singular token link target")
 	}
-	if singular.Anchor != "REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP" {
+	if singular.Anchor != "REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP" {
 		t.Fatalf("expected registry/index anchor, got %q", singular.Anchor)
 	}
 
@@ -33,7 +33,7 @@ func TestBuildLinkTargets_UsesRegistryAnchorAndPluralVariants(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing plural token link target")
 	}
-	if plural.Anchor != "REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP" {
+	if plural.Anchor != "REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP" {
 		t.Fatalf("expected plural to resolve to same anchor, got %q", plural.Anchor)
 	}
 
@@ -47,14 +47,14 @@ func TestLinkifyText_ConnectsPluralPhrases(t *testing.T) {
 	targets := buildLinkTargets(asciidocReferenceIndex{
 		Catalog: []asciidocReferenceEntry{
 			{
-				Anchor: "REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP",
-				ID:     "EM-FUNCTIONAL-GROUP",
+				Anchor: "REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP",
+				ID:     "TERM-FUNCTIONAL-GROUP",
 				Name:   "functional group",
 				Kind:   "Engineering Model Term",
 			},
 			{
-				Anchor: "REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT",
-				ID:     "EM-FUNCTIONAL-UNIT",
+				Anchor: "REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT",
+				ID:     "TERM-FUNCTIONAL-UNIT",
 				Name:   "functional unit",
 				Kind:   "Engineering Model Term",
 			},
@@ -63,10 +63,10 @@ func TestLinkifyText_ConnectsPluralPhrases(t *testing.T) {
 
 	text := "Functional Groups and Functional Units are stable authored design anchors."
 	got := linkifyText(text, targets)
-	if !strings.Contains(got, "<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,Functional Groups>>") {
+	if !strings.Contains(got, "<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP,Functional Groups>>") {
 		t.Fatalf("expected plural functional groups to be linkified, got %q", got)
 	}
-	if !strings.Contains(got, "<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,Functional Units>>") {
+	if !strings.Contains(got, "<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,Functional Units>>") {
 		t.Fatalf("expected plural functional units to be linkified, got %q", got)
 	}
 }

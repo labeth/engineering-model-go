@@ -3,14 +3,14 @@ package engmodel
 
 import "github.com/labeth/engineering-model-go/validate"
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-INFERENCE-HINT
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 type AIViewOptions struct {
 	ViewIDs  []string
 	CodeRoot string
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type AIViewResult struct {
 	Document    AIViewDocument
 	JSON        string
@@ -19,7 +19,7 @@ type AIViewResult struct {
 	Diagnostics []validate.Diagnostic
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIViewDocument struct {
 	SchemaVersion       string                 `json:"schema_version"`
 	Model               AIModelSummary         `json:"model"`
@@ -32,7 +32,7 @@ type AIViewDocument struct {
 	SourceBlocks        []AISourceBlock        `json:"source_blocks"`
 }
 
-// ENGMODEL-LINKS: EM-AI-GAP, EM-REQUIREMENT, EM-FUNCTIONAL-UNIT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, CTRL-TRACEABILITY-COVERAGE
 type AIGapReport struct {
 	RequirementsWithoutVerification []string `json:"requirements_without_verification,omitempty"`
 	RequirementsLowConfidence       []string `json:"requirements_low_confidence,omitempty"`
@@ -43,7 +43,7 @@ type AIGapReport struct {
 	LowConfidenceInferred           []string `json:"low_confidence_inferred,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-AI-IMPLEMENTATION-PATH, EM-REQUIREMENT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, CTRL-TRACEABILITY-COVERAGE
 type AIImplementationPath struct {
 	ID                string                 `json:"id"`
 	RequirementID     string                 `json:"requirement_id"`
@@ -56,7 +56,7 @@ type AIImplementationPath struct {
 	SourceRefs        []string               `json:"source_refs,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-AI-IMPLEMENTATION-PATH, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIImplementationStep struct {
 	Order      int      `json:"order"`
 	Action     string   `json:"action"`
@@ -65,7 +65,7 @@ type AIImplementationStep struct {
 	SourceRefs []string `json:"source_refs,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIModelSummary struct {
 	ID            string        `json:"id"`
 	Title         string        `json:"title"`
@@ -73,7 +73,7 @@ type AIModelSummary struct {
 	EntryPointIDs []string      `json:"entry_point_ids"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIModelCounts struct {
 	FunctionalGroups  int `json:"fg"`
 	FunctionalUnits   int `json:"fu"`
@@ -94,7 +94,7 @@ type AIModelCounts struct {
 	Views             int `json:"views"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-AI-SUPPORT-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEntryPoint struct {
 	ID        string   `json:"id"`
 	Kind      string   `json:"kind"`
@@ -102,7 +102,7 @@ type AIEntryPoint struct {
 	EntityIDs []string `json:"entity_ids"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEntityIndex struct {
 	FunctionalGroupIDs  []string         `json:"fg_ids"`
 	FunctionalUnitIDs   []string         `json:"fu_ids"`
@@ -123,14 +123,14 @@ type AIEntityIndex struct {
 	Lookup              []AIEntityLookup `json:"lookup"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEntityLookup struct {
 	ID    string `json:"id"`
 	Kind  string `json:"kind"`
 	Title string `json:"title"`
 }
 
-// ENGMODEL-LINKS: EM-AI-SUPPORT-PATH, EM-REQUIREMENT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, CTRL-TRACEABILITY-COVERAGE
 type AISupportPath struct {
 	ID                string   `json:"id"`
 	FromID            string   `json:"from_id"`
@@ -141,7 +141,7 @@ type AISupportPath struct {
 	SourceRefs        []string `json:"source_refs"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEntity struct {
 	ID               string              `json:"id"`
 	Kind             string              `json:"kind"`
@@ -169,7 +169,7 @@ type AIEntity struct {
 	SourceRefs       []string            `json:"source_refs"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEntityFields struct {
 	Triggers     []string `json:"triggers,omitempty"`
 	Consumes     []string `json:"consumes,omitempty"`
@@ -180,7 +180,7 @@ type AIEntityFields struct {
 	Consequences []string `json:"consequences,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIFieldProvenance struct {
 	Field      string   `json:"field"`
 	Origin     string   `json:"origin"`
@@ -188,7 +188,7 @@ type AIFieldProvenance struct {
 	SourceRefs []string `json:"source_refs"`
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK, EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AISourceBlock struct {
 	ID        string   `json:"id"`
 	Path      string   `json:"path"`
@@ -199,7 +199,7 @@ type AISourceBlock struct {
 	Summary   string   `json:"summary"`
 }
 
-// ENGMODEL-LINKS: EM-AI-EDGE, EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type AIEdge struct {
 	FromID     string   `json:"from_id"`
 	ToID       string   `json:"to_id"`

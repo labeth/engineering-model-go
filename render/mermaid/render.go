@@ -17,20 +17,20 @@ import (
 //go:embed templates/diagram.tmpl
 var diagramTemplateText string
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 var diagramTemplate = template.Must(template.New("mermaid-diagram").Parse(diagramTemplateText))
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 var nonID = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-AUTHORED-MAPPING, EM-FLOW
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 type edgeLine struct {
 	From  string
 	Label string
 	To    string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 type diagramTemplateData struct {
 	ViewID    string
 	ViewKind  string
@@ -40,7 +40,7 @@ type diagramTemplateData struct {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW, EM-AUTHORED-MAPPING, EM-FLOW, EM-FLOW-STEP
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func Render(v view.ProjectedView) string {
 	nodes := append([]view.Node(nil), v.Nodes...)
 	sort.SliceStable(nodes, func(i, j int) bool {
@@ -96,7 +96,7 @@ func Render(v view.ProjectedView) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW, EM-MODEL
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func renderNode(n view.Node) string {
 	id := mermaidID(n.ID)
 	label := escapeLabel(n.Label)
@@ -135,7 +135,7 @@ func renderNode(n view.Node) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func mermaidID(raw string) string {
 	r := nonID.ReplaceAllString(raw, "_")
 	if r == "" {
@@ -148,7 +148,7 @@ func mermaidID(raw string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func escapeLabel(s string) string {
 	s = strings.ReplaceAll(s, "\\", "\\\\")
 	s = strings.ReplaceAll(s, "\"", "\\\"")
@@ -167,7 +167,7 @@ func escapeLabel(s string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func escapeComment(s string) string {
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.TrimSpace(s)
@@ -178,7 +178,7 @@ func escapeComment(s string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-AUTHORED-MAPPING, EM-FLOW
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func compactEdgeLabel(edgeType, fallback string) string {
 	// Keep labels selective: show interaction/activity semantics so flow diagrams
 	// communicate behavior directly, while avoiding noisy labels everywhere.

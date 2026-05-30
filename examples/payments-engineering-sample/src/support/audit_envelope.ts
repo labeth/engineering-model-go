@@ -6,6 +6,7 @@ export type AuditEnvelope = {
   recordType: "fraud-audit";
 };
 
+// ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
 // TRLC-LINKS: REQ-PAY-005
 export function createAuditEnvelope(paymentId: string, riskScore: number): AuditEnvelope {
   return {

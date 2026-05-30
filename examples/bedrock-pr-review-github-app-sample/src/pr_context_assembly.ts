@@ -2,16 +2,20 @@
 // ENGMODEL-CODE-DESCRIPTION: collects pull request diff context and prepares review input payloads
 import { Octokit } from "github-rest-sdk";
 
+// ENGMODEL-LINKS: IF-BEDROCK-WEBHOOK-API, FLOW-BEDROCK-PR-REVIEW, DO-BEDROCK-PR-CONTEXT, FU-PR-CONTEXT-ASSEMBLY
 export class PRContextAssembly {
+  // ENGMODEL-LINKS: IF-BEDROCK-WEBHOOK-API, FLOW-BEDROCK-PR-REVIEW, DO-BEDROCK-PR-CONTEXT
   // TRLC-LINKS: REQ-PRR-002
   constructor(private readonly github: Octokit) {}
 
+  // ENGMODEL-LINKS: IF-BEDROCK-WEBHOOK-API, FLOW-BEDROCK-PR-REVIEW, DO-BEDROCK-PR-CONTEXT
   // TRLC-LINKS: REQ-PRR-002
   async fetchChangedFiles(owner: string, repo: string, pullNumber: number): Promise<string[]> {
     const files = await this.github.pulls.listFiles({ owner, repo, pull_number: pullNumber });
     return files.data.map((f) => f.filename);
   }
 
+  // ENGMODEL-LINKS: FLOW-BEDROCK-PR-REVIEW, DO-BEDROCK-PR-CONTEXT
   // TRLC-LINKS: REQ-PRR-003
   buildDiffContext(files: string[], patchByFile: Record<string, string>): string {
     return files

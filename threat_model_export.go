@@ -11,7 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-THREAT-DRAGON-DOCUMENT, EM-OPEN-OTM-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type ThreatModelFormat string
 
 const (
@@ -19,19 +19,19 @@ const (
 	ThreatModelFormatOpenOTM        ThreatModelFormat = "open-otm"
 )
 
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type ThreatModelExportOptions struct {
 	Format ThreatModelFormat
 }
 
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type ThreatModelExportResult struct {
 	JSON        string
 	Diagnostics []validate.Diagnostic
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-MODEL
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateThreatModelExportFromFile(architecturePath string, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -41,7 +41,7 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-THREAT-DRAGON-DOCUMENT, EM-OPEN-OTM-DOCUMENT, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -71,14 +71,14 @@ func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOpt
 	return ThreatModelExportResult{JSON: string(b) + "\n", Diagnostics: validate.SortDiagnostics(diags)}, nil
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type tdv2Document struct {
 	Version string      `json:"version"`
 	Summary tdv2Summary `json:"summary"`
 	Detail  tdv2Detail  `json:"detail"`
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type tdv2Summary struct {
 	Title       string `json:"title"`
 	Owner       string `json:"owner,omitempty"`
@@ -86,7 +86,7 @@ type tdv2Summary struct {
 	ID          int    `json:"id"`
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type tdv2Detail struct {
 	Contributors []tdv2Contributor `json:"contributors"`
 	Diagrams     []tdv2Diagram     `json:"diagrams"`
@@ -95,12 +95,12 @@ type tdv2Detail struct {
 	ThreatTop    int               `json:"threatTop"`
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type tdv2Contributor struct {
 	Name string `json:"name"`
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type tdv2Diagram struct {
 	Description string     `json:"description,omitempty"`
 	DiagramType string     `json:"diagramType"`
@@ -112,7 +112,7 @@ type tdv2Diagram struct {
 	Cells       []tdv2Cell `json:"cells,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-THREAT-DRAGON-DOCUMENT, EM-THREAT-SCENARIO, EM-FLOW, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 type tdv2Cell struct {
 	ID        string               `json:"id"`
 	Shape     string               `json:"shape"`
@@ -129,7 +129,7 @@ type tdv2Cell struct {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-THREAT-DRAGON-DOCUMENT, EM-THREAT-SCENARIO, EM-THREAT-MITIGATION, EM-FLOW, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	a := bundle.Architecture.AuthoredArchitecture
 
@@ -391,7 +391,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-SCENARIO, EM-RISK
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func tdSeverity(in ...string) string {
 	for _, s := range in {
 		s = strings.ToLower(strings.TrimSpace(s))
@@ -408,7 +408,7 @@ func tdSeverity(in ...string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-SCENARIO, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func tdStatus(status string) string {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "resolved", "closed", "verified", "completed", "mitigated":
@@ -419,7 +419,7 @@ func tdStatus(status string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-SCENARIO
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func tdHasOpenThreats(threats []map[string]any) bool {
 	for _, t := range threats {
 		if strings.EqualFold(strings.TrimSpace(fmt.Sprintf("%v", t["status"])), "open") {
@@ -429,7 +429,7 @@ func tdHasOpenThreats(threats []map[string]any) bool {
 	return false
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmDocument struct {
 	OTMVersion      string              `json:"otmVersion"`
 	Project         otmProject          `json:"project"`
@@ -442,7 +442,7 @@ type otmDocument struct {
 	Mitigations     []otmMitigation     `json:"mitigations,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmProject struct {
 	Name        string         `json:"name"`
 	ID          string         `json:"id"`
@@ -452,14 +452,14 @@ type otmProject struct {
 	Attributes  map[string]any `json:"attributes,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-SECURITY-CONTEXT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmRepresentation struct {
 	Name string `json:"name"`
 	ID   string `json:"id"`
 	Type string `json:"type"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-DATA-OBJECT, EM-RISK
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmAsset struct {
 	Name string `json:"name"`
 	ID   string `json:"id"`
@@ -472,7 +472,7 @@ type otmAsset struct {
 	Description string `json:"description,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 type otmTrustZone struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -486,7 +486,7 @@ type otmTrustZone struct {
 	} `json:"parent,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-ACTOR, EM-FUNCTIONAL-UNIT, EM-INTERFACE, EM-DEPLOYMENT-TARGET, EM-REFERENCED-ELEMENT, EM-THREAT-SCENARIO
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 type otmComponent struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -499,7 +499,7 @@ type otmComponent struct {
 	Tags    []string       `json:"tags,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-FLOW, EM-DATA-OBJECT, EM-THREAT-SCENARIO
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmDataflow struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -512,7 +512,7 @@ type otmDataflow struct {
 	Tags          []string       `json:"tags,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-THREAT-SCENARIO, EM-RISK
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmThreat struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -528,7 +528,7 @@ type otmThreat struct {
 	Tags []string `json:"tags,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmMitigation struct {
 	ID            string  `json:"id"`
 	Name          string  `json:"name"`
@@ -536,21 +536,21 @@ type otmMitigation struct {
 	RiskReduction float64 `json:"riskReduction"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-THREAT-SCENARIO, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmThreatRef struct {
 	Threat      string             `json:"threat"`
 	State       string             `json:"state"`
 	Mitigations []otmMitigationRef `json:"mitigations,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OPEN-OTM-DOCUMENT, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 type otmMitigationRef struct {
 	Mitigation string `json:"mitigation"`
 	State      string `json:"state"`
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-OPEN-OTM-DOCUMENT, EM-THREAT-SCENARIO, EM-THREAT-MITIGATION, EM-FLOW, EM-TRUST-BOUNDARY, EM-DATA-OBJECT
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 func buildOpenOTM(bundle model.Bundle) otmDocument {
 	a := bundle.Architecture.AuthoredArchitecture
 	doc := otmDocument{
@@ -767,7 +767,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-SCENARIO, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func otmState(status string) string {
 	switch strings.ToLower(strings.TrimSpace(status)) {
 	case "resolved", "closed", "completed", "verified", "mitigated", "implemented":
@@ -780,7 +780,7 @@ func otmState(status string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-RISK, EM-THREAT-SCENARIO, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func scoreLevel(level string) float64 {
 	switch strings.ToLower(strings.TrimSpace(level)) {
 	case "high":
@@ -795,7 +795,7 @@ func scoreLevel(level string) float64 {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: EM-THREAT-SCENARIO
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
 func findThreatScenarioByID(all []model.ThreatScenario, id string) model.ThreatScenario {
 	id = strings.TrimSpace(id)
 	for _, ts := range all {

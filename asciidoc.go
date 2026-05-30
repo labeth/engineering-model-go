@@ -12,21 +12,21 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-VIEW, EM-INFERENCE-HINT, EM-DECISION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type AsciiDocOptions struct {
 	ViewIDs          []string
 	CodeRoot         string
 	DecisionsDocPath string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-DECISION, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type AsciiDocResult struct {
 	Document          string
 	DecisionsDocument string
 	Diagnostics       []validate.Diagnostic
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-BUNDLE, EM-REQUIREMENT, EM-DESIGN, EM-DECISION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
@@ -48,7 +48,7 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 	return GenerateAsciiDoc(bundle, requirements, design, options)
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-VIEW, EM-REFERENCE-INDEX, EM-ASCIIDOC-DIAGRAM, EM-DECISION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
 	diags := validate.Bundle(bundle)

@@ -151,7 +151,7 @@ func TestScan_AttachesEngmodelLinksToDeclarations(t *testing.T) {
 	path := filepath.Join(root, "schema.go")
 	content := `package sample
 
-// ENGMODEL-LINKS: EM-INTERFACE, EM-DATA-OBJECT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-SAMPLE-001
 type Document struct {
 	ID string
@@ -171,7 +171,7 @@ type Document struct {
 	if len(symbols) != 1 {
 		t.Fatalf("expected one type symbol, got %+v", symbols)
 	}
-	if len(symbols[0].ModelLinks) != 2 || symbols[0].ModelLinks[0] != "EM-INTERFACE" || symbols[0].ModelLinks[1] != "EM-DATA-OBJECT" {
+	if len(symbols[0].ModelLinks) != 3 || symbols[0].ModelLinks[0] != "FU-CODEMAP-INFERENCE" || symbols[0].ModelLinks[1] != "CTRL-TRACEABILITY-COVERAGE" || symbols[0].ModelLinks[2] != "DEP-LOCAL-WORKSPACE" {
 		t.Fatalf("expected engmodel links to be attached, got %+v", symbols[0])
 	}
 	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-001" {

@@ -15,7 +15,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-BUNDLE, EM-REQUIREMENT, EM-DESIGN, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
@@ -39,7 +39,7 @@ func GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath stri
 	return generateAIView(bundle, requirements, design, reqPath, designAbsPath, options)
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-BUNDLE, EM-REQUIREMENT, EM-DESIGN, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AIViewOptions) (AIViewResult, error) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
@@ -48,7 +48,7 @@ func GenerateAIView(bundle model.Bundle, requirements model.RequirementsDocument
 	return generateAIView(bundle, requirements, design, reqPath, designPath, options)
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-VALIDATION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-002, REQ-EMG-012
 func generateAIView(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, requirementsPath, designPath string, options AIViewOptions) (AIViewResult, error) {
 	diags := validate.Bundle(bundle)
@@ -94,7 +94,7 @@ func generateAIView(bundle model.Bundle, requirements model.RequirementsDocument
 	}, nil
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 type aiBuildContext struct {
 	bundle             model.Bundle
 	requirements       model.RequirementsDocument
@@ -112,7 +112,7 @@ type aiBuildContext struct {
 	codeEntityIDFor    map[string]string
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL, EM-SOURCE-BLOCK, EM-AI-SUPPORT-PATH, EM-AI-GAP, EM-AI-IMPLEMENTATION-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, inferredRuntime []inferredRuntimeItem, inferredCode []inferredCodeItem, inferredVerification []inferredVerificationCheck, requirementsPath, designPath string, options AIViewOptions) AIViewDocument {
 	ctx := aiBuildContext{
@@ -779,7 +779,7 @@ func buildAIViewDocument(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-INFERENCE-HINT, EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func resolveAICodeRoots(bundle model.Bundle, codeRoot string) []string {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
@@ -990,7 +990,7 @@ func aiEntityKindRank(kind string) int {
 	}
 }
 
-// ENGMODEL-LINKS: EM-AI-SUPPORT-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 	entityByID := map[string]AIEntity{}
@@ -1103,7 +1103,7 @@ func buildAISupportPaths(entities []AIEntity) []AISupportPath {
 	return support
 }
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-AI-SUPPORT-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIEntryPoint {
 	requirementsWithSupport := []string{}
@@ -1183,7 +1183,7 @@ func buildAIEntryPoints(entities []AIEntity, supportPaths []AISupportPath) []AIE
 	return entryPoints
 }
 
-// ENGMODEL-LINKS: EM-AI-GAP, EM-REQUIREMENT, EM-FUNCTIONAL-UNIT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIGapReport(entities []AIEntity, supportPaths []AISupportPath) AIGapReport {
 	entityByID := map[string]AIEntity{}
@@ -1253,7 +1253,7 @@ func buildAIGapReport(entities []AIEntity, supportPaths []AISupportPath) AIGapRe
 	}
 }
 
-// ENGMODEL-LINKS: EM-AI-IMPLEMENTATION-PATH, EM-REQUIREMENT, EM-VERIFICATION-CHECK, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIImplementationPaths(entities []AIEntity, supportPaths []AISupportPath) []AIImplementationPath {
 	entityByID := map[string]AIEntity{}
@@ -1364,7 +1364,7 @@ func buildAIImplementationPaths(entities []AIEntity, supportPaths []AISupportPat
 	return paths
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK, EM-AI-VIEW
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func sourceRefsForEntities(entityByID map[string]AIEntity, ids []string) []string {
 	refs := []string{}
@@ -1392,7 +1392,7 @@ func parsePathAndLine(source string) (string, int) {
 	return s, 0
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addAuthoredYAMLSource(path, id, kind, summary, entityID string) string {
 	line := findLineForYAMLID(path, id)
@@ -1402,7 +1402,7 @@ func (ctx *aiBuildContext) addAuthoredYAMLSource(path, id, kind, summary, entity
 	return ctx.addSourceBlock(kind, path, line, line, summary, []string{entityID})
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addArtifactSource(source, kind, entityID, summary, hint string) string {
 	path, line := parsePathAndLine(source)
@@ -1413,7 +1413,7 @@ func (ctx *aiBuildContext) addArtifactSource(source, kind, entityID, summary, hi
 	return ctx.addSourceBlock(kind, displayPath, line, line, summary, []string{entityID})
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) addSourceBlock(kind, path string, lineStart, lineEnd int, summary string, entityIDs []string) string {
 	p := sanitizeSourcePath(path)
@@ -1448,7 +1448,7 @@ func (ctx *aiBuildContext) addSourceBlock(kind, path string, lineStart, lineEnd 
 	return id
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) linkEntitySource(entityID, sourceID string) {
 	entityID = strings.TrimSpace(entityID)
@@ -1473,7 +1473,7 @@ func (ctx *aiBuildContext) sourceRefsForEntityIDs(entityIDs []string) []string {
 	return uniqueSorted(out)
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func (ctx *aiBuildContext) finalizeSourceBlocks() []AISourceBlock {
 	out := make([]AISourceBlock, 0, len(ctx.sourceBlocksByKey))

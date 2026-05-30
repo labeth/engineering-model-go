@@ -20,7 +20,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type inferredRuntimeItem struct {
 	Name        string
 	Kind        string
@@ -30,7 +30,7 @@ type inferredRuntimeItem struct {
 	Ports       []string
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type inferredCodeItem struct {
 	Element     string
 	Kind        string
@@ -41,7 +41,7 @@ type inferredCodeItem struct {
 	ModelLinks  []string
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-INFERENCE-HINT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
@@ -129,7 +129,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 	return items, validate.SortDiagnostics(diags)
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
 func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	descHints, hintErr := parseTerraformRuntimeDescriptions(path)
@@ -199,7 +199,7 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 
 var terraformResourceLinePattern = regexp.MustCompile(`^\s*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{`)
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
 func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
 	f, err := os.Open(path)
@@ -262,7 +262,7 @@ func normalizeTerraformKind(resourceType string) string {
 	}
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-FUNCTIONAL-UNIT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferOwnerByConvention(kind, name string) string {
 	k := strings.ToLower(strings.TrimSpace(kind))
@@ -285,7 +285,7 @@ func inferOwnerByConvention(kind, name string) string {
 	}
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-FUNCTIONAL-UNIT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit) string {
 	owner := strings.TrimSpace(item.Owner)
@@ -325,7 +325,7 @@ func functionalUnitExists(id string, units []model.FunctionalUnit) bool {
 	return false
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
 func inferDeploymentArtifactItems(baseDir, path string) []inferredRuntimeItem {
 	if !isDeploymentEvidencePath(path) {
@@ -369,7 +369,7 @@ func deploymentArtifactDisplayPath(baseDir, path string) string {
 	return filepath.ToSlash(abs)
 }
 
-// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) string {
 	nameTokens := normalizeOwnerTokens(name)
@@ -487,7 +487,7 @@ type manifestPort struct {
 	TargetPort any    `yaml:"targetPort"`
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
 func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
 	raw, readErr := os.ReadFile(path)
@@ -621,7 +621,7 @@ func portsFromHelmValues(values map[string]any) []string {
 	return []string{fmt.Sprintf("%d/TCP", port)}
 }
 
-// ENGMODEL-LINKS: EM-INFERENCE-HINT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func resolveSourcePath(baseDir, source string) string {
 	s := strings.TrimSpace(source)
@@ -648,7 +648,7 @@ func extractMarkerValue(line, marker string) (string, bool) {
 	return "", false
 }
 
-// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func extractRuntimeDescriptionMarker(line string) (string, bool) {
 	markers := []string{

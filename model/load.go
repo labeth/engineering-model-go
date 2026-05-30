@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ENGMODEL-LINKS: EM-BUNDLE, EM-MODEL, EM-CATALOG, EM-DECISION
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 // TRLC-LINKS: REQ-EMG-001
 func LoadBundle(architecturePath string) (Bundle, error) {
 	archPath, err := filepath.Abs(architecturePath)
@@ -53,7 +53,7 @@ func LoadBundle(architecturePath string) (Bundle, error) {
 	}, nil
 }
 
-// ENGMODEL-LINKS: EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 // TRLC-LINKS: REQ-EMG-001
 func LoadRequirements(path string) (RequirementsDocument, error) {
 	absPath, err := filepath.Abs(path)
@@ -67,7 +67,7 @@ func LoadRequirements(path string) (RequirementsDocument, error) {
 	return requirements, nil
 }
 
-// ENGMODEL-LINKS: EM-DESIGN
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 // TRLC-LINKS: REQ-EMG-001
 func LoadDesign(path string) (DesignDocument, error) {
 	absPath, err := filepath.Abs(path)

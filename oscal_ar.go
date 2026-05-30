@@ -13,26 +13,26 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALAROptions struct {
 	AssessmentPlanHref string
 	RequirementsPath   string
 	CodeRoot           string
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type OSCALARResult struct {
 	JSON        string
 	Document    OSCALARDocument
 	Diagnostics []validate.Diagnostic
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALARDocument struct {
 	AssessmentResults oscalAssessmentResults `json:"assessment-results"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-VERIFICATION, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalAssessmentResults struct {
 	UUID     string          `json:"uuid"`
 	Metadata oscalMetadata   `json:"metadata"`
@@ -40,12 +40,12 @@ type oscalAssessmentResults struct {
 	Results  []oscalARResult `json:"results"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalImportAP struct {
 	Href string `json:"href"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-VERIFICATION, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalARResult struct {
 	UUID             string                `json:"uuid"`
 	Title            string                `json:"title"`
@@ -57,23 +57,23 @@ type oscalARResult struct {
 	Risks            []oscalARRisk         `json:"risks,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalReviewedControls struct {
 	ControlSelections []oscalControlSelection `json:"control-selections"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalControlSelection struct {
 	Description     string                   `json:"description,omitempty"`
 	IncludeControls []oscalIncludeControlRef `json:"include-controls,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalIncludeControlRef struct {
 	ControlID string `json:"control-id"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL-VERIFICATION
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalFinding struct {
 	UUID        string             `json:"uuid"`
 	Title       string             `json:"title"`
@@ -82,14 +82,14 @@ type oscalFinding struct {
 	Props       []oscalProperty    `json:"props,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL-VERIFICATION
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalFindingTarget struct {
 	Type     string                 `json:"type"`
 	TargetID string                 `json:"target-id"`
 	Status   oscalOperationalStatus `json:"status"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalARRisk struct {
 	UUID        string          `json:"uuid"`
 	Title       string          `json:"title"`
@@ -100,7 +100,7 @@ type oscalARRisk struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-MODEL, EM-REQUIREMENT, EM-SOURCE-BLOCK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -121,7 +121,7 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-ALLOCATION, EM-CONTROL-VERIFICATION, EM-RISK, EM-REQUIREMENT, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

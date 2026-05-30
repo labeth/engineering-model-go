@@ -10,7 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-VALIDATION, EM-REQUIREMENT, EM-CATALOG, EM-LINT-RUN, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc model.CatalogDocument) []validate.Diagnostic {
 	items := make([][2]string, 0, len(requirements.Requirements))
@@ -68,7 +68,7 @@ func lintRequirementsEARS(requirements model.RequirementsDocument, catalogDoc mo
 	return validate.SortDiagnostics(out)
 }
 
-// ENGMODEL-LINKS: EM-CATALOG, EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	systems := append([]earslint.CatalogEntry{}, toEarsEntries(doc.Catalog.Systems)...)
@@ -86,7 +86,7 @@ func toEarsCatalog(doc model.CatalogDocument) earslint.Catalog {
 	}
 }
 
-// ENGMODEL-LINKS: EM-CATALOG, EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsCoverageCatalog(doc model.CatalogDocument) earslint.Catalog {
 	return earslint.Catalog{
@@ -101,7 +101,7 @@ func toEarsCoverageCatalog(doc model.CatalogDocument) earslint.Catalog {
 	}
 }
 
-// ENGMODEL-LINKS: EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func toEarsEntries(in []model.CatalogEntry) []earslint.CatalogEntry {
 	out := make([]earslint.CatalogEntry, 0, len(in))
@@ -115,7 +115,7 @@ func toEarsEntries(in []model.CatalogEntry) []earslint.CatalogEntry {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func dedupeEarsEntries(in []earslint.CatalogEntry) []earslint.CatalogEntry {
 	if len(in) == 0 {
@@ -139,7 +139,7 @@ func dedupeEarsEntries(in []earslint.CatalogEntry) []earslint.CatalogEntry {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func mapEarsSeverity(in earslint.Severity) validate.Severity {
 	switch in {
@@ -153,7 +153,7 @@ func mapEarsSeverity(in earslint.Severity) validate.Severity {
 	}
 }
 
-// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC, EM-CATALOG
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func isBlockingCatalogDiagnostic(code string) bool {
 	if code == "expr.unknown_term" {
@@ -162,7 +162,7 @@ func isBlockingCatalogDiagnostic(code string) bool {
 	return strings.HasPrefix(code, "catalog.") && strings.HasSuffix(code, "_unresolved")
 }
 
-// ENGMODEL-LINKS: EM-REQUIREMENT, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func requirementPath(id string) string {
 	id = strings.TrimSpace(id)

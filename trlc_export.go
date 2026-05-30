@@ -19,31 +19,31 @@ var trlcModelTemplateText string
 //go:embed templates/trlc.requirements.trlc.tmpl
 var trlcRequirementsTemplateText string
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 var trlcModelTemplate = template.Must(template.New("trlc-model").Parse(trlcModelTemplateText))
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 var trlcRequirementsTemplate = template.Must(template.New("trlc-requirements").Parse(trlcRequirementsTemplateText))
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type TRLCExportOptions struct {
 	PackageName string
 }
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type TRLCExportResult struct {
 	PackageName      string
 	ModelRSL         string
 	RequirementsTRLC string
 }
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type trlcTemplateData struct {
 	PackageName  string
 	Requirements []trlcRequirementRecord
 }
 
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type trlcRequirementRecord struct {
 	ObjectName string
 	ID         string
@@ -54,7 +54,7 @@ type trlcRequirementRecord struct {
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateTRLCRequirementsFromFile(requirementsPath string, options TRLCExportOptions) (TRLCExportResult, error) {
 	reqDoc, err := model.LoadRequirements(requirementsPath)
 	if err != nil {
@@ -72,7 +72,7 @@ func GenerateTRLCRequirementsFromFile(requirementsPath string, options TRLCExpor
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateTRLCRequirements(requirements model.RequirementsDocument, options TRLCExportOptions) (TRLCExportResult, error) {
 	pkg := sanitizeTRLCIdentifier(strings.TrimSpace(options.PackageName))
 	if pkg == "" {
@@ -116,7 +116,7 @@ func GenerateTRLCRequirements(requirements model.RequirementsDocument, options T
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func executeTRLCTemplate(t *template.Template, data any) (string, error) {
 	var b bytes.Buffer
 	if err := t.Execute(&b, data); err != nil {
@@ -126,7 +126,7 @@ func executeTRLCTemplate(t *template.Template, data any) (string, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func sanitizeTRLCIdentifier(in string) string {
 	in = strings.TrimSpace(in)
 	if in == "" {
@@ -165,7 +165,7 @@ func sanitizeTRLCIdentifier(in string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func sanitizeTRLCString(in string) string {
 	in = strings.ReplaceAll(in, "\\", "\\\\")
 	in = strings.ReplaceAll(in, "\"", "\\\"")
@@ -176,7 +176,7 @@ func sanitizeTRLCString(in string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func uniqueTRLCObjectName(base string, used map[string]bool) string {
 	base = strings.TrimSpace(base)
 	if base == "" {

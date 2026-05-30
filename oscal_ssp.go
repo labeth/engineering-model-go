@@ -14,26 +14,26 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALSSPOptions struct {
 	ProfileHref       string
 	SystemName        string
 	SystemDescription string
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type OSCALSSPResult struct {
 	JSON        string
 	Document    OSCALSSPDocument
 	Diagnostics []validate.Diagnostic
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALSSPDocument struct {
 	SystemSecurityPlan oscalSystemSecurityPlan `json:"system-security-plan"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-CONTROL-ALLOCATION
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalSystemSecurityPlan struct {
 	UUID                  string                     `json:"uuid"`
 	Metadata              oscalMetadata              `json:"metadata"`
@@ -43,7 +43,7 @@ type oscalSystemSecurityPlan struct {
 	ControlImplementation oscalControlImplementation `json:"control-implementation"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalMetadata struct {
 	Title        string `json:"title"`
 	LastModified string `json:"last-modified"`
@@ -51,12 +51,12 @@ type oscalMetadata struct {
 	OSCALVersion string `json:"oscal-version"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalImportProfile struct {
 	Href string `json:"href"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-DATA-OBJECT
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalSystemCharacteristics struct {
 	SystemIDs                []oscalSystemID            `json:"system-ids"`
 	SystemName               string                     `json:"system-name"`
@@ -68,18 +68,18 @@ type oscalSystemCharacteristics struct {
 	AuthorizationBoundary    oscalAuthorizationBoundary `json:"authorization-boundary"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalSystemID struct {
 	IdentifierType string `json:"identifier-type"`
 	ID             string `json:"id"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-DATA-OBJECT
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalSystemInformation struct {
 	InformationTypes []oscalInformationType `json:"information-types"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-DATA-OBJECT
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalInformationType struct {
 	UUID                  string                 `json:"uuid"`
 	Title                 string                 `json:"title"`
@@ -89,36 +89,36 @@ type oscalInformationType struct {
 	AvailabilityImpact    oscalInformationImpact `json:"availability-impact"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalInformationImpact struct {
 	Base string `json:"base"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalSecurityImpactLevel struct {
 	SecurityObjectiveConfidentiality string `json:"security-objective-confidentiality"`
 	SecurityObjectiveIntegrity       string `json:"security-objective-integrity"`
 	SecurityObjectiveAvailability    string `json:"security-objective-availability"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalOperationalStatus struct {
 	State   string `json:"state"`
 	Remarks string `json:"remarks,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 type oscalAuthorizationBoundary struct {
 	Description string `json:"description"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalSystemImplementation struct {
 	Users      []oscalUser      `json:"users"`
 	Components []oscalComponent `json:"components,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalUser struct {
 	UUID                 string                     `json:"uuid"`
 	Title                string                     `json:"title"`
@@ -129,13 +129,13 @@ type oscalUser struct {
 	AuthorizedPrivileges []oscalAuthorizedPrivilege `json:"authorized-privileges,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalAuthorizedPrivilege struct {
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT, EM-ACTOR, EM-ATTACK-VECTOR, EM-REFERENCED-ELEMENT, EM-INTERFACE, EM-DATA-OBJECT, EM-DEPLOYMENT-TARGET, EM-CONTROL, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 type oscalComponent struct {
 	UUID        string                 `json:"uuid"`
 	Type        string                 `json:"type"`
@@ -145,20 +145,20 @@ type oscalComponent struct {
 	Props       []oscalProperty        `json:"props,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL-ALLOCATION
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalControlImplementation struct {
 	Description             string                        `json:"description"`
 	ImplementedRequirements []oscalImplementedRequirement `json:"implemented-requirements"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL, EM-CONTROL-ALLOCATION
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalImplementedRequirement struct {
 	UUID         string             `json:"uuid"`
 	ControlID    string             `json:"control-id"`
 	ByComponents []oscalByComponent `json:"by-components,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL-ALLOCATION, EM-EVIDENCE
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalByComponent struct {
 	UUID          string          `json:"uuid"`
 	ComponentUUID string          `json:"component-uuid"`
@@ -167,14 +167,14 @@ type oscalByComponent struct {
 	Remarks       string          `json:"remarks,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalProperty struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -184,7 +184,7 @@ func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) 
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-CONTROL, EM-CONTROL-ALLOCATION, EM-EVIDENCE, EM-ACTOR, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -366,7 +366,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 }
 
 // TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func deterministicUUID(seed string) string {
 	h := sha1.Sum([]byte(seed))
 	b := h[:16]
@@ -377,7 +377,7 @@ func deterministicUUID(seed string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -420,7 +420,7 @@ func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -463,7 +463,7 @@ func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func componentTypeForKind(kind string) string {
 	k := strings.TrimSpace(kind)
 	if k == "" {
@@ -473,7 +473,7 @@ func componentTypeForKind(kind string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func normalizeOSCALControlID(raw string) string {
 	x := strings.ToLower(strings.TrimSpace(raw))
 	if x == "" {

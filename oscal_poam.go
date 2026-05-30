@@ -12,24 +12,24 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALPOAMOptions struct {
 	SSPHref string
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type OSCALPOAMResult struct {
 	JSON        string
 	Document    OSCALPOAMDocument
 	Diagnostics []validate.Diagnostic
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALPOAMDocument struct {
 	PlanOfActionAndMilestones oscalPOAMRoot `json:"plan-of-action-and-milestones"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalPOAMRoot struct {
 	UUID      string          `json:"uuid"`
 	Metadata  oscalMetadata   `json:"metadata"`
@@ -38,12 +38,12 @@ type oscalPOAMRoot struct {
 	Risks     []oscalPOAMRisk `json:"risks,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-OSCAL-SSP
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalImportSSP struct {
 	Href string `json:"href"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK, EM-EVIDENCE
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalPOAMItem struct {
 	UUID         string                `json:"uuid"`
 	Title        string                `json:"title"`
@@ -53,12 +53,12 @@ type oscalPOAMItem struct {
 	Remarks      string                `json:"remarks,omitempty"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalRelatedRiskRef struct {
 	RiskUUID string `json:"risk-uuid"`
 }
 
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-RISK
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-THREAT-EXPORTER
 type oscalPOAMRisk struct {
 	UUID        string          `json:"uuid"`
 	Title       string          `json:"title"`
@@ -69,7 +69,7 @@ type oscalPOAMRisk struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-MODEL
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -79,7 +79,7 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
-// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK, EM-EVIDENCE, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

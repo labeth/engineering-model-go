@@ -13,7 +13,7 @@ var asciidocTemplateText string
 
 var asciidocTemplate = template.Must(template.New("asciidoc").Parse(asciidocTemplateText))
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-ASCIIDOC-SECTION, EM-REFERENCE-INDEX, EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocTemplateData struct {
 	Title                      string
 	Introduction               string
@@ -46,7 +46,7 @@ type asciidocTemplateData struct {
 	DecisionsDocPath           string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocHealthRow struct {
 	ViewID                    string
 	ViewHeading               string
@@ -59,7 +59,7 @@ type asciidocHealthRow struct {
 	HeuristicBasisExplanation string
 }
 
-// ENGMODEL-LINKS: EM-CATALOG-ENTRY, EM-ASCIIDOC-SECTION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocTerm struct {
 	Anchor      string
 	IndexAnchor string
@@ -69,7 +69,7 @@ type asciidocTerm struct {
 	Aliases     []string
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-ASCIIDOC-SECTION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocReferenceIndex struct {
 	Authored     []asciidocReferenceEntry
 	Catalog      []asciidocReferenceEntry
@@ -78,7 +78,7 @@ type asciidocReferenceIndex struct {
 	Verification []asciidocReferenceEntry
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocReferenceEntry struct {
 	Anchor       string
 	TargetAnchor string
@@ -93,7 +93,7 @@ type asciidocReferenceEntry struct {
 	Backlinks    []string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-MODEL
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocSummary struct {
 	FunctionalGroups   string
 	FunctionalUnits    string
@@ -102,14 +102,14 @@ type asciidocSummary struct {
 	ReferencedElements string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-MODEL
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocModelMeta struct {
 	ID             string
 	Title          string
 	BaseCatalogRef string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-LINT-RUN
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type asciidocLintRun struct {
 	ID         string
 	Mode       string
@@ -117,14 +117,14 @@ type asciidocLintRun struct {
 	CatalogRef string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocViewConfig struct {
 	ID    string
 	Kind  string
 	Roots string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-INFERENCE-HINT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type asciidocInferenceHints struct {
 	RuntimeSources           string
 	CodeSources              string
@@ -132,21 +132,21 @@ type asciidocInferenceHints struct {
 	OwnershipResolutionOrder string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ACTOR
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocActorSection struct {
 	ID          string
 	Name        string
 	Description string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ATTACK-VECTOR
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocAttackVectorSection struct {
 	ID          string
 	Name        string
 	Description string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REFERENCED-ELEMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocReferencedSection struct {
 	ID    string
 	Name  string
@@ -154,7 +154,7 @@ type asciidocReferencedSection struct {
 	Layer string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-AUTHORED-MAPPING
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocMappingSection struct {
 	Type        string
 	From        string
@@ -162,14 +162,14 @@ type asciidocMappingSection struct {
 	Description string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocProjectedNode struct {
 	ID    string
 	Kind  string
 	Label string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type asciidocInferredRow struct {
 	Name   string
 	Kind   string
@@ -177,28 +177,28 @@ type asciidocInferredRow struct {
 	Source string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-INTERFACE
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type asciidocRuntimeAPIRow struct {
 	Consumer string
 	Provider string
 	Ports    string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 type asciidocDeploymentRow struct {
 	From string
 	To   string
 	How  string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ACTOR, EM-DEPLOYMENT-TARGET
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 type asciidocPlatformOpRow struct {
 	Actor  string
 	Unit   string
 	Target string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ATTACK-VECTOR, EM-CONTROL, EM-TRUST-BOUNDARY
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 type asciidocSecurityPathRow struct {
 	AttackVectorID string
 	AttackVector   string
@@ -207,7 +207,7 @@ type asciidocSecurityPathRow struct {
 	DependsOn      string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type asciidocSecurityObsRow struct {
 	Signal   string
 	Layer    string
@@ -215,7 +215,7 @@ type asciidocSecurityObsRow struct {
 	Evidence string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW, EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocViewSection struct {
 	ID                        string
 	Kind                      string
@@ -257,14 +257,14 @@ type asciidocViewSection struct {
 	ProjectedMappings         []asciidocMappingSection
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-SECURITY-CONTEXT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocSecurityContextDiagram struct {
 	GroupID   string
 	GroupName string
 	Mermaid   string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-SCENARIO
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocThreatScenarioRow struct {
 	ID                   string
 	Title                string
@@ -284,7 +284,7 @@ type asciidocThreatScenarioRow struct {
 	ControlVerifications []asciidocControlVerificationRow
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-ASSUMPTION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocThreatAssumptionRow struct {
 	ID        string
 	Title     string
@@ -294,7 +294,7 @@ type asciidocThreatAssumptionRow struct {
 	Rationale string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-OUT-OF-SCOPE
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocThreatOutOfScopeRow struct {
 	ID        string
 	Title     string
@@ -305,7 +305,7 @@ type asciidocThreatOutOfScopeRow struct {
 	Reason    string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-MITIGATION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocThreatMitigationRow struct {
 	ID             string
 	ThreatScenario string
@@ -317,7 +317,7 @@ type asciidocThreatMitigationRow struct {
 	Notes          string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-CONTROL-VERIFICATION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
 type asciidocControlVerificationRow struct {
 	ID              string
 	Control         string
@@ -330,7 +330,7 @@ type asciidocControlVerificationRow struct {
 	Findings        string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FLOW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocSecurityFlowRow struct {
 	ID               string
 	Title            string
@@ -349,7 +349,7 @@ type asciidocSecurityFlowRow struct {
 	Data             string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ASCIIDOC-DIAGRAM, EM-ATTACK-VECTOR
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
 type asciidocSecurityAttackChapter struct {
 	ID              string
 	Name            string
@@ -360,14 +360,14 @@ type asciidocSecurityAttackChapter struct {
 	Units           []asciidocUnitSection
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-DESIGN, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocDesignDetail struct {
 	ViewID    string
 	Title     string
 	Narrative string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FUNCTIONAL-GROUP
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocEntitySection struct {
 	Anchor          string
 	ID              string
@@ -379,7 +379,7 @@ type asciidocEntitySection struct {
 	DependencyGraph string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FUNCTIONAL-UNIT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocUnitSection struct {
 	Anchor      string
 	GroupAnchor string
@@ -398,7 +398,7 @@ type asciidocUnitSection struct {
 	Evidence    string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REQUIREMENT, EM-ASCIIDOC-DIAGRAM
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocRequirementSection struct {
 	Anchor               string
 	ID                   string
@@ -410,7 +410,7 @@ type asciidocRequirementSection struct {
 	CoverageExplanation  string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
 type asciidocVerificationSection struct {
 	Anchor        string
 	IndexAnchor   string
@@ -426,7 +426,7 @@ type asciidocVerificationSection struct {
 	Description   string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
 type asciidocVerificationResultRow struct {
 	CheckID     string
 	CheckName   string
@@ -436,7 +436,7 @@ type asciidocVerificationResultRow struct {
 	Notes       string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-DECISION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocDecisionSection struct {
 	ID           string
 	Title        string
@@ -447,7 +447,7 @@ type asciidocDecisionSection struct {
 	Consequences []string
 }
 
-// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-ASCIIDOC-SECTION
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {
 	var b bytes.Buffer

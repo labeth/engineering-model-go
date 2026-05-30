@@ -2,7 +2,7 @@
 package view
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-VIEW, EM-MODEL
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type Node struct {
 	ID    string
 	Label string
@@ -10,7 +10,7 @@ type Node struct {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-VIEW, EM-AUTHORED-MAPPING
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type Edge struct {
 	From  string
 	To    string
@@ -19,7 +19,7 @@ type Edge struct {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: EM-VIEW
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type ProjectedView struct {
 	ID    string
 	Kind  string

@@ -2,16 +2,19 @@
 // ENGMODEL-CODE-DESCRIPTION: ingests device telemetry and emits normalized fleet ingestion events
 package src
 
+// ENGMODEL-LINKS: IF-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-TELEMETRY-INGEST, DO-COFFEE-TELEMETRY-EVENT
 type IngestPayload struct {
 	MachineID string
 	Nonce     string
 }
 
+// ENGMODEL-LINKS: IF-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-TELEMETRY-INGEST, DO-COFFEE-TELEMETRY-EVENT, FU-FLEET-INGESTION-API
 // TRLC-LINKS: REQ-COF-001, REQ-COF-002
 func IngestTelemetry(p IngestPayload) bool {
 	return p.MachineID != ""
 }
 
+// ENGMODEL-LINKS: IF-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-TELEMETRY-INGEST, CTRL-COFFEE-DEVICE-IDENTITY
 // TRLC-LINKS: REQ-COF-008
 func RejectReplay(nonceSeen bool) bool {
 	return nonceSeen

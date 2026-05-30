@@ -11,7 +11,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-006
-// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE, EM-REQUIREMENT, EM-TRLC-PACKAGE
+// ENGMODEL-LINKS: IF-CLI-ENGLOBSTER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-TRLC-EXPORTER
 func main() {
 	testsDir := flag.String("tests-dir", "", "path to tests directory")
 	reqPackage := flag.String("requirements-package", "Requirements", "TRLC requirements package name")

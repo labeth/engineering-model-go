@@ -86,15 +86,15 @@ func TestBuiltInTerms_IncludeNewAuthoredConcepts(t *testing.T) {
 		seen[term.ID] = true
 	}
 	for _, id := range []string{
-		"EM-INTERFACE",
-		"EM-DATA-OBJECT",
-		"EM-DEPLOYMENT-TARGET",
-		"EM-CONTROL",
-		"EM-TRUST-BOUNDARY",
-		"EM-STATE",
-		"EM-EVENT",
-		"EM-FLOW",
-		"EM-FLOW-STEP",
+		"TERM-INTERFACE",
+		"TERM-DATA-OBJECT",
+		"TERM-DEPLOYMENT-TARGET",
+		"TERM-CONTROL",
+		"TERM-TRUST-BOUNDARY",
+		"TERM-STATE",
+		"TERM-EVENT",
+		"TERM-FLOW",
+		"TERM-FLOW-STEP",
 	} {
 		if !seen[id] {
 			t.Fatalf("expected built-in term %s to be present", id)

@@ -13,7 +13,7 @@ var (
 	sectionLinkPattern = regexp.MustCompile(`<<([^>,]+)(?:,[^>]+)?>>`)
 )
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-ASCIIDOC-DOCUMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-014
 func applyReferenceBacklinks(document string, ref asciidocReferenceIndex) asciidocReferenceIndex {
 	refAnchors := map[string]bool{}

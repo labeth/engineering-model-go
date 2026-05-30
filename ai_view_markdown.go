@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ENGMODEL-LINKS: EM-AI-VIEW, EM-SOURCE-BLOCK, EM-AI-SUPPORT-PATH, EM-AI-IMPLEMENTATION-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func renderAIViewMarkdown(doc AIViewDocument) string {
 	var b strings.Builder

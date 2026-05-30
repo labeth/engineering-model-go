@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// ENGMODEL-LINKS: EM-AI-EDGE, EM-AI-VIEW, EM-AI-SUPPORT-PATH
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func buildAIEdges(doc AIViewDocument) []AIEdge {
 	entityByID := map[string]AIEntity{}
@@ -137,7 +137,7 @@ func buildAIEdges(doc AIViewDocument) []AIEdge {
 	return edges
 }
 
-// ENGMODEL-LINKS: EM-AI-EDGE
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func renderAIEdgesNDJSON(edges []AIEdge) (string, error) {
 	buf := bytes.NewBuffer(nil)
@@ -151,7 +151,7 @@ func renderAIEdgesNDJSON(edges []AIEdge) (string, error) {
 	return buf.String(), nil
 }
 
-// ENGMODEL-LINKS: EM-SOURCE-BLOCK, EM-AI-EDGE
+// ENGMODEL-LINKS: FU-AI-VIEW-BUILDER, DO-AI-JSON-ARTIFACT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 func combineSourceRefs(parts ...[]string) []string {
 	out := []string{}

@@ -51,19 +51,21 @@ Rules:
 
 ### Model Entity Links
 
-Use `ENGMODEL-LINKS` for declarations that represent architecture entities or engineering-model concepts.
+Use `ENGMODEL-LINKS` for declarations that represent concrete authored architecture entities. Implementation links must use the specific model IDs implemented at that declaration, not generic catalog vocabulary.
 
 Marker shape:
 
 ```go
-// ENGMODEL-LINKS: IF-GITHUB-WEBHOOK, FLOW-PR-OPENED-REVIEW, DATA-PULL-REQUEST-EVENT
+// ENGMODEL-LINKS: IF-GITHUB-WEBHOOK, FLOW-PR-OPENED-REVIEW, DO-PULL-REQUEST-EVENT
 ```
 
 Rules:
 
-- Model links should point to authored model entity IDs.
-- Use model links for interfaces, APIs, schemas, DTOs, events, adapters, runtime entrypoints, controls, trust-boundary code, and model contract types.
+- Model links must point to authored model entity IDs: `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, `FU-*`, `DEP-*`, `TS-*`, `RISK-*`, and similar IDs from `architecture.yml`.
+- Use concrete model links for interfaces, APIs, schemas, DTOs, events, adapters, runtime entrypoints, controls, trust-boundary code, and model contract types.
+- Do not use generic catalog terms in `ENGMODEL-LINKS`. If framework code has no narrower interface or data-object ID, link it to the owning `FU-*` and the closest concrete flow, control, deployment target, or artifact ID.
 - Use requirement links for why behavior exists; use model links for where the code sits in the architecture.
+- MCP implementation lookup depends on concrete model IDs. If code links only to generic catalog concepts, MCP cannot reliably answer which implementation belongs to a specific `IF-*`, `FLOW-*`, or `DO-*`.
 
 ## Strict Mode Policy
 
@@ -97,14 +99,14 @@ Required requirement links in strict mode:
 - HTTP, gRPC, CLI, queue, or event handler functions.
 - Middleware functions that implement controls or boundary behavior.
 
-Required model links once model-entity linking is available:
+Required model links:
 
-- Public API handlers to `interface`, `flow`, and owning `functionalUnit`.
-- Request and response structs to `interface` or `dataObject`.
-- Event structs to `event`, `flow`, or `dataObject`.
-- Service interfaces to `functionalUnit` or `interface`.
-- External client adapters to `referencedElement` or outbound `interface`.
-- Security middleware to `control` or `trustBoundary`.
+- Public API handlers to concrete interface, flow, and owning functional-unit IDs.
+- Request and response structs to concrete interface or data-object IDs.
+- Event structs to concrete event, flow, or data-object IDs.
+- Service interfaces to concrete functional-unit or interface IDs.
+- External client adapters to concrete referenced-element or outbound interface IDs.
+- Security middleware to concrete control or trust-boundary IDs.
 
 Optional or normally ignored:
 
@@ -120,12 +122,12 @@ Example:
 // ENGMODEL-OWNER-UNIT: FU-MCP-SERVER
 package mcp
 
-// ENGMODEL-LINKS: IF-MCP-TOOLS, FLOW-MCP-REQUEST
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, DO-MCP-TOOL-RESULT, EVT-MCP-TOOL-CALL-RECEIVED
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func handleToolCall(...) (...) {
 }
 
-// ENGMODEL-LINKS: IF-MCP-TOOLS, DATA-TOOL-CALL-REQUEST
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, DO-MCP-TOOL-RESULT
 type ToolCallRequest struct {
 }
 ```
@@ -142,13 +144,13 @@ Required requirement links in strict mode:
 - Hooks that implement domain or integration behavior.
 - Route, action, loader, resolver, and API handler functions.
 
-Required model links once model-entity linking is available:
+Required model links:
 
-- Route handlers to `interface` and `flow`.
-- Exported request/response types to `interface` or `dataObject`.
-- Event types to `event` or `dataObject`.
-- Client adapters to outbound `interface` or `referencedElement`.
-- Components that represent modeled UI boundaries to `actor`, `interface`, or `functionalUnit` when applicable.
+- Route handlers to concrete interface and flow IDs.
+- Exported request/response types to concrete interface or data-object IDs.
+- Event types to concrete event or data-object IDs.
+- Client adapters to concrete outbound interface or referenced-element IDs.
+- Components that represent modeled UI boundaries to actor, interface, or functional-unit IDs when applicable.
 
 Optional or normally ignored:
 
@@ -164,7 +166,7 @@ Example:
 export const submitCheckout = async (request: CheckoutRequest) => {
 };
 
-// ENGMODEL-LINKS: IF-CHECKOUT-API, DATA-CHECKOUT-REQUEST
+// ENGMODEL-LINKS: IF-CHECKOUT-API, DO-CHECKOUT-REQUEST
 export interface CheckoutRequest {
 }
 ```
@@ -179,12 +181,12 @@ Required requirement links in strict mode:
 - Test functions that verify modeled behavior.
 - HTTP, CLI, queue, or event handler functions.
 
-Required model links once model-entity linking is available:
+Required model links:
 
-- Public structs and enums used as API contracts to `interface` or `dataObject`.
-- Traits that define ports/adapters to `interface` or `functionalUnit`.
-- External adapters to `referencedElement` or outbound `interface`.
-- Security or policy modules to `control` or `trustBoundary`.
+- Public structs and enums used as API contracts to concrete interface or data-object IDs.
+- Traits that define ports/adapters to concrete interface or functional-unit IDs.
+- External adapters to concrete referenced-element or outbound interface IDs.
+- Security or policy modules to concrete control or trust-boundary IDs.
 
 Optional or normally ignored:
 
@@ -199,7 +201,7 @@ Example:
 pub fn calculate_risk_score(input: RiskInput) -> RiskScore {
 }
 
-// ENGMODEL-LINKS: IF-RISK-SCORE, DATA-RISK-INPUT
+// ENGMODEL-LINKS: IF-RISK-SCORE, DO-RISK-INPUT
 pub struct RiskInput {
 }
 ```
@@ -212,19 +214,25 @@ Use these mapping rules:
 
 | Code element | Link to |
 | --- | --- |
-| HTTP route handler | Interface, flow, functional unit, requirements |
-| gRPC method | Interface, flow, data objects, requirements |
-| GraphQL resolver | Interface, data objects, requirements |
-| CLI command handler | Interface or functional unit, requirements |
-| Queue/topic publisher | Interface, event, flow, requirements |
-| Queue/topic consumer | Interface, event, flow, requirements |
-| Request DTO | Interface or data object |
-| Response DTO | Interface or data object |
-| Domain event | Event and data object |
-| External service client | Referenced element and outbound interface |
-| Auth middleware | Control, trust boundary, requirements |
-| Validation middleware | Control, interface, requirements |
-| Repository/persistence adapter | Data object, deployment target or referenced element |
+| HTTP route handler | Concrete interface, flow, functional unit, requirements |
+| gRPC method | Concrete interface, flow, data objects, requirements |
+| GraphQL resolver | Concrete interface, data objects, requirements |
+| CLI command handler | Concrete interface or functional unit, requirements |
+| Queue/topic publisher | Concrete interface, event, flow, requirements |
+| Queue/topic consumer | Concrete interface, event, flow, requirements |
+| Request DTO | Concrete interface or data object |
+| Response DTO | Concrete interface or data object |
+| Domain event | Concrete event and data object |
+| External service client | Concrete referenced element and outbound interface |
+| Auth middleware | Concrete control, trust boundary, requirements |
+| Validation middleware | Concrete control, interface, requirements |
+| Repository/persistence adapter | Concrete data object, deployment target or referenced element |
+
+MCP lookup expectations:
+
+- `interfaces.implementations` returns declarations linked to a concrete `IF-*` ID.
+- `model.implementations` returns declarations linked to any concrete model entity ID, such as `FLOW-*`, `DO-*`, `CTRL-*`, `FU-*`, `DEP-*`, `TS-*`, or `RISK-*`.
+- These tools use scanner-captured `ENGMODEL-LINKS`; they should not rely on broad `EM-*` concept links or path-name guessing.
 
 ## Runtime Links
 

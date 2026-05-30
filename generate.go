@@ -10,7 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/view"
 )
 
-// ENGMODEL-LINKS: EM-GENERATION-WORKFLOW, EM-MODEL, EM-VIEW, EM-ASCIIDOC-DIAGRAM, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type Result struct {
 	Bundle      model.Bundle
 	View        view.ProjectedView
@@ -19,7 +19,7 @@ type Result struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
-// ENGMODEL-LINKS: EM-GENERATION-WORKFLOW, EM-MODEL, EM-VIEW
+// ENGMODEL-LINKS: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION
 func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -29,7 +29,7 @@ func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
-// ENGMODEL-LINKS: EM-GENERATION-WORKFLOW, EM-MODEL, EM-VIEW, EM-ASCIIDOC-DIAGRAM, EM-VALIDATION-DIAGNOSTIC
+// ENGMODEL-LINKS: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func Generate(bundle model.Bundle, viewID string) (Result, error) {
 	diags := validate.Bundle(bundle)
 	pv, viewDiags := view.Build(bundle, viewID)

@@ -13,11 +13,11 @@ import (
 	"github.com/labeth/engineering-model-go/mcp"
 )
 
-// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 const maxMessageBytes = 8 * 1024 * 1024
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-STDIO-TRANSPORT
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
 func main() {
 	s := mcp.NewServer()
 	r := bufio.NewReader(os.Stdin)
@@ -49,7 +49,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func readMessage(r *bufio.Reader) ([]byte, error) {
 	headers := map[string]string{}
 	for {
@@ -85,7 +85,7 @@ func readMessage(r *bufio.Reader) ([]byte, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
+// ENGMODEL-LINKS: IF-CLI-ENGMCP, FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func writeMessage(w *bufio.Writer, body []byte) error {
 	var b bytes.Buffer
 	_, _ = fmt.Fprintf(&b, "Content-Length: %d\r\n\r\n", len(body))

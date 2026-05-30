@@ -3,10 +3,14 @@
 use crate::domain::events::PaymentEvent;
 use serde_json::json;
 
+// ENGMODEL-LINKS: IF-PAYMENTS-BANK-AUTH, FLOW-CUSTOMER-CHECKOUT, DO-PAYMENTS-AUTH-REQUEST, DO-PAYMENTS-AUTH-DECISION, FU-PAYMENT-AUTHORIZATION
 pub struct AuthorizationEngine {}
+
+// ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET, FU-SUPPORT-REVIEW
 pub struct ReviewCoordinator {}
 
 impl AuthorizationEngine {
+    // ENGMODEL-LINKS: IF-PAYMENTS-BANK-AUTH, FLOW-CUSTOMER-CHECKOUT, DO-PAYMENTS-AUTH-REQUEST, DO-PAYMENTS-AUTH-DECISION
     // TRLC-LINKS: REQ-PAY-001
     pub fn authorize_payment(&self, payment_id: &str, amount_cents: u64) -> bool {
         let event = PaymentEvent::new(payment_id, amount_cents);
@@ -22,6 +26,7 @@ impl AuthorizationEngine {
         true
     }
 
+    // ENGMODEL-LINKS: IF-PAYMENTS-BANK-AUTH, FLOW-CUSTOMER-CHECKOUT, DO-PAYMENTS-AUTH-REQUEST
     // TRLC-LINKS: REQ-PAY-001
     pub fn request_bank_authorization(&self, payment_id: &str) {
         println!(
@@ -30,6 +35,7 @@ impl AuthorizationEngine {
         );
     }
 
+    // ENGMODEL-LINKS: IF-PAYMENTS-BANK-AUTH, FLOW-CUSTOMER-CHECKOUT
     // TRLC-LINKS: REQ-PAY-006
     pub fn handle_bank_link_unavailable(&self, payment_id: &str) {
         println!(
@@ -40,6 +46,7 @@ impl AuthorizationEngine {
 }
 
 impl ReviewCoordinator {
+    // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, IF-PAYMENTS-RISK-SCORE-API, DO-PAYMENTS-RISK-SIGNAL, DO-PAYMENTS-REVIEW-TICKET
     // TRLC-LINKS: REQ-PAY-004
     pub fn place_in_review(&self, payment_id: &str, risk_score: i32) {
         println!(
@@ -48,6 +55,7 @@ impl ReviewCoordinator {
         );
     }
 
+    // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
     // TRLC-LINKS: REQ-PAY-004
     pub fn notify_support(&self, payment_id: &str) {
         println!(
@@ -56,6 +64,7 @@ impl ReviewCoordinator {
         );
     }
 
+    // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
     // TRLC-LINKS: REQ-PAY-005
     pub fn persist_audit_record(&self, payment_id: &str, risk_score: i32) {
         println!(

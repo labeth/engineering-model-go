@@ -19,7 +19,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type Symbol struct {
 	TraceID    string
 	PartOf     []string
@@ -30,7 +30,7 @@ type Symbol struct {
 	Signature  string
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-TRACE-MARKER
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type pendingTrace struct {
 	traceID    string
 	partOf     []string
@@ -39,7 +39,7 @@ type pendingTrace struct {
 	firstLine  int
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type declaration struct {
 	Name         string
 	Kind         string
@@ -48,7 +48,7 @@ type declaration struct {
 	RequiresTRLC bool
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type languageSpec struct {
 	Language          *sitter.Language
 	DeclarationKind   map[string]bool
@@ -62,7 +62,7 @@ var supportedExt = map[string]bool{
 	".rs":  true,
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT, EM-UPWARD-LINKING
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
@@ -113,7 +113,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	return symbols, diags, nil
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT, EM-TRACE-MARKER
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	src, err := os.ReadFile(path)
@@ -255,7 +255,7 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	return symbols, diags, nil
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func symbolForDeclaration(d declaration, relPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
 	traceID = strings.TrimSpace(traceID)
@@ -277,7 +277,7 @@ func symbolForDeclaration(d declaration, relPath string, lineNo int, line string
 	}
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, []validate.Diagnostic, error) {
 	ext := strings.ToLower(filepath.Ext(path))
@@ -348,7 +348,7 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 	return out, commentLines, nil, nil
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
 	switch ext {
@@ -408,7 +408,7 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 	}
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func declarationName(n *sitter.Node, src []byte) string {
 	if n == nil {
@@ -456,7 +456,7 @@ func firstLine(s string) string {
 	return strings.TrimSpace(s)
 }
 
-// ENGMODEL-LINKS: EM-TRACE-MARKER
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func markerValue(line, marker string) (string, bool) {
 	idx := strings.Index(line, marker)
@@ -488,7 +488,7 @@ func joinLineNumbers(lines []int) string {
 	return strings.Join(parts, ",")
 }
 
-// ENGMODEL-LINKS: EM-TRACE-MARKER
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func validRequirementID(id string) bool {
 	return requirementIDPattern.MatchString(strings.TrimSpace(id))
@@ -508,7 +508,7 @@ func isAttributeLike(trimmed string) bool {
 	return strings.HasPrefix(trimmed, "@") || strings.HasPrefix(trimmed, "#[")
 }
 
-// ENGMODEL-LINKS: EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func autoTraceID(symbolName, relPath string, lineNo int) string {
 	name := strings.TrimSpace(symbolName)

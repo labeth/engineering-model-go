@@ -9,7 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
-// ENGMODEL-LINKS: EM-DESIGN, EM-FUNCTIONAL-GROUP
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGroup {
 	out := map[string]model.DesignFunctionalGroup{}
@@ -19,7 +19,7 @@ func mapDesignGroups(d model.DesignDocument) map[string]model.DesignFunctionalGr
 	return out
 }
 
-// ENGMODEL-LINKS: EM-DESIGN, EM-FUNCTIONAL-UNIT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func mapDesignUnits(d model.DesignDocument) map[string]model.DesignFunctionalUnit {
 	out := map[string]model.DesignFunctionalUnit{}
@@ -29,7 +29,7 @@ func mapDesignUnits(d model.DesignDocument) map[string]model.DesignFunctionalUni
 	return out
 }
 
-// ENGMODEL-LINKS: EM-DESIGN, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func viewDesignKey(kind string) string {
 	switch kind {
@@ -50,7 +50,7 @@ func viewDesignKey(kind string) string {
 	}
 }
 
-// ENGMODEL-LINKS: EM-DESIGN, EM-ASCIIDOC-SECTION, EM-VIEW
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildDesignDetails(entityID, intro string, source interface{}, views []model.View) []asciidocDesignDetail {
 	out := make([]asciidocDesignDetail, 0, len(views))
@@ -158,13 +158,13 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func referenceAnchor(kind, id string) string {
 	return "REF_" + strings.ToUpper(strings.TrimSpace(kind)) + "_" + sanitizeNode(id)
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-MODEL, EM-CATALOG, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDocument, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck) asciidocReferenceIndex {
 	authored := []asciidocReferenceEntry{}
@@ -269,7 +269,7 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-CATALOG, EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
@@ -395,7 +395,7 @@ func aliasDescription(e model.CatalogEntry) string {
 	return def
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-RUNTIME-ELEMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
@@ -436,7 +436,7 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-CODE-ELEMENT
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
@@ -483,7 +483,7 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-VERIFICATION-CHECK
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-003
 func buildVerificationReferences(in []inferredVerificationCheck) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
@@ -522,7 +522,7 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CATALOG, EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 	out := []asciidocTerm{}
@@ -563,497 +563,497 @@ func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 	return out
 }
 
-// ENGMODEL-LINKS: EM-CATALOG-ENTRY
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func builtInEngineeringModelTerms() []asciidocTerm {
 	return []asciidocTerm{
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-FUNCTIONAL-GROUP"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FUNCTIONAL-GROUP"),
-			ID:          "EM-FUNCTIONAL-GROUP",
+			Anchor:      referenceAnchor("engmodel", "TERM-FUNCTIONAL-GROUP"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-FUNCTIONAL-GROUP"),
+			ID:          "TERM-FUNCTIONAL-GROUP",
 			Name:        "functional group",
 			Definition:  "A major authored capability area that groups related functional units.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-FUNCTIONAL-UNIT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FUNCTIONAL-UNIT"),
-			ID:          "EM-FUNCTIONAL-UNIT",
+			Anchor:      referenceAnchor("engmodel", "TERM-FUNCTIONAL-UNIT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-FUNCTIONAL-UNIT"),
+			ID:          "TERM-FUNCTIONAL-UNIT",
 			Name:        "functional unit",
 			Definition:  "An authored working unit inside a functional group that owns specific behavior.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-RUNTIME-ELEMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-RUNTIME-ELEMENT"),
-			ID:          "EM-RUNTIME-ELEMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-RUNTIME-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-RUNTIME-ELEMENT"),
+			ID:          "TERM-RUNTIME-ELEMENT",
 			Name:        "runtime element",
 			Definition:  "An inferred runtime realization element discovered from infrastructure and deployment sources.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CODE-ELEMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CODE-ELEMENT"),
-			ID:          "EM-CODE-ELEMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-CODE-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CODE-ELEMENT"),
+			ID:          "TERM-CODE-ELEMENT",
 			Name:        "code element",
 			Definition:  "An inferred code structure or ownership element discovered from source trees and build metadata.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-TRACE-MARKER"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-TRACE-MARKER"),
-			ID:          "EM-TRACE-MARKER",
+			Anchor:      referenceAnchor("engmodel", "TERM-TRACE-MARKER"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-TRACE-MARKER"),
+			ID:          "TERM-TRACE-MARKER",
 			Name:        "trace marker",
 			Definition:  "Source-level marker such as TRLC-LINKS or ENGMODEL-LINKS used to connect declarations to requirements and model entities.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-MODEL"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-MODEL"),
-			ID:          "EM-MODEL",
+			Anchor:      referenceAnchor("engmodel", "TERM-MODEL"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-MODEL"),
+			ID:          "TERM-MODEL",
 			Name:        "model",
 			Definition:  "The authored architecture model root that composes functional structure, relationships, inference hints, and views.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-BUNDLE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-BUNDLE"),
-			ID:          "EM-BUNDLE",
+			Anchor:      referenceAnchor("engmodel", "TERM-BUNDLE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-BUNDLE"),
+			ID:          "TERM-BUNDLE",
 			Name:        "model bundle",
 			Definition:  "Loaded architecture, catalog, and companion documents resolved as one working model context.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CATALOG"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CATALOG"),
-			ID:          "EM-CATALOG",
+			Anchor:      referenceAnchor("engmodel", "TERM-CATALOG"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CATALOG"),
+			ID:          "TERM-CATALOG",
 			Name:        "catalog",
 			Definition:  "Controlled vocabulary document used to normalize model, requirement, and generated-document terminology.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CATALOG-ENTRY"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CATALOG-ENTRY"),
-			ID:          "EM-CATALOG-ENTRY",
+			Anchor:      referenceAnchor("engmodel", "TERM-CATALOG-ENTRY"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CATALOG-ENTRY"),
+			ID:          "TERM-CATALOG-ENTRY",
 			Name:        "catalog entry",
 			Definition:  "A stable catalog term with a definition and aliases for linting, linking, and generated references.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-LINT-RUN"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-LINT-RUN"),
-			ID:          "EM-LINT-RUN",
+			Anchor:      referenceAnchor("engmodel", "TERM-LINT-RUN"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-LINT-RUN"),
+			ID:          "TERM-LINT-RUN",
 			Name:        "lint run",
 			Definition:  "Requirement lint configuration that controls parsing and quality checks for requirement text.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-VALIDATION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-VALIDATION"),
-			ID:          "EM-VALIDATION",
+			Anchor:      referenceAnchor("engmodel", "TERM-VALIDATION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-VALIDATION"),
+			ID:          "TERM-VALIDATION",
 			Name:        "validation",
 			Definition:  "Model quality gate that checks authored documents, references, relationship semantics, and requirement lint results.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-VALIDATION-DIAGNOSTIC"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-VALIDATION-DIAGNOSTIC"),
-			ID:          "EM-VALIDATION-DIAGNOSTIC",
+			Anchor:      referenceAnchor("engmodel", "TERM-VALIDATION-DIAGNOSTIC"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-VALIDATION-DIAGNOSTIC"),
+			ID:          "TERM-VALIDATION-DIAGNOSTIC",
 			Name:        "validation diagnostic",
 			Definition:  "Structured validation finding with code, severity, message, and optional source path.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-DESIGN"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-DESIGN"),
-			ID:          "EM-DESIGN",
+			Anchor:      referenceAnchor("engmodel", "TERM-DESIGN"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-DESIGN"),
+			ID:          "TERM-DESIGN",
 			Name:        "design document",
 			Definition:  "Authored design narrative organized by model entities and architecture views.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-DESIGN-VIEW"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-DESIGN-VIEW"),
-			ID:          "EM-DESIGN-VIEW",
+			Anchor:      referenceAnchor("engmodel", "TERM-DESIGN-VIEW"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-DESIGN-VIEW"),
+			ID:          "TERM-DESIGN-VIEW",
 			Name:        "design view",
 			Definition:  "View-scoped design narrative attached to an authored functional group or functional unit.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-DECISION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-DECISION"),
-			ID:          "EM-DECISION",
+			Anchor:      referenceAnchor("engmodel", "TERM-DECISION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-DECISION"),
+			ID:          "TERM-DECISION",
 			Name:        "architecture decision",
 			Definition:  "Authored architecture decision record with status, context, decision text, and consequences.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-INFERENCE-HINT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-INFERENCE-HINT"),
-			ID:          "EM-INFERENCE-HINT",
+			Anchor:      referenceAnchor("engmodel", "TERM-INFERENCE-HINT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-INFERENCE-HINT"),
+			ID:          "TERM-INFERENCE-HINT",
 			Name:        "inference hint",
 			Definition:  "Authored source and ownership configuration used to discover runtime, code, and verification evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-VIEW"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-VIEW"),
-			ID:          "EM-VIEW",
+			Anchor:      referenceAnchor("engmodel", "TERM-VIEW"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-VIEW"),
+			ID:          "TERM-VIEW",
 			Name:        "view",
 			Definition:  "Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-ASCIIDOC-DOCUMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ASCIIDOC-DOCUMENT"),
-			ID:          "EM-ASCIIDOC-DOCUMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-ASCIIDOC-DOCUMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-ASCIIDOC-DOCUMENT"),
+			ID:          "TERM-ASCIIDOC-DOCUMENT",
 			Name:        "AsciiDoc document",
 			Definition:  "Human-readable generated architecture publication document assembled from authored model, inferred evidence, diagrams, references, and decisions.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-ASCIIDOC-SECTION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ASCIIDOC-SECTION"),
-			ID:          "EM-ASCIIDOC-SECTION",
+			Anchor:      referenceAnchor("engmodel", "TERM-ASCIIDOC-SECTION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-ASCIIDOC-SECTION"),
+			ID:          "TERM-ASCIIDOC-SECTION",
 			Name:        "AsciiDoc section",
 			Definition:  "Structured generated document section or row model used to render authored and inferred architecture content.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-ASCIIDOC-DIAGRAM"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ASCIIDOC-DIAGRAM"),
-			ID:          "EM-ASCIIDOC-DIAGRAM",
+			Anchor:      referenceAnchor("engmodel", "TERM-ASCIIDOC-DIAGRAM"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-ASCIIDOC-DIAGRAM"),
+			ID:          "TERM-ASCIIDOC-DIAGRAM",
 			Name:        "AsciiDoc diagram",
 			Definition:  "Generated diagram block, usually Mermaid, that visualizes architecture relationships in the AsciiDoc publication.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-REFERENCE-INDEX"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REFERENCE-INDEX"),
-			ID:          "EM-REFERENCE-INDEX",
+			Anchor:      referenceAnchor("engmodel", "TERM-REFERENCE-INDEX"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-REFERENCE-INDEX"),
+			ID:          "TERM-REFERENCE-INDEX",
 			Name:        "reference index",
 			Definition:  "Generated index of authored, catalog, runtime, code, and verification references with stable anchors and backlinks.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-SECURITY-CONTEXT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-SECURITY-CONTEXT"),
-			ID:          "EM-SECURITY-CONTEXT",
+			Anchor:      referenceAnchor("engmodel", "TERM-SECURITY-CONTEXT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-SECURITY-CONTEXT"),
+			ID:          "TERM-SECURITY-CONTEXT",
 			Name:        "security context",
 			Definition:  "Security-focused generated context view that groups owned functional units and shows external actors, references, flows, controls, and trust boundaries.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-MODEL-EXPORT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-MODEL-EXPORT"),
-			ID:          "EM-THREAT-MODEL-EXPORT",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-MODEL-EXPORT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-MODEL-EXPORT"),
+			ID:          "TERM-THREAT-MODEL-EXPORT",
 			Name:        "threat model export",
 			Definition:  "Generated security artifact that translates authored architecture, flows, trust boundaries, threats, and mitigations into an external threat-model schema.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-DRAGON-DOCUMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-DRAGON-DOCUMENT"),
-			ID:          "EM-THREAT-DRAGON-DOCUMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-DRAGON-DOCUMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-DRAGON-DOCUMENT"),
+			ID:          "TERM-THREAT-DRAGON-DOCUMENT",
 			Name:        "Threat Dragon document",
 			Definition:  "Threat Dragon JSON representation generated from the engineering model for STRIDE threat-model review.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-OPEN-OTM-DOCUMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-OPEN-OTM-DOCUMENT"),
-			ID:          "EM-OPEN-OTM-DOCUMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-OPEN-OTM-DOCUMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-OPEN-OTM-DOCUMENT"),
+			ID:          "TERM-OPEN-OTM-DOCUMENT",
 			Name:        "Open OTM document",
 			Definition:  "Open Threat Model JSON representation generated from the engineering model for interoperable threat-model exchange.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-STRUCTURIZR-DSL"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-STRUCTURIZR-DSL"),
-			ID:          "EM-STRUCTURIZR-DSL",
+			Anchor:      referenceAnchor("engmodel", "TERM-STRUCTURIZR-DSL"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-STRUCTURIZR-DSL"),
+			ID:          "TERM-STRUCTURIZR-DSL",
 			Name:        "Structurizr DSL",
 			Definition:  "Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-TRLC-PACKAGE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-TRLC-PACKAGE"),
-			ID:          "EM-TRLC-PACKAGE",
+			Anchor:      referenceAnchor("engmodel", "TERM-TRLC-PACKAGE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-TRLC-PACKAGE"),
+			ID:          "TERM-TRLC-PACKAGE",
 			Name:        "TRLC package",
 			Definition:  "Generated TRLC model and requirements package used for formal requirement traceability processing.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-LOBSTER-ACTIVITY-TRACE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-LOBSTER-ACTIVITY-TRACE"),
-			ID:          "EM-LOBSTER-ACTIVITY-TRACE",
+			Anchor:      referenceAnchor("engmodel", "TERM-LOBSTER-ACTIVITY-TRACE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-LOBSTER-ACTIVITY-TRACE"),
+			ID:          "TERM-LOBSTER-ACTIVITY-TRACE",
 			Name:        "LOBSTER activity trace",
 			Definition:  "Generated LOBSTER activity JSON that links verification evidence back to formal requirement identifiers.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-OSCAL-SSP"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-OSCAL-SSP"),
-			ID:          "EM-OSCAL-SSP",
+			Anchor:      referenceAnchor("engmodel", "TERM-OSCAL-SSP"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-OSCAL-SSP"),
+			ID:          "TERM-OSCAL-SSP",
 			Name:        "OSCAL SSP",
 			Definition:  "Generated OSCAL system security plan that maps authored system metadata, components, controls, allocations, and evidence into SSP JSON.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-OSCAL-ASSESSMENT-RESULTS"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-OSCAL-ASSESSMENT-RESULTS"),
-			ID:          "EM-OSCAL-ASSESSMENT-RESULTS",
+			Anchor:      referenceAnchor("engmodel", "TERM-OSCAL-ASSESSMENT-RESULTS"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-OSCAL-ASSESSMENT-RESULTS"),
+			ID:          "TERM-OSCAL-ASSESSMENT-RESULTS",
 			Name:        "OSCAL assessment results",
 			Definition:  "Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-OSCAL-POAM"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-OSCAL-POAM"),
-			ID:          "EM-OSCAL-POAM",
+			Anchor:      referenceAnchor("engmodel", "TERM-OSCAL-POAM"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-OSCAL-POAM"),
+			ID:          "TERM-OSCAL-POAM",
 			Name:        "OSCAL POA&M",
 			Definition:  "Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-MCP-SERVER"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-MCP-SERVER"),
-			ID:          "EM-MCP-SERVER",
+			Anchor:      referenceAnchor("engmodel", "TERM-MCP-SERVER"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-MCP-SERVER"),
+			ID:          "TERM-MCP-SERVER",
 			Name:        "MCP server",
 			Definition:  "Model Context Protocol server that exposes engineering-model operations to AI agents through JSON-RPC tools.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-MCP-TOOL"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-MCP-TOOL"),
-			ID:          "EM-MCP-TOOL",
+			Anchor:      referenceAnchor("engmodel", "TERM-MCP-TOOL"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-MCP-TOOL"),
+			ID:          "TERM-MCP-TOOL",
 			Name:        "MCP tool",
 			Definition:  "Named MCP operation with a constrained input schema and structured response payload.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-MCP-TOOL-RESPONSE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-MCP-TOOL-RESPONSE"),
-			ID:          "EM-MCP-TOOL-RESPONSE",
+			Anchor:      referenceAnchor("engmodel", "TERM-MCP-TOOL-RESPONSE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-MCP-TOOL-RESPONSE"),
+			ID:          "TERM-MCP-TOOL-RESPONSE",
 			Name:        "MCP tool response",
 			Definition:  "Structured MCP tool payload that includes success state, schema version, generated timestamp, and result data or validation error.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-REPO-INDEX"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REPO-INDEX"),
-			ID:          "EM-REPO-INDEX",
+			Anchor:      referenceAnchor("engmodel", "TERM-REPO-INDEX"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-REPO-INDEX"),
+			ID:          "TERM-REPO-INDEX",
 			Name:        "repository index",
 			Definition:  "Bounded first-party source index used to answer model-aware file, requirement, control, and threat lookup queries.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-MCP-STDIO-TRANSPORT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-MCP-STDIO-TRANSPORT"),
-			ID:          "EM-MCP-STDIO-TRANSPORT",
+			Anchor:      referenceAnchor("engmodel", "TERM-MCP-STDIO-TRANSPORT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-MCP-STDIO-TRANSPORT"),
+			ID:          "TERM-MCP-STDIO-TRANSPORT",
 			Name:        "MCP stdio transport",
 			Definition:  "Content-Length framed standard input/output transport used by the MCP command-line server.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CLI-COMMAND"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CLI-COMMAND"),
-			ID:          "EM-CLI-COMMAND",
+			Anchor:      referenceAnchor("engmodel", "TERM-CLI-COMMAND"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CLI-COMMAND"),
+			ID:          "TERM-CLI-COMMAND",
 			Name:        "CLI command",
 			Definition:  "Command-line entrypoint that coordinates loading, validation, generation, and file output for an engineering-model workflow.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-GENERATION-WORKFLOW"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-GENERATION-WORKFLOW"),
-			ID:          "EM-GENERATION-WORKFLOW",
+			Anchor:      referenceAnchor("engmodel", "TERM-GENERATION-WORKFLOW"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-GENERATION-WORKFLOW"),
+			ID:          "TERM-GENERATION-WORKFLOW",
 			Name:        "generation workflow",
 			Definition:  "Orchestrated run that combines model loading, validation, projection, rendering, and artifact emission.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AI-VIEW"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AI-VIEW"),
-			ID:          "EM-AI-VIEW",
+			Anchor:      referenceAnchor("engmodel", "TERM-AI-VIEW"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AI-VIEW"),
+			ID:          "TERM-AI-VIEW",
 			Name:        "AI view",
 			Definition:  "Normalized machine-readable architecture view with entities, indexes, gaps, source blocks, support paths, and edges.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AI-SUPPORT-PATH"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AI-SUPPORT-PATH"),
-			ID:          "EM-AI-SUPPORT-PATH",
+			Anchor:      referenceAnchor("engmodel", "TERM-AI-SUPPORT-PATH"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AI-SUPPORT-PATH"),
+			ID:          "TERM-AI-SUPPORT-PATH",
 			Name:        "AI support path",
 			Definition:  "Precomputed trace path from requirement or model entity through implementation evidence to verification evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AI-IMPLEMENTATION-PATH"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AI-IMPLEMENTATION-PATH"),
-			ID:          "EM-AI-IMPLEMENTATION-PATH",
+			Anchor:      referenceAnchor("engmodel", "TERM-AI-IMPLEMENTATION-PATH"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AI-IMPLEMENTATION-PATH"),
+			ID:          "TERM-AI-IMPLEMENTATION-PATH",
 			Name:        "AI implementation path",
 			Definition:  "Task-oriented guidance path that identifies impacted entities, source references, and verification targets for a requirement.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AI-GAP"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AI-GAP"),
-			ID:          "EM-AI-GAP",
+			Anchor:      referenceAnchor("engmodel", "TERM-AI-GAP"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AI-GAP"),
+			ID:          "TERM-AI-GAP",
 			Name:        "AI gap",
 			Definition:  "Generated finding that highlights missing or low-confidence model, code, runtime, or verification coverage.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AI-EDGE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AI-EDGE"),
-			ID:          "EM-AI-EDGE",
+			Anchor:      referenceAnchor("engmodel", "TERM-AI-EDGE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AI-EDGE"),
+			ID:          "TERM-AI-EDGE",
 			Name:        "AI edge",
 			Definition:  "Normalized relationship edge between AI view entities with origin, confidence, and source references.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-SOURCE-BLOCK"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-SOURCE-BLOCK"),
-			ID:          "EM-SOURCE-BLOCK",
+			Anchor:      referenceAnchor("engmodel", "TERM-SOURCE-BLOCK"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-SOURCE-BLOCK"),
+			ID:          "TERM-SOURCE-BLOCK",
 			Name:        "source block",
 			Definition:  "Stable source reference block that records file path, optional line span, kind, summary, and linked entity IDs.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-REFERENCED-ELEMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REFERENCED-ELEMENT"),
-			ID:          "EM-REFERENCED-ELEMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-REFERENCED-ELEMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-REFERENCED-ELEMENT"),
+			ID:          "TERM-REFERENCED-ELEMENT",
 			Name:        "referenced element",
 			Definition:  "An architecture-relevant external, platform, or third-party dependency represented by role.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-ACTOR"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ACTOR"),
-			ID:          "EM-ACTOR",
+			Anchor:      referenceAnchor("engmodel", "TERM-ACTOR"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-ACTOR"),
+			ID:          "TERM-ACTOR",
 			Name:        "actor",
 			Definition:  "A person or operational role that interacts with functional units.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-INTERFACE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-INTERFACE"),
-			ID:          "EM-INTERFACE",
+			Anchor:      referenceAnchor("engmodel", "TERM-INTERFACE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-INTERFACE"),
+			ID:          "TERM-INTERFACE",
 			Name:        "interface",
 			Definition:  "An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-DATA-OBJECT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-DATA-OBJECT"),
-			ID:          "EM-DATA-OBJECT",
+			Anchor:      referenceAnchor("engmodel", "TERM-DATA-OBJECT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-DATA-OBJECT"),
+			ID:          "TERM-DATA-OBJECT",
 			Name:        "data object",
 			Definition:  "An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-DEPLOYMENT-TARGET"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-DEPLOYMENT-TARGET"),
-			ID:          "EM-DEPLOYMENT-TARGET",
+			Anchor:      referenceAnchor("engmodel", "TERM-DEPLOYMENT-TARGET"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-DEPLOYMENT-TARGET"),
+			ID:          "TERM-DEPLOYMENT-TARGET",
 			Name:        "deployment target",
 			Definition:  "An authored deployment destination such as environment, cluster, namespace, or registry scope.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CONTROL"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CONTROL"),
-			ID:          "EM-CONTROL",
+			Anchor:      referenceAnchor("engmodel", "TERM-CONTROL"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CONTROL"),
+			ID:          "TERM-CONTROL",
 			Name:        "control",
 			Definition:  "An authored security, policy, or operational control used to constrain behavior and reduce risk.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CONTROL-ALLOCATION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CONTROL-ALLOCATION"),
-			ID:          "EM-CONTROL-ALLOCATION",
+			Anchor:      referenceAnchor("engmodel", "TERM-CONTROL-ALLOCATION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CONTROL-ALLOCATION"),
+			ID:          "TERM-CONTROL-ALLOCATION",
 			Name:        "control allocation",
 			Definition:  "Authored allocation that maps a control to model scope, implementation status, evidence, and responsible roles.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-RISK"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-RISK"),
-			ID:          "EM-RISK",
+			Anchor:      referenceAnchor("engmodel", "TERM-RISK"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-RISK"),
+			ID:          "TERM-RISK",
 			Name:        "risk",
 			Definition:  "Authored risk record with likelihood, impact, response, scope, controls, and evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-POAM-ITEM"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-POAM-ITEM"),
-			ID:          "EM-POAM-ITEM",
+			Anchor:      referenceAnchor("engmodel", "TERM-POAM-ITEM"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-POAM-ITEM"),
+			ID:          "TERM-POAM-ITEM",
 			Name:        "POA&M item",
 			Definition:  "Plan of action and milestones item linked to a modeled risk and supporting artifacts.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-EVIDENCE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-EVIDENCE"),
-			ID:          "EM-EVIDENCE",
+			Anchor:      referenceAnchor("engmodel", "TERM-EVIDENCE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-EVIDENCE"),
+			ID:          "TERM-EVIDENCE",
 			Name:        "evidence",
 			Definition:  "A file, artifact, or observation used to support control, risk, threat, or verification claims.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-TRUST-BOUNDARY"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-TRUST-BOUNDARY"),
-			ID:          "EM-TRUST-BOUNDARY",
+			Anchor:      referenceAnchor("engmodel", "TERM-TRUST-BOUNDARY"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-TRUST-BOUNDARY"),
+			ID:          "TERM-TRUST-BOUNDARY",
 			Name:        "trust boundary",
 			Definition:  "An authored trust separation zone that marks policy, identity, or security control boundaries.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-STATE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-STATE"),
-			ID:          "EM-STATE",
+			Anchor:      referenceAnchor("engmodel", "TERM-STATE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-STATE"),
+			ID:          "TERM-STATE",
 			Name:        "state",
 			Definition:  "An authored lifecycle state used to model transition behavior, guards, and event-driven progression.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-EVENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-EVENT"),
-			ID:          "EM-EVENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-EVENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-EVENT"),
+			ID:          "TERM-EVENT",
 			Name:        "event",
 			Definition:  "An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-FLOW"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FLOW"),
-			ID:          "EM-FLOW",
+			Anchor:      referenceAnchor("engmodel", "TERM-FLOW"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-FLOW"),
+			ID:          "TERM-FLOW",
 			Name:        "flow",
 			Definition:  "An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-FLOW-STEP"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-FLOW-STEP"),
-			ID:          "EM-FLOW-STEP",
+			Anchor:      referenceAnchor("engmodel", "TERM-FLOW-STEP"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-FLOW-STEP"),
+			ID:          "TERM-FLOW-STEP",
 			Name:        "flow step",
 			Definition:  "A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-ATTACK-VECTOR"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-ATTACK-VECTOR"),
-			ID:          "EM-ATTACK-VECTOR",
+			Anchor:      referenceAnchor("engmodel", "TERM-ATTACK-VECTOR"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-ATTACK-VECTOR"),
+			ID:          "TERM-ATTACK-VECTOR",
 			Name:        "attack vector",
 			Definition:  "A technical misuse or attack path that targets functional, referenced, or runtime elements.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-SCENARIO"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-SCENARIO"),
-			ID:          "EM-THREAT-SCENARIO",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-SCENARIO"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-SCENARIO"),
+			ID:          "TERM-THREAT-SCENARIO",
 			Name:        "threat scenario",
 			Definition:  "Authored threat narrative that connects attack vectors, scope, flows, controls, risks, and verification evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-ASSUMPTION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-ASSUMPTION"),
-			ID:          "EM-THREAT-ASSUMPTION",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-ASSUMPTION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-ASSUMPTION"),
+			ID:          "TERM-THREAT-ASSUMPTION",
 			Name:        "threat assumption",
 			Definition:  "Authored security assumption that records scope, rationale, owner, status, and evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-OUT-OF-SCOPE"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-OUT-OF-SCOPE"),
-			ID:          "EM-THREAT-OUT-OF-SCOPE",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-OUT-OF-SCOPE"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-OUT-OF-SCOPE"),
+			ID:          "TERM-THREAT-OUT-OF-SCOPE",
 			Name:        "threat out-of-scope decision",
 			Definition:  "Authored decision that excludes a threat concern from current scope with reason, owner, expiry, and evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-THREAT-MITIGATION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-THREAT-MITIGATION"),
-			ID:          "EM-THREAT-MITIGATION",
+			Anchor:      referenceAnchor("engmodel", "TERM-THREAT-MITIGATION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-THREAT-MITIGATION"),
+			ID:          "TERM-THREAT-MITIGATION",
 			Name:        "threat mitigation",
 			Definition:  "Authored mitigation record that links a threat scenario to a control, effectiveness, verification, and evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-AUTHORED-MAPPING"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-AUTHORED-MAPPING"),
-			ID:          "EM-AUTHORED-MAPPING",
+			Anchor:      referenceAnchor("engmodel", "TERM-AUTHORED-MAPPING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-AUTHORED-MAPPING"),
+			ID:          "TERM-AUTHORED-MAPPING",
 			Name:        "authored mapping",
 			Definition:  "An explicit relationship declared in architecture inputs between authored or referenced elements.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-INFERRED-MAPPING"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-INFERRED-MAPPING"),
-			ID:          "EM-INFERRED-MAPPING",
+			Anchor:      referenceAnchor("engmodel", "TERM-INFERRED-MAPPING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-INFERRED-MAPPING"),
+			ID:          "TERM-INFERRED-MAPPING",
 			Name:        "inferred mapping",
 			Definition:  "A discovered relationship that links inferred runtime/code elements upward to authored design.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-UPWARD-LINKING"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-UPWARD-LINKING"),
-			ID:          "EM-UPWARD-LINKING",
+			Anchor:      referenceAnchor("engmodel", "TERM-UPWARD-LINKING"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-UPWARD-LINKING"),
+			ID:          "TERM-UPWARD-LINKING",
 			Name:        "upward linking",
 			Definition:  "Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-REQUIREMENT"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-REQUIREMENT"),
-			ID:          "EM-REQUIREMENT",
+			Anchor:      referenceAnchor("engmodel", "TERM-REQUIREMENT"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-REQUIREMENT"),
+			ID:          "TERM-REQUIREMENT",
 			Name:        "requirement",
 			Definition:  "A structured requirement statement that defines expected system behavior and maps to functional ownership.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-VERIFICATION-CHECK"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-VERIFICATION-CHECK"),
-			ID:          "EM-VERIFICATION-CHECK",
+			Anchor:      referenceAnchor("engmodel", "TERM-VERIFICATION-CHECK"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-VERIFICATION-CHECK"),
+			ID:          "TERM-VERIFICATION-CHECK",
 			Name:        "verification check",
 			Definition:  "An inferred or authored verification artifact that validates requirement behavior with test evidence.",
 		},
 		{
-			Anchor:      referenceAnchor("engmodel", "EM-CONTROL-VERIFICATION"),
-			IndexAnchor: referenceAnchor("idx-engmodel", "EM-CONTROL-VERIFICATION"),
-			ID:          "EM-CONTROL-VERIFICATION",
+			Anchor:      referenceAnchor("engmodel", "TERM-CONTROL-VERIFICATION"),
+			IndexAnchor: referenceAnchor("idx-engmodel", "TERM-CONTROL-VERIFICATION"),
+			ID:          "TERM-CONTROL-VERIFICATION",
 			Name:        "control verification",
 			Definition:  "Authored control verification record with method, status, threat/risk scope, findings, and evidence.",
 		},

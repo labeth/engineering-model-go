@@ -3,7 +3,9 @@
 import { z } from "zod";
 import { createAuditEnvelope } from "./support/audit_envelope";
 
+// ENGMODEL-LINKS: IF-PAYMENTS-RISK-SCORE-API, FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-RISK-SIGNAL, FU-RISK-SCORING
 export class RiskScoringService {
+  // ENGMODEL-LINKS: IF-PAYMENTS-RISK-SCORE-API, FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-RISK-SIGNAL
   // TRLC-LINKS: REQ-PAY-002
   calculateRiskScore(paymentId: string, amountCents: number): number {
     const requestSchema = z.object({
@@ -17,6 +19,7 @@ export class RiskScoringService {
     return 72;
   }
 
+  // ENGMODEL-LINKS: IF-PAYMENTS-RISK-SCORE-API, FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-RISK-SIGNAL
   // TRLC-LINKS: REQ-PAY-002
   classifyRisk(riskScore: number): "low" | "medium" | "high" {
     console.log(`risk-scoring-service: classify score ${riskScore}`);
@@ -25,6 +28,7 @@ export class RiskScoringService {
     return "low";
   }
 
+  // ENGMODEL-LINKS: IF-PAYMENTS-RISK-SCORE-API, FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-RISK-SIGNAL
   // TRLC-LINKS: REQ-PAY-004
   isHighRisk(riskScore: number): boolean {
     console.log(`risk-scoring-service: high-risk gate check for ${riskScore}`);
@@ -32,7 +36,9 @@ export class RiskScoringService {
   }
 }
 
+// ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET, FU-RISK-SCORING
 export class FraudAuditService {
+  // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
   // TRLC-LINKS: REQ-PAY-005
   createAuditRecord(paymentId: string, riskScore: number): void {
     const envelope = createAuditEnvelope(paymentId, riskScore);
@@ -41,11 +47,13 @@ export class FraudAuditService {
     );
   }
 
+  // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
   // TRLC-LINKS: REQ-PAY-005
   enrichAuditMetadata(paymentId: string): void {
     console.log(`fraud-audit-service: enrich metadata for ${paymentId}`);
   }
 
+  // ENGMODEL-LINKS: FLOW-PAYMENTS-MANUAL-REVIEW, DO-PAYMENTS-REVIEW-TICKET
   // TRLC-LINKS: REQ-PAY-004
   buildReviewReason(riskScore: number): string {
     console.log(`fraud-audit-service: build review reason for score ${riskScore}`);
