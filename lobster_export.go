@@ -12,15 +12,18 @@ import (
 	"strings"
 )
 
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE, EM-TRLC-PACKAGE
 type LobsterActivityExportOptions struct {
 	RequirementsPackage string
 	ActivityNamespace   string
 }
 
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE
 type LobsterActivityExportResult struct {
 	JSON string
 }
 
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE, EM-SOURCE-BLOCK
 type lobsterSourceRef struct {
 	Kind   string `json:"kind"`
 	File   string `json:"file"`
@@ -28,6 +31,7 @@ type lobsterSourceRef struct {
 	Column int    `json:"column"`
 }
 
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE, EM-REQUIREMENT, EM-EVIDENCE
 type lobsterActivityItem struct {
 	Tag        string           `json:"tag"`
 	Location   lobsterSourceRef `json:"location"`
@@ -41,6 +45,7 @@ type lobsterActivityItem struct {
 	Status     string           `json:"status"`
 }
 
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE
 type lobsterActivityDoc struct {
 	Data      []lobsterActivityItem `json:"data"`
 	Generator string                `json:"generator"`
@@ -48,10 +53,14 @@ type lobsterActivityDoc struct {
 	Version   int                   `json:"version"`
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT
 var lobsterReqIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
+
+// ENGMODEL-LINKS: EM-TRACE-MARKER, EM-REQUIREMENT
 var lobsterTRLCMarkerRe = regexp.MustCompile(`(?i)TRLC-LINKS:\s*(.*)$`)
 
 // TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: EM-LOBSTER-ACTIVITY-TRACE, EM-REQUIREMENT, EM-TRLC-PACKAGE, EM-EVIDENCE, EM-TRACE-MARKER
 func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivityExportOptions) (LobsterActivityExportResult, error) {
 	absTestsDir, err := filepath.Abs(testsDir)
 	if err != nil {
@@ -123,6 +132,7 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 }
 
 // TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: EM-TRACE-MARKER, EM-REQUIREMENT
 func extractTRLCMarkerReqs(content string) []string {
 	reqs := []string{}
 	seen := map[string]bool{}

@@ -146,6 +146,40 @@ type Alias = string
 }
 
 // TRLC-LINKS: REQ-EMG-010
+func TestScan_AttachesEngmodelLinksToDeclarations(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "schema.go")
+	content := `package sample
+
+// ENGMODEL-LINKS: EM-INTERFACE, EM-DATA-OBJECT
+// TRLC-LINKS: REQ-SAMPLE-001
+type Document struct {
+	ID string
+}
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+
+	symbols, diags, err := Scan(root)
+	if err != nil {
+		t.Fatalf("scan failed: %v", err)
+	}
+	if len(diags) != 0 {
+		t.Fatalf("expected no diagnostics, got %+v", diags)
+	}
+	if len(symbols) != 1 {
+		t.Fatalf("expected one type symbol, got %+v", symbols)
+	}
+	if len(symbols[0].ModelLinks) != 2 || symbols[0].ModelLinks[0] != "EM-INTERFACE" || symbols[0].ModelLinks[1] != "EM-DATA-OBJECT" {
+		t.Fatalf("expected engmodel links to be attached, got %+v", symbols[0])
+	}
+	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
+		t.Fatalf("expected requirement link to remain attached, got %+v", symbols[0])
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
 func TestScan_RequiresTRLCLinksOnEveryFunction(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "sample.go")

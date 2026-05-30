@@ -12,6 +12,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-VALIDATION-DIAGNOSTIC
 func main() {
 	modelPath := flag.String("model", "", "path to architecture YAML")
 	outPath := flag.String("out", "", "optional output file path; defaults to stdout")
@@ -45,6 +46,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

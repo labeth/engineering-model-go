@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
 // TRLC-LINKS: REQ-EMG-003
 func renderViewConfig(in []model.View) []asciidocViewConfig {
 	out := make([]asciidocViewConfig, 0, len(in))
@@ -23,6 +24,7 @@ func renderViewConfig(in []model.View) []asciidocViewConfig {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ACTOR
 // TRLC-LINKS: REQ-EMG-003
 func renderActors(in []model.Actor) []asciidocActorSection {
 	out := make([]asciidocActorSection, 0, len(in))
@@ -37,6 +39,7 @@ func renderActors(in []model.Actor) []asciidocActorSection {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ATTACK-VECTOR
 // TRLC-LINKS: REQ-EMG-003
 func renderAttackVectors(in []model.AttackVector) []asciidocAttackVectorSection {
 	out := make([]asciidocAttackVectorSection, 0, len(in))
@@ -51,6 +54,7 @@ func renderAttackVectors(in []model.AttackVector) []asciidocAttackVectorSection 
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REFERENCED-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func renderReferencedElements(in []model.ReferencedElement) []asciidocReferencedSection {
 	out := make([]asciidocReferencedSection, 0, len(in))
@@ -66,6 +70,7 @@ func renderReferencedElements(in []model.ReferencedElement) []asciidocReferenced
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func renderMappings(in []model.Mapping) []asciidocMappingSection {
 	out := make([]asciidocMappingSection, 0, len(in))
@@ -89,6 +94,7 @@ func renderMappings(in []model.Mapping) []asciidocMappingSection {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
@@ -98,6 +104,7 @@ func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func renderInferredCode(in []inferredCodeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
@@ -129,6 +136,7 @@ func viewHeading(kind string) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-VIEW, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
 	if len(options.ViewIDs) > 0 {
@@ -238,6 +246,7 @@ func viewQuestions(kind string) []string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-VIEW, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
 	gaps := []string{}
@@ -268,6 +277,7 @@ func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
 	return gaps
 }
 
+// ENGMODEL-LINKS: EM-VIEW, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 	if len(units) == 0 {
@@ -296,6 +306,7 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-SCENARIO, EM-ATTACK-VECTOR, EM-CONTROL
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, labels map[string]string, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
 	unitByID := map[string]asciidocUnitSection{}
@@ -444,6 +455,7 @@ func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
 	return withEvidence
 }
 
+// ENGMODEL-LINKS: EM-VIEW, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
 	rows := make([]asciidocHealthRow, 0, len(views))
@@ -565,6 +577,7 @@ func viewNextActions(kind string, gaps []string) []string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-SCENARIO
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatScenarioRow {
 	inScopeScenarioIDs := map[string]bool{}
@@ -637,6 +650,7 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-ASSUMPTION
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatAssumptionRow {
 	inScopeAssumptions := map[string]bool{}
@@ -670,6 +684,7 @@ func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-OUT-OF-SCOPE
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatOutOfScopeRow {
 	inScopeOut := map[string]bool{}
@@ -704,6 +719,7 @@ func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-MITIGATION
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatMitigationRow {
 	inScopeScenarioIDs := map[string]bool{}
@@ -732,6 +748,7 @@ func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-CONTROL-VERIFICATION
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocControlVerificationRow {
 	inScopeScenarioIDs := map[string]bool{}
@@ -761,6 +778,7 @@ func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet 
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FLOW
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocSecurityFlowRow {
 	rows := []asciidocSecurityFlowRow{}

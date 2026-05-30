@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-INTERFACE
 // TRLC-LINKS: REQ-EMG-003
 func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
 	fuToRuntime := map[string]string{}
@@ -68,6 +69,7 @@ func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-INTERFACE
 // TRLC-LINKS: REQ-EMG-003
 func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
 	if len(rows) == 0 {
@@ -98,6 +100,7 @@ func runtimeShortName(s string) string {
 	return x
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
 // TRLC-LINKS: REQ-EMG-003
 func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow {
 	var sourceName, kustomName string
@@ -207,6 +210,7 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
 // TRLC-LINKS: REQ-EMG-003
 func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 	lines := []string{"flowchart TB"}
@@ -521,6 +525,7 @@ func deploymentNodeName(r inferredRuntimeItem) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ACTOR, EM-DEPLOYMENT-TARGET, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntimeItem) []asciidocPlatformOpRow {
 	platformUnits := map[string]string{}
@@ -580,6 +585,7 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ACTOR, EM-DEPLOYMENT-TARGET, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
 	lines := []string{"flowchart LR"}
@@ -602,6 +608,7 @@ func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ATTACK-VECTOR, EM-CONTROL, EM-TRUST-BOUNDARY
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityPathRow {
 	depsByTarget := map[string][]string{}
@@ -650,6 +657,7 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ATTACK-VECTOR, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
 	runtimeByOwner := map[string][]string{}
@@ -749,6 +757,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-SECURITY-CONTEXT, EM-TRUST-BOUNDARY, EM-FLOW
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
@@ -858,6 +867,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-SECURITY-CONTEXT, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityContextDiagram {
 	unitGroupByID := map[string]string{}
@@ -1115,6 +1125,7 @@ func mermaidTypedNodeLineIndented(indent, nodeID, label, className string) strin
 	return indent + strings.TrimLeft(mermaidTypedNodeLine(nodeID, label, className), " ")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityObsRow {
 	out := []asciidocSecurityObsRow{}

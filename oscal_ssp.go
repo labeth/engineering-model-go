@@ -14,22 +14,26 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP
 type OSCALSSPOptions struct {
 	ProfileHref       string
 	SystemName        string
 	SystemDescription string
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-VALIDATION-DIAGNOSTIC
 type OSCALSSPResult struct {
 	JSON        string
 	Document    OSCALSSPDocument
 	Diagnostics []validate.Diagnostic
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP
 type OSCALSSPDocument struct {
 	SystemSecurityPlan oscalSystemSecurityPlan `json:"system-security-plan"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-CONTROL-ALLOCATION
 type oscalSystemSecurityPlan struct {
 	UUID                  string                     `json:"uuid"`
 	Metadata              oscalMetadata              `json:"metadata"`
@@ -39,6 +43,7 @@ type oscalSystemSecurityPlan struct {
 	ControlImplementation oscalControlImplementation `json:"control-implementation"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
 type oscalMetadata struct {
 	Title        string `json:"title"`
 	LastModified string `json:"last-modified"`
@@ -46,10 +51,12 @@ type oscalMetadata struct {
 	OSCALVersion string `json:"oscal-version"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP
 type oscalImportProfile struct {
 	Href string `json:"href"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-DATA-OBJECT
 type oscalSystemCharacteristics struct {
 	SystemIDs                []oscalSystemID            `json:"system-ids"`
 	SystemName               string                     `json:"system-name"`
@@ -61,15 +68,18 @@ type oscalSystemCharacteristics struct {
 	AuthorizationBoundary    oscalAuthorizationBoundary `json:"authorization-boundary"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
 type oscalSystemID struct {
 	IdentifierType string `json:"identifier-type"`
 	ID             string `json:"id"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-DATA-OBJECT
 type oscalSystemInformation struct {
 	InformationTypes []oscalInformationType `json:"information-types"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-DATA-OBJECT
 type oscalInformationType struct {
 	UUID                  string                 `json:"uuid"`
 	Title                 string                 `json:"title"`
@@ -79,30 +89,36 @@ type oscalInformationType struct {
 	AvailabilityImpact    oscalInformationImpact `json:"availability-impact"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-RISK
 type oscalInformationImpact struct {
 	Base string `json:"base"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-RISK
 type oscalSecurityImpactLevel struct {
 	SecurityObjectiveConfidentiality string `json:"security-objective-confidentiality"`
 	SecurityObjectiveIntegrity       string `json:"security-objective-integrity"`
 	SecurityObjectiveAvailability    string `json:"security-objective-availability"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS
 type oscalOperationalStatus struct {
 	State   string `json:"state"`
 	Remarks string `json:"remarks,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-TRUST-BOUNDARY
 type oscalAuthorizationBoundary struct {
 	Description string `json:"description"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
 type oscalSystemImplementation struct {
 	Users      []oscalUser      `json:"users"`
 	Components []oscalComponent `json:"components,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
 type oscalUser struct {
 	UUID                 string                     `json:"uuid"`
 	Title                string                     `json:"title"`
@@ -113,11 +129,13 @@ type oscalUser struct {
 	AuthorizedPrivileges []oscalAuthorizedPrivilege `json:"authorized-privileges,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-ACTOR
 type oscalAuthorizedPrivilege struct {
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT, EM-ACTOR, EM-ATTACK-VECTOR, EM-REFERENCED-ELEMENT, EM-INTERFACE, EM-DATA-OBJECT, EM-DEPLOYMENT-TARGET, EM-CONTROL, EM-TRUST-BOUNDARY
 type oscalComponent struct {
 	UUID        string                 `json:"uuid"`
 	Type        string                 `json:"type"`
@@ -127,17 +145,20 @@ type oscalComponent struct {
 	Props       []oscalProperty        `json:"props,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL-ALLOCATION
 type oscalControlImplementation struct {
 	Description             string                        `json:"description"`
 	ImplementedRequirements []oscalImplementedRequirement `json:"implemented-requirements"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL, EM-CONTROL-ALLOCATION
 type oscalImplementedRequirement struct {
 	UUID         string             `json:"uuid"`
 	ControlID    string             `json:"control-id"`
 	ByComponents []oscalByComponent `json:"by-components,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-CONTROL-ALLOCATION, EM-EVIDENCE
 type oscalByComponent struct {
 	UUID          string          `json:"uuid"`
 	ComponentUUID string          `json:"component-uuid"`
@@ -146,12 +167,14 @@ type oscalByComponent struct {
 	Remarks       string          `json:"remarks,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
 type oscalProperty struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
 func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -161,6 +184,7 @@ func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) 
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL, EM-CONTROL, EM-CONTROL-ALLOCATION, EM-EVIDENCE, EM-ACTOR, EM-VALIDATION-DIAGNOSTIC
 func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -342,6 +366,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM
 func deterministicUUID(seed string) string {
 	h := sha1.Sum([]byte(seed))
 	b := h[:16]
@@ -352,6 +377,7 @@ func deterministicUUID(seed string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
 func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -394,6 +420,7 @@ func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-MODEL
 func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
@@ -436,6 +463,7 @@ func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP
 func componentTypeForKind(kind string) string {
 	k := strings.TrimSpace(kind)
 	if k == "" {
@@ -445,6 +473,7 @@ func componentTypeForKind(kind string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
 func normalizeOSCALControlID(raw string) string {
 	x := strings.ToLower(strings.TrimSpace(raw))
 	if x == "" {

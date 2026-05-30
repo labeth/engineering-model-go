@@ -16,6 +16,7 @@ import (
 //go:embed templates/structurizr.dsl.tmpl
 var structurizrTemplateText string
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 var structurizrTemplate = template.Must(template.New("structurizr").Funcs(template.FuncMap{
 	"joinCSV": func(items []string) string {
 		vals := []string{}
@@ -29,11 +30,13 @@ var structurizrTemplate = template.Must(template.New("structurizr").Funcs(templa
 	},
 }).Parse(structurizrTemplateText))
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-VALIDATION-DIAGNOSTIC
 type StructurizrExportResult struct {
 	DSL         string
 	Diagnostics []validate.Diagnostic
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-MODEL, EM-AUTHORED-MAPPING, EM-FLOW, EM-DEPLOYMENT-TARGET
 type structurizrTemplateData struct {
 	Title                  string
 	Description            string
@@ -47,6 +50,7 @@ type structurizrTemplateData struct {
 	DeploymentViews        []structurizrDeploymentView
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-ACTOR, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT, EM-REFERENCED-ELEMENT, EM-INTERFACE, EM-DATA-OBJECT, EM-CONTROL, EM-ATTACK-VECTOR, EM-TRUST-BOUNDARY, EM-THREAT-SCENARIO
 type structurizrElement struct {
 	Identifier  string
 	Keyword     string
@@ -57,11 +61,13 @@ type structurizrElement struct {
 	Properties  []structurizrProperty
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT
 type structurizrContainerGroup struct {
 	Name       string
 	Containers []structurizrElement
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-AUTHORED-MAPPING, EM-FLOW
 type structurizrRelationship struct {
 	From       string
 	To         string
@@ -70,16 +76,19 @@ type structurizrRelationship struct {
 	Properties []structurizrProperty
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 type structurizrProperty struct {
 	Name  string
 	Value string
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET
 type structurizrDeploymentEnvironment struct {
 	Name  string
 	Nodes []structurizrDeploymentNode
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET
 type structurizrDeploymentNode struct {
 	Identifier              string
 	Name                    string
@@ -91,12 +100,14 @@ type structurizrDeploymentNode struct {
 	SoftwareSystemInstances []structurizrInstance
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET
 type structurizrInstance struct {
 	Identifier string
 	Tags       []string
 	Properties []structurizrProperty
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-FLOW, EM-DESIGN-VIEW
 type structurizrDynamicView struct {
 	Scope       string
 	Key         string
@@ -104,6 +115,7 @@ type structurizrDynamicView struct {
 	Steps       []structurizrRelationship
 }
 
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET, EM-DESIGN-VIEW
 type structurizrDeploymentView struct {
 	Scope       string
 	Environment string
@@ -112,6 +124,7 @@ type structurizrDeploymentView struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-MODEL
 func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -121,6 +134,7 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-MODEL, EM-AUTHORED-MAPPING, EM-FLOW, EM-DEPLOYMENT-TARGET, EM-VALIDATION-DIAGNOSTIC
 func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
@@ -256,6 +270,7 @@ func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT
 func buildContainerGroups(containers []structurizrElement, units []model.FunctionalUnit, groups []model.FunctionalGroup) []structurizrContainerGroup {
 	unitByID := map[string]model.FunctionalUnit{}
 	for _, u := range units {
@@ -296,6 +311,7 @@ func buildContainerGroups(containers []structurizrElement, units []model.Functio
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET, EM-AUTHORED-MAPPING, EM-DESIGN-VIEW
 func buildDeploymentModel(a model.AuthoredArchitecture, elementIDByModelID map[string]string, elementKindByModelID map[string]string, scope string, usedIdentifiers map[string]bool) ([]structurizrDeploymentEnvironment, []structurizrDeploymentView) {
 	deployMappings := []model.Mapping{}
 	for _, m := range a.Mappings {
@@ -368,6 +384,7 @@ func buildDeploymentModel(a model.AuthoredArchitecture, elementIDByModelID map[s
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-FLOW, EM-DESIGN-VIEW
 func buildDynamicViews(a model.AuthoredArchitecture, elementIDByModelID map[string]string, scope string) []structurizrDynamicView {
 	views := []structurizrDynamicView{}
 	for _, f := range a.Flows {
@@ -390,6 +407,7 @@ func buildDynamicViews(a model.AuthoredArchitecture, elementIDByModelID map[stri
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-DEPLOYMENT-TARGET
 func dedupeInstances(in []structurizrInstance) []structurizrInstance {
 	seen := map[string]bool{}
 	out := []structurizrInstance{}
@@ -405,6 +423,7 @@ func dedupeInstances(in []structurizrInstance) []structurizrInstance {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func propValue(props []structurizrProperty, name string) string {
 	for _, p := range props {
 		if strings.EqualFold(strings.TrimSpace(p.Name), strings.TrimSpace(name)) {
@@ -415,6 +434,7 @@ func propValue(props []structurizrProperty, name string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-FLOW, EM-AUTHORED-MAPPING
 func appendFlowRelationships(a model.AuthoredArchitecture, relationships []structurizrRelationship, elementIDByModelID map[string]string) []structurizrRelationship {
 	seen := map[string]bool{}
 	for _, r := range relationships {
@@ -441,6 +461,7 @@ func appendFlowRelationships(a model.AuthoredArchitecture, relationships []struc
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL, EM-MODEL
 func registerIdentifier(modelID, prefix string, used map[string]bool, byID map[string]string) string {
 	key := strings.TrimSpace(modelID)
 	if key == "" {
@@ -455,6 +476,7 @@ func registerIdentifier(modelID, prefix string, used map[string]bool, byID map[s
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func uniqueIdentifier(base string, used map[string]bool) string {
 	base = strings.TrimSpace(base)
 	if base == "" {
@@ -474,6 +496,7 @@ func uniqueIdentifier(base string, used map[string]bool) string {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func sanitizeIdentifier(in string) string {
 	in = strings.ToLower(strings.TrimSpace(in))
 	if in == "" {
@@ -508,6 +531,7 @@ func sanitizeIdentifier(in string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-AUTHORED-MAPPING
 func sortedMappings(in []model.Mapping) []model.Mapping {
 	out := append([]model.Mapping(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool {
@@ -523,6 +547,7 @@ func sortedMappings(in []model.Mapping) []model.Mapping {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-ACTOR
 func sortedActors(in []model.Actor) []model.Actor {
 	out := append([]model.Actor(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -530,6 +555,7 @@ func sortedActors(in []model.Actor) []model.Actor {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-FUNCTIONAL-GROUP
 func sortedFunctionalGroups(in []model.FunctionalGroup) []model.FunctionalGroup {
 	out := append([]model.FunctionalGroup(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -537,6 +563,7 @@ func sortedFunctionalGroups(in []model.FunctionalGroup) []model.FunctionalGroup 
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT
 func sortedFunctionalUnits(in []model.FunctionalUnit) []model.FunctionalUnit {
 	out := append([]model.FunctionalUnit(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -544,6 +571,7 @@ func sortedFunctionalUnits(in []model.FunctionalUnit) []model.FunctionalUnit {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-REFERENCED-ELEMENT
 func sortedReferencedElements(in []model.ReferencedElement) []model.ReferencedElement {
 	out := append([]model.ReferencedElement(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -551,6 +579,7 @@ func sortedReferencedElements(in []model.ReferencedElement) []model.ReferencedEl
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-INTERFACE
 func sortedInterfaces(in []model.Interface) []model.Interface {
 	out := append([]model.Interface(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -558,6 +587,7 @@ func sortedInterfaces(in []model.Interface) []model.Interface {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-DATA-OBJECT
 func sortedDataObjects(in []model.DataObject) []model.DataObject {
 	out := append([]model.DataObject(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -565,6 +595,7 @@ func sortedDataObjects(in []model.DataObject) []model.DataObject {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-DEPLOYMENT-TARGET
 func sortedDeploymentTargets(in []model.DeploymentTarget) []model.DeploymentTarget {
 	out := append([]model.DeploymentTarget(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -572,6 +603,7 @@ func sortedDeploymentTargets(in []model.DeploymentTarget) []model.DeploymentTarg
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-CONTROL
 func sortedControls(in []model.Control) []model.Control {
 	out := append([]model.Control(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -579,6 +611,7 @@ func sortedControls(in []model.Control) []model.Control {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-ATTACK-VECTOR
 func sortedAttackVectors(in []model.AttackVector) []model.AttackVector {
 	out := append([]model.AttackVector(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -586,6 +619,7 @@ func sortedAttackVectors(in []model.AttackVector) []model.AttackVector {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-TRUST-BOUNDARY
 func sortedTrustBoundaries(in []model.TrustBoundary) []model.TrustBoundary {
 	out := append([]model.TrustBoundary(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -593,6 +627,7 @@ func sortedTrustBoundaries(in []model.TrustBoundary) []model.TrustBoundary {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-THREAT-SCENARIO
 func sortedThreatScenarios(in []model.ThreatScenario) []model.ThreatScenario {
 	out := append([]model.ThreatScenario(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
@@ -600,6 +635,7 @@ func sortedThreatScenarios(in []model.ThreatScenario) []model.ThreatScenario {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func executeTextTemplate(t *template.Template, data any) (string, error) {
 	var b bytes.Buffer
 	if err := t.Execute(&b, data); err != nil {
@@ -609,6 +645,7 @@ func executeTextTemplate(t *template.Template, data any) (string, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func safeDSLText(in string) string {
 	in = strings.ReplaceAll(in, "\r", " ")
 	in = strings.ReplaceAll(in, "\n", " ")
@@ -617,6 +654,7 @@ func safeDSLText(in string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func normalizeStructurizrData(d *structurizrTemplateData) {
 	for i := range d.Containers {
 		d.Containers[i].Tags = compactTags(d.Containers[i].Tags)
@@ -654,6 +692,7 @@ func normalizeStructurizrData(d *structurizrTemplateData) {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func compactTags(in []string) []string {
 	seen := map[string]bool{}
 	out := []string{}
@@ -669,6 +708,7 @@ func compactTags(in []string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: EM-STRUCTURIZR-DSL
 func compactProperties(in []structurizrProperty) []structurizrProperty {
 	seen := map[string]bool{}
 	out := []structurizrProperty{}

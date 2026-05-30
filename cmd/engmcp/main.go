@@ -13,9 +13,11 @@ import (
 	"github.com/labeth/engineering-model-go/mcp"
 )
 
+// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
 const maxMessageBytes = 8 * 1024 * 1024
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-STDIO-TRANSPORT
 func main() {
 	s := mcp.NewServer()
 	r := bufio.NewReader(os.Stdin)
@@ -47,6 +49,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
 func readMessage(r *bufio.Reader) ([]byte, error) {
 	headers := map[string]string{}
 	for {
@@ -82,6 +85,7 @@ func readMessage(r *bufio.Reader) ([]byte, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-STDIO-TRANSPORT
 func writeMessage(w *bufio.Writer, body []byte) error {
 	var b bytes.Buffer
 	_, _ = fmt.Fprintf(&b, "Content-Length: %d\r\n\r\n", len(body))

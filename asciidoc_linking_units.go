@@ -10,6 +10,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// ENGMODEL-LINKS: EM-REFERENCE-INDEX
 type linkTarget struct {
 	Anchor string
 	Label  string
@@ -18,6 +19,7 @@ type linkTarget struct {
 var modelIDPattern = regexp.MustCompile(`^[A-Z0-9]+-[A-Z0-9-]+$`)
 var inlineLinkPattern = regexp.MustCompile(`<<[^>\n]+>>`)
 
+// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-ASCIIDOC-DOCUMENT
 // TRLC-LINKS: REQ-EMG-003
 func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	out := map[string]linkTarget{}
@@ -93,6 +95,7 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-ASCIIDOC-DOCUMENT
 // TRLC-LINKS: REQ-EMG-003
 func linkifyText(text string, targets map[string]linkTarget) string {
 	in := strings.TrimSpace(text)
@@ -378,6 +381,7 @@ func titleWordsWithAcronyms(s string) string {
 	return strings.Join(parts, " ")
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func requirementsByUnit(reqs []model.Requirement) map[string]string {
 	set := map[string][]string{}
@@ -394,6 +398,7 @@ func requirementsByUnit(reqs []model.Requirement) map[string]string {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitDependencies(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
@@ -409,6 +414,7 @@ func unitDependencies(unitID string, mappings []model.Mapping, labels map[string
 	return strings.Join(out, ", ")
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
@@ -424,6 +430,7 @@ func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]st
 	return strings.Join(out, ", ")
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
@@ -445,11 +452,13 @@ func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]stri
 	return strings.Join(out, "; ")
 }
 
+// ENGMODEL-LINKS: EM-INTERFACE, EM-ASCIIDOC-SECTION
 type interfaceDetail struct {
 	Name        string
 	Description string
 }
 
+// ENGMODEL-LINKS: EM-INTERFACE, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func renderInterfaceSubchapters(in []interfaceDetail) string {
 	if len(in) == 0 {
@@ -484,6 +493,7 @@ func renderInterfaceSubchapters(in []interfaceDetail) string {
 	return b.String()
 }
 
+// ENGMODEL-LINKS: EM-INTERFACE, EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	items := []interfaceDetail{}
@@ -514,6 +524,7 @@ func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labe
 	return renderInterfaceSubchapters(items)
 }
 
+// ENGMODEL-LINKS: EM-INTERFACE, EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	items := []interfaceDetail{}
@@ -546,6 +557,7 @@ func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, lab
 	return renderInterfaceSubchapters(items)
 }
 
+// ENGMODEL-LINKS: EM-DATA-OBJECT, EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
@@ -576,6 +588,7 @@ func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[st
 	return strings.Join(out, "; ")
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT, EM-REQUIREMENT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqByUnit map[string]string, labels map[string]string) string {
 	areas := []string{}
@@ -605,6 +618,7 @@ func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqB
 	return base
 }
 
+// ENGMODEL-LINKS: EM-ATTACK-VECTOR, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func attackVectorsByTarget(mappings []model.Mapping, labels map[string]string) map[string]string {
 	set := map[string][]string{}
@@ -688,6 +702,7 @@ func uniqueSorted(in []string) []string {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) map[string]string {
 	rtSet := map[string]map[string]bool{}

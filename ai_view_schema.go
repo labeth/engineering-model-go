@@ -3,12 +3,14 @@ package engmodel
 
 import "github.com/labeth/engineering-model-go/validate"
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-INFERENCE-HINT
 // TRLC-LINKS: REQ-EMG-002, REQ-EMG-012
 type AIViewOptions struct {
 	ViewIDs  []string
 	CodeRoot string
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-VALIDATION-DIAGNOSTIC
 type AIViewResult struct {
 	Document    AIViewDocument
 	JSON        string
@@ -17,6 +19,7 @@ type AIViewResult struct {
 	Diagnostics []validate.Diagnostic
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL, EM-SOURCE-BLOCK
 type AIViewDocument struct {
 	SchemaVersion       string                 `json:"schema_version"`
 	Model               AIModelSummary         `json:"model"`
@@ -29,6 +32,7 @@ type AIViewDocument struct {
 	SourceBlocks        []AISourceBlock        `json:"source_blocks"`
 }
 
+// ENGMODEL-LINKS: EM-AI-GAP, EM-REQUIREMENT, EM-FUNCTIONAL-UNIT, EM-VERIFICATION-CHECK
 type AIGapReport struct {
 	RequirementsWithoutVerification []string `json:"requirements_without_verification,omitempty"`
 	RequirementsLowConfidence       []string `json:"requirements_low_confidence,omitempty"`
@@ -39,6 +43,7 @@ type AIGapReport struct {
 	LowConfidenceInferred           []string `json:"low_confidence_inferred,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-AI-IMPLEMENTATION-PATH, EM-REQUIREMENT, EM-VERIFICATION-CHECK
 type AIImplementationPath struct {
 	ID                string                 `json:"id"`
 	RequirementID     string                 `json:"requirement_id"`
@@ -51,6 +56,7 @@ type AIImplementationPath struct {
 	SourceRefs        []string               `json:"source_refs,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-AI-IMPLEMENTATION-PATH, EM-SOURCE-BLOCK
 type AIImplementationStep struct {
 	Order      int      `json:"order"`
 	Action     string   `json:"action"`
@@ -59,6 +65,7 @@ type AIImplementationStep struct {
 	SourceRefs []string `json:"source_refs,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
 type AIModelSummary struct {
 	ID            string        `json:"id"`
 	Title         string        `json:"title"`
@@ -66,6 +73,7 @@ type AIModelSummary struct {
 	EntryPointIDs []string      `json:"entry_point_ids"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
 type AIModelCounts struct {
 	FunctionalGroups  int `json:"fg"`
 	FunctionalUnits   int `json:"fu"`
@@ -86,6 +94,7 @@ type AIModelCounts struct {
 	Views             int `json:"views"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-AI-SUPPORT-PATH
 type AIEntryPoint struct {
 	ID        string   `json:"id"`
 	Kind      string   `json:"kind"`
@@ -93,6 +102,7 @@ type AIEntryPoint struct {
 	EntityIDs []string `json:"entity_ids"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW
 type AIEntityIndex struct {
 	FunctionalGroupIDs  []string         `json:"fg_ids"`
 	FunctionalUnitIDs   []string         `json:"fu_ids"`
@@ -113,12 +123,14 @@ type AIEntityIndex struct {
 	Lookup              []AIEntityLookup `json:"lookup"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW
 type AIEntityLookup struct {
 	ID    string `json:"id"`
 	Kind  string `json:"kind"`
 	Title string `json:"title"`
 }
 
+// ENGMODEL-LINKS: EM-AI-SUPPORT-PATH, EM-REQUIREMENT, EM-VERIFICATION-CHECK
 type AISupportPath struct {
 	ID                string   `json:"id"`
 	FromID            string   `json:"from_id"`
@@ -129,6 +141,7 @@ type AISupportPath struct {
 	SourceRefs        []string `json:"source_refs"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-MODEL
 type AIEntity struct {
 	ID               string              `json:"id"`
 	Kind             string              `json:"kind"`
@@ -156,6 +169,7 @@ type AIEntity struct {
 	SourceRefs       []string            `json:"source_refs"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW
 type AIEntityFields struct {
 	Triggers     []string `json:"triggers,omitempty"`
 	Consumes     []string `json:"consumes,omitempty"`
@@ -166,6 +180,7 @@ type AIEntityFields struct {
 	Consequences []string `json:"consequences,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-AI-VIEW, EM-SOURCE-BLOCK
 type AIFieldProvenance struct {
 	Field      string   `json:"field"`
 	Origin     string   `json:"origin"`
@@ -173,6 +188,7 @@ type AIFieldProvenance struct {
 	SourceRefs []string `json:"source_refs"`
 }
 
+// ENGMODEL-LINKS: EM-SOURCE-BLOCK, EM-AI-VIEW
 type AISourceBlock struct {
 	ID        string   `json:"id"`
 	Path      string   `json:"path"`
@@ -183,6 +199,7 @@ type AISourceBlock struct {
 	Summary   string   `json:"summary"`
 }
 
+// ENGMODEL-LINKS: EM-AI-EDGE, EM-AI-VIEW
 type AIEdge struct {
 	FromID     string   `json:"from_id"`
 	ToID       string   `json:"to_id"`

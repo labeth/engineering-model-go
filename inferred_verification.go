@@ -18,6 +18,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-REQUIREMENT
 type inferredVerificationResult struct {
 	Requirement string
 	Status      string
@@ -25,6 +26,7 @@ type inferredVerificationResult struct {
 	Notes       string
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-REQUIREMENT, EM-CODE-ELEMENT
 type inferredVerificationCheck struct {
 	ID            string
 	Name          string
@@ -42,6 +44,7 @@ var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
 var trlcLinksMarkerRe = regexp.MustCompile(`(?i)^\s*(?://+|#|--|/\*+|\*)?\s*TRLC-LINKS:\s*(.+?)\s*(?:\*/)?\s*$`)
 var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-run|flaky)\b`)
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-REQUIREMENT, EM-CODE-ELEMENT, EM-INFERENCE-HINT
 // TRLC-LINKS: REQ-EMG-010
 func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
 	baseDir := filepath.Dir(bundle.ArchitecturePath)
@@ -311,6 +314,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 	return out, validate.SortDiagnostics(diags)
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func parseVerificationArtifact(path string) ([]inferredVerificationResult, bool) {
 	ext := strings.ToLower(filepath.Ext(path))
@@ -347,6 +351,7 @@ type junitSuites struct {
 	Suite  []junitSuite `xml:"testsuites>testsuite"`
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func parseResultXML(data []byte) []inferredVerificationResult {
 	out := []inferredVerificationResult{}
@@ -384,6 +389,7 @@ func parseResultXML(data []byte) []inferredVerificationResult {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func parseResultJSON(data []byte) []inferredVerificationResult {
 	out := []inferredVerificationResult{}
@@ -418,6 +424,7 @@ func parseResultJSON(data []byte) []inferredVerificationResult {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func parseResultText(text string) []inferredVerificationResult {
 	reqs := extractTRLCLinkedRequirements(text)
@@ -435,6 +442,7 @@ func parseResultText(text string) []inferredVerificationResult {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT, EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func extractTRLCLinkedRequirements(text string) []string {
 	out := []string{}
@@ -449,6 +457,7 @@ func extractTRLCLinkedRequirements(text string) []string {
 	return uniqueStrings(out)
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]string {
 	type pathEvidence struct {
@@ -492,6 +501,7 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 	return out
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[string][]string, []validate.Diagnostic) {
 	out := map[string][]string{}
@@ -533,6 +543,7 @@ func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[strin
 	return out, validate.SortDiagnostics(diags)
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func verificationCodeElementsForPath(path string, index map[string][]string) []string {
 	p := filepath.ToSlash(strings.TrimSpace(path))
@@ -552,6 +563,7 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 	return nil
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
@@ -567,6 +579,7 @@ func isVerificationTestPath(path string) bool {
 		strings.HasSuffix(base, ".spec.tsx")
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-INFERENCE-HINT
 // TRLC-LINKS: REQ-EMG-010
 func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption string) []string {
 	out := []string{}
@@ -579,6 +592,7 @@ func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption strin
 	return out
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-010
 func requirementOwners(reqs []model.Requirement) map[string][]string {
 	out := map[string][]string{}
@@ -598,6 +612,7 @@ func requirementOwners(reqs []model.Requirement) map[string][]string {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-010
 func ownersForRequirements(reqOwners map[string][]string, reqs []string) []string {
 	out := []string{}
@@ -607,6 +622,7 @@ func ownersForRequirements(reqOwners map[string][]string, reqs []string) []strin
 	return uniqueStrings(out)
 }
 
+// ENGMODEL-LINKS: EM-INFERENCE-HINT
 // TRLC-LINKS: REQ-EMG-010
 func inferredSiblingDirs(baseDir string, bundle model.Bundle, codeRootOption, sibling string) []string {
 	out := []string{}
@@ -646,6 +662,7 @@ func uniqueExistingDirs(in []string) []string {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func verificationKindFromPath(path string) string {
 	p := strings.ToLower(filepath.ToSlash(path))
@@ -663,6 +680,7 @@ func verificationKindFromPath(path string) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func verificationNameFromPath(path string) string {
 	base := filepath.Base(path)
@@ -680,6 +698,7 @@ func verificationNameFromPath(path string) string {
 	return strings.Join(parts, " ")
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func verificationIDFromPath(rel string) string {
 	rel = filepath.ToSlash(strings.TrimSpace(rel))
@@ -698,6 +717,7 @@ func verificationIDFromPath(rel string) string {
 	return "VER-INF-" + kind + "-" + base + "-" + suffix
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func normalizeResultStatus(s string) string {
 	x := strings.ToLower(strings.TrimSpace(s))
@@ -722,6 +742,7 @@ func normalizeResultStatus(s string) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func summarizeCheckStatus(results []inferredVerificationResult) string {
 	if len(results) == 0 {
@@ -751,6 +772,7 @@ func summarizeCheckStatus(results []inferredVerificationResult) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func verificationIdentityKeysFromPath(path string) []string {
 	p := filepath.ToSlash(strings.TrimSpace(path))
@@ -786,6 +808,7 @@ func normalizeVerificationIdentity(raw string) string {
 
 var nonAlnumRe = regexp.MustCompile(`[^a-z0-9]+`)
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
 	bestID := ""
@@ -820,6 +843,7 @@ func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVeri
 	return bestID
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
 	path := strings.TrimSpace(relPath)
@@ -840,6 +864,7 @@ func verificationDescriptionFromResultArtifact(baseDir, relPath string) string {
 	return "Inferred from test result artifact."
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func extractVerificationDescription(content string) string {
 	for _, line := range strings.Split(content, "\n") {
@@ -850,6 +875,7 @@ func extractVerificationDescription(content string) string {
 	return ""
 }
 
+// ENGMODEL-LINKS: EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-010
 func extractVerificationDescriptionMarker(line string) (string, bool) {
 	markers := []string{

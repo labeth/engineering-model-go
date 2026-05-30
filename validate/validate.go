@@ -247,6 +247,7 @@ var allowedFlowFrequency = map[string]bool{
 	"on-demand": true,
 }
 
+// ENGMODEL-LINKS: EM-VALIDATION, EM-BUNDLE, EM-MODEL, EM-AUTHORED-MAPPING, EM-VIEW, EM-VALIDATION-DIAGNOSTIC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
@@ -976,6 +977,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	return SortDiagnostics(diags)
 }
 
+// ENGMODEL-LINKS: EM-VALIDATION, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 	t := strings.TrimSpace(mappingType)

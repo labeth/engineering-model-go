@@ -17,6 +17,7 @@ func appendMermaidClassDefs(lines []string) []string {
 	return append(lines, diagramstyle.MermaidClassDefsWithIndent("  ")...)
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-REQUIREMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
@@ -34,6 +35,7 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 	return strings.Join(lines, "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REQUIREMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
 	appliesByReq := map[string]map[string]bool{}
@@ -146,6 +148,7 @@ func escapeTableCell(s string) string {
 	return s
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT, EM-ACTOR, EM-REFERENCED-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart LR"}
@@ -256,6 +259,7 @@ func functionalContextInternalNodeID(id string) string {
 	return "FU_" + sanitizeNode(id)
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart TB"}
@@ -276,6 +280,7 @@ func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
 	return strings.Join(lines, "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 	type fgColumn struct {
@@ -375,6 +380,7 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 	return strings.Join(sections, "\n\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-FUNCTIONAL-UNIT, EM-AUTHORED-MAPPING
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart LR"}
@@ -444,6 +450,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 	return strings.Join(lines, "\n")
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-FUNCTIONAL-GROUP, EM-FUNCTIONAL-UNIT, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID string, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
 	groupID = strings.TrimSpace(groupID)
@@ -640,6 +647,7 @@ func keysSortedStringSlices(m map[string][]string) []string {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-REQUIREMENT, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT, EM-VERIFICATION-CHECK
 // TRLC-LINKS: REQ-EMG-003
 func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
@@ -788,6 +796,7 @@ func escapeMermaidLabel(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 	type moduleBucket struct {
@@ -879,6 +888,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 	return rows
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-CODE-ELEMENT, EM-FUNCTIONAL-UNIT
 // TRLC-LINKS: REQ-EMG-003
 func buildCodeOwnershipMermaid(rows []asciidocInferredRow, a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart TB"}
@@ -1016,6 +1026,7 @@ func codeItemEvidenceElement(c inferredCodeItem) string {
 	}
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-SOURCE-BLOCK
 // TRLC-LINKS: REQ-EMG-003
 func codeElementEvidenceLabel(elem string) string {
 	elem = sanitizeSourcePath(elem)
@@ -1037,6 +1048,7 @@ func codeElementEvidenceLabel(elem string) string {
 	return elem
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-SOURCE-BLOCK
 // TRLC-LINKS: REQ-EMG-003
 func groupedCodeElementEvidenceLabels(elems []string, lookup map[string]string) []string {
 	if lookup == nil {

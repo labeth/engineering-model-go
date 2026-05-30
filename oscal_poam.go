@@ -12,20 +12,24 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM
 type OSCALPOAMOptions struct {
 	SSPHref string
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-VALIDATION-DIAGNOSTIC
 type OSCALPOAMResult struct {
 	JSON        string
 	Document    OSCALPOAMDocument
 	Diagnostics []validate.Diagnostic
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM
 type OSCALPOAMDocument struct {
 	PlanOfActionAndMilestones oscalPOAMRoot `json:"plan-of-action-and-milestones"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK
 type oscalPOAMRoot struct {
 	UUID      string          `json:"uuid"`
 	Metadata  oscalMetadata   `json:"metadata"`
@@ -34,10 +38,12 @@ type oscalPOAMRoot struct {
 	Risks     []oscalPOAMRisk `json:"risks,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-OSCAL-SSP
 type oscalImportSSP struct {
 	Href string `json:"href"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK, EM-EVIDENCE
 type oscalPOAMItem struct {
 	UUID         string                `json:"uuid"`
 	Title        string                `json:"title"`
@@ -47,10 +53,12 @@ type oscalPOAMItem struct {
 	Remarks      string                `json:"remarks,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-RISK
 type oscalRelatedRiskRef struct {
 	RiskUUID string `json:"risk-uuid"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-RISK
 type oscalPOAMRisk struct {
 	UUID        string          `json:"uuid"`
 	Title       string          `json:"title"`
@@ -61,6 +69,7 @@ type oscalPOAMRisk struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-MODEL
 func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -70,6 +79,7 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-POAM, EM-POAM-ITEM, EM-RISK, EM-EVIDENCE, EM-VALIDATION-DIAGNOSTIC
 func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

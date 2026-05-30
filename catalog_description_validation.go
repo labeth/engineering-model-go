@@ -9,6 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-VALIDATION, EM-CATALOG, EM-CATALOG-ENTRY, EM-VALIDATION-DIAGNOSTIC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func validateCatalogDescriptions(doc model.CatalogDocument) []validate.Diagnostic {
 	type catalogGroup struct {

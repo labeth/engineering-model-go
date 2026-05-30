@@ -12,6 +12,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-SSP, EM-OSCAL-ASSESSMENT-RESULTS, EM-OSCAL-POAM, EM-VALIDATION-DIAGNOSTIC
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	outPath := flag.String("out", "", "legacy SSP output path; equivalent to --ssp-out")
@@ -104,6 +105,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

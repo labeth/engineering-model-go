@@ -12,6 +12,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: EM-THREAT-MODEL-EXPORT, EM-THREAT-DRAGON-DOCUMENT, EM-OPEN-OTM-DOCUMENT, EM-VALIDATION-DIAGNOSTIC
 func main() {
 	modelPath := flag.String("model", "", "path to architecture model YAML")
 	format := flag.String("format", string(engmodel.ThreatModelFormatThreatDragonV2), "export format: threat-dragon-v2 or open-otm")
@@ -46,6 +47,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

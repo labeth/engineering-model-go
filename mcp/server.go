@@ -16,11 +16,13 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// ENGMODEL-LINKS: EM-MCP-TOOL
 type Tool struct {
 	Name        string
 	Description string
 }
 
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-TOOL, EM-MODEL, EM-REQUIREMENT, EM-DESIGN, EM-REPO-INDEX
 type Server struct {
 	tools map[string]Tool
 
@@ -43,10 +45,13 @@ const (
 	toolSchemaVersion   = "mcp.tool-response.v1"
 )
 
+// ENGMODEL-LINKS: EM-REPO-INDEX
 var errRepoIndexLimit = errors.New("repo index file limit reached")
 
+// ENGMODEL-LINKS: EM-MCP-TOOL
 var stableIDPattern = regexp.MustCompile(`^[A-Z][A-Z0-9-]*$`)
 
+// ENGMODEL-LINKS: EM-MCP-TOOL
 var toolArgsAllowlist = map[string][]string{
 	"requirements.get":             {"requirementId", "id", "reqId"},
 	"requirements.impact":          {"requirementId", "id", "reqId"},
@@ -91,12 +96,14 @@ var toolArgsAllowlist = map[string][]string{
 	"changes.preflight":            {"requirementId", "id", "reqId"},
 }
 
+// ENGMODEL-LINKS: EM-REPO-INDEX, EM-SOURCE-BLOCK
 type indexedFile struct {
 	Path    string
 	Content string
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-TOOL
 func NewServer() *Server {
 	all := []Tool{
 		{Name: "requirements.get", Description: "Get requirement detail card"},
@@ -149,6 +156,7 @@ func NewServer() *Server {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-TOOL
 func (s *Server) ToolNames() []string {
 	names := make([]string, 0, len(s.tools))
 	for n := range s.tools {
@@ -159,6 +167,7 @@ func (s *Server) ToolNames() []string {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-TOOL-RESPONSE
 func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 	defer func() {
 		if recovered := recover(); recovered != nil {
@@ -191,6 +200,7 @@ func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MCP-TOOL, EM-MCP-TOOL-RESPONSE
 func (s *Server) dispatch(method string, params any) (any, int, error) {
 	switch method {
 	case "initialize":
@@ -265,6 +275,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-SERVER, EM-MODEL, EM-REQUIREMENT, EM-DESIGN, EM-REPO-INDEX
 func (s *Server) loadContext(params any) error {
 	p, _ := params.(map[string]any)
 	init, _ := p["initializationOptions"].(map[string]any)
@@ -336,6 +347,7 @@ func (s *Server) loadContext(params any) error {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-MCP-TOOL-RESPONSE, EM-REQUIREMENT, EM-FLOW, EM-THREAT-SCENARIO, EM-CONTROL, EM-CONTROL-VERIFICATION, EM-INTERFACE, EM-DEPLOYMENT-TARGET, EM-AUTHORED-MAPPING, EM-VIEW, EM-REPO-INDEX
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
 		return map[string]any{"ok": false, "tool": name, "error": "model not loaded; pass initializationOptions.modelPath"}, nil
@@ -708,6 +720,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REQUIREMENT
 func (s *Server) findRequirement(id string) *model.Requirement {
 	if s.requirements == nil || strings.TrimSpace(id) == "" {
 		return nil
@@ -721,6 +734,7 @@ func (s *Server) findRequirement(id string) *model.Requirement {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REQUIREMENT
 func (s *Server) requirementIDs() []string {
 	if s.requirements == nil {
 		return nil
@@ -734,6 +748,7 @@ func (s *Server) requirementIDs() []string {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REQUIREMENT, EM-FLOW
 func (s *Server) flowsForRequirement(reqID string) []model.Flow {
 	if s.bundle == nil {
 		return nil
@@ -767,6 +782,7 @@ func (s *Server) flowsForRequirement(reqID string) []model.Flow {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REQUIREMENT, EM-THREAT-SCENARIO
 func (s *Server) threatsForRequirement(reqID string) []model.ThreatScenario {
 	if s.bundle == nil {
 		return nil
@@ -796,6 +812,7 @@ func (s *Server) threatsForRequirement(reqID string) []model.ThreatScenario {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REQUIREMENT, EM-REPO-INDEX
 func (s *Server) filesForRequirement(reqID string) []string {
 	if strings.TrimSpace(reqID) == "" {
 		return nil
@@ -804,6 +821,7 @@ func (s *Server) filesForRequirement(reqID string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REPO-INDEX
 func (s *Server) filesContaining(token string) []string {
 	token = strings.TrimSpace(token)
 	if token == "" || s.repoRoot == "" {
@@ -826,6 +844,7 @@ func (s *Server) filesContaining(token string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-REPO-INDEX, EM-SOURCE-BLOCK
 func (s *Server) ensureRepoIndex() error {
 	s.indexOnce.Do(func() {
 		s.indexErr = filepath.Walk(s.repoRoot, func(path string, info os.FileInfo, err error) error {
@@ -867,6 +886,7 @@ func (s *Server) ensureRepoIndex() error {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-INTERFACE
 func (s *Server) findInterface(idOrName string) *model.Interface {
 	idOrName = strings.TrimSpace(idOrName)
 	if s.bundle == nil || idOrName == "" {
@@ -882,6 +902,7 @@ func (s *Server) findInterface(idOrName string) *model.Interface {
 }
 
 // TRLC-LINKS: REQ-EMG-007
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-INTERFACE, EM-DATA-OBJECT
 func (s *Server) schemaRefForInterface(interfaceID string) string {
 	iface := s.findInterface(interfaceID)
 	if iface == nil {
@@ -891,6 +912,7 @@ func (s *Server) schemaRefForInterface(interfaceID string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-REPO-INDEX
 func (s *Server) resolvePathInRepo(path string) (string, bool) {
 	path = strings.TrimSpace(path)
 	if path == "" || strings.TrimSpace(s.repoRoot) == "" {
@@ -917,6 +939,7 @@ func (s *Server) resolvePathInRepo(path string) (string, bool) {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-INTERFACE, EM-DEPLOYMENT-TARGET
 func endpointForEnv(i *model.Interface, env string) string {
 	if i == nil {
 		return ""
@@ -928,6 +951,7 @@ func endpointForEnv(i *model.Interface, env string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-INTERFACE, EM-FLOW
 func (s *Server) authHintsForInterface(interfaceID string) []string {
 	if s.bundle == nil {
 		return nil
@@ -947,6 +971,7 @@ func (s *Server) authHintsForInterface(interfaceID string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-INTERFACE, EM-RISK, EM-THREAT-SCENARIO, EM-CONTROL-VERIFICATION
 func (s *Server) ownerFor(id string) string {
 	if s.bundle == nil || strings.TrimSpace(id) == "" {
 		return ""
@@ -976,6 +1001,7 @@ func (s *Server) ownerFor(id string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-MODEL, EM-AUTHORED-MAPPING
 func (s *Server) graphNodes(query string, max int) []map[string]any {
 	if s.bundle == nil {
 		return nil
@@ -1020,6 +1046,7 @@ func (s *Server) graphNodes(query string, max int) []map[string]any {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL, EM-AUTHORED-MAPPING
 func (s *Server) graphEdges(query string, max int) []map[string]any {
 	if s.bundle == nil {
 		return nil
@@ -1041,6 +1068,7 @@ func (s *Server) graphEdges(query string, max int) []map[string]any {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func firstNonEmptyArg(args map[string]any, keys ...string) string {
 	for _, k := range keys {
 		if v, ok := args[k]; ok {
@@ -1054,6 +1082,7 @@ func firstNonEmptyArg(args map[string]any, keys ...string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func nonEmptyString(v any, fallback string) string {
 	s := strings.TrimSpace(toString(v))
 	if s == "" {
@@ -1063,12 +1092,14 @@ func nonEmptyString(v any, fallback string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func toString(v any) string {
 	s, _ := v.(string)
 	return s
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func uniqueStrings(in []string) []string {
 	seen := map[string]bool{}
 	out := []string{}
@@ -1084,6 +1115,7 @@ func uniqueStrings(in []string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func inputSchemaForTool(name string) map[string]any {
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
@@ -1094,6 +1126,7 @@ func inputSchemaForTool(name string) map[string]any {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func validateToolArguments(name string, args map[string]any) error {
 	allowedKeys := map[string]bool{}
 	for _, k := range toolArgsAllowlist[name] {
@@ -1113,6 +1146,7 @@ func validateToolArguments(name string, args map[string]any) error {
 }
 
 // TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: EM-MCP-TOOL
 func requireStableID(id string, allowedPrefixes ...string) error {
 	id = strings.TrimSpace(id)
 	if id == "" {

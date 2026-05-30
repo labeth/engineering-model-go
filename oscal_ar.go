@@ -13,22 +13,26 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
 type OSCALAROptions struct {
 	AssessmentPlanHref string
 	RequirementsPath   string
 	CodeRoot           string
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-VALIDATION-DIAGNOSTIC
 type OSCALARResult struct {
 	JSON        string
 	Document    OSCALARDocument
 	Diagnostics []validate.Diagnostic
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
 type OSCALARDocument struct {
 	AssessmentResults oscalAssessmentResults `json:"assessment-results"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-VERIFICATION, EM-RISK
 type oscalAssessmentResults struct {
 	UUID     string          `json:"uuid"`
 	Metadata oscalMetadata   `json:"metadata"`
@@ -36,10 +40,12 @@ type oscalAssessmentResults struct {
 	Results  []oscalARResult `json:"results"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS
 type oscalImportAP struct {
 	Href string `json:"href"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-VERIFICATION, EM-RISK
 type oscalARResult struct {
 	UUID             string                `json:"uuid"`
 	Title            string                `json:"title"`
@@ -51,19 +57,23 @@ type oscalARResult struct {
 	Risks            []oscalARRisk         `json:"risks,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
 type oscalReviewedControls struct {
 	ControlSelections []oscalControlSelection `json:"control-selections"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
 type oscalControlSelection struct {
 	Description     string                   `json:"description,omitempty"`
 	IncludeControls []oscalIncludeControlRef `json:"include-controls,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL
 type oscalIncludeControlRef struct {
 	ControlID string `json:"control-id"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL-VERIFICATION
 type oscalFinding struct {
 	UUID        string             `json:"uuid"`
 	Title       string             `json:"title"`
@@ -72,12 +82,14 @@ type oscalFinding struct {
 	Props       []oscalProperty    `json:"props,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL-VERIFICATION
 type oscalFindingTarget struct {
 	Type     string                 `json:"type"`
 	TargetID string                 `json:"target-id"`
 	Status   oscalOperationalStatus `json:"status"`
 }
 
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-RISK
 type oscalARRisk struct {
 	UUID        string          `json:"uuid"`
 	Title       string          `json:"title"`
@@ -88,6 +100,7 @@ type oscalARRisk struct {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-MODEL, EM-REQUIREMENT, EM-SOURCE-BLOCK
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
@@ -108,6 +121,7 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// ENGMODEL-LINKS: EM-OSCAL-ASSESSMENT-RESULTS, EM-CONTROL, EM-CONTROL-ALLOCATION, EM-CONTROL-VERIFICATION, EM-RISK, EM-REQUIREMENT, EM-VALIDATION-DIAGNOSTIC
 func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {

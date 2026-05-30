@@ -19,22 +19,27 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT
 type Symbol struct {
 	TraceID    string
 	PartOf     []string
 	Implements []string
+	ModelLinks []string
 	Path       string
 	Line       int
 	Signature  string
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-TRACE-MARKER
 type pendingTrace struct {
 	traceID    string
 	partOf     []string
 	implements []string
+	modelLinks []string
 	firstLine  int
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 type declaration struct {
 	Name         string
 	Kind         string
@@ -43,6 +48,7 @@ type declaration struct {
 	RequiresTRLC bool
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 type languageSpec struct {
 	Language          *sitter.Language
 	DeclarationKind   map[string]bool
@@ -56,6 +62,7 @@ var supportedExt = map[string]bool{
 	".rs":  true,
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT, EM-UPWARD-LINKING
 // TRLC-LINKS: REQ-EMG-010
 func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
@@ -106,6 +113,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	return symbols, diags, nil
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT, EM-TRACE-MARKER
 // TRLC-LINKS: REQ-EMG-010
 func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	src, err := os.ReadFile(path)
@@ -179,6 +187,13 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 				}
 				continue
 			}
+			if v, ok := markerValue(trimmed, "ENGMODEL-LINKS:"); ok {
+				pending.modelLinks = splitCSV(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
+			}
 		}
 
 		if pending.firstLine == 0 {
@@ -187,7 +202,8 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 
 		if d, ok := declByLine[lineNo]; ok {
 			implements := append([]string(nil), pending.implements...)
-			symbols = append(symbols, symbolForDeclaration(d, relPath, lineNo, trimmed, pending.traceID, pending.partOf, implements))
+			modelLinks := append([]string(nil), pending.modelLinks...)
+			symbols = append(symbols, symbolForDeclaration(d, relPath, lineNo, trimmed, pending.traceID, pending.partOf, implements, modelLinks))
 			if len(implements) > 0 {
 				linkedLines[lineNo] = true
 			}
@@ -239,8 +255,9 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	return symbols, diags, nil
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT, EM-REQUIREMENT
 // TRLC-LINKS: REQ-EMG-010
-func symbolForDeclaration(d declaration, relPath string, lineNo int, line string, traceID string, partOf []string, implements []string) Symbol {
+func symbolForDeclaration(d declaration, relPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
 	traceID = strings.TrimSpace(traceID)
 	if traceID == "" {
 		traceID = autoTraceID(d.Name, relPath, lineNo)
@@ -253,12 +270,14 @@ func symbolForDeclaration(d declaration, relPath string, lineNo int, line string
 		TraceID:    traceID,
 		PartOf:     append([]string(nil), partOf...),
 		Implements: append([]string(nil), implements...),
+		ModelLinks: append([]string(nil), modelLinks...),
 		Path:       relPath,
 		Line:       lineNo,
 		Signature:  signature,
 	}
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, []validate.Diagnostic, error) {
 	ext := strings.ToLower(filepath.Ext(path))
@@ -329,6 +348,7 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 	return out, commentLines, nil, nil
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
 	switch ext {
@@ -388,6 +408,7 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 	}
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func declarationName(n *sitter.Node, src []byte) string {
 	if n == nil {
@@ -435,6 +456,7 @@ func firstLine(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// ENGMODEL-LINKS: EM-TRACE-MARKER
 // TRLC-LINKS: REQ-EMG-010
 func markerValue(line, marker string) (string, bool) {
 	idx := strings.Index(line, marker)
@@ -466,6 +488,7 @@ func joinLineNumbers(lines []int) string {
 	return strings.Join(parts, ",")
 }
 
+// ENGMODEL-LINKS: EM-TRACE-MARKER
 // TRLC-LINKS: REQ-EMG-010
 func validRequirementID(id string) bool {
 	return requirementIDPattern.MatchString(strings.TrimSpace(id))
@@ -485,6 +508,7 @@ func isAttributeLike(trimmed string) bool {
 	return strings.HasPrefix(trimmed, "@") || strings.HasPrefix(trimmed, "#[")
 }
 
+// ENGMODEL-LINKS: EM-CODE-ELEMENT
 // TRLC-LINKS: REQ-EMG-010
 func autoTraceID(symbolName, relPath string, lineNo int) string {
 	name := strings.TrimSpace(symbolName)

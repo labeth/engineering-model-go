@@ -3,6 +3,7 @@ package validate
 
 import "sort"
 
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 type Severity string
 
 const (
@@ -10,6 +11,7 @@ const (
 	SeverityWarning Severity = "warning"
 )
 
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 type Diagnostic struct {
 	Code     string   `json:"code"`
 	Severity Severity `json:"severity"`
@@ -17,6 +19,7 @@ type Diagnostic struct {
 	Path     string   `json:"path,omitempty"`
 }
 
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func SortDiagnostics(in []Diagnostic) []Diagnostic {
 	out := append([]Diagnostic(nil), in...)
@@ -49,6 +52,7 @@ func SortDiagnostics(in []Diagnostic) []Diagnostic {
 	return unique
 }
 
+// ENGMODEL-LINKS: EM-VALIDATION-DIAGNOSTIC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func HasErrors(diags []Diagnostic) bool {
 	for _, d := range diags {

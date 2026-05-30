@@ -12,6 +12,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: EM-TRLC-PACKAGE, EM-REQUIREMENT
 func main() {
 	requirementsPath := flag.String("requirements", "", "path to requirements YAML")
 	outDir := flag.String("out-dir", "", "output directory for model.rsl and requirements.trlc")

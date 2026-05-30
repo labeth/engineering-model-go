@@ -3,6 +3,7 @@ package diagramstyle
 
 import "strings"
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
 var mermaidClassDefs = []string{
 	"classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;",
 	"classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;",
@@ -28,11 +29,13 @@ var mermaidClassDefs = []string{
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
 func MermaidClassDefs() []string {
 	return append([]string(nil), mermaidClassDefs...)
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
 func MermaidClassDefsWithIndent(indent string) []string {
 	defs := MermaidClassDefs()
 	if strings.TrimSpace(indent) == "" {
@@ -46,6 +49,7 @@ func MermaidClassDefsWithIndent(indent string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-VIEW
 func MermaidClassDefsBlock(indent string) string {
 	return strings.Join(MermaidClassDefsWithIndent(indent), "\n")
 }

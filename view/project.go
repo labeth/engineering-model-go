@@ -10,6 +10,8 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-MODEL
 type index struct {
 	groups        map[string]model.FunctionalGroup
 	units         map[string]model.FunctionalUnit
@@ -32,6 +34,7 @@ type index struct {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-AUTHORED-MAPPING, EM-VALIDATION-DIAGNOSTIC
 func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
 	idx := buildIndex(b)
 	v, ok := findView(b.Architecture.Views, viewID)
@@ -128,6 +131,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-MODEL, EM-VIEW
 func buildIndex(b model.Bundle) index {
 	idx := index{
 		groups:        map[string]model.FunctionalGroup{},
@@ -207,6 +211,7 @@ func buildIndex(b model.Bundle) index {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW
 func findView(views []model.View, id string) (model.View, bool) {
 	for _, v := range views {
 		if v.ID == id {
@@ -217,6 +222,7 @@ func findView(views []model.View, id string) (model.View, bool) {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-MODEL
 func toNode(id string, idx index) Node {
 	if g, ok := idx.groups[id]; ok {
 		return Node{ID: id, Label: nonEmpty(g.Name, id), Kind: "functional_group"}
@@ -276,11 +282,13 @@ func toNode(id string, idx index) Node {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-MODEL
 func kindForID(id string, idx index) string {
 	return toNode(id, idx).Kind
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-AUTHORED-MAPPING
 func mappingAllowed(mapping string, includes, excludes map[string]bool) bool {
 	mapping = strings.TrimSpace(mapping)
 	if mapping == "" {
@@ -296,6 +304,7 @@ func mappingAllowed(mapping string, includes, excludes map[string]bool) bool {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-MODEL
 func nodeKindAllowed(kind string, includes, excludes map[string]bool) bool {
 	kind = strings.TrimSpace(kind)
 	if kind == "" {
@@ -311,6 +320,7 @@ func nodeKindAllowed(kind string, includes, excludes map[string]bool) bool {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-AUTHORED-MAPPING
 func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[string]bool, map[string]bool) {
 	includeKinds := setFromSlice(v.IncludeKinds)
 	excludeKinds := setFromSlice(v.ExcludeKinds)
@@ -345,6 +355,7 @@ func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[s
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW
 func setFromSlice(in []string) map[string]bool {
 	out := map[string]bool{}
 	for _, x := range in {
@@ -358,6 +369,7 @@ func setFromSlice(in []string) map[string]bool {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW, EM-FLOW, EM-FLOW-STEP, EM-AUTHORED-MAPPING
 func buildInteractionFlowView(v model.View, idx index, mappings []model.Mapping, includeKinds, excludeKinds, includeMappings, excludeMappings map[string]bool, maxDepth int) ProjectedView {
 	pv := ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}
 	nodesByID := map[string]Node{}
@@ -551,6 +563,7 @@ func buildInteractionFlowView(v model.View, idx index, mappings []model.Mapping,
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW
 func nonEmpty(v, fallback string) string {
 	if strings.TrimSpace(v) == "" {
 		return fallback
@@ -559,6 +572,7 @@ func nonEmpty(v, fallback string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: EM-VIEW
 func sortView(v ProjectedView) ProjectedView {
 	sort.SliceStable(v.Nodes, func(i, j int) bool {
 		if v.Nodes[i].Kind != v.Nodes[j].Kind {

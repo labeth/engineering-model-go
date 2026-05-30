@@ -12,6 +12,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
+// ENGMODEL-LINKS: EM-CLI-COMMAND, EM-GENERATION-WORKFLOW, EM-VIEW, EM-ASCIIDOC-DIAGRAM, EM-VALIDATION-DIAGNOSTIC
 func main() {
 	modelPath := flag.String("model", "", "path to architecture YAML (e.g. 03-architecture-model.yml)")
 	viewID := flag.String("view", "", "viewpoint ID to render")
@@ -46,6 +47,7 @@ func main() {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
+// ENGMODEL-LINKS: EM-CLI-COMMAND, EM-VALIDATION-DIAGNOSTIC
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)

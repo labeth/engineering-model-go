@@ -13,6 +13,7 @@ var asciidocTemplateText string
 
 var asciidocTemplate = template.Must(template.New("asciidoc").Parse(asciidocTemplateText))
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-ASCIIDOC-SECTION, EM-REFERENCE-INDEX, EM-ASCIIDOC-DIAGRAM
 type asciidocTemplateData struct {
 	Title                      string
 	Introduction               string
@@ -45,6 +46,7 @@ type asciidocTemplateData struct {
 	DecisionsDocPath           string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
 type asciidocHealthRow struct {
 	ViewID                    string
 	ViewHeading               string
@@ -57,6 +59,7 @@ type asciidocHealthRow struct {
 	HeuristicBasisExplanation string
 }
 
+// ENGMODEL-LINKS: EM-CATALOG-ENTRY, EM-ASCIIDOC-SECTION
 type asciidocTerm struct {
 	Anchor      string
 	IndexAnchor string
@@ -66,6 +69,7 @@ type asciidocTerm struct {
 	Aliases     []string
 }
 
+// ENGMODEL-LINKS: EM-REFERENCE-INDEX, EM-ASCIIDOC-SECTION
 type asciidocReferenceIndex struct {
 	Authored     []asciidocReferenceEntry
 	Catalog      []asciidocReferenceEntry
@@ -74,6 +78,7 @@ type asciidocReferenceIndex struct {
 	Verification []asciidocReferenceEntry
 }
 
+// ENGMODEL-LINKS: EM-REFERENCE-INDEX
 type asciidocReferenceEntry struct {
 	Anchor       string
 	TargetAnchor string
@@ -88,6 +93,7 @@ type asciidocReferenceEntry struct {
 	Backlinks    []string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-MODEL
 type asciidocSummary struct {
 	FunctionalGroups   string
 	FunctionalUnits    string
@@ -96,12 +102,14 @@ type asciidocSummary struct {
 	ReferencedElements string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-MODEL
 type asciidocModelMeta struct {
 	ID             string
 	Title          string
 	BaseCatalogRef string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-LINT-RUN
 type asciidocLintRun struct {
 	ID         string
 	Mode       string
@@ -109,12 +117,14 @@ type asciidocLintRun struct {
 	CatalogRef string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
 type asciidocViewConfig struct {
 	ID    string
 	Kind  string
 	Roots string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-INFERENCE-HINT
 type asciidocInferenceHints struct {
 	RuntimeSources           string
 	CodeSources              string
@@ -122,18 +132,21 @@ type asciidocInferenceHints struct {
 	OwnershipResolutionOrder string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ACTOR
 type asciidocActorSection struct {
 	ID          string
 	Name        string
 	Description string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ATTACK-VECTOR
 type asciidocAttackVectorSection struct {
 	ID          string
 	Name        string
 	Description string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REFERENCED-ELEMENT
 type asciidocReferencedSection struct {
 	ID    string
 	Name  string
@@ -141,6 +154,7 @@ type asciidocReferencedSection struct {
 	Layer string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-AUTHORED-MAPPING
 type asciidocMappingSection struct {
 	Type        string
 	From        string
@@ -148,12 +162,14 @@ type asciidocMappingSection struct {
 	Description string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW
 type asciidocProjectedNode struct {
 	ID    string
 	Kind  string
 	Label string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
 type asciidocInferredRow struct {
 	Name   string
 	Kind   string
@@ -161,24 +177,28 @@ type asciidocInferredRow struct {
 	Source string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-INTERFACE
 type asciidocRuntimeAPIRow struct {
 	Consumer string
 	Provider string
 	Ports    string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-RUNTIME-ELEMENT, EM-DEPLOYMENT-TARGET
 type asciidocDeploymentRow struct {
 	From string
 	To   string
 	How  string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ACTOR, EM-DEPLOYMENT-TARGET
 type asciidocPlatformOpRow struct {
 	Actor  string
 	Unit   string
 	Target string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-ATTACK-VECTOR, EM-CONTROL, EM-TRUST-BOUNDARY
 type asciidocSecurityPathRow struct {
 	AttackVectorID string
 	AttackVector   string
@@ -187,6 +207,7 @@ type asciidocSecurityPathRow struct {
 	DependsOn      string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-RUNTIME-ELEMENT, EM-CODE-ELEMENT
 type asciidocSecurityObsRow struct {
 	Signal   string
 	Layer    string
@@ -194,6 +215,7 @@ type asciidocSecurityObsRow struct {
 	Evidence string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VIEW, EM-ASCIIDOC-DIAGRAM
 type asciidocViewSection struct {
 	ID                        string
 	Kind                      string
@@ -235,12 +257,14 @@ type asciidocViewSection struct {
 	ProjectedMappings         []asciidocMappingSection
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DIAGRAM, EM-SECURITY-CONTEXT
 type asciidocSecurityContextDiagram struct {
 	GroupID   string
 	GroupName string
 	Mermaid   string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-SCENARIO
 type asciidocThreatScenarioRow struct {
 	ID                   string
 	Title                string
@@ -260,6 +284,7 @@ type asciidocThreatScenarioRow struct {
 	ControlVerifications []asciidocControlVerificationRow
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-ASSUMPTION
 type asciidocThreatAssumptionRow struct {
 	ID        string
 	Title     string
@@ -269,6 +294,7 @@ type asciidocThreatAssumptionRow struct {
 	Rationale string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-OUT-OF-SCOPE
 type asciidocThreatOutOfScopeRow struct {
 	ID        string
 	Title     string
@@ -279,6 +305,7 @@ type asciidocThreatOutOfScopeRow struct {
 	Reason    string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-THREAT-MITIGATION
 type asciidocThreatMitigationRow struct {
 	ID             string
 	ThreatScenario string
@@ -290,6 +317,7 @@ type asciidocThreatMitigationRow struct {
 	Notes          string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-CONTROL-VERIFICATION
 type asciidocControlVerificationRow struct {
 	ID              string
 	Control         string
@@ -302,6 +330,7 @@ type asciidocControlVerificationRow struct {
 	Findings        string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FLOW
 type asciidocSecurityFlowRow struct {
 	ID               string
 	Title            string
@@ -320,6 +349,7 @@ type asciidocSecurityFlowRow struct {
 	Data             string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-ASCIIDOC-DIAGRAM, EM-ATTACK-VECTOR
 type asciidocSecurityAttackChapter struct {
 	ID              string
 	Name            string
@@ -330,12 +360,14 @@ type asciidocSecurityAttackChapter struct {
 	Units           []asciidocUnitSection
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-DESIGN, EM-VIEW
 type asciidocDesignDetail struct {
 	ViewID    string
 	Title     string
 	Narrative string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FUNCTIONAL-GROUP
 type asciidocEntitySection struct {
 	Anchor          string
 	ID              string
@@ -347,6 +379,7 @@ type asciidocEntitySection struct {
 	DependencyGraph string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-FUNCTIONAL-UNIT
 type asciidocUnitSection struct {
 	Anchor      string
 	GroupAnchor string
@@ -365,6 +398,7 @@ type asciidocUnitSection struct {
 	Evidence    string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-REQUIREMENT, EM-ASCIIDOC-DIAGRAM
 type asciidocRequirementSection struct {
 	Anchor               string
 	ID                   string
@@ -376,6 +410,7 @@ type asciidocRequirementSection struct {
 	CoverageExplanation  string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VERIFICATION-CHECK
 type asciidocVerificationSection struct {
 	Anchor        string
 	IndexAnchor   string
@@ -391,6 +426,7 @@ type asciidocVerificationSection struct {
 	Description   string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-VERIFICATION-CHECK
 type asciidocVerificationResultRow struct {
 	CheckID     string
 	CheckName   string
@@ -400,6 +436,7 @@ type asciidocVerificationResultRow struct {
 	Notes       string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-SECTION, EM-DECISION
 type asciidocDecisionSection struct {
 	ID           string
 	Title        string
@@ -410,6 +447,7 @@ type asciidocDecisionSection struct {
 	Consequences []string
 }
 
+// ENGMODEL-LINKS: EM-ASCIIDOC-DOCUMENT, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-003
 func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {
 	var b bytes.Buffer

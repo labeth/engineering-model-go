@@ -1,6 +1,7 @@
 // ENGMODEL-OWNER-UNIT: FU-MODEL-LOADER
 package model
 
+// ENGMODEL-LINKS: EM-CATALOG-ENTRY
 // TRLC-LINKS: REQ-EMG-001
 type CatalogEntry struct {
 	ID         string   `yaml:"id"`
@@ -9,6 +10,7 @@ type CatalogEntry struct {
 	Aliases    []string `yaml:"aliases"`
 }
 
+// ENGMODEL-LINKS: EM-CATALOG
 type CatalogGroups struct {
 	Systems            []CatalogEntry `yaml:"systems"`
 	FunctionalGroups   []CatalogEntry `yaml:"functionalGroups"`
@@ -24,10 +26,12 @@ type CatalogGroups struct {
 	DataTerms          []CatalogEntry `yaml:"dataTerms"`
 }
 
+// ENGMODEL-LINKS: EM-CATALOG
 type CatalogDocument struct {
 	Catalog CatalogGroups `yaml:"catalog"`
 }
 
+// ENGMODEL-LINKS: EM-LINT-RUN
 type LintRun struct {
 	ID         string `yaml:"id"`
 	Mode       string `yaml:"mode"`
@@ -35,6 +39,7 @@ type LintRun struct {
 	CatalogRef string `yaml:"catalogRef"`
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT
 type Requirement struct {
 	ID        string   `yaml:"id"`
 	Text      string   `yaml:"text"`
@@ -42,37 +47,44 @@ type Requirement struct {
 	AppliesTo []string `yaml:"appliesTo"`
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT
 type RequirementsDocument struct {
 	LintRun      LintRun       `yaml:"lintRun"`
 	Requirements []Requirement `yaml:"requirements"`
 	Expected     []Expected    `yaml:"expected"`
 }
 
+// ENGMODEL-LINKS: EM-DECISION
 type DecisionsDocument struct {
 	Decisions []Decision `yaml:"decisions"`
 }
 
+// ENGMODEL-LINKS: EM-REQUIREMENT
 type Expected struct {
 	ID      string `yaml:"id"`
 	Pattern string `yaml:"pattern"`
 }
 
+// ENGMODEL-LINKS: EM-DESIGN-VIEW
 type DesignView struct {
 	Title     string `yaml:"title"`
 	Narrative string `yaml:"narrative"`
 }
 
+// ENGMODEL-LINKS: EM-DESIGN, EM-FUNCTIONAL-GROUP
 type DesignFunctionalGroup struct {
 	ID    string                `yaml:"id"`
 	Views map[string]DesignView `yaml:"views"`
 }
 
+// ENGMODEL-LINKS: EM-DESIGN, EM-FUNCTIONAL-UNIT
 type DesignFunctionalUnit struct {
 	ID    string                `yaml:"id"`
 	Group string                `yaml:"group"`
 	Views map[string]DesignView `yaml:"views"`
 }
 
+// ENGMODEL-LINKS: EM-DESIGN
 type DesignModel struct {
 	ID               string                  `yaml:"id"`
 	Title            string                  `yaml:"title"`
@@ -80,10 +92,12 @@ type DesignModel struct {
 	FunctionalUnits  []DesignFunctionalUnit  `yaml:"functionalUnits"`
 }
 
+// ENGMODEL-LINKS: EM-DESIGN
 type DesignDocument struct {
 	Design DesignModel `yaml:"design"`
 }
 
+// ENGMODEL-LINKS: EM-MODEL
 type ModelMeta struct {
 	ID             string `yaml:"id"`
 	Title          string `yaml:"title"`
@@ -91,6 +105,7 @@ type ModelMeta struct {
 	BaseCatalogRef string `yaml:"baseCatalogRef"`
 }
 
+// ENGMODEL-LINKS: EM-DECISION
 type Decision struct {
 	ID           string   `yaml:"id"`
 	Title        string   `yaml:"title"`
@@ -101,6 +116,7 @@ type Decision struct {
 	Consequences []string `yaml:"consequences"`
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-GROUP
 type FunctionalGroup struct {
 	ID          string   `yaml:"id"`
 	Name        string   `yaml:"name"`
@@ -109,6 +125,7 @@ type FunctionalGroup struct {
 	Tags        []string `yaml:"tags"`
 }
 
+// ENGMODEL-LINKS: EM-FUNCTIONAL-UNIT
 type FunctionalUnit struct {
 	ID    string   `yaml:"id"`
 	Name  string   `yaml:"name"`
@@ -117,18 +134,21 @@ type FunctionalUnit struct {
 	Prose string   `yaml:"prose"`
 }
 
+// ENGMODEL-LINKS: EM-ACTOR
 type Actor struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-ATTACK-VECTOR
 type AttackVector struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-REFERENCED-ELEMENT
 type ReferencedElement struct {
 	ID    string `yaml:"id"`
 	Kind  string `yaml:"kind"`
@@ -136,6 +156,7 @@ type ReferencedElement struct {
 	Name  string `yaml:"name"`
 }
 
+// ENGMODEL-LINKS: EM-AUTHORED-MAPPING
 type Mapping struct {
 	Type        string `yaml:"type"`
 	From        string `yaml:"from"`
@@ -143,6 +164,7 @@ type Mapping struct {
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-INTERFACE
 type Interface struct {
 	ID        string `yaml:"id"`
 	Name      string `yaml:"name"`
@@ -152,6 +174,7 @@ type Interface struct {
 	Owner     string `yaml:"owner"`
 }
 
+// ENGMODEL-LINKS: EM-DATA-OBJECT
 type DataObject struct {
 	ID              string   `yaml:"id"`
 	Name            string   `yaml:"name"`
@@ -166,6 +189,7 @@ type DataObject struct {
 	Availability    string   `yaml:"availability"`
 }
 
+// ENGMODEL-LINKS: EM-DEPLOYMENT-TARGET
 type DeploymentTarget struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
@@ -177,6 +201,7 @@ type DeploymentTarget struct {
 	TrustZone   string `yaml:"trustZone"`
 }
 
+// ENGMODEL-LINKS: EM-CONTROL
 type Control struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
@@ -184,11 +209,13 @@ type Control struct {
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-CONTROL
 type ControlEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-CONTROL-ALLOCATION, EM-CONTROL
 type ControlAllocation struct {
 	ID                 string            `yaml:"id"`
 	ControlRef         string            `yaml:"controlRef"`
@@ -202,11 +229,13 @@ type ControlAllocation struct {
 	ResponsibleRoles   []string          `yaml:"responsibleRoles"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-RISK
 type RiskEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-RISK
 type Risk struct {
 	ID              string         `yaml:"id"`
 	Title           string         `yaml:"title"`
@@ -225,11 +254,13 @@ type Risk struct {
 	Rationale       string         `yaml:"rationale"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-POAM-ITEM
 type POAMArtifact struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-POAM-ITEM, EM-RISK
 type POAMItem struct {
 	ID              string         `yaml:"id"`
 	RiskRef         string         `yaml:"riskRef"`
@@ -240,6 +271,7 @@ type POAMItem struct {
 	Artifacts       []POAMArtifact `yaml:"artifacts"`
 }
 
+// ENGMODEL-LINKS: EM-TRUST-BOUNDARY
 type TrustBoundary struct {
 	ID           string   `yaml:"id"`
 	Name         string   `yaml:"name"`
@@ -249,18 +281,21 @@ type TrustBoundary struct {
 	Members      []string `yaml:"members"`
 }
 
+// ENGMODEL-LINKS: EM-STATE
 type State struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-EVENT
 type Event struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-FLOW-STEP
 type FlowStep struct {
 	ID                  string   `yaml:"id"`
 	Ref                 string   `yaml:"ref"`
@@ -288,6 +323,7 @@ type FlowStep struct {
 	Optional            bool     `yaml:"optional"`
 }
 
+// ENGMODEL-LINKS: EM-FLOW
 type Flow struct {
 	ID                  string            `yaml:"id"`
 	Title               string            `yaml:"title"`
@@ -312,11 +348,13 @@ type Flow struct {
 	Properties          map[string]string `yaml:"properties"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-THREAT-SCENARIO
 type ThreatScenarioEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-THREAT-SCENARIO, EM-ATTACK-VECTOR
 type ThreatScenario struct {
 	ID               string                   `yaml:"id"`
 	Title            string                   `yaml:"title"`
@@ -345,11 +383,13 @@ type ThreatScenario struct {
 	Evidence         []ThreatScenarioEvidence `yaml:"evidence"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-THREAT-ASSUMPTION
 type ThreatAssumptionEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-THREAT-ASSUMPTION
 type ThreatAssumption struct {
 	ID        string                     `yaml:"id"`
 	Title     string                     `yaml:"title"`
@@ -361,11 +401,13 @@ type ThreatAssumption struct {
 	Evidence  []ThreatAssumptionEvidence `yaml:"evidence"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-THREAT-OUT-OF-SCOPE
 type ThreatOutOfScopeEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-THREAT-OUT-OF-SCOPE
 type ThreatOutOfScope struct {
 	ID        string                     `yaml:"id"`
 	Title     string                     `yaml:"title"`
@@ -377,11 +419,13 @@ type ThreatOutOfScope struct {
 	Evidence  []ThreatOutOfScopeEvidence `yaml:"evidence"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-THREAT-MITIGATION
 type ThreatMitigationEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-THREAT-MITIGATION, EM-CONTROL
 type ThreatMitigation struct {
 	ID                string                     `yaml:"id"`
 	ThreatScenarioRef string                     `yaml:"threatScenarioRef"`
@@ -394,11 +438,13 @@ type ThreatMitigation struct {
 	Evidence          []ThreatMitigationEvidence `yaml:"evidence"`
 }
 
+// ENGMODEL-LINKS: EM-EVIDENCE, EM-CONTROL-VERIFICATION
 type ControlVerificationEvidence struct {
 	Path        string `yaml:"path"`
 	Description string `yaml:"description"`
 }
 
+// ENGMODEL-LINKS: EM-CONTROL-VERIFICATION, EM-CONTROL
 type ControlVerification struct {
 	ID                 string                        `yaml:"id"`
 	ControlRef         string                        `yaml:"controlRef"`
@@ -412,6 +458,7 @@ type ControlVerification struct {
 	Evidence           []ControlVerificationEvidence `yaml:"evidence"`
 }
 
+// ENGMODEL-LINKS: EM-MODEL
 type AuthoredArchitecture struct {
 	FunctionalGroups     []FunctionalGroup     `yaml:"functionalGroups"`
 	FunctionalUnits      []FunctionalUnit      `yaml:"functionalUnits"`
@@ -437,6 +484,7 @@ type AuthoredArchitecture struct {
 	Mappings             []Mapping             `yaml:"mappings"`
 }
 
+// ENGMODEL-LINKS: EM-INFERENCE-HINT
 type InferenceHints struct {
 	RuntimeSources           []string `yaml:"runtimeSources"`
 	CodeSources              []string `yaml:"codeSources"`
@@ -444,6 +492,7 @@ type InferenceHints struct {
 	OwnershipResolutionOrder []string `yaml:"ownershipResolutionOrder"`
 }
 
+// ENGMODEL-LINKS: EM-VIEW
 type View struct {
 	ID                        string   `yaml:"id"`
 	Kind                      string   `yaml:"kind"`
@@ -459,6 +508,7 @@ type View struct {
 	Abstraction               string   `yaml:"abstraction"`
 }
 
+// ENGMODEL-LINKS: EM-MODEL
 type ArchitectureDocument struct {
 	Model                ModelMeta            `yaml:"model"`
 	Decisions            []Decision           `yaml:"-"`
@@ -467,6 +517,7 @@ type ArchitectureDocument struct {
 	Views                []View               `yaml:"views"`
 }
 
+// ENGMODEL-LINKS: EM-BUNDLE
 type Bundle struct {
 	ArchitecturePath string
 	CatalogPath      string

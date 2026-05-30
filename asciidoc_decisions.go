@@ -8,6 +8,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// ENGMODEL-LINKS: EM-DECISION, EM-ASCIIDOC-SECTION
 // TRLC-LINKS: REQ-EMG-014
 func buildDecisionSections(in []model.Decision) []asciidocDecisionSection {
 	out := make([]asciidocDecisionSection, 0, len(in))
@@ -35,6 +36,7 @@ func buildDecisionSections(in []model.Decision) []asciidocDecisionSection {
 	return out
 }
 
+// ENGMODEL-LINKS: EM-DECISION, EM-ASCIIDOC-DOCUMENT
 // TRLC-LINKS: REQ-EMG-014
 func renderDecisionsDocument(decisions []asciidocDecisionSection) string {
 	if len(decisions) == 0 {
