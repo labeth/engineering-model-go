@@ -19,16 +19,6 @@
   ],
   "assets": [
     {
-      "name": "AI JSON Artifact",
-      "id": "DO-AI-JSON-ARTIFACT",
-      "risk": {
-        "confidentiality": 5,
-        "integrity": 8,
-        "availability": 8
-      },
-      "description": "generated/ARCHITECTURE.ai.json"
-    },
-    {
       "name": "Architecture Model",
       "id": "DO-ARCHITECTURE-MODEL",
       "risk": {
@@ -94,7 +84,7 @@
       "id": "ACT-AI-AGENT",
       "name": "AI Agent",
       "type": "actor",
-      "description": "Uses MCP tools and AI JSON to plan and execute scoped implementation work.",
+      "description": "Uses MCP tools to plan and execute scoped implementation work.",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -149,15 +139,6 @@
       "name": "Local Workspace",
       "type": "deployment-target",
       "description": "dev local",
-      "parent": {
-        "trustZone": "TZ-SYSTEM"
-      }
-    },
-    {
-      "id": "FU-AI-VIEW-BUILDER",
-      "name": "AI View Builder",
-      "type": "service",
-      "description": "Emits AI JSON, edges, and markdown views with support paths and implementation paths.",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -423,11 +404,12 @@
   ],
   "dataflows": [
     {
-      "id": "02fd573b-d645-5ed5-8b71-0c2be059b613",
-      "name": "depends_on",
+      "id": "04a59611-9f5b-5550-aad4-eac5a69998e6",
+      "name": "Runs Go tests and static checks as part of repository validation.",
+      "description": "Runs Go tests and static checks as part of repository validation.",
       "bidirectional": true,
-      "source": "FU-AI-VIEW-BUILDER",
-      "destination": "FU-VIEW-PROJECTION",
+      "source": "FU-VALIDATION-ENGINE",
+      "destination": "REF-GO-TOOLCHAIN",
       "tags": [
         "depends_on"
       ]
@@ -443,6 +425,17 @@
       ]
     },
     {
+      "id": "25a1f881-ff99-5b9f-8699-fa004db48f2f",
+      "name": "Maintains model and design artifacts through CLI generation workflows.",
+      "description": "Maintains model and design artifacts through CLI generation workflows.",
+      "bidirectional": true,
+      "source": "ACT-ARCHITECTURE-AUTHOR",
+      "destination": "FU-CLI-ORCHESTRATION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
       "id": "26aa638c-76f3-5745-8ff3-e76bc8e52932",
       "name": "depends_on",
       "bidirectional": true,
@@ -450,6 +443,28 @@
       "destination": "FU-VALIDATION-ENGINE",
       "tags": [
         "depends_on"
+      ]
+    },
+    {
+      "id": "2e33b402-9e82-5954-8719-ed9695cb85df",
+      "name": "Runs validation, generation, and export commands during implementation work.",
+      "description": "Runs validation, generation, and export commands during implementation work.",
+      "bidirectional": true,
+      "source": "ACT-IMPLEMENTATION-ENGINEER",
+      "destination": "FU-CLI-ORCHESTRATION",
+      "tags": [
+        "interacts_with"
+      ]
+    },
+    {
+      "id": "371a9659-ea44-56ae-9263-0acfcbec9a30",
+      "name": "Uses OSCAL and traceability outputs for assurance workflows.",
+      "description": "Uses OSCAL and traceability outputs for assurance workflows.",
+      "bidirectional": true,
+      "source": "ACT-COMPLIANCE-ENGINEER",
+      "destination": "FU-OSCAL-EXPORTER",
+      "tags": [
+        "interacts_with"
       ]
     },
     {
@@ -513,24 +528,14 @@
       ]
     },
     {
-      "id": "774971b4-0c92-525b-85cf-9a4009e8837e",
-      "name": "depends_on",
-      "bidirectional": true,
-      "source": "FU-MCP-SERVER",
-      "destination": "FU-AI-VIEW-BUILDER",
-      "tags": [
-        "depends_on"
-      ]
-    },
-    {
       "id": "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
       "name": "Model Change to Verified Artifacts Flow",
       "description": "Primary engineering workflow from authored model update through validation and artifact generation.",
       "source": "ACT-IMPLEMENTATION-ENGINEER",
       "destination": "FU-CLI-ORCHESTRATION",
       "assets": [
-        "DO-AI-JSON-ARTIFACT",
         "DO-ARCHITECTURE-MODEL",
+        "DO-MCP-TOOL-RESULT",
         "DO-STRUCTURIZR-DSL",
         "DO-THREAT-DRAGON-JSON"
       ],
@@ -539,13 +544,14 @@
       ]
     },
     {
-      "id": "b4c741e6-ca0e-5b4a-9e4d-c8e65ad70397",
-      "name": "depends_on",
+      "id": "a8a3e9dc-0cae-5971-9dfc-88b0e4fcc9e3",
+      "name": "Uses model-backed MCP tools to inspect and update implementation scope.",
+      "description": "Uses model-backed MCP tools to inspect and update implementation scope.",
       "bidirectional": true,
-      "source": "FU-AI-VIEW-BUILDER",
-      "destination": "FU-CODEMAP-INFERENCE",
+      "source": "ACT-AI-AGENT",
+      "destination": "FU-MCP-SERVER",
       "tags": [
-        "depends_on"
+        "interacts_with"
       ]
     },
     {
@@ -559,13 +565,14 @@
       ]
     },
     {
-      "id": "f159921e-c4c9-5f61-bd44-5f051cd01184",
-      "name": "depends_on",
+      "id": "e627d287-a99b-5fb5-aec7-322bf1108690",
+      "name": "Executes validation and generation commands in automated checks.",
+      "description": "Executes validation and generation commands in automated checks.",
       "bidirectional": true,
-      "source": "FU-CLI-ORCHESTRATION",
-      "destination": "FU-AI-VIEW-BUILDER",
+      "source": "ACT-CI-PIPELINE",
+      "destination": "FU-CLI-ORCHESTRATION",
       "tags": [
-        "depends_on"
+        "interacts_with"
       ]
     },
     {

@@ -12,18 +12,10 @@ requirements:
       - FU-MODEL-LOADER
       - FU-CLI-ORCHESTRATION
       - FU-VALIDATION-ENGINE
-      - FU-AI-VIEW-BUILDER
       - FU-ASCIIDOC-GENERATOR
       - FU-THREAT-EXPORTER
       - FU-STRUCTURIZR-EXPORTER
       - FU-OSCAL-EXPORTER
-
-  - id: REQ-EMG-002
-    text: "While model is valid, when generation run is requested, the engineering model go shall produce ai json artifact for ai agent planning workflows."
-    notes: "AI JSON is a first-class machine artifact."
-    appliesTo:
-      - FU-AI-VIEW-BUILDER
-      - FU-CLI-ORCHESTRATION
 
   - id: REQ-EMG-003
     text: "While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output."
@@ -79,7 +71,6 @@ requirements:
     notes: "Links runtime, code, and test markers to modeled requirement coverage."
     appliesTo:
       - FU-CODEMAP-INFERENCE
-      - FU-AI-VIEW-BUILDER
 
   - id: REQ-EMG-011
     text: "Where external schema dependencies are available, when generation run is requested, the engineering model go shall fail validation if schema checks do not match expected constraints."
@@ -88,12 +79,6 @@ requirements:
       - FU-THREAT-EXPORTER
       - FU-STRUCTURIZR-EXPORTER
       - FU-VALIDATION-ENGINE
-
-  - id: REQ-EMG-012
-    text: "While model is valid, when generation run is requested, the engineering model go shall include support paths plus implementation paths plus gaps in ai json artifact."
-    notes: "AI implementation planning fields must be present and current."
-    appliesTo:
-      - FU-AI-VIEW-BUILDER
 
   - id: REQ-EMG-013
     text: "Where traceability export is enabled, when generation run is requested, the engineering model go shall export OSCAL SSP plus assessment results plus POA&M artifacts."

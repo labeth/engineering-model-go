@@ -8,14 +8,13 @@ For each FU batch:
 
 1. Add `ENGMODEL-OWNER-UNIT: FU-...` to each source file in scope.
 2. Add `TRLC-LINKS: REQ-...` markers on representative declarations/tests.
-3. Regenerate root artifacts (`generated/*`).
+3. Regenerate maintained root artifacts (`generated/ARCHITECTURE.adoc`, `generated/DECISIONS.adoc`, `generated/ARCHITECTURE.proven.pdf`, and affected exchange artifacts).
 4. Verify with `go test ./...`.
 
 ## Current pass status
 
 - Done in this pass:
   - FU-MCP-SERVER
-  - FU-AI-VIEW-BUILDER
   - FU-CODEMAP-INFERENCE
   - FU-MODEL-LOADER
   - FU-VALIDATION-ENGINE
@@ -40,14 +39,6 @@ For each FU batch:
 - `cmd/engmcp/main.go`
 - `cmd/engmcp/main_test.go`
 - `mcp/server_test.go`
-
-### FU-AI-VIEW-BUILDER
-
-- `ai_view.go`
-- `ai_view_schema.go`
-- `ai_view_edges.go`
-- `ai_view_markdown.go`
-- `ai_view_test.go`
 
 ### FU-CODEMAP-INFERENCE
 
@@ -116,6 +107,7 @@ For each FU batch:
 
 ### FU-OSCAL-EXPORTER
 
+- `oscal_compliance.go`
 - `oscal_ssp.go`
 - `oscal_ar.go`
 - `oscal_poam.go`

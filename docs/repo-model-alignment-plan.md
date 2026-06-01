@@ -5,7 +5,7 @@
 Align root model artifacts with the current repository without changing runtime behavior.
 
 - Inputs: `catalog.yml`, `architecture.yml`, `requirements.yml`, `design.yml`
-- Generated artifacts: `generated/*`
+- Generated artifacts: maintained files under `generated/`, excluding removed machine-view artifacts.
 - Code scope for alignment: `cmd/`, `mcp/`, root `*.go`, `codemap/`, `validate/`, `view/`, exporters (`*_export.go`)
 
 ## Constraints
@@ -29,9 +29,10 @@ Align root model artifacts with the current repository without changing runtime 
    - `validate/` -> `FU-VALIDATION-ENGINE`
    - `codemap/`, `inferred_*.go` -> `FU-CODEMAP-INFERENCE`
    - `view/`, `asciidoc_views.go` -> `FU-VIEW-PROJECTION`
-   - `ai_view*.go` -> `FU-AI-VIEW-BUILDER`
 
 Deliverable: checked-in mapping table (path -> FU ID).
+
+Machine-oriented context for implementation agents comes from MCP tool responses. AsciiDoc/PDF and exchange files are generated publication/interchange artifacts.
 
 ## Phase 2: Ownership Marking Pass (No Behavior Changes)
 
@@ -56,7 +57,7 @@ Goal: add requirement tags where behavior is implemented or asserted.
   - tests that verify each requirement
 - Start with high-priority requirements:
   - `REQ-EMG-007`, `REQ-EMG-008` (MCP contract/safety)
-  - `REQ-EMG-010`, `REQ-EMG-012` (AI view trace/gaps/paths)
+  - `REQ-EMG-010` (traceability inference)
   - `REQ-EMG-004`, `REQ-EMG-005`, `REQ-EMG-006` (export pipelines)
 
 Deliverable: requirement-to-file matrix with at least one source and one test link per requirement.
@@ -77,7 +78,7 @@ Deliverable: zero unresolved core FU ownership for in-scope files.
 Add repeatable checks to prevent drift:
 
 1. Artifact generation gate:
-   - regenerate `generated/*` from root model on every alignment PR.
+   - regenerate root AsciiDoc, decisions, proven PDF, and affected exchange artifacts from the root model on every alignment PR.
 2. Traceability gate:
    - fail if any `REQ-EMG-*` has no linked tests.
 3. Ownership gate:

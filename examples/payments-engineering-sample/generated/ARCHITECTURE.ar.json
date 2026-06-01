@@ -3,7 +3,7 @@
     "uuid": "feb3a254-f078-59e8-b66d-b7015be52e53",
     "metadata": {
       "title": "Sample Payments Layered Architecture Assessment Results",
-      "last-modified": "2026-05-09T18:04:22Z",
+      "last-modified": "2026-06-01T18:17:41Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -14,13 +14,13 @@
       {
         "uuid": "5b5abe26-c8a5-5ef4-a195-d9f9cc21839e",
         "title": "Automated architecture assessment",
-        "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
-        "start": "2026-05-09T18:04:22Z",
-        "end": "2026-05-09T18:04:22Z",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-06-01T18:17:41Z",
+        "end": "2026-06-01T18:17:41Z",
         "reviewed-controls": {
           "control-selections": [
             {
-              "description": "Controls reviewed through architecture-derived allocations.",
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
               "include-controls": [
                 {
                   "control-id": "ac-2"
@@ -29,10 +29,10 @@
                   "control-id": "cm-6"
                 },
                 {
-                  "control-id": "ia-2.1"
+                  "control-id": "ia-2"
                 },
                 {
-                  "control-id": "si-10"
+                  "control-id": "ia-2.1"
                 }
               ]
             }

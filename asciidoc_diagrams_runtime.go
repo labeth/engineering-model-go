@@ -869,7 +869,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
-func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityContextDiagram {
+func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complianceMappings []model.ComplianceMapping, labels map[string]string) []asciidocSecurityContextDiagram {
 	unitGroupByID := map[string]string{}
 	groupUnits := map[string]map[string]bool{}
 	for _, fu := range a.FunctionalUnits {
@@ -884,7 +884,7 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, labels 
 		}
 		groupUnits[gid][id] = true
 	}
-	ownedByGroup := securityContextOwnedIDsByGroup(a, unitGroupByID, groupUnits)
+	ownedByGroup := securityContextOwnedIDsByGroup(a, complianceMappings, unitGroupByID, groupUnits)
 
 	out := []asciidocSecurityContextDiagram{}
 	for _, fg := range a.FunctionalGroups {
@@ -967,7 +967,7 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, labels 
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, unitGroupByID map[string]string, groupUnits map[string]map[string]bool) map[string]map[string]bool {
+func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, complianceMappings []model.ComplianceMapping, unitGroupByID map[string]string, groupUnits map[string]map[string]bool) map[string]map[string]bool {
 	owned := map[string]map[string]bool{}
 	add := func(groupID, id string) {
 		groupID = strings.TrimSpace(groupID)
@@ -986,9 +986,9 @@ func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, unitGroupByID 
 	for _, iface := range a.Interfaces {
 		add(unitGroupByID[strings.TrimSpace(iface.Owner)], strings.TrimSpace(iface.ID))
 	}
-	for _, alloc := range a.ControlAllocations {
-		controlRef := strings.TrimSpace(alloc.ControlRef)
-		for _, target := range alloc.AppliesTo {
+	for _, mapping := range complianceMappings {
+		controlRef := strings.TrimSpace(mapping.ModelControlRef)
+		for _, target := range mapping.AppliesTo {
 			target = strings.TrimSpace(target)
 			if strings.HasPrefix(target, "FU-") {
 				add(unitGroupByID[target], controlRef)

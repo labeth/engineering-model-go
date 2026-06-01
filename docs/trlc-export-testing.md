@@ -37,3 +37,12 @@ scripts/validate-trlc.sh examples/payments-engineering-sample/generated/trlc
 scripts/validate-trlc.sh examples/bedrock-pr-review-github-app-sample/generated/trlc
 scripts/validate-trlc.sh examples/coffee-fleet-ota-cloud-sample/generated/trlc
 ```
+
+The root package is generated with:
+
+```bash
+go run ./cmd/engtrlc \
+  --requirements requirements.yml \
+  --out-dir generated/trlc \
+  --package EngineeringModelRequirements
+```

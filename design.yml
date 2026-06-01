@@ -166,7 +166,7 @@ design:
           narrative: Infers runtime/code/verification evidence to connect authored intent with implementation reality.
         communication:
           title: Codemap Inference Communication
-          narrative: Supplies inferred ownership and trace candidates to AI view and reporting flows.
+          narrative: Supplies inferred ownership and trace candidates to documentation, MCP, and reporting flows.
         deployment:
           title: Codemap Inference Deployment
           narrative: Executes during generation and analysis workflows using repository-local sources.
@@ -185,7 +185,7 @@ design:
           narrative: Projects architecture graphs for view-specific rendering and analysis.
         communication:
           title: View Projection Communication
-          narrative: Delivers filtered entities and mappings to docs, AI outputs, and exports.
+          narrative: Delivers filtered entities and mappings to documentation and exports.
         deployment:
           title: View Projection Deployment
           narrative: Embedded as reusable generation pipeline functionality.
@@ -195,25 +195,6 @@ design:
         traceability:
           title: View Projection Traceability
           narrative: Maintains link continuity across architecture, security, and traceability projections.
-
-    - id: FU-AI-VIEW-BUILDER
-      group: FG-ARTIFACT-GENERATION
-      views:
-        architecture_intent:
-          title: AI View Builder Intent
-          narrative: Produces AI-first artifacts for planning, impact analysis, and implementation guidance.
-        communication:
-          title: AI View Builder Communication
-          narrative: Combines authored and inferred data into JSON, markdown, and edge outputs.
-        deployment:
-          title: AI View Builder Deployment
-          narrative: Runs via engdoc generation flows and library invocations.
-        security:
-          title: AI View Builder Security
-          narrative: Preserves source provenance and confidence metadata for trustworthy agent decisions.
-        traceability:
-          title: AI View Builder Traceability
-          narrative: Emits support paths, implementation paths, and gaps keyed by stable IDs.
 
     - id: FU-ASCIIDOC-GENERATOR
       group: FG-ARTIFACT-GENERATION

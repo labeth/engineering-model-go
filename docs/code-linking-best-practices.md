@@ -325,5 +325,5 @@ Before merging model-affecting code:
 2. Every changed behavior declaration has accurate requirement links.
 3. Public APIs, schemas, events, controls, and adapters are linked to model entities when supported.
 4. Tests that verify changed behavior have requirement links.
-5. Generated docs or AI views show the expected implementation and verification links.
+5. Generated docs and MCP lookup responses show the expected implementation and verification links.
 6. Strict linting fails when links are missing or malformed.

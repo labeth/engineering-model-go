@@ -283,22 +283,8 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 		t.Fatalf("missing validation inferred verification check")
 	}
 
-	aiRes, err := GenerateAIView(bundle, requirements, design, AIViewOptions{})
-	if err != nil {
-		t.Fatalf("generate ai view failed: %v", err)
-	}
-	foundAIStatus := false
-	for _, e := range aiRes.Document.Entities {
-		if e.Kind == "verification" && e.ID == validationCheck.ID {
-			if e.Status != "pass" {
-				t.Fatalf("expected ai verification status pass for %s, got %q", e.ID, e.Status)
-			}
-			foundAIStatus = true
-			break
-		}
-	}
-	if !foundAIStatus {
-		t.Fatalf("missing ai verification entity for %s", validationCheck.ID)
+	if validationCheck.Status != "pass" {
+		t.Fatalf("expected inferred verification status pass for %s, got %q", validationCheck.ID, validationCheck.Status)
 	}
 
 	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
@@ -361,41 +347,6 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 
 	bundle.ArchitecturePath = filepath.Join(root, "architecture.yml")
 	bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
-
-	aiRes, err := GenerateAIView(bundle, requirements, design, AIViewOptions{})
-	if err != nil {
-		t.Fatalf("generate ai view failed: %v", err)
-	}
-
-	deploymentRuntimeIDs := map[string]bool{}
-	for _, e := range aiRes.Document.Entities {
-		if e.Kind != "runtime_element" {
-			continue
-		}
-		title := strings.TrimSpace(e.Title)
-		if strings.Contains(title, "deploy/oci/") || strings.Contains(title, "deploy/kairos/") || strings.Contains(title, "infra/flux/") {
-			deploymentRuntimeIDs[e.ID] = true
-		}
-	}
-	if len(deploymentRuntimeIDs) == 0 {
-		t.Fatalf("expected deployment runtime evidence entities in ai view")
-	}
-
-	foundSupportPath := false
-	for _, sp := range aiRes.Document.SupportPaths {
-		if strings.TrimSpace(sp.FromID) != "REQ-PAY-001" {
-			continue
-		}
-		for _, id := range sp.Path {
-			if deploymentRuntimeIDs[id] {
-				foundSupportPath = true
-				break
-			}
-		}
-	}
-	if !foundSupportPath {
-		t.Fatalf("expected REQ-PAY-001 support path to include deployment runtime evidence")
-	}
 
 	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
 	if err != nil {

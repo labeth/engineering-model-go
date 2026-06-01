@@ -16,7 +16,7 @@ catalog:
       aliases: [analysis]
     - id: FG-ARTIFACT-GENERATION
       name: artifact generation
-      definition: Generation of AsciiDoc, AI view, and exchange artifacts from model inputs.
+      definition: Generation of AsciiDoc and exchange artifacts from model inputs.
       aliases: [generation]
     - id: FG-TRACEABILITY-COMPLIANCE
       name: traceability and compliance
@@ -44,10 +44,6 @@ catalog:
       name: view projection
       definition: Builds view-specific projections for architecture communication and traceability outputs.
       aliases: [projection]
-    - id: FU-AI-VIEW-BUILDER
-      name: ai view builder
-      definition: Produces AI-oriented JSON, markdown, and edge views including support and implementation paths.
-      aliases: [ai json export]
     - id: FU-ASCIIDOC-GENERATOR
       name: asciidoc generator
       definition: Renders architecture documentation and view narratives to AsciiDoc and PDF artifacts.
@@ -122,7 +118,7 @@ catalog:
       aliases: [assurance]
     - id: ACT-AI-AGENT
       name: ai agent
-      definition: Consumes MCP and AI JSON outputs to plan and execute model-guided edits.
+      definition: Consumes MCP outputs to plan and execute model-guided edits.
       aliases: [coding agent]
     - id: ACT-CI-PIPELINE
       name: ci pipeline
@@ -184,10 +180,6 @@ catalog:
       aliases: [up to date]
 
   features:
-    - id: FEAT-AI-VIEW-EXPORT
-      name: ai view export is enabled
-      definition: Feature enabling AI JSON, markdown, and edge artifacts.
-      aliases: [ai export]
     - id: FEAT-MCP-SERVER
       name: mcp server is enabled
       definition: Feature enabling MCP runtime APIs for model-aware tooling.
@@ -238,10 +230,6 @@ catalog:
       name: architecture model
       definition: Authored architecture source describing functional intent and mappings.
       aliases: [architecture yml]
-    - id: DATA-AI-JSON-ARTIFACT
-      name: ai json artifact
-      definition: Machine-oriented architecture view for AI planning and implementation workflows.
-      aliases: [architecture ai json]
     - id: DATA-MCP-TOOL-RESULT
       name: mcp tool result
       definition: Structured MCP tool response payload carrying model-aware query results.

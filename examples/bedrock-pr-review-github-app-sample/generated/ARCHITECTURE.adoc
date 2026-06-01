@@ -6,7 +6,7 @@
 == Introduction
 
 This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.
-The authored functional architecture remains stable while deployment/runtime/code evidence is inferred
+The authored functional architecture remains stable while deployment/runtime/code <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> is inferred
 from infrastructure manifests, source files, and verification artifacts.
 
 === Scope and Assumptions
@@ -118,15 +118,23 @@ a[href^="#SEC_VIEW_"] {
 [cols="3,7",options="header"]
 |===
 |Term |Definition
-|[[REF_ENGMODEL_EM_ACTOR]]<<REF_IDX-ENGMODEL_EM_ACTOR,actor>> (EM-ACTOR)
+|[[REF_ENGMODEL_TERM_ACTOR]]<<REF_IDX-ENGMODEL_TERM_ACTOR,actor>> (TERM-ACTOR)
 |A person or operational role that interacts with functional units.
 |[[REF_CATALOG_FEAT_AI_REVIEW]]<<REF_IDX-CATALOG_FEAT_AI_REVIEW,ai review is enabled>> (FEAT-AI-REVIEW)
 |Feature flag enabling model-assisted review. Aliases:ai review enabled
-|[[REF_ENGMODEL_EM_ATTACK_VECTOR]]<<REF_IDX-ENGMODEL_EM_ATTACK_VECTOR,attack vector>> (EM-ATTACK-VECTOR)
+|[[REF_ENGMODEL_TERM_DECISION]]<<REF_IDX-ENGMODEL_TERM_DECISION,architecture decision>> (TERM-DECISION)
+|Authored architecture decision record with status, context, decision text, and consequences.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_DIAGRAM]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_DIAGRAM,AsciiDoc diagram>> (TERM-ASCIIDOC-DIAGRAM)
+|Generated diagram block, usually Mermaid, that visualizes architecture relationships in the AsciiDoc publication.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_DOCUMENT,AsciiDoc document>> (TERM-ASCIIDOC-DOCUMENT)
+|Human-readable generated architecture publication document assembled from authored model, inferred evidence, diagrams, references, and decisions.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_SECTION]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_SECTION,AsciiDoc section>> (TERM-ASCIIDOC-SECTION)
+|Structured generated document section or row model used to render authored and inferred architecture content.
+|[[REF_ENGMODEL_TERM_ATTACK_VECTOR]]<<REF_IDX-ENGMODEL_TERM_ATTACK_VECTOR,attack vector>> (TERM-ATTACK-VECTOR)
 |A technical misuse or attack path that targets functional, referenced, or runtime elements.
 |[[REF_CATALOG_FEAT_AUDIT_LOGGING]]<<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>> (FEAT-AUDIT-LOGGING)
 |Feature flag enabling audit metadata persistence. Aliases:audit enabled
-|[[REF_ENGMODEL_EM_AUTHORED_MAPPING]]<<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mapping>> (EM-AUTHORED-MAPPING)
+|[[REF_ENGMODEL_TERM_AUTHORED_MAPPING]]<<REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING,authored mapping>> (TERM-AUTHORED-MAPPING)
 |An explicit relationship declared in architecture inputs between authored or referenced elements.
 |[[REF_CATALOG_REF_AWS_SDK_GO]]<<REF_IDX-CATALOG_REF_AWS_SDK_GO,aws sdk for go>> (REF-AWS-SDK-GO)
 |SDK dependency used for AWS runtime integrations. Aliases:aws sdk
@@ -136,52 +144,98 @@ a[href^="#SEC_VIEW_"] {
 |External Bedrock runtime endpoint used for model inference. Aliases:bedrock api
 |[[REF_CATALOG_EVT_BEDROCK_UNAVAILABLE]]<<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>> (EVT-BEDROCK-UNAVAILABLE)
 |Event raised when Bedrock inference path is degraded. Aliases:bedrock unavailable
+|[[REF_ENGMODEL_TERM_CATALOG]]<<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> (TERM-CATALOG)
+|Controlled vocabulary document used to normalize model, requirement, and generated-document terminology.
+|[[REF_ENGMODEL_TERM_CATALOG_ENTRY]]<<REF_IDX-ENGMODEL_TERM_CATALOG_ENTRY,catalog entry>> (TERM-CATALOG-ENTRY)
+|A stable catalog term with a definition and aliases for linting, linking, and generated references.
 |[[REF_CATALOG_DATA_CHECKRUN_SUMMARY]]<<REF_IDX-CATALOG_DATA_CHECKRUN_SUMMARY,check run summary>> (DATA-CHECKRUN-SUMMARY)
 |Aggregated review result posted as a GitHub check run. Aliases:check run summaries
-|[[REF_ENGMODEL_EM_CODE_ELEMENT]]<<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code element>> (EM-CODE-ELEMENT)
+|[[REF_ENGMODEL_TERM_CLI_COMMAND]]<<REF_IDX-ENGMODEL_TERM_CLI_COMMAND,CLI command>> (TERM-CLI-COMMAND)
+|Command-line entrypoint that coordinates loading, validation, generation, and file output for an engineering-model workflow.
+|[[REF_ENGMODEL_TERM_CODE_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_CODE_ELEMENT,code element>> (TERM-CODE-ELEMENT)
 |An inferred code structure or ownership element discovered from source trees and build metadata.
-|[[REF_ENGMODEL_EM_CONTROL]]<<REF_IDX-ENGMODEL_EM_CONTROL,control>> (EM-CONTROL)
+|[[REF_ENGMODEL_TERM_COMPLIANCE_MAPPING]]<<REF_IDX-ENGMODEL_TERM_COMPLIANCE_MAPPING,compliance mapping>> (TERM-COMPLIANCE-MAPPING)
+|Authored mapping that links a model control to selected compliance controls, model scope, implementation status, evidence, and responsible roles.
+|[[REF_ENGMODEL_TERM_CONTROL]]<<REF_IDX-ENGMODEL_TERM_CONTROL,control>> (TERM-CONTROL)
 |An authored security, policy, or operational control used to constrain behavior and reduce risk.
-|[[REF_ENGMODEL_EM_DATA_OBJECT]]<<REF_IDX-ENGMODEL_EM_DATA_OBJECT,data object>> (EM-DATA-OBJECT)
+|[[REF_ENGMODEL_TERM_CONTROL_VERIFICATION]]<<REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION,control verification>> (TERM-CONTROL-VERIFICATION)
+|Authored control verification record with method, status, threat/risk scope, findings, and evidence.
+|[[REF_ENGMODEL_TERM_DATA_OBJECT]]<<REF_IDX-ENGMODEL_TERM_DATA_OBJECT,data object>> (TERM-DATA-OBJECT)
 |An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
-|[[REF_ENGMODEL_EM_DEPLOYMENT_TARGET]]<<REF_IDX-ENGMODEL_EM_DEPLOYMENT_TARGET,deployment target>> (EM-DEPLOYMENT-TARGET)
+|[[REF_ENGMODEL_TERM_DEPLOYMENT_TARGET]]<<REF_IDX-ENGMODEL_TERM_DEPLOYMENT_TARGET,deployment target>> (TERM-DEPLOYMENT-TARGET)
 |An authored deployment destination such as environment, cluster, namespace, or registry scope.
+|[[REF_ENGMODEL_TERM_DESIGN]]<<REF_IDX-ENGMODEL_TERM_DESIGN,design document>> (TERM-DESIGN)
+|Authored design narrative organized by model entities and architecture views.
+|[[REF_ENGMODEL_TERM_DESIGN_VIEW]]<<REF_IDX-ENGMODEL_TERM_DESIGN_VIEW,design view>> (TERM-DESIGN-VIEW)
+|View-scoped design narrative attached to an authored functional group or functional unit.
 |[[REF_CATALOG_ACT_DEVELOPER]]<<REF_IDX-CATALOG_ACT_DEVELOPER,developer>> (ACT-DEVELOPER)
 |Engineer opening and updating pull requests. Aliases:pr author
 |[[REF_CATALOG_DATA_DIFF_CONTEXT]]<<REF_IDX-CATALOG_DATA_DIFF_CONTEXT,diff context>> (DATA-DIFF-CONTEXT)
 |Pull request file changes and metadata prepared for analysis. Aliases:normalized review context, pull request files, pull request metadata, review context, review-ready context
 |[[REF_CATALOG_EVT_CONTEXT_PREPARED]]<<REF_IDX-CATALOG_EVT_CONTEXT_PREPARED,diff context is prepared>> (EVT-CONTEXT-PREPARED)
 |Event indicating context assembly completed and is ready for analysis. Aliases:context prepared
-|[[REF_ENGMODEL_EM_EVENT]]<<REF_IDX-ENGMODEL_EM_EVENT,event>> (EM-EVENT)
+|[[REF_ENGMODEL_TERM_EVENT]]<<REF_IDX-ENGMODEL_TERM_EVENT,event>> (TERM-EVENT)
 |An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
-|[[REF_ENGMODEL_EM_FLOW]]<<REF_IDX-ENGMODEL_EM_FLOW,flow>> (EM-FLOW)
+|[[REF_ENGMODEL_TERM_EVIDENCE]]<<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> (TERM-EVIDENCE)
+|A file, artifact, or observation used to support control, risk, threat, or verification claims.
+|[[REF_ENGMODEL_TERM_FLOW]]<<REF_IDX-ENGMODEL_TERM_FLOW,flow>> (TERM-FLOW)
 |An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
-|[[REF_ENGMODEL_EM_FLOW_STEP]]<<REF_IDX-ENGMODEL_EM_FLOW_STEP,flow step>> (EM-FLOW-STEP)
+|[[REF_ENGMODEL_TERM_FLOW_STEP]]<<REF_IDX-ENGMODEL_TERM_FLOW_STEP,flow step>> (TERM-FLOW-STEP)
 |A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
-|[[REF_ENGMODEL_EM_FUNCTIONAL_GROUP]]<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,functional group>> (EM-FUNCTIONAL-GROUP)
+|[[REF_ENGMODEL_TERM_FUNCTIONAL_GROUP]]<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP,functional group>> (TERM-FUNCTIONAL-GROUP)
 |A major authored capability area that groups related functional units.
-|[[REF_ENGMODEL_EM_FUNCTIONAL_UNIT]]<<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional unit>> (EM-FUNCTIONAL-UNIT)
+|[[REF_ENGMODEL_TERM_FUNCTIONAL_UNIT]]<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional unit>> (TERM-FUNCTIONAL-UNIT)
 |An authored working unit inside a functional group that owns specific behavior.
+|[[REF_ENGMODEL_TERM_GENERATION_WORKFLOW]]<<REF_IDX-ENGMODEL_TERM_GENERATION_WORKFLOW,generation workflow>> (TERM-GENERATION-WORKFLOW)
+|Orchestrated run that combines model loading, validation, projection, rendering, and artifact emission.
 |[[REF_CATALOG_REF_GITHUB_APP_API]]<<REF_IDX-CATALOG_REF_GITHUB_APP_API,github app api>> (REF-GITHUB-APP-API)
 |External GitHub API used for pull request metadata and review publication. Aliases:github api
 |[[REF_CATALOG_REF_GITHUB_REST_SDK]]<<REF_IDX-CATALOG_REF_GITHUB_REST_SDK,github rest sdk>> (REF-GITHUB-REST-SDK)
 |SDK dependency used for GitHub App REST interactions. Aliases:github sdk
 |[[REF_CATALOG_FU_GITHUB_WEBHOOK_INGRESS]]<<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github webhook ingress>> (FU-GITHUB-WEBHOOK-INGRESS)
 |Validates webhook signatures and routes trusted pull request events. Aliases:webhook ingress
-|[[REF_ENGMODEL_EM_INFERRED_MAPPING]]<<REF_IDX-ENGMODEL_EM_INFERRED_MAPPING,inferred mapping>> (EM-INFERRED-MAPPING)
+|[[REF_ENGMODEL_TERM_INFERENCE_HINT]]<<REF_IDX-ENGMODEL_TERM_INFERENCE_HINT,inference hint>> (TERM-INFERENCE-HINT)
+|Authored source and ownership configuration used to discover runtime, code, and verification evidence.
+|[[REF_ENGMODEL_TERM_INFERRED_MAPPING]]<<REF_IDX-ENGMODEL_TERM_INFERRED_MAPPING,inferred mapping>> (TERM-INFERRED-MAPPING)
 |A discovered relationship that links inferred runtime/code elements upward to authored design.
-|[[REF_ENGMODEL_EM_INTERFACE]]<<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> (EM-INTERFACE)
+|[[REF_ENGMODEL_TERM_INTERFACE]]<<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> (TERM-INTERFACE)
 |An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
 |[[REF_CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS]]<<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>> (FU-LAMBDA-RUNTIME-OPERATIONS)
 |Manages runtime deployment and operational controls. Aliases:lambda ops
 |[[REF_CATALOG_FEAT_LAMBDA_RUNTIME_OPS]]<<REF_IDX-CATALOG_FEAT_LAMBDA_RUNTIME_OPS,lambda runtime operations are enabled>> (FEAT-LAMBDA-RUNTIME-OPS)
 |Feature flag enabling Lambda runtime deployment lifecycle operations. Aliases:lambda runtime ops enabled
+|[[REF_ENGMODEL_TERM_LINT_RUN]]<<REF_IDX-ENGMODEL_TERM_LINT_RUN,lint run>> (TERM-LINT-RUN)
+|Requirement lint configuration that controls parsing and quality checks for requirement text.
+|[[REF_ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE]]<<REF_IDX-ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE,LOBSTER activity trace>> (TERM-LOBSTER-ACTIVITY-TRACE)
+|Generated LOBSTER activity JSON that links verification evidence back to formal requirement identifiers.
+|[[REF_ENGMODEL_TERM_MCP_SERVER]]<<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP server>> (TERM-MCP-SERVER)
+|Model Context Protocol server that exposes engineering-model operations to AI agents through JSON-RPC tools.
+|[[REF_ENGMODEL_TERM_MCP_STDIO_TRANSPORT]]<<REF_IDX-ENGMODEL_TERM_MCP_STDIO_TRANSPORT,MCP stdio transport>> (TERM-MCP-STDIO-TRANSPORT)
+|Content-Length framed standard input/output transport used by the MCP command-line server.
+|[[REF_ENGMODEL_TERM_MCP_TOOL]]<<REF_IDX-ENGMODEL_TERM_MCP_TOOL,MCP tool>> (TERM-MCP-TOOL)
+|Named MCP operation with a constrained input schema and structured response payload.
+|[[REF_ENGMODEL_TERM_MCP_TOOL_RESPONSE]]<<REF_IDX-ENGMODEL_TERM_MCP_TOOL_RESPONSE,MCP tool response>> (TERM-MCP-TOOL-RESPONSE)
+|Structured MCP tool payload that includes success state, schema version, generated timestamp, and result data or validation error.
+|[[REF_ENGMODEL_TERM_MODEL]]<<REF_IDX-ENGMODEL_TERM_MODEL,model>> (TERM-MODEL)
+|The authored architecture model root that composes functional structure, relationships, inference hints, and views.
+|[[REF_ENGMODEL_TERM_BUNDLE]]<<REF_IDX-ENGMODEL_TERM_BUNDLE,model bundle>> (TERM-BUNDLE)
+|Loaded architecture, catalog, and companion documents resolved as one working model context.
 |[[REF_CATALOG_MODE_NORMAL]]<<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>> (MODE-NORMAL)
 |Default operating mode using AI plus deterministic checks. Aliases:normal mode
+|[[REF_ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT,Open OTM document>> (TERM-OPEN-OTM-DOCUMENT)
+|Open Threat Model JSON representation generated from the engineering model for interoperable threat-model exchange.
+|[[REF_ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS]]<<REF_IDX-ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS,OSCAL assessment results>> (TERM-OSCAL-ASSESSMENT-RESULTS)
+|Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.
+|[[REF_ENGMODEL_TERM_OSCAL_POAM]]<<REF_IDX-ENGMODEL_TERM_OSCAL_POAM,OSCAL POA&M>> (TERM-OSCAL-POAM)
+|Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.
+|[[REF_ENGMODEL_TERM_OSCAL_SSP]]<<REF_IDX-ENGMODEL_TERM_OSCAL_SSP,OSCAL SSP>> (TERM-OSCAL-SSP)
+|Generated OSCAL system security plan that maps authored system metadata, components, controls, allocations, and evidence into SSP JSON.
 |[[REF_CATALOG_FG_PLATFORM_OPERATIONS]]<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>> (FG-PLATFORM-OPERATIONS)
 |Functional group for deployment lifecycle and secret/config controls. Aliases:runtime operations
 |[[REF_CATALOG_ACT_PLATFORM_OPERATOR]]<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,platform operator>> (ACT-PLATFORM-OPERATOR)
 |Owner of deployment/runtime operations and reliability controls. Aliases:platform ops
+|[[REF_ENGMODEL_TERM_POAM_ITEM]]<<REF_IDX-ENGMODEL_TERM_POAM_ITEM,POA&M item>> (TERM-POAM-ITEM)
+|Plan of action and milestones item linked to a modeled risk and supporting artifacts.
 |[[REF_CATALOG_FU_POLICY_CHECKS]]<<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> (FU-POLICY-CHECKS)
 |Evaluates deterministic repository policy checks. Aliases:deterministic checks
 |[[REF_CATALOG_FEAT_POLICY_CHECKS]]<<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>> (FEAT-POLICY-CHECKS)
@@ -206,13 +260,17 @@ a[href^="#SEC_VIEW_"] {
 |Event raised when new commits are pushed to an open pull request. Aliases:authorized events, pr synchronize
 |[[REF_CATALOG_DATA_REDACTED_AUDIT_METADATA]]<<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> (DATA-REDACTED-AUDIT-METADATA)
 |Sanitized prompt and finding metadata retained for audit.
-|[[REF_ENGMODEL_EM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT,referenced element>> (EM-REFERENCED-ELEMENT)
+|[[REF_ENGMODEL_TERM_REFERENCE_INDEX]]<<REF_IDX-ENGMODEL_TERM_REFERENCE_INDEX,reference index>> (TERM-REFERENCE-INDEX)
+|Generated index of authored, catalog, runtime, code, and verification references with stable anchors and backlinks.
+|[[REF_ENGMODEL_TERM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_REFERENCED_ELEMENT,referenced element>> (TERM-REFERENCED-ELEMENT)
 |An architecture-relevant external, platform, or third-party dependency represented by role.
 |[[REF_CATALOG_EVT_RELEASE_APPROVED]]<<REF_IDX-CATALOG_EVT_RELEASE_APPROVED,release artifact is approved>> (EVT-RELEASE-APPROVED)
 |Event raised when a Lambda runtime release artifact has passed approval. Aliases:release approved
+|[[REF_ENGMODEL_TERM_REPO_INDEX]]<<REF_IDX-ENGMODEL_TERM_REPO_INDEX,repository index>> (TERM-REPO-INDEX)
+|Bounded first-party source index used to answer model-aware file, requirement, control, and threat lookup queries.
 |[[REF_CATALOG_ACT_REPOSITORY_MAINTAINER]]<<REF_IDX-CATALOG_ACT_REPOSITORY_MAINTAINER,repository maintainer>> (ACT-REPOSITORY-MAINTAINER)
 |Owner of merge decisions and repository quality gates. Aliases:maintainer
-|[[REF_ENGMODEL_EM_REQUIREMENT]]<<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> (EM-REQUIREMENT)
+|[[REF_ENGMODEL_TERM_REQUIREMENT]]<<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> (TERM-REQUIREMENT)
 |A structured requirement statement that defines expected system behavior and maps to functional ownership.
 |[[REF_CATALOG_DATA_RESULT_METADATA]]<<REF_IDX-CATALOG_DATA_RESULT_METADATA,result metadata>> (DATA-RESULT-METADATA)
 |Metadata describing review output characteristics for audit and reporting.
@@ -228,24 +286,54 @@ a[href^="#SEC_VIEW_"] {
 |Publishes review findings to GitHub checks and comments. Aliases:publication
 |[[REF_CATALOG_EVT_RATE_LIMIT_EXCEEDED]]<<REF_IDX-CATALOG_EVT_RATE_LIMIT_EXCEEDED,review request rate limit is exceeded>> (EVT-RATE-LIMIT-EXCEEDED)
 |Event raised when PR review rate guardrails are hit. Aliases:rate limit exceeded
-|[[REF_ENGMODEL_EM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,runtime element>> (EM-RUNTIME-ELEMENT)
+|[[REF_ENGMODEL_TERM_RISK]]<<REF_IDX-ENGMODEL_TERM_RISK,risk>> (TERM-RISK)
+|Authored risk record with likelihood, impact, response, scope, controls, and evidence.
+|[[REF_ENGMODEL_TERM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT,runtime element>> (TERM-RUNTIME-ELEMENT)
 |An inferred runtime realization element discovered from infrastructure and deployment sources.
 |[[REF_CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW]]<<REF_IDX-CATALOG_AV_SECRET_LEAKAGE_IN_REVIEW,secret leakage in review output>> (AV-SECRET-LEAKAGE-IN-REVIEW)
 |Unintended credential disclosure in generated review findings. Aliases:secret leakage
 |[[REF_CATALOG_FU_SECRETS_CONFIGURATION]]<<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,secrets and configuration>> (FU-SECRETS-CONFIGURATION)
 |Manages credentials and secure runtime configuration. Aliases:secret config
+|[[REF_ENGMODEL_TERM_SECURITY_CONTEXT]]<<REF_IDX-ENGMODEL_TERM_SECURITY_CONTEXT,security context>> (TERM-SECURITY-CONTEXT)
+|Security-focused generated context view that groups owned functional units and shows external actors, references, flows, controls, and trust boundaries.
 |[[REF_CATALOG_ACT_SECURITY_ENGINEER]]<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,security engineer>> (ACT-SECURITY-ENGINEER)
 |Owner of security policy checks and finding triage. Aliases:security reviewer
+|[[REF_ENGMODEL_TERM_SOURCE_BLOCK]]<<REF_IDX-ENGMODEL_TERM_SOURCE_BLOCK,source block>> (TERM-SOURCE-BLOCK)
+|Stable source reference block that records file path, optional line span, kind, summary, and linked entity IDs.
 |[[REF_CATALOG_AV_SPOOFED_GITHUB_WEBHOOK]]<<REF_IDX-CATALOG_AV_SPOOFED_GITHUB_WEBHOOK,spoofed github webhook>> (AV-SPOOFED-GITHUB-WEBHOOK)
 |Forged webhook request attempting unauthorized review execution. Aliases:webhook spoofing
-|[[REF_ENGMODEL_EM_STATE]]<<REF_IDX-ENGMODEL_EM_STATE,state>> (EM-STATE)
+|[[REF_ENGMODEL_TERM_STATE]]<<REF_IDX-ENGMODEL_TERM_STATE,state>> (TERM-STATE)
 |An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
-|[[REF_ENGMODEL_EM_TRUST_BOUNDARY]]<<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundary>> (EM-TRUST-BOUNDARY)
+|[[REF_ENGMODEL_TERM_STRUCTURIZR_DSL]]<<REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL,Structurizr DSL>> (TERM-STRUCTURIZR-DSL)
+|Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
+|[[REF_ENGMODEL_TERM_THREAT_ASSUMPTION]]<<REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION,threat assumption>> (TERM-THREAT-ASSUMPTION)
+|Authored security assumption that records scope, rationale, owner, status, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT,Threat Dragon document>> (TERM-THREAT-DRAGON-DOCUMENT)
+|Threat Dragon JSON representation generated from the engineering model for STRIDE threat-model review.
+|[[REF_ENGMODEL_TERM_THREAT_MITIGATION]]<<REF_IDX-ENGMODEL_TERM_THREAT_MITIGATION,threat mitigation>> (TERM-THREAT-MITIGATION)
+|Authored mitigation record that links a threat scenario to a control, effectiveness, verification, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_MODEL_EXPORT]]<<REF_IDX-ENGMODEL_TERM_THREAT_MODEL_EXPORT,threat model export>> (TERM-THREAT-MODEL-EXPORT)
+|Generated security artifact that translates authored architecture, flows, trust boundaries, threats, and mitigations into an external threat-model schema.
+|[[REF_ENGMODEL_TERM_THREAT_OUT_OF_SCOPE]]<<REF_IDX-ENGMODEL_TERM_THREAT_OUT_OF_SCOPE,threat out-of-scope decision>> (TERM-THREAT-OUT-OF-SCOPE)
+|Authored decision that excludes a threat concern from current scope with reason, owner, expiry, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_SCENARIO]]<<REF_IDX-ENGMODEL_TERM_THREAT_SCENARIO,threat scenario>> (TERM-THREAT-SCENARIO)
+|Authored threat narrative that connects attack vectors, scope, flows, controls, risks, and verification evidence.
+|[[REF_ENGMODEL_TERM_TRACE_MARKER]]<<REF_IDX-ENGMODEL_TERM_TRACE_MARKER,trace marker>> (TERM-TRACE-MARKER)
+|Source-level marker such as TRLC-LINKS or ENGMODEL-LINKS used to connect declarations to requirements and model entities.
+|[[REF_ENGMODEL_TERM_TRLC_PACKAGE]]<<REF_IDX-ENGMODEL_TERM_TRLC_PACKAGE,TRLC package>> (TERM-TRLC-PACKAGE)
+|Generated TRLC model and requirements package used for formal requirement traceability processing.
+|[[REF_ENGMODEL_TERM_TRUST_BOUNDARY]]<<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundary>> (TERM-TRUST-BOUNDARY)
 |An authored trust separation zone that marks policy, identity, or security control boundaries.
-|[[REF_ENGMODEL_EM_UPWARD_LINKING]]<<REF_IDX-ENGMODEL_EM_UPWARD_LINKING,upward linking>> (EM-UPWARD-LINKING)
+|[[REF_ENGMODEL_TERM_UPWARD_LINKING]]<<REF_IDX-ENGMODEL_TERM_UPWARD_LINKING,upward linking>> (TERM-UPWARD-LINKING)
 |Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
-|[[REF_ENGMODEL_EM_VERIFICATION_CHECK]]<<REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK,verification check>> (EM-VERIFICATION-CHECK)
+|[[REF_ENGMODEL_TERM_VALIDATION]]<<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> (TERM-VALIDATION)
+|Model quality gate that checks authored documents, references, relationship semantics, and requirement lint results.
+|[[REF_ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]<<REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC,validation diagnostic>> (TERM-VALIDATION-DIAGNOSTIC)
+|Structured validation finding with code, severity, message, and optional source path.
+|[[REF_ENGMODEL_TERM_VERIFICATION_CHECK]]<<REF_IDX-ENGMODEL_TERM_VERIFICATION_CHECK,verification check>> (TERM-VERIFICATION-CHECK)
 |An inferred or authored verification artifact that validates requirement behavior with test evidence.
+|[[REF_ENGMODEL_TERM_VIEW]]<<REF_IDX-ENGMODEL_TERM_VIEW,view>> (TERM-VIEW)
+|Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.
 |[[REF_CATALOG_DATA_WEBHOOK_SIGNATURE]]<<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> (DATA-WEBHOOK-SIGNATURE)
 |Signature used to verify webhook authenticity.
 |[[REF_CATALOG_COND_WEBHOOK_SIGNATURE_VALID]]<<REF_IDX-CATALOG_COND_WEBHOOK_SIGNATURE_VALID,webhook signature is valid>> (COND-WEBHOOK-SIGNATURE-VALID)
@@ -532,12 +620,12 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 ==== PR Integration (FG-PR-INTEGRATION)
 
 
-Ingress and <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>> for GitHub pull request <<REF_IDX-ENGMODEL_EM_EVENT,events>>.
+Ingress and <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>> for GitHub pull request <<REF_IDX-ENGMODEL_TERM_EVENT,events>>.
 
 	
 
-	<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook <<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundaries>> and <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,pull request context>> intake.
-It converts incoming GitHub <<REF_IDX-ENGMODEL_EM_EVENT,events>> into normalized review work with clear boundaries.
+	<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> and <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,pull request context>> intake.
+It converts incoming GitHub <<REF_IDX-ENGMODEL_TERM_EVENT,events>> into normalized review work with clear boundaries.
 	
 
 	
@@ -615,12 +703,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
-Verifies <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>>, validates <<REF_IDX-ENGMODEL_EM_EVENT,event>> type, and starts review workflow routing.
+Verifies <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signatures>>, validates <<REF_IDX-ENGMODEL_TERM_EVENT,event>> type, and starts review workflow routing.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github webhook ingress>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
+functional responsibility for <<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,github webhook ingress>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
 
 [discrete]
 ====== Key Collaborators
@@ -648,7 +736,7 @@ Fetches changed files and diff metadata and prepares bounded <<REF_IDX-CATALOG_R
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,pr context assembly>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_REST_SDK,GitHub REST SDK>>
+functional responsibility for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,pr context assembly>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_REST_SDK,GitHub REST SDK>>
 
 [discrete]
 ====== Key Collaborators
@@ -777,7 +865,7 @@ Runs <<REF_IDX-CATALOG_DETERMINISTIC_CHECKS,deterministic checks>> for secrets, 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
+functional responsibility for <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
 
 [discrete]
 ====== Key Collaborators
@@ -805,7 +893,7 @@ Calls Bedrock models, merges AI and deterministic findings, and handles graceful
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,review orchestration>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>
+functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,review orchestration>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>
 
 [discrete]
 ====== Key Collaborators
@@ -833,7 +921,7 @@ Publishes check-run summaries and inline comments back to GitHub pull requests.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
+functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review publication>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Key Collaborators
@@ -931,7 +1019,7 @@ Manages Lambda packaging/deployment lifecycle and operational health guardrails.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
+functional responsibility for <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,lambda runtime operations>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>> and decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
 
 [discrete]
 ====== Key Collaborators
@@ -959,7 +1047,7 @@ Manages GitHub App credentials, Bedrock config, and redaction-safe runtime confi
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,secrets and configuration>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_EM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_AWS_SDK_GO,AWS SDK for Go>>
+functional responsibility for <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,secrets and configuration>>; includes decision and <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_AWS_SDK_GO,AWS SDK for Go>>
 
 [discrete]
 ====== Key Collaborators
@@ -993,7 +1081,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,secrets
 [[SEC_VIEW_VIEW-COMMUNICATION]]
 == Communication View
 
-Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_EM_INTERFACE,interface>> edges and dependency handoffs.
+Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> edges and dependency handoffs.
 
 === What This View Answers
 
@@ -1002,26 +1090,26 @@ Show who communicates with whom across key request paths, including <<REF_IDX-EN
 
 - Which edges are synchronous, asynchronous, event-driven, or callback-oriented?
 
-- Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_EM_FLOW,flow>>?
+- Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>?
 
 === Coverage Gaps
 
-Coverage summary: 3/7 units have direct evidence coverage in this view.
+Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
-- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 
 === Recommended Next Evidence Additions
 
 
-- Add explicit communication metadata (protocol, sync/async/<<REF_IDX-ENGMODEL_EM_EVENT,event>>/callback) to <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> where currently implicit.
+- Add explicit communication metadata (protocol, sync/async/<<REF_IDX-ENGMODEL_TERM_EVENT,event>>/callback) to <<REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING,authored mappings>> where currently implicit.
 
 - Expose service protocol/port metadata in Helm or manifest values to enrich interface-edge inference.
 
@@ -1088,7 +1176,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[SEC_VIEW_VIEW-DEPLOYMENT]]
 == Deployment View
 
-Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
+Show inferred deployment artifacts and ownership mapping to authored units. This <<REF_IDX-ENGMODEL_TERM_VIEW,view>> emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
 
 === What This View Answers
 
@@ -1101,16 +1189,16 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 === Coverage Gaps
 
-Coverage summary: 3/7 units have direct evidence coverage in this view.
+Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
-- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime/deployment <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 
 === Recommended Next Evidence Additions
@@ -1118,7 +1206,7 @@ Coverage summary: 3/7 units have direct evidence coverage in this view.
 
 - Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.
 
-- Ensure deployment <<REF_IDX-ENGMODEL_EM_CONTROL,control>> artifacts (source, kustomization, release) are all included in scanned directories.
+- Ensure deployment <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> artifacts (source, kustomization, release) are all included in scanned directories.
 
 - Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.
 
@@ -1306,7 +1394,7 @@ Deployed separately to allow context shaping changes without ingress disruption.
 
 	
 
-<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> units roll independently to preserve availability and reduce blast radius during model or rule updates.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> units roll independently to preserve availability and reduce blast radius during <<REF_IDX-ENGMODEL_TERM_MODEL,model>> or rule updates.
 
 
 
@@ -1327,7 +1415,7 @@ Deployed separately to allow context shaping changes without ingress disruption.
 
 ====== Policy Checks Deployment
 
-Deployed independently to evolve policy logic without model coupling.
+Deployed independently to evolve policy logic without <<REF_IDX-ENGMODEL_TERM_MODEL,model>> coupling.
 
 
 
@@ -1352,7 +1440,7 @@ Deployed independently to evolve policy logic without model coupling.
 
 ====== Review Orchestration Deployment
 
-Isolated deployment enables cautious model/config rollout and fallback <<REF_IDX-ENGMODEL_EM_CONTROL,control>>.
+Isolated deployment enables cautious <<REF_IDX-ENGMODEL_TERM_MODEL,model>>/config rollout and fallback <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>.
 
 
 
@@ -1442,7 +1530,7 @@ Governs source-to-release pipeline behavior and runtime placement boundaries.
 
 ====== Secrets and Configuration Deployment
 
-Managed as a shared operational boundary with controlled rotation and rollout <<REF_IDX-ENGMODEL_EM_FLOW,flow>>.
+Managed as a shared operational boundary with controlled rotation and rollout <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>.
 
 
 
@@ -1477,20 +1565,20 @@ Managed as a shared operational boundary with controlled rotation and rollout <<
 [[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
-Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence.
+Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
 
 === What This View Answers
 
 
-- What are the main <<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundaries>> and attack paths?
+- What are the main <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> and attack paths?
 
-- Which units are exposed and what security evidence exists?
+- Which units are exposed and what security <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> exists?
 
-- Where is the threat model incomplete?
+- Where is the threat <<REF_IDX-ENGMODEL_TERM_MODEL,model>> incomplete?
 
 === Coverage Gaps
 
-Coverage summary: 5/7 units have direct evidence coverage in this view.
+Coverage summary: 5/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 - <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
@@ -1503,9 +1591,9 @@ Coverage summary: 5/7 units have direct evidence coverage in this view.
 
 - Add explicit authored attack-vector mappings for units currently marked without threat linkage.
 
-- Add security signal ownership metadata (logs/alerts/<<REF_IDX-ENGMODEL_EM_EVENT,events>>) for unresolved observability evidence.
+- Add security signal ownership metadata (logs/alerts/<<REF_IDX-ENGMODEL_TERM_EVENT,events>>) for unresolved observability <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
 
-- Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
+- Map additional security-relevant dependencies and exposures into <<REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING,authored mappings>> for traceable coverage.
 
 
 
@@ -1687,7 +1775,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 ==== <<REF_IDX-CATALOG_AV_PROMPT_INJECTION_IN_DIFF,Prompt injection in diff>> influences review output integrity (TS-BEDROCK-PROMPT-INJECTION)
 
-Malicious prompts in diff content attempt to coerce model output away from policy intent.
+Malicious prompts in diff content attempt to coerce <<REF_IDX-ENGMODEL_TERM_MODEL,model>> output away from policy intent.
 
 [cols="1,3",options="header"]
 |===
@@ -1836,7 +1924,7 @@ Forged pull request webhook attempts to trigger unauthorized review execution.
 |===
 |ID |Title |Kind |Direction |Frequency |Source |Destination |Protocol
 
-|<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,FLOW-BEDROCK-POLICY-TUNING>> |<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,Security Policy Tuning Flow>> |<<REF_IDX-ENGMODEL_EM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |internal-api
+|<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,FLOW-BEDROCK-POLICY-TUNING>> |<<REF_IDX-FLOW_FLOW_BEDROCK_POLICY_TUNING,Security Policy Tuning Flow>> |<<REF_IDX-ENGMODEL_TERM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,Security Engineer>> |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |internal-api
 
 |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,FLOW-BEDROCK-PR-REVIEW>> |<<REF_IDX-FLOW_FLOW_BEDROCK_PR_REVIEW,PR Review Interaction Flow>> |security |inbound |realtime |<<REF_IDX-IF_IF_BEDROCK_WEBHOOK_API,Webhook Intake API>> |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>> |https
 
@@ -1950,7 +2038,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ===== PR Context Assembly (FU-PR-CONTEXT-ASSEMBLY)
 
 
-Applies contextual sanitization to reduce <<REF_IDX-CATALOG_PROMPT_INJECTION,prompt injection>> risk from diffs.
+Applies contextual sanitization to reduce <<REF_IDX-CATALOG_PROMPT_INJECTION,prompt injection>> <<REF_IDX-ENGMODEL_TERM_RISK,risk>> from diffs.
 
 
 [discrete]
@@ -1984,7 +2072,7 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | co
 ==== <<REF_IDX-CATALOG_AV_PR_SPAM_ABUSE,Pull Request Spam Abuse>> (AV-PR-SPAM-ABUSE)
 
 
-High-rate PR <<REF_IDX-ENGMODEL_EM_EVENT,event>> flooding that can exhaust review capacity.
+High-rate PR <<REF_IDX-ENGMODEL_TERM_EVENT,event>> flooding that can exhaust review capacity.
 
 
 Mitigated by: none
@@ -2044,7 +2132,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ===== GitHub Webhook Ingress (FU-GITHUB-WEBHOOK-INGRESS)
 
 
-Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMODEL_EM_EVENT,events>>.
+Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMODEL_TERM_EVENT,events>>.
 
 
 [discrete]
@@ -2214,7 +2302,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ===== GitHub Webhook Ingress (FU-GITHUB-WEBHOOK-INGRESS)
 
 
-Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMODEL_EM_EVENT,events>>.
+Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMODEL_TERM_EVENT,events>>.
 
 
 [discrete]
@@ -2236,39 +2324,39 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modul
 [[SEC_VIEW_VIEW-TRACEABILITY]]
 == Traceability View
 
-Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps.
+Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> gaps.
 
 === What This View Answers
 
 
-- Which <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirements>> map to which units?
+- Which <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> map to which units?
 
-- Which authored units have runtime/code evidence and which do not?
+- Which authored units have runtime/code <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> and which do not?
 
 - Where are confidence or completeness gaps in trace coverage?
 
 === Coverage Gaps
 
-Coverage summary: 7/7 units have direct evidence coverage in this view.
+Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
-- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_LAMBDA_RUNTIME_OPERATIONS,Lambda Runtime Operations>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime evidence yet.
+- <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 
 === Recommended Next Evidence Additions
 
 
-- Add explicit requirement-to-owner mappings where <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> scope is currently broad or ambiguous.
+- Add explicit requirement-to-owner mappings where <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> scope is currently broad or ambiguous.
 
 - Add ownership annotations for runtime and code artifacts where coverage is still unresolved.
 
-- Prioritize closing gaps for units that are authored but lack both runtime and code evidence.
+- Prioritize closing gaps for units that are authored but lack both runtime and code <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
 
 
 
@@ -2292,14 +2380,14 @@ Coverage summary: 7/7 units have direct evidence coverage in this view.
 [[SEC_VIEW_VIEW-STATE-LIFECYCLE]]
 == State Lifecycle View
 
-Show workflow <<REF_IDX-ENGMODEL_EM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
+Show workflow <<REF_IDX-ENGMODEL_TERM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
 
 === What This View Answers
 
 
-- What <<REF_IDX-ENGMODEL_EM_STATE,states>> exist and which <<REF_IDX-ENGMODEL_EM_EVENT,events>> trigger transitions?
+- What <<REF_IDX-ENGMODEL_TERM_STATE,states>> exist and which <<REF_IDX-ENGMODEL_TERM_EVENT,events>> trigger transitions?
 
-- Which unit owns each <<REF_IDX-ENGMODEL_EM_STATE,state>> transition?
+- Which unit owns each <<REF_IDX-ENGMODEL_TERM_STATE,state>> transition?
 
 - Where do automatic and manual flows diverge?
 
@@ -2346,7 +2434,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 === Coverage Gaps
 
-Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> are in scope for this view.
+Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 - No major coverage gaps detected from current authored and inferred inputs.
@@ -2355,7 +2443,7 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 === Recommended Next Evidence Additions
 
 
-- No immediate evidence additions are required for this view.
+- No immediate <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> additions are required for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 
@@ -2384,7 +2472,7 @@ Coverage summary: No <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,functional units>> ar
 [[SEC_VIEW_VIEW-INTERACTION-FLOW]]
 == Interaction Flow View
 
-Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_EM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
+Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
 
 === What This View Answers
 
@@ -2471,7 +2559,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
 === Coverage Gaps
 
-Coverage summary: 4/4 units have direct evidence coverage in this view.
+Coverage summary: 4/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 - No major coverage gaps detected from current authored and inferred inputs.
@@ -2480,7 +2568,7 @@ Coverage summary: 4/4 units have direct evidence coverage in this view.
 === Recommended Next Evidence Additions
 
 
-- No immediate evidence additions are required for this view.
+- No immediate <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> additions are required for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 
@@ -2643,7 +2731,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6>>
 |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
 |not-run
-|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A>>
 |<<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
@@ -2653,7 +2741,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1>>
 |<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
 |not-run
-|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>> yet.
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2>>
 |<<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
@@ -2672,7 +2760,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 While <<REF_IDX-CATALOG_MODE_NORMAL,normal mode is active>>, when <<REF_IDX-CATALOG_EVT_PR_SYNCHRONIZE,pull request synchronize event is received>> and <<REF_IDX-CATALOG_COND_WEBHOOK_SIGNATURE_VALID,webhook signature is valid>>, <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall verify <<REF_IDX-CATALOG_DATA_WEBHOOK_SIGNATURE,webhook signature>> before processing review workflow.
 
 
-NOTE: Webhook <<REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY,trust boundary>> validation.
+NOTE: Webhook <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundary>> <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>>.
 
 
 
@@ -2688,7 +2776,7 @@ flowchart LR
   REQC_REQ_PRR_001 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
+  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:17,28"]:::code_element
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
   REQC_REQ_PRR_001 -->|code trace| CODE_WEBHOOK_INGRESS_GO
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
@@ -2739,14 +2827,14 @@ flowchart LR
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:15,25"]:::code_element
+  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:17,28"]:::code_element
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
   REQC_REQ_PRR_002 -->|code trace| CODE_WEBHOOK_INGRESS_GO
   FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_PR_CONTEXT_ASSEMBLY
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
   FU_FU_PR_CONTEXT_ASSEMBLY -->|runtime evidence| RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
-  CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts:7,10,16"]:::code_element
+  CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts:9,13,20"]:::code_element
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_PR_CONTEXT_ASSEMBLY_TS
   REQC_REQ_PRR_002 -->|code trace| CODE_PR_CONTEXT_ASSEMBLY_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
@@ -2797,7 +2885,7 @@ flowchart LR
   REQC_REQ_PRR_003 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:9,19"]:::code_element
+  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:11,22"]:::code_element
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
   REQC_REQ_PRR_003 -->|code trace| CODE_REVIEW_ORCHESTRATOR_RS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
@@ -2829,7 +2917,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[REF_REQ_REQ_PRR_004]]
 ==== REQ-PRR-004
 
-Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure plus infrastructure risk plus dependency changes.
+Where <<REF_IDX-CATALOG_FEAT_POLICY_CHECKS,policy checks are enabled>>, when <<REF_IDX-CATALOG_STATE_PR_REVIEW_ACTIVE,pull request review is active>>, <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall evaluate deterministic <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> for secret exposure plus infrastructure <<REF_IDX-ENGMODEL_TERM_RISK,risk>> plus dependency changes.
 
 
 NOTE: Deterministic non-LLM review checks.
@@ -2899,7 +2987,7 @@ flowchart LR
   REQC_REQ_PRR_005 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:7,10,23,28"]:::code_element
+  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_005 -->|code trace| CODE_REVIEW_PUBLICATION_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
@@ -2938,7 +3026,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 If <<REF_IDX-CATALOG_EVT_BEDROCK_UNAVAILABLE,bedrock runtime is unavailable>>, then <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall publish deterministic policy-only <<REF_IDX-CATALOG_REVIEW_OUTCOME,review outcome>>.
 
 
-NOTE: Graceful degradation <<REF_IDX-ENGMODEL_EM_REQUIREMENT,requirement>>.
+NOTE: Graceful degradation <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.
 
 
 
@@ -2961,7 +3049,7 @@ flowchart LR
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:9,19"]:::code_element
+  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:11,22"]:::code_element
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
   REQC_REQ_PRR_006 -->|code trace| CODE_REVIEW_ORCHESTRATOR_RS
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
@@ -3000,7 +3088,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_AUDIT_LOGGING,audit logging is enabled>>, when <<REF_IDX-CATALOG_EVT_FINDINGS_PUBLISHED,review findings are published>>, <<REF_IDX-CATALOG_THE_PR_REVIEW_SYSTEM,the pr review system>> shall persist <<REF_IDX-CATALOG_DATA_REDACTED_AUDIT_METADATA,redacted audit metadata>> for <<REF_IDX-CATALOG_ACT_SECURITY_ENGINEER,security engineer>> audit traceability.
 
 
-NOTE: Evidence and audit lineage.
+NOTE: <<REF_IDX-ENGMODEL_TERM_EVIDENCE,Evidence>> and audit lineage.
 
 
 
@@ -3016,7 +3104,7 @@ flowchart LR
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:7,10,23,28"]:::code_element
+  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_007 -->|code trace| CODE_REVIEW_PUBLICATION_TS
   FU_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
@@ -3078,7 +3166,7 @@ flowchart LR
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:7,10,23,28"]:::code_element
+  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_008 -->|code trace| CODE_REVIEW_PUBLICATION_TS
   VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2["VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2 (pass)"]:::verification
@@ -3267,7 +3355,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Result Summary |pass:4
 |Evidence |test-results/contract-checkrun.json, test-results/e2e-pr-opened-review.xml, tests/e2e/pr_opened_review_flow.yaml
 
-|Notes |exercises end-to-end pull request opened <<REF_IDX-ENGMODEL_EM_FLOW,flow>> from webhook ingest to published review
+|Notes |exercises end-to-end pull request opened <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> from webhook ingest to published review
 
 |===
 
@@ -3287,7 +3375,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Result Summary |not-run:1
 |Evidence |tests/integration/audit_redaction_test.ts
 
-|Notes |checks audit evidence redaction for secrets and sensitive payload fields
+|Notes |checks audit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> redaction for secrets and sensitive payload fields
 
 |===
 
@@ -5049,9 +5137,9 @@ GitHub App review system-of-interest that ingests PR events and publishes review
 |Name |pr review system
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_ACTOR]]
+[[REF_IDX-ENGMODEL_TERM_ACTOR]]
 [discrete]
-==== EM-ACTOR
+==== TERM-ACTOR
 
 A person or operational role that interacts with functional units.
 
@@ -5062,9 +5150,48 @@ A person or operational role that interacts with functional units.
 |Name |actor
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_ATTACK_VECTOR]]
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_DIAGRAM]]
 [discrete]
-==== EM-ATTACK-VECTOR
+==== TERM-ASCIIDOC-DIAGRAM
+
+Generated diagram block, usually Mermaid, that visualizes architecture relationships in the AsciiDoc publication.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc diagram
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_DOCUMENT]]
+[discrete]
+==== TERM-ASCIIDOC-DOCUMENT
+
+Human-readable generated architecture publication document assembled from authored model, inferred evidence, diagrams, references, and decisions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_SECTION]]
+[discrete]
+==== TERM-ASCIIDOC-SECTION
+
+Structured generated document section or row model used to render authored and inferred architecture content.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc section
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ATTACK_VECTOR]]
+[discrete]
+==== TERM-ATTACK-VECTOR
 
 A technical misuse or attack path that targets functional, referenced, or runtime elements.
 
@@ -5075,9 +5202,9 @@ A technical misuse or attack path that targets functional, referenced, or runtim
 |Name |attack vector
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_AUTHORED_MAPPING]]
+[[REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING]]
 [discrete]
-==== EM-AUTHORED-MAPPING
+==== TERM-AUTHORED-MAPPING
 
 An explicit relationship declared in architecture inputs between authored or referenced elements.
 
@@ -5088,9 +5215,61 @@ An explicit relationship declared in architecture inputs between authored or ref
 |Name |authored mapping
 |Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
-[[REF_IDX-ENGMODEL_EM_CODE_ELEMENT]]
+[[REF_IDX-ENGMODEL_TERM_BUNDLE]]
 [discrete]
-==== EM-CODE-ELEMENT
+==== TERM-BUNDLE
+
+Loaded architecture, catalog, and companion documents resolved as one working model context.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |model bundle
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CATALOG]]
+[discrete]
+==== TERM-CATALOG
+
+Controlled vocabulary document used to normalize model, requirement, and generated-document terminology.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |catalog
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CATALOG_ENTRY]]
+[discrete]
+==== TERM-CATALOG-ENTRY
+
+A stable catalog term with a definition and aliases for linting, linking, and generated references.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |catalog entry
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CLI_COMMAND]]
+[discrete]
+==== TERM-CLI-COMMAND
+
+Command-line entrypoint that coordinates loading, validation, generation, and file output for an engineering-model workflow.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |CLI command
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CODE_ELEMENT]]
+[discrete]
+==== TERM-CODE-ELEMENT
 
 An inferred code structure or ownership element discovered from source trees and build metadata.
 
@@ -5101,9 +5280,22 @@ An inferred code structure or ownership element discovered from source trees and
 |Name |code element
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_CONTROL]]
+[[REF_IDX-ENGMODEL_TERM_COMPLIANCE_MAPPING]]
 [discrete]
-==== EM-CONTROL
+==== TERM-COMPLIANCE-MAPPING
+
+Authored mapping that links a model control to selected compliance controls, model scope, implementation status, evidence, and responsible roles.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |compliance mapping
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CONTROL]]
+[discrete]
+==== TERM-CONTROL
 
 An authored security, policy, or operational control used to constrain behavior and reduce risk.
 
@@ -5114,9 +5306,22 @@ An authored security, policy, or operational control used to constrain behavior 
 |Name |control
 |Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
-[[REF_IDX-ENGMODEL_EM_DATA_OBJECT]]
+[[REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION]]
 [discrete]
-==== EM-DATA-OBJECT
+==== TERM-CONTROL-VERIFICATION
+
+Authored control verification record with method, status, threat/risk scope, findings, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |control verification
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DATA_OBJECT]]
+[discrete]
+==== TERM-DATA-OBJECT
 
 An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
 
@@ -5127,9 +5332,22 @@ An authored data artifact or contract shape traced across flow, interface, and i
 |Name |data object
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_DEPLOYMENT_TARGET]]
+[[REF_IDX-ENGMODEL_TERM_DECISION]]
 [discrete]
-==== EM-DEPLOYMENT-TARGET
+==== TERM-DECISION
+
+Authored architecture decision record with status, context, decision text, and consequences.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |architecture decision
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DEPLOYMENT_TARGET]]
+[discrete]
+==== TERM-DEPLOYMENT-TARGET
 
 An authored deployment destination such as environment, cluster, namespace, or registry scope.
 
@@ -5140,9 +5358,35 @@ An authored deployment destination such as environment, cluster, namespace, or r
 |Name |deployment target
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_EVENT]]
+[[REF_IDX-ENGMODEL_TERM_DESIGN]]
 [discrete]
-==== EM-EVENT
+==== TERM-DESIGN
+
+Authored design narrative organized by model entities and architecture views.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |design document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DESIGN_VIEW]]
+[discrete]
+==== TERM-DESIGN-VIEW
+
+View-scoped design narrative attached to an authored functional group or functional unit.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |design view
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_EVENT]]
+[discrete]
+==== TERM-EVENT
 
 An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
 
@@ -5153,9 +5397,22 @@ An authored trigger signal that drives transitions, flow progress, or asynchrono
 |Name |event
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
 |===
-[[REF_IDX-ENGMODEL_EM_FLOW]]
+[[REF_IDX-ENGMODEL_TERM_EVIDENCE]]
 [discrete]
-==== EM-FLOW
+==== TERM-EVIDENCE
+
+A file, artifact, or observation used to support control, risk, threat, or verification claims.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |evidence
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
+|===
+[[REF_IDX-ENGMODEL_TERM_FLOW]]
+[discrete]
+==== TERM-FLOW
 
 An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
 
@@ -5166,9 +5423,9 @@ An authored causal interaction sequence from user/system intent to outcome, repr
 |Name |flow
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
 |===
-[[REF_IDX-ENGMODEL_EM_FLOW_STEP]]
+[[REF_IDX-ENGMODEL_TERM_FLOW_STEP]]
 [discrete]
-==== EM-FLOW-STEP
+==== TERM-FLOW-STEP
 
 A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
 
@@ -5179,9 +5436,9 @@ A single authored step in a flow that captures action, data in/out, references, 
 |Name |flow step
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP]]
+[[REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP]]
 [discrete]
-==== EM-FUNCTIONAL-GROUP
+==== TERM-FUNCTIONAL-GROUP
 
 A major authored capability area that groups related functional units.
 
@@ -5192,9 +5449,9 @@ A major authored capability area that groups related functional units.
 |Name |functional group
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT]]
+[[REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT]]
 [discrete]
-==== EM-FUNCTIONAL-UNIT
+==== TERM-FUNCTIONAL-UNIT
 
 An authored working unit inside a functional group that owns specific behavior.
 
@@ -5205,9 +5462,35 @@ An authored working unit inside a functional group that owns specific behavior.
 |Name |functional unit
 |Mentioned In |<<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
 |===
-[[REF_IDX-ENGMODEL_EM_INFERRED_MAPPING]]
+[[REF_IDX-ENGMODEL_TERM_GENERATION_WORKFLOW]]
 [discrete]
-==== EM-INFERRED-MAPPING
+==== TERM-GENERATION-WORKFLOW
+
+Orchestrated run that combines model loading, validation, projection, rendering, and artifact emission.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |generation workflow
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_INFERENCE_HINT]]
+[discrete]
+==== TERM-INFERENCE-HINT
+
+Authored source and ownership configuration used to discover runtime, code, and verification evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |inference hint
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_INFERRED_MAPPING]]
+[discrete]
+==== TERM-INFERRED-MAPPING
 
 A discovered relationship that links inferred runtime/code elements upward to authored design.
 
@@ -5218,9 +5501,9 @@ A discovered relationship that links inferred runtime/code elements upward to au
 |Name |inferred mapping
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_INTERFACE]]
+[[REF_IDX-ENGMODEL_TERM_INTERFACE]]
 [discrete]
-==== EM-INTERFACE
+==== TERM-INTERFACE
 
 An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
 
@@ -5231,9 +5514,178 @@ An authored interface boundary (for example API, channel, endpoint, or contract)
 |Name |interface
 |Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>
 |===
-[[REF_IDX-ENGMODEL_EM_REFERENCED_ELEMENT]]
+[[REF_IDX-ENGMODEL_TERM_LINT_RUN]]
 [discrete]
-==== EM-REFERENCED-ELEMENT
+==== TERM-LINT-RUN
+
+Requirement lint configuration that controls parsing and quality checks for requirement text.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |lint run
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE]]
+[discrete]
+==== TERM-LOBSTER-ACTIVITY-TRACE
+
+Generated LOBSTER activity JSON that links verification evidence back to formal requirement identifiers.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |LOBSTER activity trace
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_SERVER]]
+[discrete]
+==== TERM-MCP-SERVER
+
+Model Context Protocol server that exposes engineering-model operations to AI agents through JSON-RPC tools.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP server
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_STDIO_TRANSPORT]]
+[discrete]
+==== TERM-MCP-STDIO-TRANSPORT
+
+Content-Length framed standard input/output transport used by the MCP command-line server.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP stdio transport
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_TOOL]]
+[discrete]
+==== TERM-MCP-TOOL
+
+Named MCP operation with a constrained input schema and structured response payload.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP tool
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_TOOL_RESPONSE]]
+[discrete]
+==== TERM-MCP-TOOL-RESPONSE
+
+Structured MCP tool payload that includes success state, schema version, generated timestamp, and result data or validation error.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP tool response
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MODEL]]
+[discrete]
+==== TERM-MODEL
+
+The authored architecture model root that composes functional structure, relationships, inference hints, and views.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |model
+|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|===
+[[REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]
+[discrete]
+==== TERM-OPEN-OTM-DOCUMENT
+
+Open Threat Model JSON representation generated from the engineering model for interoperable threat-model exchange.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Open OTM document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS]]
+[discrete]
+==== TERM-OSCAL-ASSESSMENT-RESULTS
+
+Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL assessment results
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_POAM]]
+[discrete]
+==== TERM-OSCAL-POAM
+
+Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL POA&M
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_SSP]]
+[discrete]
+==== TERM-OSCAL-SSP
+
+Generated OSCAL system security plan that maps authored system metadata, components, controls, allocations, and evidence into SSP JSON.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL SSP
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_POAM_ITEM]]
+[discrete]
+==== TERM-POAM-ITEM
+
+Plan of action and milestones item linked to a modeled risk and supporting artifacts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |POA&M item
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REFERENCE_INDEX]]
+[discrete]
+==== TERM-REFERENCE-INDEX
+
+Generated index of authored, catalog, runtime, code, and verification references with stable anchors and backlinks.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |reference index
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REFERENCED_ELEMENT]]
+[discrete]
+==== TERM-REFERENCED-ELEMENT
 
 An architecture-relevant external, platform, or third-party dependency represented by role.
 
@@ -5244,9 +5696,22 @@ An architecture-relevant external, platform, or third-party dependency represent
 |Name |referenced element
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_REQUIREMENT]]
+[[REF_IDX-ENGMODEL_TERM_REPO_INDEX]]
 [discrete]
-==== EM-REQUIREMENT
+==== TERM-REPO-INDEX
+
+Bounded first-party source index used to answer model-aware file, requirement, control, and threat lookup queries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |repository index
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REQUIREMENT]]
+[discrete]
+==== TERM-REQUIREMENT
 
 A structured requirement statement that defines expected system behavior and maps to functional ownership.
 
@@ -5257,9 +5722,22 @@ A structured requirement statement that defines expected system behavior and map
 |Name |requirement
 |Mentioned In |<<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_PRR_006,REQ-PRR-006>>
 |===
-[[REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT]]
+[[REF_IDX-ENGMODEL_TERM_RISK]]
 [discrete]
-==== EM-RUNTIME-ELEMENT
+==== TERM-RISK
+
+Authored risk record with likelihood, impact, response, scope, controls, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |risk
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_004,REQ-PRR-004>>
+|===
+[[REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT]]
+[discrete]
+==== TERM-RUNTIME-ELEMENT
 
 An inferred runtime realization element discovered from infrastructure and deployment sources.
 
@@ -5270,9 +5748,35 @@ An inferred runtime realization element discovered from infrastructure and deplo
 |Name |runtime element
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_STATE]]
+[[REF_IDX-ENGMODEL_TERM_SECURITY_CONTEXT]]
 [discrete]
-==== EM-STATE
+==== TERM-SECURITY-CONTEXT
+
+Security-focused generated context view that groups owned functional units and shows external actors, references, flows, controls, and trust boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |security context
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_SOURCE_BLOCK]]
+[discrete]
+==== TERM-SOURCE-BLOCK
+
+Stable source reference block that records file path, optional line span, kind, summary, and linked entity IDs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |source block
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_STATE]]
+[discrete]
+==== TERM-STATE
 
 An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
 
@@ -5283,9 +5787,126 @@ An authored lifecycle state used to model transition behavior, guards, and event
 |Name |state
 |Mentioned In |<<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>
 |===
-[[REF_IDX-ENGMODEL_EM_TRUST_BOUNDARY]]
+[[REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL]]
 [discrete]
-==== EM-TRUST-BOUNDARY
+==== TERM-STRUCTURIZR-DSL
+
+Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Structurizr DSL
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION]]
+[discrete]
+==== TERM-THREAT-ASSUMPTION
+
+Authored security assumption that records scope, rationale, owner, status, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat assumption
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]
+[discrete]
+==== TERM-THREAT-DRAGON-DOCUMENT
+
+Threat Dragon JSON representation generated from the engineering model for STRIDE threat-model review.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Threat Dragon document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_MITIGATION]]
+[discrete]
+==== TERM-THREAT-MITIGATION
+
+Authored mitigation record that links a threat scenario to a control, effectiveness, verification, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat mitigation
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_MODEL_EXPORT]]
+[discrete]
+==== TERM-THREAT-MODEL-EXPORT
+
+Generated security artifact that translates authored architecture, flows, trust boundaries, threats, and mitigations into an external threat-model schema.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat model export
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_OUT_OF_SCOPE]]
+[discrete]
+==== TERM-THREAT-OUT-OF-SCOPE
+
+Authored decision that excludes a threat concern from current scope with reason, owner, expiry, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat out-of-scope decision
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_SCENARIO]]
+[discrete]
+==== TERM-THREAT-SCENARIO
+
+Authored threat narrative that connects attack vectors, scope, flows, controls, risks, and verification evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat scenario
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRACE_MARKER]]
+[discrete]
+==== TERM-TRACE-MARKER
+
+Source-level marker such as TRLC-LINKS or ENGMODEL-LINKS used to connect declarations to requirements and model entities.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |trace marker
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRLC_PACKAGE]]
+[discrete]
+==== TERM-TRLC-PACKAGE
+
+Generated TRLC model and requirements package used for formal requirement traceability processing.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |TRLC package
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY]]
+[discrete]
+==== TERM-TRUST-BOUNDARY
 
 An authored trust separation zone that marks policy, identity, or security control boundaries.
 
@@ -5296,9 +5917,9 @@ An authored trust separation zone that marks policy, identity, or security contr
 |Name |trust boundary
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
 |===
-[[REF_IDX-ENGMODEL_EM_UPWARD_LINKING]]
+[[REF_IDX-ENGMODEL_TERM_UPWARD_LINKING]]
 [discrete]
-==== EM-UPWARD-LINKING
+==== TERM-UPWARD-LINKING
 
 Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
 
@@ -5309,9 +5930,35 @@ Rule where runtime and code elements point to stable functional groups/units; au
 |Name |upward linking
 |Mentioned In |n/a
 |===
-[[REF_IDX-ENGMODEL_EM_VERIFICATION_CHECK]]
+[[REF_IDX-ENGMODEL_TERM_VALIDATION]]
 [discrete]
-==== EM-VERIFICATION-CHECK
+==== TERM-VALIDATION
+
+Model quality gate that checks authored documents, references, relationship semantics, and requirement lint results.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |validation
+|Mentioned In |<<REF_REQ_REQ_PRR_001,REQ-PRR-001>>
+|===
+[[REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]
+[discrete]
+==== TERM-VALIDATION-DIAGNOSTIC
+
+Structured validation finding with code, severity, message, and optional source path.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |validation diagnostic
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_VERIFICATION_CHECK]]
+[discrete]
+==== TERM-VERIFICATION-CHECK
 
 An inferred or authored verification artifact that validates requirement behavior with test evidence.
 
@@ -5321,6 +5968,19 @@ An inferred or authored verification artifact that validates requirement behavio
 |Kind |Engineering Model Term
 |Name |verification check
 |Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_VIEW]]
+[discrete]
+==== TERM-VIEW
+
+Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |view
+|Mentioned In |<<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>
 |===
 
 === Inferred Runtime References
@@ -5634,130 +6294,172 @@ Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:7.
 |Source |policy_checks.rs:7
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_10_PR_CONTEXT_ASSEMBLY_TS_10]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_13_PR_CONTEXT_ASSEMBLY_TS_13]]
 [discrete]
-==== pr_context_assembly.ts:10
+==== pr_context_assembly.ts:13
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:10.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:10
+|Source |pr_context_assembly.ts:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_16_PR_CONTEXT_ASSEMBLY_TS_16]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_20_PR_CONTEXT_ASSEMBLY_TS_20]]
 [discrete]
-==== pr_context_assembly.ts:16
+==== pr_context_assembly.ts:20
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:16.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:20.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:16
+|Source |pr_context_assembly.ts:20
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_7_PR_CONTEXT_ASSEMBLY_TS_7]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_6_PR_CONTEXT_ASSEMBLY_TS_6]]
 [discrete]
-==== pr_context_assembly.ts:7
+==== pr_context_assembly.ts:6
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:7.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:7
+|Source |pr_context_assembly.ts:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_19_REVIEW_ORCHESTRATOR_RS_19]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_9_PR_CONTEXT_ASSEMBLY_TS_9]]
 [discrete]
-==== review_orchestrator.rs:19
+==== pr_context_assembly.ts:9
 
-Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:19.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-PR-CONTEXT-ASSEMBLY
+|Source |pr_context_assembly.ts:9
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_11_REVIEW_ORCHESTRATOR_RS_11]]
+[discrete]
+==== review_orchestrator.rs:11
+
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:11.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs:19
+|Source |review_orchestrator.rs:11
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_9_REVIEW_ORCHESTRATOR_RS_9]]
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_22_REVIEW_ORCHESTRATOR_RS_22]]
 [discrete]
-==== review_orchestrator.rs:9
+==== review_orchestrator.rs:22
 
-Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:9.
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:22.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs:9
+|Source |review_orchestrator.rs:22
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_10_REVIEW_PUBLICATION_TS_10]]
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_6_REVIEW_ORCHESTRATOR_RS_6]]
 [discrete]
-==== review_publication.ts:10
+==== review_orchestrator.rs:6
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:10.
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-ORCHESTRATION
+|Source |review_orchestrator.rs:6
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_13_REVIEW_PUBLICATION_TS_13]]
+[discrete]
+==== review_publication.ts:13
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:10
+|Source |review_publication.ts:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_23_REVIEW_PUBLICATION_TS_23]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_27_REVIEW_PUBLICATION_TS_27]]
 [discrete]
-==== review_publication.ts:23
+==== review_publication.ts:27
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:23.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:27.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:23
+|Source |review_publication.ts:27
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_28_REVIEW_PUBLICATION_TS_28]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_33_REVIEW_PUBLICATION_TS_33]]
 [discrete]
-==== review_publication.ts:28
+==== review_publication.ts:33
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:28.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:33.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:28
+|Source |review_publication.ts:33
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_7_REVIEW_PUBLICATION_TS_7]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_6_REVIEW_PUBLICATION_TS_6]]
 [discrete]
-==== review_publication.ts:7
+==== review_publication.ts:6
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:7.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:7
+|Source |review_publication.ts:6
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_9_REVIEW_PUBLICATION_TS_9]]
+[discrete]
+==== review_publication.ts:9
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:9.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-PUBLICATION
+|Source |review_publication.ts:9
 |Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_SECRETS_CONFIGURATION_TS_10_SECRETS_CONFIGURATION_TS_10]]
@@ -5788,32 +6490,46 @@ Inferred code symbol owned by FU-SECRETS-CONFIGURATION from secrets_configuratio
 |Source |secrets_configuration.ts:7
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_15_WEBHOOK_INGRESS_GO_15]]
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_13_WEBHOOK_INGRESS_GO_13]]
 [discrete]
-==== webhook_ingress.go:15
+==== webhook_ingress.go:13
 
-Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:15.
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go:15
+|Source |webhook_ingress.go:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_25_WEBHOOK_INGRESS_GO_25]]
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_17_WEBHOOK_INGRESS_GO_17]]
 [discrete]
-==== webhook_ingress.go:25
+==== webhook_ingress.go:17
 
-Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:25.
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:17.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go:25
+|Source |webhook_ingress.go:17
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_28_WEBHOOK_INGRESS_GO_28]]
+[discrete]
+==== webhook_ingress.go:28
+
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:28.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |webhook_ingress.go:28
 |Mentioned In |n/a
 |===
 

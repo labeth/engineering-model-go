@@ -215,18 +215,34 @@ type ControlEvidence struct {
 	Description string `yaml:"description"`
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, CTRL-TRACEABILITY-COVERAGE
-type ControlAllocation struct {
-	ID                 string            `yaml:"id"`
-	ControlRef         string            `yaml:"controlRef"`
-	OSCALControlIDs    []string          `yaml:"oscalControlIds"`
-	AppliesTo          []string          `yaml:"appliesTo"`
-	ImplementationType string            `yaml:"implementationType"`
-	Status             string            `yaml:"status"`
-	Narrative          string            `yaml:"narrative"`
-	Evidence           []ControlEvidence `yaml:"evidence"`
-	InheritedFrom      []string          `yaml:"inheritedFrom"`
-	ResponsibleRoles   []string          `yaml:"responsibleRoles"`
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, CTRL-TRACEABILITY-COVERAGE, FU-OSCAL-EXPORTER
+type ComplianceProfile struct {
+	ID          string `yaml:"id"`
+	Href        string `yaml:"href"`
+	CatalogHref string `yaml:"catalogHref"`
+}
+
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, CTRL-TRACEABILITY-COVERAGE, FU-OSCAL-EXPORTER
+type ComplianceMapping struct {
+	ID                   string            `yaml:"id"`
+	ProfileRef           string            `yaml:"profileRef"`
+	ControlIDs           []string          `yaml:"controlIds"`
+	ModelControlRef      string            `yaml:"modelControlRef"`
+	AppliesTo            []string          `yaml:"appliesTo"`
+	ImplementationType   string            `yaml:"implementationType"`
+	ImplementationStatus string            `yaml:"implementationStatus"`
+	Status               string            `yaml:"status"`
+	Narrative            string            `yaml:"narrative"`
+	Rationale            string            `yaml:"rationale"`
+	Evidence             []ControlEvidence `yaml:"evidence"`
+	InheritedFrom        []string          `yaml:"inheritedFrom"`
+	ResponsibleRoles     []string          `yaml:"responsibleRoles"`
+}
+
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, CTRL-TRACEABILITY-COVERAGE, FU-OSCAL-EXPORTER
+type ComplianceModel struct {
+	Profiles []ComplianceProfile `yaml:"profiles"`
+	Mappings []ComplianceMapping `yaml:"mappings"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-THREAT-EXPORTER
@@ -469,7 +485,6 @@ type AuthoredArchitecture struct {
 	DataObjects          []DataObject          `yaml:"dataObjects"`
 	DeploymentTargets    []DeploymentTarget    `yaml:"deploymentTargets"`
 	Controls             []Control             `yaml:"controls"`
-	ControlAllocations   []ControlAllocation   `yaml:"controlAllocations"`
 	Risks                []Risk                `yaml:"risks"`
 	POAMItems            []POAMItem            `yaml:"poamItems"`
 	TrustBoundaries      []TrustBoundary       `yaml:"trustBoundaries"`
@@ -513,6 +528,7 @@ type ArchitectureDocument struct {
 	Model                ModelMeta            `yaml:"model"`
 	Decisions            []Decision           `yaml:"-"`
 	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
+	Compliance           ComplianceModel      `yaml:"compliance"`
 	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
 	Views                []View               `yaml:"views"`
 }

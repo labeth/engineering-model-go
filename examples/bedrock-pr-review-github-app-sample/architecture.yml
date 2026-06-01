@@ -185,30 +185,6 @@ authoredArchitecture:
       category: credential-management
       description: Rotate app and model credentials according to policy.
 
-  controlAllocations:
-    - id: ALLOC-SI-10-WEBHOOK
-      controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
-      oscalControlIds: [si-10]
-      appliesTo: [FU-GITHUB-WEBHOOK-INGRESS, IF-BEDROCK-WEBHOOK-API]
-      implementationType: technical
-      status: implemented
-      narrative: Validate webhook signatures and reject invalid payloads before processing.
-      evidence:
-        - path: src/webhook_ingress.go
-          description: Signature validation entrypoint.
-      responsibleRoles: [ACT-SECURITY-ENGINEER]
-    - id: ALLOC-IA-5-SECRETS
-      controlRef: CTRL-BEDROCK-SECRETS-ROTATION
-      oscalControlIds: [ia-5]
-      appliesTo: [FU-SECRETS-CONFIGURATION, FU-LAMBDA-RUNTIME-OPERATIONS]
-      implementationType: hybrid
-      status: implemented
-      narrative: Rotate secrets and enforce managed credential lifecycle for app runtime.
-      evidence:
-        - path: infra/terraform/main.tf
-          description: Secret lifecycle and rotation policy.
-      responsibleRoles: [ACT-PLATFORM-OPERATOR]
-
   trustBoundaries:
     - id: TB-BEDROCK-GITHUB-EXTERNAL
       name: GitHub External Boundary
@@ -823,6 +799,36 @@ authoredArchitecture:
       responsibleRole: ACT-SECURITY-ENGINEER
       artifacts:
         - path: tickets/SEC-2045.md
+
+compliance:
+  profiles:
+    - id: PROF-NIST-800-53-MODERATE
+      href: https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json
+  mappings:
+    - id: MAP-BEDROCK-WEBHOOK-SIGNATURE
+      profileRef: PROF-NIST-800-53-MODERATE
+      modelControlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+      controlIds: [si-10]
+      appliesTo: [FU-GITHUB-WEBHOOK-INGRESS, IF-BEDROCK-WEBHOOK-API]
+      implementationType: technical
+      implementationStatus: implemented
+      narrative: Validate webhook signatures and reject invalid payloads before processing.
+      evidence:
+        - path: src/webhook_ingress.go
+          description: Signature validation entrypoint.
+      responsibleRoles: [ACT-SECURITY-ENGINEER]
+    - id: MAP-BEDROCK-SECRETS-ROTATION
+      profileRef: PROF-NIST-800-53-MODERATE
+      modelControlRef: CTRL-BEDROCK-SECRETS-ROTATION
+      controlIds: [ia-5]
+      appliesTo: [FU-SECRETS-CONFIGURATION, FU-LAMBDA-RUNTIME-OPERATIONS]
+      implementationType: hybrid
+      implementationStatus: implemented
+      narrative: Rotate secrets and enforce managed credential lifecycle for app runtime.
+      evidence:
+        - path: infra/terraform/main.tf
+          description: Secret lifecycle and rotation policy.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
 
 inferenceHints:
   runtimeSources:

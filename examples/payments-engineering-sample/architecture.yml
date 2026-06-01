@@ -360,6 +360,16 @@ authoredArchitecture:
       evidence:
         - path: docs/security/partner-boundary-statement.md
           description: Shared responsibility statement for partner cryptographic infrastructure.
+    - id: OOS-PAYMENTS-SI-10-LOW-BASELINE
+      title: Callback nonce control outside NIST 800-53 Low profile
+      reason: SI-10 input validation is retained as a local protocol-integrity control, but it is not selected by the NIST SP 800-53 Rev. 5 Low baseline profile used by this sample.
+      status: approved
+      owner: ACT-PLATFORM-OPERATOR
+      appliesTo: [CTRL-PAYMENTS-CALLBACK-NONCE, IF-PAYMENTS-BANK-AUTH, FU-PAYMENT-AUTHORIZATION]
+      expiresOn: 2027-12-31
+      evidence:
+        - path: src/payment_authorization.go
+          description: Callback nonce and idempotency enforcement path retained outside the Low compliance profile.
 
   threatScenarios:
     - id: TS-PAYMENTS-CHECKOUT-SPOOFING
@@ -455,49 +465,6 @@ authoredArchitecture:
       name: Callback Nonce and Idempotency Guard
       category: protocol-integrity
       description: Enforce nonce freshness and idempotency on bank callback processing.
-
-  controlAllocations:
-    - id: ALLOC-AC-2-IA-2-SSO
-      controlRef: CTRL-PAYMENTS-SSO-MFA
-      oscalControlIds: [ac-2, ia-2(1)]
-      appliesTo: [FU-SUPPORT-REVIEW, FU-GITOPS-OPERATIONS]
-      implementationType: technical
-      status: implemented
-      narrative: |
-        Workforce access is mediated by centralized SSO with MFA and conditional access policy.
-        Elevated operational actions require successful strong authentication before authorization.
-      evidence:
-        - path: infra/identity/sso-policy.yaml
-          description: SSO policy with MFA and conditional access requirements.
-      responsibleRoles: [ACT-PLATFORM-OPERATOR]
-    - id: ALLOC-CM-6-IMAGE-DIGEST
-      controlRef: CTRL-PAYMENTS-IMAGE-DIGEST
-      oscalControlIds: [cm-6]
-      appliesTo: [FU-GITOPS-OPERATIONS, FU-CLUSTER-PROVISIONING]
-      implementationType: hybrid
-      status: implemented
-      narrative: |
-        Delivery pipelines and deployment manifests require immutable image digest pinning.
-        Release automation rejects mutable tags in production deployment paths.
-      evidence:
-        - path: infra/flux/kustomization.yaml
-          description: Flux deployment baseline references immutable release artifacts.
-        - path: infra/helm/values-prod.yaml
-          description: Production chart values pin immutable digest references.
-      responsibleRoles: [ACT-PLATFORM-OPERATOR]
-    - id: ALLOC-SI-10-CALLBACK-NONCE
-      controlRef: CTRL-PAYMENTS-CALLBACK-NONCE
-      oscalControlIds: [si-10]
-      appliesTo: [FU-PAYMENT-AUTHORIZATION, IF-PAYMENTS-BANK-AUTH]
-      implementationType: technical
-      status: implemented
-      narrative: |
-        Authorization callback handling validates nonce freshness and request idempotency before writing decisions.
-        Duplicate callback identifiers are rejected and emitted as security-relevant telemetry.
-      evidence:
-        - path: src/payment_authorization.go
-          description: Callback nonce and idempotency enforcement path.
-      responsibleRoles: [ACT-PLATFORM-OPERATOR]
 
   trustBoundaries:
     - id: TB-PAYMENTS-EXTERNAL-BANK
@@ -893,6 +860,43 @@ authoredArchitecture:
       from: STATE-PAYMENTS-AUTHORIZED
       to: TB-PAYMENTS-EXTERNAL-BANK
       description: Boundary guard for external bank interaction.
+
+compliance:
+  profiles:
+    - id: PROF-NIST-800-53-LOW
+      href: ./oscal/profile-nist-800-53-low.json
+      catalogHref: ./oscal/catalog-nist-800-53-rev5-subset.json
+  mappings:
+    - id: MAP-PAYMENTS-SSO-MFA
+      profileRef: PROF-NIST-800-53-LOW
+      modelControlRef: CTRL-PAYMENTS-SSO-MFA
+      controlIds: [ac-2, ia-2, ia-2.1]
+      appliesTo: [FU-SUPPORT-REVIEW, FU-GITOPS-OPERATIONS]
+      implementationType: technical
+      implementationStatus: implemented
+      narrative: |
+        Workforce access is mediated by centralized SSO with MFA and conditional access policy.
+        Elevated operational actions require successful strong authentication before authorization.
+      evidence:
+        - path: infra/identity/sso-policy.yaml
+          description: SSO policy with MFA and conditional access requirements.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
+    - id: MAP-PAYMENTS-IMAGE-DIGEST
+      profileRef: PROF-NIST-800-53-LOW
+      modelControlRef: CTRL-PAYMENTS-IMAGE-DIGEST
+      controlIds: [cm-6]
+      appliesTo: [FU-GITOPS-OPERATIONS, FU-CLUSTER-PROVISIONING]
+      implementationType: hybrid
+      implementationStatus: implemented
+      narrative: |
+        Delivery pipelines and deployment manifests require immutable image digest pinning.
+        Release automation rejects mutable tags in production deployment paths.
+      evidence:
+        - path: infra/flux/kustomization.yaml
+          description: Flux deployment baseline references immutable release artifacts.
+        - path: infra/helm/values-prod.yaml
+          description: Production chart values pin immutable digest references.
+      responsibleRoles: [ACT-PLATFORM-OPERATOR]
 
 inferenceHints:
   runtimeSources:

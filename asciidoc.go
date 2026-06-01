@@ -277,7 +277,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			viewSections[i].SecurityControlChecks = buildSecurityControlVerificationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
 			viewSections[i].SecurityFlowRows = buildSecurityFlowRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
 			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
-			viewSections[i].SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(bundle.Architecture.AuthoredArchitecture, labelByID)
+			viewSections[i].SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(bundle.Architecture.AuthoredArchitecture, bundle.Architecture.Compliance.Mappings, labelByID)
 			viewSections[i].SecurityObsRows = buildSecurityObservabilityRows(inferredRuntime, inferredCode)
 			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, labelByID, inferredRuntime, inferredCode)
 		case "traceability":

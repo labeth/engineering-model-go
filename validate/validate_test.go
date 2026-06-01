@@ -252,41 +252,44 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
-func TestBundleValidation_ControlAllocations(t *testing.T) {
+func TestBundleValidation_ComplianceMappings(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
 		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
 		Actors:           []model.Actor{{ID: "ACT-A", Name: "Owner"}},
 		Controls:         []model.Control{{ID: "CTRL-A", Name: "MFA"}},
-		ControlAllocations: []model.ControlAllocation{{
-			ID:                 "ALLOC-A",
-			ControlRef:         "CTRL-A",
-			OSCALControlIDs:    []string{"ac-2", "ia-2(1)"},
-			AppliesTo:          []string{"FU-A"},
-			ImplementationType: "technical",
-			Status:             "implemented",
-			Narrative:          "MFA enforced through SSO policy.",
-			Evidence:           []model.ControlEvidence{{Path: "infra/identity/policy.yaml"}},
-			ResponsibleRoles:   []string{"ACT-A"},
+	}, Compliance: model.ComplianceModel{
+		Profiles: []model.ComplianceProfile{{ID: "PROF-A", Href: "https://example.invalid/oscal-profile.json"}},
+		Mappings: []model.ComplianceMapping{{
+			ID:                   "MAP-A",
+			ProfileRef:           "PROF-A",
+			ModelControlRef:      "CTRL-A",
+			ControlIDs:           []string{"ac-2", "ia-2.1"},
+			AppliesTo:            []string{"FU-A"},
+			ImplementationType:   "technical",
+			ImplementationStatus: "implemented",
+			Narrative:            "MFA enforced through SSO policy.",
+			Evidence:             []model.ControlEvidence{{Path: "infra/identity/policy.yaml"}},
+			ResponsibleRoles:     []string{"ACT-A"},
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
 	if diags := Bundle(b); HasErrors(diags) {
-		t.Fatalf("expected valid control allocation, got: %+v", diags)
+		t.Fatalf("expected valid compliance mapping, got: %+v", diags)
 	}
 
-	b.Architecture.AuthoredArchitecture.ControlAllocations[0].OSCALControlIDs = []string{"bad id"}
-	b.Architecture.AuthoredArchitecture.ControlAllocations[0].ResponsibleRoles = []string{"MISSING"}
-	b.Architecture.AuthoredArchitecture.ControlAllocations[0].ControlRef = "CTRL-MISSING"
+	b.Architecture.Compliance.Mappings[0].ControlIDs = []string{"bad id"}
+	b.Architecture.Compliance.Mappings[0].ResponsibleRoles = []string{"MISSING"}
+	b.Architecture.Compliance.Mappings[0].ModelControlRef = "CTRL-MISSING"
 	diags := Bundle(b)
 	if !HasErrors(diags) {
-		t.Fatalf("expected invalid control allocation diagnostics")
+		t.Fatalf("expected invalid compliance mapping diagnostics")
 	}
 	seen := map[string]bool{}
 	for _, d := range diags {
 		seen[d.Code] = true
 	}
-	for _, code := range []string{"model.invalid_control_ref", "model.invalid_oscal_control_id", "model.invalid_control_responsible_role"} {
+	for _, code := range []string{"model.invalid_compliance_model_control_ref", "model.invalid_compliance_control_id", "model.invalid_compliance_responsible_role"} {
 		if !seen[code] {
 			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
 		}

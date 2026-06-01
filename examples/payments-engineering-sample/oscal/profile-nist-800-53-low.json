@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "uuid": "22222222-2222-4222-8222-222222222222",
+    "metadata": {
+      "title": "NIST SP 800-53 Rev. 5 Low Baseline Sample Profile",
+      "last-modified": "2026-01-01T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "catalog-nist-800-53-rev5-subset.json",
+        "include-controls": [
+          {
+            "with-ids": ["ac-2", "cm-6", "ia-2", "ia-2.1"]
+          }
+        ]
+      }
+    ]
+  }
+}

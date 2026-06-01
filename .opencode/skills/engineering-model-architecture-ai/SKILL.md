@@ -1,40 +1,30 @@
 ---
 name: engineering-model-architecture-ai
-description: Architecture-aware workflow for engineering-model repositories using ARCHITECTURE.ai.json support paths, stable ID impact mapping, and required owner/trace tagging.
+description: Architecture-aware workflow for engineering-model repositories using MCP context, stable ID impact mapping, and required owner/trace tagging.
 ---
 
-# Architecture AI Development Skill (Framework-Neutral)
+# Architecture MCP Development Skill
 
-This skill defines the expected workflow for AI agents developing in this repository using the AI-first architecture artifacts.
+This skill defines the expected workflow for AI agents developing in this repository using MCP context and maintained generated publication/export artifacts.
 
 ## Purpose
 
-Use the AI artifacts as the machine contract for implementation planning, impact analysis, and verification:
-
-- canonical: `generated/ARCHITECTURE.ai.json`
-- optional dense graph: `generated/ARCHITECTURE.edges.ndjson`
-- optional audit view: `generated/ARCHITECTURE.ai.md`
-
-Human AsciiDoc/PDF outputs remain publication outputs, not the primary machine navigation surface.
+Use MCP tool responses as the machine contract for implementation planning, impact analysis, and verification. AsciiDoc/PDF outputs remain publication outputs.
 
 ## Required Inputs
 
 1. Architecture model files (`architecture.yml`, `requirements.yml`, `design.yml`)
-2. Current generated AI artifacts for the example/system under change
+2. MCP tool responses for implementation, verification, policy, and generation context
 3. Source tree and tests
 
 ## Required Workflow
 
-1. Select target from AI entry points.
-- Start from `entry_points` in `architecture.ai.json`.
-- Pick requirement-driven (`EP-REQ-*`) or gap-driven (`EP-LOW-CONFIDENCE-INFERRED`, `EP-VERIFICATION-FAILURES`) work.
+1. Select target stable IDs.
+- Start from affected `REQ-*`, `FU-*`, `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, or `TS-*` IDs.
+- Use MCP lookup tools to resolve implementation, verification, policy, and generation context.
 
 2. Resolve the support chain before editing.
-- For a requirement `REQ-*`, read `support_paths` to identify:
-  - owning FU (`FU-*`)
-  - runtime evidence (`RT-*`)
-  - code evidence (`CODE-*`)
-  - verification checks (`VER-*`)
+- For a requirement `REQ-*`, use MCP context to identify owning FUs, runtime/code evidence, and verification checks.
 
 3. Make minimal, traceable edits.
 - Prefer edits in modules already linked by `code_ids`/`runtime_ids`.
@@ -44,16 +34,16 @@ Human AsciiDoc/PDF outputs remain publication outputs, not the primary machine n
 - Add or update tests that include `REQ-*` tokens.
 - Ensure test-result artifacts can be parsed for status where applicable.
 
-5. Regenerate AI artifacts.
-- Re-run `engdoc` AI export for the target example/system.
-- Re-check `support_paths`, `entry_points`, and confidence changes.
+5. Regenerate maintained artifacts.
+- Re-run `engdoc` for AsciiDoc/decisions and `proven-docs` for PDFs when publication inputs change.
+- Re-run export generators such as `engstruct`, `engdragon`, `engtrlc`, `englobster`, and `engoscal` when those inputs change.
 
 6. Run validation gates.
 - Run `go test ./...`.
 - Confirm deterministic outputs are unchanged across repeated generation when no new edits occur.
 
 7. Summarize by stable IDs.
-- Report changes as affected `REQ/FU/RT/CODE/VER` IDs and confidence deltas.
+- Report changes as affected `REQ/FU/RT/CODE/VER` IDs and verification or coverage changes.
 
 ## Tagging Rules (Code + Tests)
 
@@ -111,7 +101,7 @@ When useful for stable symbol-level mapping:
 
 ## What Not To Do
 
-- Do not treat `architecture.ai.md` as source of truth.
+- Do not generate or rely on removed machine-view artifacts.
 - Do not encode inferred IDs (`RT-*`, `CODE-*`) inside authored architecture mappings.
 - Do not leave new files without owner tags when ownership is clear.
 - Do not add broad prose-only updates without stable ID links.
@@ -124,16 +114,15 @@ go run ./cmd/engdoc \
   --requirements <example>/requirements.yml \
   --design <example>/design.yml \
   --code-root <absolute path to example>/src \
-  --ai-json-out <example>/generated/ARCHITECTURE.ai.json \
-  --ai-md-out <example>/generated/ARCHITECTURE.ai.md \
-  --ai-edges-out <example>/generated/ARCHITECTURE.edges.ndjson
+  --out <example>/generated/ARCHITECTURE.adoc \
+  --decisions-out <example>/generated/DECISIONS.adoc
 ```
 
 ## Done Criteria (Agent Must Check)
 
-1. Every changed requirement has an explicit `REQ-*` support path.
+1. Every changed requirement has explicit MCP-resolvable implementation and verification context.
 2. New/changed code has owner and requirement trace tags where applicable.
 3. Verification links exist for changed requirement scope.
 4. `go test ./...` passes.
-5. AI artifacts regenerate without schema/order regressions.
+5. Maintained generated artifacts are refreshed when their inputs changed.
 6. Final report references stable IDs and source refs.

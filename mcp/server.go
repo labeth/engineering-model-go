@@ -1247,7 +1247,7 @@ func (s *Server) generationCommands() []map[string]any {
 		codeRoot = filepath.Dir(filepath.Dir(modelPath))
 	}
 	commands := []map[string]any{
-		{"id": "engdoc.asciidoc", "command": fmt.Sprintf("go run ./cmd/engdoc --model %s --requirements %s --design %s --code-root %s --out %s --decisions-out %s --ai-json-out %s --ai-md-out %s --ai-edges-out %s", shellPath(modelPath), shellPath(requirementsPath), shellPath(designPath), shellPath(codeRoot), shellPath(filepath.Join(generatedDir, "ARCHITECTURE.adoc")), shellPath(filepath.Join(generatedDir, "DECISIONS.adoc")), shellPath(filepath.Join(generatedDir, "ARCHITECTURE.ai.json")), shellPath(filepath.Join(generatedDir, "ARCHITECTURE.ai.md")), shellPath(filepath.Join(generatedDir, "ARCHITECTURE.edges.ndjson"))), "outputs": []string{filepath.Join(generatedDir, "ARCHITECTURE.adoc"), filepath.Join(generatedDir, "DECISIONS.adoc"), filepath.Join(generatedDir, "ARCHITECTURE.ai.json"), filepath.Join(generatedDir, "ARCHITECTURE.ai.md"), filepath.Join(generatedDir, "ARCHITECTURE.edges.ndjson")}},
+		{"id": "engdoc.asciidoc", "command": fmt.Sprintf("go run ./cmd/engdoc --model %s --requirements %s --design %s --code-root %s --out %s --decisions-out %s", shellPath(modelPath), shellPath(requirementsPath), shellPath(designPath), shellPath(codeRoot), shellPath(filepath.Join(generatedDir, "ARCHITECTURE.adoc")), shellPath(filepath.Join(generatedDir, "DECISIONS.adoc"))), "outputs": []string{filepath.Join(generatedDir, "ARCHITECTURE.adoc"), filepath.Join(generatedDir, "DECISIONS.adoc")}},
 		{"id": "engdragon.threatdragon", "command": fmt.Sprintf("go run ./cmd/engdragon --model %s --format threat-dragon-v2 --out %s", shellPath(modelPath), shellPath(filepath.Join(generatedDir, "threat-dragon-v2.json"))), "outputs": []string{filepath.Join(generatedDir, "threat-dragon-v2.json")}},
 		{"id": "engdragon.openotm", "command": fmt.Sprintf("go run ./cmd/engdragon --model %s --format open-otm --out %s", shellPath(modelPath), shellPath(filepath.Join(generatedDir, "open-threat-model.json"))), "outputs": []string{filepath.Join(generatedDir, "open-threat-model.json")}},
 		{"id": "engstruct", "command": fmt.Sprintf("go run ./cmd/engstruct --model %s --out %s", shellPath(modelPath), shellPath(filepath.Join(generatedDir, "STRUCTURIZR.dsl"))), "outputs": []string{filepath.Join(generatedDir, "STRUCTURIZR.dsl")}},
@@ -1290,9 +1290,6 @@ func (s *Server) generationArtifacts() []map[string]any {
 	out := []map[string]any{
 		{"id": "ARCHITECTURE.adoc", "path": filepath.Join(generatedDir, "ARCHITECTURE.adoc"), "producer": "engdoc.asciidoc"},
 		{"id": "DECISIONS.adoc", "path": filepath.Join(generatedDir, "DECISIONS.adoc"), "producer": "engdoc.asciidoc"},
-		{"id": "ARCHITECTURE.ai.json", "path": filepath.Join(generatedDir, "ARCHITECTURE.ai.json"), "producer": "engdoc.ai"},
-		{"id": "ARCHITECTURE.ai.md", "path": filepath.Join(generatedDir, "ARCHITECTURE.ai.md"), "producer": "engdoc.ai"},
-		{"id": "ARCHITECTURE.edges.ndjson", "path": filepath.Join(generatedDir, "ARCHITECTURE.edges.ndjson"), "producer": "engdoc.ai"},
 		{"id": "threat-dragon-v2.json", "path": filepath.Join(generatedDir, "threat-dragon-v2.json"), "producer": "engdragon.threatdragon"},
 		{"id": "open-threat-model.json", "path": filepath.Join(generatedDir, "open-threat-model.json"), "producer": "engdragon.openotm"},
 		{"id": "STRUCTURIZR.dsl", "path": filepath.Join(generatedDir, "STRUCTURIZR.dsl"), "producer": "engstruct"},
@@ -1405,7 +1402,7 @@ func (s *Server) policyForEntity(id string) map[string]any {
 	a := s.bundle.Architecture.AuthoredArchitecture
 	controls := []string{}
 	mappings := []model.Mapping{}
-	allocations := []model.ControlAllocation{}
+	complianceMappings := []model.ComplianceMapping{}
 	threats := []string{}
 	risks := []string{}
 	for _, m := range a.Mappings {
@@ -1414,10 +1411,10 @@ func (s *Server) policyForEntity(id string) map[string]any {
 			mappings = append(mappings, m)
 		}
 	}
-	for _, alloc := range a.ControlAllocations {
-		if containsString(alloc.AppliesTo, id) {
-			controls = append(controls, alloc.ControlRef)
-			allocations = append(allocations, alloc)
+	for _, cm := range s.bundle.Architecture.Compliance.Mappings {
+		if containsString(cm.AppliesTo, id) {
+			controls = append(controls, cm.ModelControlRef)
+			complianceMappings = append(complianceMappings, cm)
 		}
 	}
 	for _, ts := range a.ThreatScenarios {
@@ -1434,7 +1431,7 @@ func (s *Server) policyForEntity(id string) map[string]any {
 	}
 	sort.Strings(threats)
 	sort.Strings(risks)
-	return map[string]any{"entityId": id, "controls": uniqueStrings(controls), "controlAllocations": allocations, "threatScenarios": uniqueStrings(threats), "risks": uniqueStrings(risks), "mappings": mappings}
+	return map[string]any{"entityId": id, "controls": uniqueStrings(controls), "complianceMappings": complianceMappings, "threatScenarios": uniqueStrings(threats), "risks": uniqueStrings(risks), "mappings": mappings}
 }
 
 // TRLC-LINKS: REQ-EMG-007
@@ -1807,11 +1804,6 @@ func (s *Server) modelEntity(id string) (string, any, bool) {
 	for _, x := range a.Controls {
 		if x.ID == id {
 			return "control", x, true
-		}
-	}
-	for _, x := range a.ControlAllocations {
-		if x.ID == id {
-			return "control_allocation", x, true
 		}
 	}
 	for _, x := range a.TrustBoundaries {
@@ -2265,9 +2257,6 @@ func (s *Server) graphNodes(query string, max int) []map[string]any {
 	}
 	for _, x := range a.Controls {
 		add("control", x.ID, x.Name)
-	}
-	for _, x := range a.ControlAllocations {
-		add("control_allocation", x.ID, strings.TrimSpace(x.ControlRef+" "+x.Narrative))
 	}
 	for _, x := range a.TrustBoundaries {
 		add("trust_boundary", x.ID, x.Name)

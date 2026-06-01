@@ -53,7 +53,6 @@ Primary entry points:
 - `GenerateFromFile(architecturePath, viewID)`
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
-- `GenerateAIViewFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
 - `GenerateThreatModelExportFromFile(architecturePath, options)`
 - `GenerateTRLCRequirementsFromFile(requirementsPath, options)`
@@ -110,9 +109,13 @@ Flow step fields (`authoredArchitecture.flows[].steps[]`) support:
 OSCAL authoring fields in `authoredArchitecture`:
 
 - `controls`
-- `controlAllocations`
 - `risks`
 - `poamItems`
+
+OSCAL catalog/profile integration is authored in top-level `compliance`:
+
+- `compliance.profiles[]`: OSCAL profile/catalog sources for the selected baseline
+- `compliance.mappings[]`: maps local `CTRL-*` implementation controls to selected OSCAL `controlIds` and architecture `appliesTo` entities; unmapped controls remain local model controls and are not exported as OSCAL implementations
 
 Expanded mapping relation vocabulary includes:
 
@@ -155,19 +158,6 @@ go run ./cmd/engdoc \
   --design examples/payments-engineering-sample/design.yml \
   --code-root ./src \
   --out examples/payments-engineering-sample/generated/ARCHITECTURE.adoc
-```
-
-Generate AI-first artifacts (normalized JSON, derived markdown, dense edge stream):
-
-```bash
-go run ./cmd/engdoc \
-  --model examples/bedrock-pr-review-github-app-sample/architecture.yml \
-  --requirements examples/bedrock-pr-review-github-app-sample/requirements.yml \
-  --design examples/bedrock-pr-review-github-app-sample/design.yml \
-  --code-root /abs/path/to/examples/bedrock-pr-review-github-app-sample/src \
-  --ai-json-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.json \
-  --ai-md-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.ai.md \
-  --ai-edges-out examples/bedrock-pr-review-github-app-sample/generated/ARCHITECTURE.edges.ndjson
 ```
 
 Generate Threat Dragon/Open Threat Model exports:
@@ -232,17 +222,12 @@ The traceability appendix includes:
   - `Mentioned In` backlinks to jump from registry entries to sections where each entry is referenced
   - sections: `Authored References`, `Catalog References`, `Inferred Runtime References`, `Inferred Code References`, `Verification References`
 
-AI-first export includes:
-- `architecture.ai.json` style normalized machine artifact (`--ai-json-out`)
-- optional derived audit markdown (`--ai-md-out`)
-- optional dense edge stream for graph indexing (`--ai-edges-out`)
-
-AI export entity index/counts include authored semantic kinds when present:
-
-- `interface`, `data_object`, `deployment_target`, `control`, `trust_boundary`, `state`, `event`
+Machine-oriented development context is exposed through the MCP server.
 
 Additional export/validation docs:
 
+- MCP-first agent workflow and tagging contract: `docs/skills/architecture-mcp-workflow.md`
+- OSCAL profile/catalog and compliance mapping workflow: `docs/oscal-compliance-mapping.md`
 - Threat Dragon export and schema checks: `docs/threat-dragon-export-testing.md`
 - Structurizr export and validation: `docs/structurizr-export-testing.md`
 - TRLC requirements export and validation: `docs/trlc-export-testing.md`
@@ -265,6 +250,8 @@ go run ./cmd/engoscal \
   --model examples/payments-engineering-sample/architecture.yml \
   --requirements examples/payments-engineering-sample/requirements.yml \
   --code-root examples/payments-engineering-sample/src \
+  --profile examples/payments-engineering-sample/oscal/profile-nist-800-53-low.json \
+  --catalog examples/payments-engineering-sample/oscal/catalog-nist-800-53-rev5-subset.json \
   --ssp-out examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json \
   --ar-out examples/payments-engineering-sample/generated/ARCHITECTURE.ar.json \
   --poam-out examples/payments-engineering-sample/generated/ARCHITECTURE.poam.json \
@@ -285,7 +272,7 @@ podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0
 Use these docs to drive AI-agent development workflows and tagging conventions:
 
 - OpenCode-ready skill (auto-discoverable by `opencode debug skill`): `.opencode/skills/engineering-model-architecture-ai/SKILL.md`
-- framework-neutral workflow and tagging contract: `docs/skills/architecture-ai-workflow.md`
+- framework-neutral workflow and tagging contract: `docs/skills/architecture-mcp-workflow.md`
 - OpenCode adapter prompt: `docs/skills/adapters/opencode-skill-prompt.md`
 - generic adapter prompt for other frameworks: `docs/skills/adapters/generic-agent-prompt.md`
 

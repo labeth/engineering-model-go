@@ -26,10 +26,11 @@ func main() {
 	codeRoot := flag.String("code-root", "", "optional source tree root for verification/code inference in assessment-results")
 	apHref := flag.String("ap-href", "", "optional assessment plan href for assessment-results import-ap")
 	sspHref := flag.String("ssp-href", "", "optional SSP href for POA&M import-ssp")
+	catalog := flag.String("catalog", "", "optional OSCAL catalog href used with --profile for validation and control selection")
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engoscal --model <architecture.yml> [--ssp-out <ssp.json>] [--ar-out <ar.json>] [--poam-out <poam.json>] [--requirements <requirements.yml>] [--code-root <dir>] [--profile <href>] [--system-name <name>] [--system-description <text>] [--ap-href <assessment-plan.json>] [--ssp-href <ssp.json>]")
+		fmt.Fprintln(os.Stderr, "usage: engoscal --model <architecture.yml> [--ssp-out <ssp.json>] [--ar-out <ar.json>] [--poam-out <poam.json>] [--requirements <requirements.yml>] [--code-root <dir>] [--profile <href>] [--catalog <href>] [--system-name <name>] [--system-description <text>] [--ap-href <assessment-plan.json>] [--ssp-href <ssp.json>]")
 		os.Exit(2)
 	}
 	if strings.TrimSpace(*sspOut) == "" && strings.TrimSpace(*outPath) != "" {
@@ -45,6 +46,7 @@ func main() {
 	if emitSSP {
 		res, err := engmodel.GenerateOSCALSSPFromFile(*modelPath, engmodel.OSCALSSPOptions{
 			ProfileHref:       strings.TrimSpace(*profile),
+			CatalogHref:       strings.TrimSpace(*catalog),
 			SystemName:        strings.TrimSpace(*systemName),
 			SystemDescription: strings.TrimSpace(*systemDesc),
 		})
@@ -70,6 +72,8 @@ func main() {
 			AssessmentPlanHref: strings.TrimSpace(*apHref),
 			RequirementsPath:   strings.TrimSpace(*reqPath),
 			CodeRoot:           strings.TrimSpace(*codeRoot),
+			ProfileHref:        strings.TrimSpace(*profile),
+			CatalogHref:        strings.TrimSpace(*catalog),
 		})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)

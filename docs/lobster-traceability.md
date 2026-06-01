@@ -39,3 +39,4 @@ Outputs are placed under:
 
 - Test-to-requirement links are extracted from `TRLC-LINKS: REQ-*` markers.
 - If some requirements have no linked tests, `lobster-ci-report` will flag coverage gaps; this is a traceability result, not a tooling failure.
+- LOBSTER outputs are generated traceability artifacts. Agent implementation context should still be resolved through MCP tools before editing.

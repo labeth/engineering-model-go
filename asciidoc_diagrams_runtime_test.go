@@ -127,7 +127,7 @@ func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testi
 		},
 	}
 
-	out := buildSecurityContextDFDMermaidByGroup(a, nil)
+	out := buildSecurityContextDFDMermaidByGroup(a, nil, nil)
 	if len(out) != 2 {
 		t.Fatalf("expected one context diagram per functional group, got %d", len(out))
 	}

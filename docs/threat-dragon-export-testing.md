@@ -20,13 +20,15 @@ scripts/fetch-threat-dragon-schemas.sh
 Threat Dragon v2 model:
 
 ```bash
-scripts/validate-threat-dragon.sh td-v2 out/threat-dragon.json
+go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format threat-dragon-v2 --out examples/payments-engineering-sample/generated/threat-dragon-v2.json
+scripts/validate-threat-dragon.sh td-v2 examples/payments-engineering-sample/generated/threat-dragon-v2.json
 ```
 
 Open Threat Model format:
 
 ```bash
-scripts/validate-threat-dragon.sh open-otm out/open-threat-model.json
+go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format open-otm --out examples/payments-engineering-sample/generated/open-threat-model.json
+scripts/validate-threat-dragon.sh open-otm examples/payments-engineering-sample/generated/open-threat-model.json
 ```
 
 ## Quick Output Inspection
@@ -34,6 +36,6 @@ scripts/validate-threat-dragon.sh open-otm out/open-threat-model.json
 Use `jq` to sanity check generated files:
 
 ```bash
-jq '.version, .summary.title, (.detail.diagrams | length)' out/threat-dragon.json
-jq '.otmVersion, .project.name, (.components | length), (.dataflows | length)' out/open-threat-model.json
+jq '.version, .summary.title, (.detail.diagrams | length)' examples/payments-engineering-sample/generated/threat-dragon-v2.json
+jq '.otmVersion, .project.name, (.components | length), (.dataflows | length)' examples/payments-engineering-sample/generated/open-threat-model.json
 ```

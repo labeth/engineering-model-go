@@ -45,7 +45,7 @@
               }
             },
             "data": {
-              "description": "Uses MCP tools and AI JSON to plan and execute scoped implementation work.",
+              "description": "Uses MCP tools to plan and execute scoped implementation work.",
               "hasOpenThreats": false,
               "isALog": false,
               "isEncrypted": false,
@@ -213,54 +213,11 @@
             }
           },
           {
-            "id": "5b9307a9-5e44-5627-b7bf-42715fd59a25",
+            "id": "cba19e37-b38c-507b-925a-0092fa934018",
             "shape": "store",
             "zIndex": 6,
             "position": {
               "x": 320,
-              "y": 230
-            },
-            "size": {
-              "height": 90,
-              "width": 180
-            },
-            "attrs": {
-              "bottomLine": {
-                "stroke": "#333333",
-                "strokeDasharray": "",
-                "strokeWidth": 1
-              },
-              "text": {
-                "text": "AI JSON Artifact"
-              },
-              "topLine": {
-                "stroke": "#333333",
-                "strokeDasharray": "",
-                "strokeWidth": 1
-              }
-            },
-            "data": {
-              "description": "generated/ARCHITECTURE.ai.json",
-              "hasOpenThreats": false,
-              "isALog": false,
-              "isEncrypted": false,
-              "isSigned": false,
-              "isTrustBoundary": false,
-              "name": "AI JSON Artifact",
-              "outOfScope": false,
-              "providesAuthentication": false,
-              "reasonOutOfScope": "",
-              "storesCredentials": false,
-              "threats": null,
-              "type": "tm.Store"
-            }
-          },
-          {
-            "id": "cba19e37-b38c-507b-925a-0092fa934018",
-            "shape": "store",
-            "zIndex": 7,
-            "position": {
-              "x": 580,
               "y": 230
             },
             "size": {
@@ -301,9 +258,9 @@
           {
             "id": "a910aa8f-c15c-5bf6-bfa4-8dd1ba655e33",
             "shape": "store",
-            "zIndex": 8,
+            "zIndex": 7,
             "position": {
-              "x": 840,
+              "x": 580,
               "y": 230
             },
             "size": {
@@ -344,10 +301,10 @@
           {
             "id": "2cec4e0e-959f-5181-a801-f4f2402a9505",
             "shape": "store",
-            "zIndex": 9,
+            "zIndex": 8,
             "position": {
-              "x": 60,
-              "y": 400
+              "x": 840,
+              "y": 230
             },
             "size": {
               "height": 90,
@@ -387,9 +344,9 @@
           {
             "id": "779d7a4e-220e-5d4f-a99a-25ad6b4bcc18",
             "shape": "store",
-            "zIndex": 10,
+            "zIndex": 9,
             "position": {
-              "x": 320,
+              "x": 60,
               "y": 400
             },
             "size": {
@@ -428,49 +385,11 @@
             }
           },
           {
-            "id": "fb107a3f-aefe-5135-b368-134f1f76d83e",
-            "shape": "process",
-            "zIndex": 11,
-            "position": {
-              "x": 580,
-              "y": 400
-            },
-            "size": {
-              "height": 90,
-              "width": 180
-            },
-            "attrs": {
-              "body": {
-                "stroke": "#333333",
-                "strokeDasharray": "",
-                "strokeWidth": 1
-              },
-              "text": {
-                "text": "AI View Builder"
-              }
-            },
-            "data": {
-              "description": "Emits AI JSON, edges, and markdown views with support paths and implementation paths.",
-              "hasOpenThreats": false,
-              "isALog": false,
-              "isEncrypted": false,
-              "isSigned": false,
-              "isTrustBoundary": false,
-              "name": "AI View Builder",
-              "outOfScope": false,
-              "providesAuthentication": false,
-              "reasonOutOfScope": "",
-              "storesCredentials": false,
-              "threats": null,
-              "type": "tm.Process"
-            }
-          },
-          {
             "id": "002343d9-721e-561b-a004-9bbf2e33a0be",
             "shape": "process",
-            "zIndex": 12,
+            "zIndex": 10,
             "position": {
-              "x": 840,
+              "x": 320,
               "y": 400
             },
             "size": {
@@ -506,10 +425,10 @@
           {
             "id": "7ff313c5-7dc3-5193-806c-af6a699ebaa1",
             "shape": "process",
-            "zIndex": 13,
+            "zIndex": 11,
             "position": {
-              "x": 60,
-              "y": 570
+              "x": 580,
+              "y": 400
             },
             "size": {
               "height": 90,
@@ -544,10 +463,10 @@
           {
             "id": "63fdfb9f-97e9-5008-b5eb-972c8bdd3284",
             "shape": "process",
-            "zIndex": 14,
+            "zIndex": 12,
             "position": {
-              "x": 320,
-              "y": 570
+              "x": 840,
+              "y": 400
             },
             "size": {
               "height": 90,
@@ -595,9 +514,9 @@
           {
             "id": "6b02063a-6002-5e2b-9df9-34ca2b92be2a",
             "shape": "process",
-            "zIndex": 15,
+            "zIndex": 13,
             "position": {
-              "x": 580,
+              "x": 60,
               "y": 570
             },
             "size": {
@@ -646,9 +565,9 @@
           {
             "id": "0fdb3e74-195f-569f-b10d-846194107c4e",
             "shape": "process",
-            "zIndex": 16,
+            "zIndex": 14,
             "position": {
-              "x": 840,
+              "x": 320,
               "y": 570
             },
             "size": {
@@ -697,10 +616,10 @@
           {
             "id": "06edb649-5267-5a38-8a3b-12020c58b25d",
             "shape": "process",
-            "zIndex": 17,
+            "zIndex": 15,
             "position": {
-              "x": 60,
-              "y": 740
+              "x": 580,
+              "y": 570
             },
             "size": {
               "height": 90,
@@ -735,10 +654,10 @@
           {
             "id": "b3bec3d2-9395-5fa8-be48-11bb495974c9",
             "shape": "process",
-            "zIndex": 18,
+            "zIndex": 16,
             "position": {
-              "x": 320,
-              "y": 740
+              "x": 840,
+              "y": 570
             },
             "size": {
               "height": 90,
@@ -773,9 +692,9 @@
           {
             "id": "7b1897fd-763b-5917-91bf-21cf69c25b21",
             "shape": "process",
-            "zIndex": 19,
+            "zIndex": 17,
             "position": {
-              "x": 580,
+              "x": 60,
               "y": 740
             },
             "size": {
@@ -811,9 +730,9 @@
           {
             "id": "4a3741ca-6d92-5873-995f-b0b452b4499e",
             "shape": "process",
-            "zIndex": 20,
+            "zIndex": 18,
             "position": {
-              "x": 840,
+              "x": 320,
               "y": 740
             },
             "size": {
@@ -849,10 +768,10 @@
           {
             "id": "1b0aa39e-5e97-5fb5-a0b3-8faa23a4affd",
             "shape": "process",
-            "zIndex": 21,
+            "zIndex": 19,
             "position": {
-              "x": 60,
-              "y": 910
+              "x": 580,
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -900,10 +819,10 @@
           {
             "id": "dc739d03-100e-5958-9a98-1c87f6f7d871",
             "shape": "process",
-            "zIndex": 22,
+            "zIndex": 20,
             "position": {
-              "x": 320,
-              "y": 910
+              "x": 840,
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -938,9 +857,9 @@
           {
             "id": "0d8ebf81-654b-5228-aef7-dcb87dd10bcb",
             "shape": "process",
-            "zIndex": 23,
+            "zIndex": 21,
             "position": {
-              "x": 580,
+              "x": 60,
               "y": 910
             },
             "size": {
@@ -976,9 +895,9 @@
           {
             "id": "4ce660d9-3b03-54dd-8510-dda2b3c7454c",
             "shape": "process",
-            "zIndex": 24,
+            "zIndex": 22,
             "position": {
-              "x": 840,
+              "x": 320,
               "y": 910
             },
             "size": {
@@ -1014,10 +933,10 @@
           {
             "id": "68ca5cd0-b8cf-5bf2-b323-a2b859f088e3",
             "shape": "process",
-            "zIndex": 25,
+            "zIndex": 23,
             "position": {
-              "x": 60,
-              "y": 1080
+              "x": 580,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -1052,10 +971,10 @@
           {
             "id": "7d3de86a-c730-5dc6-ad64-eff258887512",
             "shape": "process",
-            "zIndex": 26,
+            "zIndex": 24,
             "position": {
-              "x": 320,
-              "y": 1080
+              "x": 840,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -1090,9 +1009,9 @@
           {
             "id": "17bbfe18-bd10-5dec-a8cf-dd3082d5f186",
             "shape": "process",
-            "zIndex": 27,
+            "zIndex": 25,
             "position": {
-              "x": 580,
+              "x": 60,
               "y": 1080
             },
             "size": {
@@ -1128,9 +1047,9 @@
           {
             "id": "65165ca1-1f2c-532c-8f37-f9c752c851de",
             "shape": "process",
-            "zIndex": 28,
+            "zIndex": 26,
             "position": {
-              "x": 840,
+              "x": 320,
               "y": 1080
             },
             "size": {
@@ -1166,10 +1085,10 @@
           {
             "id": "1b702e6d-b4c2-579b-b26f-a48600104542",
             "shape": "process",
-            "zIndex": 29,
+            "zIndex": 27,
             "position": {
-              "x": 60,
-              "y": 1250
+              "x": 580,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -1204,10 +1123,10 @@
           {
             "id": "ec9f757c-f9bc-57bb-b5f2-e16cef99dac1",
             "shape": "process",
-            "zIndex": 30,
+            "zIndex": 28,
             "position": {
-              "x": 320,
-              "y": 1250
+              "x": 840,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -1242,9 +1161,9 @@
           {
             "id": "8ab83f3e-cb9d-5feb-9c61-f3cc86f81933",
             "shape": "process",
-            "zIndex": 31,
+            "zIndex": 29,
             "position": {
-              "x": 580,
+              "x": 60,
               "y": 1250
             },
             "size": {
@@ -1280,9 +1199,9 @@
           {
             "id": "dc1cd078-7112-5a37-8b60-a4e010f95aa1",
             "shape": "trust-boundary-box",
-            "zIndex": 32,
+            "zIndex": 30,
             "position": {
-              "x": 630,
+              "x": 30,
               "y": 2230
             },
             "size": {
@@ -1310,10 +1229,10 @@
           {
             "id": "fc4fa542-8f91-5062-b475-ffd03aa522e8",
             "shape": "trust-boundary-box",
-            "zIndex": 33,
+            "zIndex": 31,
             "position": {
-              "x": 30,
-              "y": 2450
+              "x": 330,
+              "y": 2230
             },
             "size": {
               "height": 180,
@@ -1338,7 +1257,97 @@
             }
           },
           {
-            "id": "7f29f48c-26c7-5263-80ce-b4a77130c757",
+            "id": "d0bfb98c-f07d-51dc-9538-f9e88e3dff66",
+            "shape": "flow",
+            "zIndex": 41,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Maintains model and design artifacts through CLI generation workflows.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Maintains model and design artifacts through CLI generation workflows.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "b9e6a212-a02e-53be-8bae-0f9ac5754ac8"
+            },
+            "target": {
+              "cell": "7ff313c5-7dc3-5193-806c-af6a699ebaa1"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Maintains model and design artifacts through CLI generation workflows."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "94f95753-cdeb-5a1c-85e6-8be5d905696f",
+            "shape": "flow",
+            "zIndex": 42,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Runs validation, generation, and export commands during implementation work.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Runs validation, generation, and export commands during implementation work.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7c06b34b-308c-5195-96ac-6b98dca7ac3f"
+            },
+            "target": {
+              "cell": "7ff313c5-7dc3-5193-806c-af6a699ebaa1"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Runs validation, generation, and export commands during implementation work."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "04a8c0b4-f880-55ba-8b82-6d1b64f3671a",
             "shape": "flow",
             "zIndex": 43,
             "attrs": {
@@ -1352,12 +1361,12 @@
               }
             },
             "data": {
-              "description": "",
+              "description": "Uses OSCAL and traceability outputs for assurance workflows.",
               "hasOpenThreats": false,
               "isEncrypted": false,
               "isPublicNetwork": false,
               "isTrustBoundary": false,
-              "name": "writes",
+              "name": "Uses OSCAL and traceability outputs for assurance workflows.",
               "outOfScope": false,
               "protocol": "",
               "reasonOutOfScope": "",
@@ -1365,16 +1374,106 @@
               "type": "tm.Flow"
             },
             "source": {
-              "cell": "fb107a3f-aefe-5135-b368-134f1f76d83e"
+              "cell": "12665769-bd4b-515f-9648-6eedc8b18f27"
             },
             "target": {
-              "cell": "5b9307a9-5e44-5627-b7bf-42715fd59a25"
+              "cell": "b3bec3d2-9395-5fa8-be48-11bb495974c9"
             },
             "labels": [
               {
                 "attrs": {
                   "label": {
-                    "text": "writes"
+                    "text": "Uses OSCAL and traceability outputs for assurance workflows."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "686606b2-94c7-5141-9289-85a0c40ed5e7",
+            "shape": "flow",
+            "zIndex": 44,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Uses model-backed MCP tools to inspect and update implementation scope.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Uses model-backed MCP tools to inspect and update implementation scope.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7e568f64-e826-54f2-9fee-fee85c8d1a6b"
+            },
+            "target": {
+              "cell": "0fdb3e74-195f-569f-b10d-846194107c4e"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Uses model-backed MCP tools to inspect and update implementation scope."
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "ddad4fca-6f02-5854-996f-87fd49bad683",
+            "shape": "flow",
+            "zIndex": 45,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Executes validation and generation commands in automated checks.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Executes validation and generation commands in automated checks.",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "66da471f-9e43-5cbe-9068-c2a842c48b00"
+            },
+            "target": {
+              "cell": "7ff313c5-7dc3-5193-806c-af6a699ebaa1"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Executes validation and generation commands in automated checks."
                   }
                 },
                 "position": 0.5
@@ -1385,7 +1484,7 @@
           {
             "id": "874ef990-af81-5700-90b8-eb00f80a2f28",
             "shape": "flow",
-            "zIndex": 44,
+            "zIndex": 46,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1443,7 +1542,7 @@
           {
             "id": "ad595953-1810-5427-a538-0f1cf554a3c6",
             "shape": "flow",
-            "zIndex": 45,
+            "zIndex": 47,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1488,7 +1587,7 @@
           {
             "id": "de33ac1c-f295-51bb-9438-386c393623fe",
             "shape": "flow",
-            "zIndex": 46,
+            "zIndex": 48,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1533,7 +1632,7 @@
           {
             "id": "8015b7a3-7e34-5fce-bb21-682d70b12f81",
             "shape": "flow",
-            "zIndex": 47,
+            "zIndex": 49,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1578,7 +1677,7 @@
           {
             "id": "26354948-9fd7-5ba5-af36-50b092dfaafe",
             "shape": "flow",
-            "zIndex": 48,
+            "zIndex": 50,
             "attrs": {
               "line": {
                 "stroke": "#555555",

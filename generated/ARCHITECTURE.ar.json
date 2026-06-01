@@ -3,7 +3,7 @@
     "uuid": "98eaf6c0-91d6-5a78-93b8-4d958fefbee6",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture Assessment Results",
-      "last-modified": "2026-05-09T18:04:16Z",
+      "last-modified": "2026-06-01T18:18:29Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -14,13 +14,13 @@
       {
         "uuid": "552b5375-26b1-5f1a-ab6b-642a6ef09628",
         "title": "Automated architecture assessment",
-        "description": "Assessment results generated from verification evidence, authored risks, and control allocations.",
-        "start": "2026-05-09T18:04:16Z",
-        "end": "2026-05-09T18:04:16Z",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-06-01T18:18:29Z",
+        "end": "2026-06-01T18:18:29Z",
         "reviewed-controls": {
           "control-selections": [
             {
-              "description": "Controls reviewed through architecture-derived allocations."
+              "description": "Controls reviewed through architecture-derived compliance mappings."
             }
           ]
         },
@@ -75,7 +75,7 @@
             "description": "Inferred from test source artifact.",
             "target": {
               "type": "objective-id",
-              "target-id": "REQ-EMG-001",
+              "target-id": "REQ-EMG-010",
               "status": {
                 "state": "not-satisfied"
               }
@@ -273,7 +273,7 @@
             "description": "Inferred from test source artifact.",
             "target": {
               "type": "objective-id",
-              "target-id": "REQ-EMG-001",
+              "target-id": "REQ-EMG-003",
               "status": {
                 "state": "not-satisfied"
               }
@@ -801,7 +801,7 @@
             "description": "Inferred from test source artifact.",
             "target": {
               "type": "objective-id",
-              "target-id": "REQ-EMG-001",
+              "target-id": "REQ-EMG-003",
               "status": {
                 "state": "not-satisfied"
               }

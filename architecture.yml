@@ -20,7 +20,7 @@ authoredArchitecture:
     - id: FG-ARTIFACT-GENERATION
       name: Artifact Generation
       description: Publication and exchange artifact generation.
-      prose: Produces AsciiDoc, AI view, and external modeling outputs.
+      prose: Produces AsciiDoc publication docs and external modeling outputs.
     - id: FG-TRACEABILITY-COMPLIANCE
       name: Traceability and Compliance
       description: Trace and compliance export responsibilities.
@@ -47,10 +47,6 @@ authoredArchitecture:
       name: View Projection
       group: FG-ARTIFACT-GENERATION
       prose: Builds projection graphs for architecture, traceability, security, and flow views.
-    - id: FU-AI-VIEW-BUILDER
-      name: AI View Builder
-      group: FG-ARTIFACT-GENERATION
-      prose: Emits AI JSON, edges, and markdown views with support paths and implementation paths.
     - id: FU-ASCIIDOC-GENERATOR
       name: AsciiDoc Generator
       group: FG-ARTIFACT-GENERATION
@@ -96,7 +92,7 @@ authoredArchitecture:
       description: Uses control/risk and traceability outputs for assurance workflows.
     - id: ACT-AI-AGENT
       name: AI Agent
-      description: Uses MCP tools and AI JSON to plan and execute scoped implementation work.
+      description: Uses MCP tools to plan and execute scoped implementation work.
     - id: ACT-CI-PIPELINE
       name: CI Pipeline
       description: Executes regression tests, validation checks, and artifact generation.
@@ -199,16 +195,6 @@ authoredArchitecture:
       sensitivity: internal
       classification: design-source
       retention: repository-history
-      confidentiality: medium
-      integrity: high
-      availability: high
-    - id: DO-AI-JSON-ARTIFACT
-      name: AI JSON Artifact
-      termRef: DATA-AI-JSON-ARTIFACT
-      schemaRef: generated/ARCHITECTURE.ai.json
-      sensitivity: internal
-      classification: machine-interface
-      retention: build-artifact
       confidentiality: medium
       integrity: high
       availability: high
@@ -329,7 +315,7 @@ authoredArchitecture:
       authentication: repository-access
       encryptionInTransit: none
       integrityProtection: git-history
-      dataRefs: [DO-ARCHITECTURE-MODEL, DO-AI-JSON-ARTIFACT, DO-STRUCTURIZR-DSL, DO-THREAT-DRAGON-JSON]
+      dataRefs: [DO-ARCHITECTURE-MODEL, DO-MCP-TOOL-RESULT, DO-STRUCTURIZR-DSL, DO-THREAT-DRAGON-JSON]
       description: Primary engineering workflow from authored model update through validation and artifact generation.
       entry: [edit-model]
       exits: [publish-artifacts]
@@ -431,9 +417,6 @@ authoredArchitecture:
       to: FU-VIEW-PROJECTION
     - type: contains
       from: FG-ARTIFACT-GENERATION
-      to: FU-AI-VIEW-BUILDER
-    - type: contains
-      from: FG-ARTIFACT-GENERATION
       to: FU-ASCIIDOC-GENERATOR
     - type: contains
       from: FG-ARTIFACT-GENERATION
@@ -483,16 +466,7 @@ authoredArchitecture:
       to: FU-VALIDATION-ENGINE
     - type: depends_on
       from: FU-CLI-ORCHESTRATION
-      to: FU-AI-VIEW-BUILDER
-    - type: depends_on
-      from: FU-CLI-ORCHESTRATION
       to: FU-ASCIIDOC-GENERATOR
-    - type: depends_on
-      from: FU-AI-VIEW-BUILDER
-      to: FU-CODEMAP-INFERENCE
-    - type: depends_on
-      from: FU-AI-VIEW-BUILDER
-      to: FU-VIEW-PROJECTION
     - type: depends_on
       from: FU-VALIDATION-ENGINE
       to: REF-GO-TOOLCHAIN
@@ -518,10 +492,6 @@ authoredArchitecture:
     - type: depends_on
       from: FU-MCP-SERVER
       to: FU-VALIDATION-ENGINE
-    - type: depends_on
-      from: FU-MCP-SERVER
-      to: FU-AI-VIEW-BUILDER
-
     - type: contains
       from: FU-ASCIIDOC-GENERATOR
       to: IF-CLI-ENGDOC
@@ -547,9 +517,6 @@ authoredArchitecture:
       from: FU-VIEW-PROJECTION
       to: IF-CLI-ENGVIEW
 
-    - type: writes
-      from: FU-AI-VIEW-BUILDER
-      to: DO-AI-JSON-ARTIFACT
     - type: writes
       from: FU-MCP-SERVER
       to: DO-MCP-TOOL-RESULT
@@ -657,7 +624,7 @@ views:
     authoredStatusExplanation: Initial repository self-model with stable top-level domains; implementation details will be expanded iteratively.
   - id: VIEW-TRACEABILITY
     kind: traceability
-    roots: [FU-MODEL-LOADER, FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE, FU-AI-VIEW-BUILDER, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
+    roots: [FU-MODEL-LOADER, FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
     authoredStatus: in-review
     authoredStatusExplanation: Traceability scope is seeded and will be tightened as requirements are added.
   - id: VIEW-SECURITY

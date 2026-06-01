@@ -16,14 +16,14 @@ var allowedControlImplementationTypes = map[string]bool{
 	"hybrid":     true,
 }
 
-var allowedControlAllocationStatuses = map[string]bool{
+var allowedControlImplementationStatuses = map[string]bool{
 	"planned":     true,
 	"partial":     true,
 	"implemented": true,
 	"inherited":   true,
 }
 
-var oscalControlIDRe = regexp.MustCompile(`(?i)^[a-z]{1,4}-\d+(\(\d+\))*$`)
+var oscalControlIDRe = regexp.MustCompile(`(?i)^[a-z]{1,4}-\d+((\(\d+\))|(\.\d+))*$`)
 var isoDateRe = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 var allowedRiskStatus = map[string]bool{
@@ -283,6 +283,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	threatOutOfScope := map[string]bool{}
 	threatMitigations := map[string]bool{}
 	controlVerifications := map[string]bool{}
+	complianceProfiles := map[string]bool{}
 	kindByID := map[string]string{}
 
 	for i, d := range b.Architecture.Decisions {
@@ -342,10 +343,6 @@ func Bundle(b model.Bundle) []Diagnostic {
 		controls[x.ID] = true
 		kindByID[x.ID] = "control"
 	}
-	for i, x := range b.Architecture.AuthoredArchitecture.ControlAllocations {
-		addID(x.ID, fmt.Sprintf("authoredArchitecture.controlAllocations[%d]", i))
-		kindByID[x.ID] = "control_allocation"
-	}
 	for i, x := range b.Architecture.AuthoredArchitecture.Risks {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.risks[%d]", i))
 		risks[x.ID] = true
@@ -402,6 +399,15 @@ func Bundle(b model.Bundle) []Diagnostic {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.controlVerifications[%d]", i))
 		controlVerifications[x.ID] = true
 		kindByID[x.ID] = "control_verification"
+	}
+	for i, x := range b.Architecture.Compliance.Profiles {
+		addID(x.ID, fmt.Sprintf("compliance.profiles[%d]", i))
+		complianceProfiles[x.ID] = true
+		kindByID[x.ID] = "compliance_profile"
+	}
+	for i, x := range b.Architecture.Compliance.Mappings {
+		addID(x.ID, fmt.Sprintf("compliance.mappings[%d]", i))
+		kindByID[x.ID] = "compliance_mapping"
 	}
 
 	validID := func(id string) bool {
@@ -490,46 +496,61 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 
-	for i, a := range b.Architecture.AuthoredArchitecture.ControlAllocations {
-		path := fmt.Sprintf("authoredArchitecture.controlAllocations[%d]", i)
-		if controlRef := strings.TrimSpace(a.ControlRef); controlRef == "" {
-			diags = append(diags, Diagnostic{Code: "model.missing_control_ref", Severity: SeverityError, Message: "control allocation must set controlRef", Path: path})
+	for i, p := range b.Architecture.Compliance.Profiles {
+		path := fmt.Sprintf("compliance.profiles[%d]", i)
+		if strings.TrimSpace(p.ID) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_compliance_profile_id", Severity: SeverityError, Message: "compliance profile id is required", Path: path})
+		}
+		if strings.TrimSpace(p.Href) == "" && strings.TrimSpace(p.CatalogHref) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_compliance_profile_source", Severity: SeverityError, Message: "compliance profile must set href or catalogHref", Path: path})
+		}
+	}
+	for i, m := range b.Architecture.Compliance.Mappings {
+		path := fmt.Sprintf("compliance.mappings[%d]", i)
+		if profileRef := strings.TrimSpace(m.ProfileRef); profileRef == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_compliance_profile_ref", Severity: SeverityError, Message: "compliance mapping must set profileRef", Path: path})
+		} else if !complianceProfiles[profileRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_compliance_profile_ref", Severity: SeverityError, Message: fmt.Sprintf("compliance mapping references unknown profile %q", profileRef), Path: path})
+		}
+		if controlRef := strings.TrimSpace(m.ModelControlRef); controlRef == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_compliance_model_control_ref", Severity: SeverityError, Message: "compliance mapping must set modelControlRef", Path: path})
 		} else if !controls[controlRef] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_control_ref", Severity: SeverityError, Message: fmt.Sprintf("control allocation references unknown control %q", controlRef), Path: path})
+			diags = append(diags, Diagnostic{Code: "model.invalid_compliance_model_control_ref", Severity: SeverityError, Message: fmt.Sprintf("compliance mapping references unknown model control %q", controlRef), Path: path})
 		}
-		if len(a.OSCALControlIDs) == 0 {
-			diags = append(diags, Diagnostic{Code: "model.empty_oscal_control_ids", Severity: SeverityError, Message: "control allocation must include at least one oscalControlIds entry", Path: path})
+		if len(m.ControlIDs) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_compliance_control_ids", Severity: SeverityError, Message: "compliance mapping must include at least one controlIds entry", Path: path})
 		}
-		for j, cid := range a.OSCALControlIDs {
+		for j, cid := range m.ControlIDs {
 			cid = strings.TrimSpace(cid)
 			if cid == "" || !oscalControlIDRe.MatchString(cid) {
-				diags = append(diags, Diagnostic{Code: "model.invalid_oscal_control_id", Severity: SeverityError, Message: fmt.Sprintf("invalid OSCAL control id %q", cid), Path: fmt.Sprintf("%s.oscalControlIds[%d]", path, j)})
+				diags = append(diags, Diagnostic{Code: "model.invalid_compliance_control_id", Severity: SeverityError, Message: fmt.Sprintf("invalid compliance control id %q", cid), Path: fmt.Sprintf("%s.controlIds[%d]", path, j)})
 			}
 		}
-		if len(a.AppliesTo) == 0 {
-			diags = append(diags, Diagnostic{Code: "model.empty_control_allocation_scope", Severity: SeverityError, Message: "control allocation must include at least one appliesTo id", Path: path})
+		if len(m.AppliesTo) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_compliance_mapping_scope", Severity: SeverityError, Message: "compliance mapping must include at least one appliesTo id", Path: path})
 		}
-		for j, target := range a.AppliesTo {
+		for j, target := range m.AppliesTo {
 			target = strings.TrimSpace(target)
 			if target == "" || !validID(target) {
-				diags = append(diags, Diagnostic{Code: "model.invalid_control_allocation_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+				diags = append(diags, Diagnostic{Code: "model.invalid_compliance_mapping_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
 			}
 		}
-		if it := strings.ToLower(strings.TrimSpace(a.ImplementationType)); it != "" && !allowedControlImplementationTypes[it] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_control_implementation_type", Severity: SeverityError, Message: fmt.Sprintf("unknown implementationType %q", a.ImplementationType), Path: path})
+		if it := strings.ToLower(strings.TrimSpace(m.ImplementationType)); it != "" && !allowedControlImplementationTypes[it] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_compliance_implementation_type", Severity: SeverityError, Message: fmt.Sprintf("unknown implementationType %q", m.ImplementationType), Path: path})
 		}
-		if st := strings.ToLower(strings.TrimSpace(a.Status)); st != "" && !allowedControlAllocationStatuses[st] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_control_allocation_status", Severity: SeverityError, Message: fmt.Sprintf("unknown status %q", a.Status), Path: path})
+		status := firstNonEmpty(strings.ToLower(strings.TrimSpace(m.ImplementationStatus)), strings.ToLower(strings.TrimSpace(m.Status)))
+		if status != "" && !allowedControlImplementationStatuses[status] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_compliance_mapping_status", Severity: SeverityError, Message: fmt.Sprintf("unknown implementation status %q", status), Path: path})
 		}
-		for j, role := range a.ResponsibleRoles {
+		for j, role := range m.ResponsibleRoles {
 			role = strings.TrimSpace(role)
 			if role == "" || !actors[role] {
-				diags = append(diags, Diagnostic{Code: "model.invalid_control_responsible_role", Severity: SeverityError, Message: fmt.Sprintf("unknown responsible role %q", role), Path: fmt.Sprintf("%s.responsibleRoles[%d]", path, j)})
+				diags = append(diags, Diagnostic{Code: "model.invalid_compliance_responsible_role", Severity: SeverityError, Message: fmt.Sprintf("unknown responsible role %q", role), Path: fmt.Sprintf("%s.responsibleRoles[%d]", path, j)})
 			}
 		}
-		for j, ev := range a.Evidence {
+		for j, ev := range m.Evidence {
 			if strings.TrimSpace(ev.Path) == "" {
-				diags = append(diags, Diagnostic{Code: "model.empty_control_evidence_path", Severity: SeverityError, Message: "control allocation evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
+				diags = append(diags, Diagnostic{Code: "model.empty_compliance_evidence_path", Severity: SeverityError, Message: "compliance mapping evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
 			}
 		}
 	}
@@ -1075,4 +1096,15 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 	}
 	key := from + ":" + to
 	return allowed[t][key]
+}
+
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
 }

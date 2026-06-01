@@ -3,12 +3,12 @@
     "uuid": "183f9788-e896-56b9-9abe-bd45eca65a85",
     "metadata": {
       "title": "Sample Payments Layered Architecture",
-      "last-modified": "2026-05-09T18:04:22Z",
+      "last-modified": "2026-06-01T18:17:41Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
     "import-profile": {
-      "href": "https://raw.githubusercontent.com/usnistgov/OSCAL/main/content/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+      "href": "examples/payments-engineering-sample/oscal/profile-nist-800-53-low.json"
     },
     "system-characteristics": {
       "system-ids": [
@@ -111,25 +111,6 @@
           ]
         },
         {
-          "uuid": "a9c70222-bf49-5086-b067-d1cb344030ee",
-          "type": "functional_unit",
-          "title": "Payment Authorization",
-          "description": "Architecture component mapped from FU-PAYMENT-AUTHORIZATION.",
-          "status": {
-            "state": "operational"
-          },
-          "props": [
-            {
-              "name": "architecture-id",
-              "value": "FU-PAYMENT-AUTHORIZATION"
-            },
-            {
-              "name": "architecture-kind",
-              "value": "functional_unit"
-            }
-          ]
-        },
-        {
           "uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
           "type": "functional_unit",
           "title": "Support Review",
@@ -147,37 +128,18 @@
               "value": "functional_unit"
             }
           ]
-        },
-        {
-          "uuid": "785ced8c-53c1-56f5-9529-cde285a1cec3",
-          "type": "interface",
-          "title": "Bank Authorization Interface",
-          "description": "Architecture component mapped from IF-PAYMENTS-BANK-AUTH.",
-          "status": {
-            "state": "operational"
-          },
-          "props": [
-            {
-              "name": "architecture-id",
-              "value": "IF-PAYMENTS-BANK-AUTH"
-            },
-            {
-              "name": "architecture-kind",
-              "value": "interface"
-            }
-          ]
         }
       ]
     },
     "control-implementation": {
-      "description": "Control implementation allocations derived from authored controlAllocations.",
+      "description": "Control implementation allocations derived from authored compliance mappings.",
       "implemented-requirements": [
         {
           "uuid": "80a73294-7abb-58bb-96d2-935523cbcccd",
           "control-id": "ac-2",
           "by-components": [
             {
-              "uuid": "30987cd2-3f7b-5c71-84b3-e1c5fe027988",
+              "uuid": "764a92db-929c-5147-ad85-bffd6adfde61",
               "component-uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
               "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
@@ -188,12 +150,20 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/identity/sso-policy.yaml"
             },
             {
-              "uuid": "85bde396-c22a-533f-a4b1-464c7a5f10b1",
+              "uuid": "6c3a2103-826a-5bf8-96d2-ec0604a8a606",
               "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
               "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
@@ -204,6 +174,14 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/identity/sso-policy.yaml"
@@ -215,7 +193,7 @@
           "control-id": "cm-6",
           "by-components": [
             {
-              "uuid": "78e7095e-491f-5768-9a29-a525a2e0a18c",
+              "uuid": "399aba34-7230-5258-8775-a58110683684",
               "component-uuid": "b3a10d2c-da45-5ab1-9e73-9e27a34c6ae8",
               "description": "Delivery pipelines and deployment manifests require immutable image digest pinning.\nRelease automation rejects mutable tags in production deployment paths.",
               "props": [
@@ -226,12 +204,20 @@
                 {
                   "name": "implementation-type",
                   "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-IMAGE-DIGEST"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/flux/kustomization.yaml, infra/helm/values-prod.yaml"
             },
             {
-              "uuid": "6f4fceb3-6de6-5aac-b377-7ef83c157e96",
+              "uuid": "f13ce872-3f28-561c-9fa0-91a5877425d9",
               "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
               "description": "Delivery pipelines and deployment manifests require immutable image digest pinning.\nRelease automation rejects mutable tags in production deployment paths.",
               "props": [
@@ -242,6 +228,14 @@
                 {
                   "name": "implementation-type",
                   "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-IMAGE-DIGEST"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/flux/kustomization.yaml, infra/helm/values-prod.yaml"
@@ -249,11 +243,11 @@
           ]
         },
         {
-          "uuid": "616a78a1-1fb9-59b9-9fb0-f6996f7a7421",
-          "control-id": "ia-2.1",
+          "uuid": "3b7182ea-7afc-572d-8a05-ab095ad92ca5",
+          "control-id": "ia-2",
           "by-components": [
             {
-              "uuid": "4b8dccb9-7b92-5a6f-8da8-6f19929583ff",
+              "uuid": "fa37f3ff-555d-5399-baa7-a25cd4f68225",
               "component-uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
               "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
@@ -264,12 +258,20 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/identity/sso-policy.yaml"
             },
             {
-              "uuid": "65aeaeaa-e287-5a0f-b315-7670cb11781a",
+              "uuid": "bd898332-b451-5f7c-97cd-25102910018e",
               "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
               "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
@@ -280,6 +282,14 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
               "remarks": "Evidence: infra/identity/sso-policy.yaml"
@@ -287,13 +297,13 @@
           ]
         },
         {
-          "uuid": "04bff5de-3cc7-5a51-95aa-15920e9ab56c",
-          "control-id": "si-10",
+          "uuid": "616a78a1-1fb9-59b9-9fb0-f6996f7a7421",
+          "control-id": "ia-2.1",
           "by-components": [
             {
-              "uuid": "a46b6c34-2bac-5e5e-9f5c-ce99b7ed0091",
-              "component-uuid": "785ced8c-53c1-56f5-9529-cde285a1cec3",
-              "description": "Authorization callback handling validates nonce freshness and request idempotency before writing decisions.\nDuplicate callback identifiers are rejected and emitted as security-relevant telemetry.",
+              "uuid": "acdaf44b-f12c-5efd-8f2d-c60cd18ce16d",
+              "component-uuid": "0c906e36-895c-59f4-84df-cd6710cf481c",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
                 {
                   "name": "implementation-status",
@@ -302,14 +312,22 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
-              "remarks": "Evidence: src/payment_authorization.go"
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
             },
             {
-              "uuid": "8eb7984c-9079-53f3-b43b-77e5ee0b70dc",
-              "component-uuid": "a9c70222-bf49-5086-b067-d1cb344030ee",
-              "description": "Authorization callback handling validates nonce freshness and request idempotency before writing decisions.\nDuplicate callback identifiers are rejected and emitted as security-relevant telemetry.",
+              "uuid": "96867024-8c61-5853-a5ce-b67f0554abfe",
+              "component-uuid": "e25b060f-f9e8-5194-835b-6bec15e437de",
+              "description": "Workforce access is mediated by centralized SSO with MFA and conditional access policy.\nElevated operational actions require successful strong authentication before authorization.",
               "props": [
                 {
                   "name": "implementation-status",
@@ -318,9 +336,17 @@
                 {
                   "name": "implementation-type",
                   "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "value": "CTRL-PAYMENTS-SSO-MFA"
+                },
+                {
+                  "name": "profile-ref",
+                  "value": "PROF-NIST-800-53-LOW"
                 }
               ],
-              "remarks": "Evidence: src/payment_authorization.go"
+              "remarks": "Evidence: infra/identity/sso-policy.yaml"
             }
           ]
         }

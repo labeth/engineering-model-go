@@ -1,4 +1,4 @@
-package EngineeringModelGoRequirements
+package EngineeringModelRequirements
 
 type Requirement {
   id         String

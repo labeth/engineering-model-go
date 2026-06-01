@@ -10,6 +10,8 @@ Generate a deterministic architecture document (AsciiDoc/PDF) from:
 - catalog terms (`catalog.yml`, referenced by `architecture.yml`)
 - inferred runtime/code evidence from IaC and source trees
 
+The generated AsciiDoc/PDF is the maintained publication surface. Machine-oriented development context is exposed through the MCP server, not through generated machine-view files.
+
 ## Current Model
 
 The generator is view-centric and layered:
@@ -92,11 +94,17 @@ The generated document includes:
 `cmd/engdoc`:
 
 ```bash
-engdoc --model architecture.yml --requirements requirements.yml --design design.yml [--view VIEW-ID ...] [--out architecture.adoc]
+engdoc --model architecture.yml --requirements requirements.yml --design design.yml [--view VIEW-ID ...] [--out architecture.adoc] [--decisions-out decisions.adoc]
 ```
 
 With source evidence inference:
 
 ```bash
-engdoc --model architecture.yml --requirements requirements.yml --design design.yml --code-root ./src --out architecture.adoc
+engdoc --model architecture.yml --requirements requirements.yml --design design.yml --code-root ./src --out architecture.adoc --decisions-out decisions.adoc
+```
+
+Render PDF with `proven-docs`:
+
+```bash
+proven-docs render generated/ARCHITECTURE.adoc --output generated/ARCHITECTURE.proven.pdf
 ```

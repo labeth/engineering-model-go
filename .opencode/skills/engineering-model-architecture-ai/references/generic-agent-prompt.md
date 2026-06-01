@@ -4,34 +4,31 @@ Use this for any agent framework (Codex, Claude Code, Cursor agent, custom orche
 
 ## Prompt Template
 
-You are working in a model-driven architecture repository with AI-first artifacts.
+You are working in a model-driven architecture repository with MCP-backed machine context.
 
 Primary machine input:
-- `generated/ARCHITECTURE.ai.json`
-Optional:
-- `generated/ARCHITECTURE.edges.ndjson`
-- `generated/ARCHITECTURE.ai.md`
+- MCP tool responses for model, implementation, policy, verification, and generation context
 
 Workflow and tagging contract:
-- `docs/skills/architecture-ai-workflow.md`
+- `docs/skills/architecture-mcp-workflow.md`
 
 Requirements:
 
 1. Plan and execute changes by stable IDs (`REQ`, `FU`, `RT`, `CODE`, `VER`).
-2. For each requirement change, provide a support chain using `support_paths`.
+2. For each requirement change, provide an MCP-resolved implementation and verification chain.
 3. Use repository tagging markers in code/tests:
 - `ENGMODEL-OWNER-UNIT: FU-*`
 - `TRLC-LINKS: REQ-*` (required)
 4. Keep authored architecture separate from inferred evidence.
-5. Regenerate AI artifacts and run validation tests.
+5. Regenerate maintained artifacts and run validation tests.
 6. Output a final impact map by stable IDs with source references.
 
 Response structure to enforce:
 
 - Target requirements
-- Support paths used
+- MCP context used
 - Files changed
 - Tags added/updated
 - Verification updates
-- AI artifact deltas (coverage/confidence)
+- Generated artifacts refreshed
 - Test results

@@ -2,13 +2,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
   model {
     sys_engineering_model_go = softwareSystem "Engineering Model Go Repository Architecture" "This architecture models the engineering-model-go repository as a model-driven toolchain. It captures authored functional intent, export surfaces, and verification-oriented traceability. The model is intended to guide implementation work in this repository using stable IDs and support paths." {
       group "Artifact Generation" {
-        fu_fu_ai_view_builder = container "AI View Builder" "Emits AI JSON, edges, and markdown views with support paths and implementation paths." "Functional Unit" {
-          tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-ARTIFACT-GENERATION"
-            "sourceId" "FU-AI-VIEW-BUILDER"
-          }
-        }
         fu_fu_asciidoc_generator = container "AsciiDoc Generator" "Renders architecture publication docs and view narratives for human consumption." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
@@ -103,7 +96,7 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         }
       }
     }
-    person_act_ai_agent = person "AI Agent" "Uses MCP tools and AI JSON to plan and execute scoped implementation work." {
+    person_act_ai_agent = person "AI Agent" "Uses MCP tools to plan and execute scoped implementation work." {
       tags "Actor"
       properties {
         "sourceId" "ACT-AI-AGENT"
@@ -283,14 +276,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "IF-CLI-ENGVIEW"
       }
     }
-    data_do_ai_json_artifact = softwareSystem "AI JSON Artifact" "generated/ARCHITECTURE.ai.json" {
-      tags "DataObject,internal"
-      properties {
-        "classification" "machine-interface"
-        "retention" "build-artifact"
-        "sourceId" "DO-AI-JSON-ARTIFACT"
-      }
-    }
     data_do_architecture_model = softwareSystem "Architecture Model" "architecture.yml" {
       tags "DataObject,internal"
       properties {
@@ -441,14 +426,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-TRLC-EXPORTER"
         "mappingType" "bounded_by"
         "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
-    }
-    group_fg_artifact_generation -> fu_fu_ai_view_builder "contains" {
-      tags "Mapping,contains"
-      properties {
-        "fromId" "FG-ARTIFACT-GENERATION"
-        "mappingType" "contains"
-        "toId" "FU-AI-VIEW-BUILDER"
       }
     }
     group_fg_artifact_generation -> fu_fu_asciidoc_generator "contains" {
@@ -611,30 +588,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "IF-CLI-ENGVIEW"
       }
     }
-    fu_fu_ai_view_builder -> fu_fu_codemap_inference "depends_on" {
-      tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-AI-VIEW-BUILDER"
-        "mappingType" "depends_on"
-        "toId" "FU-CODEMAP-INFERENCE"
-      }
-    }
-    fu_fu_ai_view_builder -> fu_fu_view_projection "depends_on" {
-      tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-AI-VIEW-BUILDER"
-        "mappingType" "depends_on"
-        "toId" "FU-VIEW-PROJECTION"
-      }
-    }
-    fu_fu_cli_orchestration -> fu_fu_ai_view_builder "depends_on" {
-      tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-CLI-ORCHESTRATION"
-        "mappingType" "depends_on"
-        "toId" "FU-AI-VIEW-BUILDER"
-      }
-    }
     fu_fu_cli_orchestration -> fu_fu_asciidoc_generator "depends_on" {
       tags "Mapping,depends_on"
       properties {
@@ -665,14 +618,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-LOBSTER-EXPORTER"
         "mappingType" "depends_on"
         "toId" "REF-LOBSTER-TOOLCHAIN"
-      }
-    }
-    fu_fu_mcp_server -> fu_fu_ai_view_builder "depends_on" {
-      tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "depends_on"
-        "toId" "FU-AI-VIEW-BUILDER"
       }
     }
     fu_fu_mcp_server -> fu_fu_model_loader "depends_on" {
@@ -721,6 +666,54 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-TRLC-EXPORTER"
         "mappingType" "depends_on"
         "toId" "REF-TRLC-TOOLCHAIN"
+      }
+    }
+    fu_fu_validation_engine -> ref_ref_go_toolchain "Runs Go tests and static checks as part of repository validation." {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-VALIDATION-ENGINE"
+        "mappingType" "depends_on"
+        "toId" "REF-GO-TOOLCHAIN"
+      }
+    }
+    person_act_ai_agent -> fu_fu_mcp_server "Uses model-backed MCP tools to inspect and update implementation scope." {
+      tags "Mapping,interacts_with"
+      properties {
+        "fromId" "ACT-AI-AGENT"
+        "mappingType" "interacts_with"
+        "toId" "FU-MCP-SERVER"
+      }
+    }
+    person_act_architecture_author -> fu_fu_cli_orchestration "Maintains model and design artifacts through CLI generation workflows." {
+      tags "Mapping,interacts_with"
+      properties {
+        "fromId" "ACT-ARCHITECTURE-AUTHOR"
+        "mappingType" "interacts_with"
+        "toId" "FU-CLI-ORCHESTRATION"
+      }
+    }
+    person_act_ci_pipeline -> fu_fu_cli_orchestration "Executes validation and generation commands in automated checks." {
+      tags "Mapping,interacts_with"
+      properties {
+        "fromId" "ACT-CI-PIPELINE"
+        "mappingType" "interacts_with"
+        "toId" "FU-CLI-ORCHESTRATION"
+      }
+    }
+    person_act_compliance_engineer -> fu_fu_oscal_exporter "Uses OSCAL and traceability outputs for assurance workflows." {
+      tags "Mapping,interacts_with"
+      properties {
+        "fromId" "ACT-COMPLIANCE-ENGINEER"
+        "mappingType" "interacts_with"
+        "toId" "FU-OSCAL-EXPORTER"
+      }
+    }
+    person_act_implementation_engineer -> fu_fu_cli_orchestration "Runs validation, generation, and export commands during implementation work." {
+      tags "Mapping,interacts_with"
+      properties {
+        "fromId" "ACT-IMPLEMENTATION-ENGINEER"
+        "mappingType" "interacts_with"
+        "toId" "FU-CLI-ORCHESTRATION"
       }
     }
     av_av_path_traversal_in_mcp -> ctrl_ctrl_mcp_path_boundary "mitigated_by" {
@@ -795,14 +788,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "FU-CODEMAP-INFERENCE"
       }
     }
-    fu_fu_ai_view_builder -> data_do_ai_json_artifact "writes" {
-      tags "Mapping,writes"
-      properties {
-        "fromId" "FU-AI-VIEW-BUILDER"
-        "mappingType" "writes"
-        "toId" "DO-AI-JSON-ARTIFACT"
-      }
-    }
     fu_fu_mcp_server -> data_do_mcp_tool_result "writes" {
       tags "Mapping,writes"
       properties {
@@ -825,12 +810,6 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-THREAT-EXPORTER"
         "mappingType" "writes"
         "toId" "DO-THREAT-DRAGON-JSON"
-      }
-    }
-    person_act_implementation_engineer -> fu_fu_cli_orchestration "Model Change to Verified Artifacts Flow" {
-      tags "Flow"
-      properties {
-        "flowId" "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS"
       }
     }
     deploymentEnvironment "ci" {

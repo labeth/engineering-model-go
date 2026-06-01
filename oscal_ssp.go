@@ -17,6 +17,7 @@ import (
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALSSPOptions struct {
 	ProfileHref       string
+	CatalogHref       string
 	SystemName        string
 	SystemDescription string
 }
@@ -193,7 +194,12 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 
 	profile := strings.TrimSpace(options.ProfileHref)
 	if profile == "" {
-		profile = "https://raw.githubusercontent.com/usnistgov/OSCAL/main/content/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+		if len(bundle.Architecture.Compliance.Profiles) > 0 {
+			profile = strings.TrimSpace(bundle.Architecture.Compliance.Profiles[0].Href)
+		}
+		if profile == "" {
+			profile = "https://raw.githubusercontent.com/usnistgov/OSCAL/main/content/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+		}
 	}
 	systemName := strings.TrimSpace(options.SystemName)
 	if systemName == "" {
@@ -206,13 +212,18 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 
 	labelByID := buildSSPLabelIndex(bundle.Architecture.AuthoredArchitecture)
 	kindByID := buildSSPKindIndex(bundle.Architecture.AuthoredArchitecture)
+	compliance, complianceDiags := resolveOSCALCompliance(bundle, oscalResolveOptions{ProfileHref: options.ProfileHref, CatalogHref: options.CatalogHref})
+	diags = append(diags, complianceDiags...)
+	if validate.HasErrors(diags) {
+		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
+	}
 	componentByID := map[string]oscalComponent{}
 	requirementsByControl := map[string][]oscalByComponent{}
 
-	for _, alloc := range bundle.Architecture.AuthoredArchitecture.ControlAllocations {
+	for _, alloc := range compliance.Mappings {
 		narrative := strings.TrimSpace(alloc.Narrative)
 		if narrative == "" {
-			narrative = fmt.Sprintf("Implementation allocation for control %s.", strings.TrimSpace(alloc.ControlRef))
+			narrative = fmt.Sprintf("Implementation allocation for control %s.", strings.TrimSpace(alloc.ModelControlRef))
 		}
 		evidenceParts := []string{}
 		for _, ev := range alloc.Evidence {
@@ -242,7 +253,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 			}
 		}
 
-		for _, cid := range alloc.OSCALControlIDs {
+		for _, cid := range alloc.ControlIDs {
 			cid = normalizeOSCALControlID(strings.TrimSpace(cid))
 			if cid == "" {
 				continue
@@ -254,11 +265,20 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 				}
 				comp := componentByID[targetID]
 				props := []oscalProperty{}
-				if st := strings.TrimSpace(alloc.Status); st != "" {
+				if st := strings.TrimSpace(alloc.ImplementationStatus); st != "" {
 					props = append(props, oscalProperty{Name: "implementation-status", Value: st})
 				}
 				if it := strings.TrimSpace(alloc.ImplementationType); it != "" {
 					props = append(props, oscalProperty{Name: "implementation-type", Value: it})
+				}
+				if c := strings.TrimSpace(alloc.ModelControlRef); c != "" {
+					props = append(props, oscalProperty{Name: "model-control-ref", Value: c})
+				}
+				if p := strings.TrimSpace(alloc.ProfileRef); p != "" {
+					props = append(props, oscalProperty{Name: "profile-ref", Value: p})
+				}
+				if r := strings.TrimSpace(alloc.Rationale); r != "" {
+					props = append(props, oscalProperty{Name: "mapping-rationale", Value: r})
 				}
 				requirementsByControl[cid] = append(requirementsByControl[cid], oscalByComponent{
 					UUID:          deterministicUUID("by-component|" + bundle.Architecture.Model.ID + "|" + cid + "|" + targetID + "|" + strings.TrimSpace(alloc.ID)),
@@ -352,7 +372,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 		},
 		SystemImplementation: oscalSystemImplementation{Users: users, Components: components},
 		ControlImplementation: oscalControlImplementation{
-			Description:             "Control implementation allocations derived from authored controlAllocations.",
+			Description:             "Control implementation allocations derived from authored compliance mappings.",
 			ImplementedRequirements: implemented,
 		},
 	}}

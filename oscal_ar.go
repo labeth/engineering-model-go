@@ -18,6 +18,8 @@ type OSCALAROptions struct {
 	AssessmentPlanHref string
 	RequirementsPath   string
 	CodeRoot           string
+	ProfileHref        string
+	CatalogHref        string
 }
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -137,11 +139,16 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 	diags = append(diags, codeDiags...)
 	inferredVerification, verDiags := inferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
 	diags = append(diags, verDiags...)
+	compliance, complianceDiags := resolveOSCALCompliance(bundle, oscalResolveOptions{ProfileHref: options.ProfileHref, CatalogHref: options.CatalogHref})
+	diags = append(diags, complianceDiags...)
+	if validate.HasErrors(diags) {
+		return OSCALARResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
+	}
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	controlSet := map[string]bool{}
-	for _, a := range bundle.Architecture.AuthoredArchitecture.ControlAllocations {
-		for _, cid := range a.OSCALControlIDs {
+	for _, a := range compliance.Mappings {
+		for _, cid := range a.ControlIDs {
 			if c := normalizeOSCALControlID(cid); c != "" {
 				controlSet[c] = true
 			}
@@ -207,11 +214,11 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 		Results: []oscalARResult{{
 			UUID:        deterministicUUID("result|" + bundle.Architecture.Model.ID),
 			Title:       "Automated architecture assessment",
-			Description: "Assessment results generated from verification evidence, authored risks, and control allocations.",
+			Description: "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
 			Start:       now,
 			End:         now,
 			ReviewedControls: oscalReviewedControls{ControlSelections: []oscalControlSelection{{
-				Description:     "Controls reviewed through architecture-derived allocations.",
+				Description:     "Controls reviewed through architecture-derived compliance mappings.",
 				IncludeControls: controlRefs,
 			}}},
 			Findings: findings,

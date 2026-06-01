@@ -186,28 +186,6 @@ authoredArchitecture:
       category: integrity
       description: Require signed firmware bundles before applying OTA updates.
 
-  controlAllocations:
-    - id: ALLOC-IA-3-DEVICE-IDENTITY
-      controlRef: CTRL-COFFEE-DEVICE-IDENTITY
-      oscalControlIds: [ia-3]
-      appliesTo: [FU-FLEET-INGESTION-API, FU-DEVICE-IDENTITY-SECRETS, IF-COFFEE-TELEMETRY-INGEST]
-      implementationType: technical
-      status: implemented
-      narrative: Telemetry channels enforce device identity verification and reject unauthorized clients.
-      evidence:
-        - path: src/telemetry_ingest.ts
-      responsibleRoles: [ACT-SECURITY-ANALYST]
-    - id: ALLOC-SI-7-FW-SIGNATURE
-      controlRef: CTRL-COFFEE-FIRMWARE-SIGNATURE
-      oscalControlIds: [si-7]
-      appliesTo: [FU-OTA-UPDATE-AGENT, FU-UPDATE-CAMPAIGN-ORCHESTRATION]
-      implementationType: hybrid
-      status: implemented
-      narrative: OTA workflows require signer verification before rollout and device application.
-      evidence:
-        - path: src/ota_agent.rs
-      responsibleRoles: [ACT-FLEET-OPERATOR]
-
   trustBoundaries:
     - id: TB-COFFEE-EDGE-DEVICE
       name: Edge Device Boundary
@@ -901,6 +879,34 @@ authoredArchitecture:
       responsibleRole: ACT-SECURITY-ANALYST
       artifacts:
         - path: tickets/SEC-3301.md
+
+compliance:
+  profiles:
+    - id: PROF-NIST-800-53-MODERATE
+      href: https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json
+  mappings:
+    - id: MAP-COFFEE-DEVICE-IDENTITY
+      profileRef: PROF-NIST-800-53-MODERATE
+      modelControlRef: CTRL-COFFEE-DEVICE-IDENTITY
+      controlIds: [ia-3]
+      appliesTo: [FU-FLEET-INGESTION-API, FU-DEVICE-IDENTITY-SECRETS, IF-COFFEE-TELEMETRY-INGEST]
+      implementationType: technical
+      implementationStatus: implemented
+      narrative: Telemetry channels enforce device identity verification and reject unauthorized clients.
+      evidence:
+        - path: src/telemetry_ingest.ts
+      responsibleRoles: [ACT-SECURITY-ANALYST]
+    - id: MAP-COFFEE-FIRMWARE-SIGNATURE
+      profileRef: PROF-NIST-800-53-MODERATE
+      modelControlRef: CTRL-COFFEE-FIRMWARE-SIGNATURE
+      controlIds: [si-7]
+      appliesTo: [FU-OTA-UPDATE-AGENT, FU-UPDATE-CAMPAIGN-ORCHESTRATION]
+      implementationType: hybrid
+      implementationStatus: implemented
+      narrative: OTA workflows require signer verification before rollout and device application.
+      evidence:
+        - path: src/ota_agent.rs
+      responsibleRoles: [ACT-FLEET-OPERATOR]
 
 inferenceHints:
   runtimeSources:
