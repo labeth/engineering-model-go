@@ -307,6 +307,11 @@ flowchart LR
   REQC_REQ_OTA_001["REQ-OTA-001"]:::requirement
   FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
   REQC_REQ_OTA_001 -->|applies_to| FU_FU_OTA_APPLY
+  RTC_FU_OTA_APPLY_RUNTIME["OTA Apply runtime (inferred)"]:::runtime_element
+  FU_FU_OTA_APPLY -->|runtime evidence| RTC_FU_OTA_APPLY_RUNTIME
+  CODE_OTA_AGENT_RS["ota_agent.rs:12,18,24"]:::code_element
+  RTC_FU_OTA_APPLY_RUNTIME -->|implemented_by| CODE_OTA_AGENT_RS
+  REQC_REQ_OTA_001 -->|code trace| CODE_OTA_AGENT_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -391,6 +396,11 @@ flowchart LR
   REQC_REQ_OTA_003["REQ-OTA-003"]:::requirement
   FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
   REQC_REQ_OTA_003 -->|applies_to| FU_FU_OTA_APPLY
+  RTC_FU_OTA_APPLY_RUNTIME["OTA Apply runtime (inferred)"]:::runtime_element
+  FU_FU_OTA_APPLY -->|runtime evidence| RTC_FU_OTA_APPLY_RUNTIME
+  CODE_OTA_AGENT_RS["ota_agent.rs:12,18,24"]:::code_element
+  RTC_FU_OTA_APPLY_RUNTIME -->|implemented_by| CODE_OTA_AGENT_RS
+  REQC_REQ_OTA_003 -->|code trace| CODE_OTA_AGENT_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1508,5 +1518,75 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_OTA_AGENT_RS_OTA_AGENT_RS]]
+[discrete]
+==== ota_agent.rs
+
+verifies and applies signed firmware, rolling back on failure
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-OTA-APPLY
+|Source |ota_agent.rs
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_12_OTA_AGENT_RS_12]]
+[discrete]
+==== ota_agent.rs:12
+
+Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:12.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-APPLY
+|Source |ota_agent.rs:12
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_18_OTA_AGENT_RS_18]]
+[discrete]
+==== ota_agent.rs:18
+
+Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:18.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-APPLY
+|Source |ota_agent.rs:18
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_24_OTA_AGENT_RS_24]]
+[discrete]
+==== ota_agent.rs:24
+
+Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:24.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-APPLY
+|Source |ota_agent.rs:24
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_5_OTA_AGENT_RS_5]]
+[discrete]
+==== ota_agent.rs:5
+
+Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-OTA-APPLY
+|Source |ota_agent.rs:5
+|Mentioned In |n/a
+|===
 
 === Verification References

@@ -304,6 +304,11 @@ flowchart LR
   REQC_REQ_CLOUD_001["REQ-CLOUD-001"]:::requirement
   FU_FU_CLOUD_INGEST["Cloud Ingest"]:::functional_unit
   REQC_REQ_CLOUD_001 -->|applies_to| FU_FU_CLOUD_INGEST
+  RTC_FU_CLOUD_INGEST_RUNTIME["Cloud Ingest runtime (inferred)"]:::runtime_element
+  FU_FU_CLOUD_INGEST -->|runtime evidence| RTC_FU_CLOUD_INGEST_RUNTIME
+  CODE_CLOUD_API_TS["cloud_api.ts:6,12"]:::code_element
+  RTC_FU_CLOUD_INGEST_RUNTIME -->|implemented_by| CODE_CLOUD_API_TS
+  REQC_REQ_CLOUD_001 -->|code trace| CODE_CLOUD_API_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -346,6 +351,11 @@ flowchart LR
   REQC_REQ_CLOUD_002["REQ-CLOUD-002"]:::requirement
   FU_FU_CLOUD_INGEST["Cloud Ingest"]:::functional_unit
   REQC_REQ_CLOUD_002 -->|applies_to| FU_FU_CLOUD_INGEST
+  RTC_FU_CLOUD_INGEST_RUNTIME["Cloud Ingest runtime (inferred)"]:::runtime_element
+  FU_FU_CLOUD_INGEST -->|runtime evidence| RTC_FU_CLOUD_INGEST_RUNTIME
+  CODE_CLOUD_API_TS["cloud_api.ts:6,12"]:::code_element
+  RTC_FU_CLOUD_INGEST_RUNTIME -->|implemented_by| CODE_CLOUD_API_TS
+  REQC_REQ_CLOUD_002 -->|code trace| CODE_CLOUD_API_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1437,5 +1447,47 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_CLOUD_API_TS_CLOUD_API_TS]]
+[discrete]
+==== cloud_api.ts
+
+ingests and persists authenticated fleet telemetry
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-CLOUD-INGEST
+|Source |cloud_api.ts
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_CLOUD_API_TS_12_CLOUD_API_TS_12]]
+[discrete]
+==== cloud_api.ts:12
+
+Inferred code symbol owned by FU-CLOUD-INGEST from cloud_api.ts:12.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-CLOUD-INGEST
+|Source |cloud_api.ts:12
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_CLOUD_API_TS_6_CLOUD_API_TS_6]]
+[discrete]
+==== cloud_api.ts:6
+
+Inferred code symbol owned by FU-CLOUD-INGEST from cloud_api.ts:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-CLOUD-INGEST
+|Source |cloud_api.ts:6
+|Mentioned In |n/a
+|===
 
 === Verification References

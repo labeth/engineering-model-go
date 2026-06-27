@@ -58,3 +58,7 @@ contract:
     - id: NEED-CAN-BUS
       kind: interface
       note: CAN bus access to the machine flow sensor.
+
+inferenceHints:
+  codeSources:
+    - ./src

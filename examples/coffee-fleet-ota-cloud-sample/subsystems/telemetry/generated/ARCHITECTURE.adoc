@@ -307,6 +307,11 @@ flowchart LR
   REQC_REQ_TELEM_001["REQ-TELEM-001"]:::requirement
   FU_FU_TELEM_REPORT["Telemetry Reporting"]:::functional_unit
   REQC_REQ_TELEM_001 -->|applies_to| FU_FU_TELEM_REPORT
+  RTC_FU_TELEM_REPORT_RUNTIME["Telemetry Reporting runtime (inferred)"]:::runtime_element
+  FU_FU_TELEM_REPORT -->|runtime evidence| RTC_FU_TELEM_REPORT_RUNTIME
+  CODE_TELEMETRY_RS["telemetry.rs:12,18,27"]:::code_element
+  RTC_FU_TELEM_REPORT_RUNTIME -->|implemented_by| CODE_TELEMETRY_RS
+  REQC_REQ_TELEM_001 -->|code trace| CODE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -391,6 +396,11 @@ flowchart LR
   REQC_REQ_TELEM_003["REQ-TELEM-003"]:::requirement
   FU_FU_TELEM_REPORT["Telemetry Reporting"]:::functional_unit
   REQC_REQ_TELEM_003 -->|applies_to| FU_FU_TELEM_REPORT
+  RTC_FU_TELEM_REPORT_RUNTIME["Telemetry Reporting runtime (inferred)"]:::runtime_element
+  FU_FU_TELEM_REPORT -->|runtime evidence| RTC_FU_TELEM_REPORT_RUNTIME
+  CODE_TELEMETRY_RS["telemetry.rs:12,18,27"]:::code_element
+  RTC_FU_TELEM_REPORT_RUNTIME -->|implemented_by| CODE_TELEMETRY_RS
+  REQC_REQ_TELEM_003 -->|code trace| CODE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1508,5 +1518,75 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_TELEMETRY_RS_TELEMETRY_RS]]
+[discrete]
+==== telemetry.rs
+
+samples machine sensors and reports signed telemetry to the fleet
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-TELEM-REPORT
+|Source |telemetry.rs
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_TELEMETRY_RS_12_TELEMETRY_RS_12]]
+[discrete]
+==== telemetry.rs:12
+
+Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:12.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-TELEM-REPORT
+|Source |telemetry.rs:12
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_TELEMETRY_RS_18_TELEMETRY_RS_18]]
+[discrete]
+==== telemetry.rs:18
+
+Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:18.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-TELEM-REPORT
+|Source |telemetry.rs:18
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_TELEMETRY_RS_27_TELEMETRY_RS_27]]
+[discrete]
+==== telemetry.rs:27
+
+Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:27.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-TELEM-REPORT
+|Source |telemetry.rs:27
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_TELEMETRY_RS_5_TELEMETRY_RS_5]]
+[discrete]
+==== telemetry.rs:5
+
+Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-TELEM-REPORT
+|Source |telemetry.rs:5
+|Mentioned In |n/a
+|===
 
 === Verification References

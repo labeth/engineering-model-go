@@ -7,7 +7,14 @@
       "units": [
         "FU-TELEM-REPORT"
       ],
-      "status": "orphan"
+      "code": [
+        {
+          "symbol": "CODE-REPORTTELEMETRYRECORD",
+          "path": "telemetry.rs",
+          "line": 12
+        }
+      ],
+      "status": "implemented"
     },
     {
       "id": "REQ-TELEM-002",
@@ -15,7 +22,14 @@
       "units": [
         "FU-TELEM-SAMPLE"
       ],
-      "status": "orphan"
+      "code": [
+        {
+          "symbol": "CODE-SAMPLEMACHINESENSORS",
+          "path": "telemetry.rs",
+          "line": 18
+        }
+      ],
+      "status": "implemented"
     },
     {
       "id": "REQ-TELEM-003",
@@ -23,21 +37,24 @@
       "units": [
         "FU-TELEM-REPORT"
       ],
-      "status": "orphan"
+      "code": [
+        {
+          "symbol": "CODE-SIGNTELEMETRYRECORD",
+          "path": "telemetry.rs",
+          "line": 27
+        }
+      ],
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
-  "orphanRequirements": [
-    "REQ-TELEM-001",
-    "REQ-TELEM-002",
-    "REQ-TELEM-003"
-  ],
+  "orphanRequirements": null,
   "summary": {
     "requirements": 3,
-    "implemented": 0,
+    "implemented": 3,
     "verified": 0,
     "delegated": 0,
-    "orphan": 3,
+    "orphan": 0,
     "danglingLinks": 0
   }
 }

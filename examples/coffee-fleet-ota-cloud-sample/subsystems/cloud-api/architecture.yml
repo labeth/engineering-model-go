@@ -57,3 +57,7 @@ contract:
     - id: NEED-INTERNET
       kind: interface
       note: Internet connectivity from the edge gateway.
+
+inferenceHints:
+  codeSources:
+    - ./src

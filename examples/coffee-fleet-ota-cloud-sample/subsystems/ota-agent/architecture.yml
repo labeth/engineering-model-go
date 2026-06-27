@@ -61,3 +61,7 @@ contract:
     - id: NEED-CELLULAR-LINK
       kind: assumption
       note: Cellular connectivity to the edge gateway.
+
+inferenceHints:
+  codeSources:
+    - ./src

@@ -7,7 +7,14 @@
       "units": [
         "FU-CLOUD-INGEST"
       ],
-      "status": "orphan"
+      "code": [
+        {
+          "symbol": "CODE-PERSISTFLEETMETRIC",
+          "path": "cloud_api.ts",
+          "line": 6
+        }
+      ],
+      "status": "implemented"
     },
     {
       "id": "REQ-CLOUD-002",
@@ -15,20 +22,24 @@
       "units": [
         "FU-CLOUD-INGEST"
       ],
-      "status": "orphan"
+      "code": [
+        {
+          "symbol": "CODE-AUTHENTICATEMACHINE",
+          "path": "cloud_api.ts",
+          "line": 12
+        }
+      ],
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
-  "orphanRequirements": [
-    "REQ-CLOUD-001",
-    "REQ-CLOUD-002"
-  ],
+  "orphanRequirements": null,
   "summary": {
     "requirements": 2,
-    "implemented": 0,
+    "implemented": 2,
     "verified": 0,
     "delegated": 0,
-    "orphan": 2,
+    "orphan": 0,
     "danglingLinks": 0
   }
 }
