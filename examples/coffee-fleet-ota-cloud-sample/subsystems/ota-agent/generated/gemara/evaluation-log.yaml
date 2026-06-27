@@ -1,0 +1,40 @@
+metadata:
+  id: cof-ota-agent-EVALUATION-LOG
+  type: EvaluationLog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Control evaluation results for OTA Update Agent Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+result: Passed
+evaluations:
+- name: Firmware Signature Verification
+  result: Passed
+  message: 1 assessment(s) recorded for control CTRL-FIRMWARE-SIGNATURE.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: CTRL-FIRMWARE-SIGNATURE
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: VER-FIRMWARE-SIGNATURE
+    description: Assessment of "Firmware Signature Verification" via test.
+    result: Passed
+    message: Signature rejection verified in unit tests.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-06-27T00:00:00Z"
+    confidence-level: High
+target:
+  id: cof-ota-agent
+  name: OTA Update Agent Subsystem
+  type: Software
+  description: "Evaluation target: OTA Update Agent Subsystem"

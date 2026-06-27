@@ -1,0 +1,19 @@
+design:
+  id: cloud-api-design
+  title: Cloud API Subsystem Design
+
+  functionalGroups:
+    - id: FG-CLOUD
+      views:
+        architecture_intent:
+          title: Cloud Architecture Intent
+          narrative: |
+            The cloud API subsystem ingests authenticated telemetry and drives OTA campaigns.
+        security:
+          title: Cloud Security
+          narrative: |
+            Telemetry ingestion is authenticated to prevent spoofed machine data.
+        traceability:
+          title: Cloud Traceability
+          narrative: |
+            Cloud behavior is traced from the subsystem requirements to ingest and campaign units.

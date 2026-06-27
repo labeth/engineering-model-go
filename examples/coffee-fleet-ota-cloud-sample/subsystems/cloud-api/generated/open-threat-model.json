@@ -1,0 +1,72 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Cloud API Subsystem",
+    "id": "COF-CLOUD-API",
+    "description": "The cloud API subsystem ingests fleet telemetry, persists metrics, and drives OTA\ncampaigns. It is a leaf system of the connected coffee fleet, hosted on the cloud platform.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Fleet Metric",
+      "id": "DO-FLEET-METRIC",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "FU-CLOUD-CAMPAIGN",
+      "name": "Cloud Campaign",
+      "type": "service",
+      "description": "Plans and dispatches OTA campaigns.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-CLOUD-INGEST",
+      "name": "Cloud Ingest",
+      "type": "service",
+      "description": "Ingests and persists fleet telemetry.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLOUD-INGEST",
+      "name": "Cloud Ingest Interface",
+      "type": "interface",
+      "description": "https /ingest",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

@@ -1,0 +1,19 @@
+design:
+  id: ota-agent-design
+  title: OTA Update Agent Subsystem Design
+
+  functionalGroups:
+    - id: FG-OTA
+      views:
+        architecture_intent:
+          title: OTA Architecture Intent
+          narrative: |
+            The OTA agent verifies firmware trust before applying updates and rolls back on failure.
+        security:
+          title: OTA Security
+          narrative: |
+            Firmware signatures are verified at the device boundary before any apply.
+        traceability:
+          title: OTA Traceability
+          narrative: |
+            OTA behavior is traced from the subsystem requirements to verification and apply units.

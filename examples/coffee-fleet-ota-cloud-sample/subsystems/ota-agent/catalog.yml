@@ -1,0 +1,31 @@
+catalog:
+  systems:
+    - id: SYS-OTA-AGENT
+      name: ota agent subsystem
+      definition: On-machine OTA update verification and application subsystem.
+  functionalGroups:
+    - id: FG-OTA
+      name: ota
+      definition: On-machine OTA update verification and application.
+  functionalUnits:
+    - id: FU-OTA-VERIFY
+      name: ota verification
+      definition: Verifies firmware signature and update eligibility.
+    - id: FU-OTA-APPLY
+      name: ota apply
+      definition: Applies verified firmware and rolls back on failure.
+  events:
+    - id: EVT-CAMPAIGN-SCHEDULED
+      name: ota campaign scheduled event is received
+      definition: An OTA campaign has been scheduled for the machine.
+    - id: EVT-VALIDATION-FAILED
+      name: firmware validation failed event is received
+      definition: Firmware signature or eligibility validation failed.
+  features:
+    - id: FEAT-OTA-CAMPAIGN
+      name: ota campaign is enabled
+      definition: Feature enabling OTA campaign participation.
+  dataTerms:
+    - id: DATA-FIRMWARE-BUNDLE
+      name: firmware bundle
+      definition: A signed firmware update package.

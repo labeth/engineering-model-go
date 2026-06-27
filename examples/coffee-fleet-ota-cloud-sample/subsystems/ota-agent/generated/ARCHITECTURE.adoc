@@ -1,0 +1,1512 @@
+= OTA Update Agent Subsystem Design
+:toc:
+:toclevels: 2
+:sectnums:
+
+== Introduction
+
+The OTA update agent subsystem verifies and applies signed firmware on the machine,
+rolling back on <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> failure. It is a leaf system of the connected coffee fleet,
+hosted on the fleet edge gateway.
+
+=== Scope and Assumptions
+
+- <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_GROUP,Functional Groups>> and <<REF_IDX-ENGMODEL_EM_FUNCTIONAL_UNIT,Functional Units>> are the stable authored design backbone.
+- <<REF_IDX-ENGMODEL_EM_RUNTIME_ELEMENT,Runtime elements>> and <<REF_IDX-ENGMODEL_EM_CODE_ELEMENT,code elements>> are inferred from available IaC, deployment, and source artifacts.
+- Inferred coverage is evidence-driven and may be partial when source metadata is missing.
+- <<REF_IDX-ENGMODEL_EM_REQUIREMENT,Requirements>> and reference indexes are provided for traceability, not as primary narrative flow.
+
+== How To Read This Document
+
+This document is intentionally split into two layers:
+
+1. Concept layer: functional and view-specific architecture narratives for human understanding.
+2. Evidence layer: generated requirement traceability and inferred reference indexes.
+
+Read in this order:
+
+1. Architecture Intent View: stable authored architecture intent and ownership boundaries.
+2. Communication / Deployment / Security Views: viewpoint-specific operational behavior.
+3. Traceability View: requirement mapping, evidence coverage, and confidence.
+4. Reference Appendix: supporting reference IDs and inferred-source links.
+
+++++
+<style>
+a[href^="#REF_"],
+a[href^="#SEC_VIEW_"] {
+  background: #f4f6f9;
+  border-radius: 3px;
+  padding: 0.03em 0.2em;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+}
+#toc a,
+.toc a,
+.toc2 a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+</style>
+++++
+
+== Document Health Snapshot
+
+[cols="2,1,3,1,1,1,1,4",options="header"]
+|===
+|View |Authored Status |Authored Status Explanation |Units in Scope |Direct Evidence Coverage |Gap Count |Heuristic Confidence |Heuristic Basis
+|===
+
+== Terms and Definitions
+
+[cols="3,7",options="header"]
+|===
+|Term |Definition
+|[[REF_ENGMODEL_TERM_ACTOR]]<<REF_IDX-ENGMODEL_TERM_ACTOR,actor>> (TERM-ACTOR)
+|A person or operational role that interacts with functional units.
+|[[REF_ENGMODEL_TERM_DECISION]]<<REF_IDX-ENGMODEL_TERM_DECISION,architecture decision>> (TERM-DECISION)
+|Authored architecture decision record with status, context, decision text, and consequences.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_DIAGRAM]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_DIAGRAM,AsciiDoc diagram>> (TERM-ASCIIDOC-DIAGRAM)
+|Generated diagram block, usually Mermaid, that visualizes architecture relationships in the AsciiDoc publication.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_DOCUMENT,AsciiDoc document>> (TERM-ASCIIDOC-DOCUMENT)
+|Human-readable generated architecture publication document assembled from authored model, inferred evidence, diagrams, references, and decisions.
+|[[REF_ENGMODEL_TERM_ASCIIDOC_SECTION]]<<REF_IDX-ENGMODEL_TERM_ASCIIDOC_SECTION,AsciiDoc section>> (TERM-ASCIIDOC-SECTION)
+|Structured generated document section or row model used to render authored and inferred architecture content.
+|[[REF_ENGMODEL_TERM_ATTACK_VECTOR]]<<REF_IDX-ENGMODEL_TERM_ATTACK_VECTOR,attack vector>> (TERM-ATTACK-VECTOR)
+|A technical misuse or attack path that targets functional, referenced, or runtime elements.
+|[[REF_ENGMODEL_TERM_AUTHORED_MAPPING]]<<REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING,authored mapping>> (TERM-AUTHORED-MAPPING)
+|An explicit relationship declared in architecture inputs between authored or referenced elements.
+|[[REF_ENGMODEL_TERM_CATALOG]]<<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> (TERM-CATALOG)
+|Controlled vocabulary document used to normalize model, requirement, and generated-document terminology.
+|[[REF_ENGMODEL_TERM_CATALOG_ENTRY]]<<REF_IDX-ENGMODEL_TERM_CATALOG_ENTRY,catalog entry>> (TERM-CATALOG-ENTRY)
+|A stable catalog term with a definition and aliases for linting, linking, and generated references.
+|[[REF_ENGMODEL_TERM_CLI_COMMAND]]<<REF_IDX-ENGMODEL_TERM_CLI_COMMAND,CLI command>> (TERM-CLI-COMMAND)
+|Command-line entrypoint that coordinates loading, validation, generation, and file output for an engineering-model workflow.
+|[[REF_ENGMODEL_TERM_CODE_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_CODE_ELEMENT,code element>> (TERM-CODE-ELEMENT)
+|An inferred code structure or ownership element discovered from source trees and build metadata.
+|[[REF_ENGMODEL_TERM_COMPLIANCE_MAPPING]]<<REF_IDX-ENGMODEL_TERM_COMPLIANCE_MAPPING,compliance mapping>> (TERM-COMPLIANCE-MAPPING)
+|Authored mapping that links a model control to selected compliance controls, model scope, implementation status, evidence, and responsible roles.
+|[[REF_ENGMODEL_TERM_CONTROL]]<<REF_IDX-ENGMODEL_TERM_CONTROL,control>> (TERM-CONTROL)
+|An authored security, policy, or operational control used to constrain behavior and reduce risk.
+|[[REF_ENGMODEL_TERM_CONTROL_VERIFICATION]]<<REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION,control verification>> (TERM-CONTROL-VERIFICATION)
+|Authored control verification record with method, status, threat/risk scope, findings, and evidence.
+|[[REF_ENGMODEL_TERM_DATA_OBJECT]]<<REF_IDX-ENGMODEL_TERM_DATA_OBJECT,data object>> (TERM-DATA-OBJECT)
+|An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
+|[[REF_ENGMODEL_TERM_DEPLOYMENT_TARGET]]<<REF_IDX-ENGMODEL_TERM_DEPLOYMENT_TARGET,deployment target>> (TERM-DEPLOYMENT-TARGET)
+|An authored deployment destination such as environment, cluster, namespace, or registry scope.
+|[[REF_ENGMODEL_TERM_DESIGN]]<<REF_IDX-ENGMODEL_TERM_DESIGN,design document>> (TERM-DESIGN)
+|Authored design narrative organized by model entities and architecture views.
+|[[REF_ENGMODEL_TERM_DESIGN_VIEW]]<<REF_IDX-ENGMODEL_TERM_DESIGN_VIEW,design view>> (TERM-DESIGN-VIEW)
+|View-scoped design narrative attached to an authored functional group or functional unit.
+|[[REF_ENGMODEL_TERM_EVENT]]<<REF_IDX-ENGMODEL_TERM_EVENT,event>> (TERM-EVENT)
+|An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
+|[[REF_ENGMODEL_TERM_EVIDENCE]]<<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> (TERM-EVIDENCE)
+|A file, artifact, or observation used to support control, risk, threat, or verification claims.
+|[[REF_CATALOG_DATA_FIRMWARE_BUNDLE]]<<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,firmware bundle>> (DATA-FIRMWARE-BUNDLE)
+|A signed firmware update package.
+|[[REF_CATALOG_EVT_VALIDATION_FAILED]]<<REF_IDX-CATALOG_EVT_VALIDATION_FAILED,firmware validation failed event is received>> (EVT-VALIDATION-FAILED)
+|Firmware signature or eligibility validation failed.
+|[[REF_ENGMODEL_TERM_FLOW]]<<REF_IDX-ENGMODEL_TERM_FLOW,flow>> (TERM-FLOW)
+|An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
+|[[REF_ENGMODEL_TERM_FLOW_STEP]]<<REF_IDX-ENGMODEL_TERM_FLOW_STEP,flow step>> (TERM-FLOW-STEP)
+|A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
+|[[REF_ENGMODEL_TERM_FUNCTIONAL_GROUP]]<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP,functional group>> (TERM-FUNCTIONAL-GROUP)
+|A major authored capability area that groups related functional units.
+|[[REF_ENGMODEL_TERM_FUNCTIONAL_UNIT]]<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional unit>> (TERM-FUNCTIONAL-UNIT)
+|An authored working unit inside a functional group that owns specific behavior.
+|[[REF_ENGMODEL_TERM_GENERATION_WORKFLOW]]<<REF_IDX-ENGMODEL_TERM_GENERATION_WORKFLOW,generation workflow>> (TERM-GENERATION-WORKFLOW)
+|Orchestrated run that combines model loading, validation, projection, rendering, and artifact emission.
+|[[REF_ENGMODEL_TERM_INFERENCE_HINT]]<<REF_IDX-ENGMODEL_TERM_INFERENCE_HINT,inference hint>> (TERM-INFERENCE-HINT)
+|Authored source and ownership configuration used to discover runtime, code, and verification evidence.
+|[[REF_ENGMODEL_TERM_INFERRED_MAPPING]]<<REF_IDX-ENGMODEL_TERM_INFERRED_MAPPING,inferred mapping>> (TERM-INFERRED-MAPPING)
+|A discovered relationship that links inferred runtime/code elements upward to authored design.
+|[[REF_ENGMODEL_TERM_INTERFACE]]<<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> (TERM-INTERFACE)
+|An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
+|[[REF_ENGMODEL_TERM_LINT_RUN]]<<REF_IDX-ENGMODEL_TERM_LINT_RUN,lint run>> (TERM-LINT-RUN)
+|Requirement lint configuration that controls parsing and quality checks for requirement text.
+|[[REF_ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE]]<<REF_IDX-ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE,LOBSTER activity trace>> (TERM-LOBSTER-ACTIVITY-TRACE)
+|Generated LOBSTER activity JSON that links verification evidence back to formal requirement identifiers.
+|[[REF_ENGMODEL_TERM_MCP_SERVER]]<<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP server>> (TERM-MCP-SERVER)
+|Model Context Protocol server that exposes engineering-model operations to AI agents through JSON-RPC tools.
+|[[REF_ENGMODEL_TERM_MCP_STDIO_TRANSPORT]]<<REF_IDX-ENGMODEL_TERM_MCP_STDIO_TRANSPORT,MCP stdio transport>> (TERM-MCP-STDIO-TRANSPORT)
+|Content-Length framed standard input/output transport used by the MCP command-line server.
+|[[REF_ENGMODEL_TERM_MCP_TOOL]]<<REF_IDX-ENGMODEL_TERM_MCP_TOOL,MCP tool>> (TERM-MCP-TOOL)
+|Named MCP operation with a constrained input schema and structured response payload.
+|[[REF_ENGMODEL_TERM_MCP_TOOL_RESPONSE]]<<REF_IDX-ENGMODEL_TERM_MCP_TOOL_RESPONSE,MCP tool response>> (TERM-MCP-TOOL-RESPONSE)
+|Structured MCP tool payload that includes success state, schema version, generated timestamp, and result data or validation error.
+|[[REF_ENGMODEL_TERM_MODEL]]<<REF_IDX-ENGMODEL_TERM_MODEL,model>> (TERM-MODEL)
+|The authored architecture model root that composes functional structure, relationships, inference hints, and views.
+|[[REF_ENGMODEL_TERM_BUNDLE]]<<REF_IDX-ENGMODEL_TERM_BUNDLE,model bundle>> (TERM-BUNDLE)
+|Loaded architecture, catalog, and companion documents resolved as one working model context.
+|[[REF_ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT,Open OTM document>> (TERM-OPEN-OTM-DOCUMENT)
+|Open Threat Model JSON representation generated from the engineering model for interoperable threat-model exchange.
+|[[REF_ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS]]<<REF_IDX-ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS,OSCAL assessment results>> (TERM-OSCAL-ASSESSMENT-RESULTS)
+|Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.
+|[[REF_ENGMODEL_TERM_OSCAL_POAM]]<<REF_IDX-ENGMODEL_TERM_OSCAL_POAM,OSCAL POA&M>> (TERM-OSCAL-POAM)
+|Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.
+|[[REF_ENGMODEL_TERM_OSCAL_SSP]]<<REF_IDX-ENGMODEL_TERM_OSCAL_SSP,OSCAL SSP>> (TERM-OSCAL-SSP)
+|Generated OSCAL system security plan that maps authored system metadata, components, controls, allocations, and evidence into SSP JSON.
+|[[REF_CATALOG_FG_OTA]]<<REF_IDX-CATALOG_FG_OTA,ota>> (FG-OTA)
+|On-machine OTA update verification and application.
+|[[REF_CATALOG_SYS_OTA_AGENT]]<<REF_IDX-CATALOG_SYS_OTA_AGENT,ota agent subsystem>> (SYS-OTA-AGENT)
+|On-machine OTA update verification and application subsystem.
+|[[REF_CATALOG_FU_OTA_APPLY]]<<REF_IDX-CATALOG_FU_OTA_APPLY,ota apply>> (FU-OTA-APPLY)
+|Applies verified firmware and rolls back on failure.
+|[[REF_CATALOG_FEAT_OTA_CAMPAIGN]]<<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>> (FEAT-OTA-CAMPAIGN)
+|Feature enabling OTA campaign participation.
+|[[REF_CATALOG_EVT_CAMPAIGN_SCHEDULED]]<<REF_IDX-CATALOG_EVT_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>> (EVT-CAMPAIGN-SCHEDULED)
+|An OTA campaign has been scheduled for the machine.
+|[[REF_CATALOG_FU_OTA_VERIFY]]<<REF_IDX-CATALOG_FU_OTA_VERIFY,ota verification>> (FU-OTA-VERIFY)
+|Verifies firmware signature and update eligibility.
+|[[REF_ENGMODEL_TERM_POAM_ITEM]]<<REF_IDX-ENGMODEL_TERM_POAM_ITEM,POA&M item>> (TERM-POAM-ITEM)
+|Plan of action and milestones item linked to a modeled risk and supporting artifacts.
+|[[REF_ENGMODEL_TERM_REFERENCE_INDEX]]<<REF_IDX-ENGMODEL_TERM_REFERENCE_INDEX,reference index>> (TERM-REFERENCE-INDEX)
+|Generated index of authored, catalog, runtime, code, and verification references with stable anchors and backlinks.
+|[[REF_ENGMODEL_TERM_REFERENCED_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_REFERENCED_ELEMENT,referenced element>> (TERM-REFERENCED-ELEMENT)
+|An architecture-relevant external, platform, or third-party dependency represented by role.
+|[[REF_ENGMODEL_TERM_REPO_INDEX]]<<REF_IDX-ENGMODEL_TERM_REPO_INDEX,repository index>> (TERM-REPO-INDEX)
+|Bounded first-party source index used to answer model-aware file, requirement, control, and threat lookup queries.
+|[[REF_ENGMODEL_TERM_REQUIREMENT]]<<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> (TERM-REQUIREMENT)
+|A structured requirement statement that defines expected system behavior and maps to functional ownership.
+|[[REF_ENGMODEL_TERM_RISK]]<<REF_IDX-ENGMODEL_TERM_RISK,risk>> (TERM-RISK)
+|Authored risk record with likelihood, impact, response, scope, controls, and evidence.
+|[[REF_ENGMODEL_TERM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT,runtime element>> (TERM-RUNTIME-ELEMENT)
+|An inferred runtime realization element discovered from infrastructure and deployment sources.
+|[[REF_ENGMODEL_TERM_SECURITY_CONTEXT]]<<REF_IDX-ENGMODEL_TERM_SECURITY_CONTEXT,security context>> (TERM-SECURITY-CONTEXT)
+|Security-focused generated context view that groups owned functional units and shows external actors, references, flows, controls, and trust boundaries.
+|[[REF_ENGMODEL_TERM_SOURCE_BLOCK]]<<REF_IDX-ENGMODEL_TERM_SOURCE_BLOCK,source block>> (TERM-SOURCE-BLOCK)
+|Stable source reference block that records file path, optional line span, kind, summary, and linked entity IDs.
+|[[REF_ENGMODEL_TERM_STATE]]<<REF_IDX-ENGMODEL_TERM_STATE,state>> (TERM-STATE)
+|An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
+|[[REF_ENGMODEL_TERM_STRUCTURIZR_DSL]]<<REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL,Structurizr DSL>> (TERM-STRUCTURIZR-DSL)
+|Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
+|[[REF_ENGMODEL_TERM_THREAT_ASSUMPTION]]<<REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION,threat assumption>> (TERM-THREAT-ASSUMPTION)
+|Authored security assumption that records scope, rationale, owner, status, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT,Threat Dragon document>> (TERM-THREAT-DRAGON-DOCUMENT)
+|Threat Dragon JSON representation generated from the engineering model for STRIDE threat-model review.
+|[[REF_ENGMODEL_TERM_THREAT_MITIGATION]]<<REF_IDX-ENGMODEL_TERM_THREAT_MITIGATION,threat mitigation>> (TERM-THREAT-MITIGATION)
+|Authored mitigation record that links a threat scenario to a control, effectiveness, verification, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_MODEL_EXPORT]]<<REF_IDX-ENGMODEL_TERM_THREAT_MODEL_EXPORT,threat model export>> (TERM-THREAT-MODEL-EXPORT)
+|Generated security artifact that translates authored architecture, flows, trust boundaries, threats, and mitigations into an external threat-model schema.
+|[[REF_ENGMODEL_TERM_THREAT_OUT_OF_SCOPE]]<<REF_IDX-ENGMODEL_TERM_THREAT_OUT_OF_SCOPE,threat out-of-scope decision>> (TERM-THREAT-OUT-OF-SCOPE)
+|Authored decision that excludes a threat concern from current scope with reason, owner, expiry, and evidence.
+|[[REF_ENGMODEL_TERM_THREAT_SCENARIO]]<<REF_IDX-ENGMODEL_TERM_THREAT_SCENARIO,threat scenario>> (TERM-THREAT-SCENARIO)
+|Authored threat narrative that connects attack vectors, scope, flows, controls, risks, and verification evidence.
+|[[REF_ENGMODEL_TERM_TRACE_MARKER]]<<REF_IDX-ENGMODEL_TERM_TRACE_MARKER,trace marker>> (TERM-TRACE-MARKER)
+|Source-level marker such as TRLC-LINKS or ENGMODEL-LINKS used to connect declarations to requirements and model entities.
+|[[REF_ENGMODEL_TERM_TRLC_PACKAGE]]<<REF_IDX-ENGMODEL_TERM_TRLC_PACKAGE,TRLC package>> (TERM-TRLC-PACKAGE)
+|Generated TRLC model and requirements package used for formal requirement traceability processing.
+|[[REF_ENGMODEL_TERM_TRUST_BOUNDARY]]<<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundary>> (TERM-TRUST-BOUNDARY)
+|An authored trust separation zone that marks policy, identity, or security control boundaries.
+|[[REF_ENGMODEL_TERM_UPWARD_LINKING]]<<REF_IDX-ENGMODEL_TERM_UPWARD_LINKING,upward linking>> (TERM-UPWARD-LINKING)
+|Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
+|[[REF_ENGMODEL_TERM_VALIDATION]]<<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> (TERM-VALIDATION)
+|Model quality gate that checks authored documents, references, relationship semantics, and requirement lint results.
+|[[REF_ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]<<REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC,validation diagnostic>> (TERM-VALIDATION-DIAGNOSTIC)
+|Structured validation finding with code, severity, message, and optional source path.
+|[[REF_ENGMODEL_TERM_VERIFICATION_CHECK]]<<REF_IDX-ENGMODEL_TERM_VERIFICATION_CHECK,verification check>> (TERM-VERIFICATION-CHECK)
+|An inferred or authored verification artifact that validates requirement behavior with test evidence.
+|[[REF_ENGMODEL_TERM_VIEW]]<<REF_IDX-ENGMODEL_TERM_VIEW,view>> (TERM-VIEW)
+|Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.
+|===
+
+=== Diagram Color and Shape Legend
+
+This legend applies to all Mermaid diagrams in this document.
+
+[source,mermaid]
+----
+flowchart LR
+  SYS["System"]:::system_boundary
+  FG["Functional Group"]:::functional_group
+  FU["Functional Unit"]:::functional_unit
+  ACT(("Actor")):::actor
+  REF["Referenced Element"]:::referenced_element
+  IFACE[/"Interface"/]:::interface
+  DATA[("Data Object")]:::data_object
+  DEPT["Deployment Target"]:::deployment_target
+  CTRL[["Control"]]:::control
+  TB[/"Trust Boundary"\]:::trust_boundary
+  ST(("State")):::state
+  EVT(("Event")):::event
+  FLOW{"Flow"}:::flow
+  FSTEP>"Flow Step"]:::flow_step
+  AV(("Attack Vector")):::attack_vector
+  REQ["Requirement"]:::requirement
+  VER["Verification Check"]:::verification
+  RT["Runtime Element"]:::runtime_element
+  DEP["Deployment Element"]:::deployment_element
+  CODE["Code Element"]:::code_element
+
+  SYS --> FG
+  FG --> FU
+  ACT --> FU
+  FU --> REF
+  FU --> IFACE
+  FU --> DATA
+  FU --> DEPT
+  FU --> CTRL
+  FU --> TB
+  ST -->|triggered_by| EVT
+  ST -->|guarded_by| CTRL
+  FLOW --> FSTEP
+  FSTEP -->|flow_ref| FU
+  REQ -->|applies_to| FU
+  VER -->|verifies| REQ
+  VER -->|implemented_by| CODE
+  FU -->|realizes| RT
+  DEP --> RT
+  AV --> FU
+  RT -->|implemented_by| CODE
+  REQ -->|code_trace| CODE
+
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+<<<
+== Traceability Appendix
+
+=== Requirement Details
+[[REF_REQ_REQ_OTA_001]]
+==== REQ-OTA-001
+
+Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, the <<REF_IDX-CATALOG_SYS_OTA_AGENT,ota agent subsystem>> shall apply the signed <<REF_IDX-DO_DO_FIRMWARE_BUNDLE,firmware bundle>> to the machine.
+
+
+NOTE: Firmware apply behavior; implemented here.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_OTA_001["REQ-OTA-001"]:::requirement
+  FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
+  REQC_REQ_OTA_001 -->|applies_to| FU_FU_OTA_APPLY
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_OTA_002]]
+==== REQ-OTA-002
+
+Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, the <<REF_IDX-CATALOG_SYS_OTA_AGENT,ota agent subsystem>> shall verify the firmware signature before apply.
+
+
+NOTE: Firmware integrity gate.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_OTA_002["REQ-OTA-002"]:::requirement
+  FU_FU_OTA_VERIFY["OTA Verification"]:::functional_unit
+  REQC_REQ_OTA_002 -->|applies_to| FU_FU_OTA_VERIFY
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_OTA_003]]
+==== REQ-OTA-003
+
+When <<REF_IDX-CATALOG_EVT_VALIDATION_FAILED,firmware validation failed event is received>>, the <<REF_IDX-CATALOG_SYS_OTA_AGENT,ota agent subsystem>> shall rollback the firmware apply.
+
+
+NOTE: Rollback on <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> failure.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_OTA_003["REQ-OTA-003"]:::requirement
+  FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
+  REQC_REQ_OTA_003 -->|applies_to| FU_FU_OTA_APPLY
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+=== Verification Inventory
+
+What this section shows: verification checks inferred from test artifacts, linked to test code elements and mapped to verified requirements.
+
+
+
+<<<
+== Gemara GRC Model
+
+This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) documents. Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.
+
+[cols="1,3,1",options="header"]
+|===
+|Gemara Layer |Artifact |Entries
+|L1
+|Vector Catalog
+|0
+|L1
+|Principle Catalog
+|5
+|L1
+|Guidance Catalog
+|1
+|L2
+|Capability Catalog
+|3
+|L2
+|Control Catalog
+|1
+|L2
+|Threat Catalog
+|0
+|L3
+|Risk Catalog
+|0
+|L3
+|Policy
+|1
+|-
+|Lexicon
+|8
+|L7
+|Audit Log
+|1
+|===
+
+=== Controls (L2)
+
+[cols="2,4,2,1",options="header"]
+|===
+|Control |Objective |Group |Assessment Requirements
+|CTRL-FIRMWARE-SIGNATURE
+|Verify firmware signatures before apply.
+|integrity
+|1
+|===
+
+<<<
+== Reference Index
+
+=== Authored References
+[[REF_IDX-CTRL_CTRL_FIRMWARE_SIGNATURE]]
+[discrete]
+==== CTRL-FIRMWARE-SIGNATURE
+
+category=integrity; description=Verify firmware signatures before apply.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |Firmware Signature Verification
+|Mentioned In |n/a
+|===
+[[REF_IDX-DO_DO_FIRMWARE_BUNDLE]]
+[discrete]
+==== DO-FIRMWARE-BUNDLE
+
+termRef=n/a; schemaRef=n/a; sensitivity=n/a
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Firmware Bundle
+|Mentioned In |<<REF_REQ_REQ_OTA_001,REQ-OTA-001>>
+|===
+[[REF_IDX-IF_IF_OTA_APPLY]]
+[discrete]
+==== IF-OTA-APPLY
+
+protocol=internal; endpoint=/ota/apply; schemaRef=n/a; owner=FU-OTA-APPLY
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |OTA Apply Interface
+|Mentioned In |n/a
+|===
+[[REF_IDX-REQ_REQ_OTA_001]]
+[discrete]
+==== REQ-OTA-001
+
+Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-OTA-001
+|Mentioned In |n/a
+|===
+[[REF_IDX-REQ_REQ_OTA_002]]
+[discrete]
+==== REQ-OTA-002
+
+Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-OTA-002
+|Mentioned In |n/a
+|===
+[[REF_IDX-REQ_REQ_OTA_003]]
+[discrete]
+==== REQ-OTA-003
+
+When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-OTA-003
+|Mentioned In |n/a
+|===
+
+=== Catalog References
+[[REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE]]
+[discrete]
+==== DATA-FIRMWARE-BUNDLE
+
+A signed firmware update package.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |firmware bundle
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_EVT_CAMPAIGN_SCHEDULED]]
+[discrete]
+==== EVT-CAMPAIGN-SCHEDULED
+
+An OTA campaign has been scheduled for the machine.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |ota campaign scheduled event is received
+|Mentioned In |<<REF_REQ_REQ_OTA_001,REQ-OTA-001>>, <<REF_REQ_REQ_OTA_002,REQ-OTA-002>>
+|===
+[[REF_IDX-CATALOG_EVT_VALIDATION_FAILED]]
+[discrete]
+==== EVT-VALIDATION-FAILED
+
+Firmware signature or eligibility validation failed.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |firmware validation failed event is received
+|Mentioned In |<<REF_REQ_REQ_OTA_003,REQ-OTA-003>>
+|===
+[[REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN]]
+[discrete]
+==== FEAT-OTA-CAMPAIGN
+
+Feature enabling OTA campaign participation.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Feature
+|Name |ota campaign is enabled
+|Mentioned In |<<REF_REQ_REQ_OTA_001,REQ-OTA-001>>, <<REF_REQ_REQ_OTA_002,REQ-OTA-002>>
+|===
+[[REF_IDX-CATALOG_FG_OTA]]
+[discrete]
+==== FG-OTA
+
+On-machine OTA update verification and application.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Group
+|Name |ota
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_FU_OTA_APPLY]]
+[discrete]
+==== FU-OTA-APPLY
+
+Applies verified firmware and rolls back on failure.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |ota apply
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_FU_OTA_VERIFY]]
+[discrete]
+==== FU-OTA-VERIFY
+
+Verifies firmware signature and update eligibility.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |ota verification
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_SYS_OTA_AGENT]]
+[discrete]
+==== SYS-OTA-AGENT
+
+On-machine OTA update verification and application subsystem.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog System
+|Name |ota agent subsystem
+|Mentioned In |<<REF_REQ_REQ_OTA_001,REQ-OTA-001>>, <<REF_REQ_REQ_OTA_002,REQ-OTA-002>>, <<REF_REQ_REQ_OTA_003,REQ-OTA-003>>
+|===
+[[REF_IDX-ENGMODEL_TERM_ACTOR]]
+[discrete]
+==== TERM-ACTOR
+
+A person or operational role that interacts with functional units.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |actor
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_DIAGRAM]]
+[discrete]
+==== TERM-ASCIIDOC-DIAGRAM
+
+Generated diagram block, usually Mermaid, that visualizes architecture relationships in the AsciiDoc publication.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc diagram
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_DOCUMENT]]
+[discrete]
+==== TERM-ASCIIDOC-DOCUMENT
+
+Human-readable generated architecture publication document assembled from authored model, inferred evidence, diagrams, references, and decisions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ASCIIDOC_SECTION]]
+[discrete]
+==== TERM-ASCIIDOC-SECTION
+
+Structured generated document section or row model used to render authored and inferred architecture content.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |AsciiDoc section
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_ATTACK_VECTOR]]
+[discrete]
+==== TERM-ATTACK-VECTOR
+
+A technical misuse or attack path that targets functional, referenced, or runtime elements.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |attack vector
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_AUTHORED_MAPPING]]
+[discrete]
+==== TERM-AUTHORED-MAPPING
+
+An explicit relationship declared in architecture inputs between authored or referenced elements.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |authored mapping
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_BUNDLE]]
+[discrete]
+==== TERM-BUNDLE
+
+Loaded architecture, catalog, and companion documents resolved as one working model context.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |model bundle
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CATALOG]]
+[discrete]
+==== TERM-CATALOG
+
+Controlled vocabulary document used to normalize model, requirement, and generated-document terminology.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |catalog
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CATALOG_ENTRY]]
+[discrete]
+==== TERM-CATALOG-ENTRY
+
+A stable catalog term with a definition and aliases for linting, linking, and generated references.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |catalog entry
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CLI_COMMAND]]
+[discrete]
+==== TERM-CLI-COMMAND
+
+Command-line entrypoint that coordinates loading, validation, generation, and file output for an engineering-model workflow.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |CLI command
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CODE_ELEMENT]]
+[discrete]
+==== TERM-CODE-ELEMENT
+
+An inferred code structure or ownership element discovered from source trees and build metadata.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |code element
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_COMPLIANCE_MAPPING]]
+[discrete]
+==== TERM-COMPLIANCE-MAPPING
+
+Authored mapping that links a model control to selected compliance controls, model scope, implementation status, evidence, and responsible roles.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |compliance mapping
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CONTROL]]
+[discrete]
+==== TERM-CONTROL
+
+An authored security, policy, or operational control used to constrain behavior and reduce risk.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |control
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION]]
+[discrete]
+==== TERM-CONTROL-VERIFICATION
+
+Authored control verification record with method, status, threat/risk scope, findings, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |control verification
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DATA_OBJECT]]
+[discrete]
+==== TERM-DATA-OBJECT
+
+An authored data artifact or contract shape traced across flow, interface, and implementation boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |data object
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DECISION]]
+[discrete]
+==== TERM-DECISION
+
+Authored architecture decision record with status, context, decision text, and consequences.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |architecture decision
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DEPLOYMENT_TARGET]]
+[discrete]
+==== TERM-DEPLOYMENT-TARGET
+
+An authored deployment destination such as environment, cluster, namespace, or registry scope.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |deployment target
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DESIGN]]
+[discrete]
+==== TERM-DESIGN
+
+Authored design narrative organized by model entities and architecture views.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |design document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_DESIGN_VIEW]]
+[discrete]
+==== TERM-DESIGN-VIEW
+
+View-scoped design narrative attached to an authored functional group or functional unit.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |design view
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_EVENT]]
+[discrete]
+==== TERM-EVENT
+
+An authored trigger signal that drives transitions, flow progress, or asynchronous outcomes.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |event
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_EVIDENCE]]
+[discrete]
+==== TERM-EVIDENCE
+
+A file, artifact, or observation used to support control, risk, threat, or verification claims.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |evidence
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_FLOW]]
+[discrete]
+==== TERM-FLOW
+
+An authored causal interaction sequence from user/system intent to outcome, represented as ordered steps.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |flow
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_FLOW_STEP]]
+[discrete]
+==== TERM-FLOW-STEP
+
+A single authored step in a flow that captures action, data in/out, references, and normal/error/async transitions.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |flow step
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_FUNCTIONAL_GROUP]]
+[discrete]
+==== TERM-FUNCTIONAL-GROUP
+
+A major authored capability area that groups related functional units.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional group
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT]]
+[discrete]
+==== TERM-FUNCTIONAL-UNIT
+
+An authored working unit inside a functional group that owns specific behavior.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |functional unit
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_GENERATION_WORKFLOW]]
+[discrete]
+==== TERM-GENERATION-WORKFLOW
+
+Orchestrated run that combines model loading, validation, projection, rendering, and artifact emission.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |generation workflow
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_INFERENCE_HINT]]
+[discrete]
+==== TERM-INFERENCE-HINT
+
+Authored source and ownership configuration used to discover runtime, code, and verification evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |inference hint
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_INFERRED_MAPPING]]
+[discrete]
+==== TERM-INFERRED-MAPPING
+
+A discovered relationship that links inferred runtime/code elements upward to authored design.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |inferred mapping
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_INTERFACE]]
+[discrete]
+==== TERM-INTERFACE
+
+An authored interface boundary (for example API, channel, endpoint, or contract) owned by a functional unit.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |interface
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_LINT_RUN]]
+[discrete]
+==== TERM-LINT-RUN
+
+Requirement lint configuration that controls parsing and quality checks for requirement text.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |lint run
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_LOBSTER_ACTIVITY_TRACE]]
+[discrete]
+==== TERM-LOBSTER-ACTIVITY-TRACE
+
+Generated LOBSTER activity JSON that links verification evidence back to formal requirement identifiers.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |LOBSTER activity trace
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_SERVER]]
+[discrete]
+==== TERM-MCP-SERVER
+
+Model Context Protocol server that exposes engineering-model operations to AI agents through JSON-RPC tools.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP server
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_STDIO_TRANSPORT]]
+[discrete]
+==== TERM-MCP-STDIO-TRANSPORT
+
+Content-Length framed standard input/output transport used by the MCP command-line server.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP stdio transport
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_TOOL]]
+[discrete]
+==== TERM-MCP-TOOL
+
+Named MCP operation with a constrained input schema and structured response payload.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP tool
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MCP_TOOL_RESPONSE]]
+[discrete]
+==== TERM-MCP-TOOL-RESPONSE
+
+Structured MCP tool payload that includes success state, schema version, generated timestamp, and result data or validation error.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |MCP tool response
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_MODEL]]
+[discrete]
+==== TERM-MODEL
+
+The authored architecture model root that composes functional structure, relationships, inference hints, and views.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |model
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]
+[discrete]
+==== TERM-OPEN-OTM-DOCUMENT
+
+Open Threat Model JSON representation generated from the engineering model for interoperable threat-model exchange.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Open OTM document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS]]
+[discrete]
+==== TERM-OSCAL-ASSESSMENT-RESULTS
+
+Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL assessment results
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_POAM]]
+[discrete]
+==== TERM-OSCAL-POAM
+
+Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL POA&M
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_OSCAL_SSP]]
+[discrete]
+==== TERM-OSCAL-SSP
+
+Generated OSCAL system security plan that maps authored system metadata, components, controls, allocations, and evidence into SSP JSON.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |OSCAL SSP
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_POAM_ITEM]]
+[discrete]
+==== TERM-POAM-ITEM
+
+Plan of action and milestones item linked to a modeled risk and supporting artifacts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |POA&M item
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REFERENCE_INDEX]]
+[discrete]
+==== TERM-REFERENCE-INDEX
+
+Generated index of authored, catalog, runtime, code, and verification references with stable anchors and backlinks.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |reference index
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REFERENCED_ELEMENT]]
+[discrete]
+==== TERM-REFERENCED-ELEMENT
+
+An architecture-relevant external, platform, or third-party dependency represented by role.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |referenced element
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REPO_INDEX]]
+[discrete]
+==== TERM-REPO-INDEX
+
+Bounded first-party source index used to answer model-aware file, requirement, control, and threat lookup queries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |repository index
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_REQUIREMENT]]
+[discrete]
+==== TERM-REQUIREMENT
+
+A structured requirement statement that defines expected system behavior and maps to functional ownership.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |requirement
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_RISK]]
+[discrete]
+==== TERM-RISK
+
+Authored risk record with likelihood, impact, response, scope, controls, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |risk
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT]]
+[discrete]
+==== TERM-RUNTIME-ELEMENT
+
+An inferred runtime realization element discovered from infrastructure and deployment sources.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |runtime element
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_SECURITY_CONTEXT]]
+[discrete]
+==== TERM-SECURITY-CONTEXT
+
+Security-focused generated context view that groups owned functional units and shows external actors, references, flows, controls, and trust boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |security context
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_SOURCE_BLOCK]]
+[discrete]
+==== TERM-SOURCE-BLOCK
+
+Stable source reference block that records file path, optional line span, kind, summary, and linked entity IDs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |source block
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_STATE]]
+[discrete]
+==== TERM-STATE
+
+An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |state
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL]]
+[discrete]
+==== TERM-STRUCTURIZR-DSL
+
+Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Structurizr DSL
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION]]
+[discrete]
+==== TERM-THREAT-ASSUMPTION
+
+Authored security assumption that records scope, rationale, owner, status, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat assumption
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]
+[discrete]
+==== TERM-THREAT-DRAGON-DOCUMENT
+
+Threat Dragon JSON representation generated from the engineering model for STRIDE threat-model review.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |Threat Dragon document
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_MITIGATION]]
+[discrete]
+==== TERM-THREAT-MITIGATION
+
+Authored mitigation record that links a threat scenario to a control, effectiveness, verification, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat mitigation
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_MODEL_EXPORT]]
+[discrete]
+==== TERM-THREAT-MODEL-EXPORT
+
+Generated security artifact that translates authored architecture, flows, trust boundaries, threats, and mitigations into an external threat-model schema.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat model export
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_OUT_OF_SCOPE]]
+[discrete]
+==== TERM-THREAT-OUT-OF-SCOPE
+
+Authored decision that excludes a threat concern from current scope with reason, owner, expiry, and evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat out-of-scope decision
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_THREAT_SCENARIO]]
+[discrete]
+==== TERM-THREAT-SCENARIO
+
+Authored threat narrative that connects attack vectors, scope, flows, controls, risks, and verification evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |threat scenario
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRACE_MARKER]]
+[discrete]
+==== TERM-TRACE-MARKER
+
+Source-level marker such as TRLC-LINKS or ENGMODEL-LINKS used to connect declarations to requirements and model entities.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |trace marker
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRLC_PACKAGE]]
+[discrete]
+==== TERM-TRLC-PACKAGE
+
+Generated TRLC model and requirements package used for formal requirement traceability processing.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |TRLC package
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY]]
+[discrete]
+==== TERM-TRUST-BOUNDARY
+
+An authored trust separation zone that marks policy, identity, or security control boundaries.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |trust boundary
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_UPWARD_LINKING]]
+[discrete]
+==== TERM-UPWARD-LINKING
+
+Rule where runtime and code elements point to stable functional groups/units; authored architecture does not depend on inferred IDs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |upward linking
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_VALIDATION]]
+[discrete]
+==== TERM-VALIDATION
+
+Model quality gate that checks authored documents, references, relationship semantics, and requirement lint results.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |validation
+|Mentioned In |<<REF_REQ_REQ_OTA_003,REQ-OTA-003>>
+|===
+[[REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]
+[discrete]
+==== TERM-VALIDATION-DIAGNOSTIC
+
+Structured validation finding with code, severity, message, and optional source path.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |validation diagnostic
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_VERIFICATION_CHECK]]
+[discrete]
+==== TERM-VERIFICATION-CHECK
+
+An inferred or authored verification artifact that validates requirement behavior with test evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |verification check
+|Mentioned In |n/a
+|===
+[[REF_IDX-ENGMODEL_TERM_VIEW]]
+[discrete]
+==== TERM-VIEW
+
+Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Engineering Model Term
+|Name |view
+|Mentioned In |n/a
+|===
+
+=== Inferred Runtime References
+
+=== Inferred Code References
+
+=== Verification References

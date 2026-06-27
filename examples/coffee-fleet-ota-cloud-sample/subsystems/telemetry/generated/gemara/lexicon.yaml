@@ -1,0 +1,36 @@
+title: "Machine Telemetry Subsystem - Lexicon"
+metadata:
+  id: cof-telemetry-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for Machine Telemetry Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-TELEMETRY
+  title: telemetry subsystem
+  definition: Machine telemetry collection and reporting subsystem.
+- id: FG-TELEMETRY
+  title: telemetry
+  definition: Telemetry collection and reporting functions.
+- id: FU-TELEM-SAMPLE
+  title: telemetry sampling
+  definition: Samples machine sensors at the configured cadence.
+- id: FU-TELEM-REPORT
+  title: telemetry reporting
+  definition: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+- id: EVT-BREW-COMPLETED
+  title: brew cycle completed event is received
+  definition: A brew cycle has completed on the machine.
+- id: EVT-SAMPLE-DUE
+  title: sample interval elapsed event is received
+  definition: The telemetry sampling interval has elapsed.
+- id: FEAT-TELEMETRY
+  title: telemetry collection is enabled
+  definition: Feature enabling machine telemetry collection.
+- id: DATA-TELEM-RECORD
+  title: telemetry record
+  definition: A single machine telemetry measurement record.

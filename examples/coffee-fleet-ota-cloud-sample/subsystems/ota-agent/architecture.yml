@@ -1,0 +1,63 @@
+model:
+  id: COF-OTA-AGENT
+  title: OTA Update Agent Subsystem
+  introduction: |
+    The OTA update agent subsystem verifies and applies signed firmware on the machine,
+    rolling back on validation failure. It is a leaf system of the connected coffee fleet,
+    hosted on the fleet edge gateway.
+  baseCatalogRef: ./catalog.yml
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-OTA
+      name: OTA
+      description: On-machine OTA update verification and application.
+  functionalUnits:
+    - id: FU-OTA-VERIFY
+      name: OTA Verification
+      group: FG-OTA
+      prose: Verifies firmware signature and update eligibility.
+    - id: FU-OTA-APPLY
+      name: OTA Apply
+      group: FG-OTA
+      prose: Applies verified firmware and rolls back on failure.
+  interfaces:
+    - id: IF-OTA-APPLY
+      name: OTA Apply Interface
+      protocol: internal
+      endpoint: /ota/apply
+      owner: FU-OTA-APPLY
+  dataObjects:
+    - id: DO-FIRMWARE-BUNDLE
+      name: Firmware Bundle
+      classification: confidential
+  controls:
+    - id: CTRL-FIRMWARE-SIGNATURE
+      name: Firmware Signature Verification
+      category: integrity
+      description: Verify firmware signatures before apply.
+  controlVerifications:
+    - id: VER-FIRMWARE-SIGNATURE
+      controlRef: CTRL-FIRMWARE-SIGNATURE
+      method: test
+      status: pass
+      findings: [Signature rejection verified in unit tests.]
+  mappings:
+    - type: contains
+      from: FG-OTA
+      to: FU-OTA-VERIFY
+    - type: contains
+      from: FG-OTA
+      to: FU-OTA-APPLY
+contract:
+  provides:
+    - id: CAP-OTA-APPLY
+      kind: capability
+      ref: REQ-OTA-001
+      note: Apply a signed firmware update to the machine.
+  requires:
+    - id: NEED-TELEMETRY-FEED
+      kind: interface
+      note: Machine telemetry feed used for update eligibility.
+    - id: NEED-CELLULAR-LINK
+      kind: assumption
+      note: Cellular connectivity to the edge gateway.

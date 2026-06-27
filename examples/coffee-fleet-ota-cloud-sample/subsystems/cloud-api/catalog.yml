@@ -1,0 +1,28 @@
+catalog:
+  systems:
+    - id: SYS-CLOUD-API
+      name: cloud api subsystem
+      definition: Cloud telemetry ingestion and OTA campaign control subsystem.
+  functionalGroups:
+    - id: FG-CLOUD
+      name: cloud
+      definition: Cloud ingestion and campaign control functions.
+  functionalUnits:
+    - id: FU-CLOUD-INGEST
+      name: cloud ingest
+      definition: Ingests and persists fleet telemetry.
+    - id: FU-CLOUD-CAMPAIGN
+      name: cloud campaign
+      definition: Plans and dispatches OTA campaigns.
+  events:
+    - id: EVT-TELEMETRY-INGESTED
+      name: telemetry ingested event is received
+      definition: Fleet telemetry has been received at the cloud ingest endpoint.
+  features:
+    - id: FEAT-CLOUD-INGEST
+      name: cloud ingestion is enabled
+      definition: Feature enabling cloud telemetry ingestion.
+  dataTerms:
+    - id: DATA-FLEET-METRIC
+      name: fleet metric
+      definition: A persisted fleet telemetry metric.

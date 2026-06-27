@@ -1,0 +1,31 @@
+title: "Cloud API Subsystem - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of Cloud API Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Cloud API Subsystem
+  description: "The system as a whole: Cloud API Subsystem."
+  group: system
+- id: FU-CLOUD-INGEST
+  title: Cloud Ingest
+  description: Ingests and persists fleet telemetry.
+  group: FG-CLOUD
+- id: FU-CLOUD-CAMPAIGN
+  title: Cloud Campaign
+  description: Plans and dispatches OTA campaigns.
+  group: FG-CLOUD
+groups:
+- id: FG-CLOUD
+  title: Cloud
+  description: Cloud ingestion and campaign control.
+- id: system
+  title: System
+  description: Whole-system capability scope.

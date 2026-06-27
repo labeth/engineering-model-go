@@ -13,6 +13,9 @@ bin/
 dist/
 tmp/
 
+# Composition cache: external git subsystems cloned for the composed view
+.engmod/
+
 # Editor/OS files
 .DS_Store
 .idea/

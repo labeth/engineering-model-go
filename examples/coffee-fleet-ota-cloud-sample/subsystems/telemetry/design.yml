@@ -1,0 +1,19 @@
+design:
+  id: telemetry-design
+  title: Machine Telemetry Subsystem Design
+
+  functionalGroups:
+    - id: FG-TELEMETRY
+      views:
+        architecture_intent:
+          title: Telemetry Architecture Intent
+          narrative: |
+            The telemetry subsystem owns sampling cadence and signed reporting at the machine boundary.
+        security:
+          title: Telemetry Security
+          narrative: |
+            Telemetry records are signed so the fleet can verify integrity on ingest.
+        traceability:
+          title: Telemetry Traceability
+          narrative: |
+            Telemetry behavior is traced from the subsystem requirements to its functional units.

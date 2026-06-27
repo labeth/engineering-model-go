@@ -101,3 +101,86 @@ requirements:
       - FU-GEMARA-EXPORTER
       - FU-CLI-ORCHESTRATION
       - FU-MCP-SERVER
+
+  - id: REQ-EMG-016
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve the subsystem references declared by the parent system from local subdirectory paths."
+    notes: "Recursive system-of-systems composition; local subdirectory references, with external git repositories cloned into the .engmod cache (REQ-EMG-027, ADR-EMG-008, ADR-EMG-010)."
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-MODEL-LOADER
+
+  - id: REQ-EMG-017
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall reject any subsystem reference that resolves outside the repository workspace boundary."
+    notes: "Downward-only references remain within the workspace; mirrors the MCP path-boundary guardrail."
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+
+  - id: REQ-EMG-018
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall reject a subsystem reference graph that contains a cycle."
+    notes: "Subsystem references must form a directed acyclic graph (ADR-EMG-009)."
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-019
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve cross-system references using subsystem-qualified identifiers."
+    notes: "Identifiers are scoped per system; cross-system references are qualified by subsystem to avoid collisions."
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-ALLOCATION-TRACE
+
+  - id: REQ-EMG-020
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall materialize parent-to-subsystem allocation traceability in the composed output without modifying any subsystem model."
+    notes: "A subsystem is parent-agnostic; parent allocation is materialized only in composed artifacts, never written back to the child (ADR-EMG-009, ADR-EMG-011)."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+
+  - id: REQ-EMG-021
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall report each subsystem required interface that the parent system does not satisfy."
+    notes: "Subsystems publish a provides-and-requires contract; the parent must satisfy each required interface."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-022
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall reject an allocation that targets a subsystem identifier not published in the subsystem contract."
+    notes: "Parents may bind only to a subsystem's public contract surface, not its internal identifiers."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-023
+    text: "When generation run is requested, the engineering model go shall flag any requirement that links to another requirement in the same document."
+    notes: "Requirements carry no tiers. A requirement is either delegated to a subsystem through a downward composition allocation or implemented here, and the delegation link alone tells the two apart. Linking requirements to one another inside a document recreates tier coupling and is confusing across system boundaries, so it is flagged."
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-ALLOCATION-TRACE
+
+  - id: REQ-EMG-024
+    text: "Where hardware interfaces are authored, when generation run is requested, the engineering model go shall render the hardware to software interface allocation view."
+    notes: "Hardware items and hardware interfaces capture the HW/SW interface (ICD/IRS) for the interface-control view."
+    appliesTo:
+      - FU-ASCIIDOC-GENERATOR
+      - FU-VIEW-PROJECTION
+
+  - id: REQ-EMG-025
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall produce a system requirement allocation matrix aggregated across the composed subsystems."
+    notes: "Aggregate roll-up generation mode for the integrating system."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-ASCIIDOC-GENERATOR
+
+  - id: REQ-EMG-026
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall render in the requirement view the delegation link from each delegated requirement to the specific subsystem requirement that satisfies it."
+    notes: "A provided contract entry names (ref) the subsystem requirement that realizes it, so a parent delegation traces to exactly the requirement that satisfies it. An allocated capability with no such ref is flagged as untraceable, and a ref to a requirement the subsystem does not define is rejected."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-ASCIIDOC-GENERATOR
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-027
+    text: "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve an external git subsystem reference by cloning the repository into the workspace .engmod cache."
+    notes: "A subsystem may reference an external repository with git (and an optional rev and path). The model is cloned once into .engmod/subsystems/<id> — a gitignored, temporary cache reused while it points at the same repository — and resolved like a local subsystem, giving a full cross-repository composed view. References stay downward-only."
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-MODEL-LOADER

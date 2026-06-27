@@ -1,0 +1,46 @@
+title: "OTA Update Agent Subsystem - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for OTA Update Agent Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-OTA-VERIFY
+    title: OTA Verification
+    description: Verifies firmware signature and update eligibility.
+  - id: FU-OTA-APPLY
+    title: OTA Apply
+    description: Applies verified firmware and rolls back on failure.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-FIRMWARE-SIGNATURE
+  title: Firmware Signature Verification
+  objective: Verify firmware signatures before apply.
+  group: integrity
+  assessment-requirements:
+  - id: VER-FIRMWARE-SIGNATURE
+    text: The control "Firmware Signature Verification" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Signature rejection verified in unit tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: integrity
+  title: integrity
+  description: "Control category: integrity."

@@ -1,0 +1,38 @@
+metadata:
+  id: cof-telemetry-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Point-in-time audit of Machine Telemetry Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Machine Telemetry Subsystem: 1 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-VER-TELEM-INTEGRITY
+  title: Verification of CTRL-TELEM-INTEGRITY
+  type: Strength
+  description: Control CTRL-TELEM-INTEGRITY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-TELEM-INTEGRITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  recommendations:
+  - text: Telemetry signature verified in unit tests.
+    required: false
+target:
+  id: cof-telemetry
+  name: Machine Telemetry Subsystem
+  type: Software
+  description: "System under governance: Machine Telemetry Subsystem"

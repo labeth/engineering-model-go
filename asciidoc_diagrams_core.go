@@ -17,9 +17,9 @@ func appendMermaidClassDefs(lines []string) []string {
 	return append(lines, diagramstyle.MermaidClassDefsWithIndent("  ")...)
 }
 
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
-// TRLC-LINKS: REQ-EMG-003
-func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string) string {
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
+func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range reqs {
 		reqNode := "REQ_" + sanitizeNode(r.ID)
@@ -29,6 +29,17 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 			label := nonEmpty(labels[u], u)
 			lines = append(lines, "  "+target+"[\""+escapeMermaidLabel(label)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" --> "+target)
+		}
+		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
+			if d.TargetRef != "" {
+				node := "SUBREQ_" + sanitizeNode(d.Subsystem+"_"+d.TargetRef)
+				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
+				lines = append(lines, "  "+reqNode+" -->|delegates to| "+node)
+			} else if d.Target != "" {
+				node := "SUBCAP_" + sanitizeNode(d.Subsystem+"_"+d.Target)
+				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
+				lines = append(lines, "  "+reqNode+" -->|delegates| "+node)
+			}
 		}
 	}
 	lines = appendMermaidClassDefs(lines)
@@ -647,9 +658,9 @@ func keysSortedStringSlices(m map[string][]string) []string {
 	return out
 }
 
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-003
-func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string) string {
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
 	lines := []string{"flowchart LR"}
 	rtByOwner := map[string][]string{}
 	for _, r := range runtime {
@@ -752,6 +763,21 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 					lines = append(lines, "  "+fuNode+" -->|code evidence| "+cmNode)
 				}
 				lines = append(lines, "  "+reqNode+" -->|code trace| "+cmNode)
+			}
+		}
+		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
+			if d.TargetRef != "" {
+				node := "SUBREQ_" + sanitizeNode(d.Subsystem+"_"+d.TargetRef)
+				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
+				edge := "delegates to"
+				if !d.TargetRefResolved {
+					edge = "delegates to (unresolved)"
+				}
+				lines = append(lines, "  "+reqNode+" -->|"+edge+"| "+node)
+			} else if d.Target != "" {
+				node := "SUBCAP_" + sanitizeNode(d.Subsystem+"_"+d.Target)
+				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
+				lines = append(lines, "  "+reqNode+" -->|delegates (no specific requirement)| "+node)
 			}
 		}
 		allVerificationCode := []string{}

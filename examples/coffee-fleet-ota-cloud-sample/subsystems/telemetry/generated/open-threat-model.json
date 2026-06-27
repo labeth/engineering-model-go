@@ -1,0 +1,72 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Machine Telemetry Subsystem",
+    "id": "COF-TELEMETRY",
+    "description": "The machine telemetry subsystem samples coffee machine sensors and reports signed\ntelemetry to the fleet. It is a leaf system of the connected coffee fleet, hosted on\nthe coffee machine controller.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Telemetry Record",
+      "id": "DO-TELEM-RECORD",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "FU-TELEM-REPORT",
+      "name": "Telemetry Reporting",
+      "type": "service",
+      "description": "Encodes, signs, and reports telemetry to the fleet ingestion endpoint.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-TELEM-SAMPLE",
+      "name": "Telemetry Sampling",
+      "type": "service",
+      "description": "Samples machine sensors at the configured cadence.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-TELEM-REPORT",
+      "name": "Telemetry Report Interface",
+      "type": "interface",
+      "description": "https /telemetry",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

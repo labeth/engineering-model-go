@@ -1,0 +1,31 @@
+catalog:
+  systems:
+    - id: SYS-TELEMETRY
+      name: telemetry subsystem
+      definition: Machine telemetry collection and reporting subsystem.
+  functionalGroups:
+    - id: FG-TELEMETRY
+      name: telemetry
+      definition: Telemetry collection and reporting functions.
+  functionalUnits:
+    - id: FU-TELEM-SAMPLE
+      name: telemetry sampling
+      definition: Samples machine sensors at the configured cadence.
+    - id: FU-TELEM-REPORT
+      name: telemetry reporting
+      definition: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  events:
+    - id: EVT-BREW-COMPLETED
+      name: brew cycle completed event is received
+      definition: A brew cycle has completed on the machine.
+    - id: EVT-SAMPLE-DUE
+      name: sample interval elapsed event is received
+      definition: The telemetry sampling interval has elapsed.
+  features:
+    - id: FEAT-TELEMETRY
+      name: telemetry collection is enabled
+      definition: Feature enabling machine telemetry collection.
+  dataTerms:
+    - id: DATA-TELEM-RECORD
+      name: telemetry record
+      definition: A single machine telemetry measurement record.

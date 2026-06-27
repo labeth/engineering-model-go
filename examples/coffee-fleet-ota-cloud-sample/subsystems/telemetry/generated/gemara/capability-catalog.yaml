@@ -1,0 +1,31 @@
+title: "Machine Telemetry Subsystem - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of Machine Telemetry Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Machine Telemetry Subsystem
+  description: "The system as a whole: Machine Telemetry Subsystem."
+  group: system
+- id: FU-TELEM-SAMPLE
+  title: Telemetry Sampling
+  description: Samples machine sensors at the configured cadence.
+  group: FG-TELEMETRY
+- id: FU-TELEM-REPORT
+  title: Telemetry Reporting
+  description: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  group: FG-TELEMETRY
+groups:
+- id: FG-TELEMETRY
+  title: Telemetry
+  description: Telemetry collection and reporting.
+- id: system
+  title: System
+  description: Whole-system capability scope.

@@ -1,0 +1,24 @@
+lintRun:
+  id: telemetry-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-TELEM-001
+    text: "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet."
+    notes: "Telemetry reporting behavior; implemented here."
+    appliesTo:
+      - FU-TELEM-REPORT
+
+  - id: REQ-TELEM-002
+    text: "Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors."
+    notes: "Sampling behavior that produces telemetry records."
+    appliesTo:
+      - FU-TELEM-SAMPLE
+
+  - id: REQ-TELEM-003
+    text: "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record."
+    notes: "Integrity control implementation."
+    appliesTo:
+      - FU-TELEM-REPORT

@@ -176,6 +176,51 @@ authoredArchitecture:
       namespace: devices
       trustZone: edge
 
+  hardwareItems:
+    - id: HW-FLOW-SENSOR
+      name: Flow Sensor
+      kind: sensor
+      description: Measures brew water flow on the machine.
+    - id: HW-COFFEE-MACHINE
+      name: Coffee Machine Controller
+      kind: lru
+      partNumber: CM-700
+      supplier: BrewCo
+      hosts: [SUB-TELEMETRY]
+      description: On-machine controller hosting the telemetry subsystem.
+    - id: HW-EDGE-GATEWAY
+      name: Fleet Edge Gateway
+      kind: gateway
+      hosts: [SUB-OTA-AGENT]
+      description: Site gateway bridging machines to the cloud and hosting the OTA agent.
+    - id: HW-CLOUD
+      name: Cloud Platform
+      kind: cloud
+      hosts: [SUB-CLOUD-API]
+      description: Cloud platform hosting ingestion and campaign control.
+  hardwareInterfaces:
+    - id: HWIF-CAN
+      name: Sensor CAN bus
+      busType: CAN
+      from: HW-FLOW-SENSOR
+      to: HW-COFFEE-MACHINE
+      direction: in
+      description: Flow sensor readings to the machine controller.
+    - id: HWIF-CELLULAR
+      name: Machine cellular uplink
+      busType: cellular
+      from: HW-COFFEE-MACHINE
+      to: HW-EDGE-GATEWAY
+      direction: out
+      description: Machine to gateway telemetry and OTA channel.
+    - id: HWIF-INTERNET
+      name: Gateway internet link
+      busType: ethernet
+      from: HW-EDGE-GATEWAY
+      to: HW-CLOUD
+      direction: bidirectional
+      description: Gateway to cloud ingestion and campaign control.
+
   controls:
     - id: CTRL-COFFEE-DEVICE-IDENTITY
       name: Device Identity Validation
@@ -879,6 +924,43 @@ authoredArchitecture:
       responsibleRole: ACT-SECURITY-ANALYST
       artifacts:
         - path: tickets/SEC-3301.md
+
+composition:
+  subsystems:
+    - id: SUB-TELEMETRY
+      name: Machine Telemetry Subsystem
+      ref: ./subsystems/telemetry
+      description: Collects and reports machine telemetry.
+    - id: SUB-OTA-AGENT
+      name: OTA Update Agent Subsystem
+      ref: ./subsystems/ota-agent
+      description: Verifies and applies signed OTA updates on the machine.
+    - id: SUB-CLOUD-API
+      name: Cloud API Subsystem
+      ref: ./subsystems/cloud-api
+      description: Ingests telemetry and drives OTA campaigns.
+  allocations:
+    - requirement: REQ-COF-001
+      to: SUB-TELEMETRY
+      target: CAP-TELEM-REPORT
+      rationale: Machine telemetry reporting is realized by the telemetry subsystem.
+    - requirement: REQ-COF-003
+      to: SUB-OTA-AGENT
+      target: CAP-OTA-APPLY
+      rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
+    - requirement: REQ-COF-002
+      to: SUB-CLOUD-API
+      target: CAP-CLOUD-INGEST
+      rationale: Telemetry persistence is realized by the cloud API subsystem.
+  satisfactions:
+    - need: SUB-OTA-AGENT/NEED-TELEMETRY-FEED
+      by: SUB-TELEMETRY/CAP-TELEM-REPORT
+    - need: SUB-OTA-AGENT/NEED-CELLULAR-LINK
+      by: HW-EDGE-GATEWAY
+    - need: SUB-TELEMETRY/NEED-CAN-BUS
+      by: HW-COFFEE-MACHINE
+    - need: SUB-CLOUD-API/NEED-INTERNET
+      by: HW-CLOUD
 
 compliance:
   profiles:

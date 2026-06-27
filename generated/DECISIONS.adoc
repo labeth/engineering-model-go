@@ -177,3 +177,103 @@ precede no declaration (for example a trailing marker at end of file) are still 
 - Existing var/const markers now link to the model, giving full linking and a warning-free scan.
 - Functions and methods remain the only declarations that must carry a TRLC-LINKS marker.
 - The scanner policy test was updated to detect stray markers via a non-declaration position.
+
+[[ADR-EMG-008]]
+== ADR-EMG-008: Model multi-repository work as a recursive system-of-systems
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+DO-178C governs software only; the hardware and software platforms and their connections are
+allocated at the system level (ARP4754A) above the software (DO-178C) and hardware (DO-254)
+processes. The engineering model needs to represent system requirements, architecture, hardware,
+and the hardware/software interface, and to compose software components that may live in
+subdirectories or in separate repositories.
+
+=== Decision
+
+Treat every model uniformly as a system. A system may reference and allocate to subsystem models,
+which are themselves systems, recursively to any depth. Software and hardware items are leaf systems
+where the DO-178C and DO-254 lifecycle data attaches. There are no fixed system/software/hardware tiers.
+
+=== Consequences
+
+- One model shape composes at every level; existing single-model projects are simply leaf systems.
+- Requirement flow-down across systems mirrors ARP4754A allocation.
+- Composition is additive and backward compatible with existing models.
+
+[[ADR-EMG-009]]
+== ADR-EMG-009: Subsystem references are downward-only with parent-owned allocation
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+A subsystem may be reused under many different parent systems and must not depend on any of them.
+Allocation and binding must live where the integration happens.
+
+=== Decision
+
+A subsystem never references or is aware of its parents. A parent system declares which subsystems it
+uses and how it allocates its requirements onto them. Subsystems expose a provides-and-requires
+contract with a public surface distinct from internal identifiers; parents bind only to the public
+contract and must satisfy each required interface.
+
+=== Consequences
+
+- Subsystem repositories are reusable and parent-agnostic.
+- The reference graph is a parent-to-child directed acyclic graph; cycles are rejected.
+- Validation has a standalone scope (the subsystem alone) and a composed scope (the bindings).
+
+[[ADR-EMG-010]]
+== ADR-EMG-010: Resolve subsystem references from local subdirectories first
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+Composition should be proven within a single repository before adding cross-repository plumbing, and
+certification evidence must be reproducible and resolvable offline.
+
+=== Decision
+
+The reference resolver supports local subdirectory paths and external git repositories. A git
+subsystem is cloned once into the workspace .engmod cache (gitignored, treated as temporary), pinned to
+an optional revision, and then resolved exactly like a local subsystem; an existing clone that points
+at the same repository is reused without network access, so a build is offline-reproducible after the
+first resolve.
+
+=== Consequences
+
+- The same resolver serves a monorepo and multi-repository layouts.
+- Composed snapshots are reproducible; pin a revision for an exact one.
+- Air-gapped certification environments remain supported once the .engmod cache is populated.
+
+[[ADR-EMG-011]]
+== ADR-EMG-011: Requirements carry no tiers; delegation is the link
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+Requirement levels (system, high-level, low-level) are confusing across a system boundary: a parent
+system's low-level requirement would point at a subsystem's system-level requirement, mixing tier
+meanings between two models. The link itself already says whether a requirement is delegated.
+
+=== Decision
+
+Requirements carry no tiers. A requirement is either delegated to a subsystem through a downward
+composition allocation or implemented here; the presence or absence of a delegation link is enough to
+tell the two apart. Linking one requirement to another inside the same document is flagged, because it
+recreates the tier coupling this decision removes.
+
+=== Consequences
+
+- Requirement documents stay flat and boundary-agnostic.
+- Delegation is expressed once, by the integrating system's downward allocation.
+- Internal requirement-to-requirement links are reported instead of silently accepted.

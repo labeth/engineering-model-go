@@ -484,6 +484,8 @@ type AuthoredArchitecture struct {
 	Interfaces           []Interface           `yaml:"interfaces"`
 	DataObjects          []DataObject          `yaml:"dataObjects"`
 	DeploymentTargets    []DeploymentTarget    `yaml:"deploymentTargets"`
+	HardwareItems        []HardwareItem        `yaml:"hardwareItems"`
+	HardwareInterfaces   []HardwareInterface   `yaml:"hardwareInterfaces"`
 	Controls             []Control             `yaml:"controls"`
 	Risks                []Risk                `yaml:"risks"`
 	POAMItems            []POAMItem            `yaml:"poamItems"`
@@ -529,8 +531,90 @@ type ArchitectureDocument struct {
 	Decisions            []Decision           `yaml:"-"`
 	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
 	Compliance           ComplianceModel      `yaml:"compliance"`
+	Contract             ContractModel        `yaml:"contract"`
+	Composition          CompositionModel     `yaml:"composition"`
 	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
 	Views                []View               `yaml:"views"`
+}
+
+// HardwareItem represents a physical platform element (the DO-254 side of the HW/SW boundary).
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type HardwareItem struct {
+	ID          string   `yaml:"id"`
+	Name        string   `yaml:"name"`
+	Kind        string   `yaml:"kind"` // processor|board|lru|sensor|actuator|bus|fpga|gateway|cloud
+	PartNumber  string   `yaml:"partNumber"`
+	Supplier    string   `yaml:"supplier"`
+	SafetyLevel string   `yaml:"safetyLevel"` // DO-254 design assurance level (optional)
+	Description string   `yaml:"description"`
+	Hosts       []string `yaml:"hosts"` // functional unit or subsystem ids hosted on this item
+}
+
+// HardwareInterface represents a physical connection between hardware items (ICD/IRS data).
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type HardwareInterface struct {
+	ID                   string `yaml:"id"`
+	Name                 string `yaml:"name"`
+	BusType              string `yaml:"busType"` // ARINC429|CAN|SPI|I2C|ethernet|cellular|discrete|analog
+	From                 string `yaml:"from"`    // hardware item id
+	To                   string `yaml:"to"`      // hardware item id
+	Direction            string `yaml:"direction"`
+	SoftwareInterfaceRef string `yaml:"softwareInterfaceRef"`
+	Description          string `yaml:"description"`
+}
+
+// ContractModel is a system's published, parent-agnostic boundary: what it provides and requires.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type ContractModel struct {
+	Provides []ContractEntry `yaml:"provides"` // the public surface a parent may allocate onto
+	Requires []ContractEntry `yaml:"requires"` // what the system needs from its environment
+}
+
+// ContractEntry is a single provided or required interface/capability/assumption.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type ContractEntry struct {
+	ID   string `yaml:"id"`
+	Kind string `yaml:"kind"` // interface|capability|assumption
+	Ref  string `yaml:"ref"`  // optional local id this contract entry exposes
+	Note string `yaml:"note"`
+}
+
+// CompositionModel holds parent-only composition data: referenced subsystems and the allocation of
+// this system's requirements onto them. Absent in a leaf system.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type CompositionModel struct {
+	Subsystems    []Subsystem    `yaml:"subsystems"`
+	Allocations   []Allocation   `yaml:"allocations"`
+	Satisfactions []Satisfaction `yaml:"satisfactions"`
+}
+
+// Subsystem is a downward reference to a child system model, resolved either from a
+// local subdirectory (ref) or an external git repository (git) cloned into .engmod.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type Subsystem struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Ref         string `yaml:"ref"`  // local subdirectory path to the child model
+	Git         string `yaml:"git"`  // external git repository URL; cloned into .engmod/subsystems/<id>
+	Rev         string `yaml:"rev"`  // optional branch, tag, or commit to check out after clone
+	Path        string `yaml:"path"` // optional subdirectory within the repository containing the model
+	Description string `yaml:"description"`
+}
+
+// Allocation binds a parent requirement onto a subsystem's published (provided) identifier.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type Allocation struct {
+	Requirement string `yaml:"requirement"` // this system's requirement id
+	To          string `yaml:"to"`          // subsystem id or hardware item id
+	Target      string `yaml:"target"`      // public id within the subsystem (provided contract id)
+	Rationale   string `yaml:"rationale"`
+}
+
+// Satisfaction records how a subsystem's required interface is satisfied by a provider.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type Satisfaction struct {
+	Need string `yaml:"need"` // subsystem-qualified required id (SUBSYS/needId)
+	By   string `yaml:"by"`   // provider: subsystem-qualified provided id or hardware item id
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL

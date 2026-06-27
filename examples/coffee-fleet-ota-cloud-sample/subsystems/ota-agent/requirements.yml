@@ -1,0 +1,24 @@
+lintRun:
+  id: ota-agent-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-OTA-001
+    text: "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine."
+    notes: "Firmware apply behavior; implemented here."
+    appliesTo:
+      - FU-OTA-APPLY
+
+  - id: REQ-OTA-002
+    text: "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply."
+    notes: "Firmware integrity gate."
+    appliesTo:
+      - FU-OTA-VERIFY
+
+  - id: REQ-OTA-003
+    text: "When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply."
+    notes: "Rollback on validation failure."
+    appliesTo:
+      - FU-OTA-APPLY

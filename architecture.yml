@@ -75,6 +75,14 @@ authoredArchitecture:
       name: Gemara Exporter
       group: FG-TRACEABILITY-COMPLIANCE
       prose: Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.
+    - id: FU-SYSTEM-COMPOSITION
+      name: System Composition
+      group: FG-MODEL-AUTHORING
+      prose: Resolves downward subsystem references from local subdirectories and composes a federated system-of-systems model.
+    - id: FU-ALLOCATION-TRACE
+      name: Allocation Trace
+      group: FG-TRACEABILITY-COMPLIANCE
+      prose: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models.
     - id: FU-MCP-SERVER
       name: MCP Server
       group: FG-MCP-INTEGRATION
@@ -517,6 +525,12 @@ authoredArchitecture:
     - type: contains
       from: FG-TRACEABILITY-COMPLIANCE
       to: FU-GEMARA-EXPORTER
+    - type: contains
+      from: FG-MODEL-AUTHORING
+      to: FU-SYSTEM-COMPOSITION
+    - type: contains
+      from: FG-TRACEABILITY-COMPLIANCE
+      to: FU-ALLOCATION-TRACE
     - type: contains
       from: FG-MCP-INTEGRATION
       to: FU-MCP-SERVER

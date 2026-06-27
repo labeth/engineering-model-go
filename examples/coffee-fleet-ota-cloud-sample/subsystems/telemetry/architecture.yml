@@ -1,0 +1,60 @@
+model:
+  id: COF-TELEMETRY
+  title: Machine Telemetry Subsystem
+  introduction: |
+    The machine telemetry subsystem samples coffee machine sensors and reports signed
+    telemetry to the fleet. It is a leaf system of the connected coffee fleet, hosted on
+    the coffee machine controller.
+  baseCatalogRef: ./catalog.yml
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-TELEMETRY
+      name: Telemetry
+      description: Telemetry collection and reporting.
+  functionalUnits:
+    - id: FU-TELEM-SAMPLE
+      name: Telemetry Sampling
+      group: FG-TELEMETRY
+      prose: Samples machine sensors at the configured cadence.
+    - id: FU-TELEM-REPORT
+      name: Telemetry Reporting
+      group: FG-TELEMETRY
+      prose: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  interfaces:
+    - id: IF-TELEM-REPORT
+      name: Telemetry Report Interface
+      protocol: https
+      endpoint: /telemetry
+      owner: FU-TELEM-REPORT
+  dataObjects:
+    - id: DO-TELEM-RECORD
+      name: Telemetry Record
+      classification: internal
+  controls:
+    - id: CTRL-TELEM-INTEGRITY
+      name: Telemetry Integrity
+      category: integrity
+      description: Sign telemetry records to protect integrity in transit.
+  controlVerifications:
+    - id: VER-TELEM-INTEGRITY
+      controlRef: CTRL-TELEM-INTEGRITY
+      method: test
+      status: pass
+      findings: [Telemetry signature verified in unit tests.]
+  mappings:
+    - type: contains
+      from: FG-TELEMETRY
+      to: FU-TELEM-SAMPLE
+    - type: contains
+      from: FG-TELEMETRY
+      to: FU-TELEM-REPORT
+contract:
+  provides:
+    - id: CAP-TELEM-REPORT
+      kind: capability
+      ref: REQ-TELEM-001
+      note: Report machine telemetry to the fleet.
+  requires:
+    - id: NEED-CAN-BUS
+      kind: interface
+      note: CAN bus access to the machine flow sensor.

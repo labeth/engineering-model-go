@@ -1,0 +1,19 @@
+package TelemetryRequirements
+Requirement REQ_TELEM_001 {
+  id         = "REQ-TELEM-001"
+  text       = "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet."
+  notes      = "Telemetry reporting behavior; implemented here."
+  applies_to = ["FU-TELEM-REPORT"]
+}
+Requirement REQ_TELEM_002 {
+  id         = "REQ-TELEM-002"
+  text       = "Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors."
+  notes      = "Sampling behavior that produces telemetry records."
+  applies_to = ["FU-TELEM-SAMPLE"]
+}
+Requirement REQ_TELEM_003 {
+  id         = "REQ-TELEM-003"
+  text       = "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record."
+  notes      = "Integrity control implementation."
+  applies_to = ["FU-TELEM-REPORT"]
+}

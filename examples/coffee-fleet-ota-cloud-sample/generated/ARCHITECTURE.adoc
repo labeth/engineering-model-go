@@ -2880,7 +2880,7 @@ What this section shows: per-requirement result mapping inferred from test-resul
 While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_BREW_CYCLE_COMPLETED,brew cycle completed event is received>>, <<REF_IDX-CATALOG_THE_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall publish <<REF_IDX-CATALOG_DATA_BREW_TELEMETRY,brew telemetry>> to <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,fleet ingestion api>> for <<REF_IDX-CATALOG_ACT_BARISTA,barista>> operations.
 
 
-NOTE: Primary machine-to-cloud <<REF_IDX-CATALOG_TELEMETRY,telemetry>> contract.
+NOTE: Primary machine-to-cloud <<REF_IDX-CATALOG_TELEMETRY,telemetry>> contract; delegated to the <<REF_IDX-CATALOG_TELEMETRY,telemetry>> subsystem.
 
 
 
@@ -2906,6 +2906,8 @@ flowchart LR
   CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs:12,18"]:::code_element
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
   REQC_REQ_COF_001 -->|code trace| CODE_MACHINE_TELEMETRY_RS
+  SUBREQ_SUB_TELEMETRY_REQ_TELEM_001["REQ-TELEM-001 — SUB-TELEMETRY"]:::referenced_element
+  REQC_REQ_COF_001 -->|delegates to| SUBREQ_SUB_TELEMETRY_REQ_TELEM_001
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794["VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794 (pass)"]:::verification
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|verifies| REQC_REQ_COF_001
   CODE_TELEMETRY_INGEST_CONTRACT_TEST_GO["telemetry_ingest_contract_test.go:7"]:::code_element
@@ -2938,7 +2940,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_STATE_FLEET_OPERATION_ACTIVE,coffee machine fleet operation is active>>, when <<REF_IDX-CATALOG_EVT_TELEMETRY_INGESTED,telemetry ingested event is received>>, <<REF_IDX-CATALOG_THE_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall persist fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> metrics for <<REF_IDX-CATALOG_ACT_FLEET_OPERATOR,fleet operator>>.
 
 
-NOTE: Operational observability <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.
+NOTE: Operational observability <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>; delegated to the cloud-api subsystem.
 
 
 
@@ -2964,6 +2966,8 @@ flowchart LR
   CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:6,12,18"]:::code_element
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
   REQC_REQ_COF_002 -->|code trace| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-CLOUD-API"]:::referenced_element
+  REQC_REQ_COF_002 -->|delegates to| SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_002
   CODE_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts:4"]:::code_element
@@ -2996,7 +3000,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_THE_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall distribute <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,signed firmware bundle>> to targeted machine cohort using <<REF_IDX-CATALOG_DATA_OTA_CAMPAIGN_POLICY,ota campaign policy>>.
 
 
-NOTE: <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>.
+NOTE: <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>; delegated to the ota-agent subsystem.
 
 
 
@@ -3022,6 +3026,8 @@ flowchart LR
   CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts:6,12"]:::code_element
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   REQC_REQ_COF_003 -->|code trace| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  SUBREQ_SUB_OTA_AGENT_REQ_OTA_001["REQ-OTA-001 — SUB-OTA-AGENT"]:::referenced_element
+  REQC_REQ_COF_003 -->|delegates to| SUBREQ_SUB_OTA_AGENT_REQ_OTA_001
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
   CODE_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
@@ -3116,7 +3122,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 If <<REF_IDX-CATALOG_EVT_FIRMWARE_VALIDATION_FAILED,firmware validation failed event is received>>, then <<REF_IDX-CATALOG_THE_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall <<REF_IDX-CATALOG_ROLLBACK_FIRMWARE_APPLY,rollback firmware apply>>.
 
 
-NOTE: Rollback and failure signaling path.
+NOTE: Rollback and failure signaling path; implemented here.
 
 
 
@@ -3636,6 +3642,237 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+
+<<<
+== Gemara GRC Model
+
+This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) documents. Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.
+
+[cols="1,3,1",options="header"]
+|===
+|Gemara Layer |Artifact |Entries
+|L1
+|Vector Catalog
+|4
+|L1
+|Principle Catalog
+|5
+|L1
+|Guidance Catalog
+|2
+|L2
+|Capability Catalog
+|8
+|L2
+|Control Catalog
+|2
+|L2
+|Threat Catalog
+|4
+|L3
+|Risk Catalog
+|4
+|L3
+|Policy
+|4
+|-
+|Control→Threat Mapping
+|2
+|-
+|Lexicon
+|38
+|L7
+|Audit Log
+|8
+|L6
+|Enforcement Log
+|1
+|===
+
+=== Controls (L2)
+
+[cols="2,4,2,1",options="header"]
+|===
+|Control |Objective |Group |Assessment Requirements
+|CTRL-COFFEE-DEVICE-IDENTITY
+|Require authenticated device identity for telemetry and OTA command channels.
+|identity-access
+|3
+|CTRL-COFFEE-FIRMWARE-SIGNATURE
+|Require signed firmware bundles before applying OTA updates.
+|integrity
+|1
+|===
+
+=== Threats (L2)
+
+[cols="2,4,2",options="header"]
+|===
+|Threat |Title |Group
+|TS-COFFEE-MALICIOUS-OTA-BUNDLE
+|Tampered firmware bundle executes on edge fleet
+|stride-tampering
+|TS-COFFEE-OTA-COMMAND-SPOOF
+|Spoofed OTA command triggers unauthorized rollout
+|stride-spoofing
+|TS-COFFEE-TELEMETRY-REPLAY
+|Telemetry replay inflates ingest and distorts reporting
+|stride-replay
+|TS-COFFEE-LOG-TAMPERING
+|Audit log tampering suppresses OTA incident visibility
+|stride-repudiation
+|===
+
+=== Risks (L3)
+
+[cols="2,4,1",options="header"]
+|===
+|Risk |Title |Severity
+|RISK-COFFEE-DEVICE-SPOOFING
+|Device identity spoofing risk
+|High
+|RISK-COFFEE-MALICIOUS-OTA
+|Malicious OTA payload execution risk
+|High
+|RISK-COFFEE-TELEMETRY-REPLAY
+|Telemetry replay distortion risk
+|Medium
+|RISK-COFFEE-LOG-TAMPERING
+|Audit log tampering risk
+|Medium
+|===
+
+
+<<<
+== System Composition & Hardware
+
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from local subdirectories.
+
+=== Hardware Items
+
+[cols="2,3,1,3,1",options="header"]
+|===
+|ID |Name |Kind |Hosts |Safety
+|HW-FLOW-SENSOR
+|Flow Sensor
+|sensor
+|
+|-
+|HW-COFFEE-MACHINE
+|Coffee Machine Controller
+|lru
+|SUB-TELEMETRY
+|-
+|HW-EDGE-GATEWAY
+|Fleet Edge Gateway
+|gateway
+|SUB-OTA-AGENT
+|-
+|HW-CLOUD
+|Cloud Platform
+|cloud
+|SUB-CLOUD-API
+|-
+|===
+
+=== Hardware Interfaces
+
+[cols="2,2,3,1,2",options="header"]
+|===
+|ID |Bus |From → To |Dir |Software IF
+|HWIF-CAN
+|CAN
+|HW-FLOW-SENSOR → HW-COFFEE-MACHINE
+|in
+|-
+|HWIF-CELLULAR
+|cellular
+|HW-COFFEE-MACHINE → HW-EDGE-GATEWAY
+|out
+|-
+|HWIF-INTERNET
+|ethernet
+|HW-EDGE-GATEWAY → HW-CLOUD
+|bidirectional
+|-
+|===
+
+==== Hardware/Software Interface View
+
+[source,mermaid]
+----
+flowchart LR
+  HW_FLOW_SENSOR["Flow Sensor"]
+  HW_COFFEE_MACHINE["Coffee Machine Controller (SUB-TELEMETRY)"]
+  HW_EDGE_GATEWAY["Fleet Edge Gateway (SUB-OTA-AGENT)"]
+  HW_CLOUD["Cloud Platform (SUB-CLOUD-API)"]
+  HW_FLOW_SENSOR -->|CAN| HW_COFFEE_MACHINE
+  HW_COFFEE_MACHINE -->|cellular| HW_EDGE_GATEWAY
+  HW_EDGE_GATEWAY -->|ethernet| HW_CLOUD
+----
+
+=== Subsystems
+
+[cols="2,3,3",options="header"]
+|===
+|ID |Name |Reference
+|SUB-TELEMETRY
+|Machine Telemetry Subsystem
+|`./subsystems/telemetry`
+|SUB-OTA-AGENT
+|OTA Update Agent Subsystem
+|`./subsystems/ota-agent`
+|SUB-CLOUD-API
+|Cloud API Subsystem
+|`./subsystems/cloud-api`
+|===
+
+=== Requirement Allocation Matrix
+
+[cols="2,2,2,1",options="header"]
+|===
+|Requirement |Subsystem |Target |Resolved
+|REQ-COF-001
+|SUB-TELEMETRY
+|CAP-TELEM-REPORT
+|yes
+|REQ-COF-003
+|SUB-OTA-AGENT
+|CAP-OTA-APPLY
+|yes
+|REQ-COF-002
+|SUB-CLOUD-API
+|CAP-CLOUD-INGEST
+|yes
+|===
+
+==== Requirement Delegation View
+
+Each delegated requirement of this system links downward to the subsystem contract it binds. Requirements not shown here carry no delegation link and are implemented in this system.
+
+[source,mermaid]
+----
+flowchart LR
+  subgraph SYS["Connected Coffee Fleet OTA + Cloud Architecture"]
+    REQ_COF_001["REQ-COF-001"]
+    REQ_COF_003["REQ-COF-003"]
+    REQ_COF_002["REQ-COF-002"]
+  end
+  subgraph SUB_TELEMETRY["Machine Telemetry Subsystem"]
+    SUB_TELEMETRY__REQ_TELEM_001(["REQ-TELEM-001 (CAP-TELEM-REPORT)"])
+  end
+  subgraph SUB_OTA_AGENT["OTA Update Agent Subsystem"]
+    SUB_OTA_AGENT__REQ_OTA_001(["REQ-OTA-001 (CAP-OTA-APPLY)"])
+  end
+  subgraph SUB_CLOUD_API["Cloud API Subsystem"]
+    SUB_CLOUD_API__REQ_CLOUD_001(["REQ-CLOUD-001 (CAP-CLOUD-INGEST)"])
+  end
+  REQ_COF_001 -->|delegates to| SUB_TELEMETRY__REQ_TELEM_001
+  REQ_COF_003 -->|delegates to| SUB_OTA_AGENT__REQ_OTA_001
+  REQ_COF_002 -->|delegates to| SUB_CLOUD_API__REQ_CLOUD_001
+----
+
+All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
 
 <<<
 == Reference Index
@@ -7015,103 +7252,3 @@ verifies OTA campaign signature validation and rollout trigger behavior
 |Name |Ota Campaign Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
-
-<<<
-== Gemara GRC Model
-
-This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) documents. Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.
-
-[cols="1,3,1",options="header"]
-|===
-|Gemara Layer |Artifact |Entries
-|L1
-|Vector Catalog
-|4
-|L1
-|Principle Catalog
-|5
-|L1
-|Guidance Catalog
-|2
-|L2
-|Capability Catalog
-|8
-|L2
-|Control Catalog
-|2
-|L2
-|Threat Catalog
-|4
-|L3
-|Risk Catalog
-|4
-|L3
-|Policy
-|4
-|-
-|Control→Threat Mapping
-|2
-|-
-|Lexicon
-|38
-|L7
-|Audit Log
-|8
-|L6
-|Enforcement Log
-|1
-|===
-
-=== Controls (L2)
-
-[cols="2,4,2,1",options="header"]
-|===
-|Control |Objective |Group |Assessment Requirements
-|CTRL-COFFEE-DEVICE-IDENTITY
-|Require authenticated device identity for telemetry and OTA command channels.
-|identity-access
-|3
-|CTRL-COFFEE-FIRMWARE-SIGNATURE
-|Require signed firmware bundles before applying OTA updates.
-|integrity
-|1
-|===
-
-=== Threats (L2)
-
-[cols="2,4,2",options="header"]
-|===
-|Threat |Title |Group
-|TS-COFFEE-MALICIOUS-OTA-BUNDLE
-|Tampered firmware bundle executes on edge fleet
-|stride-tampering
-|TS-COFFEE-OTA-COMMAND-SPOOF
-|Spoofed OTA command triggers unauthorized rollout
-|stride-spoofing
-|TS-COFFEE-TELEMETRY-REPLAY
-|Telemetry replay inflates ingest and distorts reporting
-|stride-replay
-|TS-COFFEE-LOG-TAMPERING
-|Audit log tampering suppresses OTA incident visibility
-|stride-repudiation
-|===
-
-=== Risks (L3)
-
-[cols="2,4,1",options="header"]
-|===
-|Risk |Title |Severity
-|RISK-COFFEE-DEVICE-SPOOFING
-|Device identity spoofing risk
-|High
-|RISK-COFFEE-MALICIOUS-OTA
-|Malicious OTA payload execution risk
-|High
-|RISK-COFFEE-TELEMETRY-REPLAY
-|Telemetry replay distortion risk
-|Medium
-|RISK-COFFEE-LOG-TAMPERING
-|Audit log tampering risk
-|Medium
-|===
-

@@ -1,0 +1,72 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "OTA Update Agent Subsystem",
+    "id": "COF-OTA-AGENT",
+    "description": "The OTA update agent subsystem verifies and applies signed firmware on the machine,\nrolling back on validation failure. It is a leaf system of the connected coffee fleet,\nhosted on the fleet edge gateway.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Firmware Bundle",
+      "id": "DO-FIRMWARE-BUNDLE",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "FU-OTA-APPLY",
+      "name": "OTA Apply",
+      "type": "service",
+      "description": "Applies verified firmware and rolls back on failure.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-OTA-VERIFY",
+      "name": "OTA Verification",
+      "type": "service",
+      "description": "Verifies firmware signature and update eligibility.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-OTA-APPLY",
+      "name": "OTA Apply Interface",
+      "type": "interface",
+      "description": "internal /ota/apply",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

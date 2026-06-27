@@ -1,0 +1,46 @@
+title: "Machine Telemetry Subsystem - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for Machine Telemetry Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-TELEM-SAMPLE
+    title: Telemetry Sampling
+    description: Samples machine sensors at the configured cadence.
+  - id: FU-TELEM-REPORT
+    title: Telemetry Reporting
+    description: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-TELEM-INTEGRITY
+  title: Telemetry Integrity
+  objective: Sign telemetry records to protect integrity in transit.
+  group: integrity
+  assessment-requirements:
+  - id: VER-TELEM-INTEGRITY
+    text: The control "Telemetry Integrity" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Telemetry signature verified in unit tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: integrity
+  title: integrity
+  description: "Control category: integrity."

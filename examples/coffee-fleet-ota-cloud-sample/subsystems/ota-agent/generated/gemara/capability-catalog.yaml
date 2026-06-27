@@ -1,0 +1,31 @@
+title: "OTA Update Agent Subsystem - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of OTA Update Agent Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: OTA Update Agent Subsystem
+  description: "The system as a whole: OTA Update Agent Subsystem."
+  group: system
+- id: FU-OTA-VERIFY
+  title: OTA Verification
+  description: Verifies firmware signature and update eligibility.
+  group: FG-OTA
+- id: FU-OTA-APPLY
+  title: OTA Apply
+  description: Applies verified firmware and rolls back on failure.
+  group: FG-OTA
+groups:
+- id: FG-OTA
+  title: OTA
+  description: On-machine OTA update verification and application.
+- id: system
+  title: System
+  description: Whole-system capability scope.

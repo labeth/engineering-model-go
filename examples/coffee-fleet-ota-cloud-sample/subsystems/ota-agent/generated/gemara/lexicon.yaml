@@ -1,0 +1,36 @@
+title: "OTA Update Agent Subsystem - Lexicon"
+metadata:
+  id: cof-ota-agent-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for OTA Update Agent Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-OTA-AGENT
+  title: ota agent subsystem
+  definition: On-machine OTA update verification and application subsystem.
+- id: FG-OTA
+  title: ota
+  definition: On-machine OTA update verification and application.
+- id: FU-OTA-VERIFY
+  title: ota verification
+  definition: Verifies firmware signature and update eligibility.
+- id: FU-OTA-APPLY
+  title: ota apply
+  definition: Applies verified firmware and rolls back on failure.
+- id: EVT-CAMPAIGN-SCHEDULED
+  title: ota campaign scheduled event is received
+  definition: An OTA campaign has been scheduled for the machine.
+- id: EVT-VALIDATION-FAILED
+  title: firmware validation failed event is received
+  definition: Firmware signature or eligibility validation failed.
+- id: FEAT-OTA-CAMPAIGN
+  title: ota campaign is enabled
+  definition: Feature enabling OTA campaign participation.
+- id: DATA-FIRMWARE-BUNDLE
+  title: firmware bundle
+  definition: A signed firmware update package.

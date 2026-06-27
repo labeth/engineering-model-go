@@ -1,0 +1,11 @@
+title: "Machine Telemetry Subsystem - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Attack vectors relevant to Machine Telemetry Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human

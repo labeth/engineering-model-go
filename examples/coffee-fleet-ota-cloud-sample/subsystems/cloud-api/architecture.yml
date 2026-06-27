@@ -1,0 +1,59 @@
+model:
+  id: COF-CLOUD-API
+  title: Cloud API Subsystem
+  introduction: |
+    The cloud API subsystem ingests fleet telemetry, persists metrics, and drives OTA
+    campaigns. It is a leaf system of the connected coffee fleet, hosted on the cloud platform.
+  baseCatalogRef: ./catalog.yml
+authoredArchitecture:
+  functionalGroups:
+    - id: FG-CLOUD
+      name: Cloud
+      description: Cloud ingestion and campaign control.
+  functionalUnits:
+    - id: FU-CLOUD-INGEST
+      name: Cloud Ingest
+      group: FG-CLOUD
+      prose: Ingests and persists fleet telemetry.
+    - id: FU-CLOUD-CAMPAIGN
+      name: Cloud Campaign
+      group: FG-CLOUD
+      prose: Plans and dispatches OTA campaigns.
+  interfaces:
+    - id: IF-CLOUD-INGEST
+      name: Cloud Ingest Interface
+      protocol: https
+      endpoint: /ingest
+      owner: FU-CLOUD-INGEST
+  dataObjects:
+    - id: DO-FLEET-METRIC
+      name: Fleet Metric
+      classification: internal
+  controls:
+    - id: CTRL-INGEST-AUTH
+      name: Ingest Authentication
+      category: access-control
+      description: Authenticate machines before accepting telemetry.
+  controlVerifications:
+    - id: VER-INGEST-AUTH
+      controlRef: CTRL-INGEST-AUTH
+      method: test
+      status: pass
+      findings: [Unauthenticated ingest rejected in tests.]
+  mappings:
+    - type: contains
+      from: FG-CLOUD
+      to: FU-CLOUD-INGEST
+    - type: contains
+      from: FG-CLOUD
+      to: FU-CLOUD-CAMPAIGN
+contract:
+  provides:
+    - id: CAP-CLOUD-INGEST
+      kind: capability
+      ref: REQ-CLOUD-001
+      note: Ingest and persist fleet telemetry.
+  requires:
+    - id: NEED-INTERNET
+      kind: interface
+      note: Internet connectivity from the edge gateway.

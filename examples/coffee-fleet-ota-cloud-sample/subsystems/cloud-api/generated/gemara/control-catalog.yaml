@@ -1,0 +1,46 @@
+title: "Cloud API Subsystem - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for Cloud API Subsystem
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-CLOUD-INGEST
+    title: Cloud Ingest
+    description: Ingests and persists fleet telemetry.
+  - id: FU-CLOUD-CAMPAIGN
+    title: Cloud Campaign
+    description: Plans and dispatches OTA campaigns.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-INGEST-AUTH
+  title: Ingest Authentication
+  objective: Authenticate machines before accepting telemetry.
+  group: access-control
+  assessment-requirements:
+  - id: VER-INGEST-AUTH
+    text: The control "Ingest Authentication" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Unauthenticated ingest rejected in tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: access-control
+  title: access-control
+  description: "Control category: access-control."

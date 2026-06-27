@@ -54,6 +54,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
+	diags = append(diags, lintRequirementInternalLinks(requirements)...)
 	if validate.HasErrors(diags) {
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
@@ -287,10 +288,20 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 	}
 
+	delegationsByReq := map[string][]MaterializedAllocation{}
+	if HasComposition(bundle) {
+		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
+			for _, m := range res.Allocations {
+				rid := strings.TrimSpace(m.Requirement)
+				delegationsByReq[rid] = append(delegationsByReq[rid], m)
+			}
+		}
+	}
+
 	reqSections := make([]asciidocRequirementSection, 0, len(requirements.Requirements))
 	for _, r := range requirements.Requirements {
-		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID)
-		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID)
+		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID, delegationsByReq)
+		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID, delegationsByReq)
 		reqSections = append(reqSections, asciidocRequirementSection{
 			Anchor:               referenceAnchor("req", r.ID),
 			ID:                   r.ID,
@@ -637,7 +648,16 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
 
-	doc += renderGemaraAsciiDocChapter(bundle)
+	// The Reference Index is the closing chapter; insert the Gemara and Composition
+	// chapters before it so it remains last.
+	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapter(bundle)
+	if trailing != "" {
+		if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
+			doc = doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
+		} else {
+			doc += trailing
+		}
+	}
 
 	return AsciiDocResult{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
 }

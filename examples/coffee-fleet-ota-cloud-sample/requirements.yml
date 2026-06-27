@@ -7,21 +7,21 @@ lintRun:
 requirements:
   - id: REQ-COF-001
     text: "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations."
-    notes: "Primary machine-to-cloud telemetry contract."
+    notes: "Primary machine-to-cloud telemetry contract; delegated to the telemetry subsystem."
     appliesTo:
       - FU-MACHINE-TELEMETRY-COLLECTION
       - FU-FLEET-INGESTION-API
 
   - id: REQ-COF-002
     text: "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics for fleet operator."
-    notes: "Operational observability requirement."
+    notes: "Operational observability requirement; delegated to the cloud-api subsystem."
     appliesTo:
       - FU-FLEET-INGESTION-API
       - FU-FLEET-OBSERVABILITY-REPORTING
 
   - id: REQ-COF-003
     text: "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort using ota campaign policy."
-    notes: "OTA rollout behavior from central cloud control."
+    notes: "OTA rollout behavior from central cloud control; delegated to the ota-agent subsystem."
     appliesTo:
       - FU-UPDATE-CAMPAIGN-ORCHESTRATION
       - FU-OTA-UPDATE-AGENT
@@ -35,7 +35,7 @@ requirements:
 
   - id: REQ-COF-005
     text: "If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply."
-    notes: "Rollback and failure signaling path."
+    notes: "Rollback and failure signaling path; implemented here."
     appliesTo:
       - FU-OTA-UPDATE-AGENT
       - FU-UPDATE-CAMPAIGN-ORCHESTRATION

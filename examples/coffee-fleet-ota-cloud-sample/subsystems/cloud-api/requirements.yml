@@ -1,0 +1,18 @@
+lintRun:
+  id: cloud-api-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+
+requirements:
+  - id: REQ-CLOUD-001
+    text: "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric."
+    notes: "Telemetry ingestion behavior; implemented here."
+    appliesTo:
+      - FU-CLOUD-INGEST
+
+  - id: REQ-CLOUD-002
+    text: "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine."
+    notes: "Ingest authentication control."
+    appliesTo:
+      - FU-CLOUD-INGEST

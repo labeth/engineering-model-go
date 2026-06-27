@@ -304,7 +304,7 @@ func TestBuildRequirementCoverageMermaid_GroupsCodeNodesByFile(t *testing.T) {
 		CodeElements: []string{"tests/unit/payment_engine_test.go:30", "tests/unit/payment_engine_test.go:12"},
 	}}
 
-	out := buildRequirementCoverageMermaid(reqs, nil, code, verification, map[string]string{"FU-A": "Unit A"})
+	out := buildRequirementCoverageMermaid(reqs, nil, code, verification, map[string]string{"FU-A": "Unit A"}, nil)
 
 	if got := strings.Count(out, `["payment_engine.rs:11,25"]:::code_element`); got != 1 {
 		t.Fatalf("expected one implementation code box with comma-separated lines, got %d:\n%s", got, out)
