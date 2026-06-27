@@ -1,0 +1,262 @@
+{
+  "model": "sample-coffee-fleet-ota-cloud-model",
+  "requirements": [
+    {
+      "id": "REQ-COF-001",
+      "text": "While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations.",
+      "units": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INGESTTELEMETRY",
+          "path": "fleet_ingestion_api.go",
+          "line": 13
+        },
+        {
+          "symbol": "CODE-PUBLISHBREWTELEMETRY",
+          "path": "machine_telemetry.rs",
+          "line": 12
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-TELEMETRY",
+        "target": "CAP-TELEM-REPORT",
+        "targetRequirement": "REQ-TELEM-001"
+      },
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-002",
+      "text": "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics for fleet operator.",
+      "units": [
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INGESTTELEMETRY",
+          "path": "fleet_ingestion_api.go",
+          "line": 13
+        },
+        {
+          "symbol": "CODE-PERSISTTELEMETRYMETRIC",
+          "path": "fleet_observability_reporting.ts",
+          "line": 6
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-CLOUD-API",
+        "target": "CAP-CLOUD-INGEST",
+        "targetRequirement": "REQ-CLOUD-001"
+      },
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-003",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort using ota campaign policy.",
+      "units": [
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-PLANCAMPAIGN",
+          "path": "update_campaign_orchestrator.ts",
+          "line": 6
+        },
+        {
+          "symbol": "CODE-VALIDATEANDAPPLY",
+          "path": "ota_update_agent.rs",
+          "line": 6
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-OTA-AGENT",
+        "target": "CAP-OTA-APPLY",
+        "targetRequirement": "REQ-OTA-001"
+      },
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-004",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid.",
+      "units": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-OTA-UPDATE-AGENT"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-VALIDATEANDAPPLY",
+          "path": "ota_update_agent.rs",
+          "line": 6
+        },
+        {
+          "symbol": "CODE-VERIFYFIRMWARESIGNATURE",
+          "path": "device_identity_secrets.ts",
+          "line": 5
+        }
+      ],
+      "verifications": [
+        "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-005",
+      "text": "If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply.",
+      "units": [
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-HANDLEROLLBACK",
+          "path": "update_campaign_orchestrator.ts",
+          "line": 12
+        },
+        {
+          "symbol": "CODE-ROLLBACKANDREPORT",
+          "path": "ota_update_agent.rs",
+          "line": 16
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-006",
+      "text": "If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry.",
+      "units": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-QUEUEFORRETRY",
+          "path": "machine_telemetry.rs",
+          "line": 18
+        }
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-007",
+      "text": "Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record with machine identity plus campaign id.",
+      "units": [
+        "FU-DEVICE-IDENTITY-SECRETS",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-PERSISTAUDITLOG",
+          "path": "fleet_observability_reporting.ts",
+          "line": 12
+        },
+        {
+          "symbol": "CODE-REDACTIDENTITYFORAUDIT",
+          "path": "device_identity_secrets.ts",
+          "line": 10
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-008",
+      "text": "If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry.",
+      "units": [
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-NOTIFYREPLAYABUSE",
+          "path": "fleet_observability_reporting.ts",
+          "line": 18
+        },
+        {
+          "symbol": "CODE-RAISESECURITYNOTIFICATION",
+          "path": "cloud_runtime_ops.go",
+          "line": 6
+        },
+        {
+          "symbol": "CODE-REJECTREPLAY",
+          "path": "fleet_ingestion_api.go",
+          "line": 19
+        }
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-COF-009",
+      "text": "While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist logging records for fleet operator.",
+      "units": [
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COF-010",
+      "text": "If firmware validation failed event is received, then the coffee fleet system shall report ota status to platform operator.",
+      "units": [
+        "FU-FLEET-OBSERVABILITY-REPORTING",
+        "FU-OTA-UPDATE-AGENT",
+        "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COF-011",
+      "text": "If cloud ingest endpoint is unavailable, then the coffee fleet system shall flush queued telemetry when normal mode is active.",
+      "units": [
+        "FU-FLEET-INGESTION-API",
+        "FU-MACHINE-TELEMETRY-COLLECTION"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COF-012",
+      "text": "If telemetry replay abuse is detected, then the coffee fleet system shall notify security analyst.",
+      "units": [
+        "FU-CLOUD-RUNTIME-OPERATIONS",
+        "FU-FLEET-INGESTION-API",
+        "FU-FLEET-OBSERVABILITY-REPORTING"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-COF-009",
+    "REQ-COF-010",
+    "REQ-COF-011",
+    "REQ-COF-012"
+  ],
+  "summary": {
+    "requirements": 12,
+    "implemented": 8,
+    "verified": 6,
+    "delegated": 3,
+    "orphan": 4,
+    "danglingLinks": 0
+  }
+}

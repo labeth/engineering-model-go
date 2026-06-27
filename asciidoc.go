@@ -127,6 +127,18 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	diags = append(diags, verificationDiags...)
 	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
 
+	delegationsByReq := map[string][]MaterializedAllocation{}
+	if HasComposition(bundle) {
+		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
+			for _, m := range res.Allocations {
+				rid := strings.TrimSpace(m.Requirement)
+				delegationsByReq[rid] = append(delegationsByReq[rid], m)
+			}
+		}
+	}
+	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), filepath.Dir(bundle.ArchitecturePath))
+	diags = append(diags, validateTraceIntegrity(bundle, requirements, scopedCode, inferredVerification, delegationsByReq)...)
+
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
 	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
 		details := buildDesignDetails(g.ID, g.Prose, designGroups[g.ID], bundle.Architecture.Views)
@@ -285,16 +297,6 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			codeRows := buildCodeOwnershipRows(inferredCode)
 			viewSections[i].InferredGraph = buildCodeOwnershipMermaid(codeRows, bundle.Architecture.AuthoredArchitecture)
 			viewSections[i].InferredRows = codeRows
-		}
-	}
-
-	delegationsByReq := map[string][]MaterializedAllocation{}
-	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
-			for _, m := range res.Allocations {
-				rid := strings.TrimSpace(m.Requirement)
-				delegationsByReq[rid] = append(delegationsByReq[rid], m)
-			}
 		}
 	}
 

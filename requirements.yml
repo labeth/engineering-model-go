@@ -184,3 +184,25 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-MODEL-LOADER
+
+  - id: REQ-EMG-028
+    text: "When generation run is requested, the engineering model go shall reject a code trace link that resolves to no requirement or model element."
+    notes: "Code markers (TRLC-LINKS to a requirement, ENGMODEL-LINKS to a model element) are existence-checked against the model, not only shape-checked, so a link to a deleted or mistyped id is a dangling link and fails the build. A trace link is only checked for the model that owns its code (see REQ-EMG-030 scoping)."
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-CODEMAP-INFERENCE
+      - FU-ALLOCATION-TRACE
+
+  - id: REQ-EMG-029
+    text: "When generation run is requested, the engineering model go shall flag each requirement that is traced by neither code nor verification nor a downward delegation."
+    notes: "An orphan requirement has no implementing code symbol, no verification, and is not delegated to a subsystem; it is a coverage gap surfaced as a warning so it is visible without breaking the build."
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-ALLOCATION-TRACE
+
+  - id: REQ-EMG-030
+    text: "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code and verification and delegated subsystem requirement."
+    notes: "One consolidated matrix (JSON) replaces having to read it out of prose and diagrams. Code is attributed to the model whose architecture.yml is its nearest enclosing root, so a parent model never validates or counts a child model's trace links (monorepo scoping)."
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-CODEMAP-INFERENCE

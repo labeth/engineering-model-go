@@ -1,0 +1,43 @@
+{
+  "model": "COF-TELEMETRY",
+  "requirements": [
+    {
+      "id": "REQ-TELEM-001",
+      "text": "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet.",
+      "units": [
+        "FU-TELEM-REPORT"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-TELEM-002",
+      "text": "Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.",
+      "units": [
+        "FU-TELEM-SAMPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-TELEM-003",
+      "text": "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.",
+      "units": [
+        "FU-TELEM-REPORT"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-TELEM-001",
+    "REQ-TELEM-002",
+    "REQ-TELEM-003"
+  ],
+  "summary": {
+    "requirements": 3,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 3,
+    "danglingLinks": 0
+  }
+}

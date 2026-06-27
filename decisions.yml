@@ -188,3 +188,22 @@ decisions:
       - Requirement documents stay flat and boundary-agnostic.
       - Delegation is expressed once, by the integrating system's downward allocation.
       - Internal requirement-to-requirement links are reported instead of silently accepted.
+  - id: ADR-EMG-012
+    title: Trace links are existence-checked, scoped to the owning model, and exported as a matrix
+    status: accepted
+    date: 2026-06-27
+    context: |
+      Code trace markers (TRLC-LINKS to a requirement, ENGMODEL-LINKS to a model element) were only
+      shape-checked by a regex, so a link to a deleted or mistyped id passed silently. In a monorepo the code
+      root can also contain other models' code (each example carries its own architecture.yml), whose markers
+      reference their own requirements, not the model being generated.
+    decision: |
+      Every code trace link is existence-checked against the model: a dangling requirement or model-element
+      link is an error, and a requirement traced by no code, verification, or delegation is reported as an
+      orphan warning. Code is attributed to the model whose architecture.yml is its nearest enclosing root,
+      so a parent model never validates or counts a child model's links. The consolidated trace is also
+      emitted as a machine-readable matrix (req to code, verification, and delegated subsystem requirement).
+    consequences:
+      - Trace links are trustworthy, not merely well-formed; the matrix is a real artifact, not prose.
+      - Monorepos with multiple models validate cleanly without cross-model false positives.
+      - Orphan coverage gaps are visible without breaking the build.

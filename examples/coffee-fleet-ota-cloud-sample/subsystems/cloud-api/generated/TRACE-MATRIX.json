@@ -1,0 +1,34 @@
+{
+  "model": "COF-CLOUD-API",
+  "requirements": [
+    {
+      "id": "REQ-CLOUD-001",
+      "text": "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.",
+      "units": [
+        "FU-CLOUD-INGEST"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-CLOUD-002",
+      "text": "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.",
+      "units": [
+        "FU-CLOUD-INGEST"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-CLOUD-001",
+    "REQ-CLOUD-002"
+  ],
+  "summary": {
+    "requirements": 2,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 2,
+    "danglingLinks": 0
+  }
+}

@@ -106,6 +106,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				Kind:       "symbol",
 				Owner:      owner,
 				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
+				AbsPath:    filepath.Join(abs, s.Path),
 				Implements: uniqueSorted(s.Implements),
 				ModelLinks: uniqueSorted(s.ModelLinks),
 			})

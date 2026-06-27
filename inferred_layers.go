@@ -37,6 +37,7 @@ type inferredCodeItem struct {
 	Owner       string
 	Description string
 	Source      string
+	AbsPath     string // absolute file path (symbol items), for unambiguous model-boundary scoping
 	Implements  []string
 	ModelLinks  []string
 }

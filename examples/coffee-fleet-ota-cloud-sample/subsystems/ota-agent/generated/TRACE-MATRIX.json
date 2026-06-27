@@ -1,0 +1,43 @@
+{
+  "model": "COF-OTA-AGENT",
+  "requirements": [
+    {
+      "id": "REQ-OTA-001",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.",
+      "units": [
+        "FU-OTA-APPLY"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-OTA-002",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.",
+      "units": [
+        "FU-OTA-VERIFY"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-OTA-003",
+      "text": "When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.",
+      "units": [
+        "FU-OTA-APPLY"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-OTA-001",
+    "REQ-OTA-002",
+    "REQ-OTA-003"
+  ],
+  "summary": {
+    "requirements": 3,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 3,
+    "danglingLinks": 0
+  }
+}
