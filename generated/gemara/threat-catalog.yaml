@@ -1,0 +1,71 @@
+title: "Engineering Model Go Repository Architecture - Threats"
+metadata:
+  id: ENGMOD-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Threat scenarios for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CAPABILITY-CATALOG
+    title: Capability Catalog
+    version: 1.1.0
+  - id: ENGMOD-VECTOR-CATALOG
+    title: Vector Catalog
+    version: 1.1.0
+groups:
+- id: stride-tampering
+  title: tampering
+  description: "Threat classification: tampering."
+- id: stride-repudiation
+  title: repudiation
+  description: "Threat classification: repudiation."
+threats:
+- id: TS-MCP-PATH-TRAVERSAL
+  title: MCP path traversal accesses non-repo files
+  description: Untrusted MCP input attempts to escape repo root for sensitive file reads.
+  group: stride-tampering
+  capabilities:
+  - entries:
+    - reference-id: FU-MCP-SERVER
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-PATH-TRAVERSAL-IN-MCP
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.
+- id: TS-TRACEABILITY-DRIFT
+  title: Requirement traceability drifts from implementation
+  description: Code and tests change without corresponding requirement trace updates.
+  group: stride-repudiation
+  capabilities:
+  - entries:
+    - reference-id: FU-CODEMAP-INFERENCE
+    - reference-id: FU-TRLC-EXPORTER
+    - reference-id: FU-LOBSTER-EXPORTER
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-TRACEABILITY-GAP-DRIFT
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.

@@ -1,0 +1,87 @@
+title: "Sample Payments Layered Architecture - Threats"
+metadata:
+  id: ENGMOD-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Threat scenarios for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CAPABILITY-CATALOG
+    title: Capability Catalog
+    version: 1.1.0
+  - id: ENGMOD-VECTOR-CATALOG
+    title: Vector Catalog
+    version: 1.1.0
+groups:
+- id: stride-tampering
+  title: tampering
+  description: "Threat classification: tampering."
+- id: stride-replay
+  title: replay
+  description: "Threat classification: replay."
+threats:
+- id: TS-PAYMENTS-CHECKOUT-SPOOFING
+  title: Checkout payload spoofing bypasses normalization checks
+  description: Crafted payload shape attempts to force ambiguous authorization behavior and bypass policy checks.
+  group: stride-tampering
+  capabilities:
+  - entries:
+    - reference-id: FU-CHECKOUT
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-MALICIOUS-API-REQUEST
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.
+- id: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+  title: Replayed bank callback triggers duplicate authorization transition
+  description: Replayed callback message tries to overwrite or duplicate prior decision outcomes.
+  group: stride-replay
+  capabilities:
+  - entries:
+    - reference-id: FU-PAYMENT-AUTHORIZATION
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-REPLAYED-AUTH-CALLBACK
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+- id: TS-PAYMENTS-RISK-TICKET-TAMPER
+  title: Manual review ticket tampering influences authorization result
+  description: A compromised support or workflow path modifies review ticket outcomes before authorization completes.
+  group: stride-tampering
+  capabilities:
+  - entries:
+    - reference-id: FU-SUPPORT-REVIEW
+    - reference-id: FU-PAYMENT-AUTHORIZATION
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-FRAUDULENT-TRANSACTION-PATTERN
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.

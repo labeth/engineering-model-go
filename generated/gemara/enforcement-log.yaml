@@ -1,0 +1,55 @@
+metadata:
+  id: engineering-model-go-ENFORCEMENT-LOG
+  type: EnforcementLog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Remediation enforcement actions for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+  - id: ENGMOD-POLICY
+    title: Policy
+    version: 1.1.0
+disposition: Enforced
+actions:
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-MCP-PATH-ESCAPE (milestone: Add fuzz coverage for MCP path normalization, due: 2026-09-30, status: planned)."
+  start: "2026-06-27T00:00:00Z"
+  steps:
+  - ACT-ARCHITECTURE-AUTHOR
+  - mcp/server_test.go
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-MCP-PATH-ESCAPE
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-TRACEABILITY-DRIFT (milestone: Enforce strict trace coverage in the CI gate, due: 2026-08-31, status: in-progress)."
+  start: "2026-06-27T00:00:00Z"
+  steps:
+  - ACT-COMPLIANCE-ENGINEER
+  - codemap/scan.go
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-TRACEABILITY-DRIFT
+target:
+  id: engineering-model-go
+  name: Engineering Model Go Repository Architecture
+  type: Software
+  description: "System under governance: Engineering Model Go Repository Architecture"

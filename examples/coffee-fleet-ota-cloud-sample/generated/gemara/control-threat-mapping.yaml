@@ -1,0 +1,46 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Control to Threat Mapping"
+metadata:
+  id: sample-coffee-fleet-ota-cloud-model-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: How controls relate to threats for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-CTRL-COFFEE-DEVICE-IDENTITY
+  source: CTRL-COFFEE-DEVICE-IDENTITY
+  targets:
+  - entry-id: TS-COFFEE-OTA-COMMAND-SPOOF
+    strength: 7
+    rationale: Control CTRL-COFFEE-DEVICE-IDENTITY mitigates threat TS-COFFEE-OTA-COMMAND-SPOOF.
+  - entry-id: TS-COFFEE-TELEMETRY-REPLAY
+    strength: 7
+    rationale: Control CTRL-COFFEE-DEVICE-IDENTITY mitigates threat TS-COFFEE-TELEMETRY-REPLAY.
+  - entry-id: TS-COFFEE-LOG-TAMPERING
+    strength: 7
+    rationale: Control CTRL-COFFEE-DEVICE-IDENTITY mitigates threat TS-COFFEE-LOG-TAMPERING.
+  relationship: relates-to
+- id: MAP-CTRL-COFFEE-FIRMWARE-SIGNATURE
+  source: CTRL-COFFEE-FIRMWARE-SIGNATURE
+  targets:
+  - entry-id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+    strength: 7
+    rationale: Control CTRL-COFFEE-FIRMWARE-SIGNATURE mitigates threat TS-COFFEE-MALICIOUS-OTA-BUNDLE.
+  relationship: relates-to

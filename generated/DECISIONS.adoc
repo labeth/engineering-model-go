@@ -49,3 +49,131 @@ decision, status, date, and consequences. Do not add code-link fields to the ADR
 - ADRs remain focused on architectural rationale instead of implementation inventory.
 - Code traceability continues to use requirement and owner markers.
 - Main architecture outputs can link to ADRs without embedding code-level decision links.
+
+[[ADR-EMG-003]]
+== ADR-EMG-003: Render Gemara as a first-class output using the official go-gemara SDK types
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+OpenSSF Gemara is a layered GRC engineering model with published CUE schemas and a Go SDK.
+The engineering model already captures controls, threats, risks, attack vectors, functional
+units, and verification evidence, which align closely with Gemara's L1-L3 catalogs and L5
+evaluation log. We needed a way to emit Gemara that is guaranteed structurally correct rather
+than a hand-written approximation.
+
+=== Decision
+
+Build Gemara documents from the official go-gemara SDK structs (github.com/gemaraproj/go-gemara)
+and serialize them with the same YAML codec the SDK uses. Treat Gemara as a first-class rendering
+with a library API, an enggemara CLI, an AsciiDoc chapter, and MCP tools. Validate every artifact
+two ways: load it back through the SDK loader/type discriminator in tests, and run cue vet against
+the published Gemara schemas.
+
+=== Consequences
+
+- Output is guaranteed to match the Gemara schemas and is consumable by other Gemara tooling.
+- engmod takes a dependency on go-gemara (and transitively go-oscal) for the export path.
+- The L5 evaluation log validates via the schema and SDK type discriminator but is not round-tripped through the SDK loader, because its AssessmentStep is a func type that serializes to a name string yet cannot be unmarshaled back.
+
+[[ADR-EMG-004]]
+== ADR-EMG-004: Source the Gemara evaluation log from authored control verifications, with pass and fail outcomes
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+A Gemara L5 evaluation log is meant to carry the opinionated result of assessing each control,
+including passing assessments. The existing OSCAL assessment results path intentionally records
+only non-passing findings, so it is a lossy source for an evaluation log.
+
+=== Decision
+
+Build the evaluation log from authored control verifications, which carry both pass and fail
+statuses, mapping each verification to an assessment log under its control's evaluation. Synthesize
+a needs-review assessment for controls that have no authored verification.
+
+=== Consequences
+
+- The evaluation log faithfully represents pass and fail outcomes rather than failures only.
+- Inferred-from-tests verification can later augment this source without changing the contract.
+
+[[ADR-EMG-005]]
+== ADR-EMG-005: Keep hand-written OSCAL SSP/AR/POA&M; add Gemara-to-OSCAL only as an additive bridge
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+The go-gemara SDK converts a Gemara control catalog to an OSCAL Catalog and a Gemara evaluation log
+to OSCAL Assessment Results. It does not produce an OSCAL System Security Plan or Plan of Action and
+Milestones, and it does not carry system characteristics, POA&M items, or compliance-profile-resolved
+reviewed controls with engmod's deterministic UUID scheme.
+
+=== Decision
+
+Retain engmod's hand-written OSCAL SSP, Assessment Results, and POA&M exporters unchanged. Expose the
+Gemara-to-OSCAL conversion as an additive option on enggemara, emitting a Gemara-sourced OSCAL control
+catalog (which engmod did not previously produce) and OSCAL assessment results.
+
+=== Consequences
+
+- No information is lost; the same compliance problems remain solved by the existing OSCAL outputs.
+- A new Gemara-sourced OSCAL control catalog becomes available for catalog-centric workflows.
+- There are now two OSCAL assessment-results paths; the engmod-native one stays authoritative.
+
+[[ADR-EMG-006]]
+== ADR-EMG-006: Synthesize Gemara structure that the model does not author, with explicit fallbacks
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+Several Gemara constructs are required by the schemas but are not first-class in the engineering
+model: per-control assessment requirements and applicability groups, threat capability references,
+and risk severity, category, and appetite. Some of these are organizational inputs that cannot be
+inferred from the technical model.
+
+=== Decision
+
+Synthesize the missing structure deterministically: assessment requirements from control
+verifications (or a default requirement); applicability groups from functional units plus an
+all-systems catch-all; threat capabilities from appliesTo with a synthetic system capability
+fallback; risk severity derived from likelihood and impact; and a default risk category carrying an
+authored appetite. Keep generated artifacts reproducible by stamping dates only from an explicit option.
+
+=== Consequences
+
+- Every artifact is schema-valid without requiring intrusive changes to the authored model.
+- Risk appetite and applicability remain coarse until authored as first-class model inputs.
+- A future model reshape can replace synthesized fields with authored ones without changing the export.
+
+[[ADR-EMG-007]]
+== ADR-EMG-007: Attach trace and model-link markers to package-level var and const declarations
+
+Status:: accepted
+Date:: 2026-06-27
+
+=== Context
+
+The Go code scanner originally treated only functions, methods, and types as declaration-level
+trace targets. Markers placed before package-level var and const declarations (for example template
+and pattern variables) did not attach and were reported as trace_unattached warnings, so their
+linking intent was lost and the repository could not reach a fully clean strict-linking scan.
+
+=== Decision
+
+Treat package-level var and const declarations as declaration kinds that attach TRLC-LINKS and
+ENGMODEL-LINKS markers, while keeping only functions and methods trace-required. Stray markers that
+precede no declaration (for example a trailing marker at end of file) are still reported as unattached.
+
+=== Consequences
+
+- Existing var/const markers now link to the model, giving full linking and a warning-free scan.
+- Functions and methods remain the only declarations that must carry a TRLC-LINKS marker.
+- The scanner policy test was updated to detect stray markers via a non-declaration position.

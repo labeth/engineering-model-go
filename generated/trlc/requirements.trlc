@@ -71,3 +71,9 @@ Requirement REQ_EMG_014 {
   notes      = "ADRs are first-class model content but are published separately from the main architecture narrative."
   applies_to = ["FU-ASCIIDOC-GENERATOR", "FU-CLI-ORCHESTRATION"]
 }
+Requirement REQ_EMG_015 {
+  id         = "REQ-EMG-015"
+  text       = "Where gemara export is enabled, when generation run is requested, the engineering model go shall render OpenSSF Gemara model artifacts."
+  notes      = "Gemara is a first-class GRC rendering of the model, validated against the published Gemara schemas via the go-gemara SDK."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-GEMARA-EXPORTER", "FU-MCP-SERVER"]
+}

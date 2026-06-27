@@ -1,0 +1,84 @@
+metadata:
+  id: engineering-model-go-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Point-in-time audit of Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Engineering Model Go Repository Architecture: 5 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-VER-MCP-PATH-BOUNDARY
+  title: Verification of CTRL-MCP-PATH-BOUNDARY
+  type: Strength
+  description: Control CTRL-MCP-PATH-BOUNDARY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-MCP-PATH-BOUNDARY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-VER-MCP-PATH-BOUNDARY-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Traversal rejection tests for MCP path arguments.
+  recommendations:
+  - text: Path traversal rejected and error payload returned in MCP tests.
+    required: false
+- id: AUD-VER-TRACEABILITY-COVERAGE
+  title: Verification of CTRL-TRACEABILITY-COVERAGE
+  type: Observation
+  description: Control CTRL-TRACEABILITY-COVERAGE assessed via analysis with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-TRACEABILITY-COVERAGE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-VER-TRACEABILITY-COVERAGE-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Verification inference and trace marker coverage tests.
+  recommendations:
+  - text: Coverage depends on TRLC-LINKS completeness in source and tests.
+    required: false
+- id: AUD-RISK-MCP-PATH-ESCAPE
+  title: "Residual risk: MCP path traversal exposes non-repository files"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-MCP-PATH-BOUNDARY
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-TRACEABILITY-DRIFT
+  title: "Residual risk: Traceability drift weakens assurance evidence"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-TRACEABILITY-COVERAGE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-STALE-ARTIFACTS
+  title: "Residual risk: Stale generated artifacts misrepresent the system"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-TRACEABILITY-COVERAGE
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: engineering-model-go
+  name: Engineering Model Go Repository Architecture
+  type: Software
+  description: "System under governance: Engineering Model Go Repository Architecture"

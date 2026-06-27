@@ -512,11 +512,49 @@
             }
           },
           {
-            "id": "6b02063a-6002-5e2b-9df9-34ca2b92be2a",
+            "id": "7ffe5d9d-24ff-5d58-b042-9138ca9eec4d",
             "shape": "process",
             "zIndex": 13,
             "position": {
               "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Gemara Exporter"
+              }
+            },
+            "data": {
+              "description": "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Gemara Exporter",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "6b02063a-6002-5e2b-9df9-34ca2b92be2a",
+            "shape": "process",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
               "y": 570
             },
             "size": {
@@ -565,9 +603,9 @@
           {
             "id": "0fdb3e74-195f-569f-b10d-846194107c4e",
             "shape": "process",
-            "zIndex": 14,
+            "zIndex": 15,
             "position": {
-              "x": 320,
+              "x": 580,
               "y": 570
             },
             "size": {
@@ -616,9 +654,9 @@
           {
             "id": "06edb649-5267-5a38-8a3b-12020c58b25d",
             "shape": "process",
-            "zIndex": 15,
+            "zIndex": 16,
             "position": {
-              "x": 580,
+              "x": 840,
               "y": 570
             },
             "size": {
@@ -654,10 +692,10 @@
           {
             "id": "b3bec3d2-9395-5fa8-be48-11bb495974c9",
             "shape": "process",
-            "zIndex": 16,
+            "zIndex": 17,
             "position": {
-              "x": 840,
-              "y": 570
+              "x": 60,
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -692,9 +730,9 @@
           {
             "id": "7b1897fd-763b-5917-91bf-21cf69c25b21",
             "shape": "process",
-            "zIndex": 17,
+            "zIndex": 18,
             "position": {
-              "x": 60,
+              "x": 320,
               "y": 740
             },
             "size": {
@@ -730,9 +768,9 @@
           {
             "id": "4a3741ca-6d92-5873-995f-b0b452b4499e",
             "shape": "process",
-            "zIndex": 18,
+            "zIndex": 19,
             "position": {
-              "x": 320,
+              "x": 580,
               "y": 740
             },
             "size": {
@@ -768,9 +806,9 @@
           {
             "id": "1b0aa39e-5e97-5fb5-a0b3-8faa23a4affd",
             "shape": "process",
-            "zIndex": 19,
+            "zIndex": 20,
             "position": {
-              "x": 580,
+              "x": 840,
               "y": 740
             },
             "size": {
@@ -819,10 +857,10 @@
           {
             "id": "dc739d03-100e-5958-9a98-1c87f6f7d871",
             "shape": "process",
-            "zIndex": 20,
+            "zIndex": 21,
             "position": {
-              "x": 840,
-              "y": 740
+              "x": 60,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -857,9 +895,9 @@
           {
             "id": "0d8ebf81-654b-5228-aef7-dcb87dd10bcb",
             "shape": "process",
-            "zIndex": 21,
+            "zIndex": 22,
             "position": {
-              "x": 60,
+              "x": 320,
               "y": 910
             },
             "size": {
@@ -895,9 +933,9 @@
           {
             "id": "4ce660d9-3b03-54dd-8510-dda2b3c7454c",
             "shape": "process",
-            "zIndex": 22,
+            "zIndex": 23,
             "position": {
-              "x": 320,
+              "x": 580,
               "y": 910
             },
             "size": {
@@ -933,9 +971,9 @@
           {
             "id": "68ca5cd0-b8cf-5bf2-b323-a2b859f088e3",
             "shape": "process",
-            "zIndex": 23,
+            "zIndex": 24,
             "position": {
-              "x": 580,
+              "x": 840,
               "y": 910
             },
             "size": {
@@ -971,10 +1009,10 @@
           {
             "id": "7d3de86a-c730-5dc6-ad64-eff258887512",
             "shape": "process",
-            "zIndex": 24,
+            "zIndex": 25,
             "position": {
-              "x": 840,
-              "y": 910
+              "x": 60,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -1009,9 +1047,9 @@
           {
             "id": "17bbfe18-bd10-5dec-a8cf-dd3082d5f186",
             "shape": "process",
-            "zIndex": 25,
+            "zIndex": 26,
             "position": {
-              "x": 60,
+              "x": 320,
               "y": 1080
             },
             "size": {
@@ -1047,9 +1085,9 @@
           {
             "id": "65165ca1-1f2c-532c-8f37-f9c752c851de",
             "shape": "process",
-            "zIndex": 26,
+            "zIndex": 27,
             "position": {
-              "x": 320,
+              "x": 580,
               "y": 1080
             },
             "size": {
@@ -1085,9 +1123,9 @@
           {
             "id": "1b702e6d-b4c2-579b-b26f-a48600104542",
             "shape": "process",
-            "zIndex": 27,
+            "zIndex": 28,
             "position": {
-              "x": 580,
+              "x": 840,
               "y": 1080
             },
             "size": {
@@ -1123,10 +1161,10 @@
           {
             "id": "ec9f757c-f9bc-57bb-b5f2-e16cef99dac1",
             "shape": "process",
-            "zIndex": 28,
+            "zIndex": 29,
             "position": {
-              "x": 840,
-              "y": 1080
+              "x": 60,
+              "y": 1250
             },
             "size": {
               "height": 90,
@@ -1161,9 +1199,9 @@
           {
             "id": "8ab83f3e-cb9d-5feb-9c61-f3cc86f81933",
             "shape": "process",
-            "zIndex": 29,
+            "zIndex": 30,
             "position": {
-              "x": 60,
+              "x": 320,
               "y": 1250
             },
             "size": {
@@ -1199,9 +1237,9 @@
           {
             "id": "dc1cd078-7112-5a37-8b60-a4e010f95aa1",
             "shape": "trust-boundary-box",
-            "zIndex": 30,
+            "zIndex": 31,
             "position": {
-              "x": 30,
+              "x": 330,
               "y": 2230
             },
             "size": {
@@ -1229,9 +1267,9 @@
           {
             "id": "fc4fa542-8f91-5062-b475-ffd03aa522e8",
             "shape": "trust-boundary-box",
-            "zIndex": 31,
+            "zIndex": 32,
             "position": {
-              "x": 330,
+              "x": 630,
               "y": 2230
             },
             "size": {
@@ -1259,7 +1297,7 @@
           {
             "id": "d0bfb98c-f07d-51dc-9538-f9e88e3dff66",
             "shape": "flow",
-            "zIndex": 41,
+            "zIndex": 42,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1304,7 +1342,7 @@
           {
             "id": "94f95753-cdeb-5a1c-85e6-8be5d905696f",
             "shape": "flow",
-            "zIndex": 42,
+            "zIndex": 43,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1349,7 +1387,7 @@
           {
             "id": "04a8c0b4-f880-55ba-8b82-6d1b64f3671a",
             "shape": "flow",
-            "zIndex": 43,
+            "zIndex": 44,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1394,7 +1432,7 @@
           {
             "id": "686606b2-94c7-5141-9289-85a0c40ed5e7",
             "shape": "flow",
-            "zIndex": 44,
+            "zIndex": 45,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1439,7 +1477,7 @@
           {
             "id": "ddad4fca-6f02-5854-996f-87fd49bad683",
             "shape": "flow",
-            "zIndex": 45,
+            "zIndex": 46,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1484,7 +1522,7 @@
           {
             "id": "874ef990-af81-5700-90b8-eb00f80a2f28",
             "shape": "flow",
-            "zIndex": 46,
+            "zIndex": 47,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1542,7 +1580,7 @@
           {
             "id": "ad595953-1810-5427-a538-0f1cf554a3c6",
             "shape": "flow",
-            "zIndex": 47,
+            "zIndex": 48,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1587,7 +1625,7 @@
           {
             "id": "de33ac1c-f295-51bb-9438-386c393623fe",
             "shape": "flow",
-            "zIndex": 48,
+            "zIndex": 49,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1632,7 +1670,7 @@
           {
             "id": "8015b7a3-7e34-5fce-bb21-682d70b12f81",
             "shape": "flow",
-            "zIndex": 49,
+            "zIndex": 50,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1677,7 +1715,7 @@
           {
             "id": "26354948-9fd7-5ba5-af36-50b092dfaafe",
             "shape": "flow",
-            "zIndex": 50,
+            "zIndex": 51,
             "attrs": {
               "line": {
                 "stroke": "#555555",

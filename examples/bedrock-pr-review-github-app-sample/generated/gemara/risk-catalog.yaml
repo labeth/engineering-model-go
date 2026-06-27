@@ -1,0 +1,77 @@
+title: "Bedrock Lambda GitHub PR Review App Architecture - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Risk register for Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-BEDROCK-WEBHOOK-SPOOFING
+  title: Webhook spoofing risk
+  description: Forged webhook requests could trigger unauthorized review actions.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ENGINEER
+    accountable:
+    - name: ACT-SECURITY-ENGINEER
+    informed:
+    - name: ACT-SECURITY-ENGINEER
+  impact: Signature verification is implemented; replay defenses are periodically revalidated.
+  threats:
+  - entries:
+    - reference-id: TS-BEDROCK-WEBHOOK-SPOOF
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-BEDROCK-PROMPT-INJECTION
+  title: Prompt injection in PR context risk
+  description: Prompt-like diff content can degrade policy-aligned review output quality.
+  group: operational-risk
+  severity: Medium
+  rank: 2
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ENGINEER
+    accountable:
+    - name: ACT-SECURITY-ENGINEER
+    informed:
+    - name: ACT-SECURITY-ENGINEER
+  impact: Prompt hardening exists, but adversarial payload patterns evolve.
+  threats:
+  - entries:
+    - reference-id: TS-BEDROCK-PROMPT-INJECTION
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-BEDROCK-SECRET-LEAKAGE
+  title: Review output secret leakage risk
+  description: Findings publication may expose sensitive content if redaction and credential controls drift.
+  group: operational-risk
+  severity: Medium
+  rank: 3
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ENGINEER
+    accountable:
+    - name: ACT-SECURITY-ENGINEER
+    informed:
+    - name: ACT-SECURITY-ENGINEER
+  impact: Current controls reduce exposure but need ongoing tuning for new secret formats.
+  threats:
+  - entries:
+    - reference-id: TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    reference-id: ENGMOD-THREAT-CATALOG

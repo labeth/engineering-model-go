@@ -7015,3 +7015,103 @@ verifies OTA campaign signature validation and rollout trigger behavior
 |Name |Ota Campaign Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
+
+<<<
+== Gemara GRC Model
+
+This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) documents. Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.
+
+[cols="1,3,1",options="header"]
+|===
+|Gemara Layer |Artifact |Entries
+|L1
+|Vector Catalog
+|4
+|L1
+|Principle Catalog
+|5
+|L1
+|Guidance Catalog
+|2
+|L2
+|Capability Catalog
+|8
+|L2
+|Control Catalog
+|2
+|L2
+|Threat Catalog
+|4
+|L3
+|Risk Catalog
+|4
+|L3
+|Policy
+|4
+|-
+|Control→Threat Mapping
+|2
+|-
+|Lexicon
+|38
+|L7
+|Audit Log
+|8
+|L6
+|Enforcement Log
+|1
+|===
+
+=== Controls (L2)
+
+[cols="2,4,2,1",options="header"]
+|===
+|Control |Objective |Group |Assessment Requirements
+|CTRL-COFFEE-DEVICE-IDENTITY
+|Require authenticated device identity for telemetry and OTA command channels.
+|identity-access
+|3
+|CTRL-COFFEE-FIRMWARE-SIGNATURE
+|Require signed firmware bundles before applying OTA updates.
+|integrity
+|1
+|===
+
+=== Threats (L2)
+
+[cols="2,4,2",options="header"]
+|===
+|Threat |Title |Group
+|TS-COFFEE-MALICIOUS-OTA-BUNDLE
+|Tampered firmware bundle executes on edge fleet
+|stride-tampering
+|TS-COFFEE-OTA-COMMAND-SPOOF
+|Spoofed OTA command triggers unauthorized rollout
+|stride-spoofing
+|TS-COFFEE-TELEMETRY-REPLAY
+|Telemetry replay inflates ingest and distorts reporting
+|stride-replay
+|TS-COFFEE-LOG-TAMPERING
+|Audit log tampering suppresses OTA incident visibility
+|stride-repudiation
+|===
+
+=== Risks (L3)
+
+[cols="2,4,1",options="header"]
+|===
+|Risk |Title |Severity
+|RISK-COFFEE-DEVICE-SPOOFING
+|Device identity spoofing risk
+|High
+|RISK-COFFEE-MALICIOUS-OTA
+|Malicious OTA payload execution risk
+|High
+|RISK-COFFEE-TELEMETRY-REPLAY
+|Telemetry replay distortion risk
+|Medium
+|RISK-COFFEE-LOG-TAMPERING
+|Audit log tampering risk
+|Medium
+|===
+

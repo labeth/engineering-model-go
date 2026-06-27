@@ -1,0 +1,116 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Threats"
+metadata:
+  id: ENGMOD-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Threat scenarios for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CAPABILITY-CATALOG
+    title: Capability Catalog
+    version: 1.1.0
+  - id: ENGMOD-VECTOR-CATALOG
+    title: Vector Catalog
+    version: 1.1.0
+groups:
+- id: stride-tampering
+  title: tampering
+  description: "Threat classification: tampering."
+- id: stride-spoofing
+  title: spoofing
+  description: "Threat classification: spoofing."
+- id: stride-replay
+  title: replay
+  description: "Threat classification: replay."
+- id: stride-repudiation
+  title: repudiation
+  description: "Threat classification: repudiation."
+threats:
+- id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+  title: Tampered firmware bundle executes on edge fleet
+  description: Attacker attempts to deliver malicious firmware by replacing or tampering rollout artifact.
+  group: stride-tampering
+  capabilities:
+  - entries:
+    - reference-id: FU-OTA-UPDATE-AGENT
+    - reference-id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-MALICIOUS-FIRMWARE-BUNDLE
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.
+  - id: compromised-dependency
+    name: Compromised Dependency
+    type: Software
+    description: A malicious or compromised third-party component.
+- id: TS-COFFEE-OTA-COMMAND-SPOOF
+  title: Spoofed OTA command triggers unauthorized rollout
+  description: Unauthorized sender attempts to push OTA command messages to device fleet topic.
+  group: stride-spoofing
+  capabilities:
+  - entries:
+    - reference-id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    - reference-id: FU-OTA-UPDATE-AGENT
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-SPOOFED-DEVICE-IDENTITY
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+- id: TS-COFFEE-TELEMETRY-REPLAY
+  title: Telemetry replay inflates ingest and distorts reporting
+  description: Replayed telemetry bursts attempt to pollute fleet metrics and trigger false alerts.
+  group: stride-replay
+  capabilities:
+  - entries:
+    - reference-id: FU-FLEET-INGESTION-API
+    - reference-id: FU-FLEET-OBSERVABILITY-REPORTING
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-TELEMETRY-REPLAY-ABUSE
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+- id: TS-COFFEE-LOG-TAMPERING
+  title: Audit log tampering suppresses OTA incident visibility
+  description: Adversary attempts to alter or suppress security-relevant logs to hide malicious behavior.
+  group: stride-repudiation
+  capabilities:
+  - entries:
+    - reference-id: FU-FLEET-OBSERVABILITY-REPORTING
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: AV-LOG-TAMPERING
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.

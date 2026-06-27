@@ -93,3 +93,11 @@ requirements:
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
       - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-015
+    text: "Where gemara export is enabled, when generation run is requested, the engineering model go shall render OpenSSF Gemara model artifacts."
+    notes: "Gemara is a first-class GRC rendering of the model, validated against the published Gemara schemas via the go-gemara SDK."
+    appliesTo:
+      - FU-GEMARA-EXPORTER
+      - FU-CLI-ORCHESTRATION
+      - FU-MCP-SERVER

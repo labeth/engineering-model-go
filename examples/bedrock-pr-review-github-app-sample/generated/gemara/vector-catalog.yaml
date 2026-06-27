@@ -1,0 +1,51 @@
+title: "Bedrock Lambda GitHub PR Review App Architecture - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Attack vectors relevant to Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  applicability-groups:
+  - id: prod
+    title: Prod
+    description: Vectors applicable in the prod environment.
+  - id: external
+    title: External
+    description: Vectors applicable in the external environment.
+  - id: all-environments
+    title: All Environments
+    description: Applies across every environment.
+groups:
+- id: attack-vector
+  title: Attack Vector
+  description: Methods and pathways through which a threat may be realized.
+vectors:
+- id: AV-SPOOFED-GITHUB-WEBHOOK
+  title: Spoofed GitHub Webhook
+  description: Forged webhook payload attempting unauthorized review execution.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-PROMPT-INJECTION-IN-DIFF
+  title: Prompt Injection in Diff
+  description: Malicious prompt-like content embedded in pull request diffs.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-SECRET-LEAKAGE-IN-REVIEW
+  title: Secret Leakage in Review Output
+  description: Generated findings accidentally exposing secrets/tokens in comments.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-PR-SPAM-ABUSE
+  title: Pull Request Spam Abuse
+  description: High-rate PR event flooding that can exhaust review capacity.
+  group: attack-vector
+  applicability:
+  - all-environments

@@ -1,0 +1,49 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Guidance"
+metadata:
+  id: ENGMOD-GUIDANCE-CATALOG
+  type: GuidanceCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Control guidance for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-PRINCIPLE-CATALOG
+    title: Principle Catalog
+    version: 1.1.0
+groups:
+- id: control-guidance
+  title: Control Guidance
+  description: Guidance organized by control family.
+type: Framework
+front-matter: Guidance derived from the control families of Connected Coffee Fleet OTA + Cloud Architecture.
+guidelines:
+- id: GL-identity-access
+  title: Identity-Access Guidance
+  objective: Design, implement, and verify identity-access controls so their objectives are demonstrably met.
+  group: control-guidance
+  recommendations:
+  - Define a verifiable assessment requirement for each control objective.
+  - Capture objective evidence for every assessment.
+  principles:
+  - entries:
+    - reference-id: PRIN-TRACEABILITY
+    - reference-id: PRIN-DEFENSE-IN-DEPTH
+    reference-id: ENGMOD-PRINCIPLE-CATALOG
+  state: Active
+- id: GL-integrity
+  title: Integrity Guidance
+  objective: Design, implement, and verify integrity controls so their objectives are demonstrably met.
+  group: control-guidance
+  recommendations:
+  - Define a verifiable assessment requirement for each control objective.
+  - Capture objective evidence for every assessment.
+  principles:
+  - entries:
+    - reference-id: PRIN-TRACEABILITY
+    - reference-id: PRIN-DEFENSE-IN-DEPTH
+    reference-id: ENGMOD-PRINCIPLE-CATALOG
+  state: Active

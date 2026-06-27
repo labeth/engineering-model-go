@@ -71,6 +71,10 @@ authoredArchitecture:
       name: OSCAL Exporter
       group: FG-TRACEABILITY-COMPLIANCE
       prose: Exports OSCAL SSP control and risk views.
+    - id: FU-GEMARA-EXPORTER
+      name: Gemara Exporter
+      group: FG-TRACEABILITY-COMPLIANCE
+      prose: Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.
     - id: FU-MCP-SERVER
       name: MCP Server
       group: FG-MCP-INTEGRATION
@@ -261,6 +265,83 @@ authoredArchitecture:
       category: assurance
       description: Require requirement-linked verification evidence for modeled behavior.
 
+  risks:
+    - id: RISK-MCP-PATH-ESCAPE
+      title: MCP path traversal exposes non-repository files
+      statement: An attacker uses crafted MCP path arguments to read files outside the repository workspace.
+      status: mitigating
+      likelihood: medium
+      impact: high
+      response: mitigate
+      owner: ACT-ARCHITECTURE-AUTHOR
+      appliesTo: [FU-MCP-SERVER]
+      relatedControls: [CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA]
+      attackVectors: [AV-PATH-TRAVERSAL-IN-MCP]
+      threatScenarios: [TS-MCP-PATH-TRAVERSAL]
+      residualRisk: low
+      rationale: Path boundary enforcement and strict input schemas reduce exposure to low residual risk.
+    - id: RISK-TRACEABILITY-DRIFT
+      title: Traceability drift weakens assurance evidence
+      statement: Code and tests evolve without updating requirement trace markers, eroding coverage evidence.
+      status: mitigating
+      likelihood: medium
+      impact: medium
+      response: mitigate
+      owner: ACT-COMPLIANCE-ENGINEER
+      appliesTo: [FU-CODEMAP-INFERENCE]
+      relatedControls: [CTRL-TRACEABILITY-COVERAGE]
+      attackVectors: [AV-TRACEABILITY-GAP-DRIFT]
+      threatScenarios: [TS-TRACEABILITY-DRIFT]
+      residualRisk: low
+      rationale: Strict code-linking coverage and inferred verification keep drift detectable.
+    - id: RISK-STALE-ARTIFACTS
+      title: Stale generated artifacts misrepresent the system
+      statement: Generated documentation or exchange artifacts fall out of sync with the authored model.
+      status: open
+      likelihood: low
+      impact: medium
+      response: accept
+      owner: ACT-ARCHITECTURE-AUTHOR
+      appliesTo: [FU-CLI-ORCHESTRATION]
+      relatedControls: [CTRL-TRACEABILITY-COVERAGE]
+      residualRisk: low
+      rationale: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.
+
+  poamItems:
+    - id: POAM-MCP-PATH-FUZZING
+      riskRef: RISK-MCP-PATH-ESCAPE
+      milestone: Add fuzz coverage for MCP path normalization
+      dueDate: 2026-09-30
+      status: planned
+      responsibleRole: ACT-ARCHITECTURE-AUTHOR
+      artifacts:
+        - path: mcp/server_test.go
+          description: Path-boundary test coverage to extend with fuzzing.
+    - id: POAM-TRACE-COVERAGE-GATE
+      riskRef: RISK-TRACEABILITY-DRIFT
+      milestone: Enforce strict trace coverage in the CI gate
+      dueDate: 2026-08-31
+      status: in-progress
+      responsibleRole: ACT-COMPLIANCE-ENGINEER
+      artifacts:
+        - path: codemap/scan.go
+          description: Strict code-linking scanner backing the coverage gate.
+
+  threatMitigations:
+    - id: TM-MCP-PATH-BOUNDARY
+      threatScenarioRef: TS-MCP-PATH-TRAVERSAL
+      controlRef: CTRL-MCP-PATH-BOUNDARY
+      status: implemented
+      effectiveness: high
+      owner: ACT-ARCHITECTURE-AUTHOR
+      verificationRefs: [VER-MCP-PATH-BOUNDARY]
+    - id: TM-TRACE-COVERAGE
+      threatScenarioRef: TS-TRACEABILITY-DRIFT
+      controlRef: CTRL-TRACEABILITY-COVERAGE
+      status: implemented
+      effectiveness: medium
+      owner: ACT-COMPLIANCE-ENGINEER
+
   trustBoundaries:
     - id: TB-REPO-WORKSPACE
       name: Repository Workspace Boundary
@@ -433,6 +514,9 @@ authoredArchitecture:
     - type: contains
       from: FG-TRACEABILITY-COMPLIANCE
       to: FU-OSCAL-EXPORTER
+    - type: contains
+      from: FG-TRACEABILITY-COMPLIANCE
+      to: FU-GEMARA-EXPORTER
     - type: contains
       from: FG-MCP-INTEGRATION
       to: FU-MCP-SERVER

@@ -1,0 +1,174 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "input-integrity",
+            "controls": [
+              {
+                "id": "CV-BEDROCK-WEBHOOK-SIGNATURE",
+                "parts": [
+                  {
+                    "id": "CV-BEDROCK-WEBHOOK-SIGNATURE_smt",
+                    "name": "statement",
+                    "prose": "The control \"Webhook Signature Verification\" MUST be verified by test."
+                  },
+                  {
+                    "id": "CV-BEDROCK-WEBHOOK-SIGNATURE_gdn",
+                    "name": "guidance",
+                    "prose": "invalid webhook signatures rejected before context assembly"
+                  },
+                  {
+                    "id": "CV-BEDROCK-WEBHOOK-SIGNATURE_obj",
+                    "links": [
+                      {
+                        "href": "#CV-BEDROCK-WEBHOOK-SIGNATURE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-BEDROCK-WEBHOOK-SIGNATURE"
+              },
+              {
+                "id": "CV-BEDROCK-PROMPT-INJECTION-RESILIENCE",
+                "parts": [
+                  {
+                    "id": "CV-BEDROCK-PROMPT-INJECTION-RESILIENCE_smt",
+                    "name": "statement",
+                    "prose": "The control \"Webhook Signature Verification\" MUST be verified by analysis."
+                  },
+                  {
+                    "id": "CV-BEDROCK-PROMPT-INJECTION-RESILIENCE_gdn",
+                    "name": "guidance",
+                    "prose": "deterministic policy merge blocks obvious prompt directives; edge cases remain under review"
+                  },
+                  {
+                    "id": "CV-BEDROCK-PROMPT-INJECTION-RESILIENCE_obj",
+                    "links": [
+                      {
+                        "href": "#CV-BEDROCK-PROMPT-INJECTION-RESILIENCE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-BEDROCK-PROMPT-INJECTION-RESILIENCE"
+              }
+            ],
+            "id": "CTRL-BEDROCK-WEBHOOK-SIGNATURE",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-bedrock-webhook-signature",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-BEDROCK-WEBHOOK-SIGNATURE_smt",
+                "name": "statement",
+                "prose": "Enforce signature verification for all GitHub webhook events."
+              }
+            ],
+            "title": "Webhook Signature Verification"
+          }
+        ],
+        "id": "input-integrity",
+        "title": "Control category: input-integrity."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "credential-management",
+            "controls": [
+              {
+                "id": "CV-BEDROCK-REDACTION-CHECK",
+                "parts": [
+                  {
+                    "id": "CV-BEDROCK-REDACTION-CHECK_smt",
+                    "name": "statement",
+                    "prose": "The control \"Secret Rotation Enforcement\" MUST be verified by inspection."
+                  },
+                  {
+                    "id": "CV-BEDROCK-REDACTION-CHECK_gdn",
+                    "name": "guidance",
+                    "prose": "redaction filters exist; custom token patterns are still being expanded"
+                  },
+                  {
+                    "id": "CV-BEDROCK-REDACTION-CHECK_obj",
+                    "links": [
+                      {
+                        "href": "#CV-BEDROCK-REDACTION-CHECK_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-BEDROCK-REDACTION-CHECK"
+              }
+            ],
+            "id": "CTRL-BEDROCK-SECRETS-ROTATION",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-bedrock-secrets-rotation",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-BEDROCK-SECRETS-ROTATION_smt",
+                "name": "statement",
+                "prose": "Rotate app and model credentials according to policy."
+              }
+            ],
+            "title": "Secret Rotation Enforcement"
+          }
+        ],
+        "id": "credential-management",
+        "title": "Control category: credential-management."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-06-27T08:38:54.186529094+02:00",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/1.0.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model",
+          "type": "person",
+          "uuid": "39877697-7cc8-49ac-8a0d-88cf19f4b1c0"
+        }
+      ],
+      "published": "2026-06-27T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "39877697-7cc8-49ac-8a0d-88cf19f4b1c0"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Bedrock Lambda GitHub PR Review App Architecture - Controls",
+      "version": "1.0.0"
+    },
+    "uuid": "7b2bd332-09ed-49ad-bfe0-2d64aa03f621"
+  }
+}

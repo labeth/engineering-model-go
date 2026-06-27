@@ -359,6 +359,8 @@ func treeSitterSpec(ext string) (languageSpec, bool) {
 				"function_declaration": true,
 				"method_declaration":   true,
 				"type_declaration":     true,
+				"var_declaration":      true,
+				"const_declaration":    true,
 			},
 			TraceRequiredKind: map[string]bool{
 				"function_declaration": true,
@@ -425,6 +427,22 @@ func declarationName(n *sitter.Node, src []byte) string {
 				continue
 			}
 			if child.Kind() != "type_spec" && child.Kind() != "type_alias" {
+				continue
+			}
+			if name := child.ChildByFieldName("name"); name != nil {
+				return strings.TrimSpace(name.Utf8Text(src))
+			}
+		}
+	}
+	// Package-level var/const declarations carry their name on a nested spec.
+	// They attach trace/model-link markers (full linking) but do not require them.
+	if n.Kind() == "var_declaration" || n.Kind() == "const_declaration" {
+		for i := uint(0); i < count; i++ {
+			child := n.NamedChild(i)
+			if child == nil {
+				continue
+			}
+			if child.Kind() != "var_spec" && child.Kind() != "const_spec" {
 				continue
 			}
 			if name := child.ChildByFieldName("name"); name != nil {

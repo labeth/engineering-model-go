@@ -108,6 +108,20 @@ var toolArgsAllowlist = map[string][]string{
 	"confidence.explain":           {"entityId", "id"},
 	"staleness.check":              {"path"},
 	"changes.preflight":            {"requirementId", "id", "reqId"},
+	"gemara.controlCatalog":        {},
+	"gemara.threatCatalog":         {},
+	"gemara.riskCatalog":           {},
+	"gemara.vectorCatalog":         {},
+	"gemara.capabilityCatalog":     {},
+	"gemara.principleCatalog":      {},
+	"gemara.guidanceCatalog":       {},
+	"gemara.policy":                {},
+	"gemara.lexicon":               {},
+	"gemara.mappingDocument":       {},
+	"gemara.auditLog":              {},
+	"gemara.enforcementLog":        {},
+	"gemara.evaluationLog":         {},
+	"gemara.validate":              {},
 }
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -172,6 +186,20 @@ func NewServer() *Server {
 		{Name: "confidence.explain", Description: "Explain confidence for entity"},
 		{Name: "staleness.check", Description: "Check evidence staleness"},
 		{Name: "changes.preflight", Description: "Preflight change impact"},
+		{Name: "gemara.controlCatalog", Description: "Render the OpenSSF Gemara L2 Control Catalog (YAML) from the model"},
+		{Name: "gemara.threatCatalog", Description: "Render the OpenSSF Gemara L2 Threat Catalog (YAML) from the model"},
+		{Name: "gemara.riskCatalog", Description: "Render the OpenSSF Gemara L3 Risk Catalog (YAML) from the model"},
+		{Name: "gemara.vectorCatalog", Description: "Render the OpenSSF Gemara L1 Vector Catalog (YAML) from the model"},
+		{Name: "gemara.capabilityCatalog", Description: "Render the OpenSSF Gemara L2 Capability Catalog (YAML) from the model"},
+		{Name: "gemara.principleCatalog", Description: "Render the OpenSSF Gemara L1 Principle Catalog (YAML) from the model"},
+		{Name: "gemara.guidanceCatalog", Description: "Render the OpenSSF Gemara L1 Guidance Catalog (YAML) from the model"},
+		{Name: "gemara.policy", Description: "Render the OpenSSF Gemara L3 Policy (YAML) from the model"},
+		{Name: "gemara.lexicon", Description: "Render the OpenSSF Gemara Lexicon (YAML) from the catalog terms"},
+		{Name: "gemara.mappingDocument", Description: "Render the OpenSSF Gemara control-to-threat Mapping Document (YAML)"},
+		{Name: "gemara.auditLog", Description: "Render the OpenSSF Gemara L7 Audit Log (YAML) from the model"},
+		{Name: "gemara.enforcementLog", Description: "Render the OpenSSF Gemara L6 Enforcement Log (YAML) from POA&M items"},
+		{Name: "gemara.evaluationLog", Description: "Render the OpenSSF Gemara L5 Evaluation Log (YAML) from the model"},
+		{Name: "gemara.validate", Description: "Validate all generated Gemara artifacts via the go-gemara SDK type discriminator"},
 	}
 	m := map[string]Tool{}
 	for _, t := range all {
@@ -483,6 +511,21 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"requirementsWithoutFiles": gaps})
 	case "verification.recommend":
 		return simple(map[string]any{"recommendations": s.verificationRecommendations()})
+	case "gemara.controlCatalog", "gemara.threatCatalog", "gemara.riskCatalog",
+		"gemara.vectorCatalog", "gemara.capabilityCatalog", "gemara.principleCatalog",
+		"gemara.guidanceCatalog", "gemara.policy", "gemara.lexicon", "gemara.mappingDocument",
+		"gemara.auditLog", "gemara.enforcementLog", "gemara.evaluationLog":
+		data, err := s.gemaraArtifact(name)
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
+	case "gemara.validate":
+		data, err := s.gemaraValidate()
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "threats.forRequirement":
 		if reqID == "" {
 			return nil, fmt.Errorf("threats.forRequirement requires requirementId")

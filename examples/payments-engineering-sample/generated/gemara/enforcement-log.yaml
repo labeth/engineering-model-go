@@ -1,0 +1,40 @@
+metadata:
+  id: sample-payments-layered-model-ENFORCEMENT-LOG
+  type: EnforcementLog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Remediation enforcement actions for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+  - id: ENGMOD-POLICY
+    title: Policy
+    version: 1.1.0
+disposition: Enforced
+actions:
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-PAYMENTS-SSO-MFA-GAP (milestone: Remove legacy non-federated operator accounts, due: 2026-06-30, status: in-progress)."
+  start: "2026-06-27T00:00:00Z"
+  steps:
+  - ACT-PLATFORM-OPERATOR
+  - tickets/SEC-1423.md
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-PAYMENTS-SSO-MFA-GAP
+target:
+  id: sample-payments-layered-model
+  name: Sample Payments Layered Architecture
+  type: Software
+  description: "System under governance: Sample Payments Layered Architecture"

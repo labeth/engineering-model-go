@@ -267,6 +267,60 @@ podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0
 podman run --rm -v "$PWD":/work:Z -w /work docker.io/matthewruge/oscal-cli:0.2.0 poam validate --as json examples/payments-engineering-sample/generated/ARCHITECTURE.poam.json
 ```
 
+## Gemara GRC rendering
+
+Gemara is a first-class rendering of the model: `enggemara` projects the engineering
+model into [OpenSSF Gemara](https://gemara.openssf.org) documents using the official
+`go-gemara` SDK types, and every artifact validates against the published Gemara CUE schemas.
+
+All 13 Gemara artifact types are produced:
+- L1 Vector Catalog ← `attackVectors` (with environment applicability)
+- L1 Principle Catalog ← standard governance principles
+- L1 Guidance Catalog ← control families (control `guidelines` link back to it)
+- L2 Capability Catalog ← `functionalUnits` (+ a synthetic system capability)
+- L2 Threat Catalog ← `threatScenarios` (capabilities, vectors, and threat `actors`)
+- L2 Control Catalog ← `controls` + `controlVerifications` (synthesized assessment-requirements)
+- L3 Risk Catalog ← `risks` (severity derived from likelihood × impact; unique rank)
+- L3 Policy ← compliance/risks/controls (scope, imports, risk treatment, adherence)
+- L5 Evaluation Log ← `controlVerifications` (pass **and** fail, with evidence)
+- L6 Enforcement Log ← `poamItems` (remediation actions)
+- L7 Audit Log ← `controlVerifications` + residual risks
+- Mapping Document ← control → threat relationships
+- Lexicon ← catalog terms (controlled vocabulary)
+
+Generate the catalogs and logs:
+
+```bash
+go run ./cmd/enggemara \
+  --model examples/payments-engineering-sample/architecture.yml \
+  --requirements examples/payments-engineering-sample/requirements.yml \
+  --out-dir examples/payments-engineering-sample/generated/gemara \
+  --version 1.0.0 --date 2026-06-26T00:00:00Z
+```
+
+Optionally emit OSCAL via the Gemara SDK bridge (additive; the hand-written OSCAL
+SSP/AR/POA&M under `engoscal` are retained):
+
+```bash
+go run ./cmd/enggemara --model <architecture.yml> --requirements <requirements.yml> \
+  --out-dir <dir> \
+  --oscal-catalog-out <dir>/oscal-catalog.json \
+  --oscal-ar-out <dir>/oscal-ar.json
+```
+
+Validation:
+- in-repo, via the go-gemara SDK loader + type discriminator: `go test -run TestGemara ./...`
+- against the official CUE schemas: `scripts/validate-gemara.sh` (needs the `cue` CLI and the
+  Gemara schema module; set `GEMARA_SCHEMA_DIR` to a checkout of `github.com/gemaraproj/gemara`)
+
+The generated AsciiDoc document includes a `Gemara GRC Model` chapter, and the MCP server
+exposes a `gemara.*` tool per artifact type (`gemara.controlCatalog`, `gemara.threatCatalog`,
+`gemara.riskCatalog`, `gemara.vectorCatalog`, `gemara.capabilityCatalog`, `gemara.principleCatalog`,
+`gemara.guidanceCatalog`, `gemara.policy`, `gemara.lexicon`, `gemara.mappingDocument`,
+`gemara.auditLog`, `gemara.enforcementLog`, `gemara.evaluationLog`) plus `gemara.validate`.
+
+See `docs/gemara-rendering.md` for the field-by-field mapping and the OSCAL decision.
+
 ## Agent Skills
 
 Use these docs to drive AI-agent development workflows and tagging conventions:

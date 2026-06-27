@@ -1,0 +1,107 @@
+title: "Bedrock Lambda GitHub PR Review App Architecture - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-GITHUB-WEBHOOK-INGRESS
+    title: GitHub Webhook Ingress
+    description: |
+      Verifies webhook signatures, validates event type, and starts review workflow routing.
+  - id: FU-PR-CONTEXT-ASSEMBLY
+    title: PR Context Assembly
+    description: |
+      Fetches changed files and diff metadata and prepares bounded review context payloads.
+  - id: FU-REVIEW-ORCHESTRATION
+    title: Review Orchestration
+    description: |
+      Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.
+  - id: FU-POLICY-CHECKS
+    title: Policy Checks
+    description: |
+      Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+  - id: FU-REVIEW-PUBLICATION
+    title: Review Publication
+    description: |
+      Publishes check-run summaries and inline comments back to GitHub pull requests.
+  - id: FU-LAMBDA-RUNTIME-OPERATIONS
+    title: Lambda Runtime Operations
+    description: |
+      Manages Lambda packaging/deployment lifecycle and operational health guardrails.
+  - id: FU-SECRETS-CONFIGURATION
+    title: Secrets and Configuration
+    description: |
+      Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  title: Webhook Signature Verification
+  objective: Enforce signature verification for all GitHub webhook events.
+  group: input-integrity
+  assessment-requirements:
+  - id: CV-BEDROCK-WEBHOOK-SIGNATURE
+    text: The control "Webhook Signature Verification" MUST be verified by test.
+    applicability:
+    - FU-GITHUB-WEBHOOK-INGRESS
+    recommendation: invalid webhook signatures rejected before context assembly
+    state: Active
+  - id: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+    text: The control "Webhook Signature Verification" MUST be verified by analysis.
+    applicability:
+    - FU-GITHUB-WEBHOOK-INGRESS
+    recommendation: deterministic policy merge blocks obvious prompt directives; edge cases remain under review
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-input-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-BEDROCK-WEBHOOK-SPOOF
+    - reference-id: TS-BEDROCK-PROMPT-INJECTION
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-BEDROCK-SECRETS-ROTATION
+  title: Secret Rotation Enforcement
+  objective: Rotate app and model credentials according to policy.
+  group: credential-management
+  assessment-requirements:
+  - id: CV-BEDROCK-REDACTION-CHECK
+    text: The control "Secret Rotation Enforcement" MUST be verified by inspection.
+    applicability:
+    - FU-SECRETS-CONFIGURATION
+    - FU-LAMBDA-RUNTIME-OPERATIONS
+    recommendation: redaction filters exist; custom token patterns are still being expanded
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-credential-management
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+groups:
+- id: input-integrity
+  title: input-integrity
+  description: "Control category: input-integrity."
+- id: credential-management
+  title: credential-management
+  description: "Control category: credential-management."

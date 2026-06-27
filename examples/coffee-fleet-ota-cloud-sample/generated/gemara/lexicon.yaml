@@ -1,0 +1,236 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Lexicon"
+metadata:
+  id: sample-coffee-fleet-ota-cloud-model-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-COFFEE-FLEET-SYSTEM
+  title: coffee fleet system
+  definition: Connected coffee-machine fleet and central cloud control system-of-interest covered by this architecture.
+  synonyms:
+  - the coffee fleet system
+- id: FG-MACHINE-EDGE
+  title: machine edge
+  definition: Capability area for device-local telemetry and OTA execution behavior.
+  synonyms:
+  - coffee machine edge
+- id: FG-CLOUD-CONTROL
+  title: cloud control
+  definition: Capability area for fleet ingestion, campaign orchestration, and cloud reporting.
+  synonyms:
+  - central cloud site
+- id: FG-PLATFORM-OPERATIONS
+  title: platform operations
+  definition: Capability area for runtime operations and device identity/secrets lifecycle.
+  synonyms:
+  - fleet platform operations
+- id: FU-MACHINE-TELEMETRY-COLLECTION
+  title: machine telemetry collection
+  definition: Collects brew/device telemetry and publishes cloud-bound payloads.
+  synonyms:
+  - telemetry collection
+- id: FU-OTA-UPDATE-AGENT
+  title: ota update agent
+  definition: Downloads, validates, and applies signed firmware updates on machines.
+  synonyms:
+  - device update agent
+- id: FU-FLEET-INGESTION-API
+  title: fleet ingestion api
+  definition: Ingests telemetry and machine status from edge devices.
+  synonyms:
+  - ingestion api
+- id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  title: update campaign orchestration
+  definition: Selects target machine groups and coordinates OTA rollout phases.
+  synonyms:
+  - campaign orchestration
+- id: FU-FLEET-OBSERVABILITY-REPORTING
+  title: fleet observability reporting
+  definition: Aggregates telemetry and update outcomes into operational and audit signals.
+  synonyms:
+  - observability reporting
+- id: FU-CLOUD-RUNTIME-OPERATIONS
+  title: cloud runtime operations
+  definition: Operates cloud runtime deployment and scaling controls.
+  synonyms:
+  - runtime operations
+- id: FU-DEVICE-IDENTITY-SECRETS
+  title: device identity and secrets
+  definition: Manages device identity material and secure configuration.
+  synonyms:
+  - device secrets
+- id: ACT-BARISTA
+  title: barista
+  definition: Operates coffee machines and observes local machine health.
+  synonyms:
+  - store operator
+- id: ACT-FLEET-OPERATOR
+  title: fleet operator
+  definition: Owns OTA rollout campaigns and fleet-level reliability.
+  synonyms:
+  - fleet admin
+- id: ACT-PLATFORM-OPERATOR
+  title: platform operator
+  definition: Owns runtime deployment and operational controls.
+  synonyms:
+  - platform ops
+- id: ACT-SECURITY-ANALYST
+  title: security analyst
+  definition: Reviews identity, firmware integrity, and logging controls.
+  synonyms:
+  - security reviewer
+- id: AV-MALICIOUS-FIRMWARE-BUNDLE
+  title: malicious firmware bundle
+  definition: Tampered firmware payload attempts to execute on devices.
+  synonyms:
+  - firmware tampering
+- id: AV-SPOOFED-DEVICE-IDENTITY
+  title: spoofed device identity
+  definition: Unauthorized actor impersonates a machine identity.
+  synonyms:
+  - device spoofing
+- id: AV-TELEMETRY-REPLAY-ABUSE
+  title: telemetry replay abuse
+  definition: Replayed telemetry floods ingestion and distorts reporting.
+  synonyms:
+  - telemetry replay
+- id: AV-LOG-TAMPERING
+  title: log tampering
+  definition: Attempts to suppress or alter security/operational log records.
+  synonyms:
+  - audit tampering
+- id: EVT-BREW-CYCLE-COMPLETED
+  title: brew cycle completed event is received
+  definition: Event raised when a coffee machine completes a brew cycle.
+  synonyms:
+  - brew completed
+  - brew cycle event
+- id: EVT-OTA-CAMPAIGN-SCHEDULED
+  title: ota campaign scheduled event is received
+  definition: Event raised when a fleet OTA campaign is scheduled.
+  synonyms:
+  - campaign scheduled
+  - ota commands
+  - campaign commands
+  - ota rollout commands
+- id: EVT-FIRMWARE-VALIDATION-FAILED
+  title: firmware validation failed event is received
+  definition: Event raised when signature/hash validation fails on firmware.
+  synonyms:
+  - validation failed
+- id: EVT-TELEMETRY-INGESTED
+  title: telemetry ingested event is received
+  definition: Event raised when cloud ingestion accepts telemetry.
+  synonyms:
+  - telemetry ingested
+  - ingestion events
+  - fleet events
+  - observability event fanout
+  - observability events
+- id: EVT-OTA-STATUS-REPORTED
+  title: ota status reported event is received
+  definition: Event raised when device reports OTA apply status.
+  synonyms:
+  - ota status reported
+  - update status
+  - rollback status
+  - apply status
+  - apply/rollback status
+  - status feedback
+- id: EVT-CLOUD-INGEST-ENDPOINT-UNAVAILABLE
+  title: cloud ingest endpoint is unavailable
+  definition: Event raised when cloud ingest endpoint becomes unavailable for telemetry ingestion.
+  synonyms:
+  - ingest endpoint unavailable
+  - endpoint outage
+- id: EVT-TELEMETRY-REPLAY-ABUSE-DETECTED
+  title: telemetry replay abuse is detected
+  definition: Event raised when replayed telemetry behavior is detected and flagged as abuse.
+  synonyms:
+  - telemetry replay detected
+  - replay abuse
+- id: STATE-FLEET-OPERATION-ACTIVE
+  title: coffee machine fleet operation is active
+  definition: State where machines and central cloud are actively serving operations.
+  synonyms:
+  - fleet operation active
+- id: FEAT-OTA-CAMPAIGN
+  title: ota campaign is enabled
+  definition: Feature flag enabling centralized OTA rollout behavior.
+  synonyms:
+  - ota enabled
+  - ota rollout
+- id: FEAT-AUDIT-LOGGING
+  title: audit logging is enabled
+  definition: Feature flag enabling audit-grade log persistence.
+  synonyms:
+  - audit enabled
+- id: MODE-NORMAL
+  title: normal mode is active
+  definition: Default operation mode for telemetry and OTA behavior.
+  synonyms:
+  - normal mode
+  - normal operation mode
+- id: COND-FIRMWARE-SIGNATURE-VALID
+  title: firmware signature is valid
+  definition: Condition indicating firmware signature verification succeeded.
+  synonyms:
+  - signature valid
+- id: DATA-FIRMWARE-BUNDLE
+  title: signed firmware bundle
+  definition: Signed OTA firmware artifact distributed to machine cohorts for update apply.
+  synonyms:
+  - firmware bundle
+  - firmware bundles
+  - signed firmware bundles
+  - firmware artifact
+- id: DATA-MACHINE-IDENTITY
+  title: machine identity
+  definition: Device identity material used for authenticated publish, ingest, and audit attribution.
+  synonyms:
+  - device identity
+  - machine identities
+- id: DATA-CAMPAIGN-ID
+  title: campaign id
+  definition: Stable OTA campaign identifier used to correlate rollout and audit records.
+  synonyms:
+  - campaign identifier
+  - campaign ids
+- id: DATA-BREW-TELEMETRY
+  title: brew telemetry
+  definition: Machine telemetry including brew duration, temperature, and status metadata.
+  synonyms:
+  - telemetry
+  - machine telemetry
+  - telemetry payloads
+  - telemetry records
+  - machine status
+- id: DATA-OTA-CAMPAIGN-POLICY
+  title: ota campaign policy
+  definition: Policy describing rollout cohorts, windows, and rollback criteria.
+  synonyms:
+  - campaign policy
+  - rollout cohorts
+  - rollout windows
+- id: DATA-OTA-STATUS
+  title: ota status
+  definition: Device-level status for firmware download, apply, and rollback outcomes.
+  synonyms:
+  - ota outcomes
+  - update outcomes
+  - update/rollback status
+  - firmware apply
+  - rollback firmware apply
+- id: DATA-AUDIT-LOG-RECORD
+  title: audit log record
+  definition: Immutable log record for security and compliance analysis.
+  synonyms:
+  - audit records
+  - logging records

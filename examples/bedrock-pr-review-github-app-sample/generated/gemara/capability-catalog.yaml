@@ -1,0 +1,65 @@
+title: "Bedrock Lambda GitHub PR Review App Architecture - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Bedrock Lambda GitHub PR Review App Architecture
+  description: "The system as a whole: Bedrock Lambda GitHub PR Review App Architecture."
+  group: system
+- id: FU-GITHUB-WEBHOOK-INGRESS
+  title: GitHub Webhook Ingress
+  description: |
+    Verifies webhook signatures, validates event type, and starts review workflow routing.
+  group: FG-PR-INTEGRATION
+- id: FU-PR-CONTEXT-ASSEMBLY
+  title: PR Context Assembly
+  description: |
+    Fetches changed files and diff metadata and prepares bounded review context payloads.
+  group: FG-PR-INTEGRATION
+- id: FU-REVIEW-ORCHESTRATION
+  title: Review Orchestration
+  description: |
+    Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.
+  group: FG-REVIEW-INTELLIGENCE
+- id: FU-POLICY-CHECKS
+  title: Policy Checks
+  description: |
+    Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+  group: FG-REVIEW-INTELLIGENCE
+- id: FU-REVIEW-PUBLICATION
+  title: Review Publication
+  description: |
+    Publishes check-run summaries and inline comments back to GitHub pull requests.
+  group: FG-REVIEW-INTELLIGENCE
+- id: FU-LAMBDA-RUNTIME-OPERATIONS
+  title: Lambda Runtime Operations
+  description: |
+    Manages Lambda packaging/deployment lifecycle and operational health guardrails.
+  group: FG-PLATFORM-OPERATIONS
+- id: FU-SECRETS-CONFIGURATION
+  title: Secrets and Configuration
+  description: |
+    Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.
+  group: FG-PLATFORM-OPERATIONS
+groups:
+- id: FG-PR-INTEGRATION
+  title: PR Integration
+  description: Ingress and context assembly for GitHub pull request events.
+- id: FG-REVIEW-INTELLIGENCE
+  title: Review Intelligence
+  description: AI and deterministic review analysis with result publication.
+- id: FG-PLATFORM-OPERATIONS
+  title: Platform Operations
+  description: Lambda deployment lifecycle, runtime operations, and secrets/configuration.
+- id: system
+  title: System
+  description: Whole-system capability scope.

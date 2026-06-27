@@ -1,0 +1,100 @@
+metadata:
+  id: sample-bedrock-pr-review-model-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Point-in-time audit of Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Bedrock Lambda GitHub PR Review App Architecture: 6 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-CV-BEDROCK-WEBHOOK-SIGNATURE
+  title: Verification of CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  type: Strength
+  description: Control CTRL-BEDROCK-WEBHOOK-SIGNATURE assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-BEDROCK-WEBHOOK-SIGNATURE-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Signature gate implementation.
+  recommendations:
+  - text: invalid webhook signatures rejected before context assembly
+    required: false
+- id: AUD-CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+  title: Verification of CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  type: Observation
+  description: Control CTRL-BEDROCK-WEBHOOK-SIGNATURE assessed via analysis with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-BEDROCK-PROMPT-INJECTION-RESILIENCE-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Policy merge and AI output handling logic.
+  recommendations:
+  - text: deterministic policy merge blocks obvious prompt directives; edge cases remain under review
+    required: false
+- id: AUD-CV-BEDROCK-REDACTION-CHECK
+  title: Verification of CTRL-BEDROCK-SECRETS-ROTATION
+  type: Observation
+  description: Control CTRL-BEDROCK-SECRETS-ROTATION assessed via inspection with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-SECRETS-ROTATION
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-BEDROCK-REDACTION-CHECK-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Redaction and output formatting pipeline.
+  recommendations:
+  - text: redaction filters exist; custom token patterns are still being expanded
+    required: false
+- id: AUD-RISK-BEDROCK-WEBHOOK-SPOOFING
+  title: "Residual risk: Webhook spoofing risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-BEDROCK-PROMPT-INJECTION
+  title: "Residual risk: Prompt injection in PR context risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-BEDROCK-SECRET-LEAKAGE
+  title: "Residual risk: Review output secret leakage risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-BEDROCK-SECRETS-ROTATION
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: sample-bedrock-pr-review-model
+  name: Bedrock Lambda GitHub PR Review App Architecture
+  type: Software
+  description: "System under governance: Bedrock Lambda GitHub PR Review App Architecture"

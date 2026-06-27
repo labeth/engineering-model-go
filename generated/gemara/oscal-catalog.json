@@ -1,0 +1,189 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "input-validation",
+            "controls": [
+              {
+                "id": "VER-MCP-PATH-BOUNDARY",
+                "parts": [
+                  {
+                    "id": "VER-MCP-PATH-BOUNDARY_smt",
+                    "name": "statement",
+                    "prose": "The control \"MCP Path Boundary Enforcement\" MUST be verified by test."
+                  },
+                  {
+                    "id": "VER-MCP-PATH-BOUNDARY_gdn",
+                    "name": "guidance",
+                    "prose": "Path traversal rejected and error payload returned in MCP tests."
+                  },
+                  {
+                    "id": "VER-MCP-PATH-BOUNDARY_obj",
+                    "links": [
+                      {
+                        "href": "#VER-MCP-PATH-BOUNDARY_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "VER-MCP-PATH-BOUNDARY"
+              }
+            ],
+            "id": "CTRL-MCP-PATH-BOUNDARY",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/0.0.1#ctrl-mcp-path-boundary",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-MCP-PATH-BOUNDARY_smt",
+                "name": "statement",
+                "prose": "Enforce repo-root path constraints and reject traversal paths in MCP tools."
+              }
+            ],
+            "title": "MCP Path Boundary Enforcement"
+          },
+          {
+            "class": "input-validation",
+            "controls": [
+              {
+                "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1",
+                "parts": [
+                  {
+                    "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_smt",
+                    "name": "statement",
+                    "prose": "The system MUST implement the control \"Strict MCP Input Schemas\": Enforce per-tool input schema and reject unknown arguments."
+                  },
+                  {
+                    "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_obj",
+                    "links": [
+                      {
+                        "href": "#CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1"
+              }
+            ],
+            "id": "CTRL-STRICT-MCP-INPUT-SCHEMA",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/0.0.1#ctrl-strict-mcp-input-schema",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-STRICT-MCP-INPUT-SCHEMA_smt",
+                "name": "statement",
+                "prose": "Enforce per-tool input schema and reject unknown arguments."
+              }
+            ],
+            "title": "Strict MCP Input Schemas"
+          }
+        ],
+        "id": "input-validation",
+        "title": "Control category: input-validation."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "assurance",
+            "controls": [
+              {
+                "id": "VER-TRACEABILITY-COVERAGE",
+                "parts": [
+                  {
+                    "id": "VER-TRACEABILITY-COVERAGE_smt",
+                    "name": "statement",
+                    "prose": "The control \"Requirement Traceability Coverage\" MUST be verified by analysis."
+                  },
+                  {
+                    "id": "VER-TRACEABILITY-COVERAGE_gdn",
+                    "name": "guidance",
+                    "prose": "Coverage depends on TRLC-LINKS completeness in source and tests."
+                  },
+                  {
+                    "id": "VER-TRACEABILITY-COVERAGE_obj",
+                    "links": [
+                      {
+                        "href": "#VER-TRACEABILITY-COVERAGE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "VER-TRACEABILITY-COVERAGE"
+              }
+            ],
+            "id": "CTRL-TRACEABILITY-COVERAGE",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/0.0.1#ctrl-traceability-coverage",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-TRACEABILITY-COVERAGE_smt",
+                "name": "statement",
+                "prose": "Require requirement-linked verification evidence for modeled behavior."
+              }
+            ],
+            "title": "Requirement Traceability Coverage"
+          }
+        ],
+        "id": "assurance",
+        "title": "Control category: assurance."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-06-27T08:38:53.920177428+02:00",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/0.0.1#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model",
+          "type": "person",
+          "uuid": "3a2da911-758a-41d1-b35b-aeb45dcaa957"
+        }
+      ],
+      "published": "2026-06-27T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "3a2da911-758a-41d1-b35b-aeb45dcaa957"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Engineering Model Go Repository Architecture - Controls",
+      "version": "0.0.1"
+    },
+    "uuid": "56b55c45-d827-4ee6-b32c-066935f8441a"
+  }
+}

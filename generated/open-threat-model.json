@@ -172,9 +172,24 @@
       "threats": [
         {
           "threat": "TS-TRACEABILITY-DRIFT",
-          "state": "open"
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "TM-TRACE-COVERAGE",
+              "state": "mitigated"
+            }
+          ]
         }
       ]
+    },
+    {
+      "id": "FU-GEMARA-EXPORTER",
+      "name": "Gemara Exporter",
+      "type": "service",
+      "description": "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
     },
     {
       "id": "FU-LOBSTER-EXPORTER",
@@ -187,7 +202,13 @@
       "threats": [
         {
           "threat": "TS-TRACEABILITY-DRIFT",
-          "state": "open"
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "TM-TRACE-COVERAGE",
+              "state": "mitigated"
+            }
+          ]
         }
       ]
     },
@@ -202,7 +223,13 @@
       "threats": [
         {
           "threat": "TS-MCP-PATH-TRAVERSAL",
-          "state": "open"
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "TM-MCP-PATH-BOUNDARY",
+              "state": "mitigated"
+            }
+          ]
         }
       ]
     },
@@ -253,7 +280,13 @@
       "threats": [
         {
           "threat": "TS-TRACEABILITY-DRIFT",
-          "state": "open"
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "TM-TRACE-COVERAGE",
+              "state": "mitigated"
+            }
+          ]
         }
       ]
     },
@@ -620,6 +653,20 @@
       "tags": [
         "repudiation"
       ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "TM-MCP-PATH-BOUNDARY",
+      "name": "CTRL-MCP-PATH-BOUNDARY",
+      "description": "CTRL-MCP-PATH-BOUNDARY",
+      "riskReduction": 8
+    },
+    {
+      "id": "TM-TRACE-COVERAGE",
+      "name": "CTRL-TRACEABILITY-COVERAGE",
+      "description": "CTRL-TRACEABILITY-COVERAGE",
+      "riskReduction": 5
     }
   ]
 }

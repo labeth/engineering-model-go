@@ -1,0 +1,40 @@
+metadata:
+  id: sample-bedrock-pr-review-model-ENFORCEMENT-LOG
+  type: EnforcementLog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Remediation enforcement actions for Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+  - id: ENGMOD-POLICY
+    title: Policy
+    version: 1.1.0
+disposition: Enforced
+actions:
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-BEDROCK-WEBHOOK-SPOOFING (milestone: Add nonce and timestamp replay window hardening, due: 2026-07-15, status: planned)."
+  start: "2026-06-27T00:00:00Z"
+  steps:
+  - ACT-SECURITY-ENGINEER
+  - tickets/SEC-2045.md
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-BEDROCK-WEBHOOK-SPOOFING
+target:
+  id: sample-bedrock-pr-review-model
+  name: Bedrock Lambda GitHub PR Review App Architecture
+  type: Software
+  description: "System under governance: Bedrock Lambda GitHub PR Review App Architecture"

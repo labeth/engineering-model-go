@@ -75,13 +75,11 @@ func TestScan_RequiresTraceMarkersOnDeclarationLevel(t *testing.T) {
 	path := filepath.Join(root, "sample_test.go")
 	content := `package sample
 
-// TRLC-LINKS: REQ-SAMPLE-001
-var fixture = "not a declaration-level trace target"
-
 // TRLC-LINKS: REQ-SAMPLE-002
 func TestFixture(t interface{}) {
-	_ = fixture
 }
+
+// TRLC-LINKS: REQ-SAMPLE-001
 `
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("write fixture: %v", err)

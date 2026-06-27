@@ -1,0 +1,47 @@
+title: "Engineering Model Go Repository Architecture - Control to Threat Mapping"
+metadata:
+  id: engineering-model-go-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: How controls relate to threats for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-CTRL-MCP-PATH-BOUNDARY
+  source: CTRL-MCP-PATH-BOUNDARY
+  targets:
+  - entry-id: TS-MCP-PATH-TRAVERSAL
+    strength: 7
+    rationale: Control CTRL-MCP-PATH-BOUNDARY mitigates threat TS-MCP-PATH-TRAVERSAL.
+  relationship: relates-to
+- id: MAP-CTRL-STRICT-MCP-INPUT-SCHEMA
+  source: CTRL-STRICT-MCP-INPUT-SCHEMA
+  targets:
+  - entry-id: TS-MCP-PATH-TRAVERSAL
+    strength: 7
+    rationale: Control CTRL-STRICT-MCP-INPUT-SCHEMA mitigates threat TS-MCP-PATH-TRAVERSAL.
+  relationship: relates-to
+- id: MAP-CTRL-TRACEABILITY-COVERAGE
+  source: CTRL-TRACEABILITY-COVERAGE
+  targets:
+  - entry-id: TS-TRACEABILITY-DRIFT
+    strength: 7
+    rationale: Control CTRL-TRACEABILITY-COVERAGE mitigates threat TS-TRACEABILITY-DRIFT.
+  relationship: relates-to

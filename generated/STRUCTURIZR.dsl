@@ -57,6 +57,13 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         }
       }
       group "Traceability and Compliance" {
+        fu_fu_gemara_exporter = container "Gemara Exporter" "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
+            "sourceId" "FU-GEMARA-EXPORTER"
+          }
+        }
         fu_fu_lobster_exporter = container "LOBSTER Exporter" "Generates LOBSTER traceability inputs and reports." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
@@ -482,6 +489,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FG-MODEL-AUTHORING"
         "mappingType" "contains"
         "toId" "FU-MODEL-LOADER"
+      }
+    }
+    group_fg_traceability_compliance -> fu_fu_gemara_exporter "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-TRACEABILITY-COMPLIANCE"
+        "mappingType" "contains"
+        "toId" "FU-GEMARA-EXPORTER"
       }
     }
     group_fg_traceability_compliance -> fu_fu_lobster_exporter "contains" {

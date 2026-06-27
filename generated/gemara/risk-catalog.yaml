@@ -1,0 +1,73 @@
+title: "Engineering Model Go Repository Architecture - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Risk register for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-MCP-PATH-ESCAPE
+  title: MCP path traversal exposes non-repository files
+  description: An attacker uses crafted MCP path arguments to read files outside the repository workspace.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-ARCHITECTURE-AUTHOR
+    accountable:
+    - name: ACT-ARCHITECTURE-AUTHOR
+    informed:
+    - name: ACT-ARCHITECTURE-AUTHOR
+  impact: Path boundary enforcement and strict input schemas reduce exposure to low residual risk.
+  threats:
+  - entries:
+    - reference-id: TS-MCP-PATH-TRAVERSAL
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-TRACEABILITY-DRIFT
+  title: Traceability drift weakens assurance evidence
+  description: Code and tests evolve without updating requirement trace markers, eroding coverage evidence.
+  group: operational-risk
+  severity: Medium
+  rank: 2
+  owner:
+    responsible:
+    - name: ACT-COMPLIANCE-ENGINEER
+    accountable:
+    - name: ACT-COMPLIANCE-ENGINEER
+    informed:
+    - name: ACT-COMPLIANCE-ENGINEER
+  impact: Strict code-linking coverage and inferred verification keep drift detectable.
+  threats:
+  - entries:
+    - reference-id: TS-TRACEABILITY-DRIFT
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-STALE-ARTIFACTS
+  title: Stale generated artifacts misrepresent the system
+  description: Generated documentation or exchange artifacts fall out of sync with the authored model.
+  group: operational-risk
+  severity: Low
+  rank: 3
+  owner:
+    responsible:
+    - name: ACT-ARCHITECTURE-AUTHOR
+    accountable:
+    - name: ACT-ARCHITECTURE-AUTHOR
+    informed:
+    - name: ACT-ARCHITECTURE-AUTHOR
+  impact: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.

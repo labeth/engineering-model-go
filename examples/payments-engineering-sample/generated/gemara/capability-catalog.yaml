@@ -1,0 +1,72 @@
+title: "Sample Payments Layered Architecture - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Sample Payments Layered Architecture
+  description: "The system as a whole: Sample Payments Layered Architecture."
+  group: system
+- id: FU-CHECKOUT
+  title: Checkout Handling
+  description: |
+    Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+    It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+    It delegates decision logic to payment authorization while protecting the user experience boundary.
+  group: FG-PAYMENTS
+- id: FU-PAYMENT-AUTHORIZATION
+  title: Payment Authorization
+  description: |
+    Payment authorization orchestrates the final transaction decision path.
+    It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
+    The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+  group: FG-PAYMENTS
+- id: FU-RISK-SCORING
+  title: Risk Scoring
+  description: |
+    Risk scoring computes and classifies transaction risk before approval decisions are finalized.
+    It provides a stable scoring contract to authorization and supports audit context for later analysis.
+    The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+  group: FG-FRAUD
+- id: FU-SUPPORT-REVIEW
+  title: Support Review
+  description: |
+    Support review handles manual decisions for escalated or ambiguous payment cases.
+    It gives support operators context to approve, reject, or request additional verification in a controlled flow.
+    The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+  group: FG-FRAUD
+- id: FU-CLUSTER-PROVISIONING
+  title: Cluster Provisioning
+  description: |
+    Cluster provisioning creates the runtime substrate used by all application workloads.
+    It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+    This unit is responsible for predictable, repeatable infrastructure foundations.
+  group: FG-PLATFORM
+- id: FU-GITOPS-OPERATIONS
+  title: GitOps Operations
+  description: |
+    GitOps operations continuously reconciles intended release state with actual runtime state.
+    It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+    The unit provides safe and observable release behavior as an ongoing operational capability.
+  group: FG-PLATFORM
+groups:
+- id: FG-PAYMENTS
+  title: Payments
+  description: Core payment checkout and authorization domain.
+- id: FG-FRAUD
+  title: Fraud Evaluation
+  description: Risk scoring and fraud audit domain.
+- id: FG-PLATFORM
+  title: Platform
+  description: Cluster provisioning and GitOps operations domain.
+- id: system
+  title: System
+  description: Whole-system capability scope.

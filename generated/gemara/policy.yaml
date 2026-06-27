@@ -1,0 +1,113 @@
+title: "Engineering Model Go Repository Architecture - Security Policy"
+metadata:
+  id: engineering-model-go-POLICY
+  type: Policy
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Security policy for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  - id: ENGMOD-RISK-CATALOG
+    title: Risk Catalog
+    version: 1.1.0
+contacts:
+  responsible:
+  - name: Engineering Model
+  accountable:
+  - name: Engineering Model
+scope:
+  in:
+    technologies:
+    - cli
+    - stdio-jsonrpc
+    sensitivity:
+    - design-source
+    - runtime-api
+    - exchange-artifact
+    users:
+    - Architecture Author
+    - Implementation Engineer
+    - Compliance Engineer
+    - AI Agent
+    - CI Pipeline
+imports:
+  catalogs:
+  - reference-id: ENGMOD-CONTROL-CATALOG
+  guidance:
+  - reference-id: ENGMOD-GUIDANCE-CATALOG
+implementation-plan:
+  evaluation-timeline:
+    start: "2026-06-27T00:00:00Z"
+    notes: Controls are evaluated continuously from inferred verification.
+  enforcement-timeline:
+    start: "2026-06-27T00:00:00Z"
+    notes: Non-compliant changes are gated and remediated via POA&M.
+risks:
+  mitigated:
+  - id: MIT-RISK-MCP-PATH-ESCAPE
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: RISK-MCP-PATH-ESCAPE
+  - id: MIT-RISK-TRACEABILITY-DRIFT
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: RISK-TRACEABILITY-DRIFT
+  accepted:
+  - id: ACC-RISK-STALE-ARTIFACTS
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: RISK-STALE-ARTIFACTS
+    justification: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.
+adherence:
+  evaluation-methods:
+  - id: EM-INTENT
+    type: Intent
+    mode: Automated
+    required: true
+    description: Static analysis of code, configuration, and test evidence.
+  - id: EM-BEHAVIORAL
+    type: Behavioral
+    mode: Manual
+    required: false
+    description: Exercise and review of runtime behavior.
+  assessment-plans:
+  - id: AP-VER-MCP-PATH-BOUNDARY
+    requirement-id: VER-MCP-PATH-BOUNDARY
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-VER-TRACEABILITY-COVERAGE
+    requirement-id: VER-TRACEABILITY-COVERAGE
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  enforcement-methods:
+  - id: ENM-GATE
+    type: Gate
+    mode: Automated
+    required: true
+    description: Preventive change-control gate.
+  - id: ENM-REMEDIATION
+    type: Remediation
+    mode: Manual
+    required: false
+    description: Remediation tracked via POA&M.
+  non-compliance: Non-compliant findings are tracked as POA&M items with an owner and due date; unresolved high-severity findings block release.

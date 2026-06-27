@@ -1,0 +1,222 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "identity-access",
+            "controls": [
+              {
+                "id": "CV-PAYMENTS-CHECKOUT-SCHEMA-TEST",
+                "parts": [
+                  {
+                    "id": "CV-PAYMENTS-CHECKOUT-SCHEMA-TEST_smt",
+                    "name": "statement",
+                    "prose": "The control \"SSO MFA Enforcement\" MUST be verified by test."
+                  },
+                  {
+                    "id": "CV-PAYMENTS-CHECKOUT-SCHEMA-TEST_gdn",
+                    "name": "guidance",
+                    "prose": "malformed checkout payloads rejected with deterministic decline path"
+                  },
+                  {
+                    "id": "CV-PAYMENTS-CHECKOUT-SCHEMA-TEST_obj",
+                    "links": [
+                      {
+                        "href": "#CV-PAYMENTS-CHECKOUT-SCHEMA-TEST_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-PAYMENTS-CHECKOUT-SCHEMA-TEST"
+              },
+              {
+                "id": "CV-PAYMENTS-MANUAL-REVIEW-TRACE",
+                "parts": [
+                  {
+                    "id": "CV-PAYMENTS-MANUAL-REVIEW-TRACE_smt",
+                    "name": "statement",
+                    "prose": "The control \"SSO MFA Enforcement\" MUST be verified by analysis."
+                  },
+                  {
+                    "id": "CV-PAYMENTS-MANUAL-REVIEW-TRACE_gdn",
+                    "name": "guidance",
+                    "prose": "review ticket mutation trail exists but immutability controls are incomplete"
+                  },
+                  {
+                    "id": "CV-PAYMENTS-MANUAL-REVIEW-TRACE_obj",
+                    "links": [
+                      {
+                        "href": "#CV-PAYMENTS-MANUAL-REVIEW-TRACE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-PAYMENTS-MANUAL-REVIEW-TRACE"
+              }
+            ],
+            "id": "CTRL-PAYMENTS-SSO-MFA",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-payments-sso-mfa",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-PAYMENTS-SSO-MFA_smt",
+                "name": "statement",
+                "prose": "Enforce MFA and conditional access for privileged operations."
+              }
+            ],
+            "title": "SSO MFA Enforcement"
+          }
+        ],
+        "id": "identity-access",
+        "title": "Control category: identity-access."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "supply-chain",
+            "controls": [
+              {
+                "id": "CTRL-PAYMENTS-IMAGE-DIGEST-AR-1",
+                "parts": [
+                  {
+                    "id": "CTRL-PAYMENTS-IMAGE-DIGEST-AR-1_smt",
+                    "name": "statement",
+                    "prose": "The system MUST implement the control \"Immutable Image Digests\": Enforce immutable digest-pinned container image references."
+                  },
+                  {
+                    "id": "CTRL-PAYMENTS-IMAGE-DIGEST-AR-1_obj",
+                    "links": [
+                      {
+                        "href": "#CTRL-PAYMENTS-IMAGE-DIGEST-AR-1_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CTRL-PAYMENTS-IMAGE-DIGEST-AR-1"
+              }
+            ],
+            "id": "CTRL-PAYMENTS-IMAGE-DIGEST",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-payments-image-digest",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-PAYMENTS-IMAGE-DIGEST_smt",
+                "name": "statement",
+                "prose": "Enforce immutable digest-pinned container image references."
+              }
+            ],
+            "title": "Immutable Image Digests"
+          }
+        ],
+        "id": "supply-chain",
+        "title": "Control category: supply-chain."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "protocol-integrity",
+            "controls": [
+              {
+                "id": "CV-PAYMENTS-CALLBACK-REPLAY-TEST",
+                "parts": [
+                  {
+                    "id": "CV-PAYMENTS-CALLBACK-REPLAY-TEST_smt",
+                    "name": "statement",
+                    "prose": "The control \"Callback Nonce and Idempotency Guard\" MUST be verified by test."
+                  },
+                  {
+                    "id": "CV-PAYMENTS-CALLBACK-REPLAY-TEST_gdn",
+                    "name": "guidance",
+                    "prose": "duplicate callback identifiers correctly rejected"
+                  },
+                  {
+                    "id": "CV-PAYMENTS-CALLBACK-REPLAY-TEST_obj",
+                    "links": [
+                      {
+                        "href": "#CV-PAYMENTS-CALLBACK-REPLAY-TEST_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-PAYMENTS-CALLBACK-REPLAY-TEST"
+              }
+            ],
+            "id": "CTRL-PAYMENTS-CALLBACK-NONCE",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-payments-callback-nonce",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-PAYMENTS-CALLBACK-NONCE_smt",
+                "name": "statement",
+                "prose": "Enforce nonce freshness and idempotency on bank callback processing."
+              }
+            ],
+            "title": "Callback Nonce and Idempotency Guard"
+          }
+        ],
+        "id": "protocol-integrity",
+        "title": "Control category: protocol-integrity."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-06-27T08:38:54.054956132+02:00",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/1.0.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model",
+          "type": "person",
+          "uuid": "3fc9130f-9c4c-43f0-874a-c6fc2b1d0327"
+        }
+      ],
+      "published": "2026-06-27T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "3fc9130f-9c4c-43f0-874a-c6fc2b1d0327"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Sample Payments Layered Architecture - Controls",
+      "version": "1.0.0"
+    },
+    "uuid": "98e4ba6c-35df-447b-ba99-5f360b2a26bb"
+  }
+}

@@ -1,0 +1,210 @@
+title: "Bedrock Lambda GitHub PR Review App Architecture - Lexicon"
+metadata:
+  id: sample-bedrock-pr-review-model-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for Bedrock Lambda GitHub PR Review App Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-PR-REVIEW-SYSTEM
+  title: pr review system
+  definition: GitHub App review system-of-interest that ingests PR events and publishes review outcomes.
+  synonyms:
+  - the pr review system
+- id: FG-PR-INTEGRATION
+  title: pr integration
+  definition: Functional group for webhook ingress and pull request context intake.
+  synonyms:
+  - github integration
+- id: FG-REVIEW-INTELLIGENCE
+  title: review intelligence
+  definition: Functional group for AI and deterministic review analysis and publication.
+  synonyms:
+  - review system
+- id: FG-PLATFORM-OPERATIONS
+  title: platform operations
+  definition: Functional group for deployment lifecycle and secret/config controls.
+  synonyms:
+  - runtime operations
+- id: FU-GITHUB-WEBHOOK-INGRESS
+  title: github webhook ingress
+  definition: Validates webhook signatures and routes trusted pull request events.
+  synonyms:
+  - webhook ingress
+- id: FU-PR-CONTEXT-ASSEMBLY
+  title: pr context assembly
+  definition: Fetches changed files and prepares bounded review context payloads.
+  synonyms:
+  - context assembly
+- id: FU-REVIEW-ORCHESTRATION
+  title: review orchestration
+  definition: Coordinates Bedrock analysis with deterministic checks and fallback logic.
+  synonyms:
+  - orchestration
+- id: FU-POLICY-CHECKS
+  title: policy checks
+  definition: Evaluates deterministic repository policy checks.
+  synonyms:
+  - deterministic checks
+- id: FU-REVIEW-PUBLICATION
+  title: review publication
+  definition: Publishes review findings to GitHub checks and comments.
+  synonyms:
+  - publication
+- id: FU-LAMBDA-RUNTIME-OPERATIONS
+  title: lambda runtime operations
+  definition: Manages runtime deployment and operational controls.
+  synonyms:
+  - lambda ops
+- id: FU-SECRETS-CONFIGURATION
+  title: secrets and configuration
+  definition: Manages credentials and secure runtime configuration.
+  synonyms:
+  - secret config
+- id: ACT-DEVELOPER
+  title: developer
+  definition: Engineer opening and updating pull requests.
+  synonyms:
+  - pr author
+- id: ACT-SECURITY-ENGINEER
+  title: security engineer
+  definition: Owner of security policy checks and finding triage.
+  synonyms:
+  - security reviewer
+- id: ACT-PLATFORM-OPERATOR
+  title: platform operator
+  definition: Owner of deployment/runtime operations and reliability controls.
+  synonyms:
+  - platform ops
+- id: ACT-REPOSITORY-MAINTAINER
+  title: repository maintainer
+  definition: Owner of merge decisions and repository quality gates.
+  synonyms:
+  - maintainer
+- id: AV-SPOOFED-GITHUB-WEBHOOK
+  title: spoofed github webhook
+  definition: Forged webhook request attempting unauthorized review execution.
+  synonyms:
+  - webhook spoofing
+- id: AV-PROMPT-INJECTION-IN-DIFF
+  title: prompt injection in diff
+  definition: Malicious prompt-like content embedded in pull request code changes.
+  synonyms:
+  - prompt injection
+- id: AV-SECRET-LEAKAGE-IN-REVIEW
+  title: secret leakage in review output
+  definition: Unintended credential disclosure in generated review findings.
+  synonyms:
+  - secret leakage
+- id: AV-PR-SPAM-ABUSE
+  title: pull request spam abuse
+  definition: High-volume event abuse causing review capacity exhaustion.
+  synonyms:
+  - pr spam
+- id: EVT-PR-OPENED
+  title: pull request opened event is received
+  definition: Event raised when a new pull request is opened.
+  synonyms:
+  - pr opened
+  - webhook events
+- id: EVT-PR-SYNCHRONIZE
+  title: pull request synchronize event is received
+  definition: Event raised when new commits are pushed to an open pull request.
+  synonyms:
+  - pr synchronize
+  - authorized events
+- id: EVT-CONTEXT-PREPARED
+  title: diff context is prepared
+  definition: Event indicating context assembly completed and is ready for analysis.
+  synonyms:
+  - context prepared
+- id: EVT-FINDINGS-GENERATED
+  title: review findings are generated
+  definition: Event indicating analysis output is ready for publication.
+  synonyms:
+  - findings generated
+  - review outcome
+- id: EVT-FINDINGS-PUBLISHED
+  title: review findings are published
+  definition: Event indicating review output has been published to GitHub checks/comments.
+  synonyms:
+  - findings published
+  - publication output
+- id: EVT-BEDROCK-UNAVAILABLE
+  title: bedrock runtime is unavailable
+  definition: Event raised when Bedrock inference path is degraded.
+  synonyms:
+  - bedrock unavailable
+- id: EVT-RATE-LIMIT-EXCEEDED
+  title: review request rate limit is exceeded
+  definition: Event raised when PR review rate guardrails are hit.
+  synonyms:
+  - rate limit exceeded
+- id: EVT-RELEASE-APPROVED
+  title: release artifact is approved
+  definition: Event raised when a Lambda runtime release artifact has passed approval.
+  synonyms:
+  - release approved
+- id: STATE-PR-REVIEW-ACTIVE
+  title: pull request review is active
+  definition: State where review processing is currently active for a pull request.
+  synonyms:
+  - review active
+- id: FEAT-AI-REVIEW
+  title: ai review is enabled
+  definition: Feature flag enabling model-assisted review.
+  synonyms:
+  - ai review enabled
+- id: FEAT-POLICY-CHECKS
+  title: policy checks are enabled
+  definition: Feature flag enabling deterministic policy checks.
+  synonyms:
+  - policy checks enabled
+- id: FEAT-AUDIT-LOGGING
+  title: audit logging is enabled
+  definition: Feature flag enabling audit metadata persistence.
+  synonyms:
+  - audit enabled
+- id: FEAT-LAMBDA-RUNTIME-OPS
+  title: lambda runtime operations are enabled
+  definition: Feature flag enabling Lambda runtime deployment lifecycle operations.
+  synonyms:
+  - lambda runtime ops enabled
+- id: MODE-NORMAL
+  title: normal mode is active
+  definition: Default operating mode using AI plus deterministic checks.
+  synonyms:
+  - normal mode
+- id: COND-WEBHOOK-SIGNATURE-VALID
+  title: webhook signature is valid
+  definition: Condition indicating webhook HMAC verification succeeded.
+  synonyms:
+  - signature valid
+- id: DATA-WEBHOOK-SIGNATURE
+  title: webhook signature
+  definition: Signature used to verify webhook authenticity.
+- id: DATA-DIFF-CONTEXT
+  title: diff context
+  definition: Pull request file changes and metadata prepared for analysis.
+  synonyms:
+  - review context
+  - normalized review context
+  - review-ready context
+  - pull request metadata
+  - pull request files
+- id: DATA-CHECKRUN-SUMMARY
+  title: check run summary
+  definition: Aggregated review result posted as a GitHub check run.
+  synonyms:
+  - check run summaries
+- id: DATA-REDACTED-AUDIT-METADATA
+  title: redacted audit metadata
+  definition: Sanitized prompt and finding metadata retained for audit.
+- id: DATA-RESULT-METADATA
+  title: result metadata
+  definition: Metadata describing review output characteristics for audit and reporting.

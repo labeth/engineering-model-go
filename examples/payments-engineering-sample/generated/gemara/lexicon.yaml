@@ -1,0 +1,182 @@
+title: "Sample Payments Layered Architecture - Lexicon"
+metadata:
+  id: sample-payments-layered-model-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-PAYMENTS-SYSTEM
+  title: payments system
+  definition: Payment processing system-of-interest covered by this architecture.
+  synonyms:
+  - the payments system
+- id: SYS-FRAUD-DETECTION-SYSTEM
+  title: fraud detection system
+  definition: Fraud scoring and review subsystem participating in payment decisions.
+  synonyms:
+  - the fraud detection system
+- id: FG-PAYMENTS
+  title: payments
+  definition: Functional group for checkout and authorization capabilities.
+  synonyms:
+  - payments domain
+- id: FG-FRAUD
+  title: fraud evaluation
+  definition: Functional group for risk scoring and fraud review capabilities.
+  synonyms:
+  - fraud domain
+- id: FG-PLATFORM
+  title: platform
+  definition: Functional group for provisioning and platform operations capabilities.
+  synonyms:
+  - platform engineering
+- id: FU-CHECKOUT
+  title: checkout handling
+  definition: Handles checkout session start and customer-facing payment messaging.
+  synonyms:
+  - checkout
+- id: FU-PAYMENT-AUTHORIZATION
+  title: payment authorization
+  definition: Coordinates authorization flow and bank gateway interaction.
+  synonyms:
+  - auth
+- id: FU-RISK-SCORING
+  title: risk scoring
+  definition: Evaluates transaction risk and returns score classification.
+  synonyms:
+  - fraud scoring
+- id: FU-SUPPORT-REVIEW
+  title: support review
+  definition: Supports manual review and escalation handling for risky transactions.
+  synonyms:
+  - manual review
+- id: FU-CLUSTER-PROVISIONING
+  title: cluster provisioning
+  definition: Provides cluster-level platform setup and environment bootstrap.
+  synonyms:
+  - day1 provisioning
+- id: FU-GITOPS-OPERATIONS
+  title: gitops operations
+  definition: Operates declarative delivery and release management flows.
+  synonyms:
+  - day2 operations
+- id: ACT-CUSTOMER
+  title: customer
+  definition: End user submitting payment details during checkout.
+  synonyms:
+  - buyer
+- id: ACT-SUPPORT
+  title: support agent
+  definition: Operations role that investigates declines and high-risk review cases.
+  synonyms:
+  - support
+- id: ACT-PLATFORM-OPERATOR
+  title: platform operator
+  definition: Role responsible for GitOps and platform lifecycle operations.
+  synonyms:
+  - platform ops
+- id: AV-MALICIOUS-API-REQUEST
+  title: malicious api request
+  definition: Crafted payload attempting to bypass validation or authorization logic.
+  synonyms:
+  - malicious request
+- id: AV-FRAUDULENT-TRANSACTION-PATTERN
+  title: fraudulent transaction pattern
+  definition: Coordinated abuse pattern using synthetic identities, stolen instruments, or velocity anomalies to obtain unauthorized approvals.
+  synonyms:
+  - fraud abuse
+  - payment fraud
+- id: AV-REPLAYED-AUTH-CALLBACK
+  title: replayed authorization callback
+  definition: Replay of a valid callback to induce duplicate or unauthorized state transitions.
+  synonyms:
+  - callback replay
+- id: AV-COMPROMISED-DEPENDENCY
+  title: compromised dependency
+  definition: Supply-chain compromise in runtime image or code dependency.
+  synonyms:
+  - dependency compromise
+- id: EVT-PAYMENT-AUTH-REQUESTED
+  title: payment authorization is requested
+  definition: Event raised when checkout asks payment engine to authorize a transaction.
+  synonyms:
+  - payment auth requested
+  - authorization requested
+- id: EVT-PAYMENT-DECLINED
+  title: payment is declined
+  definition: Event indicating authorization was rejected and customer decline handling must execute.
+  synonyms:
+  - payment declined
+  - decline
+- id: EVT-RISK-HIGH
+  title: risk score is high
+  definition: Event emitted when computed fraud risk exceeds the configured high-risk threshold.
+  synonyms:
+  - high risk
+  - high-risk classification
+  - high-risk classifications
+- id: EVT-SUPPORT-NOTIFIED
+  title: support agent is notified
+  definition: Event indicating manual review notification was sent to support operations.
+  synonyms:
+  - support notified
+- id: EVT-BANK-LINK-UNAVAILABLE
+  title: bank link is unavailable
+  definition: Event raised when payment engine cannot reach the external bank gateway.
+  synonyms:
+  - bank link down
+- id: STATE-CHECKOUT-ACTIVE
+  title: checkout is active
+  definition: Processing state where the user is actively submitting or confirming payment.
+  synonyms:
+  - checkout active
+- id: STATE-BANK-LINK-UP
+  title: bank link is available
+  definition: Connectivity state showing bank gateway communication is currently healthy.
+  synonyms:
+  - bank link up
+- id: STATE-REVIEW-PENDING
+  title: payment review is pending
+  definition: Transaction state requiring manual support review before final disposition.
+  synonyms:
+  - review pending
+  - review state
+- id: FEAT-FRAUD-CHECK
+  title: fraud check is enabled
+  definition: Feature flag controlling whether risk scoring is required before authorization.
+  synonyms:
+  - fraud check
+- id: MODE-NORMAL
+  title: normal mode is active
+  definition: Standard operating mode with full external dependency usage enabled.
+  synonyms:
+  - normal mode
+  - standard operating mode
+- id: COND-3DS-REQUIRED
+  title: 3DS verification is required
+  definition: Condition indicating strong customer authentication must be performed.
+  synonyms:
+  - 3DS required
+- id: COND-RISK-THRESHOLD-EXCEEDED
+  title: risk threshold is exceeded
+  definition: Condition indicating risk score crossed a policy threshold for escalation.
+  synonyms:
+  - risk above threshold
+- id: DATA-PAYMENT-ID
+  title: payment id
+  definition: Stable identifier used to correlate a payment across services and records.
+- id: DATA-RISK-SCORE
+  title: risk score
+  definition: Numeric fraud score produced by risk evaluation logic.
+- id: DATA-DECLINE-REASON
+  title: decline reason
+  definition: Structured reason code or message explaining why authorization failed.
+  synonyms:
+  - decline code
+  - decline reasons

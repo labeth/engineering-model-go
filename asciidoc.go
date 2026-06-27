@@ -637,5 +637,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
 
+	doc += renderGemaraAsciiDocChapter(bundle)
+
 	return AsciiDocResult{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
 }

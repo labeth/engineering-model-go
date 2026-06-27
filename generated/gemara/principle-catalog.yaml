@@ -1,0 +1,42 @@
+title: "Engineering Model Go Repository Architecture - Principles"
+metadata:
+  id: ENGMOD-PRINCIPLE-CATALOG
+  type: PrincipleCatalog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Governing principles for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+groups:
+- id: security-principles
+  title: Security Principles
+  description: Foundational values guiding governance, design, and operations.
+principles:
+- id: PRIN-LEAST-PRIVILEGE
+  title: Least Privilege
+  description: Grant only the access required to perform a function.
+  group: security-principles
+  rationale: Minimizes blast radius of compromise or error.
+- id: PRIN-DEFENSE-IN-DEPTH
+  title: Defense in Depth
+  description: Layer independent controls so no single failure is catastrophic.
+  group: security-principles
+  rationale: Redundant controls contain failures of any one layer.
+- id: PRIN-SECURE-BY-DEFAULT
+  title: Secure by Default
+  description: Default configurations must be the safe configurations.
+  group: security-principles
+  rationale: Most deployments never change defaults.
+- id: PRIN-TRACEABILITY
+  title: Traceability and Evidence
+  description: Every control must be verifiable and produce evidence.
+  group: security-principles
+  rationale: Assurance requires objective, machine-checkable evidence.
+- id: PRIN-DATA-PROTECTION
+  title: Data Protection
+  description: Protect data confidentiality, integrity, and availability commensurate with its classification.
+  group: security-principles
+  rationale: Data sensitivity drives required safeguards.

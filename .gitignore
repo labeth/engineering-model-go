@@ -17,3 +17,7 @@ tmp/
 .DS_Store
 .idea/
 .vscode/
+
+# Local secrets / env
+.env
+.env.*

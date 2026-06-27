@@ -1,0 +1,200 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "identity-access",
+            "controls": [
+              {
+                "id": "CV-COFFEE-DEVICE-IDENTITY-TEST",
+                "parts": [
+                  {
+                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_smt",
+                    "name": "statement",
+                    "prose": "The control \"Device Identity Validation\" MUST be verified by test."
+                  },
+                  {
+                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_gdn",
+                    "name": "guidance",
+                    "prose": "unauthorized command publishers rejected by identity policy"
+                  },
+                  {
+                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_obj",
+                    "links": [
+                      {
+                        "href": "#CV-COFFEE-DEVICE-IDENTITY-TEST_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-COFFEE-DEVICE-IDENTITY-TEST"
+              },
+              {
+                "id": "CV-COFFEE-TELEMETRY-REPLAY",
+                "parts": [
+                  {
+                    "id": "CV-COFFEE-TELEMETRY-REPLAY_smt",
+                    "name": "statement",
+                    "prose": "The control \"Device Identity Validation\" MUST be verified by analysis."
+                  },
+                  {
+                    "id": "CV-COFFEE-TELEMETRY-REPLAY_gdn",
+                    "name": "guidance",
+                    "prose": "replay detection works for standard windows; high-burst tuning still in progress"
+                  },
+                  {
+                    "id": "CV-COFFEE-TELEMETRY-REPLAY_obj",
+                    "links": [
+                      {
+                        "href": "#CV-COFFEE-TELEMETRY-REPLAY_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-COFFEE-TELEMETRY-REPLAY"
+              },
+              {
+                "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS",
+                "parts": [
+                  {
+                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_smt",
+                    "name": "statement",
+                    "prose": "The control \"Device Identity Validation\" MUST be verified by inspection."
+                  },
+                  {
+                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_gdn",
+                    "name": "guidance",
+                    "prose": "log write permissions are constrained but immutable retention still being expanded"
+                  },
+                  {
+                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_obj",
+                    "links": [
+                      {
+                        "href": "#CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS"
+              }
+            ],
+            "id": "CTRL-COFFEE-DEVICE-IDENTITY",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-coffee-device-identity",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-COFFEE-DEVICE-IDENTITY_smt",
+                "name": "statement",
+                "prose": "Require authenticated device identity for telemetry and OTA command channels."
+              }
+            ],
+            "title": "Device Identity Validation"
+          }
+        ],
+        "id": "identity-access",
+        "title": "Control category: identity-access."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "integrity",
+            "controls": [
+              {
+                "id": "CV-COFFEE-FW-SIGNATURE-TEST",
+                "parts": [
+                  {
+                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_smt",
+                    "name": "statement",
+                    "prose": "The control \"Firmware Signature Enforcement\" MUST be verified by test."
+                  },
+                  {
+                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_gdn",
+                    "name": "guidance",
+                    "prose": "unsigned or tampered bundles rejected during OTA execution"
+                  },
+                  {
+                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_obj",
+                    "links": [
+                      {
+                        "href": "#CV-COFFEE-FW-SIGNATURE-TEST_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CV-COFFEE-FW-SIGNATURE-TEST"
+              }
+            ],
+            "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/1.0.0#ctrl-coffee-firmware-signature",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE_smt",
+                "name": "statement",
+                "prose": "Require signed firmware bundles before applying OTA updates."
+              }
+            ],
+            "title": "Firmware Signature Enforcement"
+          }
+        ],
+        "id": "integrity",
+        "title": "Control category: integrity."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-06-27T08:38:54.330001329+02:00",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/1.0.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model",
+          "type": "person",
+          "uuid": "935563f2-e8b7-4cf4-a73c-bcb3b0cda0df"
+        }
+      ],
+      "published": "2026-06-27T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "935563f2-e8b7-4cf4-a73c-bcb3b0cda0df"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Connected Coffee Fleet OTA + Cloud Architecture - Controls",
+      "version": "1.0.0"
+    },
+    "uuid": "2ddf19e3-311c-4638-a822-46805b31d964"
+  }
+}

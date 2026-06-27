@@ -1,0 +1,65 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: System capabilities of Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Connected Coffee Fleet OTA + Cloud Architecture
+  description: "The system as a whole: Connected Coffee Fleet OTA + Cloud Architecture."
+  group: system
+- id: FU-MACHINE-TELEMETRY-COLLECTION
+  title: Machine Telemetry Collection
+  description: |
+    Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+  group: FG-MACHINE-EDGE
+- id: FU-OTA-UPDATE-AGENT
+  title: OTA Update Agent
+  description: |
+    Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+  group: FG-MACHINE-EDGE
+- id: FU-FLEET-INGESTION-API
+  title: Fleet Ingestion API
+  description: |
+    Receives telemetry and machine status, applies validation, and emits ingestion events.
+  group: FG-CLOUD-CONTROL
+- id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  title: Update Campaign Orchestration
+  description: |
+    Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+  group: FG-CLOUD-CONTROL
+- id: FU-FLEET-OBSERVABILITY-REPORTING
+  title: Fleet Observability Reporting
+  description: |
+    Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+  group: FG-CLOUD-CONTROL
+- id: FU-CLOUD-RUNTIME-OPERATIONS
+  title: Cloud Runtime Operations
+  description: |
+    Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+  group: FG-PLATFORM-OPERATIONS
+- id: FU-DEVICE-IDENTITY-SECRETS
+  title: Device Identity and Secrets
+  description: |
+    Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+  group: FG-PLATFORM-OPERATIONS
+groups:
+- id: FG-MACHINE-EDGE
+  title: Machine Edge
+  description: Device-local telemetry and OTA execution responsibilities.
+- id: FG-CLOUD-CONTROL
+  title: Cloud Control
+  description: Central cloud ingestion, campaign control, and fleet reporting.
+- id: FG-PLATFORM-OPERATIONS
+  title: Platform Operations
+  description: Cloud runtime operations plus identity and secret-management controls.
+- id: system
+  title: System
+  description: Whole-system capability scope.

@@ -1,0 +1,43 @@
+title: "Sample Payments Layered Architecture - Control to Threat Mapping"
+metadata:
+  id: sample-payments-layered-model-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: How controls relate to threats for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-CTRL-PAYMENTS-SSO-MFA
+  source: CTRL-PAYMENTS-SSO-MFA
+  targets:
+  - entry-id: TS-PAYMENTS-CHECKOUT-SPOOFING
+    strength: 7
+    rationale: Control CTRL-PAYMENTS-SSO-MFA mitigates threat TS-PAYMENTS-CHECKOUT-SPOOFING.
+  - entry-id: TS-PAYMENTS-RISK-TICKET-TAMPER
+    strength: 7
+    rationale: Control CTRL-PAYMENTS-SSO-MFA mitigates threat TS-PAYMENTS-RISK-TICKET-TAMPER.
+  relationship: relates-to
+- id: MAP-CTRL-PAYMENTS-CALLBACK-NONCE
+  source: CTRL-PAYMENTS-CALLBACK-NONCE
+  targets:
+  - entry-id: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+    strength: 7
+    rationale: Control CTRL-PAYMENTS-CALLBACK-NONCE mitigates threat TS-PAYMENTS-BANK-CALLBACK-REPLAY.
+  relationship: relates-to

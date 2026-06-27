@@ -1,0 +1,49 @@
+title: "Engineering Model Go Repository Architecture - Guidance"
+metadata:
+  id: ENGMOD-GUIDANCE-CATALOG
+  type: GuidanceCatalog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Control guidance for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-PRINCIPLE-CATALOG
+    title: Principle Catalog
+    version: 1.1.0
+groups:
+- id: control-guidance
+  title: Control Guidance
+  description: Guidance organized by control family.
+type: Framework
+front-matter: Guidance derived from the control families of Engineering Model Go Repository Architecture.
+guidelines:
+- id: GL-input-validation
+  title: Input-Validation Guidance
+  objective: Design, implement, and verify input-validation controls so their objectives are demonstrably met.
+  group: control-guidance
+  recommendations:
+  - Define a verifiable assessment requirement for each control objective.
+  - Capture objective evidence for every assessment.
+  principles:
+  - entries:
+    - reference-id: PRIN-TRACEABILITY
+    - reference-id: PRIN-DEFENSE-IN-DEPTH
+    reference-id: ENGMOD-PRINCIPLE-CATALOG
+  state: Active
+- id: GL-assurance
+  title: Assurance Guidance
+  objective: Design, implement, and verify assurance controls so their objectives are demonstrably met.
+  group: control-guidance
+  recommendations:
+  - Define a verifiable assessment requirement for each control objective.
+  - Capture objective evidence for every assessment.
+  principles:
+  - entries:
+    - reference-id: PRIN-TRACEABILITY
+    - reference-id: PRIN-DEFENSE-IN-DEPTH
+    reference-id: ENGMOD-PRINCIPLE-CATALOG
+  state: Active

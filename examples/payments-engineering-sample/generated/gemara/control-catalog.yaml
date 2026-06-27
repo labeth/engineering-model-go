@@ -1,0 +1,135 @@
+title: "Sample Payments Layered Architecture - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-CHECKOUT
+    title: Checkout Handling
+    description: |
+      Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+      It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+      It delegates decision logic to payment authorization while protecting the user experience boundary.
+  - id: FU-PAYMENT-AUTHORIZATION
+    title: Payment Authorization
+    description: |
+      Payment authorization orchestrates the final transaction decision path.
+      It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
+      The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+  - id: FU-RISK-SCORING
+    title: Risk Scoring
+    description: |
+      Risk scoring computes and classifies transaction risk before approval decisions are finalized.
+      It provides a stable scoring contract to authorization and supports audit context for later analysis.
+      The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+  - id: FU-SUPPORT-REVIEW
+    title: Support Review
+    description: |
+      Support review handles manual decisions for escalated or ambiguous payment cases.
+      It gives support operators context to approve, reject, or request additional verification in a controlled flow.
+      The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+  - id: FU-CLUSTER-PROVISIONING
+    title: Cluster Provisioning
+    description: |
+      Cluster provisioning creates the runtime substrate used by all application workloads.
+      It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+      This unit is responsible for predictable, repeatable infrastructure foundations.
+  - id: FU-GITOPS-OPERATIONS
+    title: GitOps Operations
+    description: |
+      GitOps operations continuously reconciles intended release state with actual runtime state.
+      It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+      The unit provides safe and observable release behavior as an ongoing operational capability.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-PAYMENTS-SSO-MFA
+  title: SSO MFA Enforcement
+  objective: Enforce MFA and conditional access for privileged operations.
+  group: identity-access
+  assessment-requirements:
+  - id: CV-PAYMENTS-CHECKOUT-SCHEMA-TEST
+    text: The control "SSO MFA Enforcement" MUST be verified by test.
+    applicability:
+    - FU-SUPPORT-REVIEW
+    - FU-GITOPS-OPERATIONS
+    recommendation: malformed checkout payloads rejected with deterministic decline path
+    state: Active
+  - id: CV-PAYMENTS-MANUAL-REVIEW-TRACE
+    text: The control "SSO MFA Enforcement" MUST be verified by analysis.
+    applicability:
+    - FU-SUPPORT-REVIEW
+    - FU-GITOPS-OPERATIONS
+    recommendation: review ticket mutation trail exists but immutability controls are incomplete
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-identity-access
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-CHECKOUT-SPOOFING
+    - reference-id: TS-PAYMENTS-RISK-TICKET-TAMPER
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-PAYMENTS-IMAGE-DIGEST
+  title: Immutable Image Digests
+  objective: Enforce immutable digest-pinned container image references.
+  group: supply-chain
+  assessment-requirements:
+  - id: CTRL-PAYMENTS-IMAGE-DIGEST-AR-1
+    text: "The system MUST implement the control \"Immutable Image Digests\": Enforce immutable digest-pinned container image references."
+    applicability:
+    - FU-GITOPS-OPERATIONS
+    - FU-CLUSTER-PROVISIONING
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-supply-chain
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-PAYMENTS-CALLBACK-NONCE
+  title: Callback Nonce and Idempotency Guard
+  objective: Enforce nonce freshness and idempotency on bank callback processing.
+  group: protocol-integrity
+  assessment-requirements:
+  - id: CV-PAYMENTS-CALLBACK-REPLAY-TEST
+    text: The control "Callback Nonce and Idempotency Guard" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: duplicate callback identifiers correctly rejected
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-protocol-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+groups:
+- id: identity-access
+  title: identity-access
+  description: "Control category: identity-access."
+- id: supply-chain
+  title: supply-chain
+  description: "Control category: supply-chain."
+- id: protocol-integrity
+  title: protocol-integrity
+  description: "Control category: protocol-integrity."

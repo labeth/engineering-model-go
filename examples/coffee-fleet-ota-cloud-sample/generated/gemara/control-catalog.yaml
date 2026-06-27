@@ -1,0 +1,117 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Security controls for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-MACHINE-TELEMETRY-COLLECTION
+    title: Machine Telemetry Collection
+    description: |
+      Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+  - id: FU-OTA-UPDATE-AGENT
+    title: OTA Update Agent
+    description: |
+      Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+  - id: FU-FLEET-INGESTION-API
+    title: Fleet Ingestion API
+    description: |
+      Receives telemetry and machine status, applies validation, and emits ingestion events.
+  - id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    title: Update Campaign Orchestration
+    description: |
+      Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+  - id: FU-FLEET-OBSERVABILITY-REPORTING
+    title: Fleet Observability Reporting
+    description: |
+      Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+  - id: FU-CLOUD-RUNTIME-OPERATIONS
+    title: Cloud Runtime Operations
+    description: |
+      Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+  - id: FU-DEVICE-IDENTITY-SECRETS
+    title: Device Identity and Secrets
+    description: |
+      Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-COFFEE-DEVICE-IDENTITY
+  title: Device Identity Validation
+  objective: Require authenticated device identity for telemetry and OTA command channels.
+  group: identity-access
+  assessment-requirements:
+  - id: CV-COFFEE-DEVICE-IDENTITY-TEST
+    text: The control "Device Identity Validation" MUST be verified by test.
+    applicability:
+    - FU-FLEET-INGESTION-API
+    - FU-DEVICE-IDENTITY-SECRETS
+    recommendation: unauthorized command publishers rejected by identity policy
+    state: Active
+  - id: CV-COFFEE-TELEMETRY-REPLAY
+    text: The control "Device Identity Validation" MUST be verified by analysis.
+    applicability:
+    - FU-FLEET-INGESTION-API
+    - FU-DEVICE-IDENTITY-SECRETS
+    recommendation: replay detection works for standard windows; high-burst tuning still in progress
+    state: Active
+  - id: CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS
+    text: The control "Device Identity Validation" MUST be verified by inspection.
+    applicability:
+    - FU-FLEET-INGESTION-API
+    - FU-DEVICE-IDENTITY-SECRETS
+    recommendation: log write permissions are constrained but immutable retention still being expanded
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-identity-access
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-OTA-COMMAND-SPOOF
+    - reference-id: TS-COFFEE-TELEMETRY-REPLAY
+    - reference-id: TS-COFFEE-LOG-TAMPERING
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-COFFEE-FIRMWARE-SIGNATURE
+  title: Firmware Signature Enforcement
+  objective: Require signed firmware bundles before applying OTA updates.
+  group: integrity
+  assessment-requirements:
+  - id: CV-COFFEE-FW-SIGNATURE-TEST
+    text: The control "Firmware Signature Enforcement" MUST be verified by test.
+    applicability:
+    - FU-OTA-UPDATE-AGENT
+    - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    recommendation: unsigned or tampered bundles rejected during OTA execution
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+groups:
+- id: identity-access
+  title: identity-access
+  description: "Control category: identity-access."
+- id: integrity
+  title: integrity
+  description: "Control category: integrity."

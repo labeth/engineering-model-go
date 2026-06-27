@@ -1,0 +1,95 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Risk register for Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-COFFEE-DEVICE-SPOOFING
+  title: Device identity spoofing risk
+  description: Spoofed devices may inject telemetry and OTA requests without strong identity controls.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ANALYST
+    accountable:
+    - name: ACT-SECURITY-ANALYST
+    informed:
+    - name: ACT-SECURITY-ANALYST
+  impact: Identity validation is active; replay hardening remains under review.
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-OTA-COMMAND-SPOOF
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-COFFEE-MALICIOUS-OTA
+  title: Malicious OTA payload execution risk
+  description: Tampered firmware artifacts could execute on fleet devices if signature enforcement drifts.
+  group: operational-risk
+  severity: High
+  rank: 2
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ANALYST
+    accountable:
+    - name: ACT-SECURITY-ANALYST
+    informed:
+    - name: ACT-SECURITY-ANALYST
+  impact: Verification and signer controls are strong with regular regression checks.
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-COFFEE-TELEMETRY-REPLAY
+  title: Telemetry replay distortion risk
+  description: Replayed telemetry can distort observability and trigger noisy operational decisions.
+  group: operational-risk
+  severity: Medium
+  rank: 4
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ANALYST
+    accountable:
+    - name: ACT-SECURITY-ANALYST
+    informed:
+    - name: ACT-SECURITY-ANALYST
+  impact: Replay controls are present but require aggressive tuning under burst traffic.
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-TELEMETRY-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-COFFEE-LOG-TAMPERING
+  title: Audit log tampering risk
+  description: Log tampering could conceal OTA incident traces and delay response.
+  group: operational-risk
+  severity: Medium
+  rank: 3
+  owner:
+    responsible:
+    - name: ACT-SECURITY-ANALYST
+    accountable:
+    - name: ACT-SECURITY-ANALYST
+    informed:
+    - name: ACT-SECURITY-ANALYST
+  impact: Core logging exists; immutability hardening is incomplete.
+  threats:
+  - entries:
+    - reference-id: TS-COFFEE-LOG-TAMPERING
+    reference-id: ENGMOD-THREAT-CATALOG

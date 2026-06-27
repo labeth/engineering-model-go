@@ -68,6 +68,10 @@ catalog:
       name: oscal exporter
       definition: Exports security and control content to OSCAL system security plan outputs.
       aliases: [engoscal]
+    - id: FU-GEMARA-EXPORTER
+      name: gemara exporter
+      definition: Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+      aliases: [enggemara]
     - id: FU-MCP-SERVER
       name: mcp server
       definition: Serves model-backed MCP tools with validated inputs and structured responses.
@@ -196,6 +200,10 @@ catalog:
       name: traceability export is enabled
       definition: Feature enabling TRLC and LOBSTER generation flows.
       aliases: [trace export]
+    - id: FEAT-GEMARA-EXPORT
+      name: gemara export is enabled
+      definition: Feature enabling OpenSSF Gemara catalog and evaluation log generation.
+      aliases: [gemara generation]
     - id: FEAT-ARCHITECTURE-DECISION-RECORDS
       name: architecture decision records are authored
       definition: Feature indicating the architecture model includes first-class ADR entries.

@@ -3,7 +3,7 @@
     "uuid": "2d8eece3-05eb-53b4-97b0-01d3cce5ac57",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture",
-      "last-modified": "2026-06-01T18:18:27Z",
+      "last-modified": "2026-06-27T06:49:35Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -55,7 +55,7 @@
         {
           "uuid": "279875c9-3fbf-5c94-8a63-a7f1147ec006",
           "title": "AI Agent",
-          "description": "Uses MCP tools and AI JSON to plan and execute scoped implementation work.",
+          "description": "Uses MCP tools to plan and execute scoped implementation work.",
           "short-name": "ai-agent"
         },
         {

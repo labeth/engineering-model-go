@@ -1,0 +1,95 @@
+title: "Sample Payments Layered Architecture - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Risk register for Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-PAYMENTS-SSO-MFA-GAP
+  title: Privileged SSO path bypass risk
+  description: Privileged operational actions may bypass MFA if SSO policy enforcement drifts.
+  group: operational-risk
+  severity: High
+  rank: 3
+  owner:
+    responsible:
+    - name: ACT-PLATFORM-OPERATOR
+    accountable:
+    - name: ACT-PLATFORM-OPERATOR
+    informed:
+    - name: ACT-PLATFORM-OPERATOR
+  impact: Legacy operator account cleanup still in progress.
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-RISK-TICKET-TAMPER
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-PAYMENTS-CHECKOUT-SPOOFING
+  title: Checkout payload spoofing risk
+  description: Crafted checkout payloads may bypass validation and force unintended authorization paths.
+  group: operational-risk
+  severity: High
+  rank: 2
+  owner:
+    responsible:
+    - name: ACT-PLATFORM-OPERATOR
+    accountable:
+    - name: ACT-PLATFORM-OPERATOR
+    informed:
+    - name: ACT-PLATFORM-OPERATOR
+  impact: Validation controls are implemented but continuously tuned as payload variants evolve.
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-CHECKOUT-SPOOFING
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+  title: Bank callback replay risk
+  description: Replayed authorization callbacks may produce duplicate or stale decision transitions.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-PLATFORM-OPERATOR
+    accountable:
+    - name: ACT-PLATFORM-OPERATOR
+    informed:
+    - name: ACT-PLATFORM-OPERATOR
+  impact: Nonce and idempotency controls sharply reduce replay window impact.
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-BANK-CALLBACK-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+  title: Manual review decision tampering risk
+  description: Privileged workflow manipulation may alter manual review outcomes before final decision publication.
+  group: operational-risk
+  severity: Medium
+  rank: 4
+  owner:
+    responsible:
+    - name: ACT-PLATFORM-OPERATOR
+    accountable:
+    - name: ACT-PLATFORM-OPERATOR
+    informed:
+    - name: ACT-PLATFORM-OPERATOR
+  impact: Audit coverage is present but needs tighter immutable trail enforcement.
+  threats:
+  - entries:
+    - reference-id: TS-PAYMENTS-RISK-TICKET-TAMPER
+    reference-id: ENGMOD-THREAT-CATALOG

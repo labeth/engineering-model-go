@@ -1,0 +1,124 @@
+metadata:
+  id: sample-coffee-fleet-ota-cloud-model-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Point-in-time audit of Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Connected Coffee Fleet OTA + Cloud Architecture: 8 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-CV-COFFEE-FW-SIGNATURE-TEST
+  title: Verification of CTRL-COFFEE-FIRMWARE-SIGNATURE
+  type: Strength
+  description: Control CTRL-COFFEE-FIRMWARE-SIGNATURE assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-FIRMWARE-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-COFFEE-FW-SIGNATURE-TEST-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Signature verify and rejection path.
+  recommendations:
+  - text: unsigned or tampered bundles rejected during OTA execution
+    required: false
+- id: AUD-CV-COFFEE-DEVICE-IDENTITY-TEST
+  title: Verification of CTRL-COFFEE-DEVICE-IDENTITY
+  type: Strength
+  description: Control CTRL-COFFEE-DEVICE-IDENTITY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-COFFEE-DEVICE-IDENTITY-TEST-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Identity enforcement checks in ingress path.
+  recommendations:
+  - text: unauthorized command publishers rejected by identity policy
+    required: false
+- id: AUD-CV-COFFEE-TELEMETRY-REPLAY
+  title: Verification of CTRL-COFFEE-DEVICE-IDENTITY
+  type: Observation
+  description: Control CTRL-COFFEE-DEVICE-IDENTITY assessed via analysis with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-COFFEE-TELEMETRY-REPLAY-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Replay window logic and dedup analysis.
+  recommendations:
+  - text: replay detection works for standard windows; high-burst tuning still in progress
+    required: false
+- id: AUD-CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS
+  title: Verification of CTRL-COFFEE-DEVICE-IDENTITY
+  type: Observation
+  description: Control CTRL-COFFEE-DEVICE-IDENTITY assessed via inspection with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Inspection notes for audit integrity controls.
+  recommendations:
+  - text: log write permissions are constrained but immutable retention still being expanded
+    required: false
+- id: AUD-RISK-COFFEE-DEVICE-SPOOFING
+  title: "Residual risk: Device identity spoofing risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-COFFEE-MALICIOUS-OTA
+  title: "Residual risk: Malicious OTA payload execution risk"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-FIRMWARE-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-COFFEE-TELEMETRY-REPLAY
+  title: "Residual risk: Telemetry replay distortion risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-COFFEE-LOG-TAMPERING
+  title: "Residual risk: Audit log tampering risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-COFFEE-DEVICE-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: sample-coffee-fleet-ota-cloud-model
+  name: Connected Coffee Fleet OTA + Cloud Architecture
+  type: Software
+  description: "System under governance: Connected Coffee Fleet OTA + Cloud Architecture"

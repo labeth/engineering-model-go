@@ -1,0 +1,48 @@
+title: "Sample Payments Layered Architecture - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Attack vectors relevant to Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  applicability-groups:
+  - id: prod
+    title: Prod
+    description: Vectors applicable in the prod environment.
+  - id: all-environments
+    title: All Environments
+    description: Applies across every environment.
+groups:
+- id: attack-vector
+  title: Attack Vector
+  description: Methods and pathways through which a threat may be realized.
+vectors:
+- id: AV-MALICIOUS-API-REQUEST
+  title: Malicious API Request
+  description: Crafted payloads attempting to bypass authorization controls.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-FRAUDULENT-TRANSACTION-PATTERN
+  title: Fraudulent Transaction Pattern
+  description: Coordinated abuse pattern using synthetic identities, stolen instruments, and velocity anomalies to seek unauthorized approvals.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-REPLAYED-AUTH-CALLBACK
+  title: Replayed Authorization Callback
+  description: Replay attack against external authorization callback flow.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-COMPROMISED-DEPENDENCY
+  title: Compromised Dependency
+  description: Supply chain compromise in external SDK or image.
+  group: attack-vector
+  applicability:
+  - all-environments

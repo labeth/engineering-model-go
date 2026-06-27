@@ -1,0 +1,108 @@
+metadata:
+  id: sample-payments-layered-model-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Point-in-time audit of Sample Payments Layered Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Sample Payments Layered Architecture: 7 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-CV-PAYMENTS-CHECKOUT-SCHEMA-TEST
+  title: Verification of CTRL-PAYMENTS-SSO-MFA
+  type: Strength
+  description: Control CTRL-PAYMENTS-SSO-MFA assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-SSO-MFA
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-PAYMENTS-CHECKOUT-SCHEMA-TEST-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Payload validation regression test.
+  recommendations:
+  - text: malformed checkout payloads rejected with deterministic decline path
+    required: false
+- id: AUD-CV-PAYMENTS-CALLBACK-REPLAY-TEST
+  title: Verification of CTRL-PAYMENTS-CALLBACK-NONCE
+  type: Strength
+  description: Control CTRL-PAYMENTS-CALLBACK-NONCE assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-CALLBACK-NONCE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-PAYMENTS-CALLBACK-REPLAY-TEST-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Replay and idempotency assertions for callback path.
+  recommendations:
+  - text: duplicate callback identifiers correctly rejected
+    required: false
+- id: AUD-CV-PAYMENTS-MANUAL-REVIEW-TRACE
+  title: Verification of CTRL-PAYMENTS-SSO-MFA
+  type: Observation
+  description: Control CTRL-PAYMENTS-SSO-MFA assessed via analysis with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-SSO-MFA
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-PAYMENTS-MANUAL-REVIEW-TRACE-EV-1
+    type: ControlVerification
+    collected-at: "2026-06-27T00:00:00Z"
+    description: Manual review trail analysis.
+  recommendations:
+  - text: review ticket mutation trail exists but immutability controls are incomplete
+    required: false
+- id: AUD-RISK-PAYMENTS-SSO-MFA-GAP
+  title: "Residual risk: Privileged SSO path bypass risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-SSO-MFA
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-PAYMENTS-CHECKOUT-SPOOFING
+  title: "Residual risk: Checkout payload spoofing risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-SSO-MFA
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+  title: "Residual risk: Bank callback replay risk"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-CALLBACK-NONCE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+  title: "Residual risk: Manual review decision tampering risk"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-PAYMENTS-SSO-MFA
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: sample-payments-layered-model
+  name: Sample Payments Layered Architecture
+  type: Software
+  description: "System under governance: Sample Payments Layered Architecture"

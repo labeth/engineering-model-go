@@ -3,7 +3,7 @@
     "uuid": "98eaf6c0-91d6-5a78-93b8-4d958fefbee6",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture Assessment Results",
-      "last-modified": "2026-06-01T18:18:29Z",
+      "last-modified": "2026-06-27T06:49:36Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -15,8 +15,8 @@
         "uuid": "552b5375-26b1-5f1a-ab6b-642a6ef09628",
         "title": "Automated architecture assessment",
         "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
-        "start": "2026-06-01T18:18:29Z",
-        "end": "2026-06-01T18:18:29Z",
+        "start": "2026-06-27T06:49:36Z",
+        "end": "2026-06-27T06:49:36Z",
         "reviewed-controls": {
           "control-selections": [
             {
@@ -708,6 +708,50 @@
             ]
           },
           {
+            "uuid": "b276ab9b-e9f3-5bec-aeca-b947998eadf5",
+            "title": "Gemara Oscal Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-015",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-GEMARA_OSCAL_TEST-58DBDA"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "b5ba4502-78e3-501c-84d6-0aab991f939b",
+            "title": "Gemara Export Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-015",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-GEMARA_EXPORT_TEST-45C982"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "b8aab43c-b96f-59a0-81ff-b884e7c57ebb",
             "title": "E2e Test",
             "description": "Inferred from test source artifact.",
@@ -840,28 +884,6 @@
             ]
           },
           {
-            "uuid": "ebd785ca-82c1-506b-97d1-59c8a709ca03",
-            "title": "Ai View Test",
-            "description": "Inferred from test source artifact.",
-            "target": {
-              "type": "objective-id",
-              "target-id": "REQ-EMG-002",
-              "status": {
-                "state": "not-satisfied"
-              }
-            },
-            "props": [
-              {
-                "name": "verification-id",
-                "value": "VER-INF-TEST-AI_VIEW_TEST-DFDEE3"
-              },
-              {
-                "name": "verification-status",
-                "value": "not-run"
-              }
-            ]
-          },
-          {
             "uuid": "fc121f08-5091-5af9-a360-6a2bb3138690",
             "title": "Threat Model Export Test",
             "description": "Inferred from test source artifact.",
@@ -882,6 +904,29 @@
                 "value": "not-run"
               }
             ]
+          }
+        ],
+        "risks": [
+          {
+            "uuid": "070679d4-aa26-5abd-9bd4-b6b415366233",
+            "title": "Traceability drift weakens assurance evidence",
+            "description": "Code and tests evolve without updating requirement trace markers, eroding coverage evidence.",
+            "status": "mitigating",
+            "statement": "Strict code-linking coverage and inferred verification keep drift detectable."
+          },
+          {
+            "uuid": "9f3684ca-831c-5b20-b4dd-adbbaeb5214c",
+            "title": "MCP path traversal exposes non-repository files",
+            "description": "An attacker uses crafted MCP path arguments to read files outside the repository workspace.",
+            "status": "mitigating",
+            "statement": "Path boundary enforcement and strict input schemas reduce exposure to low residual risk."
+          },
+          {
+            "uuid": "aca3aec4-390d-58eb-b386-97151ec2cd88",
+            "title": "Stale generated artifacts misrepresent the system",
+            "description": "Generated documentation or exchange artifacts fall out of sync with the authored model.",
+            "status": "open",
+            "statement": "Determinism plus staleness checks make drift visible; residual risk accepted between regenerations."
           }
         ]
       }

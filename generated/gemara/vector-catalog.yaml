@@ -1,0 +1,51 @@
+title: "Engineering Model Go Repository Architecture - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Attack vectors relevant to Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  applicability-groups:
+  - id: dev
+    title: Dev
+    description: Vectors applicable in the dev environment.
+  - id: ci
+    title: Ci
+    description: Vectors applicable in the ci environment.
+  - id: all-environments
+    title: All Environments
+    description: Applies across every environment.
+groups:
+- id: attack-vector
+  title: Attack Vector
+  description: Methods and pathways through which a threat may be realized.
+vectors:
+- id: AV-MALFORMED-MODEL-INPUT
+  title: Malformed Model Input
+  description: Invalid or ambiguous model content causing incorrect parsing or graph interpretation.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+  title: Schema Supply Chain Tamper
+  description: Drift or tampering in external schemas used by export validation.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-PATH-TRAVERSAL-IN-MCP
+  title: Path Traversal in MCP Calls
+  description: Attempts to read files outside repository root via MCP path arguments.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-TRACEABILITY-GAP-DRIFT
+  title: Traceability Gap Drift
+  description: Requirement and verification links diverge from implementation over time.
+  group: attack-vector
+  applicability:
+  - all-environments

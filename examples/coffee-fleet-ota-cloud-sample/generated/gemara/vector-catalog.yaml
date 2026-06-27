@@ -1,0 +1,51 @@
+title: "Connected Coffee Fleet OTA + Cloud Architecture - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: 1.0.0
+  date: "2026-06-27T00:00:00Z"
+  description: Attack vectors relevant to Connected Coffee Fleet OTA + Cloud Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  applicability-groups:
+  - id: prod
+    title: Prod
+    description: Vectors applicable in the prod environment.
+  - id: edge
+    title: Edge
+    description: Vectors applicable in the edge environment.
+  - id: all-environments
+    title: All Environments
+    description: Applies across every environment.
+groups:
+- id: attack-vector
+  title: Attack Vector
+  description: Methods and pathways through which a threat may be realized.
+vectors:
+- id: AV-MALICIOUS-FIRMWARE-BUNDLE
+  title: Malicious Firmware Bundle
+  description: Tampered OTA payload targeting update agent execution.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-SPOOFED-DEVICE-IDENTITY
+  title: Spoofed Device Identity
+  description: Unauthorized identity attempting telemetry/command access.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-TELEMETRY-REPLAY-ABUSE
+  title: Telemetry Replay Abuse
+  description: Replayed telemetry intended to overload ingestion and corrupt insights.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: AV-LOG-TAMPERING
+  title: Log Tampering
+  description: Attempts to suppress or alter audit/operational logs.
+  group: attack-vector
+  applicability:
+  - all-environments

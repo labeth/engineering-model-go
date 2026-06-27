@@ -1,0 +1,290 @@
+title: "Engineering Model Go Repository Architecture - Lexicon"
+metadata:
+  id: engineering-model-go-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: 0.0.1
+  date: "2026-06-27T00:00:00Z"
+  description: Controlled vocabulary for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+terms:
+- id: SYS-ENGINEERING-MODEL-GO
+  title: engineering model go
+  definition: Go-based architecture modeling system that generates docs, analysis views, and compliance artifacts.
+  synonyms:
+  - engmodel
+  - engineering model toolchain
+- id: FG-MODEL-AUTHORING
+  title: model authoring
+  definition: Authoring and loading of architecture, catalog, requirements, and design inputs.
+  synonyms:
+  - authoring
+- id: FG-VALIDATION-ANALYSIS
+  title: validation and analysis
+  definition: Validation, inference, and evidence analysis over authored and inferred model content.
+  synonyms:
+  - analysis
+- id: FG-ARTIFACT-GENERATION
+  title: artifact generation
+  definition: Generation of AsciiDoc and exchange artifacts from model inputs.
+  synonyms:
+  - generation
+- id: FG-TRACEABILITY-COMPLIANCE
+  title: traceability and compliance
+  definition: Requirement trace exports and compliance-oriented output generation.
+  synonyms:
+  - compliance
+- id: FG-MCP-INTEGRATION
+  title: mcp integration
+  definition: MCP server interfaces that expose model-aware tooling for AI agents.
+  synonyms:
+  - mcp
+- id: FU-MODEL-LOADER
+  title: model loader
+  definition: Loads and normalizes architecture, catalog, requirements, and design documents.
+  synonyms:
+  - bundle loader
+- id: FU-VALIDATION-ENGINE
+  title: validation engine
+  definition: Validates IDs, references, and model consistency across authored entities and mappings.
+  synonyms:
+  - validator
+- id: FU-CODEMAP-INFERENCE
+  title: codemap inference
+  definition: Infers runtime, code, and verification evidence from repository sources and test markers.
+  synonyms:
+  - inference
+- id: FU-VIEW-PROJECTION
+  title: view projection
+  definition: Builds view-specific projections for architecture communication and traceability outputs.
+  synonyms:
+  - projection
+- id: FU-ASCIIDOC-GENERATOR
+  title: asciidoc generator
+  definition: Renders architecture documentation and view narratives to AsciiDoc and PDF artifacts.
+  synonyms:
+  - engdoc
+- id: FU-THREAT-EXPORTER
+  title: threat exporter
+  definition: Exports threat model views to Threat Dragon and Open OTM representations.
+  synonyms:
+  - engdragon
+- id: FU-STRUCTURIZR-EXPORTER
+  title: structurizr exporter
+  definition: Exports Structurizr DSL and supports validation/static-site workflows.
+  synonyms:
+  - engstruct
+- id: FU-TRLC-EXPORTER
+  title: trlc exporter
+  definition: Exports requirements and model structures to TRLC artifacts.
+  synonyms:
+  - engtrlc
+- id: FU-LOBSTER-EXPORTER
+  title: lobster exporter
+  definition: Generates LOBSTER traceability inputs and reports from model and verification links.
+  synonyms:
+  - englobster
+- id: FU-OSCAL-EXPORTER
+  title: oscal exporter
+  definition: Exports security and control content to OSCAL system security plan outputs.
+  synonyms:
+  - engoscal
+- id: FU-GEMARA-EXPORTER
+  title: gemara exporter
+  definition: Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+  synonyms:
+  - enggemara
+- id: FU-MCP-SERVER
+  title: mcp server
+  definition: Serves model-backed MCP tools with validated inputs and structured responses.
+  synonyms:
+  - engmcp
+- id: FU-CLI-ORCHESTRATION
+  title: cli orchestration
+  definition: Command entrypoints that orchestrate loading, validation, generation, and export flows.
+  synonyms:
+  - cmd layer
+- id: ACT-ARCHITECTURE-AUTHOR
+  title: architecture author
+  definition: Maintains model structure, mappings, and architecture intent.
+  synonyms:
+  - model author
+- id: ACT-IMPLEMENTATION-ENGINEER
+  title: implementation engineer
+  definition: Implements code changes guided by model requirements and support paths.
+  synonyms:
+  - engineer
+- id: ACT-COMPLIANCE-ENGINEER
+  title: compliance engineer
+  definition: Reviews controls, risks, and traceability outputs for compliance needs.
+  synonyms:
+  - assurance
+- id: ACT-AI-AGENT
+  title: ai agent
+  definition: Consumes MCP outputs to plan and execute model-guided edits.
+  synonyms:
+  - coding agent
+- id: ACT-CI-PIPELINE
+  title: ci pipeline
+  definition: Runs automated validation and export checks for pull requests.
+  synonyms:
+  - ci
+- id: AV-MALFORMED-MODEL-INPUT
+  title: malformed model input
+  definition: Invalid or ambiguous model content that causes incorrect graph construction.
+  synonyms:
+  - invalid model
+- id: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+  title: schema supply chain tamper
+  definition: Tampering or drift in external schemas used for export validation.
+  synonyms:
+  - schema tamper
+- id: AV-PATH-TRAVERSAL-IN-MCP
+  title: path traversal in mcp calls
+  definition: Host file access attempts through untrusted path arguments in MCP tools.
+  synonyms:
+  - path traversal
+- id: AV-TRACEABILITY-GAP-DRIFT
+  title: traceability gap drift
+  definition: Requirement links or tests drifting from implementation over time.
+  synonyms:
+  - trace drift
+- id: EVT-MODEL-UPDATED
+  title: model updated event is received
+  definition: Event indicating architecture or requirement model source changed.
+  synonyms:
+  - model change
+- id: EVT-GENERATION-RUN-REQUESTED
+  title: generation run is requested
+  definition: Event indicating documentation or export generation execution starts.
+  synonyms:
+  - generation requested
+- id: EVT-VALIDATION-FAILED
+  title: validation failed event is raised
+  definition: Event indicating model or export validation failed.
+  synonyms:
+  - validation failure
+- id: EVT-ARTIFACT-GENERATED
+  title: artifact generated event is raised
+  definition: Event indicating one or more generated outputs were produced successfully.
+  synonyms:
+  - artifact generated
+- id: EVT-MCP-TOOL-CALL-RECEIVED
+  title: mcp tool call is received
+  definition: Event indicating the MCP server received a tool invocation request.
+  synonyms:
+  - tool call
+- id: STATE-MODEL-VALID
+  title: model is valid
+  definition: State where authored model passes validation checks.
+  synonyms:
+  - valid
+- id: STATE-MODEL-INVALID
+  title: model is invalid
+  definition: State where validation diagnostics include one or more errors.
+  synonyms:
+  - invalid
+- id: STATE-ARTIFACTS-FRESH
+  title: generated artifacts are fresh
+  definition: State where generated outputs reflect the latest authored model inputs.
+  synonyms:
+  - up to date
+- id: FEAT-MCP-SERVER
+  title: mcp server is enabled
+  definition: Feature enabling MCP runtime APIs for model-aware tooling.
+  synonyms:
+  - mcp enabled
+- id: FEAT-THREAT-EXPORT
+  title: threat export is enabled
+  definition: Feature enabling Threat Dragon and Open OTM exports.
+  synonyms:
+  - threat modeling export
+- id: FEAT-STRUCTURIZR-EXPORT
+  title: structurizr export is enabled
+  definition: Feature enabling Structurizr DSL generation and validation.
+  synonyms:
+  - dsl export
+- id: FEAT-TRACEABILITY-EXPORT
+  title: traceability export is enabled
+  definition: Feature enabling TRLC and LOBSTER generation flows.
+  synonyms:
+  - trace export
+- id: FEAT-GEMARA-EXPORT
+  title: gemara export is enabled
+  definition: Feature enabling OpenSSF Gemara catalog and evaluation log generation.
+  synonyms:
+  - gemara generation
+- id: FEAT-ARCHITECTURE-DECISION-RECORDS
+  title: architecture decision records are authored
+  definition: Feature indicating the architecture model includes first-class ADR entries.
+  synonyms:
+  - adrs authored
+- id: MODE-LOCAL-DEVELOPMENT
+  title: local development mode is active
+  definition: Local developer mode for iterative model and code updates.
+  synonyms:
+  - local mode
+- id: MODE-CI-VALIDATION
+  title: ci validation mode is active
+  definition: Automated pipeline mode focused on deterministic checks and artifacts.
+  synonyms:
+  - ci mode
+- id: COND-CATALOG-REFERENCES-RESOLVE
+  title: catalog references resolve successfully
+  definition: Condition requiring all authored references to match known catalog entries.
+  synonyms:
+  - catalog resolved
+- id: COND-REQUIREMENT-TRACE-COMPLETE
+  title: requirement trace is complete
+  definition: Condition requiring requirements to map to implementation and verification evidence.
+  synonyms:
+  - trace complete
+- id: COND-EXTERNAL-SCHEMA-AVAILABLE
+  title: external schema dependencies are available
+  definition: Condition requiring external schema artifacts to be present for validation.
+  synonyms:
+  - schema available
+- id: DATA-ARCHITECTURE-MODEL
+  title: architecture model
+  definition: Authored architecture source describing functional intent and mappings.
+  synonyms:
+  - architecture yml
+- id: DATA-MCP-TOOL-RESULT
+  title: mcp tool result
+  definition: Structured MCP tool response payload carrying model-aware query results.
+  synonyms:
+  - tool result
+- id: DATA-STRUCTURIZR-DSL
+  title: structurizr dsl artifact
+  definition: Generated Structurizr workspace DSL document.
+  synonyms:
+  - dsl
+- id: DATA-THREAT-DRAGON-JSON
+  title: threat dragon json artifact
+  definition: Generated threat model artifact for OWASP Threat Dragon.
+  synonyms:
+  - threat dragon output
+- id: DATA-TRLC-PACKAGE
+  title: trlc package
+  definition: Generated TRLC requirements package and model metadata.
+  synonyms:
+  - trlc output
+- id: DATA-LOBSTER-TRACE-REPORT
+  title: lobster trace report
+  definition: Traceability report output generated from TRLC and test links.
+  synonyms:
+  - lobster report
+- id: DATA-OSCAL-SSP
+  title: oscal ssp artifact
+  definition: Generated OSCAL system security plan JSON output.
+  synonyms:
+  - ssp json
+- id: DATA-ARCHITECTURE-DECISION-RECORDS
+  title: architecture decision records document
+  definition: Generated document containing authored architecture decision records.
+  synonyms:
+  - adr document
+  - decisions document
