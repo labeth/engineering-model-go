@@ -1633,6 +1633,8 @@ flowchart LR
     FU_FU_MCP_SERVER["MCP Server"]:::functional_unit
     subgraph RT_FU_MCP_SERVER_MCP_SERVER_RUNTIME__INFERRED_["MCP Server runtime (inferred)"]
       direction TB
+      CODE_COMPOSITION_GO["composition.go"]:::code_element
+      CODE_COMPOSITION_TEST_GO["composition_test.go"]:::code_element
       CODE_GEMARA_GO["gemara.go"]:::code_element
       CODE_MAIN_GO["main.go"]:::code_element
       CODE_MAIN_TEST_GO["main_test.go"]:::code_element
@@ -2299,6 +2301,10 @@ flowchart LR
   SEC_TGT_FU_MCP_SERVER -->|depends_on| SEC_DEP_VALIDATION_ENGINE
   SEC_RT_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MCP_SERVER -->|runtime| SEC_RT_FU_MCP_SERVER_RUNTIME
+  CODE_COMPOSITION_GO["composition.go"]:::code_element
+  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
+  CODE_COMPOSITION_TEST_GO["composition_test.go"]:::code_element
+  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
   CODE_GEMARA_GO["gemara.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_GEMARA_GO
   CODE_MAIN_GO["main.go"]:::code_element
@@ -3366,6 +3372,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_AB66B8,VER-INF-TEST-COMPOSITION_TEST-AB66B8>>
+|<<REF_IDX-REQ_REQ_EMG_007,REQ-EMG-007>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_MAIN_TEST_6B61AE,VER-INF-TEST-MAIN_TEST-6B61AE>>
 |<<REF_IDX-REQ_REQ_EMG_007,REQ-EMG-007>>
 |not-run
@@ -3456,6 +3467,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_AB66B8,VER-INF-TEST-COMPOSITION_TEST-AB66B8>>
+|<<REF_IDX-REQ_REQ_EMG_016,REQ-EMG-016>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,VER-INF-TEST-COMPOSITION_TEST-8FE8F1>>
 |<<REF_IDX-REQ_REQ_EMG_017,REQ-EMG-017>>
 |not-run
@@ -3493,6 +3509,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 
 |<<REF_IDX-VER_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C>>
 |<<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_AB66B8,VER-INF-TEST-COMPOSITION_TEST-AB66B8>>
+|<<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
@@ -4088,18 +4109,25 @@ flowchart LR
   REQC_REQ_EMG_007 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,18,49,54,74,95,134,166,227"]:::code_element
+  RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
+  REQC_REQ_EMG_007 -->|code trace| CODE_COMPOSITION_TEST_GO
   CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_MAIN_GO
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_TEST_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_MAIN_TEST_GO
-  CODE_SERVER_GO["server.go:135,213,224,257,332,404,863,877,891,925,955,964,987,1029,1045,1069,1098,1128,1199,1209,1244,1255,1283,1309,1322,1331,1353,1368,1381,1401,1415,1444,1482,1508,1551,1567,1595,1604,1611,1620,1629,1646,1678,1737,1747,1754,1763,1777,1791,1912,1919,1955,1970,2042,2077,2093,2109,2119,2139,2173,2200,2212,2232,2262,2346,2368,2382,2392,2399,2415,2427,2438,2458,2473"]:::code_element
+  CODE_SERVER_GO["server.go:137,217,228,261,336,408,879,893,907,941,971,980,1003,1045,1061,1085,1114,1144,1215,1225,1260,1271,1299,1325,1338,1347,1369,1384,1397,1417,1431,1460,1498,1524,1567,1583,1611,1620,1627,1636,1645,1662,1694,1753,1763,1770,1779,1793,1807,1928,1935,1971,1986,2058,2093,2109,2125,2135,2155,2189,2216,2228,2248,2278,2362,2384,2398,2408,2415,2431,2443,2454,2474,2489"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_SERVER_GO
   CODE_SERVER_TEST_GO["server_test.go:12,99,124,170,212,253,309,327,337,436,489,533,579,625,647"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_TEST_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_SERVER_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8["VER-INF-TEST-COMPOSITION_TEST-AB66B8 (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|verifies| REQC_REQ_EMG_007
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,54"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|implemented_by| CODE_COMPOSITION_TEST_GO
   VERC_VER_INF_TEST_MAIN_TEST_6B61AE["VER-INF-TEST-MAIN_TEST-6B61AE (not-run)"]:::verification
   VERC_VER_INF_TEST_MAIN_TEST_6B61AE -->|verifies| REQC_REQ_EMG_007
   VERC_VER_INF_TEST_MAIN_TEST_6B61AE -->|implemented_by| CODE_MAIN_TEST_GO
@@ -4156,7 +4184,7 @@ flowchart LR
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_TEST_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_MAIN_TEST_GO
-  CODE_SERVER_GO["server.go:135,213,224,257,332,404,863,877,891,925,955,964,987,1029,1045,1069,1098,1128,1199,1209,1244,1255,1283,1309,1322,1331,1353,1368,1381,1401,1415,1444,1482,1508,1551,1567,1595,1604,1611,1620,1629,1646,1678,1737,1747,1754,1763,1777,1791,1912,1919,1955,1970,2042,2077,2093,2109,2119,2139,2173,2200,2212,2232,2262,2346,2368,2382,2392,2399,2415,2427,2438,2458,2473"]:::code_element
+  CODE_SERVER_GO["server.go:137,217,228,261,336,408,879,893,907,941,971,980,1003,1045,1061,1085,1114,1144,1215,1225,1260,1271,1299,1325,1338,1347,1369,1384,1397,1417,1431,1460,1498,1524,1567,1583,1611,1620,1627,1636,1645,1662,1694,1753,1763,1770,1779,1793,1807,1928,1935,1971,1986,2058,2093,2109,2125,2135,2155,2189,2216,2228,2248,2278,2362,2384,2398,2408,2415,2431,2443,2454,2474,2489"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_SERVER_GO
   CODE_SERVER_TEST_GO["server_test.go:12,99,124,170,212,253,309,327,337,436,489,533,579,625,647"]:::code_element
@@ -4723,15 +4751,18 @@ flowchart LR
   REQC_REQ_EMG_016 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_COMPOSITION_GO["composition.go:55,62,82,126,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
+  CODE_COMPOSITION_GO["composition.go:23,55,62,81,82,126,136,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
   REQC_REQ_EMG_016 -->|code trace| CODE_COMPOSITION_GO
-  CODE_COMPOSITION_TEST_GO["composition_test.go:18,49,74,95,134,166,227"]:::code_element
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,18,49,54,74,95,134,166,227"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
   REQC_REQ_EMG_016 -->|code trace| CODE_COMPOSITION_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1["VER-INF-TEST-COMPOSITION_TEST-8FE8F1 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_016
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|implemented_by| CODE_COMPOSITION_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8["VER-INF-TEST-COMPOSITION_TEST-AB66B8 (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|verifies| REQC_REQ_EMG_016
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|implemented_by| CODE_COMPOSITION_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -4776,14 +4807,15 @@ flowchart LR
   REQC_REQ_EMG_017 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_COMPOSITION_GO["composition.go:55,62,82,126,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
+  CODE_COMPOSITION_GO["composition.go:23,55,62,81,82,126,136,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
   REQC_REQ_EMG_017 -->|code trace| CODE_COMPOSITION_GO
-  CODE_COMPOSITION_TEST_GO["composition_test.go:18,49,74,95,134,166,227"]:::code_element
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,18,49,54,74,95,134,166,227"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
   REQC_REQ_EMG_017 -->|code trace| CODE_COMPOSITION_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1["VER-INF-TEST-COMPOSITION_TEST-8FE8F1 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_017
+  CODE_COMPOSITION_TEST_GO["composition_test.go:18,49,74,95,134,166,227"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|implemented_by| CODE_COMPOSITION_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -4829,7 +4861,7 @@ flowchart LR
   REQC_REQ_EMG_018 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_COMPOSITION_GO["composition.go:55,62,82,126,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
+  CODE_COMPOSITION_GO["composition.go:23,55,62,81,82,126,136,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
   REQC_REQ_EMG_018 -->|code trace| CODE_COMPOSITION_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
@@ -4880,7 +4912,7 @@ flowchart LR
   REQC_REQ_EMG_019 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_COMPOSITION_GO["composition.go:55,62,82,126,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
+  CODE_COMPOSITION_GO["composition.go:23,55,62,81,82,126,136,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
   REQC_REQ_EMG_019 -->|code trace| CODE_COMPOSITION_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -5271,14 +5303,15 @@ flowchart LR
   REQC_REQ_EMG_027 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_COMPOSITION_GO["composition.go:55,62,82,126,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
+  CODE_COMPOSITION_GO["composition.go:23,55,62,81,82,126,136,151,192,210,222,243,284,346,359,367,380,392"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_GO
   REQC_REQ_EMG_027 -->|code trace| CODE_COMPOSITION_GO
-  CODE_COMPOSITION_TEST_GO["composition_test.go:18,49,74,95,134,166,227"]:::code_element
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,18,49,54,74,95,134,166,227"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
   REQC_REQ_EMG_027 -->|code trace| CODE_COMPOSITION_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1["VER-INF-TEST-COMPOSITION_TEST-8FE8F1 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_027
+  CODE_COMPOSITION_TEST_GO["composition_test.go:18,49,74,95,134,166,227"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|implemented_by| CODE_COMPOSITION_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -5447,6 +5480,10 @@ flowchart LR
   REQC_REQ_EMG_030 -->|code trace| CODE_TRACE_MATRIX_TEST_GO
   FU_FU_CODEMAP_INFERENCE["Codemap Inference"]:::functional_unit
   REQC_REQ_EMG_030 -->|applies_to| FU_FU_CODEMAP_INFERENCE
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8["VER-INF-TEST-COMPOSITION_TEST-AB66B8 (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|verifies| REQC_REQ_EMG_030
+  CODE_COMPOSITION_TEST_GO["composition_test.go:14,54"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|implemented_by| CODE_COMPOSITION_TEST_GO
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C["VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C (not-run)"]:::verification
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C -->|verifies| REQC_REQ_EMG_030
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C -->|implemented_by| CODE_TRACE_MATRIX_TEST_GO
@@ -5792,6 +5829,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:7
 |Evidence |composition_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8]]
+==== Composition Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_AB66B8,VER-INF-TEST-COMPOSITION_TEST-AB66B8>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_IDX-REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
+|Test Code Elements |composition_test.go:14,54
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
+|Result Summary |not-run:3
+|Evidence |mcp/composition_test.go
 
 |Notes |Inferred from test source artifact.
 
@@ -6852,7 +6909,7 @@ While mcp server is enabled, when mcp tool call is received and catalog referenc
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-007
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_008]]
 [discrete]
@@ -6969,7 +7026,7 @@ Where system composition is enabled, when generation run is requested, the engin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-016
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_017]]
 [discrete]
@@ -7151,7 +7208,7 @@ When generation run is requested, the engineering model go shall export a machin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-030
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
 |===
 [[REF_IDX-TB_TB_EXTERNAL_VALIDATION_TOOLS]]
 [discrete]
@@ -8557,7 +8614,7 @@ Materializes parent-to-subsystem allocation and bidirectional traceability acros
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |allocation trace
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
 |===
 [[REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR]]
 [discrete]
@@ -8596,7 +8653,7 @@ Infers runtime, code, and verification evidence from repository sources and test
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |codemap inference
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
 |===
 [[REF_IDX-CATALOG_FU_GEMARA_EXPORTER]]
 [discrete]
@@ -8635,7 +8692,7 @@ Serves model-backed MCP tools with validated inputs and structured responses.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |mcp server
-|Mentioned In |<<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
 |===
 [[REF_IDX-CATALOG_FU_MODEL_LOADER]]
 [discrete]
@@ -8648,7 +8705,7 @@ Loads and normalizes architecture, catalog, requirements, and design documents.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |model loader
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_OSCAL_EXPORTER]]
 [discrete]
@@ -8687,7 +8744,7 @@ Resolves downward subsystem references from local subdirectories or external git
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |system composition
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>
 |===
 [[REF_IDX-CATALOG_FU_THREAT_EXPORTER]]
 [discrete]
@@ -9970,6 +10027,20 @@ Inferred library_external dependency owned by FU-VALIDATION-ENGINE from ears_pre
 |Source |ears_preflight.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__COMPOSITION_GO__MCP_COMPOSITION_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (composition.go)
+
+Inferred library_external dependency owned by FU-MCP-SERVER from mcp/composition.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MCP-SERVER
+|Source |mcp/composition.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__GEMARA_GO__MCP_GEMARA_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go (gemara.go)
@@ -11160,6 +11231,20 @@ Inferred library_first_party dependency owned by FU-SYSTEM-COMPOSITION from comp
 |Source |composition.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__COMPOSITION_GO__MCP_COMPOSITION_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (composition.go)
+
+Inferred library_first_party dependency owned by FU-MCP-SERVER from mcp/composition.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-MCP-SERVER
+|Source |mcp/composition.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__COMPOSITION_TEST_GO__COMPOSITION_TEST_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go/validate (composition_test.go)
@@ -11396,34 +11481,6 @@ Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ss
 |Kind |Code library_first_party
 |Owner |FU-OSCAL-EXPORTER
 |Source |oscal_ssp.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__PROJECT_GO__VIEW_PROJECT_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (project.go)
-
-Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from view/project.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-VIEW-PROJECTION
-|Source |view/project.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__SCAN_GO__CODEMAP_SCAN_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (scan.go)
-
-Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from codemap/scan.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-CODEMAP-INFERENCE
-|Source |codemap/scan.go
 |Mentioned In |n/a
 |===
 
@@ -11667,6 +11724,21 @@ Inferred from test source artifact.
 |Source |composition_test.go
 |Name |Composition Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_AB66B8]]
+[discrete]
+==== VER-INF-TEST-COMPOSITION_TEST-AB66B8
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |mcp/composition_test.go
+|Name |Composition Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_E2E_TEST_BE56F8]]
 [discrete]

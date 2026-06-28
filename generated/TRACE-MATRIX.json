@@ -1729,7 +1729,12 @@
         {
           "symbol": "CODE-CALLTOOL",
           "path": "mcp/server.go",
-          "line": 404
+          "line": 408
+        },
+        {
+          "symbol": "CODE-CALLTOOLDATA",
+          "path": "mcp/composition_test.go",
+          "line": 54
         },
         {
           "symbol": "CODE-CALLTOOLPAYLOAD",
@@ -1739,12 +1744,12 @@
         {
           "symbol": "CODE-CONFIDENCEFORENTITY",
           "path": "mcp/server.go",
-          "line": 1508
+          "line": 1524
         },
         {
           "symbol": "CODE-CONTEXTFORTASK",
           "path": "mcp/server.go",
-          "line": 1970
+          "line": 1986
         },
         {
           "symbol": "CODE-DECODERESPONSE",
@@ -1754,117 +1759,117 @@
         {
           "symbol": "CODE-DIAGNOSTICFILEPATH",
           "path": "mcp/server.go",
-          "line": 2093
+          "line": 2109
         },
         {
           "symbol": "CODE-DIFFSCHEMAREFS",
           "path": "mcp/server.go",
-          "line": 2119
+          "line": 2135
         },
         {
           "symbol": "CODE-DISPATCH",
           "path": "mcp/server.go",
-          "line": 257
+          "line": 261
         },
         {
           "symbol": "CODE-ENSUREREPOINDEX",
           "path": "mcp/server.go",
-          "line": 987
+          "line": 1003
         },
         {
           "symbol": "CODE-FILESCONTAINING",
           "path": "mcp/server.go",
-          "line": 964
+          "line": 980
         },
         {
           "symbol": "CODE-FILESFORREQUIREMENT",
           "path": "mcp/server.go",
-          "line": 955
+          "line": 971
         },
         {
           "symbol": "CODE-FILESTATUS",
           "path": "mcp/server.go",
-          "line": 1368
+          "line": 1384
         },
         {
           "symbol": "CODE-FINDFLOW",
           "path": "mcp/server.go",
-          "line": 1955
+          "line": 1971
         },
         {
           "symbol": "CODE-FINDINTERFACE",
           "path": "mcp/server.go",
-          "line": 1029
+          "line": 1045
         },
         {
           "symbol": "CODE-FINDREQUIREMENT",
           "path": "mcp/server.go",
-          "line": 863
+          "line": 879
         },
         {
           "symbol": "CODE-FLOWDIFF",
           "path": "mcp/server.go",
-          "line": 1128
+          "line": 1144
         },
         {
           "symbol": "CODE-FLOWSFORREQUIREMENT",
           "path": "mcp/server.go",
-          "line": 891
+          "line": 907
         },
         {
           "symbol": "CODE-FLOWSTEPSBYID",
           "path": "mcp/server.go",
-          "line": 1199
+          "line": 1215
         },
         {
           "symbol": "CODE-GENERATEDDIR",
           "path": "mcp/server.go",
-          "line": 1322
+          "line": 1338
         },
         {
           "symbol": "CODE-GENERATIONARTIFACTS",
           "path": "mcp/server.go",
-          "line": 1331
+          "line": 1347
         },
         {
           "symbol": "CODE-GENERATIONARTIFACTSTATUS",
           "path": "mcp/server.go",
-          "line": 1353
+          "line": 1369
         },
         {
           "symbol": "CODE-GENERATIONCOMMANDS",
           "path": "mcp/server.go",
-          "line": 1283
+          "line": 1299
         },
         {
           "symbol": "CODE-GOVERNANCEPOLICY",
           "path": "mcp/server.go",
-          "line": 1381
+          "line": 1397
         },
         {
           "symbol": "CODE-GROUPIMPLEMENTATIONSBYFILE",
           "path": "mcp/server.go",
-          "line": 1678
+          "line": 1694
         },
         {
           "symbol": "CODE-HANDLE",
           "path": "mcp/server.go",
-          "line": 224
+          "line": 228
         },
         {
           "symbol": "CODE-ILINE",
           "path": "mcp/server.go",
-          "line": 1747
+          "line": 1763
         },
         {
           "symbol": "CODE-IMPLEMENTATIONFILESFORMODELLINK",
           "path": "mcp/server.go",
-          "line": 1604
+          "line": 1620
         },
         {
           "symbol": "CODE-IMPLEMENTATIONSFORMODELLINK",
           "path": "mcp/server.go",
-          "line": 1595
+          "line": 1611
         },
         {
           "symbol": "CODE-INITIALIZEDPAYMENTSSERVER",
@@ -1874,22 +1879,22 @@
         {
           "symbol": "CODE-ISTESTPATH",
           "path": "mcp/server.go",
-          "line": 1763
+          "line": 1779
         },
         {
           "symbol": "CODE-JOINLINENUMBERS",
           "path": "mcp/server.go",
-          "line": 1737
+          "line": 1753
         },
         {
           "symbol": "CODE-LIMITROWS",
           "path": "mcp/server.go",
-          "line": 1754
+          "line": 1770
         },
         {
           "symbol": "CODE-LOADCONTEXT",
           "path": "mcp/server.go",
-          "line": 332
+          "line": 336
         },
         {
           "symbol": "CODE-MAIN",
@@ -1899,42 +1904,42 @@
         {
           "symbol": "CODE-MAPKEYS",
           "path": "mcp/server.go",
-          "line": 1244
+          "line": 1260
         },
         {
           "symbol": "CODE-MAXARG",
           "path": "mcp/server.go",
-          "line": 1777
+          "line": 1793
         },
         {
           "symbol": "CODE-MODELENTITY",
           "path": "mcp/server.go",
-          "line": 1791
+          "line": 1807
         },
         {
           "symbol": "CODE-MODELENTITYKIND",
           "path": "mcp/server.go",
-          "line": 1912
+          "line": 1928
         },
         {
           "symbol": "CODE-MODELENTITYNODES",
           "path": "mcp/server.go",
-          "line": 1919
+          "line": 1935
         },
         {
           "symbol": "CODE-NEWSERVER",
           "path": "mcp/server.go",
-          "line": 135
+          "line": 137
         },
         {
           "symbol": "CODE-NEXTBESTACTIONS",
           "path": "mcp/server.go",
-          "line": 1415
+          "line": 1431
         },
         {
           "symbol": "CODE-POLICYFORENTITY",
           "path": "mcp/server.go",
-          "line": 1444
+          "line": 1460
         },
         {
           "symbol": "CODE-READMESSAGE",
@@ -1944,27 +1949,27 @@
         {
           "symbol": "CODE-RECOMMENDEDVIEWS",
           "path": "mcp/server.go",
-          "line": 1255
+          "line": 1271
         },
         {
           "symbol": "CODE-REQUIREMENTEDITPLAN",
           "path": "mcp/server.go",
-          "line": 1069
+          "line": 1085
         },
         {
           "symbol": "CODE-REQUIREMENTIDS",
           "path": "mcp/server.go",
-          "line": 877
+          "line": 893
         },
         {
           "symbol": "CODE-REQUIREMENTSFORENTITY",
           "path": "mcp/server.go",
-          "line": 1551
+          "line": 1567
         },
         {
           "symbol": "CODE-REQUIREMENTSUPPORTPATH",
           "path": "mcp/server.go",
-          "line": 1045
+          "line": 1061
         },
         {
           "symbol": "CODE-RPCCALL",
@@ -1974,52 +1979,52 @@
         {
           "symbol": "CODE-RUNTIMEFORENTITY",
           "path": "mcp/server.go",
-          "line": 1482
+          "line": 1498
         },
         {
           "symbol": "CODE-SCANCODESYMBOLS",
           "path": "mcp/server.go",
-          "line": 1629
+          "line": 1645
         },
         {
           "symbol": "CODE-SCHEMAFILEMETA",
           "path": "mcp/server.go",
-          "line": 2139
+          "line": 2155
         },
         {
           "symbol": "CODE-SCHEMAREFFORINTERFACE",
           "path": "mcp/server.go",
-          "line": 2109
+          "line": 2125
         },
         {
           "symbol": "CODE-SHELLPATH",
           "path": "mcp/server.go",
-          "line": 1309
+          "line": 1325
         },
         {
           "symbol": "CODE-SLICESETDIFF",
           "path": "mcp/server.go",
-          "line": 1209
+          "line": 1225
         },
         {
           "symbol": "CODE-STALENESSFORPATH",
           "path": "mcp/server.go",
-          "line": 1567
+          "line": 1583
         },
         {
           "symbol": "CODE-STRICTCOVERAGESTATUS",
           "path": "mcp/server.go",
-          "line": 2042
+          "line": 2058
         },
         {
           "symbol": "CODE-SYMBOLROWS",
           "path": "mcp/server.go",
-          "line": 1646
+          "line": 1662
         },
         {
           "symbol": "CODE-TASKENTRYPOINTS",
           "path": "mcp/server.go",
-          "line": 1401
+          "line": 1417
         },
         {
           "symbol": "CODE-TESTDEVELOPERCONTEXTTOOLSRETURNGROUPEDIMPLEMENTATIONS",
@@ -2064,12 +2069,12 @@
         {
           "symbol": "CODE-TESTSFORMODELLINK",
           "path": "mcp/server.go",
-          "line": 1620
+          "line": 1636
         },
         {
           "symbol": "CODE-TESTSFORREQUIREMENT",
           "path": "mcp/server.go",
-          "line": 1611
+          "line": 1627
         },
         {
           "symbol": "CODE-TESTTOOLMISSINGREQUIREDARGUMENT",
@@ -2089,22 +2094,22 @@
         {
           "symbol": "CODE-THREATSFORREQUIREMENT",
           "path": "mcp/server.go",
-          "line": 925
+          "line": 941
         },
         {
           "symbol": "CODE-TOOLNAMES",
           "path": "mcp/server.go",
-          "line": 213
+          "line": 217
         },
         {
           "symbol": "CODE-UNIQUEDIAGNOSTICROWS",
           "path": "mcp/server.go",
-          "line": 2077
+          "line": 2093
         },
         {
           "symbol": "CODE-VERIFICATIONRECOMMENDATIONS",
           "path": "mcp/server.go",
-          "line": 1098
+          "line": 1114
         },
         {
           "symbol": "CODE-WRITEMESSAGE",
@@ -2113,6 +2118,7 @@
         }
       ],
       "verifications": [
+        "VER-INF-TEST-COMPOSITION_TEST-AB66B8",
         "VER-INF-TEST-MAIN_TEST-6B61AE",
         "VER-INF-TEST-SERVER_TEST-389957"
       ],
@@ -2138,7 +2144,7 @@
         {
           "symbol": "CODE-AUTHHINTSFORINTERFACE",
           "path": "mcp/server.go",
-          "line": 2212
+          "line": 2228
         },
         {
           "symbol": "CODE-CALLTOOLPAYLOAD",
@@ -2148,7 +2154,7 @@
         {
           "symbol": "CODE-CONTAINSSTRING",
           "path": "mcp/server.go",
-          "line": 2415
+          "line": 2431
         },
         {
           "symbol": "CODE-DECODERESPONSE",
@@ -2158,22 +2164,22 @@
         {
           "symbol": "CODE-ENDPOINTFORENV",
           "path": "mcp/server.go",
-          "line": 2200
+          "line": 2216
         },
         {
           "symbol": "CODE-FIRSTNONEMPTYARG",
           "path": "mcp/server.go",
-          "line": 2368
+          "line": 2384
         },
         {
           "symbol": "CODE-GRAPHEDGES",
           "path": "mcp/server.go",
-          "line": 2346
+          "line": 2362
         },
         {
           "symbol": "CODE-GRAPHNODES",
           "path": "mcp/server.go",
-          "line": 2262
+          "line": 2278
         },
         {
           "symbol": "CODE-INITIALIZEDPAYMENTSSERVER",
@@ -2183,7 +2189,7 @@
         {
           "symbol": "CODE-INPUTSCHEMAFORTOOL",
           "path": "mcp/server.go",
-          "line": 2427
+          "line": 2443
         },
         {
           "symbol": "CODE-MAIN",
@@ -2193,17 +2199,17 @@
         {
           "symbol": "CODE-NEWSERVER",
           "path": "mcp/server.go",
-          "line": 135
+          "line": 137
         },
         {
           "symbol": "CODE-NONEMPTYSTRING",
           "path": "mcp/server.go",
-          "line": 2382
+          "line": 2398
         },
         {
           "symbol": "CODE-OWNERFOR",
           "path": "mcp/server.go",
-          "line": 2232
+          "line": 2248
         },
         {
           "symbol": "CODE-READMESSAGE",
@@ -2213,17 +2219,17 @@
         {
           "symbol": "CODE-REQUIRESTABLEID",
           "path": "mcp/server.go",
-          "line": 2458
+          "line": 2474
         },
         {
           "symbol": "CODE-REQUIREWELLFORMEDSTABLEID",
           "path": "mcp/server.go",
-          "line": 2473
+          "line": 2489
         },
         {
           "symbol": "CODE-RESOLVEPATHINREPO",
           "path": "mcp/server.go",
-          "line": 2173
+          "line": 2189
         },
         {
           "symbol": "CODE-RPCCALL",
@@ -2288,22 +2294,22 @@
         {
           "symbol": "CODE-TOOLNAMES",
           "path": "mcp/server.go",
-          "line": 213
+          "line": 217
         },
         {
           "symbol": "CODE-TOSTRING",
           "path": "mcp/server.go",
-          "line": 2392
+          "line": 2408
         },
         {
           "symbol": "CODE-UNIQUESTRINGS",
           "path": "mcp/server.go",
-          "line": 2399
+          "line": 2415
         },
         {
           "symbol": "CODE-VALIDATETOOLARGUMENTS",
           "path": "mcp/server.go",
-          "line": 2438
+          "line": 2454
         },
         {
           "symbol": "CODE-WRITEMESSAGE",
@@ -3855,6 +3861,16 @@
       ],
       "code": [
         {
+          "symbol": "CODE-COMPOSITIONRESOLVE",
+          "path": "mcp/composition.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-DIAGROWS",
+          "path": "mcp/composition.go",
+          "line": 136
+        },
+        {
           "symbol": "CODE-GENERATECOMPOSITIONFROMFILE",
           "path": "composition.go",
           "line": 62
@@ -3880,13 +3896,19 @@
           "line": 82
         },
         {
+          "symbol": "CODE-TESTCOMPOSITIONANDTRACEMATRIXTOOLS",
+          "path": "mcp/composition_test.go",
+          "line": 14
+        },
+        {
           "symbol": "CODE-TESTCOMPOSITIONRESOLVESCOFFEEFLEET",
           "path": "composition_test.go",
           "line": 18
         }
       ],
       "verifications": [
-        "VER-INF-TEST-COMPOSITION_TEST-8FE8F1"
+        "VER-INF-TEST-COMPOSITION_TEST-8FE8F1",
+        "VER-INF-TEST-COMPOSITION_TEST-AB66B8"
       ],
       "status": "implemented"
     },
@@ -3972,6 +3994,11 @@
         "FU-ALLOCATION-TRACE"
       ],
       "code": [
+        {
+          "symbol": "CODE-COMPOSITIONRESOLVE",
+          "path": "mcp/composition.go",
+          "line": 23
+        },
         {
           "symbol": "CODE-MATERIALIZEALLOCATIONS",
           "path": "composition.go",
@@ -4170,6 +4197,11 @@
           "symbol": "CODE-REQUIREMENTEXISTS",
           "path": "composition.go",
           "line": 367
+        },
+        {
+          "symbol": "CODE-TRACEMATRIX",
+          "path": "mcp/composition.go",
+          "line": 81
         }
       ],
       "status": "implemented"
@@ -4326,12 +4358,23 @@
           "line": 84
         },
         {
+          "symbol": "CODE-TESTCOMPOSITIONANDTRACEMATRIXTOOLS",
+          "path": "mcp/composition_test.go",
+          "line": 14
+        },
+        {
           "symbol": "CODE-TESTSCOPECODEEXCLUDESNESTEDMODEL",
           "path": "trace_matrix_test.go",
           "line": 112
+        },
+        {
+          "symbol": "CODE-TRACEMATRIX",
+          "path": "mcp/composition.go",
+          "line": 81
         }
       ],
       "verifications": [
+        "VER-INF-TEST-COMPOSITION_TEST-AB66B8",
         "VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C"
       ],
       "status": "implemented"

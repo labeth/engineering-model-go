@@ -11,14 +11,14 @@ Follow the workflow contract in:
 
 Hard requirements:
 
-1. Resolve implementation and verification context through MCP tools before editing.
+1. Resolve context through MCP tools before editing — including `trace.matrix` (per-requirement implemented/verified/delegated/orphan status and dangling links) and `composition.resolve` (system-of-systems and requirement delegation; a requirement is implemented in its own code or delegated to a subsystem, no tiers).
 2. For each changed requirement (`REQ-*`), report affected `FU/RT/CODE/VER` IDs.
 3. Use supported tagging markers in changed code:
 - `ENGMODEL-OWNER-UNIT: FU-*` (file owner)
 - `TRLC-LINKS: REQ-*` (required requirement trace marker)
 4. Keep authored vs inferred semantics separate.
 - Do not add inferred `RT-*` or `CODE-*` IDs to authored architecture mappings.
-5. Regenerate maintained artifacts after changes and run tests.
+5. Every `TRLC-LINKS`/`ENGMODEL-LINKS` id must resolve (unresolved links fail the build). Regenerate maintained artifacts after changes and run `bash scripts/validate-all.sh` (build, engdoc 0 errors, engtrace 0 dangling, drift).
 6. In your final summary, include:
 - changed stable IDs
 - changed source refs

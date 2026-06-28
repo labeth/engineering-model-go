@@ -293,6 +293,8 @@ It exposes 50+ tools grouped into families, including:
 - `graph.*`: model graph search, neighborhood, and edge explanations
 - `model.*`: model entity lookup, listings, implementations, and RSL export
 - `interfaces.*`: software and HW/SW interface resolution and code matching
+- `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
+- `trace.matrix`: per-requirement implemented/verified/delegated/orphan status, code references, and dangling code trace links
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:

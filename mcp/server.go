@@ -84,6 +84,8 @@ var toolArgsAllowlist = map[string][]string{
 	"views.renderContext":          {"viewId", "id"},
 	"generation.plan":              {},
 	"generation.status":            {},
+	"composition.resolve":          {},
+	"trace.matrix":                 {},
 	"governance.policy":            {},
 	"governance.checkPatch":        {"diff"},
 	"tasks.entryPoints":            {},
@@ -162,6 +164,8 @@ func NewServer() *Server {
 		{Name: "views.renderContext", Description: "Render compact view context"},
 		{Name: "generation.plan", Description: "Plan artifact regeneration"},
 		{Name: "generation.status", Description: "Get artifact freshness status"},
+		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
+		{Name: "trace.matrix", Description: "Traceability matrix: per-requirement implemented/verified/delegated/orphan status, code references, and dangling code trace links"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
 		{Name: "tasks.entryPoints", Description: "List task entry points"},
@@ -636,6 +640,18 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"commands": s.generationCommands(), "artifacts": s.generationArtifacts()})
 	case "generation.status":
 		return simple(map[string]any{"modelPath": s.modelPath, "requirementsPath": s.requirementsPath, "designPath": s.designPath, "artifacts": s.generationArtifactStatus()})
+	case "composition.resolve":
+		data, err := s.compositionResolve()
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
+	case "trace.matrix":
+		data, err := s.traceMatrix()
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "governance.policy":
 		return simple(map[string]any{"policy": s.governancePolicy()})
 	case "governance.checkPatch":
