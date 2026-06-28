@@ -2196,10 +2196,6 @@ Untrusted MCP input attempts to escape repo root for sensitive file reads.
 
 |application security telemetry hooks |code |unresolved |code examples/payments-engineering-sample/tests/integration/audit_record_persistence_test.ts
 
-|authorization and credential handling checks |code |unresolved |code .opencode/node_modules/@opencode-ai/sdk/dist/gen/core/auth.gen.d.ts
-
-|authorization and credential handling checks |code |unresolved |code .opencode/node_modules/@opencode-ai/sdk/dist/v2/gen/core/auth.gen.d.ts
-
 |fraud and abuse detection code paths |code |FU-RISK-SCORING |code examples/payments-engineering-sample/src/risk_scorer.ts
 
 |fraud and abuse detection code paths |code |unresolved |code examples/payments-engineering-sample/tests/integration/fraud_gate_test.rs
@@ -4269,7 +4265,7 @@ flowchart LR
   REQC_REQ_EMG_010 -->|applies_to| FU_FU_CODEMAP_INFERENCE
   RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_INFERRED_CODE_GO["inferred_code.go:22,130,161,192,211,244,270,314,335"]:::code_element
+  CODE_INFERRED_CODE_GO["inferred_code.go:22,135,140,171,202,221,254,280,330,351"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_CODE_GO
   CODE_INFERRED_CODE_TEST_GO["inferred_code_test.go:11,37"]:::code_element
@@ -4287,7 +4283,7 @@ flowchart LR
   CODE_INFERRED_VERIFICATION_TEST_GO["inferred_verification_test.go:13,26,64,100,133,192,216"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_TEST_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_VERIFICATION_TEST_GO
-  CODE_SCAN_GO["scan.go:67,118,260,282,353,415,467,479,488,501,511,516,525,531,543"]:::code_element
+  CODE_SCAN_GO["scan.go:67,120,262,284,355,417,469,481,490,503,513,518,527,533,545"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_SCAN_GO
   CODE_SCAN_TEST_GO["scan_test.go:11,48,73,111,147,181,226"]:::code_element
@@ -5250,7 +5246,7 @@ flowchart LR
   REQC_REQ_EMG_028 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,270,286,345,430,472"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_028 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -5307,7 +5303,7 @@ flowchart LR
   REQC_REQ_EMG_029 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,270,286,345,430,472"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_029 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -5365,7 +5361,7 @@ flowchart LR
   CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_MAIN_GO
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,270,286,345,430,472"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -9599,76 +9595,6 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
-[[REF_CODE_LIBRARY_EXTERNAL_@OPENCODE_AI_SDK__INDEX_D_TS___OPENCODE_NODE_MODULES_@OPENCODE_AI_PLUGIN_DIST_INDEX_D_TS]]
-[discrete]
-==== @opencode-ai/sdk (index.d.ts)
-
-Inferred library_external dependency owned by unresolved from .opencode/node_modules/@opencode-ai/plugin/dist/index.d.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |.opencode/node_modules/@opencode-ai/plugin/dist/index.d.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_@PARALLELDRIVE_CUID2__STRING_TEST_TS__SRC_V3_TESTS_STRING_TEST_TS]]
-[discrete]
-==== @paralleldrive/cuid2 (string.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/tests/string.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/string.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_@PARALLELDRIVE_CUID2__STRING_TEST_TS__SRC_V4_CLASSIC_TESTS_STRING_TEST_TS]]
-[discrete]
-==== @paralleldrive/cuid2 (string.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/string.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/string.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_@SERIOUSME_OPENAPI_SCHEMA_VALIDATOR__TO_JSON_SCHEMA_TEST_TS__SRC_V4_CLASSIC_TESTS_TO_JSON_SCHEMA_TEST_TS]]
-[discrete]
-==== @seriousme/openapi-schema-validator (to-json-schema.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/to-json-schema.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/to-json-schema.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_@WEB_STD_FILE__FILE_TEST_TS__SRC_V4_CLASSIC_TESTS_FILE_TEST_TS]]
-[discrete]
-==== @web-std/file (file.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/file.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/file.test.ts
-|Mentioned In |n/a
-|===
 [[REF_CODE_LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER__SECRETS_CONFIGURATION_TS__SRC_SECRETS_CONFIGURATION_TS]]
 [discrete]
 ==== aws-sdk-go-v2/secretsmanager (secrets_configuration.ts)
@@ -9681,132 +9607,6 @@ Inferred library_external dependency owned by FU-SECRETS-CONFIGURATION from src/
 |Kind |Code library_external
 |Owner |FU-SECRETS-CONFIGURATION
 |Source |src/secrets_configuration.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__DATETIME_TS__SRC_V3_BENCHMARKS_DATETIME_TS]]
-[discrete]
-==== benchmark (datetime.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/datetime.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/datetime.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__DISCRIMINATEDUNION_TS__SRC_V3_BENCHMARKS_DISCRIMINATEDUNION_TS]]
-[discrete]
-==== benchmark (discriminatedUnion.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/discriminatedUnion.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/discriminatedUnion.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__INDEX_TS__SRC_V3_BENCHMARKS_INDEX_TS]]
-[discrete]
-==== benchmark (index.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/index.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/index.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__IPV4_TS__SRC_V3_BENCHMARKS_IPV4_TS]]
-[discrete]
-==== benchmark (ipv4.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/ipv4.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/ipv4.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__OBJECT_TS__SRC_V3_BENCHMARKS_OBJECT_TS]]
-[discrete]
-==== benchmark (object.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/object.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/object.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__PRIMITIVES_TS__SRC_V3_BENCHMARKS_PRIMITIVES_TS]]
-[discrete]
-==== benchmark (primitives.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/primitives.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/primitives.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__REALWORLD_TS__SRC_V3_BENCHMARKS_REALWORLD_TS]]
-[discrete]
-==== benchmark (realworld.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/realworld.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/realworld.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__STRING_TS__SRC_V3_BENCHMARKS_STRING_TS]]
-[discrete]
-==== benchmark (string.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/string.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/string.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_BENCHMARK__UNION_TS__SRC_V3_BENCHMARKS_UNION_TS]]
-[discrete]
-==== benchmark (union.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/benchmarks/union.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/benchmarks/union.ts
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK__PR_CONTEXT_ASSEMBLY_TS__SRC_PR_CONTEXT_ASSEMBLY_TS]]
@@ -10271,62 +10071,6 @@ Inferred library_external dependency owned by FU-MODEL-LOADER from model/load.go
 |Source |model/load.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_NODE_BUFFER__STRING_TEST_TS__SRC_V3_TESTS_STRING_TEST_TS]]
-[discrete]
-==== node:buffer (string.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v3/tests/string.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/string.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_NODE_CRYPTO__STRING_TEST_TS__SRC_V4_CLASSIC_TESTS_STRING_TEST_TS]]
-[discrete]
-==== node:crypto (string.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/string.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/string.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_NODE_UTIL__ERROR_TEST_TS__SRC_V4_CLASSIC_TESTS_ERROR_TEST_TS]]
-[discrete]
-==== node:util (error.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/error.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/error.test.ts
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_RECHECK__DATETIME_TEST_TS__SRC_V4_CLASSIC_TESTS_DATETIME_TEST_TS]]
-[discrete]
-==== recheck (datetime.test.ts)
-
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/datetime.test.ts.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/datetime.test.ts
-|Mentioned In |n/a
-|===
 [[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__PAYMENT_ENGINE_RS__SRC_PAYMENT_ENGINE_RS]]
 [discrete]
 ==== serde_json::json (payment_engine.rs)
@@ -10355,928 +10099,1180 @@ Inferred library_external dependency owned by FU-REVIEW-ORCHESTRATION from src/r
 |Source |src/review_orchestrator.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ALL_ERRORS_TEST_TS__SRC_V3_TESTS_ALL_ERRORS_TEST_TS]]
+[[REF_CODE_LIBRARY_EXTERNAL_ZOD__RISK_SCORER_TS__SRC_RISK_SCORER_TS]]
 [discrete]
-==== vitest (all-errors.test.ts)
+==== zod (risk_scorer.ts)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/all-errors.test.ts.
+Inferred library_external dependency owned by FU-RISK-SCORING from src/risk_scorer.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/all-errors.test.ts
+|Owner |FU-RISK-SCORING
+|Source |src/risk_scorer.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ANYUNKNOWN_TEST_TS__SRC_V3_TESTS_ANYUNKNOWN_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE__RISK_SCORER_TS__SRC_RISK_SCORER_TS]]
 [discrete]
-==== vitest (anyunknown.test.ts)
+==== ./support/audit_envelope (risk_scorer.ts)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/anyunknown.test.ts.
+Inferred library_first_party dependency owned by FU-RISK-SCORING from src/risk_scorer.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/anyunknown.test.ts
+|Kind |Code library_first_party
+|Owner |FU-RISK-SCORING
+|Source |src/risk_scorer.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ANYUNKNOWN_TEST_TS__SRC_V4_CLASSIC_TESTS_ANYUNKNOWN_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT__PAYMENT_ENGINE_RS__SRC_PAYMENT_ENGINE_RS]]
 [discrete]
-==== vitest (anyunknown.test.ts)
+==== crate::domain::events::PaymentEvent (payment_engine.rs)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/anyunknown.test.ts.
+Inferred library_first_party dependency owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/anyunknown.test.ts
+|Kind |Code library_first_party
+|Owner |FU-PAYMENT-AUTHORIZATION
+|Source |src/payment_engine.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ARRAY_TEST_TS__SRC_V3_TESTS_ARRAY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_CODEMAP__INFERRED_CODE_GO__INFERRED_CODE_GO]]
 [discrete]
-==== vitest (array.test.ts)
+==== github.com/labeth/engineering-model-go/codemap (inferred_code.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/array.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_code.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/array.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_code.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ARRAY_TEST_TS__SRC_V4_CLASSIC_TESTS_ARRAY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_CODEMAP__INFERRED_VERIFICATION_GO__INFERRED_VERIFICATION_GO]]
 [discrete]
-==== vitest (array.test.ts)
+==== github.com/labeth/engineering-model-go/codemap (inferred_verification.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/array.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_verification.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/array.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_verification.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASSIGNABILITY_TEST_TS__SRC_V4_CLASSIC_TESTS_ASSIGNABILITY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_CODEMAP__SERVER_GO__MCP_SERVER_GO]]
 [discrete]
-==== vitest (assignability.test.ts)
+==== github.com/labeth/engineering-model-go/codemap (server.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/assignability.test.ts.
+Inferred library_first_party dependency owned by FU-MCP-SERVER from mcp/server.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/assignability.test.ts
+|Kind |Code library_first_party
+|Owner |FU-MCP-SERVER
+|Source |mcp/server.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASSIGNABILITY_TEST_TS__SRC_V4_MINI_TESTS_ASSIGNABILITY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MCP__MAIN_GO__CMD_ENGMCP_MAIN_GO]]
 [discrete]
-==== vitest (assignability.test.ts)
+==== github.com/labeth/engineering-model-go/mcp (main.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/assignability.test.ts.
+Inferred library_first_party dependency owned by FU-MCP-SERVER from cmd/engmcp/main.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/assignability.test.ts
+|Kind |Code library_first_party
+|Owner |FU-MCP-SERVER
+|Source |cmd/engmcp/main.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASYNC_PARSING_TEST_TS__SRC_V3_TESTS_ASYNC_PARSING_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_GO__ASCIIDOC_GO]]
 [discrete]
-==== vitest (async-parsing.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/async-parsing.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/async-parsing.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASYNC_PARSING_TEST_TS__SRC_V4_CLASSIC_TESTS_ASYNC_PARSING_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_COMPOSITION_GO__ASCIIDOC_COMPOSITION_GO]]
 [discrete]
-==== vitest (async-parsing.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_composition.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/async-parsing.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_composition.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/async-parsing.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_composition.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASYNC_REFINEMENTS_TEST_TS__SRC_V3_TESTS_ASYNC_REFINEMENTS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DECISIONS_GO__ASCIIDOC_DECISIONS_GO]]
 [discrete]
-==== vitest (async-refinements.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_decisions.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/async-refinements.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_decisions.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/async-refinements.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_decisions.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ASYNC_REFINEMENTS_TEST_TS__SRC_V4_CLASSIC_TESTS_ASYNC_REFINEMENTS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DESIGN_REFS_GO__ASCIIDOC_DESIGN_REFS_GO]]
 [discrete]
-==== vitest (async-refinements.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_design_refs.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/async-refinements.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_design_refs.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/async-refinements.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_design_refs.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BASE_TEST_TS__SRC_V3_TESTS_BASE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_CORE_GO__ASCIIDOC_DIAGRAMS_CORE_GO]]
 [discrete]
-==== vitest (base.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_core.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/base.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_core.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/base.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_diagrams_core.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BASE_TEST_TS__SRC_V4_CLASSIC_TESTS_BASE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_CORE_TEST_GO__ASCIIDOC_DIAGRAMS_CORE_TEST_GO]]
 [discrete]
-==== vitest (base.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_core_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/base.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_core_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/base.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_diagrams_core_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BE_TEST_TS__SRC_V4_CORE_TESTS_LOCALES_BE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_RUNTIME_GO__ASCIIDOC_DIAGRAMS_RUNTIME_GO]]
 [discrete]
-==== vitest (be.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_runtime.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/core/tests/locales/be.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_runtime.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/core/tests/locales/be.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_diagrams_runtime.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BIGINT_TEST_TS__SRC_V3_TESTS_BIGINT_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_RUNTIME_TEST_GO__ASCIIDOC_DIAGRAMS_RUNTIME_TEST_GO]]
 [discrete]
-==== vitest (bigint.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_runtime_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/bigint.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_runtime_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/bigint.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_diagrams_runtime_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BIGINT_TEST_TS__SRC_V4_CLASSIC_TESTS_BIGINT_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_GEMARA_GO__ASCIIDOC_GEMARA_GO]]
 [discrete]
-==== vitest (bigint.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_gemara.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/bigint.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_gemara.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/bigint.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_gemara.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BRAND_TEST_TS__SRC_V4_CLASSIC_TESTS_BRAND_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_LINKING_UNITS_GO__ASCIIDOC_LINKING_UNITS_GO]]
 [discrete]
-==== vitest (brand.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_linking_units.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/brand.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_linking_units.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/brand.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_linking_units.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BRAND_TEST_TS__SRC_V4_MINI_TESTS_BRAND_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_TEST_GO__ASCIIDOC_TEST_GO]]
 [discrete]
-==== vitest (brand.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/brand.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/brand.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__BRANDED_TEST_TS__SRC_V3_TESTS_BRANDED_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_VIEWS_GO__ASCIIDOC_VIEWS_GO]]
 [discrete]
-==== vitest (branded.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_views.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/branded.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_views.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/branded.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_views.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CATCH_TEST_TS__SRC_V3_TESTS_CATCH_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_VIEWS_TEST_GO__ASCIIDOC_VIEWS_TEST_GO]]
 [discrete]
-==== vitest (catch.test.ts)
+==== github.com/labeth/engineering-model-go/model (asciidoc_views_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/catch.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_views_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/catch.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_views_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CATCH_TEST_TS__SRC_V4_CLASSIC_TESTS_CATCH_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__CATALOG_DESCRIPTION_VALIDATION_GO__CATALOG_DESCRIPTION_VALIDATION_GO]]
 [discrete]
-==== vitest (catch.test.ts)
+==== github.com/labeth/engineering-model-go/model (catalog_description_validation.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/catch.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from catalog_description_validation.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/catch.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |catalog_description_validation.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CHECKS_TEST_TS__SRC_V4_MINI_TESTS_CHECKS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__CATALOG_SYSTEMS_TEST_GO__CATALOG_SYSTEMS_TEST_GO]]
 [discrete]
-==== vitest (checks.test.ts)
+==== github.com/labeth/engineering-model-go/model (catalog_systems_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/checks.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from catalog_systems_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/checks.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |catalog_systems_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__COALESCE_TEST_TS__SRC_V4_CLASSIC_TESTS_COALESCE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__COMPOSITION_GO__COMPOSITION_GO]]
 [discrete]
-==== vitest (coalesce.test.ts)
+==== github.com/labeth/engineering-model-go/model (composition.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/coalesce.test.ts.
+Inferred library_first_party dependency owned by FU-SYSTEM-COMPOSITION from composition.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/coalesce.test.ts
+|Kind |Code library_first_party
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CODEC_EXAMPLES_TEST_TS__SRC_V4_CLASSIC_TESTS_CODEC_EXAMPLES_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__COMPOSITION_TEST_GO__COMPOSITION_TEST_GO]]
 [discrete]
-==== vitest (codec-examples.test.ts)
+==== github.com/labeth/engineering-model-go/model (composition_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/codec-examples.test.ts.
+Inferred library_first_party dependency owned by FU-SYSTEM-COMPOSITION from composition_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/codec-examples.test.ts
+|Kind |Code library_first_party
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CODEC_TEST_TS__SRC_V4_CLASSIC_TESTS_CODEC_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__EARS_PREFLIGHT_GO__EARS_PREFLIGHT_GO]]
 [discrete]
-==== vitest (codec.test.ts)
+==== github.com/labeth/engineering-model-go/model (ears_preflight.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/codec.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from ears_preflight.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/codec.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |ears_preflight.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CODEC_TEST_TS__SRC_V4_MINI_TESTS_CODEC_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__EARS_PREFLIGHT_TEST_GO__EARS_PREFLIGHT_TEST_GO]]
 [discrete]
-==== vitest (codec.test.ts)
+==== github.com/labeth/engineering-model-go/model (ears_preflight_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/codec.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from ears_preflight_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/codec.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |ears_preflight_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__COERCE_TEST_TS__SRC_V3_TESTS_COERCE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_GO__MCP_GEMARA_GO]]
 [discrete]
-==== vitest (coerce.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/coerce.test.ts.
+Inferred library_first_party dependency owned by FU-MCP-SERVER from mcp/gemara.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/coerce.test.ts
+|Kind |Code library_first_party
+|Owner |FU-MCP-SERVER
+|Source |mcp/gemara.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__COERCE_TEST_TS__SRC_V4_CLASSIC_TESTS_COERCE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_EVALUATION_GO__GEMARA_EVALUATION_GO]]
 [discrete]
-==== vitest (coerce.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_evaluation.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/coerce.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_evaluation.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/coerce.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_evaluation.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__COMPLEX_TEST_TS__SRC_V3_TESTS_COMPLEX_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_EXPORT_GO__GEMARA_EXPORT_GO]]
 [discrete]
-==== vitest (complex.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_export.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/complex.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_export.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/complex.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_export.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__COMPUTED_TEST_TS__SRC_V4_MINI_TESTS_COMPUTED_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_EXPORT_TEST_GO__GEMARA_EXPORT_TEST_GO]]
 [discrete]
-==== vitest (computed.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_export_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/computed.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_export_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/computed.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_export_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CONTINUABILITY_TEST_TS__SRC_V4_CLASSIC_TESTS_CONTINUABILITY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_EXTENDED_GO__GEMARA_EXTENDED_GO]]
 [discrete]
-==== vitest (continuability.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_extended.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/continuability.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_extended.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/continuability.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_extended.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CUSTOM_TEST_TS__SRC_V3_TESTS_CUSTOM_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_L1L3_GO__GEMARA_L1L3_GO]]
 [discrete]
-==== vitest (custom.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_l1l3.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/custom.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_l1l3.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/custom.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_l1l3.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__CUSTOM_TEST_TS__SRC_V4_CLASSIC_TESTS_CUSTOM_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_OSCAL_GO__GEMARA_OSCAL_GO]]
 [discrete]
-==== vitest (custom.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_oscal.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/custom.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_oscal.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/custom.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_oscal.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DATE_TEST_TS__SRC_V3_TESTS_DATE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GEMARA_OSCAL_TEST_GO__GEMARA_OSCAL_TEST_GO]]
 [discrete]
-==== vitest (date.test.ts)
+==== github.com/labeth/engineering-model-go/model (gemara_oscal_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/date.test.ts.
+Inferred library_first_party dependency owned by FU-GEMARA-EXPORTER from gemara_oscal_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/date.test.ts
+|Kind |Code library_first_party
+|Owner |FU-GEMARA-EXPORTER
+|Source |gemara_oscal_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DATE_TEST_TS__SRC_V4_CLASSIC_TESTS_DATE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__GENERATE_GO__GENERATE_GO]]
 [discrete]
-==== vitest (date.test.ts)
+==== github.com/labeth/engineering-model-go/model (generate.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/date.test.ts.
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from generate.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/date.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |generate.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DATETIME_TEST_TS__SRC_V4_CLASSIC_TESTS_DATETIME_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__INFERRED_CODE_GO__INFERRED_CODE_GO]]
 [discrete]
-==== vitest (datetime.test.ts)
+==== github.com/labeth/engineering-model-go/model (inferred_code.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/datetime.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_code.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/datetime.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_code.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DEEPMASKING_TEST_TS__SRC_V3_TESTS_DEEPMASKING_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__INFERRED_LAYERS_GO__INFERRED_LAYERS_GO]]
 [discrete]
-==== vitest (deepmasking.test.ts)
+==== github.com/labeth/engineering-model-go/model (inferred_layers.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/deepmasking.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_layers.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/deepmasking.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_layers.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DEFAULT_TEST_TS__SRC_V3_TESTS_DEFAULT_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__INFERRED_LAYERS_TEST_GO__INFERRED_LAYERS_TEST_GO]]
 [discrete]
-==== vitest (default.test.ts)
+==== github.com/labeth/engineering-model-go/model (inferred_layers_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/default.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_layers_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/default.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_layers_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DEFAULT_TEST_TS__SRC_V4_CLASSIC_TESTS_DEFAULT_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__INFERRED_VERIFICATION_GO__INFERRED_VERIFICATION_GO]]
 [discrete]
-==== vitest (default.test.ts)
+==== github.com/labeth/engineering-model-go/model (inferred_verification.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/default.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_verification.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/default.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_verification.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DESCRIPTION_TEST_TS__SRC_V3_TESTS_DESCRIPTION_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__INFERRED_VERIFICATION_TEST_GO__INFERRED_VERIFICATION_TEST_GO]]
 [discrete]
-==== vitest (description.test.ts)
+==== github.com/labeth/engineering-model-go/model (inferred_verification_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/description.test.ts.
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_verification_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/description.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_verification_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DESCRIPTION_TEST_TS__SRC_V4_CLASSIC_TESTS_DESCRIPTION_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__OSCAL_AR_GO__OSCAL_AR_GO]]
 [discrete]
-==== vitest (description.test.ts)
+==== github.com/labeth/engineering-model-go/model (oscal_ar.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/description.test.ts.
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ar.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/description.test.ts
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_ar.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DISCRIMINATED_UNIONS_TEST_TS__SRC_V3_TESTS_DISCRIMINATED_UNIONS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__OSCAL_COMPLIANCE_GO__OSCAL_COMPLIANCE_GO]]
 [discrete]
-==== vitest (discriminated-unions.test.ts)
+==== github.com/labeth/engineering-model-go/model (oscal_compliance.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/discriminated-unions.test.ts.
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_compliance.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/discriminated-unions.test.ts
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_compliance.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__DISCRIMINATED_UNIONS_TEST_TS__SRC_V4_CLASSIC_TESTS_DISCRIMINATED_UNIONS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__OSCAL_POAM_GO__OSCAL_POAM_GO]]
 [discrete]
-==== vitest (discriminated-unions.test.ts)
+==== github.com/labeth/engineering-model-go/model (oscal_poam.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/discriminated-unions.test.ts.
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_poam.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/discriminated-unions.test.ts
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_poam.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__EN_TEST_TS__SRC_V4_CORE_TESTS_LOCALES_EN_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__OSCAL_SSP_GO__OSCAL_SSP_GO]]
 [discrete]
-==== vitest (en.test.ts)
+==== github.com/labeth/engineering-model-go/model (oscal_ssp.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/core/tests/locales/en.test.ts.
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ssp.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/core/tests/locales/en.test.ts
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_ssp.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ENUM_TEST_TS__SRC_V3_TESTS_ENUM_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__OSCAL_SSP_TEST_GO__OSCAL_SSP_TEST_GO]]
 [discrete]
-==== vitest (enum.test.ts)
+==== github.com/labeth/engineering-model-go/model (oscal_ssp_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/enum.test.ts.
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ssp_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/enum.test.ts
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_ssp_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ENUM_TEST_TS__SRC_V4_CLASSIC_TESTS_ENUM_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__PROJECT_GO__VIEW_PROJECT_GO]]
 [discrete]
-==== vitest (enum.test.ts)
+==== github.com/labeth/engineering-model-go/model (project.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/enum.test.ts.
+Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from view/project.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/enum.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VIEW-PROJECTION
+|Source |view/project.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ERROR_UTILS_TEST_TS__SRC_V4_CLASSIC_TESTS_ERROR_UTILS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__PROJECT_TEST_GO__VIEW_PROJECT_TEST_GO]]
 [discrete]
-==== vitest (error-utils.test.ts)
+==== github.com/labeth/engineering-model-go/model (project_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/error-utils.test.ts.
+Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from view/project_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/error-utils.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VIEW-PROJECTION
+|Source |view/project_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ERROR_TEST_TS__SRC_V3_TESTS_ERROR_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__SERVER_GO__MCP_SERVER_GO]]
 [discrete]
-==== vitest (error.test.ts)
+==== github.com/labeth/engineering-model-go/model (server.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/error.test.ts.
+Inferred library_first_party dependency owned by FU-MCP-SERVER from mcp/server.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/error.test.ts
+|Kind |Code library_first_party
+|Owner |FU-MCP-SERVER
+|Source |mcp/server.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ERROR_TEST_TS__SRC_V4_CLASSIC_TESTS_ERROR_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__STRUCTURIZR_EXPORT_GO__STRUCTURIZR_EXPORT_GO]]
 [discrete]
-==== vitest (error.test.ts)
+==== github.com/labeth/engineering-model-go/model (structurizr_export.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/error.test.ts.
+Inferred library_first_party dependency owned by FU-STRUCTURIZR-EXPORTER from structurizr_export.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/error.test.ts
+|Kind |Code library_first_party
+|Owner |FU-STRUCTURIZR-EXPORTER
+|Source |structurizr_export.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ERROR_TEST_TS__SRC_V4_MINI_TESTS_ERROR_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__THREAT_MODEL_EXPORT_GO__THREAT_MODEL_EXPORT_GO]]
 [discrete]
-==== vitest (error.test.ts)
+==== github.com/labeth/engineering-model-go/model (threat_model_export.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/error.test.ts.
+Inferred library_first_party dependency owned by FU-THREAT-EXPORTER from threat_model_export.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/error.test.ts
+|Kind |Code library_first_party
+|Owner |FU-THREAT-EXPORTER
+|Source |threat_model_export.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__ES_TEST_TS__SRC_V4_CORE_TESTS_LOCALES_ES_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__TRACE_MATRIX_GO__TRACE_MATRIX_GO]]
 [discrete]
-==== vitest (es.test.ts)
+==== github.com/labeth/engineering-model-go/model (trace_matrix.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/core/tests/locales/es.test.ts.
+Inferred library_first_party dependency owned by FU-ALLOCATION-TRACE from trace_matrix.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/core/tests/locales/es.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ALLOCATION-TRACE
+|Source |trace_matrix.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__EXTEND_TEST_TS__SRC_V4_CORE_TESTS_EXTEND_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__TRACE_MATRIX_TEST_GO__TRACE_MATRIX_TEST_GO]]
 [discrete]
-==== vitest (extend.test.ts)
+==== github.com/labeth/engineering-model-go/model (trace_matrix_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/core/tests/extend.test.ts.
+Inferred library_first_party dependency owned by FU-ALLOCATION-TRACE from trace_matrix_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/core/tests/extend.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ALLOCATION-TRACE
+|Source |trace_matrix_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FILE_TEST_TS__SRC_V4_CLASSIC_TESTS_FILE_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__TRLC_EXPORT_GO__TRLC_EXPORT_GO]]
 [discrete]
-==== vitest (file.test.ts)
+==== github.com/labeth/engineering-model-go/model (trlc_export.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/file.test.ts.
+Inferred library_first_party dependency owned by FU-TRLC-EXPORTER from trlc_export.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/file.test.ts
+|Kind |Code library_first_party
+|Owner |FU-TRLC-EXPORTER
+|Source |trlc_export.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FIRSTPARTY_TEST_TS__SRC_V3_TESTS_FIRSTPARTY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__VALIDATE_GO__VALIDATE_VALIDATE_GO]]
 [discrete]
-==== vitest (firstparty.test.ts)
+==== github.com/labeth/engineering-model-go/model (validate.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/firstparty.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from validate/validate.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/firstparty.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |validate/validate.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FIRSTPARTY_TEST_TS__SRC_V4_CLASSIC_TESTS_FIRSTPARTY_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__VALIDATE_TEST_GO__VALIDATE_VALIDATE_TEST_GO]]
 [discrete]
-==== vitest (firstparty.test.ts)
+==== github.com/labeth/engineering-model-go/model (validate_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/firstparty.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from validate/validate_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/firstparty.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |validate/validate_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FIRSTPARTYSCHEMATYPES_TEST_TS__SRC_V3_TESTS_FIRSTPARTYSCHEMATYPES_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_RENDER_DIAGRAMSTYLE__ASCIIDOC_GO__ASCIIDOC_GO]]
 [discrete]
-==== vitest (firstpartyschematypes.test.ts)
+==== github.com/labeth/engineering-model-go/render/diagramstyle (asciidoc.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/firstpartyschematypes.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/firstpartyschematypes.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FUNCTION_TEST_TS__SRC_V3_TESTS_FUNCTION_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_RENDER_DIAGRAMSTYLE__ASCIIDOC_DIAGRAMS_CORE_GO__ASCIIDOC_DIAGRAMS_CORE_GO]]
 [discrete]
-==== vitest (function.test.ts)
+==== github.com/labeth/engineering-model-go/render/diagramstyle (asciidoc_diagrams_core.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/function.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_core.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/function.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_diagrams_core.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FUNCTION_TEST_TS__SRC_V4_CLASSIC_TESTS_FUNCTION_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_RENDER_DIAGRAMSTYLE__RENDER_GO__RENDER_MERMAID_RENDER_GO]]
 [discrete]
-==== vitest (function.test.ts)
+==== github.com/labeth/engineering-model-go/render/diagramstyle (render.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/function.test.ts.
+Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from render/mermaid/render.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/function.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VIEW-PROJECTION
+|Source |render/mermaid/render.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__FUNCTIONS_TEST_TS__SRC_V4_MINI_TESTS_FUNCTIONS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_RENDER_MERMAID__GENERATE_GO__GENERATE_GO]]
 [discrete]
-==== vitest (functions.test.ts)
+==== github.com/labeth/engineering-model-go/render/mermaid (generate.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/functions.test.ts.
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from generate.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/functions.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |generate.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__GENERICS_TEST_TS__SRC_V3_TESTS_GENERICS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__ASCIIDOC_GO__ASCIIDOC_GO]]
 [discrete]
-==== vitest (generics.test.ts)
+==== github.com/labeth/engineering-model-go/validate (asciidoc.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/generics.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/generics.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__GENERICS_TEST_TS__SRC_V4_CLASSIC_TESTS_GENERICS_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__ASCIIDOC_COMPOSITION_GO__ASCIIDOC_COMPOSITION_GO]]
 [discrete]
-==== vitest (generics.test.ts)
+==== github.com/labeth/engineering-model-go/validate (asciidoc_composition.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/generics.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_composition.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/generics.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_composition.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__HASH_TEST_TS__SRC_V4_CLASSIC_TESTS_HASH_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__ASCIIDOC_TEST_GO__ASCIIDOC_TEST_GO]]
 [discrete]
-==== vitest (hash.test.ts)
+==== github.com/labeth/engineering-model-go/validate (asciidoc_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/hash.test.ts.
+Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/hash.test.ts
+|Kind |Code library_first_party
+|Owner |FU-ASCIIDOC-GENERATOR
+|Source |asciidoc_test.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__INDEX_TEST_TS__SRC_V4_CLASSIC_TESTS_INDEX_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__CATALOG_DESCRIPTION_VALIDATION_GO__CATALOG_DESCRIPTION_VALIDATION_GO]]
 [discrete]
-==== vitest (index.test.ts)
+==== github.com/labeth/engineering-model-go/validate (catalog_description_validation.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/classic/tests/index.test.ts.
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from catalog_description_validation.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/classic/tests/index.test.ts
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |catalog_description_validation.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__INDEX_TEST_TS__SRC_V4_CORE_TESTS_INDEX_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
 [discrete]
-==== vitest (index.test.ts)
+==== github.com/labeth/engineering-model-go/validate (checkout_api.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/core/tests/index.test.ts.
+Inferred library_first_party dependency owned by FU-CHECKOUT from src/checkout_api.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/core/tests/index.test.ts
+|Kind |Code library_first_party
+|Owner |FU-CHECKOUT
+|Source |src/checkout_api.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__INDEX_TEST_TS__SRC_V4_MINI_TESTS_INDEX_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__COMPOSITION_GO__COMPOSITION_GO]]
 [discrete]
-==== vitest (index.test.ts)
+==== github.com/labeth/engineering-model-go/validate (composition.go)
 
-Inferred library_external dependency owned by unresolved from src/v4/mini/tests/index.test.ts.
+Inferred library_first_party dependency owned by FU-SYSTEM-COMPOSITION from composition.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v4/mini/tests/index.test.ts
+|Kind |Code library_first_party
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_VITEST__INSTANCEOF_TEST_TS__SRC_V3_TESTS_INSTANCEOF_TEST_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__COMPOSITION_TEST_GO__COMPOSITION_TEST_GO]]
 [discrete]
-==== vitest (instanceof.test.ts)
+==== github.com/labeth/engineering-model-go/validate (composition_test.go)
 
-Inferred library_external dependency owned by unresolved from src/v3/tests/instanceof.test.ts.
+Inferred library_first_party dependency owned by FU-SYSTEM-COMPOSITION from composition_test.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
-|Kind |Code library_external
-|Owner |unresolved
-|Source |src/v3/tests/instanceof.test.ts
+|Kind |Code library_first_party
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__E2E_TEST_GO__E2E_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (e2e_test.go)
+
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from e2e_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |e2e_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__EARS_PREFLIGHT_GO__EARS_PREFLIGHT_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (ears_preflight.go)
+
+Inferred library_first_party dependency owned by FU-VALIDATION-ENGINE from ears_preflight.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-VALIDATION-ENGINE
+|Source |ears_preflight.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__GENERATE_GO__GENERATE_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (generate.go)
+
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from generate.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |generate.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__INFERRED_CODE_GO__INFERRED_CODE_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (inferred_code.go)
+
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_code.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_code.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__INFERRED_LAYERS_GO__INFERRED_LAYERS_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (inferred_layers.go)
+
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_layers.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_layers.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__INFERRED_VERIFICATION_GO__INFERRED_VERIFICATION_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (inferred_verification.go)
+
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from inferred_verification.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |inferred_verification.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGDOC_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from cmd/engdoc/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |cmd/engdoc/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGDRAGON_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-THREAT-EXPORTER from cmd/engdragon/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-THREAT-EXPORTER
+|Source |cmd/engdragon/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGOSCAL_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from cmd/engoscal/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |cmd/engoscal/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGSTRUCT_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-STRUCTURIZR-EXPORTER from cmd/engstruct/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-STRUCTURIZR-EXPORTER
+|Source |cmd/engstruct/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGTRACE_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-ALLOCATION-TRACE from cmd/engtrace/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-ALLOCATION-TRACE
+|Source |cmd/engtrace/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGVIEW_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from cmd/engview/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CLI-ORCHESTRATION
+|Source |cmd/engview/main.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_AR_GO__OSCAL_AR_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (oscal_ar.go)
+
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ar.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_ar.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_COMPLIANCE_GO__OSCAL_COMPLIANCE_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (oscal_compliance.go)
+
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_compliance.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_compliance.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_POAM_GO__OSCAL_POAM_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (oscal_poam.go)
+
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_poam.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_poam.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_SSP_GO__OSCAL_SSP_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (oscal_ssp.go)
+
+Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ssp.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-OSCAL-EXPORTER
+|Source |oscal_ssp.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__PROJECT_GO__VIEW_PROJECT_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (project.go)
+
+Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from view/project.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-VIEW-PROJECTION
+|Source |view/project.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__SCAN_GO__CODEMAP_SCAN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (scan.go)
+
+Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from codemap/scan.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-CODEMAP-INFERENCE
+|Source |codemap/scan.go
 |Mentioned In |n/a
 |===
 

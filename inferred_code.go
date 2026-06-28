@@ -126,6 +126,16 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// skipScanDir reports whether a directory must be excluded from code/metadata walks.
+// Dependency caches and dot-directories (tool caches like .opencode, the .engmod
+// composition cache, .git) are not source; scanning them makes generated artifacts
+// depend on the local environment and breaks reproducibility.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func skipScanDir(name string) bool {
+	return name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.')
+}
+
 // TRLC-LINKS: REQ-EMG-010
 func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
 	path := filepath.Join(root, filepath.FromSlash(rel))
@@ -270,7 +280,13 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 func scanCodeMetadata(root string) map[string]codeFileMetadata {
 	out := map[string]codeFileMetadata{}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if skipScanDir(d.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))

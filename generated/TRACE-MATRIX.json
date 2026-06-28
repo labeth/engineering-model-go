@@ -2507,7 +2507,7 @@
         {
           "symbol": "CODE-AUTOTRACEID",
           "path": "codemap/scan.go",
-          "line": 531
+          "line": 533
         },
         {
           "symbol": "CODE-BUILDVERIFICATIONCODEELEMENTINDEX",
@@ -2522,7 +2522,7 @@
         {
           "symbol": "CODE-DECLARATIONNAME",
           "path": "codemap/scan.go",
-          "line": 415
+          "line": 417
         },
         {
           "symbol": "CODE-DEPLOYMENTARTIFACTDISPLAYPATH",
@@ -2532,12 +2532,12 @@
         {
           "symbol": "CODE-EXTRACTCODEDESCRIPTIONMARKER",
           "path": "inferred_code.go",
-          "line": 314
+          "line": 330
         },
         {
           "symbol": "CODE-EXTRACTDECLARATIONS",
           "path": "codemap/scan.go",
-          "line": 282
+          "line": 284
         },
         {
           "symbol": "CODE-EXTRACTMARKERVALUE",
@@ -2572,7 +2572,7 @@
         {
           "symbol": "CODE-FIRSTLINE",
           "path": "codemap/scan.go",
-          "line": 467
+          "line": 469
         },
         {
           "symbol": "CODE-FUNCTIONALUNITEXISTS",
@@ -2582,7 +2582,7 @@
         {
           "symbol": "CODE-GOIMPORTKIND",
           "path": "inferred_code.go",
-          "line": 192
+          "line": 202
         },
         {
           "symbol": "CODE-INFERCODEITEMS",
@@ -2627,12 +2627,12 @@
         {
           "symbol": "CODE-ISATTRIBUTELIKE",
           "path": "codemap/scan.go",
-          "line": 525
+          "line": 527
         },
         {
           "symbol": "CODE-ISCOMMENTLIKE",
           "path": "codemap/scan.go",
-          "line": 516
+          "line": 518
         },
         {
           "symbol": "CODE-ISDEPLOYMENTEVIDENCEPATH",
@@ -2647,12 +2647,12 @@
         {
           "symbol": "CODE-JOINLINENUMBERS",
           "path": "codemap/scan.go",
-          "line": 501
+          "line": 503
         },
         {
           "symbol": "CODE-MARKERVALUE",
           "path": "codemap/scan.go",
-          "line": 479
+          "line": 481
         },
         {
           "symbol": "CODE-MERGEVERIFICATIONRESULT",
@@ -2692,7 +2692,7 @@
         {
           "symbol": "CODE-OWNERFORPATH",
           "path": "inferred_code.go",
-          "line": 335
+          "line": 351
         },
         {
           "symbol": "CODE-OWNERSFORREQUIREMENTS",
@@ -2702,12 +2702,12 @@
         {
           "symbol": "CODE-PARSECODEDEPENDENCIES",
           "path": "inferred_code.go",
-          "line": 130
+          "line": 140
         },
         {
           "symbol": "CODE-PARSEGODEPENDENCIES",
           "path": "inferred_code.go",
-          "line": 161
+          "line": 171
         },
         {
           "symbol": "CODE-PARSEMANIFESTRUNTIME",
@@ -2732,7 +2732,7 @@
         {
           "symbol": "CODE-PARSERUSTDEPENDENCIES",
           "path": "inferred_code.go",
-          "line": 244
+          "line": 254
         },
         {
           "symbol": "CODE-PARSETERRAFORMRUNTIME",
@@ -2747,7 +2747,7 @@
         {
           "symbol": "CODE-PARSETYPESCRIPTDEPENDENCIES",
           "path": "inferred_code.go",
-          "line": 211
+          "line": 221
         },
         {
           "symbol": "CODE-PARSEVERIFICATIONARTIFACT",
@@ -2782,12 +2782,12 @@
         {
           "symbol": "CODE-SCANCODEMETADATA",
           "path": "inferred_code.go",
-          "line": 270
+          "line": 280
         },
         {
           "symbol": "CODE-SCANFILE",
           "path": "codemap/scan.go",
-          "line": 118
+          "line": 120
         },
         {
           "symbol": "CODE-SELECTBESTVERIFICATIONCHECKID",
@@ -2795,14 +2795,19 @@
           "line": 813
         },
         {
+          "symbol": "CODE-SKIPSCANDIR",
+          "path": "inferred_code.go",
+          "line": 135
+        },
+        {
           "symbol": "CODE-SLUGUPPER",
           "path": "codemap/scan.go",
-          "line": 543
+          "line": 545
         },
         {
           "symbol": "CODE-SPLITCSV",
           "path": "codemap/scan.go",
-          "line": 488
+          "line": 490
         },
         {
           "symbol": "CODE-SUMMARIZECHECKSTATUS",
@@ -2812,7 +2817,7 @@
         {
           "symbol": "CODE-SYMBOLFORDECLARATION",
           "path": "codemap/scan.go",
-          "line": 260
+          "line": 262
         },
         {
           "symbol": "CODE-TESTBUILDCODEREFERENCESUSESOWNERANDDESCRIPTIONFIELDS",
@@ -2927,7 +2932,7 @@
         {
           "symbol": "CODE-TREESITTERSPEC",
           "path": "codemap/scan.go",
-          "line": 353
+          "line": 355
         },
         {
           "symbol": "CODE-UNIQUEEXISTINGDIRS",
@@ -2942,7 +2947,7 @@
         {
           "symbol": "CODE-VALIDREQUIREMENTID",
           "path": "codemap/scan.go",
-          "line": 511
+          "line": 513
         },
         {
           "symbol": "CODE-VERIFICATIONCODEELEMENTSFORPATH",
@@ -4188,7 +4193,7 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 431
+          "line": 430
         },
         {
           "symbol": "CODE-KNOWNMODELIDS",
@@ -4208,7 +4213,7 @@
         {
           "symbol": "CODE-VALIDATETRACEINTEGRITY",
           "path": "trace_matrix.go",
-          "line": 287
+          "line": 286
         }
       ],
       "verifications": [
@@ -4237,7 +4242,7 @@
         {
           "symbol": "CODE-VALIDATETRACEINTEGRITY",
           "path": "trace_matrix.go",
-          "line": 287
+          "line": 286
         }
       ],
       "verifications": [
@@ -4256,17 +4261,17 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIX",
           "path": "trace_matrix.go",
-          "line": 346
+          "line": 345
         },
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 431
+          "line": 430
         },
         {
           "symbol": "CODE-CSV",
           "path": "trace_matrix.go",
-          "line": 473
+          "line": 472
         },
         {
           "symbol": "CODE-EFFECTIVECODEROOTS",
@@ -4286,7 +4291,7 @@
         {
           "symbol": "CODE-SPLITSOURCELINE",
           "path": "trace_matrix.go",
-          "line": 271
+          "line": 270
         },
         {
           "symbol": "CODE-TESTBUILDTRACEMATRIXSTATUSANDDELEGATION",

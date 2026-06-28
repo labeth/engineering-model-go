@@ -223,8 +223,7 @@ func scopeCodeToModel(items []inferredCodeItem, roots []string, modelDir string)
 				return nil
 			}
 			if d.IsDir() {
-				switch d.Name() {
-				case ".git", "node_modules", "vendor", ".engmod", ".idea", ".vscode":
+				if skipScanDir(d.Name()) {
 					return filepath.SkipDir
 				}
 				return nil

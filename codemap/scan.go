@@ -79,7 +79,9 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 		}
 		if d.IsDir() {
 			name := d.Name()
-			if name == ".git" || name == "node_modules" || name == "vendor" || name == ".idea" || name == ".vscode" {
+			// Skip dependency caches and dot-directories (tool caches, .engmod) so the
+			// scan reflects only committed source and is reproducible across environments.
+			if name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.') {
 				return filepath.SkipDir
 			}
 			return nil
