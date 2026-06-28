@@ -20,7 +20,7 @@ type Diagnostic struct {
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-012
 func SortDiagnostics(in []Diagnostic) []Diagnostic {
 	out := append([]Diagnostic(nil), in...)
 	sort.SliceStable(out, func(i, j int) bool {

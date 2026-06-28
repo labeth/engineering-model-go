@@ -57,6 +57,7 @@ Primary entry points:
 - `GenerateThreatModelExportFromFile(architecturePath, options)`
 - `GenerateTRLCRequirementsFromFile(requirementsPath, options)`
 - `GenerateLobsterActivityTraceFromDir(testsDir, options)`
+- `BuildTraceMatrixFromFiles(architecturePath, requirementsPath, options)`
 
 Example:
 
@@ -98,6 +99,18 @@ Authored architecture optionally supports additional first-class entities:
 - `states`
 - `events`
 - `flows` (with ordered `steps`)
+- `hardwareItems` (physical items with DO-254 DAL safety levels, part numbers, suppliers)
+- `hardwareInterfaces` (HW/SW interface contracts: ICD/IRS with buses such as `arinc429`, `can`, `spi`, `i2c`, `ethernet`, `cellular`)
+
+Top-level (sibling to `authoredArchitecture`) composition entities:
+
+- `contract` (the system's `provides`/`requires` public interface contract)
+- `composition.subsystems` (downward references to child system models)
+- `composition.allocations` (parent-requirement allocation onto a subsystem or hardware item)
+- `composition.satisfactions` (records of how a subsystem's required interface is satisfied by a provider)
+
+`engdoc` renders HW/SW interface allocation views from `hardwareItems`, `hardwareInterfaces`, and
+`composition.allocations`. See System-of-Systems Composition for the composition gates.
 
 Flow step fields (`authoredArchitecture.flows[].steps[]`) support:
 
@@ -138,6 +151,22 @@ Verification metadata is inferred from test artifacts (not authored in `architec
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are not referenced by any requirement text (`catalog.term_unreferenced`)
 
+### Code trace markers
+
+Source files link back to the model with two comment markers, scanned under `--code-root`:
+
+- `TRLC-LINKS:` lists requirement IDs (`REQ-*`) implemented or exercised by the code
+- `ENGMODEL-LINKS:` lists model element IDs (functional units, interfaces, controls, flows,
+  data objects, etc.) realized by the code
+
+Both markers are validated against the loaded model. Unresolved IDs are hard errors
+(`code.dangling_requirement_link` for `TRLC-LINKS`, `code.dangling_model_link` for
+`ENGMODEL-LINKS`), enforced by the `engdoc` zero-error gate and by `engtrace` (non-zero exit).
+Code is scoped to its nearest enclosing model root, so links resolve against the closest model
+rather than the whole tree. Requirements with no implementing or delegating code surface a
+`requirement.orphan` warning, and a requirement linked from code that does not exist raises
+`requirement.internal_link`.
+
 ## CLI Usage
 
 Generate a single Mermaid view:
@@ -157,8 +186,31 @@ go run ./cmd/engdoc \
   --requirements examples/payments-engineering-sample/requirements.yml \
   --design examples/payments-engineering-sample/design.yml \
   --code-root ./src \
+  --view VIEW-ARCHITECTURE-INTENT \
+  --view VIEW-TRACEABILITY \
+  --decisions-out examples/payments-engineering-sample/generated/DECISIONS.adoc \
   --out examples/payments-engineering-sample/generated/ARCHITECTURE.adoc
 ```
+
+`--view` is repeatable to scope the document to specific viewpoint IDs (omit to include all
+configured views). When `--decisions-out` is set, `engdoc` emits the architecture decision
+records (from `decisions.yml`) as a separate `DECISIONS.adoc` document.
+
+Generate the machine-readable traceability matrix:
+
+```bash
+go run ./cmd/engtrace \
+  --model examples/payments-engineering-sample/architecture.yml \
+  --requirements examples/payments-engineering-sample/requirements.yml \
+  --code-root examples/payments-engineering-sample/src \
+  --format json \
+  --out examples/payments-engineering-sample/generated/TRACE-MATRIX.json
+```
+
+Use `--format csv` for a spreadsheet-friendly matrix instead. The emitted matrix rolls up
+per-requirement status (`implemented`/`verified`/`delegated`/`orphan`) together with code
+references and delegations. `engtrace` exits non-zero when it finds dangling code trace links
+(`code.dangling_requirement_link` / `code.dangling_model_link`), so it doubles as a CI gate.
 
 Generate Threat Dragon/Open Threat Model exports:
 
@@ -224,6 +276,25 @@ The traceability appendix includes:
 
 Machine-oriented development context is exposed through the MCP server.
 
+Run the MCP server (Model Context Protocol, stdio JSON-RPC over `Content-Length`-framed
+messages on stdin/stdout):
+
+```bash
+go run ./cmd/engmcp
+```
+
+It exposes 50+ tools grouped into families, including:
+
+- `requirements.*`: requirement details, impact, support paths, and edit-plan suggestions
+- `files.*`: files and ownership for a requirement, control, or threat
+- `verification.*`: inferred verification status, gaps, and recommendations
+- `threats.*`: threat coverage, per-requirement threats, and unmitigated threats
+- `flows.*`: interaction-flow projections and diffs per requirement
+- `graph.*`: model graph search, neighborhood, and edge explanations
+- `model.*`: model entity lookup, listings, implementations, and RSL export
+- `interfaces.*`: software and HW/SW interface resolution and code matching
+- `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
+
 Additional export/validation docs:
 
 - MCP-first agent workflow and tagging contract: `docs/skills/architecture-mcp-workflow.md`
@@ -232,6 +303,52 @@ Additional export/validation docs:
 - Structurizr export and validation: `docs/structurizr-export-testing.md`
 - TRLC requirements export and validation: `docs/trlc-export-testing.md`
 - TRLC + LOBSTER traceability report pipeline: `docs/lobster-traceability.md`
+
+## System-of-Systems Composition
+
+A model can compose downward over child systems via a top-level `composition` block. Each
+entry under `composition.subsystems` references a child model either from a local subdirectory
+or from an external git repository:
+
+```yaml
+composition:
+  subsystems:
+    - id: SUB-TELEMETRY
+      name: Machine Telemetry Subsystem
+      ref: ./subsystems/telemetry        # local subdirectory model
+    - id: SUB-CLOUD-API
+      name: Cloud API Subsystem
+      git: https://example.com/org/cloud-api.git   # external repo
+      rev: main                           # optional branch/tag/commit
+      path: model                         # optional subdir inside the repo
+  allocations:
+    - requirement: REQ-COF-001            # this system's requirement
+      to: SUB-TELEMETRY                   # target subsystem (or hardware item) id
+      target: CAP-TELEM-REPORT            # provided contract id inside the subsystem
+      rationale: Reporting is realized by the telemetry subsystem.
+  satisfactions:
+    - need: SUB-OTA-AGENT/NEED-TELEMETRY-FEED   # a subsystem's required interface
+      by: SUB-TELEMETRY/CAP-TELEM-REPORT        # the provider that satisfies it
+```
+
+External `git:` subsystems are cloned into a local `.engmod/subsystems/<id>` cache before
+resolution. Composition is validated against the workspace boundary and the cross-system
+`provides`/`requires` contracts, surfacing diagnostics such as `composition.cycle`,
+`composition.out_of_workspace`, `composition.missing_ref`, `composition.invalid_ref`,
+`composition.clone_failed`, `composition.unsatisfied_require`, and
+`composition.untraceable_delegation`.
+
+See `examples/coffee-fleet-ota-cloud-sample` for an end-to-end composed model.
+
+### Requirement delegation (no tiers)
+
+Delegation is flat — there are no requirement tiers. A parent requirement is satisfied by
+delegating it to a subsystem contract entry, expressed as a `composition.allocations` entry
+that binds the requirement `to` a subsystem (`target` naming the provided contract id within
+that subsystem). A delegation without a resolvable target raises
+`composition.untraceable_delegation`. A delegated requirement counts against the
+`requirement.orphan` rollup, so a requirement that is neither implemented in code nor delegated
+to a subsystem still surfaces as orphaned.
 
 ## OSCAL chain generation
 
@@ -342,17 +459,47 @@ Core files:
 - `architecture.yml`
 - `requirements.yml`
 - `design.yml`
+- `decisions.yml` (architecture decision records; auto-discovered next to `architecture.yml`)
 - `infra/terraform`
 - `src` (Go/Rust/TypeScript traced code)
 
 ## Development
 
-Run all checks locally:
+Unit checks:
 
 ```bash
 go test ./...
 go vet ./...
 ```
+
+The canonical validation gauntlet is `scripts/validate-all.sh` — the single source of truth for
+both local development and CI:
+
+```bash
+bash scripts/validate-all.sh
+```
+
+It runs strict gates that always fail the build:
+
+- `go build ./...`
+- generation gates: `engdoc` exits non-zero on any error (transitively enforcing trace
+  integrity / dangling links, EARS lint, and composition checks)
+- `engtrace`: zero dangling code trace links per model
+- artifact freshness: regenerated `ARCHITECTURE.adoc` / `DECISIONS.adoc` / `TRACE-MATRIX.json`
+  must match what is committed (detected via `git diff`)
+
+plus best-effort gates that run only when their tool is on `PATH` (a missing tool is skipped, a
+real failure still fails the build):
+
+- Gemara CUE schema validation (`cue`)
+- Structurizr DSL validation (behind `ENGMOD_VALIDATE_STRUCTURIZR=1`, via docker/podman)
+- TRLC validation (`trlc`)
+
+`.github/workflows/ci.yml` runs `scripts/validate-all.sh`, so the same gates apply in CI.
+
+Generated `ARCHITECTURE.adoc`, `DECISIONS.adoc`, and `TRACE-MATRIX.json` are deterministic and
+reproducible; CI fails on any drift, so when you change a model you must regenerate these
+artifacts and commit them alongside the model change.
 
 ## Contributing
 

@@ -130,7 +130,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 // Dependency caches and dot-directories (tool caches like .opencode, the .engmod
 // composition cache, .git) are not source; scanning them makes generated artifacts
 // depend on the local environment and breaks reproducibility.
-// TRLC-LINKS: REQ-EMG-010
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-012
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func skipScanDir(name string) bool {
 	return name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.')

@@ -33,8 +33,8 @@ requirements:
       - FU-CLI-ORCHESTRATION
 
   - id: REQ-EMG-005
-    text: "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact and validate it with structurizr validator."
-    notes: "Structurizr generation must remain validator-clean."
+    text: "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact."
+    notes: "Structurizr DSL is exported for C4 visualization; the exported DSL is validated best-effort by the validate-all gauntlet when a Structurizr validator is available."
     appliesTo:
       - FU-STRUCTURIZR-EXPORTER
       - FU-CLI-ORCHESTRATION
@@ -68,7 +68,7 @@ requirements:
 
   - id: REQ-EMG-010
     text: "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers."
-    notes: "Links runtime, code, and test markers to modeled requirement coverage."
+    notes: "Links runtime, code, and test markers to modeled requirement coverage. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible."
     appliesTo:
       - FU-CODEMAP-INFERENCE
 
@@ -79,6 +79,14 @@ requirements:
       - FU-THREAT-EXPORTER
       - FU-STRUCTURIZR-EXPORTER
       - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-012
+    text: "When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible."
+    notes: "Generation uses stable ordering (sorted diagnostics, link targets, scan results) and excludes environment-specific inputs, so regenerated documents are bit-for-bit reproducible and the CI freshness gate can detect drift."
+    appliesTo:
+      - FU-ASCIIDOC-GENERATOR
+      - FU-CODEMAP-INFERENCE
+      - FU-ALLOCATION-TRACE
 
   - id: REQ-EMG-013
     text: "Where traceability export is enabled, when generation run is requested, the engineering model go shall export OSCAL SSP plus assessment results plus POA&M artifacts."

@@ -15,14 +15,17 @@ artifact formats continue to work unchanged.
 | Surface | Status |
 |---|---|
 | Model schema (`model/types.go`) | **Unchanged** — every `v0.0.1` `architecture.yml`/`catalog.yml`/`requirements.yml`/`design.yml` parses as-is |
-| Validation rules (`validate/validate.go`) | **Unchanged** — no rule added or tightened; previously-valid models stay valid |
+| Validation rules (`validate/validate.go`) | **Tightened** — new gates can fail models that passed under `v0.0.1`: `code.dangling_requirement_link`, `code.dangling_model_link`, `code.missing_trlc_link`, `requirement.internal_link`, and the `composition.*` family (all `SeverityError`), plus the `requirement.orphan` warning. Models with fully-resolved trace links and no composition/delegation issues stay valid |
 | Go library API | **No exported symbol removed or changed**; all new functionality is in new files/functions |
-| CLIs (`cmd/*`) | **No flag removed or renamed**; new `cmd/enggemara` and new optional flags only |
+| CLIs (`cmd/*`) | **No flag removed or renamed**; new `cmd/enggemara` and `cmd/engtrace`, plus new optional flags only |
 | MCP tools | **No tool removed or renamed**; new `gemara.*` tools only |
-| Generated artifact formats | **Unchanged** — existing artifacts are byte-identical except `ARCHITECTURE.adoc`, which gains a new chapter (pure addition; no existing chapter altered) |
+| Generated artifact formats | **Additive** — a new `TRACE-MATRIX.json` artifact is generated (committed and drift-gated); `ARCHITECTURE.adoc` gains a `Gemara GRC Model` chapter plus composition/hardware/subsystem/delegation sections and inferred `var`/`const` symbols. No existing artifact chapter is altered |
 | Go version directive | **Unchanged** (`go 1.25.0`) |
 
-A `v0.0.1`-era example regenerates with **zero new validation errors**.
+A `v0.0.1`-era example whose requirements are traced and whose code trace links all
+resolve regenerates with **zero new validation errors** (it may surface new
+`requirement.orphan` warnings); models that adopt code linking, composition, hardware,
+or delegation are subject to the new gates described above.
 
 ### Added
 
@@ -45,8 +48,30 @@ A `v0.0.1`-era example regenerates with **zero new validation errors**.
   `docs/gemara-rendering.md`.
 - Self-model additions: `FU-GEMARA-EXPORTER`, `REQ-EMG-015`, `FEAT-GEMARA-EXPORT`,
   authored `risks`/`poamItems`/`threatMitigations`, and ADRs `ADR-EMG-003`…`ADR-EMG-007`.
+- **New `cmd/engtrace` CLI and `TRACE-MATRIX.json` traceability matrix** — emits a
+  machine-readable traceability matrix (JSON and CSV) with a per-requirement status
+  rollup (implemented / verified / delegated / orphan), resolved code references, and
+  delegations. The CLI exits non-zero when any code trace link is dangling.
+- **System-of-systems composition** — a model may reference downward subsystems either
+  from local subdirectories or from external git repositories (cloned into a
+  `.engmod/subsystems` cache). Composition enforces a workspace boundary, acyclicity, and
+  `provides`/`requires` contract bindings, with diagnostics `composition.cycle`,
+  `composition.out_of_workspace`, `composition.missing_ref`, `composition.clone_failed`,
+  `composition.unsatisfied_require`, and `composition.untraceable_delegation`.
+- **Hardware items and HW/SW interfaces** — model hardware items plus ICD/IRS interfaces
+  carrying DO-254 DAL safety levels, part numbers, suppliers, and buses
+  (ARINC429 / CAN / SPI / I2C / ethernet / cellular); rendered into `ARCHITECTURE.adoc`.
+- **Requirement delegation** — a parent requirement delegates to a subsystem contract
+  entry (no tiers). A delegation without a specific target raises
+  `composition.untraceable_delegation`, and a delegation counts against the
+  `requirement.orphan` check.
+- **CI validation gauntlet** — `scripts/validate-all.sh`, wired into
+  `.github/workflows/ci.yml`. Strict gates: `go build`, `engdoc` with zero errors,
+  `engtrace` with zero dangling links, and artifact-freshness drift detected via `git diff`
+  on `ARCHITECTURE.adoc` / `DECISIONS.adoc` / `TRACE-MATRIX.json`. Best-effort gates:
+  Gemara `cue vet`, Structurizr DSL (behind `ENGMOD_VALIDATE_STRUCTURIZR=1`), and TRLC.
 
-### Changed (behavioral, non-breaking)
+### Changed (behavioral)
 
 - **Code-linking scanner now attaches markers to package-level `var`/`const` declarations**
   (`codemap/scan.go`; see `ADR-EMG-007`). Consequences:
@@ -64,6 +89,18 @@ A `v0.0.1`-era example regenerates with **zero new validation errors**.
 - The generated `ARCHITECTURE.adoc` gains a trailing `Gemara GRC Model` chapter. Existing
   chapters are unchanged; consumers that assert an exact document structure should expect
   the additional chapter.
+- **Trace-link integrity is now enforced as hard errors.** `TRLC-LINKS` markers must
+  resolve to a requirement and `ENGMODEL-LINKS` markers to a model element (code links are
+  scoped to the nearest enclosing model root); unresolved markers raise
+  `code.dangling_requirement_link` / `code.dangling_model_link`, which fail the `engdoc`
+  zero-error gate and make `engtrace` exit `1`. Functions/methods remain trace-required
+  (`code.missing_trlc_link`), requirements with internal-only links raise
+  `requirement.internal_link`, and untraced requirements raise the `requirement.orphan`
+  warning. **These gates can fail models that passed under `v0.0.1`.**
+- **Composition and delegation are validated.** Subsystem references are checked for
+  workspace containment, acyclicity, and satisfied `provides`/`requires` bindings, emitting
+  the `composition.*` diagnostics listed above; delegations without a resolvable target are
+  rejected (`composition.untraceable_delegation`).
 
 ### Dependencies
 

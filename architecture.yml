@@ -70,15 +70,15 @@ authoredArchitecture:
     - id: FU-OSCAL-EXPORTER
       name: OSCAL Exporter
       group: FG-TRACEABILITY-COMPLIANCE
-      prose: Exports OSCAL SSP control and risk views.
+      prose: Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M).
     - id: FU-GEMARA-EXPORTER
       name: Gemara Exporter
       group: FG-TRACEABILITY-COMPLIANCE
-      prose: Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.
+      prose: Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.
     - id: FU-SYSTEM-COMPOSITION
       name: System Composition
       group: FG-MODEL-AUTHORING
-      prose: Resolves downward subsystem references from local subdirectories and composes a federated system-of-systems model.
+      prose: Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.
     - id: FU-ALLOCATION-TRACE
       name: Allocation Trace
       group: FG-TRACEABILITY-COMPLIANCE
@@ -180,6 +180,18 @@ authoredArchitecture:
       endpoint: cmd/engtrlc
       schemaRef: trlc_export.go
       owner: FU-TRLC-EXPORTER
+    - id: IF-CLI-ENGTRACE
+      name: engtrace CLI
+      protocol: cli
+      endpoint: cmd/engtrace
+      schemaRef: trace_matrix.go
+      owner: FU-ALLOCATION-TRACE
+    - id: IF-CLI-ENGGEMARA
+      name: enggemara CLI
+      protocol: cli
+      endpoint: cmd/enggemara
+      schemaRef: gemara_export.go
+      owner: FU-GEMARA-EXPORTER
     - id: IF-CLI-ENGLOBSTER
       name: englobster CLI
       protocol: cli
@@ -272,6 +284,14 @@ authoredArchitecture:
       name: Requirement Traceability Coverage
       category: assurance
       description: Require requirement-linked verification evidence for modeled behavior.
+    - id: CTRL-TRACE-LINK-INTEGRITY
+      name: Trace Link Integrity
+      category: assurance
+      description: Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup.
+    - id: CTRL-ARTIFACT-FRESHNESS-GATE
+      name: Generated Artifact Freshness Gate
+      category: assurance
+      description: Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts.
 
   risks:
     - id: RISK-MCP-PATH-ESCAPE
@@ -297,23 +317,23 @@ authoredArchitecture:
       response: mitigate
       owner: ACT-COMPLIANCE-ENGINEER
       appliesTo: [FU-CODEMAP-INFERENCE]
-      relatedControls: [CTRL-TRACEABILITY-COVERAGE]
+      relatedControls: [CTRL-TRACEABILITY-COVERAGE, CTRL-TRACE-LINK-INTEGRITY]
       attackVectors: [AV-TRACEABILITY-GAP-DRIFT]
       threatScenarios: [TS-TRACEABILITY-DRIFT]
       residualRisk: low
-      rationale: Strict code-linking coverage and inferred verification keep drift detectable.
+      rationale: Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable.
     - id: RISK-STALE-ARTIFACTS
       title: Stale generated artifacts misrepresent the system
       statement: Generated documentation or exchange artifacts fall out of sync with the authored model.
-      status: open
+      status: mitigating
       likelihood: low
       impact: medium
-      response: accept
+      response: mitigate
       owner: ACT-ARCHITECTURE-AUTHOR
       appliesTo: [FU-CLI-ORCHESTRATION]
-      relatedControls: [CTRL-TRACEABILITY-COVERAGE]
+      relatedControls: [CTRL-TRACEABILITY-COVERAGE, CTRL-ARTIFACT-FRESHNESS-GATE]
       residualRisk: low
-      rationale: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.
+      rationale: Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the model.
 
   poamItems:
     - id: POAM-MCP-PATH-FUZZING
@@ -605,6 +625,12 @@ authoredArchitecture:
     - type: contains
       from: FU-TRLC-EXPORTER
       to: IF-CLI-ENGTRLC
+    - type: contains
+      from: FU-ALLOCATION-TRACE
+      to: IF-CLI-ENGTRACE
+    - type: contains
+      from: FU-GEMARA-EXPORTER
+      to: IF-CLI-ENGGEMARA
     - type: contains
       from: FU-LOBSTER-EXPORTER
       to: IF-CLI-ENGLOBSTER

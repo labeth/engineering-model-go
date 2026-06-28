@@ -175,7 +175,7 @@ design:
           narrative: Limits inference scope to trusted repo paths and evidence formats.
         traceability:
           title: Codemap Inference Traceability
-          narrative: Converts TRLC-LINKS and ownership markers into stable evidence relationships.
+          narrative: Converts TRLC-LINKS (requirement) and ENGMODEL-LINKS (model element) markers into stable evidence relationships, existence-checked and scoped to the owning model.
 
     - id: FU-VIEW-PROJECTION
       group: FG-ARTIFACT-GENERATION
@@ -296,7 +296,7 @@ design:
       views:
         architecture_intent:
           title: OSCAL Exporter Intent
-          narrative: Maps modeled controls, risks, and implementations into OSCAL SSP structures.
+          narrative: Maps modeled controls, risks, and implementations into OSCAL system security plan, assessment results, and plan of action and milestones structures.
         communication:
           title: OSCAL Exporter Communication
           narrative: Publishes compliance-focused output for security and audit consumers.
@@ -347,3 +347,60 @@ design:
         traceability:
           title: CLI Orchestration Traceability
           narrative: Maintains deterministic invocation paths for reproducible artifact updates.
+
+    - id: FU-SYSTEM-COMPOSITION
+      group: FG-MODEL-AUTHORING
+      views:
+        architecture_intent:
+          title: System Composition Intent
+          narrative: Resolves a parent model's downward subsystem references into a federated system-of-systems, from local subdirectories or external git repositories.
+        communication:
+          title: System Composition Communication
+          narrative: Binds each subsystem's provides/requires contract to the parent's allocations and satisfactions without modifying the subsystem.
+        deployment:
+          title: System Composition Deployment
+          narrative: External git subsystems are cloned once into the gitignored .engmod/subsystems cache and reused offline.
+        security:
+          title: System Composition Security
+          narrative: Enforces a workspace boundary and rejects references that escape it or form a cycle.
+        traceability:
+          title: System Composition Traceability
+          narrative: Reports cycle, out-of-workspace, missing-ref, clone-failed, and unsatisfied-require diagnostics for every subsystem reference.
+
+    - id: FU-ALLOCATION-TRACE
+      group: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: Allocation Trace Intent
+          narrative: Materializes parent-to-subsystem requirement delegation and the consolidated traceability matrix without modifying subsystem models.
+        communication:
+          title: Allocation Trace Communication
+          narrative: Emits the TRACE-MATRIX.json (and CSV) linking each requirement to its code, verification, and delegated subsystem requirement.
+        deployment:
+          title: Allocation Trace Deployment
+          narrative: Run via engtrace or as part of engdoc; fails the build on dangling code trace links.
+        security:
+          title: Allocation Trace Security
+          narrative: Scopes code to the nearest enclosing model root so a parent never claims a child model's links.
+        traceability:
+          title: Allocation Trace Traceability
+          narrative: Rolls up requirement status as implemented, verified, delegated, or orphan, and flags untraceable delegations.
+
+    - id: FU-GEMARA-EXPORTER
+      group: FG-TRACEABILITY-COMPLIANCE
+      views:
+        architecture_intent:
+          title: Gemara Exporter Intent
+          narrative: Renders the model into OpenSSF Gemara L1-L7 catalogs and logs validated by the Gemara SDK.
+        communication:
+          title: Gemara Exporter Communication
+          narrative: Publishes vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, and audit documents, with an optional OSCAL catalog and assessment-results bridge.
+        deployment:
+          title: Gemara Exporter Deployment
+          narrative: Executed via enggemara and exposed through the MCP gemara tools.
+        security:
+          title: Gemara Exporter Security
+          narrative: Preserves control, threat, and risk semantics during model-to-Gemara transformation.
+        traceability:
+          title: Gemara Exporter Traceability
+          narrative: Carries control-to-threat mappings and verification evidence into the Gemara evaluation and audit logs.

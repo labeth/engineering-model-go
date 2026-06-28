@@ -66,15 +66,15 @@ catalog:
       aliases: [englobster]
     - id: FU-OSCAL-EXPORTER
       name: oscal exporter
-      definition: Exports security and control content to OSCAL system security plan outputs.
+      definition: Exports the OSCAL system security plan, assessment results, and plan of action and milestones.
       aliases: [engoscal]
     - id: FU-GEMARA-EXPORTER
       name: gemara exporter
-      definition: Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+      definition: Renders the model into OpenSSF Gemara L1-L7 catalogs and logs plus an optional OSCAL bridge, validated by the Gemara SDK.
       aliases: [enggemara]
     - id: FU-SYSTEM-COMPOSITION
       name: system composition
-      definition: Resolves downward subsystem references and composes a federated system-of-systems model.
+      definition: Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model.
       aliases: [composition]
     - id: FU-ALLOCATION-TRACE
       name: allocation trace
@@ -214,7 +214,7 @@ catalog:
       aliases: [gemara generation]
     - id: FEAT-SYSTEM-COMPOSITION
       name: system composition is enabled
-      definition: Feature enabling recursive composition of subsystem models into a system-of-systems.
+      definition: Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems.
       aliases: [system of systems]
     - id: FEAT-HARDWARE-INTERFACES
       name: hardware interfaces are authored

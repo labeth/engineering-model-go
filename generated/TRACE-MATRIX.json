@@ -1456,7 +1456,7 @@
     },
     {
       "id": "REQ-EMG-005",
-      "text": "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact and validate it with structurizr validator.",
+      "text": "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact.",
       "units": [
         "FU-CLI-ORCHESTRATION",
         "FU-STRUCTURIZR-EXPORTER"
@@ -3170,6 +3170,33 @@
       "status": "implemented"
     },
     {
+      "id": "REQ-EMG-012",
+      "text": "When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-ASCIIDOC-GENERATOR",
+        "FU-CODEMAP-INFERENCE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-LINKIFYTEXT",
+          "path": "asciidoc_linking_units.go",
+          "line": 100
+        },
+        {
+          "symbol": "CODE-SKIPSCANDIR",
+          "path": "inferred_code.go",
+          "line": 135
+        },
+        {
+          "symbol": "CODE-SORTDIAGNOSTICS",
+          "path": "validate/diagnostic.go",
+          "line": 24
+        }
+      ],
+      "status": "implemented"
+    },
+    {
       "id": "REQ-EMG-013",
       "text": "Where traceability export is enabled, when generation run is requested, the engineering model go shall export OSCAL SSP plus assessment results plus POA\u0026M artifacts.",
       "units": [
@@ -3685,7 +3712,7 @@
         {
           "symbol": "CODE-MAIN",
           "path": "cmd/enggemara/main.go",
-          "line": 19
+          "line": 20
         },
         {
           "symbol": "CODE-MAPPINGREF",
@@ -4313,8 +4340,8 @@
   "danglingLinks": null,
   "orphanRequirements": null,
   "summary": {
-    "requirements": 28,
-    "implemented": 28,
+    "requirements": 29,
+    "implemented": 29,
     "verified": 23,
     "delegated": 0,
     "orphan": 0,

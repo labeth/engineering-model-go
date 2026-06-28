@@ -25,6 +25,9 @@ For each FU batch:
   - FU-TRLC-EXPORTER
   - FU-LOBSTER-EXPORTER
   - FU-OSCAL-EXPORTER
+  - FU-GEMARA-EXPORTER
+  - FU-SYSTEM-COMPOSITION
+  - FU-ALLOCATION-TRACE
   - FU-CLI-ORCHESTRATION (entrypoint coverage)
 
 - Remaining follow-up:
@@ -32,6 +35,12 @@ For each FU batch:
   - Add/normalize test-side `TRLC-LINKS` for each `REQ-EMG-*` to improve inferred verification coverage.
 
 ## Suggested per-FU file sets
+
+> Note: This list is a point-in-time snapshot. The authoritative owner/trace
+> assignments are the `ENGMODEL-OWNER-UNIT` and `TRLC-LINKS` markers in source,
+> enforced by the `engdoc` 0-error gate and the `engtrace` dangling-link gate
+> (exit 1 on unresolved code trace links). When this list and the in-source
+> markers disagree, the markers and gates win.
 
 ### FU-MCP-SERVER
 
@@ -115,7 +124,31 @@ For each FU batch:
 - `oscal_chain_test.go`
 - `cmd/engoscal/main.go`
 
+### FU-GEMARA-EXPORTER
+
+- `gemara_export.go`
+- `gemara_evaluation.go`
+- `gemara_extended.go`
+- `gemara_l1l3.go`
+- `gemara_oscal.go`
+- `gemara_export_test.go`
+- `gemara_oscal_test.go`
+- (the `cmd/enggemara/main.go` entrypoint is owned by FU-CLI-ORCHESTRATION)
+
+### FU-SYSTEM-COMPOSITION
+
+- `composition.go`
+- `composition_test.go`
+- (composition rendering in `asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
+
+### FU-ALLOCATION-TRACE
+
+- `trace_matrix.go`
+- `trace_matrix_test.go`
+- `cmd/engtrace/main.go`
+
 ### FU-CLI-ORCHESTRATION
 
 - `cmd/engdoc/main.go`
+- `cmd/enggemara/main.go`
 - (cross-cutting command orchestration references in other `cmd/*` entrypoints)

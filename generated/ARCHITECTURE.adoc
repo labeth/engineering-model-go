@@ -187,7 +187,7 @@ a[href^="#SEC_VIEW_"] {
 |[[REF_CATALOG_FEAT_GEMARA_EXPORT]]<<REF_IDX-CATALOG_FEAT_GEMARA_EXPORT,gemara export is enabled>> (FEAT-GEMARA-EXPORT)
 |Feature enabling OpenSSF Gemara catalog and evaluation log generation. Aliases:gemara generation
 |[[REF_CATALOG_FU_GEMARA_EXPORTER]]<<REF_IDX-CATALOG_FU_GEMARA_EXPORTER,gemara exporter>> (FU-GEMARA-EXPORTER)
-|Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK. Aliases:enggemara
+|Renders the model into OpenSSF Gemara L1-L7 catalogs and logs plus an optional OSCAL bridge, validated by the Gemara SDK. Aliases:enggemara
 |[[REF_CATALOG_STATE_ARTIFACTS_FRESH]]<<REF_IDX-CATALOG_STATE_ARTIFACTS_FRESH,generated artifacts are fresh>> (STATE-ARTIFACTS-FRESH)
 |State where generated outputs reflect the latest authored model inputs. Aliases:up to date
 |[[REF_CATALOG_EVT_GENERATION_RUN_REQUESTED]]<<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>> (EVT-GENERATION-RUN-REQUESTED)
@@ -259,7 +259,7 @@ a[href^="#SEC_VIEW_"] {
 |[[REF_ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS]]<<REF_IDX-ENGMODEL_TERM_OSCAL_ASSESSMENT_RESULTS,OSCAL assessment results>> (TERM-OSCAL-ASSESSMENT-RESULTS)
 |Generated OSCAL assessment results that summarize reviewed controls, verification findings, and modeled risks.
 |[[REF_CATALOG_FU_OSCAL_EXPORTER]]<<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,oscal exporter>> (FU-OSCAL-EXPORTER)
-|Exports security and control content to OSCAL system security plan outputs. Aliases:engoscal
+|Exports the OSCAL system security plan, assessment results, and plan of action and milestones. Aliases:engoscal
 |[[REF_ENGMODEL_TERM_OSCAL_POAM]]<<REF_IDX-ENGMODEL_TERM_OSCAL_POAM,OSCAL POA&M>> (TERM-OSCAL-POAM)
 |Generated OSCAL plan of action and milestones that maps modeled POA&M items and related risks into compliance JSON.
 |[[REF_ENGMODEL_TERM_OSCAL_SSP]]<<REF_IDX-ENGMODEL_TERM_OSCAL_SSP,OSCAL SSP>> (TERM-OSCAL-SSP)
@@ -303,9 +303,9 @@ a[href^="#SEC_VIEW_"] {
 |[[REF_CATALOG_REF_STRUCTURIZR_VALIDATOR]]<<REF_IDX-CATALOG_REF_STRUCTURIZR_VALIDATOR,structurizr validator>> (REF-STRUCTURIZR-VALIDATOR)
 |Structurizr DSL validation runtime used to verify generated DSL. Aliases:structurizr
 |[[REF_CATALOG_FU_SYSTEM_COMPOSITION]]<<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,system composition>> (FU-SYSTEM-COMPOSITION)
-|Resolves downward subsystem references and composes a federated system-of-systems model. Aliases:composition
+|Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model. Aliases:composition
 |[[REF_CATALOG_FEAT_SYSTEM_COMPOSITION]]<<REF_IDX-CATALOG_FEAT_SYSTEM_COMPOSITION,system composition is enabled>> (FEAT-SYSTEM-COMPOSITION)
-|Feature enabling recursive composition of subsystem models into a system-of-systems. Aliases:system of systems
+|Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems. Aliases:system of systems
 |[[REF_ENGMODEL_TERM_THREAT_ASSUMPTION]]<<REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION,threat assumption>> (TERM-THREAT-ASSUMPTION)
 |Authored security assumption that records scope, rationale, owner, status, and evidence.
 |[[REF_ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT,Threat Dragon document>> (TERM-THREAT-DRAGON-DOCUMENT)
@@ -908,7 +908,7 @@ none
 
 
 
-Resolves downward subsystem references from local subdirectories and composes a federated system-of-systems <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.
+Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.
 
 [discrete]
 ====== Owned Responsibility
@@ -1070,7 +1070,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
+<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
 
 
 
@@ -1233,7 +1233,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>
 
 
 
@@ -1487,7 +1487,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_IDX-REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
+<<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_IDX-REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_IDX-REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>
 
 
 
@@ -1500,7 +1500,7 @@ none
 
 
 
-Renders OpenSSF Gemara <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, threat, <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.
+Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, capability, threat, <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, evaluation, enforcement, audit) with an optional OSCAL <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> and assessment-results bridge, validated by the Gemara SDK.
 
 [discrete]
 ====== Owned Responsibility
@@ -1556,7 +1556,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_LOBSTER_EXPORTER,lobster expo
 
 
 
-Exports <<REF_IDX-ENGMODEL_TERM_OSCAL_SSP,OSCAL SSP>> <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> and <<REF_IDX-ENGMODEL_TERM_RISK,risk>> views.
+Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M).
 
 [discrete]
 ====== Owned Responsibility
@@ -1956,8 +1956,10 @@ flowchart LR
     CTX_FU_LOBSTER_EXPORTER["LOBSTER Exporter"]:::functional_unit
     CTX_FU_OSCAL_EXPORTER["OSCAL Exporter"]:::functional_unit
     CTX_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
+    CTX_IF_CLI_ENGGEMARA[/"enggemara CLI"/]:::interface
     CTX_IF_CLI_ENGLOBSTER[/"englobster CLI"/]:::interface
     CTX_IF_CLI_ENGOSCAL[/"engoscal CLI"/]:::interface
+    CTX_IF_CLI_ENGTRACE[/"engtrace CLI"/]:::interface
     CTX_IF_CLI_ENGTRLC[/"engtrlc CLI"/]:::interface
   end
   style CTXGROUP_FG_TRACEABILITY_COMPLIANCE fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
@@ -1969,6 +1971,8 @@ flowchart LR
   CTX_FU_TRLC_EXPORTER -->|depends_on| CTX_REF_TRLC_TOOLCHAIN
   CTX_FU_LOBSTER_EXPORTER -->|depends_on| CTX_REF_LOBSTER_TOOLCHAIN
   CTX_FU_TRLC_EXPORTER -->|contains| CTX_IF_CLI_ENGTRLC
+  CTX_FU_ALLOCATION_TRACE -->|contains| CTX_IF_CLI_ENGTRACE
+  CTX_FU_GEMARA_EXPORTER -->|contains| CTX_IF_CLI_ENGGEMARA
   CTX_FU_LOBSTER_EXPORTER -->|contains| CTX_IF_CLI_ENGLOBSTER
   CTX_FU_OSCAL_EXPORTER -->|contains| CTX_IF_CLI_ENGOSCAL
   CTX_FU_TRLC_EXPORTER -->|bounded_by| CTX_TB_EXTERNAL_VALIDATION_TOOLS
@@ -2773,6 +2777,14 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|REQ-EMG-012
+|X
+|X
+|
+|X
+|
+|
+|
 |REQ-EMG-013
 |
 |
@@ -3011,6 +3023,14 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |X
 |
 |X
+|REQ-EMG-012
+|
+|
+|
+|
+|
+|
+|
 |REQ-EMG-013
 |
 |X
@@ -3182,6 +3202,8 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |REQ-EMG-010
 |
 |REQ-EMG-011
+|
+|REQ-EMG-012
 |
 |REQ-EMG-013
 |
@@ -3615,7 +3637,7 @@ flowchart LR
   CODE_GENERATE_GO["generate.go:23,33"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_GENERATE_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_GENERATE_GO
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_MAIN_GO
   FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
@@ -3788,7 +3810,7 @@ flowchart LR
   CODE_GENERATE_GO["generate.go:23,33"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_GENERATE_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_GENERATE_GO
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_MAIN_GO
   FU_FU_VIEW_PROJECTION["View Projection"]:::functional_unit
@@ -3880,7 +3902,7 @@ flowchart LR
   REQC_REQ_EMG_004 -->|applies_to| FU_FU_THREAT_EXPORTER
   RTC_FU_THREAT_EXPORTER_RUNTIME["Threat Exporter runtime (inferred)"]:::runtime_element
   FU_FU_THREAT_EXPORTER -->|runtime evidence| RTC_FU_THREAT_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_THREAT_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_004 -->|code trace| CODE_MAIN_GO
   CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go:35,45,133,395,412,423,554,771,784,799"]:::code_element
@@ -3917,10 +3939,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[REF_REQ_REQ_EMG_005]]
 ==== REQ-EMG-005
 
-Where <<REF_IDX-CATALOG_FEAT_STRUCTURIZR_EXPORT,structurizr export is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall export <<REF_IDX-CATALOG_DATA_STRUCTURIZR_DSL,structurizr dsl artifact>> and validate it with <<REF_IDX-CATALOG_REF_STRUCTURIZR_VALIDATOR,structurizr validator>>.
+Where <<REF_IDX-CATALOG_FEAT_STRUCTURIZR_EXPORT,structurizr export is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall export <<REF_IDX-CATALOG_DATA_STRUCTURIZR_DSL,structurizr dsl artifact>>.
 
 
-NOTE: <<REF_IDX-CATALOG_STRUCTURIZR,Structurizr>> <<REF_IDX-CATALOG_GENERATION,generation>> must remain validator-clean.
+NOTE: <<REF_IDX-DO_DO_STRUCTURIZR_DSL,Structurizr DSL>> is exported for C4 visualization; the exported DSL is validated best-effort by the validate-all gauntlet when a <<REF_IDX-CATALOG_REF_STRUCTURIZR_VALIDATOR,Structurizr validator>> is available.
 
 
 
@@ -3938,7 +3960,7 @@ flowchart LR
   REQC_REQ_EMG_005 -->|applies_to| FU_FU_STRUCTURIZR_EXPORTER
   RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME["Structurizr Exporter runtime (inferred)"]:::runtime_element
   FU_FU_STRUCTURIZR_EXPORTER -->|runtime evidence| RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_005 -->|code trace| CODE_MAIN_GO
   CODE_STRUCTURIZR_EXPORT_GO["structurizr_export.go:128,138,274,315,388,411,427,438,465,480,500,535,551,559,567,575,583,591,599,607,615,623,631,639,649,658,696,712"]:::code_element
@@ -4002,7 +4024,7 @@ flowchart LR
   CODE_LOBSTER_EXPORT_TEST_GO["lobster_export_test.go:12"]:::code_element
   RTC_FU_LOBSTER_EXPORTER_RUNTIME -->|implemented_by| CODE_LOBSTER_EXPORT_TEST_GO
   REQC_REQ_EMG_006 -->|code trace| CODE_LOBSTER_EXPORT_TEST_GO
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_LOBSTER_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_006 -->|code trace| CODE_MAIN_GO
   FU_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
@@ -4066,7 +4088,7 @@ flowchart LR
   REQC_REQ_EMG_007 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_MAIN_GO
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
@@ -4128,7 +4150,7 @@ flowchart LR
   REQC_REQ_EMG_008 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_MAIN_GO
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
@@ -4190,7 +4212,7 @@ flowchart LR
   REQC_REQ_EMG_009 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_009 -->|code trace| CODE_MAIN_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
@@ -4249,7 +4271,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_COND_REQUIREMENT_TRACE_COMPLETE,requirement trace is complete>>, when <<REF_IDX-CATALOG_EVT_MODEL_UPDATED,model updated event is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall infer traceability coverage from <<REF_IDX-ENGMODEL_TERM_TRACE_MARKER,trace markers>>.
 
 
-NOTE: Links runtime, code, and test markers to modeled <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> coverage.
+NOTE: Links runtime, code, and test markers to modeled <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> coverage. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible.
 
 
 
@@ -4347,7 +4369,7 @@ flowchart LR
   REQC_REQ_EMG_011 -->|applies_to| FU_FU_THREAT_EXPORTER
   RTC_FU_THREAT_EXPORTER_RUNTIME["Threat Exporter runtime (inferred)"]:::runtime_element
   FU_FU_THREAT_EXPORTER -->|runtime evidence| RTC_FU_THREAT_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_THREAT_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_011 -->|code trace| CODE_MAIN_GO
   CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go:35,45,133,395,412,423,554,771,784,799"]:::code_element
@@ -4397,6 +4419,62 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+[[REF_REQ_REQ_EMG_012]]
+==== REQ-EMG-012
+
+When <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall generate artifacts deterministically so that regeneration is reproducible.
+
+
+NOTE: <<REF_IDX-CATALOG_GENERATION,Generation>> uses stable ordering (sorted diagnostics, link targets, scan results) and excludes environment-specific inputs, so regenerated documents are bit-for-bit reproducible and the CI freshness gate can detect drift.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_012["REQ-EMG-012"]:::requirement
+  FU_FU_ALLOCATION_TRACE["Allocation Trace"]:::functional_unit
+  REQC_REQ_EMG_012 -->|applies_to| FU_FU_ALLOCATION_TRACE
+  FU_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
+  REQC_REQ_EMG_012 -->|applies_to| FU_FU_ASCIIDOC_GENERATOR
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME["AsciiDoc Generator runtime (inferred)"]:::runtime_element
+  FU_FU_ASCIIDOC_GENERATOR -->|runtime evidence| RTC_FU_ASCIIDOC_GENERATOR_RUNTIME
+  CODE_ASCIIDOC_LINKING_UNITS_GO["asciidoc_linking_units.go:24,100,209,254,278,288,309,328,355,393,410,426,442,470,505,536,569,600,630,646,656,666,676,686,696,714,767"]:::code_element
+  RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_LINKING_UNITS_GO
+  REQC_REQ_EMG_012 -->|code trace| CODE_ASCIIDOC_LINKING_UNITS_GO
+  FU_FU_CODEMAP_INFERENCE["Codemap Inference"]:::functional_unit
+  REQC_REQ_EMG_012 -->|applies_to| FU_FU_CODEMAP_INFERENCE
+  RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
+  FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
+  CODE_INFERRED_CODE_GO["inferred_code.go:22,135,140,171,202,221,254,280,330,351"]:::code_element
+  RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_GO
+  REQC_REQ_EMG_012 -->|code trace| CODE_INFERRED_CODE_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 [[REF_REQ_REQ_EMG_013]]
 ==== REQ-EMG-013
 
@@ -4421,7 +4499,7 @@ flowchart LR
   REQC_REQ_EMG_013 -->|applies_to| FU_FU_OSCAL_EXPORTER
   RTC_FU_OSCAL_EXPORTER_RUNTIME["OSCAL Exporter runtime (inferred)"]:::runtime_element
   FU_FU_OSCAL_EXPORTER -->|runtime evidence| RTC_FU_OSCAL_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_OSCAL_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_013 -->|code trace| CODE_MAIN_GO
   CODE_OSCAL_AR_GO["oscal_ar.go:106,127"]:::code_element
@@ -4508,7 +4586,7 @@ flowchart LR
   REQC_REQ_EMG_014 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_MAIN_GO
   VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765["VER-INF-TEST-ASCIIDOC_TEST-F60765 (not-run)"]:::verification
@@ -4558,7 +4636,7 @@ flowchart LR
   REQC_REQ_EMG_015 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_MAIN_GO
   FU_FU_GEMARA_EXPORTER["Gemara Exporter"]:::functional_unit
@@ -5358,7 +5436,7 @@ flowchart LR
   REQC_REQ_EMG_030 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_MAIN_GO
   CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,270,286,345,430,472"]:::code_element
@@ -6263,7 +6341,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |16
 |L2
 |Control Catalog
-|3
+|5
 |L2
 |Threat Catalog
 |2
@@ -6304,6 +6382,14 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |Require requirement-linked verification evidence for modeled behavior.
 |assurance
 |1
+|CTRL-TRACE-LINK-INTEGRITY
+|Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability…
+|assurance
+|1
+|CTRL-ARTIFACT-FRESHNESS-GATE
+|Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts.
+|assurance
+|1
 |===
 
 === Threats (L2)
@@ -6339,6 +6425,19 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 == Reference Index
 
 === Authored References
+[[REF_IDX-CTRL_CTRL_ARTIFACT_FRESHNESS_GATE]]
+[discrete]
+==== CTRL-ARTIFACT-FRESHNESS-GATE
+
+category=assurance; description=Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |Generated Artifact Freshness Gate
+|Mentioned In |n/a
+|===
 [[REF_IDX-CTRL_CTRL_MCP_PATH_BOUNDARY]]
 [discrete]
 ==== CTRL-MCP-PATH-BOUNDARY
@@ -6364,6 +6463,19 @@ category=input-validation; description=Enforce per-tool input schema and reject 
 |Kind |Control
 |Name |Strict MCP Input Schemas
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
+|===
+[[REF_IDX-CTRL_CTRL_TRACE_LINK_INTEGRITY]]
+[discrete]
+==== CTRL-TRACE-LINK-INTEGRITY
+
+category=assurance; description=Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Control
+|Name |Trace Link Integrity
+|Mentioned In |n/a
 |===
 [[REF_IDX-CTRL_CTRL_TRACEABILITY_COVERAGE]]
 [discrete]
@@ -6415,7 +6527,7 @@ termRef=DATA-STRUCTURIZR-DSL; schemaRef=generated/STRUCTURIZR.dsl; sensitivity=i
 |Key |Value
 |Kind |Data Object
 |Name |Structurizr DSL
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>
 |===
 [[REF_IDX-DO_DO_THREAT_DRAGON_JSON]]
 [discrete]
@@ -6560,6 +6672,19 @@ protocol=cli; endpoint=cmd/engdragon; schemaRef=threat_model_export.go; owner=FU
 |Name |engdragon CLI
 |Mentioned In |n/a
 |===
+[[REF_IDX-IF_IF_CLI_ENGGEMARA]]
+[discrete]
+==== IF-CLI-ENGGEMARA
+
+protocol=cli; endpoint=cmd/enggemara; schemaRef=gemara_export.go; owner=FU-GEMARA-EXPORTER
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |enggemara CLI
+|Mentioned In |n/a
+|===
 [[REF_IDX-IF_IF_CLI_ENGLOBSTER]]
 [discrete]
 ==== IF-CLI-ENGLOBSTER
@@ -6610,6 +6735,19 @@ protocol=cli; endpoint=cmd/engstruct; schemaRef=structurizr_export.go; owner=FU-
 |Key |Value
 |Kind |Interface
 |Name |engstruct CLI
+|Mentioned In |n/a
+|===
+[[REF_IDX-IF_IF_CLI_ENGTRACE]]
+[discrete]
+==== IF-CLI-ENGTRACE
+
+protocol=cli; endpoint=cmd/engtrace; schemaRef=trace_matrix.go; owner=FU-ALLOCATION-TRACE
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |engtrace CLI
 |Mentioned In |n/a
 |===
 [[REF_IDX-IF_IF_CLI_ENGTRLC]]
@@ -6681,7 +6819,7 @@ Where threat export is enabled, when generation run is requested, the engineerin
 [discrete]
 ==== REQ-EMG-005
 
-Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact and validate it with structurizr validator.
+Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact.
 
 [cols="1,4",options="header"]
 |===
@@ -6767,6 +6905,19 @@ Where external schema dependencies are available, when generation run is request
 |Kind |Requirement
 |Name |REQ-EMG-011
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|===
+[[REF_IDX-REQ_REQ_EMG_012]]
+[discrete]
+==== REQ-EMG-012
+
+When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-012
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
 |===
 [[REF_IDX-REQ_REQ_EMG_013]]
 [discrete]
@@ -7294,7 +7445,7 @@ Requirement trace exports and compliance-oriented output generation.
 [discrete]
 ==== composition
 
-Resolves downward subsystem references and composes a federated system-of-systems model.
+Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model.
 
 [cols="1,4",options="header"]
 |===
@@ -7372,7 +7523,7 @@ Exports threat model views to Threat Dragon and Open OTM representations.
 [discrete]
 ==== enggemara
 
-Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+Renders the model into OpenSSF Gemara L1-L7 catalogs and logs plus an optional OSCAL bridge, validated by the Gemara SDK.
 
 [cols="1,4",options="header"]
 |===
@@ -7450,7 +7601,7 @@ Go-based architecture modeling system that generates docs, analysis views, and c
 [discrete]
 ==== engoscal
 
-Exports security and control content to OSCAL system security plan outputs.
+Exports the OSCAL system security plan, assessment results, and plan of action and milestones.
 
 [cols="1,4",options="header"]
 |===
@@ -7509,7 +7660,7 @@ Generation of AsciiDoc and exchange artifacts from model inputs.
 |Key |Value
 |Kind |Catalog Alias
 |Name |generation
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>
 |===
 [[REF_IDX-CATALOG_GENERATION_REQUESTED]]
 [discrete]
@@ -7769,13 +7920,13 @@ Structurizr DSL validation runtime used to verify generated DSL.
 |Key |Value
 |Kind |Catalog Alias
 |Name |structurizr
-|Mentioned In |<<REF_REQ_REQ_EMG_005,REQ-EMG-005>>
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_SYSTEM_OF_SYSTEMS]]
 [discrete]
 ==== system of systems
 
-Feature enabling recursive composition of subsystem models into a system-of-systems.
+Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems.
 
 [cols="1,4",options="header"]
 |===
@@ -8185,7 +8336,7 @@ Event indicating documentation or export generation execution starts.
 |Key |Value
 |Kind |Catalog Event
 |Name |generation run is requested
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>
 |===
 [[REF_IDX-CATALOG_EVT_MCP_TOOL_CALL_RECEIVED]]
 [discrete]
@@ -8295,7 +8446,7 @@ Feature enabling Structurizr DSL generation and validation.
 [discrete]
 ==== FEAT-SYSTEM-COMPOSITION
 
-Feature enabling recursive composition of subsystem models into a system-of-systems.
+Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems.
 
 [cols="1,4",options="header"]
 |===
@@ -8451,7 +8602,7 @@ Infers runtime, code, and verification evidence from repository sources and test
 [discrete]
 ==== FU-GEMARA-EXPORTER
 
-Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+Renders the model into OpenSSF Gemara L1-L7 catalogs and logs plus an optional OSCAL bridge, validated by the Gemara SDK.
 
 [cols="1,4",options="header"]
 |===
@@ -8503,7 +8654,7 @@ Loads and normalizes architecture, catalog, requirements, and design documents.
 [discrete]
 ==== FU-OSCAL-EXPORTER
 
-Exports security and control content to OSCAL system security plan outputs.
+Exports the OSCAL system security plan, assessment results, and plan of action and milestones.
 
 [cols="1,4",options="header"]
 |===
@@ -8529,7 +8680,7 @@ Exports Structurizr DSL and supports validation/static-site workflows.
 [discrete]
 ==== FU-SYSTEM-COMPOSITION
 
-Resolves downward subsystem references and composes a federated system-of-systems model.
+Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model.
 
 [cols="1,4",options="header"]
 |===
@@ -8744,7 +8895,7 @@ Go-based architecture modeling system that generates docs, analysis views, and c
 |Key |Value
 |Kind |Catalog System
 |Name |engineering model go
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>
 |===
 [[REF_IDX-ENGMODEL_TERM_ACTOR]]
 [discrete]
@@ -9264,7 +9415,7 @@ Generated OSCAL system security plan that maps authored system metadata, compone
 |Key |Value
 |Kind |Engineering Model Term
 |Name |OSCAL SSP
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>
+|Mentioned In |<<REF_REQ_REQ_EMG_013,REQ-EMG-013>>
 |===
 [[REF_IDX-ENGMODEL_TERM_POAM_ITEM]]
 [discrete]

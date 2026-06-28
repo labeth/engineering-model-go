@@ -31,9 +31,24 @@ go test ./...
 go vet ./...
 ```
 
-2. Update tests for behavior changes.
-3. Update README if API behavior changed.
-4. Keep sample outputs reproducible from the example project.
+2. Run the full validation gauntlet:
+
+```bash
+./scripts/validate-all.sh
+```
+
+   This runs the same strict gates that CI enforces:
+
+   - `go build` succeeds.
+   - `engdoc` reports 0 errors (including unresolved `TRLC-LINKS`/`ENGMODEL-LINKS` and dangling code trace links).
+   - `engtrace` reports 0 dangling code trace links (exit 1 otherwise).
+   - artifact-freshness: regenerated `ARCHITECTURE.adoc`, `DECISIONS.adoc`, and `TRACE-MATRIX.json` show no drift under `git diff`.
+
+   The GitHub Actions `validate` job runs this script, so PRs that fail any strict gate will be blocked.
+
+3. Update tests for behavior changes.
+4. Update README if API behavior changed.
+5. Keep sample outputs reproducible from the example project.
 
 ## Reporting Issues
 

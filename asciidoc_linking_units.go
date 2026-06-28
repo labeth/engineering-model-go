@@ -96,7 +96,7 @@ func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
-// TRLC-LINKS: REQ-EMG-003
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
 func linkifyText(text string, targets map[string]linkTarget) string {
 	in := strings.TrimSpace(text)
 	if in == "" {

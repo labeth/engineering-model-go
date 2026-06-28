@@ -1,7 +1,8 @@
 // ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
 // Command enggemara renders the engineering model into OpenSSF Gemara documents
-// (L1 Vector, L2 Capability/Threat/Control, L3 Risk, L5 Evaluation Log) using the
-// official go-gemara SDK types.
+// (L1 Vector/Principle/Guidance, L2 Capability/Threat/Control, L3 Risk/Policy,
+// L5 Evaluation Log, L6 Enforcement Log, L7 Audit Log) using the official
+// go-gemara SDK types, with an optional OSCAL catalog and assessment-results bridge.
 package main
 
 import (

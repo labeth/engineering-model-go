@@ -60,9 +60,9 @@ Date:: 2026-06-27
 
 OpenSSF Gemara is a layered GRC engineering model with published CUE schemas and a Go SDK.
 The engineering model already captures controls, threats, risks, attack vectors, functional
-units, and verification evidence, which align closely with Gemara's L1-L3 catalogs and L5
-evaluation log. We needed a way to emit Gemara that is guaranteed structurally correct rather
-than a hand-written approximation.
+units, verification evidence, and POA&M items, which align with Gemara's L1-L3 catalogs, the L5
+evaluation log, the L6 enforcement log, and the L7 audit log. We needed a way to emit Gemara that
+is guaranteed structurally correct rather than a hand-written approximation.
 
 === Decision
 

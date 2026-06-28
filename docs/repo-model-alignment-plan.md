@@ -1,5 +1,10 @@
 # Engineering-Model-Go Repository Model Alignment Plan
 
+> Status: historical plan, not a live backlog. The ongoing-alignment quality
+> gates described in Phase 5 are now in place — see `scripts/validate-all.sh`
+> (wired into `.github/workflows/ci.yml`) and `cmd/engtrace`. The drift and
+> traceability gates below have shipped; remaining items are noted inline.
+
 ## Scope
 
 Align root model artifacts with the current repository without changing runtime behavior.
@@ -73,20 +78,34 @@ Deliverable: requirement-to-file matrix with at least one source and one test li
 
 Deliverable: zero unresolved core FU ownership for in-scope files.
 
-## Phase 5: Quality Gates for Ongoing Alignment
+## Phase 5: Quality Gates for Ongoing Alignment (implemented)
 
-Add repeatable checks to prevent drift:
+Repeatable checks now run in `scripts/validate-all.sh`, which is invoked by
+`.github/workflows/ci.yml`:
 
-1. Artifact generation gate:
-   - regenerate root AsciiDoc, decisions, proven PDF, and affected exchange artifacts from the root model on every alignment PR.
-2. Traceability gate:
-   - fail if any `REQ-EMG-*` has no linked tests.
-3. Ownership gate:
-   - fail if in-scope source files have no `ENGMODEL-OWNER-UNIT` marker.
-4. MCP gate:
-   - run `go test ./mcp ./cmd/engmcp` and enforce contract stability.
+1. Artifact generation gate — IMPLEMENTED:
+   - `scripts/validate-all.sh` regenerates `ARCHITECTURE.adoc`, `DECISIONS.adoc`,
+     and `TRACE-MATRIX.json` from each model, then fails on drift via
+     `git diff` against the committed copies (no stale generated docs).
+2. Traceability gate — IMPLEMENTED (as trace-integrity, not test coverage):
+   - `cmd/engtrace` exits non-zero on any dangling code trace link
+     (`code.dangling_requirement_link` / `code.dangling_model_link`), and the
+     `cmd/engdoc` 0-error gate enforces the same unresolved-link errors. The
+     pipeline checks link integrity rather than the originally proposed
+     "fail if any `REQ-EMG-*` has no linked tests"; an unlinked requirement is
+     surfaced as a `requirement.orphan` warning.
+3. Ownership gate — NOT IMPLEMENTED:
+   - no gate yet fails in-scope source files missing an `ENGMODEL-OWNER-UNIT`
+     marker.
+4. MCP gate — NOT IMPLEMENTED as a dedicated CI step:
+   - the gauntlet runs `go build`; a contract-stability `go test ./mcp ./cmd/engmcp`
+     step is still outstanding.
 
-Deliverable: CI checks that detect model/code divergence early.
+Best-effort gates also wired in: Gemara CUE validation, Structurizr DSL
+(behind `ENGMOD_VALIDATE_STRUCTURIZR=1`), and TRLC.
+
+Deliverable: CI checks that detect model/code divergence early — met for the
+drift and trace-integrity gates above.
 
 ## Suggested Working Rhythm
 
