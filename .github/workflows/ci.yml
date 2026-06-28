@@ -35,3 +35,29 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Install cue (Gemara schema validation)
+        run: go install cuelang.org/go/cmd/cue@v0.15.4
+
+      - name: Validation gauntlet
+        # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling
+        # links, EARS, composition), engtrace 0 dangling, artifact freshness (drift),
+        # and Gemara/Structurizr schema validation. See scripts/validate-all.sh.
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          scripts/validate-all.sh

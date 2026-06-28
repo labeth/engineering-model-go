@@ -356,7 +356,7 @@
         {
           "symbol": "CODE-ATTACKVECTORSBYTARGET",
           "path": "asciidoc_linking_units.go",
-          "line": 623
+          "line": 630
         },
         {
           "symbol": "CODE-BUILD",
@@ -451,7 +451,7 @@
         {
           "symbol": "CODE-BUILDOWNEREVIDENCE",
           "path": "asciidoc_linking_units.go",
-          "line": 707
+          "line": 714
         },
         {
           "symbol": "CODE-BUILDPLATFORMOPSMERMAID",
@@ -756,32 +756,32 @@
         {
           "symbol": "CODE-LINKTOKENVARIANTS",
           "path": "asciidoc_linking_units.go",
-          "line": 202
+          "line": 209
         },
         {
           "symbol": "CODE-LISTNAMESACTORS",
           "path": "asciidoc_linking_units.go",
-          "line": 659
+          "line": 666
         },
         {
           "symbol": "CODE-LISTNAMESFG",
           "path": "asciidoc_linking_units.go",
-          "line": 639
+          "line": 646
         },
         {
           "symbol": "CODE-LISTNAMESFU",
           "path": "asciidoc_linking_units.go",
-          "line": 649
+          "line": 656
         },
         {
           "symbol": "CODE-LISTNAMESREFS",
           "path": "asciidoc_linking_units.go",
-          "line": 679
+          "line": 686
         },
         {
           "symbol": "CODE-LISTNAMESVECTORS",
           "path": "asciidoc_linking_units.go",
-          "line": 669
+          "line": 676
         },
         {
           "symbol": "CODE-MAIN",
@@ -881,12 +881,12 @@
         {
           "symbol": "CODE-PLURALIZEPHRASE",
           "path": "asciidoc_linking_units.go",
-          "line": 271
+          "line": 278
         },
         {
           "symbol": "CODE-PLURALIZEWORD",
           "path": "asciidoc_linking_units.go",
-          "line": 281
+          "line": 288
         },
         {
           "symbol": "CODE-PRINTDIAGNOSTICS",
@@ -941,7 +941,7 @@
         {
           "symbol": "CODE-RENDERINTERFACESUBCHAPTERS",
           "path": "asciidoc_linking_units.go",
-          "line": 463
+          "line": 470
         },
         {
           "symbol": "CODE-RENDERMAPPINGS",
@@ -966,7 +966,7 @@
         {
           "symbol": "CODE-REQUIREMENTSBYUNIT",
           "path": "asciidoc_linking_units.go",
-          "line": 386
+          "line": 393
         },
         {
           "symbol": "CODE-RESOLVEVIEWIDS",
@@ -991,7 +991,7 @@
         {
           "symbol": "CODE-SANITIZESOURCEPATH",
           "path": "asciidoc_linking_units.go",
-          "line": 760
+          "line": 767
         },
         {
           "symbol": "CODE-SECTIONBYHEADING",
@@ -1046,7 +1046,7 @@
         {
           "symbol": "CODE-SINGLEWORDPLURAL",
           "path": "asciidoc_linking_units.go",
-          "line": 247
+          "line": 254
         },
         {
           "symbol": "CODE-SORTVIEW",
@@ -1241,17 +1241,17 @@
         {
           "symbol": "CODE-TITLEWORDS",
           "path": "asciidoc_linking_units.go",
-          "line": 302
+          "line": 309
         },
         {
           "symbol": "CODE-TITLEWORDSNATURAL",
           "path": "asciidoc_linking_units.go",
-          "line": 321
+          "line": 328
         },
         {
           "symbol": "CODE-TITLEWORDSWITHACRONYMS",
           "path": "asciidoc_linking_units.go",
-          "line": 348
+          "line": 355
         },
         {
           "symbol": "CODE-TONODE",
@@ -1266,42 +1266,42 @@
         {
           "symbol": "CODE-UNIQUESORTED",
           "path": "asciidoc_linking_units.go",
-          "line": 689
+          "line": 696
         },
         {
           "symbol": "CODE-UNITCONSUMERS",
           "path": "asciidoc_linking_units.go",
-          "line": 419
+          "line": 426
         },
         {
           "symbol": "CODE-UNITDEPENDENCIES",
           "path": "asciidoc_linking_units.go",
-          "line": 403
+          "line": 410
         },
         {
           "symbol": "CODE-UNITINBOUNDINTERFACESDETAILED",
           "path": "asciidoc_linking_units.go",
-          "line": 498
+          "line": 505
         },
         {
           "symbol": "CODE-UNITMESSAGESCONSUMED",
           "path": "asciidoc_linking_units.go",
-          "line": 562
+          "line": 569
         },
         {
           "symbol": "CODE-UNITOUTBOUNDINTERFACESDETAILED",
           "path": "asciidoc_linking_units.go",
-          "line": 529
+          "line": 536
         },
         {
           "symbol": "CODE-UNITOUTPUTS",
           "path": "asciidoc_linking_units.go",
-          "line": 435
+          "line": 442
         },
         {
           "symbol": "CODE-UNITOWNERSHIPSUMMARY",
           "path": "asciidoc_linking_units.go",
-          "line": 593
+          "line": 600
         },
         {
           "symbol": "CODE-VIEWCOVERAGECONFIDENCE",

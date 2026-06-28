@@ -115,7 +115,14 @@ func linkifyText(text string, targets map[string]linkTarget) string {
 		}
 		items = append(items, tokenInfo{Token: t, Link: l})
 	}
-	sort.SliceStable(items, func(i, j int) bool { return len(items[i].Token) > len(items[j].Token) })
+	// Longest token first so specific phrases win over substrings; tie-break on the
+	// token text so the result is deterministic (items came from a map iteration).
+	sort.SliceStable(items, func(i, j int) bool {
+		if len(items[i].Token) != len(items[j].Token) {
+			return len(items[i].Token) > len(items[j].Token)
+		}
+		return items[i].Token < items[j].Token
+	})
 
 	type span struct {
 		start int

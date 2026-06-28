@@ -419,6 +419,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Trace links are existence-checked, scoped to the owning model, and exported as a matrix
 |accepted
 |2026-06-27
+|xref:DECISIONS.adoc#ADR-EMG-013[ADR-EMG-013]
+|CI enforces the generation gates and artifact freshness
+|accepted
+|2026-06-28
 |===
 
 === Diagram Color and Shape Legend
@@ -1698,7 +1702,7 @@ Serves model-backed tools over MCP with path safety and structured errors.
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_MCP_SERVER,mcp server>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>> and decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,Validation Engine>>
+functional responsibility for <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,mcp server>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>> and decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,Validation Engine>>
 
 [discrete]
 ====== Key Collaborators
@@ -2095,7 +2099,7 @@ Untrusted MCP input attempts to escape repo root for sensitive file reads.
 |Status |mitigating
 |Owner |<<REF_IDX-CATALOG_ACT_ARCHITECTURE_AUTHOR,Architecture Author>>
 |Attack Vector |<<REF_IDX-CATALOG_AV_PATH_TRAVERSAL_IN_MCP,Path Traversal in MCP Calls>>
-|Scope |<<REF_IDX-CATALOG_FU_MCP_SERVER,MCP Server>>
+|Scope |<<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP Server>>
 |Flows |<<REF_IDX-FLOW_FLOW_MODEL_CHANGE_TO_VERIFIED_ARTIFACTS,Model Change to Verified Artifacts Flow>>
 |Likelihood |medium
 |Impact |high
@@ -2454,7 +2458,7 @@ Coverage summary: 8/8 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 
 - <<REF_IDX-CATALOG_FU_LOBSTER_EXPORTER,LOBSTER Exporter>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
-- <<REF_IDX-CATALOG_FU_MCP_SERVER,MCP Server>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
+- <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP Server>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 - <<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
@@ -3763,7 +3767,7 @@ flowchart LR
   CODE_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_GO["asciidoc_diagrams_runtime_test.go:12,50,72,95"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_GO
-  CODE_ASCIIDOC_LINKING_UNITS_GO["asciidoc_linking_units.go:24,100,202,247,271,281,302,321,348,386,403,419,435,463,498,529,562,593,623,639,649,659,669,679,689,707,760"]:::code_element
+  CODE_ASCIIDOC_LINKING_UNITS_GO["asciidoc_linking_units.go:24,100,209,254,278,288,309,328,355,393,410,426,442,470,505,536,569,600,630,646,656,666,676,686,696,714,767"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_LINKING_UNITS_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_LINKING_UNITS_GO
   CODE_ASCIIDOC_LINKING_UNITS_TEST_GO["asciidoc_linking_units_test.go:10,46,75,101,129,148,167,186"]:::code_element
@@ -3975,7 +3979,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[REF_REQ_REQ_EMG_006]]
 ==== REQ-EMG-006
 
-Where <<REF_IDX-CATALOG_FEAT_TRACEABILITY_EXPORT,traceability export is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall produce <<REF_IDX-CATALOG_DATA_TRLC_PACKAGE,trlc package>> and <<REF_IDX-CATALOG_DATA_LOBSTER_TRACE_REPORT,lobster trace report>> artifacts.
+Where <<REF_IDX-CATALOG_FEAT_TRACEABILITY_EXPORT,traceability export is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall produce <<REF_IDX-ENGMODEL_TERM_TRLC_PACKAGE,trlc package>> and <<REF_IDX-CATALOG_DATA_LOBSTER_TRACE_REPORT,lobster trace report>> artifacts.
 
 
 NOTE: Traceability outputs required for <<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,assurance>> workflows.
@@ -4265,13 +4269,13 @@ flowchart LR
   REQC_REQ_EMG_010 -->|applies_to| FU_FU_CODEMAP_INFERENCE
   RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_INFERRED_CODE_GO["inferred_code.go:22,129,160,191,210,243,269,313,334"]:::code_element
+  CODE_INFERRED_CODE_GO["inferred_code.go:22,130,161,192,211,244,270,314,335"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_CODE_GO
   CODE_INFERRED_CODE_TEST_GO["inferred_code_test.go:11,37"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_TEST_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_CODE_TEST_GO
-  CODE_INFERRED_LAYERS_GO["inferred_layers.go:46,134,204,243,267,290,315,330,345,358,374,402,420,441,492,570,591,626,638,653"]:::code_element
+  CODE_INFERRED_LAYERS_GO["inferred_layers.go:47,135,205,244,268,291,316,331,346,359,375,403,421,442,493,571,592,627,639,654"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_INFERRED_LAYERS_GO
   CODE_INFERRED_LAYERS_TEST_GO["inferred_layers_test.go:13,21,40,58,84,118"]:::code_element
@@ -5246,7 +5250,7 @@ flowchart LR
   REQC_REQ_EMG_028 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:85,97,179,196,266,282,338,423,459"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_028 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -5303,7 +5307,7 @@ flowchart LR
   REQC_REQ_EMG_029 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:85,97,179,196,266,282,338,423,459"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_029 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -5361,7 +5365,7 @@ flowchart LR
   CODE_MAIN_GO["main.go:15,16,17,19,20,21,26,37,50,51,53,89,95,113"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_MAIN_GO
-  CODE_TRACE_MATRIX_GO["trace_matrix.go:85,97,179,196,266,282,338,423,459"]:::code_element
+  CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,271,287,346,431,473"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_TRACE_MATRIX_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_TRACE_MATRIX_GO
   CODE_TRACE_MATRIX_TEST_GO["trace_matrix_test.go:18,45,70,84,112"]:::code_element
@@ -8159,7 +8163,7 @@ Generated TRLC requirements package and model metadata.
 |Key |Value
 |Kind |Catalog Data Term
 |Name |trlc package
-|Mentioned In |<<REF_REQ_REQ_EMG_006,REQ-EMG-006>>
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_EVT_ARTIFACT_GENERATED]]
 [discrete]
@@ -8484,7 +8488,7 @@ Serves model-backed MCP tools with validated inputs and structured responses.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |mcp server
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
 |===
 [[REF_IDX-CATALOG_FU_MODEL_LOADER]]
 [discrete]
@@ -9160,7 +9164,7 @@ Model Context Protocol server that exposes engineering-model operations to AI ag
 |Key |Value
 |Kind |Engineering Model Term
 |Name |MCP server
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-ENGMODEL_TERM_MCP_STDIO_TRANSPORT]]
 [discrete]
@@ -9511,7 +9515,7 @@ Generated TRLC model and requirements package used for formal requirement tracea
 |Key |Value
 |Kind |Engineering Model Term
 |Name |TRLC package
-|Mentioned In |n/a
+|Mentioned In |<<REF_REQ_REQ_EMG_006,REQ-EMG-006>>
 |===
 [[REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY]]
 [discrete]

@@ -1,0 +1,245 @@
+{
+  "model": "sample-bedrock-pr-review-model",
+  "requirements": [
+    {
+      "id": "REQ-PRR-001",
+      "text": "While normal mode is active, when pull request synchronize event is received and webhook signature is valid, the pr review system shall verify webhook signature before processing review workflow.",
+      "units": [
+        "FU-GITHUB-WEBHOOK-INGRESS"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-VERIFYSIGNATURE",
+          "path": "webhook_ingress.go",
+          "line": 17
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-002",
+      "text": "While pull request review is active, when pull request opened event is received, the pr review system shall construct diff context from changed files for developer review execution.",
+      "units": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-PR-CONTEXT-ASSEMBLY"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CONSTRUCTOR",
+          "path": "pr_context_assembly.ts",
+          "line": 9
+        },
+        {
+          "symbol": "CODE-FETCHCHANGEDFILES",
+          "path": "pr_context_assembly.ts",
+          "line": 13
+        },
+        {
+          "symbol": "CODE-ROUTEPULLREQUESTEVENT",
+          "path": "webhook_ingress.go",
+          "line": 28
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-003",
+      "text": "Where ai review is enabled, when diff context is prepared, the pr review system shall request bedrock runtime analysis for review findings.",
+      "units": [
+        "FU-REVIEW-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-BUILDDIFFCONTEXT",
+          "path": "pr_context_assembly.ts",
+          "line": 20
+        },
+        {
+          "symbol": "CODE-REQUESTBEDROCKREVIEW",
+          "path": "review_orchestrator.rs",
+          "line": 11
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-004",
+      "text": "Where policy checks are enabled, when pull request review is active, the pr review system shall evaluate deterministic policy checks for secret exposure plus infrastructure risk plus dependency changes.",
+      "units": [
+        "FU-POLICY-CHECKS"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-RUNDETERMINISTICCHECKS",
+          "path": "policy_checks.rs",
+          "line": 7
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-005",
+      "text": "While pull request review is active, when review findings are generated, the pr review system shall publish check run summary to repository maintainer.",
+      "units": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CONSTRUCTOR",
+          "path": "review_publication.ts",
+          "line": 9
+        },
+        {
+          "symbol": "CODE-PUBLISHCHECKRUN",
+          "path": "review_publication.ts",
+          "line": 13
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-006",
+      "text": "If bedrock runtime is unavailable, then the pr review system shall publish deterministic policy-only review outcome.",
+      "units": [
+        "FU-POLICY-CHECKS",
+        "FU-REVIEW-ORCHESTRATION",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-FALLBACKPOLICYONLY",
+          "path": "review_orchestrator.rs",
+          "line": 22
+        },
+        {
+          "symbol": "CODE-POLICYONLYSUMMARY",
+          "path": "policy_checks.rs",
+          "line": 21
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-007",
+      "text": "Where audit logging is enabled, when review findings are published, the pr review system shall persist redacted audit metadata for security engineer audit traceability.",
+      "units": [
+        "FU-REVIEW-PUBLICATION",
+        "FU-SECRETS-CONFIGURATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CONSTRUCTOR",
+          "path": "review_publication.ts",
+          "line": 9
+        },
+        {
+          "symbol": "CODE-CONSTRUCTOR",
+          "path": "secrets_configuration.ts",
+          "line": 7
+        },
+        {
+          "symbol": "CODE-GETGITHUBAPPPRIVATEKEY",
+          "path": "secrets_configuration.ts",
+          "line": 10
+        },
+        {
+          "symbol": "CODE-RECORDREDACTEDAUDITMETADATA",
+          "path": "review_publication.ts",
+          "line": 27
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-008",
+      "text": "If review request rate limit is exceeded, then the pr review system shall defer processing.",
+      "units": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CONSTRUCTOR",
+          "path": "review_publication.ts",
+          "line": 9
+        },
+        {
+          "symbol": "CODE-NOTIFYMAINTAINERDEFERRAL",
+          "path": "review_publication.ts",
+          "line": 33
+        }
+      ],
+      "verifications": [
+        "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PRR-009",
+      "text": "While pull request review is active, when review findings are generated, the pr review system shall publish inline comments with result metadata to repository maintainer.",
+      "units": [
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-PRR-010",
+      "text": "If review request rate limit is exceeded, then the pr review system shall notify platform operator.",
+      "units": [
+        "FU-GITHUB-WEBHOOK-INGRESS",
+        "FU-REVIEW-PUBLICATION"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-PRR-011",
+      "text": "Where lambda runtime operations are enabled, when release artifact is approved, the pr review system shall deploy lambda function image to primary runtime.",
+      "units": [
+        "FU-LAMBDA-RUNTIME-OPERATIONS"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-APPLYRELEASE",
+          "path": "lambda_runtime_ops.go",
+          "line": 10
+        }
+      ],
+      "status": "implemented"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-PRR-009",
+    "REQ-PRR-010"
+  ],
+  "summary": {
+    "requirements": 11,
+    "implemented": 9,
+    "verified": 8,
+    "delegated": 0,
+    "orphan": 2,
+    "danglingLinks": 0
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "model": "sample-payments-layered-model",
+  "requirements": [
+    {
+      "id": "REQ-PAY-001",
+      "text": "While normal mode is active, when payment authorization is requested, the payments system shall create a payment session.",
+      "units": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-AUTHORIZEPAYMENT",
+          "path": "payment_engine.rs",
+          "line": 15
+        },
+        {
+          "symbol": "CODE-NEW",
+          "path": "domain/events.rs",
+          "line": 12
+        },
+        {
+          "symbol": "CODE-REQUESTBANKAUTHORIZATION",
+          "path": "payment_engine.rs",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-STARTSESSION",
+          "path": "checkout_api.go",
+          "line": 20
+        },
+        {
+          "symbol": "CODE-SUBMITAUTHORIZATIONREQUEST",
+          "path": "checkout_api.go",
+          "line": 32
+        }
+      ],
+      "verifications": [
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-002",
+      "text": "Where fraud check is enabled, when payment authorization is requested, the fraud detection system shall calculate a risk score before approval.",
+      "units": [
+        "FU-RISK-SCORING"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CALCULATERISKSCORE",
+          "path": "risk_scorer.ts",
+          "line": 10
+        },
+        {
+          "symbol": "CODE-CLASSIFYRISK",
+          "path": "risk_scorer.ts",
+          "line": 24
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-003",
+      "text": "If payment is declined, then the payments system shall present a decline reason to customer.",
+      "units": [
+        "FU-CHECKOUT"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-SHOWDECLINEREASON",
+          "path": "checkout_api.go",
+          "line": 44
+        },
+        {
+          "symbol": "CODE-SHOWRETRYOPTION",
+          "path": "checkout_api.go",
+          "line": 50
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE",
+        "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-004",
+      "text": "While checkout is active, when payment authorization is requested and risk score is high and risk threshold is exceeded, the payments system shall place the payment in payment review is pending.",
+      "units": [
+        "FU-PAYMENT-AUTHORIZATION",
+        "FU-SUPPORT-REVIEW"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-BUILDREVIEWREASON",
+          "path": "risk_scorer.ts",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-ISHIGHRISK",
+          "path": "risk_scorer.ts",
+          "line": 33
+        },
+        {
+          "symbol": "CODE-NOTIFYSUPPORT",
+          "path": "payment_engine.rs",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-PLACEINREVIEW",
+          "path": "payment_engine.rs",
+          "line": 51
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-005",
+      "text": "Where fraud check is enabled, when payment authorization is requested, the payments system shall persist an audit record with payment id plus risk score.",
+      "units": [
+        "FU-RISK-SCORING"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CREATEAUDITENVELOPE",
+          "path": "support/audit_envelope.ts",
+          "line": 11
+        },
+        {
+          "symbol": "CODE-CREATEAUDITRECORD",
+          "path": "risk_scorer.ts",
+          "line": 43
+        },
+        {
+          "symbol": "CODE-ENRICHAUDITMETADATA",
+          "path": "risk_scorer.ts",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-PERSISTAUDITRECORD",
+          "path": "payment_engine.rs",
+          "line": 69
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-006",
+      "text": "If bank link is unavailable, then the payments system shall present a temporary unavailable message to customer until bank link is available.",
+      "units": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-HANDLEBANKLINKUNAVAILABLE",
+          "path": "payment_engine.rs",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-HANDLEBANKUNAVAILABLE",
+          "path": "checkout_api.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-SHOWTEMPORARYUNAVAILABLE",
+          "path": "checkout_api.go",
+          "line": 56
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-PAY-007",
+      "text": "While checkout is active, when payment authorization is requested and 3DS verification is required, the payments system shall request authorization from bank gateway endpoint.",
+      "units": [
+        "FU-CHECKOUT",
+        "FU-PAYMENT-AUTHORIZATION"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-PAY-008",
+      "text": "If payment is declined, then the payments system shall present a retry option to customer.",
+      "units": [
+        "FU-CHECKOUT"
+      ],
+      "verifications": [
+        "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
+      ],
+      "status": "verified"
+    },
+    {
+      "id": "REQ-PAY-009",
+      "text": "While checkout is active, when payment authorization is requested and risk threshold is exceeded, the payments system shall notify platform operator when support agent is notified.",
+      "units": [
+        "FU-PAYMENT-AUTHORIZATION",
+        "FU-SUPPORT-REVIEW"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-PAY-007",
+    "REQ-PAY-009"
+  ],
+  "summary": {
+    "requirements": 9,
+    "implemented": 6,
+    "verified": 7,
+    "delegated": 0,
+    "orphan": 2,
+    "danglingLinks": 0
+  }
+}

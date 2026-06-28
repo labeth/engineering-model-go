@@ -207,3 +207,24 @@ decisions:
       - Trace links are trustworthy, not merely well-formed; the matrix is a real artifact, not prose.
       - Monorepos with multiple models validate cleanly without cross-model false positives.
       - Orphan coverage gaps are visible without breaking the build.
+  - id: ADR-EMG-013
+    title: CI enforces the generation gates and artifact freshness
+    status: accepted
+    date: 2026-06-28
+    context: |
+      The tool's gates — engdoc errors, trace-link integrity, EARS lint, composition checks, and Gemara
+      schema validity — and its committed generated artifacts only have value if they are enforced. CI
+      previously ran gofmt, vet, and unit tests only, so a model edit that broke generation or left the
+      committed documents stale could merge green. Enforcing artifact freshness also requires generation to
+      be deterministic.
+    decision: |
+      A single gauntlet (scripts/validate-all.sh) runs in CI and locally. It regenerates every model's
+      documents — engdoc must exit clean, which enforces trace integrity, dangling links, EARS, and
+      composition — exports each trace matrix with engtrace (no dangling links), fails on any drift between
+      regenerated and committed artifacts, and validates the Gemara and Structurizr exports against their
+      schemas when the tools are present. Inline term linking was made deterministic so the drift check is
+      stable.
+    consequences:
+      - "The generation gates are load-bearing: a broken model or a stale committed document fails CI."
+      - Generated artifacts are deterministic and reproducible from the model.
+      - One script is the source of truth for local pre-commit checks and CI.
