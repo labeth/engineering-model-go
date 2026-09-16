@@ -3503,22 +3503,27 @@
         {
           "symbol": "CODE-ASSERTCAPABILITYCATALOGINVARIANTS",
           "path": "gemara_export_test.go",
-          "line": 249
+          "line": 270
         },
         {
           "symbol": "CODE-ASSERTCONTROLCATALOGINVARIANTS",
           "path": "gemara_export_test.go",
-          "line": 173
+          "line": 194
+        },
+        {
+          "symbol": "CODE-ASSERTEVIDENCEPAYLOADS",
+          "path": "gemara_export_test.go",
+          "line": 181
         },
         {
           "symbol": "CODE-ASSERTRISKCATALOGINVARIANTS",
           "path": "gemara_export_test.go",
-          "line": 231
+          "line": 252
         },
         {
           "symbol": "CODE-ASSERTTHREATCATALOGINVARIANTS",
           "path": "gemara_export_test.go",
-          "line": 213
+          "line": 234
         },
         {
           "symbol": "CODE-BUILDASSESSMENTREQUIREMENTS",
@@ -3528,7 +3533,7 @@
         {
           "symbol": "CODE-BUILDAUDITLOG",
           "path": "gemara_extended.go",
-          "line": 148
+          "line": 162
         },
         {
           "symbol": "CODE-BUILDCAPABILITYCATALOG",
@@ -3548,7 +3553,7 @@
         {
           "symbol": "CODE-BUILDENFORCEMENTLOG",
           "path": "gemara_extended.go",
-          "line": 228
+          "line": 241
         },
         {
           "symbol": "CODE-BUILDGUIDANCECATALOG",
@@ -3588,7 +3593,7 @@
         {
           "symbol": "CODE-CONFIDENCEFORRESULT",
           "path": "gemara_evaluation.go",
-          "line": 174
+          "line": 173
         },
         {
           "symbol": "CODE-CONTROLGROUPID",
@@ -3599,6 +3604,11 @@
           "symbol": "CODE-CONTROLGROUPTITLE",
           "path": "gemara_export.go",
           "line": 784
+        },
+        {
+          "symbol": "CODE-CONTROLVERIFICATIONEVIDENCE",
+          "path": "gemara_extended.go",
+          "line": 149
         },
         {
           "symbol": "CODE-DERIVESEVERITY",
@@ -3613,7 +3623,7 @@
         {
           "symbol": "CODE-FIRSTNONEMPTY",
           "path": "gemara_extended.go",
-          "line": 303
+          "line": 316
         },
         {
           "symbol": "CODE-GEMARAARTIFACT",
@@ -3698,7 +3708,7 @@
         {
           "symbol": "CODE-ISACCEPTEDSTATUS",
           "path": "gemara_extended.go",
-          "line": 292
+          "line": 305
         },
         {
           "symbol": "CODE-KEYSOF",
@@ -3733,7 +3743,7 @@
         {
           "symbol": "CODE-MAPVERIFICATIONRESULT",
           "path": "gemara_evaluation.go",
-          "line": 188
+          "line": 187
         },
         {
           "symbol": "CODE-MARSHALGEMARA",
@@ -3808,7 +3818,7 @@
         {
           "symbol": "CODE-STRPTR",
           "path": "gemara_extended.go",
-          "line": 314
+          "line": 327
         },
         {
           "symbol": "CODE-TARGETRESOURCE",
@@ -3823,7 +3833,7 @@
         {
           "symbol": "CODE-TESTGEMARAEVALUATIONLOGLOADSTHROUGHSDK",
           "path": "gemara_export_test.go",
-          "line": 134
+          "line": 137
         },
         {
           "symbol": "CODE-TESTGEMARAOSCALBRIDGE",

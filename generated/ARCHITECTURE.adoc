@@ -4880,16 +4880,16 @@ flowchart LR
   REQC_REQ_EMG_015 -->|applies_to| FU_FU_GEMARA_EXPORTER
   RTC_FU_GEMARA_EXPORTER_RUNTIME["Gemara Exporter runtime (inferred)"]:::runtime_element
   FU_FU_GEMARA_EXPORTER -->|runtime evidence| RTC_FU_GEMARA_EXPORTER_RUNTIME
-  CODE_GEMARA_EVALUATION_GO["gemara_evaluation.go:34,53,61,174,188"]:::code_element
+  CODE_GEMARA_EVALUATION_GO["gemara_evaluation.go:34,53,61,173,187"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME -->|implemented_by| CODE_GEMARA_EVALUATION_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_GEMARA_EVALUATION_GO
   CODE_GEMARA_EXPORT_GO["gemara_export.go:86,97,184,203,233,252,272,311,354,428,535,569,631,650,680,706,710,723,727,733,745,759,775,784,793,802,815,836,846"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME -->|implemented_by| CODE_GEMARA_EXPORT_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_GEMARA_EXPORT_GO
-  CODE_GEMARA_EXPORT_TEST_GO["gemara_export_test.go:27,134,173,213,231,249"]:::code_element
+  CODE_GEMARA_EXPORT_TEST_GO["gemara_export_test.go:27,137,181,194,234,252,270"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME -->|implemented_by| CODE_GEMARA_EXPORT_TEST_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_GEMARA_EXPORT_TEST_GO
-  CODE_GEMARA_EXTENDED_GO["gemara_extended.go:28,42,85,148,228,292,303,314"]:::code_element
+  CODE_GEMARA_EXTENDED_GO["gemara_extended.go:28,42,85,149,162,241,305,316,327"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME -->|implemented_by| CODE_GEMARA_EXTENDED_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_GEMARA_EXTENDED_GO
   CODE_GEMARA_L1L3_GO["gemara_l1l3.go:28,50,74,109,122,176,191,208,222,241"]:::code_element
@@ -6339,7 +6339,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>
-|Test Code Elements |gemara_export_test.go:27,134,173,213,231,249
+|Test Code Elements |gemara_export_test.go:27,137,181,194,234,252,270
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_GEMARA_EXPORTER,FU-GEMARA-EXPORTER>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>
 |Result Summary |not-run:1
 |Evidence |gemara_export_test.go

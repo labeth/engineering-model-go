@@ -129,12 +129,11 @@ func GenerateGemaraEvaluationLog(bundle model.Bundle, requirements model.Require
 					al.Recommendation = "Address findings: " + strings.Join(cv.Findings, "; ")
 				}
 				for i, ev := range cv.Evidence {
-					al.Evidence = append(al.Evidence, gemara.Evidence{
-						Id:          fmt.Sprintf("%s-EV-%d", cv.ID, i+1),
-						Type:        gemara.EvidenceType("ControlVerification"),
-						CollectedAt: gemara.Datetime(start),
-						Description: fallback(ev.Description, ev.Path),
-					})
+					al.Evidence = append(al.Evidence, controlVerificationEvidence(
+						fmt.Sprintf("%s-EV-%d", cv.ID, i+1),
+						start,
+						ev,
+					))
 				}
 				if lt := normalizeDatetime(cv.LastTested); lt != "" {
 					al.End = gemara.Datetime(lt)

@@ -142,6 +142,20 @@ func buildControlThreatMapping(bundle model.Bundle, cfg gemaraConfig) (gemara.Ma
 
 // -------------------- L7 Audit Log --------------------
 
+// controlVerificationEvidence retains the authored path as the raw payload
+// required by Gemara's strict evidence schema.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func controlVerificationEvidence(id, collected string, ev model.ControlVerificationEvidence) gemara.Evidence {
+	return gemara.Evidence{
+		Id:          id,
+		Type:        gemara.EvidenceType("ControlVerification"),
+		CollectedAt: gemara.Datetime(collected),
+		Payload:     fallback(ev.Path, ev.Description),
+		Description: fallback(ev.Description, ev.Path),
+	}
+}
+
 // buildAuditLog derives a point-in-time audit log from control verifications and risks.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-015
@@ -174,12 +188,11 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.A
 			},
 		}
 		for i, ev := range cv.Evidence {
-			ar.Evidence = append(ar.Evidence, gemara.Evidence{
-				Id:          fmt.Sprintf("%s-EV-%d", ar.Id, i+1),
-				Type:        gemara.EvidenceType("ControlVerification"),
-				CollectedAt: gemara.Datetime(collected),
-				Description: fallback(ev.Description, ev.Path),
-			})
+			ar.Evidence = append(ar.Evidence, controlVerificationEvidence(
+				fmt.Sprintf("%s-EV-%d", ar.Id, i+1),
+				collected,
+				ev,
+			))
 		}
 		for _, f := range cv.Findings {
 			ar.Recommendations = append(ar.Recommendations, gemara.Recommendation{Text: f, Required: rt == gemara.ResultFinding})

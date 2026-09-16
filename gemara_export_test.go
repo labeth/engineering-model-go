@@ -111,6 +111,9 @@ func TestGemaraArtifactsLoadThroughSDK(t *testing.T) {
 			assertThreatCatalogInvariants(t, res.ThreatCatalog)
 			assertRiskCatalogInvariants(t, res.RiskCatalog)
 			assertCapabilityCatalogInvariants(t, res.CapabilityCatalog)
+			if res.HasAudit {
+				assertEvidencePayloads(t, res.AuditLog.Results)
+			}
 
 			// Exercise an SDK consumer helper on the round-tripped catalog: every
 			// assessment requirement must be reachable via some applicability group.
@@ -162,9 +165,27 @@ func TestGemaraEvaluationLogLoadsThroughSDK(t *testing.T) {
 					if al.Requirement.ReferenceId != ce.Control.ReferenceId {
 						t.Fatalf("assessment-log requirement ref %q != control ref %q", al.Requirement.ReferenceId, ce.Control.ReferenceId)
 					}
+					for _, evidence := range al.Evidence {
+						if evidence.Payload == nil {
+							t.Fatalf("assessment-log evidence %q missing payload", evidence.Id)
+						}
+					}
 				}
 			}
 		})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func assertEvidencePayloads(t *testing.T, results []*gemara.AuditResult) {
+	t.Helper()
+	for _, result := range results {
+		for _, evidence := range result.Evidence {
+			if evidence.Payload == nil {
+				t.Fatalf("audit evidence %q missing payload", evidence.Id)
+			}
+		}
 	}
 }
 
