@@ -3,7 +3,7 @@
     "uuid": "ec12490d-cf84-5f95-b580-10585bf80c49",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture POA\u0026M",
-      "last-modified": "2026-06-27T06:49:36Z",
+      "last-modified": "2026-09-15T14:31:24Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -75,14 +75,14 @@
         "title": "Traceability drift weakens assurance evidence",
         "description": "Code and tests evolve without updating requirement trace markers, eroding coverage evidence.",
         "status": "mitigating",
-        "statement": "Strict code-linking coverage and inferred verification keep drift detectable."
+        "statement": "Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable."
       },
       {
         "uuid": "a1a1d97f-c8b4-56c3-8a7c-d00c6e5f00c7",
         "title": "Stale generated artifacts misrepresent the system",
         "description": "Generated documentation or exchange artifacts fall out of sync with the authored model.",
-        "status": "open",
-        "statement": "Determinism plus staleness checks make drift visible; residual risk accepted between regenerations."
+        "status": "mitigating",
+        "statement": "Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the model."
       }
     ]
   }

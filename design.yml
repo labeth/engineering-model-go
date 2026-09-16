@@ -348,6 +348,25 @@ design:
           title: CLI Orchestration Traceability
           narrative: Maintains deterministic invocation paths for reproducible artifact updates.
 
+    - id: FU-MODEL-CHANGE
+      group: FG-MODEL-AUTHORING
+      views:
+        architecture_intent:
+          title: Model Change Intent
+          narrative: Provides a typed mutation boundary for authored model documents without duplicating model validation semantics.
+        communication:
+          title: Model Change Communication
+          narrative: Accepts versioned stable-ID operations and returns deterministic summaries plus structured diagnostics.
+        deployment:
+          title: Model Change Deployment
+          narrative: Runs through the engchange CLI or reusable Go API in local developer workflows.
+        security:
+          title: Model Change Security
+          narrative: Rejects unknown fields, conflicting operations, stale source content, and invalid candidates before replacement.
+        traceability:
+          title: Model Change Traceability
+          narrative: Links each mutation behavior to requirements and preserves stable identifiers through the YAML AST merge.
+
     - id: FU-SYSTEM-COMPOSITION
       group: FG-MODEL-AUTHORING
       views:

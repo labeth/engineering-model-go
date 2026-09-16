@@ -4378,14 +4378,353 @@
         "VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C"
       ],
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-031",
+      "text": "When requirements delta is received, the engineering model go shall strictly validate requirements delta schema plus stable identifier operation uniqueness.",
+      "units": [
+        "FU-MODEL-CHANGE",
+        "FU-MODEL-LOADER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-APPLYREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 77
+        },
+        {
+          "symbol": "CODE-DECODESTRICTYAML",
+          "path": "requirements_delta.go",
+          "line": 510
+        },
+        {
+          "symbol": "CODE-LOADREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 160
+        },
+        {
+          "symbol": "CODE-MAIN",
+          "path": "cmd/engchange/main.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-MERGEREQUIREMENTSYAML",
+          "path": "requirements_delta.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-PLANREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 114
+        },
+        {
+          "symbol": "CODE-PLANREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAINVALIDCANDIDATEDOESNOTWRITE",
+          "path": "requirements_delta_test.go",
+          "line": 281
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAWRITESVALIDATEDCANDIDATE",
+          "path": "requirements_delta_test.go",
+          "line": 222
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAADDUPDATEREMOVEANDPRESERVECOMMENTS",
+          "path": "requirements_delta_test.go",
+          "line": 15
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAREJECTSCONFLICTINGOPERATIONS",
+          "path": "requirements_delta_test.go",
+          "line": 263
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAREJECTSUNKNOWNFIELDS",
+          "path": "requirements_delta_test.go",
+          "line": 353
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAREJECTSUNNORMALIZEDIDS",
+          "path": "requirements_delta_test.go",
+          "line": 80
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAREJECTSUNNORMALIZEDREMOVEID",
+          "path": "requirements_delta_test.go",
+          "line": 97
+        },
+        {
+          "symbol": "CODE-USAGE",
+          "path": "cmd/engchange/main.go",
+          "line": 80
+        },
+        {
+          "symbol": "CODE-VALIDATEREQUIREMENTSDELTAOPERATIONS",
+          "path": "requirements_delta.go",
+          "line": 297
+        },
+        {
+          "symbol": "CODE-WRITEDELTA",
+          "path": "requirements_delta_test.go",
+          "line": 440
+        },
+        {
+          "symbol": "CODE-WRITEFIXTUREFILE",
+          "path": "requirements_delta_test.go",
+          "line": 448
+        },
+        {
+          "symbol": "CODE-WRITEREQUIREMENTSDELTAFIXTURE",
+          "path": "requirements_delta_test.go",
+          "line": 369
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-032",
+      "text": "While dry run mode is active, when requirements delta is received, the engineering model go shall validate candidate architecture model without modifying requirements document.",
+      "units": [
+        "FU-MODEL-CHANGE",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-APPLYREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 77
+        },
+        {
+          "symbol": "CODE-DECODESTRICTYAML",
+          "path": "requirements_delta.go",
+          "line": 510
+        },
+        {
+          "symbol": "CODE-ENCODEREQUIREMENTNODE",
+          "path": "requirements_delta.go",
+          "line": 424
+        },
+        {
+          "symbol": "CODE-MAIN",
+          "path": "cmd/engchange/main.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-MERGEREQUIREMENTSYAML",
+          "path": "requirements_delta.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-PLANREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 114
+        },
+        {
+          "symbol": "CODE-PLANREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-PRINTDIAGNOSTICS",
+          "path": "cmd/engchange/main.go",
+          "line": 68
+        },
+        {
+          "symbol": "CODE-RENDERREQUIREMENTSDIFF",
+          "path": "requirements_delta.go",
+          "line": 528
+        },
+        {
+          "symbol": "CODE-REQUIREMENTNODEID",
+          "path": "requirements_delta.go",
+          "line": 406
+        },
+        {
+          "symbol": "CODE-REQUIREMENTSSEQUENCE",
+          "path": "requirements_delta.go",
+          "line": 386
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTADANGLINGAPPLIESTODOESNOTWRITE",
+          "path": "requirements_delta_test.go",
+          "line": 314
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAINVALIDCANDIDATEDOESNOTWRITE",
+          "path": "requirements_delta_test.go",
+          "line": 281
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAWRITESVALIDATEDCANDIDATE",
+          "path": "requirements_delta_test.go",
+          "line": 222
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAADDUPDATEREMOVEANDPRESERVECOMMENTS",
+          "path": "requirements_delta_test.go",
+          "line": 15
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAREJECTSCONFLICTINGOPERATIONS",
+          "path": "requirements_delta_test.go",
+          "line": 263
+        },
+        {
+          "symbol": "CODE-VALIDATEREQUIREMENTSCANDIDATE",
+          "path": "requirements_delta.go",
+          "line": 347
+        },
+        {
+          "symbol": "CODE-WRITEREQUIREMENTSDELTAFIXTURE",
+          "path": "requirements_delta_test.go",
+          "line": 369
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-033",
+      "text": "While model is valid, when requirements delta apply is requested, the engineering model go shall atomically replace requirements document.",
+      "units": [
+        "FU-CLI-ORCHESTRATION",
+        "FU-MODEL-CHANGE",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-ACQUIREREQUIREMENTSLOCK",
+          "path": "requirements_delta.go",
+          "line": 597
+        },
+        {
+          "symbol": "CODE-APPLYREQUIREMENTSDELTA",
+          "path": "requirements_delta.go",
+          "line": 77
+        },
+        {
+          "symbol": "CODE-COPYNODEPRESENTATION",
+          "path": "requirements_delta.go",
+          "line": 469
+        },
+        {
+          "symbol": "CODE-MAIN",
+          "path": "cmd/engchange/main.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-MERGEREQUIREMENTNODE",
+          "path": "requirements_delta.go",
+          "line": 434
+        },
+        {
+          "symbol": "CODE-REQUIREMENTSPATH",
+          "path": "requirements_delta.go",
+          "line": 572
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTADANGLINGAPPLIESTODOESNOTWRITE",
+          "path": "requirements_delta_test.go",
+          "line": 314
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAINVALIDCANDIDATEDOESNOTWRITE",
+          "path": "requirements_delta_test.go",
+          "line": 281
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAREJECTSCONCURRENTWRITERLOCK",
+          "path": "requirements_delta_test.go",
+          "line": 135
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAREJECTSSYMLINK",
+          "path": "requirements_delta_test.go",
+          "line": 112
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAREUSESRELEASEDLOCKFILE",
+          "path": "requirements_delta_test.go",
+          "line": 200
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTASHARESLOCKACROSSDIRECTORYSYMLINKS",
+          "path": "requirements_delta_test.go",
+          "line": 155
+        },
+        {
+          "symbol": "CODE-TESTAPPLYREQUIREMENTSDELTAWRITESVALIDATEDCANDIDATE",
+          "path": "requirements_delta_test.go",
+          "line": 222
+        },
+        {
+          "symbol": "CODE-TESTPLANREQUIREMENTSDELTAADDUPDATEREMOVEANDPRESERVECOMMENTS",
+          "path": "requirements_delta_test.go",
+          "line": 15
+        },
+        {
+          "symbol": "CODE-TESTREQUIREMENTSPATHCANONICALIZESDIRECTORYSYMLINK",
+          "path": "requirements_delta_test.go",
+          "line": 179
+        },
+        {
+          "symbol": "CODE-WRITEFILEATOMIC",
+          "path": "requirements_delta.go",
+          "line": 621
+        },
+        {
+          "symbol": "CODE-WRITEFIXTUREFILE",
+          "path": "requirements_delta_test.go",
+          "line": 448
+        },
+        {
+          "symbol": "CODE-WRITEREQUIREMENTSDELTAFIXTURE",
+          "path": "requirements_delta_test.go",
+          "line": 369
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-034",
+      "text": "When requirements delta is received, the engineering model go shall produce deterministic requirements change summary.",
+      "units": [
+        "FU-CLI-ORCHESTRATION",
+        "FU-MODEL-CHANGE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-RENDERREQUIREMENTFIELDDIFF",
+          "path": "requirements_delta.go",
+          "line": 552
+        },
+        {
+          "symbol": "CODE-SORTEDREQUIREMENTKEYS",
+          "path": "requirements_delta.go",
+          "line": 561
+        }
+      ],
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
   "orphanRequirements": null,
   "summary": {
-    "requirements": 29,
-    "implemented": 29,
-    "verified": 23,
+    "requirements": 33,
+    "implemented": 33,
+    "verified": 26,
     "delegated": 0,
     "orphan": 0,
     "danglingLinks": 0

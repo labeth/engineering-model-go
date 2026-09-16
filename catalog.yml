@@ -88,6 +88,10 @@ catalog:
       name: cli orchestration
       definition: Command entrypoints that orchestrate loading, validation, generation, and export flows.
       aliases: [cmd layer]
+    - id: FU-MODEL-CHANGE
+      name: model change
+      definition: Plans, validates, summarizes, and atomically applies typed changes to authored model documents.
+      aliases: [delta merger, requirements merger]
 
   referencedElements:
     - id: REF-GO-TOOLCHAIN
@@ -176,6 +180,14 @@ catalog:
       name: mcp tool call is received
       definition: Event indicating the MCP server received a tool invocation request.
       aliases: [tool call]
+    - id: EVT-REQUIREMENTS-DELTA-RECEIVED
+      name: requirements delta is received
+      definition: Event indicating a typed requirements change is ready for planning and validation.
+      aliases: [requirements change received]
+    - id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      name: requirements delta apply is requested
+      definition: Event indicating a validated requirements change should replace the canonical document.
+      aliases: [requirements apply requested]
 
   states:
     - id: STATE-MODEL-VALID
@@ -234,6 +246,10 @@ catalog:
       name: ci validation mode is active
       definition: Automated pipeline mode focused on deterministic checks and artifacts.
       aliases: [ci mode]
+    - id: MODE-DRY-RUN
+      name: dry run mode is active
+      definition: Change-planning mode that computes and validates a candidate without writing canonical files.
+      aliases: [preview mode]
 
   conditions:
     - id: COND-CATALOG-REFERENCES-RESOLVE
@@ -253,7 +269,19 @@ catalog:
     - id: DATA-ARCHITECTURE-MODEL
       name: architecture model
       definition: Authored architecture source describing functional intent and mappings.
-      aliases: [architecture yml]
+      aliases: [architecture yml, candidate architecture model]
+    - id: DATA-REQUIREMENTS-DELTA
+      name: requirements delta
+      definition: Versioned add, whole-entity update, and remove operations keyed by requirement stable ID.
+      aliases: [requirements change]
+    - id: DATA-REQUIREMENTS-DOCUMENT
+      name: requirements document
+      definition: Canonical authored requirements YAML document.
+      aliases: [requirements yml]
+    - id: DATA-REQUIREMENTS-DIFF
+      name: requirements change summary
+      definition: Deterministic human-readable summary of added, updated, and removed requirements.
+      aliases: [requirements diff]
     - id: DATA-MCP-TOOL-RESULT
       name: mcp tool result
       definition: Structured MCP tool response payload carrying model-aware query results.

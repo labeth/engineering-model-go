@@ -19,7 +19,7 @@
             }
           ],
           "title": "Control Catalog",
-          "uuid": "d8b92606-ffeb-4e79-aac4-1e03906ccef5"
+          "uuid": "cc40c1e0-e1f9-4f78-b827-b6f12acc7e46"
         }
       ]
     },
@@ -27,20 +27,20 @@
       "href": "#"
     },
     "metadata": {
-      "last-modified": "2026-06-27T08:38:53.925250435+02:00",
+      "last-modified": "2026-09-15T14:31:24.610794878Z",
       "oscal-version": "1.1.3",
       "parties": [
         {
           "name": "Engineering Model",
           "type": "person",
-          "uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932"
+          "uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7"
         }
       ],
       "published": "2026-06-27T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
-            "769c5cb7-6f5e-4538-bb9b-8c893a51d932"
+            "69623fa1-095d-4d89-8626-08b53fd8abe7"
           ],
           "role-id": "assessor"
         }
@@ -62,37 +62,61 @@
               "description": "Assessment of \"MCP Path Boundary Enforcement\" via test.",
               "logged-by": [
                 {
-                  "party-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                  "party-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                   "role-id": "assessor"
                 }
               ],
               "start": "2026-06-27T00:00:00Z",
               "title": "CTRL-MCP-PATH-BOUNDARY / VER-MCP-PATH-BOUNDARY",
-              "uuid": "979a735e-5a9c-4417-b703-1557fad95168"
+              "uuid": "68958b1f-e297-493d-b2f0-a61b9cca16e5"
             },
             {
               "description": "No authored verification for control Strict MCP Input Schemas; manual review required.",
               "logged-by": [
                 {
-                  "party-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                  "party-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                   "role-id": "assessor"
                 }
               ],
               "start": "2026-06-27T00:00:00Z",
               "title": "CTRL-STRICT-MCP-INPUT-SCHEMA / CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1",
-              "uuid": "edbc99ad-d3a1-43c3-8c41-54cc3a5d6384"
+              "uuid": "7e1b3528-ac54-4e0a-8f68-5f8258b3a6ce"
             },
             {
               "description": "Assessment of \"Requirement Traceability Coverage\" via analysis.",
               "logged-by": [
                 {
-                  "party-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                  "party-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                   "role-id": "assessor"
                 }
               ],
               "start": "2026-06-27T00:00:00Z",
               "title": "CTRL-TRACEABILITY-COVERAGE / VER-TRACEABILITY-COVERAGE",
-              "uuid": "26b284ab-aea3-4375-835b-e6c4d5edac5c"
+              "uuid": "a843af81-494d-4b81-b9ce-b8008f027809"
+            },
+            {
+              "description": "No authored verification for control Trace Link Integrity; manual review required.",
+              "logged-by": [
+                {
+                  "party-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-06-27T00:00:00Z",
+              "title": "CTRL-TRACE-LINK-INTEGRITY / CTRL-TRACE-LINK-INTEGRITY-AR-1",
+              "uuid": "c53aa6ce-2404-4138-9094-5a57f89130eb"
+            },
+            {
+              "description": "No authored verification for control Generated Artifact Freshness Gate; manual review required.",
+              "logged-by": [
+                {
+                  "party-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-06-27T00:00:00Z",
+              "title": "CTRL-ARTIFACT-FRESHNESS-GATE / CTRL-ARTIFACT-FRESHNESS-GATE-AR-1",
+              "uuid": "2d582d63-eddd-41fd-930f-3bb84a3c49c4"
             }
           ]
         },
@@ -104,7 +128,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -113,7 +137,7 @@
             ],
             "related-observations": [
               {
-                "observation-uuid": "cdc51d72-f7dc-46f6-8636-00032e89a949"
+                "observation-uuid": "15ca4eab-5856-4f2d-b981-72e80ded7e03"
               }
             ],
             "target": {
@@ -124,7 +148,7 @@
               "type": "objective-id"
             },
             "title": "MCP Path Boundary Enforcement",
-            "uuid": "4165ce63-5a32-4ae4-8474-361174e3b19f"
+            "uuid": "cf86afec-4ee9-42f4-9b25-bf1e9af00108"
           },
           {
             "description": "1 assessment(s) recorded for control CTRL-STRICT-MCP-INPUT-SCHEMA.",
@@ -132,7 +156,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -141,7 +165,7 @@
             ],
             "related-observations": [
               {
-                "observation-uuid": "40f3c9c7-12b0-44e9-9a4a-6b50c44c3f54"
+                "observation-uuid": "2467dd79-d08d-440d-94d8-328dbdc437da"
               }
             ],
             "target": {
@@ -153,7 +177,7 @@
               "type": "objective-id"
             },
             "title": "Strict MCP Input Schemas",
-            "uuid": "f5efd287-48ec-4342-bbd5-429b956c01fe"
+            "uuid": "6fa3400c-60a0-400d-9a76-19a37e1ca103"
           },
           {
             "description": "1 assessment(s) recorded for control CTRL-TRACEABILITY-COVERAGE.",
@@ -161,7 +185,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -170,7 +194,7 @@
             ],
             "related-observations": [
               {
-                "observation-uuid": "b2e6dcac-a1a4-4856-9bc8-e6432cad3cfa"
+                "observation-uuid": "4ea3b453-415a-4f23-8e39-e1e28a0b1d37"
               }
             ],
             "target": {
@@ -182,7 +206,65 @@
               "type": "objective-id"
             },
             "title": "Requirement Traceability Coverage",
-            "uuid": "181b3922-f6da-4237-b390-49dbd2fea7b9"
+            "uuid": "a801048d-81d9-4483-92e0-8d704a09eb3b"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-TRACE-LINK-INTEGRITY.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                    "role-id": "assessor",
+                    "type": "person"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "9498a7f3-1d50-438d-8fc9-0f12e0ea79be"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "Needs Review",
+                "state": "not-satisfied"
+              },
+              "target-id": "CTRL-TRACE-LINK-INTEGRITY",
+              "type": "objective-id"
+            },
+            "title": "Trace Link Integrity",
+            "uuid": "b5750e5f-2d18-4809-88e4-6d08a189db0a"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-ARTIFACT-FRESHNESS-GATE.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                    "role-id": "assessor",
+                    "type": "person"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "9531a71e-f4cb-4e54-8ba1-fc1788397f2f"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "Needs Review",
+                "state": "not-satisfied"
+              },
+              "target-id": "CTRL-ARTIFACT-FRESHNESS-GATE",
+              "type": "objective-id"
+            },
+            "title": "Generated Artifact Freshness Gate",
+            "uuid": "d2e2e79e-f50b-4fdd-a493-0513a38354af"
           }
         ],
         "local-definitions": {
@@ -201,7 +283,7 @@
                   "value": "Engineering Model Go Repository Architecture"
                 }
               ],
-              "uuid": "a29bbc69-d61b-4f01-af95-1972e78afb60"
+              "uuid": "87df245f-c814-4222-bea4-00be7228045d"
             }
           ]
         },
@@ -216,7 +298,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -240,7 +322,7 @@
                 "value": "CTRL-MCP-PATH-BOUNDARY"
               }
             ],
-            "uuid": "cdc51d72-f7dc-46f6-8636-00032e89a949"
+            "uuid": "15ca4eab-5856-4f2d-b981-72e80ded7e03"
           },
           {
             "collected": "2026-06-27T00:00:00Z",
@@ -252,7 +334,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -276,7 +358,7 @@
                 "value": "CTRL-STRICT-MCP-INPUT-SCHEMA"
               }
             ],
-            "uuid": "40f3c9c7-12b0-44e9-9a4a-6b50c44c3f54"
+            "uuid": "2467dd79-d08d-440d-94d8-328dbdc437da"
           },
           {
             "collected": "2026-06-27T00:00:00Z",
@@ -288,7 +370,7 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "769c5cb7-6f5e-4538-bb9b-8c893a51d932",
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
                     "role-id": "assessor",
                     "type": "person"
                   }
@@ -312,7 +394,79 @@
                 "value": "CTRL-TRACEABILITY-COVERAGE"
               }
             ],
-            "uuid": "b2e6dcac-a1a4-4856-9bc8-e6432cad3cfa"
+            "uuid": "4ea3b453-415a-4f23-8e39-e1e28a0b1d37"
+          },
+          {
+            "collected": "2026-06-27T00:00:00Z",
+            "description": "No authored verification for control Trace Link Integrity; manual review required.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                    "role-id": "assessor",
+                    "type": "person"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-TRACE-LINK-INTEGRITY-AR-1"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-TRACE-LINK-INTEGRITY"
+              }
+            ],
+            "uuid": "9498a7f3-1d50-438d-8fc9-0f12e0ea79be"
+          },
+          {
+            "collected": "2026-06-27T00:00:00Z",
+            "description": "No authored verification for control Generated Artifact Freshness Gate; manual review required.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "69623fa1-095d-4d89-8626-08b53fd8abe7",
+                    "role-id": "assessor",
+                    "type": "person"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-ARTIFACT-FRESHNESS-GATE"
+              }
+            ],
+            "uuid": "9531a71e-f4cb-4e54-8ba1-fc1788397f2f"
           }
         ],
         "props": [
@@ -334,6 +488,12 @@
                 },
                 {
                   "control-id": "CTRL-TRACEABILITY-COVERAGE"
+                },
+                {
+                  "control-id": "CTRL-TRACE-LINK-INTEGRITY"
+                },
+                {
+                  "control-id": "CTRL-ARTIFACT-FRESHNESS-GATE"
                 }
               ]
             }
@@ -341,9 +501,9 @@
         },
         "start": "2026-06-27T00:00:00Z",
         "title": "Evaluation: engineering-model-go-EVALUATION-LOG",
-        "uuid": "2c3d9346-f4c1-496b-bac5-5cc7ea159ef5"
+        "uuid": "38724469-986c-4329-b438-5b8b68b82747"
       }
     ],
-    "uuid": "86560a1b-21f0-4a3b-9510-e0c4666e0cdf"
+    "uuid": "e83c1f39-e988-4641-8d2f-b67d828da3ad"
   }
 }

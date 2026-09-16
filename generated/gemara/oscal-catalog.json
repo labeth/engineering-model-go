@@ -143,6 +143,88 @@
               }
             ],
             "title": "Requirement Traceability Coverage"
+          },
+          {
+            "class": "assurance",
+            "controls": [
+              {
+                "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1",
+                "parts": [
+                  {
+                    "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1_smt",
+                    "name": "statement",
+                    "prose": "The system MUST implement the control \"Trace Link Integrity\": Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup."
+                  },
+                  {
+                    "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1_obj",
+                    "links": [
+                      {
+                        "href": "#CTRL-TRACE-LINK-INTEGRITY-AR-1_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CTRL-TRACE-LINK-INTEGRITY-AR-1"
+              }
+            ],
+            "id": "CTRL-TRACE-LINK-INTEGRITY",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/0.0.1#ctrl-trace-link-integrity",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-TRACE-LINK-INTEGRITY_smt",
+                "name": "statement",
+                "prose": "Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup."
+              }
+            ],
+            "title": "Trace Link Integrity"
+          },
+          {
+            "class": "assurance",
+            "controls": [
+              {
+                "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1",
+                "parts": [
+                  {
+                    "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_smt",
+                    "name": "statement",
+                    "prose": "The system MUST implement the control \"Generated Artifact Freshness Gate\": Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts."
+                  },
+                  {
+                    "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_obj",
+                    "links": [
+                      {
+                        "href": "#CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1"
+              }
+            ],
+            "id": "CTRL-ARTIFACT-FRESHNESS-GATE",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/0.0.1#ctrl-artifact-freshness-gate",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "CTRL-ARTIFACT-FRESHNESS-GATE_smt",
+                "name": "statement",
+                "prose": "Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts."
+              }
+            ],
+            "title": "Generated Artifact Freshness Gate"
           }
         ],
         "id": "assurance",
@@ -150,7 +232,7 @@
       }
     ],
     "metadata": {
-      "last-modified": "2026-06-27T08:38:53.920177428+02:00",
+      "last-modified": "2026-09-15T14:31:24.603634134Z",
       "links": [
         {
           "href": "https://gemara.local/controls/0.0.1#",
@@ -162,14 +244,14 @@
         {
           "name": "Engineering Model",
           "type": "person",
-          "uuid": "3a2da911-758a-41d1-b35b-aeb45dcaa957"
+          "uuid": "db6503c3-bc0a-4745-9111-10249856f5d9"
         }
       ],
       "published": "2026-06-27T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
-            "3a2da911-758a-41d1-b35b-aeb45dcaa957"
+            "db6503c3-bc0a-4745-9111-10249856f5d9"
           ],
           "role-id": "author"
         }
@@ -184,6 +266,6 @@
       "title": "Engineering Model Go Repository Architecture - Controls",
       "version": "0.0.1"
     },
-    "uuid": "56b55c45-d827-4ee6-b32c-066935f8441a"
+    "uuid": "db78b006-c2cc-491d-998c-902e0e521b54"
   }
 }

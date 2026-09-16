@@ -299,12 +299,141 @@
             }
           },
           {
-            "id": "2cec4e0e-959f-5181-a801-f4f2402a9505",
+            "id": "dab1ad48-b31b-512d-b014-bd3df393e92e",
             "shape": "store",
             "zIndex": 8,
             "position": {
               "x": 840,
               "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Requirements Delta"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "requirements_delta.go",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Requirements Delta",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "d8c4a4a9-a634-586a-ad02-d31c75256872",
+            "shape": "store",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Requirements Change Summary"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "requirements_delta.go",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Requirements Change Summary",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "3400d325-6e2a-5169-a19e-25b2438c79aa",
+            "shape": "store",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Requirements Document"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "requirements.yml",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Requirements Document",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "2cec4e0e-959f-5181-a801-f4f2402a9505",
+            "shape": "store",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
             },
             "size": {
               "height": 90,
@@ -344,9 +473,9 @@
           {
             "id": "779d7a4e-220e-5d4f-a99a-25ad6b4bcc18",
             "shape": "store",
-            "zIndex": 9,
+            "zIndex": 12,
             "position": {
-              "x": 60,
+              "x": 840,
               "y": 400
             },
             "size": {
@@ -385,12 +514,50 @@
             }
           },
           {
+            "id": "931aae73-e620-5fa8-9731-228f26d62a01",
+            "shape": "process",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Allocation Trace"
+              }
+            },
+            "data": {
+              "description": "Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Allocation Trace",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
             "id": "002343d9-721e-561b-a004-9bbf2e33a0be",
             "shape": "process",
-            "zIndex": 10,
+            "zIndex": 14,
             "position": {
               "x": 320,
-              "y": 400
+              "y": 570
             },
             "size": {
               "height": 90,
@@ -425,10 +592,10 @@
           {
             "id": "7ff313c5-7dc3-5193-806c-af6a699ebaa1",
             "shape": "process",
-            "zIndex": 11,
+            "zIndex": 15,
             "position": {
               "x": 580,
-              "y": 400
+              "y": 570
             },
             "size": {
               "height": 90,
@@ -463,10 +630,10 @@
           {
             "id": "63fdfb9f-97e9-5008-b5eb-972c8bdd3284",
             "shape": "process",
-            "zIndex": 12,
+            "zIndex": 16,
             "position": {
               "x": 840,
-              "y": 400
+              "y": 570
             },
             "size": {
               "height": 90,
@@ -514,10 +681,10 @@
           {
             "id": "7ffe5d9d-24ff-5d58-b042-9138ca9eec4d",
             "shape": "process",
-            "zIndex": 13,
+            "zIndex": 17,
             "position": {
               "x": 60,
-              "y": 570
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -534,7 +701,7 @@
               }
             },
             "data": {
-              "description": "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.",
+              "description": "Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.",
               "hasOpenThreats": false,
               "isALog": false,
               "isEncrypted": false,
@@ -552,10 +719,10 @@
           {
             "id": "6b02063a-6002-5e2b-9df9-34ca2b92be2a",
             "shape": "process",
-            "zIndex": 14,
+            "zIndex": 18,
             "position": {
               "x": 320,
-              "y": 570
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -603,10 +770,10 @@
           {
             "id": "0fdb3e74-195f-569f-b10d-846194107c4e",
             "shape": "process",
-            "zIndex": 15,
+            "zIndex": 19,
             "position": {
               "x": 580,
-              "y": 570
+              "y": 740
             },
             "size": {
               "height": 90,
@@ -652,12 +819,50 @@
             }
           },
           {
-            "id": "06edb649-5267-5a38-8a3b-12020c58b25d",
+            "id": "fd1edcf2-f844-5ed4-9514-fc289f1858a5",
             "shape": "process",
-            "zIndex": 16,
+            "zIndex": 20,
             "position": {
               "x": 840,
-              "y": 570
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Model Change"
+              }
+            },
+            "data": {
+              "description": "Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Model Change",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "06edb649-5267-5a38-8a3b-12020c58b25d",
+            "shape": "process",
+            "zIndex": 21,
+            "position": {
+              "x": 60,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -692,10 +897,10 @@
           {
             "id": "b3bec3d2-9395-5fa8-be48-11bb495974c9",
             "shape": "process",
-            "zIndex": 17,
+            "zIndex": 22,
             "position": {
-              "x": 60,
-              "y": 740
+              "x": 320,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -712,7 +917,7 @@
               }
             },
             "data": {
-              "description": "Exports OSCAL SSP control and risk views.",
+              "description": "Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA\u0026M).",
               "hasOpenThreats": false,
               "isALog": false,
               "isEncrypted": false,
@@ -730,10 +935,10 @@
           {
             "id": "7b1897fd-763b-5917-91bf-21cf69c25b21",
             "shape": "process",
-            "zIndex": 18,
+            "zIndex": 23,
             "position": {
-              "x": 320,
-              "y": 740
+              "x": 580,
+              "y": 910
             },
             "size": {
               "height": 90,
@@ -766,12 +971,50 @@
             }
           },
           {
+            "id": "e07d6f4f-6871-570c-98f9-042defce89b1",
+            "shape": "process",
+            "zIndex": 24,
+            "position": {
+              "x": 840,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "System Composition"
+              }
+            },
+            "data": {
+              "description": "Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "System Composition",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
             "id": "4a3741ca-6d92-5873-995f-b0b452b4499e",
             "shape": "process",
-            "zIndex": 19,
+            "zIndex": 25,
             "position": {
-              "x": 580,
-              "y": 740
+              "x": 60,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -806,10 +1049,10 @@
           {
             "id": "1b0aa39e-5e97-5fb5-a0b3-8faa23a4affd",
             "shape": "process",
-            "zIndex": 20,
+            "zIndex": 26,
             "position": {
-              "x": 840,
-              "y": 740
+              "x": 320,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -857,10 +1100,10 @@
           {
             "id": "dc739d03-100e-5958-9a98-1c87f6f7d871",
             "shape": "process",
-            "zIndex": 21,
+            "zIndex": 27,
             "position": {
-              "x": 60,
-              "y": 910
+              "x": 580,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -895,10 +1138,10 @@
           {
             "id": "0d8ebf81-654b-5228-aef7-dcb87dd10bcb",
             "shape": "process",
-            "zIndex": 22,
+            "zIndex": 28,
             "position": {
-              "x": 320,
-              "y": 910
+              "x": 840,
+              "y": 1080
             },
             "size": {
               "height": 90,
@@ -931,12 +1174,50 @@
             }
           },
           {
+            "id": "3006d075-be0e-507f-bbc4-b225fcb7e068",
+            "shape": "process",
+            "zIndex": 29,
+            "position": {
+              "x": 60,
+              "y": 1250
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engchange CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engchange",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engchange CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
             "id": "4ce660d9-3b03-54dd-8510-dda2b3c7454c",
             "shape": "process",
-            "zIndex": 23,
+            "zIndex": 30,
             "position": {
-              "x": 580,
-              "y": 910
+              "x": 320,
+              "y": 1250
             },
             "size": {
               "height": 90,
@@ -971,10 +1252,10 @@
           {
             "id": "68ca5cd0-b8cf-5bf2-b323-a2b859f088e3",
             "shape": "process",
-            "zIndex": 24,
+            "zIndex": 31,
             "position": {
-              "x": 840,
-              "y": 910
+              "x": 580,
+              "y": 1250
             },
             "size": {
               "height": 90,
@@ -1007,12 +1288,50 @@
             }
           },
           {
+            "id": "4bd7b781-175c-5b9d-9e8b-e039312ed4ed",
+            "shape": "process",
+            "zIndex": 32,
+            "position": {
+              "x": 840,
+              "y": 1250
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "enggemara CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/enggemara",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "enggemara CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
             "id": "7d3de86a-c730-5dc6-ad64-eff258887512",
             "shape": "process",
-            "zIndex": 25,
+            "zIndex": 33,
             "position": {
               "x": 60,
-              "y": 1080
+              "y": 1420
             },
             "size": {
               "height": 90,
@@ -1047,10 +1366,10 @@
           {
             "id": "17bbfe18-bd10-5dec-a8cf-dd3082d5f186",
             "shape": "process",
-            "zIndex": 26,
+            "zIndex": 34,
             "position": {
               "x": 320,
-              "y": 1080
+              "y": 1420
             },
             "size": {
               "height": 90,
@@ -1085,10 +1404,10 @@
           {
             "id": "65165ca1-1f2c-532c-8f37-f9c752c851de",
             "shape": "process",
-            "zIndex": 27,
+            "zIndex": 35,
             "position": {
               "x": 580,
-              "y": 1080
+              "y": 1420
             },
             "size": {
               "height": 90,
@@ -1123,10 +1442,10 @@
           {
             "id": "1b702e6d-b4c2-579b-b26f-a48600104542",
             "shape": "process",
-            "zIndex": 28,
+            "zIndex": 36,
             "position": {
               "x": 840,
-              "y": 1080
+              "y": 1420
             },
             "size": {
               "height": 90,
@@ -1159,12 +1478,50 @@
             }
           },
           {
-            "id": "ec9f757c-f9bc-57bb-b5f2-e16cef99dac1",
+            "id": "62967dd6-fa7c-54c3-829b-a479ec432bad",
             "shape": "process",
-            "zIndex": 29,
+            "zIndex": 37,
             "position": {
               "x": 60,
-              "y": 1250
+              "y": 1590
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "engtrace CLI"
+              }
+            },
+            "data": {
+              "description": "cli cmd/engtrace",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "engtrace CLI",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "ec9f757c-f9bc-57bb-b5f2-e16cef99dac1",
+            "shape": "process",
+            "zIndex": 38,
+            "position": {
+              "x": 320,
+              "y": 1590
             },
             "size": {
               "height": 90,
@@ -1199,10 +1556,10 @@
           {
             "id": "8ab83f3e-cb9d-5feb-9c61-f3cc86f81933",
             "shape": "process",
-            "zIndex": 30,
+            "zIndex": 39,
             "position": {
-              "x": 320,
-              "y": 1250
+              "x": 580,
+              "y": 1590
             },
             "size": {
               "height": 90,
@@ -1237,10 +1594,10 @@
           {
             "id": "dc1cd078-7112-5a37-8b60-a4e010f95aa1",
             "shape": "trust-boundary-box",
-            "zIndex": 31,
+            "zIndex": 40,
             "position": {
               "x": 330,
-              "y": 2230
+              "y": 2890
             },
             "size": {
               "height": 180,
@@ -1267,10 +1624,10 @@
           {
             "id": "fc4fa542-8f91-5062-b475-ffd03aa522e8",
             "shape": "trust-boundary-box",
-            "zIndex": 32,
+            "zIndex": 41,
             "position": {
               "x": 630,
-              "y": 2230
+              "y": 2890
             },
             "size": {
               "height": 180,
@@ -1297,7 +1654,7 @@
           {
             "id": "d0bfb98c-f07d-51dc-9538-f9e88e3dff66",
             "shape": "flow",
-            "zIndex": 42,
+            "zIndex": 51,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1342,7 +1699,7 @@
           {
             "id": "94f95753-cdeb-5a1c-85e6-8be5d905696f",
             "shape": "flow",
-            "zIndex": 43,
+            "zIndex": 52,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1387,7 +1744,7 @@
           {
             "id": "04a8c0b4-f880-55ba-8b82-6d1b64f3671a",
             "shape": "flow",
-            "zIndex": 44,
+            "zIndex": 53,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1432,7 +1789,7 @@
           {
             "id": "686606b2-94c7-5141-9289-85a0c40ed5e7",
             "shape": "flow",
-            "zIndex": 45,
+            "zIndex": 54,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1477,7 +1834,7 @@
           {
             "id": "ddad4fca-6f02-5854-996f-87fd49bad683",
             "shape": "flow",
-            "zIndex": 46,
+            "zIndex": 55,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1522,7 +1879,7 @@
           {
             "id": "874ef990-af81-5700-90b8-eb00f80a2f28",
             "shape": "flow",
-            "zIndex": 47,
+            "zIndex": 56,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1580,7 +1937,7 @@
           {
             "id": "ad595953-1810-5427-a538-0f1cf554a3c6",
             "shape": "flow",
-            "zIndex": 48,
+            "zIndex": 57,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1625,7 +1982,7 @@
           {
             "id": "de33ac1c-f295-51bb-9438-386c393623fe",
             "shape": "flow",
-            "zIndex": 49,
+            "zIndex": 58,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1670,7 +2027,7 @@
           {
             "id": "8015b7a3-7e34-5fce-bb21-682d70b12f81",
             "shape": "flow",
-            "zIndex": 50,
+            "zIndex": 59,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1713,9 +2070,189 @@
             "connector": "smooth"
           },
           {
+            "id": "a2447a16-1471-5c02-8e0a-27ac0a0787d0",
+            "shape": "flow",
+            "zIndex": 60,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "reads",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "fd1edcf2-f844-5ed4-9514-fc289f1858a5"
+            },
+            "target": {
+              "cell": "dab1ad48-b31b-512d-b014-bd3df393e92e"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "reads"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "37ab5603-24d2-5146-819d-cc97adc48bac",
+            "shape": "flow",
+            "zIndex": 61,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "fd1edcf2-f844-5ed4-9514-fc289f1858a5"
+            },
+            "target": {
+              "cell": "3400d325-6e2a-5169-a19e-25b2438c79aa"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "3496d297-7e91-5a9c-bb4d-6eb7e643ae47",
+            "shape": "flow",
+            "zIndex": 62,
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "writes",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "fd1edcf2-f844-5ed4-9514-fc289f1858a5"
+            },
+            "target": {
+              "cell": "d8c4a4a9-a634-586a-ad02-d31c75256872"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "writes"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
+            "id": "7b1f1443-fdec-56d0-a390-a726decd05e5",
+            "shape": "flow",
+            "zIndex": 63,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Strictly plans and validates a requirements delta before atomically updating canonical requirements.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Requirements Delta to Canonical Requirements Flow",
+              "outOfScope": false,
+              "protocol": "cli",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "7c06b34b-308c-5195-96ac-6b98dca7ac3f"
+            },
+            "target": {
+              "cell": "fd1edcf2-f844-5ed4-9514-fc289f1858a5"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Requirements Delta to Canonical Requirements Flow"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          },
+          {
             "id": "26354948-9fd7-5ba5-af36-50b092dfaafe",
             "shape": "flow",
-            "zIndex": 51,
+            "zIndex": 64,
             "attrs": {
               "line": {
                 "stroke": "#555555",

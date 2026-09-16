@@ -81,6 +81,42 @@ evaluations:
       type: ControlVerification
       collected-at: "2026-06-27T00:00:00Z"
       description: Verification inference and trace marker coverage tests.
+- name: Trace Link Integrity
+  result: Needs Review
+  message: 1 assessment(s) recorded for control CTRL-TRACE-LINK-INTEGRITY.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: CTRL-TRACE-LINK-INTEGRITY
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: CTRL-TRACE-LINK-INTEGRITY-AR-1
+    description: No authored verification for control Trace Link Integrity; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-06-27T00:00:00Z"
+- name: Generated Artifact Freshness Gate
+  result: Needs Review
+  message: 1 assessment(s) recorded for control CTRL-ARTIFACT-FRESHNESS-GATE.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: CTRL-ARTIFACT-FRESHNESS-GATE
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: CTRL-ARTIFACT-FRESHNESS-GATE-AR-1
+    description: No authored verification for control Generated Artifact Freshness Gate; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-06-27T00:00:00Z"
 target:
   id: engineering-model-go
   name: Engineering Model Go Repository Architecture

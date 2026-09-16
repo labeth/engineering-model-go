@@ -89,14 +89,24 @@ terms:
   - englobster
 - id: FU-OSCAL-EXPORTER
   title: oscal exporter
-  definition: Exports security and control content to OSCAL system security plan outputs.
+  definition: Exports the OSCAL system security plan, assessment results, and plan of action and milestones.
   synonyms:
   - engoscal
 - id: FU-GEMARA-EXPORTER
   title: gemara exporter
-  definition: Renders the model into OpenSSF Gemara catalog and log documents validated by the Gemara SDK.
+  definition: Renders the model into OpenSSF Gemara L1-L7 catalogs and logs plus an optional OSCAL bridge, validated by the Gemara SDK.
   synonyms:
   - enggemara
+- id: FU-SYSTEM-COMPOSITION
+  title: system composition
+  definition: Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model.
+  synonyms:
+  - composition
+- id: FU-ALLOCATION-TRACE
+  title: allocation trace
+  definition: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems.
+  synonyms:
+  - allocation
 - id: FU-MCP-SERVER
   title: mcp server
   definition: Serves model-backed MCP tools with validated inputs and structured responses.
@@ -107,6 +117,12 @@ terms:
   definition: Command entrypoints that orchestrate loading, validation, generation, and export flows.
   synonyms:
   - cmd layer
+- id: FU-MODEL-CHANGE
+  title: model change
+  definition: Plans, validates, summarizes, and atomically applies typed changes to authored model documents.
+  synonyms:
+  - delta merger
+  - requirements merger
 - id: ACT-ARCHITECTURE-AUTHOR
   title: architecture author
   definition: Maintains model structure, mappings, and architecture intent.
@@ -177,6 +193,16 @@ terms:
   definition: Event indicating the MCP server received a tool invocation request.
   synonyms:
   - tool call
+- id: EVT-REQUIREMENTS-DELTA-RECEIVED
+  title: requirements delta is received
+  definition: Event indicating a typed requirements change is ready for planning and validation.
+  synonyms:
+  - requirements change received
+- id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+  title: requirements delta apply is requested
+  definition: Event indicating a validated requirements change should replace the canonical document.
+  synonyms:
+  - requirements apply requested
 - id: STATE-MODEL-VALID
   title: model is valid
   definition: State where authored model passes validation checks.
@@ -217,6 +243,16 @@ terms:
   definition: Feature enabling OpenSSF Gemara catalog and evaluation log generation.
   synonyms:
   - gemara generation
+- id: FEAT-SYSTEM-COMPOSITION
+  title: system composition is enabled
+  definition: Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems.
+  synonyms:
+  - system of systems
+- id: FEAT-HARDWARE-INTERFACES
+  title: hardware interfaces are authored
+  definition: Feature enabling hardware items and hardware/software interface modeling.
+  synonyms:
+  - hw interfaces
 - id: FEAT-ARCHITECTURE-DECISION-RECORDS
   title: architecture decision records are authored
   definition: Feature indicating the architecture model includes first-class ADR entries.
@@ -232,6 +268,11 @@ terms:
   definition: Automated pipeline mode focused on deterministic checks and artifacts.
   synonyms:
   - ci mode
+- id: MODE-DRY-RUN
+  title: dry run mode is active
+  definition: Change-planning mode that computes and validates a candidate without writing canonical files.
+  synonyms:
+  - preview mode
 - id: COND-CATALOG-REFERENCES-RESOLVE
   title: catalog references resolve successfully
   definition: Condition requiring all authored references to match known catalog entries.
@@ -252,6 +293,22 @@ terms:
   definition: Authored architecture source describing functional intent and mappings.
   synonyms:
   - architecture yml
+  - candidate architecture model
+- id: DATA-REQUIREMENTS-DELTA
+  title: requirements delta
+  definition: Versioned add, whole-entity update, and remove operations keyed by requirement stable ID.
+  synonyms:
+  - requirements change
+- id: DATA-REQUIREMENTS-DOCUMENT
+  title: requirements document
+  definition: Canonical authored requirements YAML document.
+  synonyms:
+  - requirements yml
+- id: DATA-REQUIREMENTS-DIFF
+  title: requirements change summary
+  definition: Deterministic human-readable summary of added, updated, and removed requirements.
+  synonyms:
+  - requirements diff
 - id: DATA-MCP-TOOL-RESULT
   title: mcp tool result
   definition: Structured MCP tool response payload carrying model-aware query results.

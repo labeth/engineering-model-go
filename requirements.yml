@@ -214,3 +214,32 @@ requirements:
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-CODEMAP-INFERENCE
+
+  - id: REQ-EMG-031
+    text: "When requirements delta is received, the engineering model go shall strictly validate requirements delta schema plus stable identifier operation uniqueness."
+    notes: "Version 1 supports add, whole-entity update, and remove operations. Unknown fields, empty operations, duplicate operations, adds of existing IDs, and updates or removals of missing IDs are rejected."
+    appliesTo:
+      - FU-MODEL-CHANGE
+      - FU-MODEL-LOADER
+
+  - id: REQ-EMG-032
+    text: "While dry run mode is active, when requirements delta is received, the engineering model go shall validate candidate architecture model without modifying requirements document."
+    notes: "The candidate reuses complete-model structural, catalog, EARS, and internal-link validation before any write is permitted."
+    appliesTo:
+      - FU-MODEL-CHANGE
+      - FU-VALIDATION-ENGINE
+
+  - id: REQ-EMG-033
+    text: "While model is valid, when requirements delta apply is requested, the engineering model go shall atomically replace requirements document."
+    notes: "The YAML AST merger preserves unchanged nodes and comments. Atomic replacement preserves file permissions and refuses a candidate with blocking diagnostics."
+    appliesTo:
+      - FU-MODEL-CHANGE
+      - FU-VALIDATION-ENGINE
+      - FU-CLI-ORCHESTRATION
+
+  - id: REQ-EMG-034
+    text: "When requirements delta is received, the engineering model go shall produce deterministic requirements change summary."
+    notes: "The summary sorts added, updated, and removed stable IDs and reports changed fields for whole-entity updates."
+    appliesTo:
+      - FU-MODEL-CHANGE
+      - FU-CLI-ORCHESTRATION

@@ -39,6 +39,36 @@
       "description": "mcp.tool-response.v1"
     },
     {
+      "name": "Requirements Delta",
+      "id": "DO-REQUIREMENTS-DELTA",
+      "risk": {
+        "confidentiality": 2,
+        "integrity": 8,
+        "availability": 5
+      },
+      "description": "requirements_delta.go"
+    },
+    {
+      "name": "Requirements Change Summary",
+      "id": "DO-REQUIREMENTS-DIFF",
+      "risk": {
+        "confidentiality": 2,
+        "integrity": 8,
+        "availability": 5
+      },
+      "description": "requirements_delta.go"
+    },
+    {
+      "name": "Requirements Document",
+      "id": "DO-REQUIREMENTS-DOCUMENT",
+      "risk": {
+        "confidentiality": 2,
+        "integrity": 8,
+        "availability": 8
+      },
+      "description": "requirements.yml"
+    },
+    {
       "name": "Structurizr DSL",
       "id": "DO-STRUCTURIZR-DSL",
       "risk": {
@@ -144,6 +174,15 @@
       }
     },
     {
+      "id": "FU-ALLOCATION-TRACE",
+      "name": "Allocation Trace",
+      "type": "service",
+      "description": "Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
       "id": "FU-ASCIIDOC-GENERATOR",
       "name": "AsciiDoc Generator",
       "type": "service",
@@ -186,7 +225,7 @@
       "id": "FU-GEMARA-EXPORTER",
       "name": "Gemara Exporter",
       "type": "service",
-      "description": "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.",
+      "description": "Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -234,6 +273,15 @@
       ]
     },
     {
+      "id": "FU-MODEL-CHANGE",
+      "name": "Model Change",
+      "type": "service",
+      "description": "Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
       "id": "FU-MODEL-LOADER",
       "name": "Model Loader",
       "type": "service",
@@ -246,7 +294,7 @@
       "id": "FU-OSCAL-EXPORTER",
       "name": "OSCAL Exporter",
       "type": "service",
-      "description": "Exports OSCAL SSP control and risk views.",
+      "description": "Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA\u0026M).",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -258,6 +306,15 @@
       "description": "Emits Structurizr DSL and deployment-aware model views.",
       "parent": {
         "trustZone": "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    },
+    {
+      "id": "FU-SYSTEM-COMPOSITION",
+      "name": "System Composition",
+      "type": "service",
+      "description": "Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
       }
     },
     {
@@ -309,6 +366,15 @@
       }
     },
     {
+      "id": "IF-CLI-ENGCHANGE",
+      "name": "engchange CLI",
+      "type": "interface",
+      "description": "cli cmd/engchange",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
       "id": "IF-CLI-ENGDOC",
       "name": "engdoc CLI",
       "type": "interface",
@@ -322,6 +388,15 @@
       "name": "engdragon CLI",
       "type": "interface",
       "description": "cli cmd/engdragon",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGGEMARA",
+      "name": "enggemara CLI",
+      "type": "interface",
+      "description": "cli cmd/enggemara",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -358,6 +433,15 @@
       "name": "engstruct CLI",
       "type": "interface",
       "description": "cli cmd/engstruct",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGTRACE",
+      "name": "engtrace CLI",
+      "type": "interface",
+      "description": "cli cmd/engtrace",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -561,6 +645,16 @@
       ]
     },
     {
+      "id": "9c11ba8c-b14c-55fd-b8b2-88fc95704564",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-MODEL-CHANGE",
+      "destination": "FU-MODEL-LOADER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
       "id": "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
       "name": "Model Change to Verified Artifacts Flow",
       "description": "Primary engineering workflow from authored model update through validation and artifact generation.",
@@ -577,6 +671,22 @@
       ]
     },
     {
+      "id": "FLOW-REQUIREMENTS-DELTA-TO-CANONICAL",
+      "name": "Requirements Delta to Canonical Requirements Flow",
+      "description": "Strictly plans and validates a requirements delta before atomically updating canonical requirements.",
+      "source": "ACT-IMPLEMENTATION-ENGINEER",
+      "destination": "FU-MODEL-CHANGE",
+      "assets": [
+        "DO-ARCHITECTURE-MODEL",
+        "DO-REQUIREMENTS-DELTA",
+        "DO-REQUIREMENTS-DIFF",
+        "DO-REQUIREMENTS-DOCUMENT"
+      ],
+      "tags": [
+        "control"
+      ]
+    },
+    {
       "id": "a8a3e9dc-0cae-5971-9dfc-88b0e4fcc9e3",
       "name": "Uses model-backed MCP tools to inspect and update implementation scope.",
       "description": "Uses model-backed MCP tools to inspect and update implementation scope.",
@@ -585,6 +695,16 @@
       "destination": "FU-MCP-SERVER",
       "tags": [
         "interacts_with"
+      ]
+    },
+    {
+      "id": "b52c744b-c2d4-5f11-8736-023156ddac10",
+      "name": "depends_on",
+      "bidirectional": true,
+      "source": "FU-MODEL-CHANGE",
+      "destination": "FU-VALIDATION-ENGINE",
+      "tags": [
+        "depends_on"
       ]
     },
     {

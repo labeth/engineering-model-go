@@ -48,6 +48,13 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
             "sourceId" "FU-CLI-ORCHESTRATION"
           }
         }
+        fu_fu_model_change = container "Model Change" "Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-MODEL-AUTHORING"
+            "sourceId" "FU-MODEL-CHANGE"
+          }
+        }
         fu_fu_model_loader = container "Model Loader" "Loads and normalizes architecture, catalog, requirements, and design documents." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
@@ -55,9 +62,23 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
             "sourceId" "FU-MODEL-LOADER"
           }
         }
+        fu_fu_system_composition = container "System Composition" "Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-MODEL-AUTHORING"
+            "sourceId" "FU-SYSTEM-COMPOSITION"
+          }
+        }
       }
       group "Traceability and Compliance" {
-        fu_fu_gemara_exporter = container "Gemara Exporter" "Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK." "Functional Unit" {
+        fu_fu_allocation_trace = container "Allocation Trace" "Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
+            "sourceId" "FU-ALLOCATION-TRACE"
+          }
+        }
+        fu_fu_gemara_exporter = container "Gemara Exporter" "Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
             "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
@@ -71,7 +92,7 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
             "sourceId" "FU-LOBSTER-EXPORTER"
           }
         }
-        fu_fu_oscal_exporter = container "OSCAL Exporter" "Exports OSCAL SSP control and risk views." "Functional Unit" {
+        fu_fu_oscal_exporter = container "OSCAL Exporter" "Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M)." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
             "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
@@ -211,6 +232,15 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "REF-TRLC-TOOLCHAIN"
       }
     }
+    if_if_cli_engchange = softwareSystem "engchange CLI" "cli cmd/engchange" {
+      tags "Interface"
+      properties {
+        "endpoint" "cmd/engchange"
+        "owner" "FU-MODEL-CHANGE"
+        "protocol" "cli"
+        "sourceId" "IF-CLI-ENGCHANGE"
+      }
+    }
     if_if_cli_engdoc = softwareSystem "engdoc CLI" "cli cmd/engdoc" {
       tags "Interface"
       properties {
@@ -227,6 +257,15 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "owner" "FU-THREAT-EXPORTER"
         "protocol" "cli"
         "sourceId" "IF-CLI-ENGDRAGON"
+      }
+    }
+    if_if_cli_enggemara = softwareSystem "enggemara CLI" "cli cmd/enggemara" {
+      tags "Interface"
+      properties {
+        "endpoint" "cmd/enggemara"
+        "owner" "FU-GEMARA-EXPORTER"
+        "protocol" "cli"
+        "sourceId" "IF-CLI-ENGGEMARA"
       }
     }
     if_if_cli_englobster = softwareSystem "englobster CLI" "cli cmd/englobster" {
@@ -265,6 +304,15 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "IF-CLI-ENGSTRUCT"
       }
     }
+    if_if_cli_engtrace = softwareSystem "engtrace CLI" "cli cmd/engtrace" {
+      tags "Interface"
+      properties {
+        "endpoint" "cmd/engtrace"
+        "owner" "FU-ALLOCATION-TRACE"
+        "protocol" "cli"
+        "sourceId" "IF-CLI-ENGTRACE"
+      }
+    }
     if_if_cli_engtrlc = softwareSystem "engtrlc CLI" "cli cmd/engtrlc" {
       tags "Interface"
       properties {
@@ -299,6 +347,30 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "DO-MCP-TOOL-RESULT"
       }
     }
+    data_do_requirements_delta = softwareSystem "Requirements Delta" "requirements_delta.go" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "model-change"
+        "retention" "change-lifetime"
+        "sourceId" "DO-REQUIREMENTS-DELTA"
+      }
+    }
+    data_do_requirements_diff = softwareSystem "Requirements Change Summary" "requirements_delta.go" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "model-change-preview"
+        "retention" "ephemeral"
+        "sourceId" "DO-REQUIREMENTS-DIFF"
+      }
+    }
+    data_do_requirements_document = softwareSystem "Requirements Document" "requirements.yml" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "requirements-source"
+        "retention" "repository-history"
+        "sourceId" "DO-REQUIREMENTS-DOCUMENT"
+      }
+    }
     data_do_structurizr_dsl = softwareSystem "Structurizr DSL" "generated/STRUCTURIZR.dsl" {
       tags "DataObject,internal"
       properties {
@@ -315,6 +387,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "DO-THREAT-DRAGON-JSON"
       }
     }
+    ctrl_ctrl_artifact_freshness_gate = softwareSystem "Generated Artifact Freshness Gate" "Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts." {
+      tags "Control,assurance"
+      properties {
+        "sourceId" "CTRL-ARTIFACT-FRESHNESS-GATE"
+      }
+    }
     ctrl_ctrl_mcp_path_boundary = softwareSystem "MCP Path Boundary Enforcement" "Enforce repo-root path constraints and reject traversal paths in MCP tools." {
       tags "Control,input-validation"
       properties {
@@ -325,6 +403,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       tags "Control,input-validation"
       properties {
         "sourceId" "CTRL-STRICT-MCP-INPUT-SCHEMA"
+      }
+    }
+    ctrl_ctrl_trace_link_integrity = softwareSystem "Trace Link Integrity" "Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup." {
+      tags "Control,assurance"
+      properties {
+        "sourceId" "CTRL-TRACE-LINK-INTEGRITY"
       }
     }
     ctrl_ctrl_traceability_coverage = softwareSystem "Requirement Traceability Coverage" "Require requirement-linked verification evidence for modeled behavior." {
@@ -483,12 +567,36 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "FU-CLI-ORCHESTRATION"
       }
     }
+    group_fg_model_authoring -> fu_fu_model_change "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-MODEL-AUTHORING"
+        "mappingType" "contains"
+        "toId" "FU-MODEL-CHANGE"
+      }
+    }
     group_fg_model_authoring -> fu_fu_model_loader "contains" {
       tags "Mapping,contains"
       properties {
         "fromId" "FG-MODEL-AUTHORING"
         "mappingType" "contains"
         "toId" "FU-MODEL-LOADER"
+      }
+    }
+    group_fg_model_authoring -> fu_fu_system_composition "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-MODEL-AUTHORING"
+        "mappingType" "contains"
+        "toId" "FU-SYSTEM-COMPOSITION"
+      }
+    }
+    group_fg_traceability_compliance -> fu_fu_allocation_trace "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-TRACEABILITY-COMPLIANCE"
+        "mappingType" "contains"
+        "toId" "FU-ALLOCATION-TRACE"
       }
     }
     group_fg_traceability_compliance -> fu_fu_gemara_exporter "contains" {
@@ -539,12 +647,28 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "FU-VALIDATION-ENGINE"
       }
     }
+    fu_fu_allocation_trace -> if_if_cli_engtrace "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FU-ALLOCATION-TRACE"
+        "mappingType" "contains"
+        "toId" "IF-CLI-ENGTRACE"
+      }
+    }
     fu_fu_asciidoc_generator -> if_if_cli_engdoc "contains" {
       tags "Mapping,contains"
       properties {
         "fromId" "FU-ASCIIDOC-GENERATOR"
         "mappingType" "contains"
         "toId" "IF-CLI-ENGDOC"
+      }
+    }
+    fu_fu_gemara_exporter -> if_if_cli_enggemara "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FU-GEMARA-EXPORTER"
+        "mappingType" "contains"
+        "toId" "IF-CLI-ENGGEMARA"
       }
     }
     fu_fu_lobster_exporter -> if_if_cli_englobster "contains" {
@@ -561,6 +685,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-MCP-SERVER"
         "mappingType" "contains"
         "toId" "IF-CLI-ENGMCP"
+      }
+    }
+    fu_fu_model_change -> if_if_cli_engchange "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
+        "mappingType" "contains"
+        "toId" "IF-CLI-ENGCHANGE"
       }
     }
     fu_fu_oscal_exporter -> if_if_cli_engoscal "contains" {
@@ -647,6 +779,22 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       tags "Mapping,depends_on"
       properties {
         "fromId" "FU-MCP-SERVER"
+        "mappingType" "depends_on"
+        "toId" "FU-VALIDATION-ENGINE"
+      }
+    }
+    fu_fu_model_change -> fu_fu_model_loader "depends_on" {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
+        "mappingType" "depends_on"
+        "toId" "FU-MODEL-LOADER"
+      }
+    }
+    fu_fu_model_change -> fu_fu_validation_engine "depends_on" {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
         "mappingType" "depends_on"
         "toId" "FU-VALIDATION-ENGINE"
       }
@@ -755,6 +903,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "CTRL-TRACEABILITY-COVERAGE"
       }
     }
+    fu_fu_model_change -> data_do_requirements_delta "reads" {
+      tags "Mapping,reads"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
+        "mappingType" "reads"
+        "toId" "DO-REQUIREMENTS-DELTA"
+      }
+    }
     fu_fu_model_loader -> data_do_architecture_model "reads" {
       tags "Mapping,reads"
       properties {
@@ -811,6 +967,22 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "DO-MCP-TOOL-RESULT"
       }
     }
+    fu_fu_model_change -> data_do_requirements_diff "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
+        "mappingType" "writes"
+        "toId" "DO-REQUIREMENTS-DIFF"
+      }
+    }
+    fu_fu_model_change -> data_do_requirements_document "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-MODEL-CHANGE"
+        "mappingType" "writes"
+        "toId" "DO-REQUIREMENTS-DOCUMENT"
+      }
+    }
     fu_fu_structurizr_exporter -> data_do_structurizr_dsl "writes" {
       tags "Mapping,writes"
       properties {
@@ -825,6 +997,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-THREAT-EXPORTER"
         "mappingType" "writes"
         "toId" "DO-THREAT-DRAGON-JSON"
+      }
+    }
+    person_act_implementation_engineer -> fu_fu_model_change "Requirements Delta to Canonical Requirements Flow" {
+      tags "Flow"
+      properties {
+        "flowId" "FLOW-REQUIREMENTS-DELTA-TO-CANONICAL"
       }
     }
     deploymentEnvironment "ci" {
@@ -886,6 +1064,10 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     }
     dynamic sys_engineering_model_go "dynamic_flow_model_change_to_verified_artifacts" "Primary engineering workflow from authored model update through validation and artifact generation." {
       person_act_implementation_engineer -> fu_fu_cli_orchestration "Primary engineering workflow from authored model update through validation and artifact generation."
+      autolayout lr
+    }
+    dynamic sys_engineering_model_go "dynamic_flow_requirements_delta_to_canonical" "Strictly plans and validates a requirements delta before atomically updating canonical requirements." {
+      person_act_implementation_engineer -> fu_fu_model_change "Strictly plans and validates a requirements delta before atomically updating canonical requirements."
       autolayout lr
     }
     deployment sys_engineering_model_go "ci" "deployment_ci" "Deployment view for environment: ci" {

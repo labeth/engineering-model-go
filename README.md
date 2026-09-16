@@ -169,6 +169,32 @@ rather than the whole tree. Requirements with no implementing or delegating code
 
 ## CLI Usage
 
+Plan, inspect, and atomically apply a requirements delta:
+
+```yaml
+# requirements-delta.yml
+version: 1
+requirements:
+  add:
+    - id: REQ-PAY-011
+      text: "When payment authorized event is received, the payments system shall persist authorization record."
+      notes: "New audit behavior."
+      appliesTo: [FU-PAYMENT-AUTHORIZATION]
+  update: []
+  remove: []
+```
+
+```bash
+go run ./cmd/engchange validate --root examples/payments-engineering-sample --delta requirements-delta.yml
+go run ./cmd/engchange diff --root examples/payments-engineering-sample --delta requirements-delta.yml
+go run ./cmd/engchange apply --root examples/payments-engineering-sample --delta requirements-delta.yml
+```
+
+Delta version 1 supports requirement `add`, whole-entity `update`, and `remove` operations.
+Planning and diffing never write canonical files. Apply validates the complete candidate model,
+preserves unchanged YAML nodes and comments, and atomically replaces `requirements.yml` only
+when no blocking diagnostics are present.
+
 Generate a single Mermaid view:
 
 ```bash

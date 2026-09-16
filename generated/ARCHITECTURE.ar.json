@@ -3,7 +3,7 @@
     "uuid": "98eaf6c0-91d6-5a78-93b8-4d958fefbee6",
     "metadata": {
       "title": "Engineering Model Go Repository Architecture Assessment Results",
-      "last-modified": "2026-06-27T06:49:36Z",
+      "last-modified": "2026-09-15T14:31:24Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
@@ -15,8 +15,8 @@
         "uuid": "552b5375-26b1-5f1a-ab6b-642a6ef09628",
         "title": "Automated architecture assessment",
         "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
-        "start": "2026-06-27T06:49:36Z",
-        "end": "2026-06-27T06:49:36Z",
+        "start": "2026-09-15T14:31:24Z",
+        "end": "2026-09-15T14:31:24Z",
         "reviewed-controls": {
           "control-selections": [
             {
@@ -40,6 +40,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-TEST-STRUCTURIZR_EXPORT_TEST-886374"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "07f8df65-1867-554c-a3d2-efb2b61af302",
+            "title": "Trace Matrix Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-028",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C"
               },
               {
                 "name": "verification-status",
@@ -576,6 +598,28 @@
             ]
           },
           {
+            "uuid": "9f5d950c-819b-5260-aef1-688a584a60ad",
+            "title": "Requirements Delta Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-031",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
             "uuid": "a11ebb9f-3e01-5e38-b83e-d789a052b1cc",
             "title": "Asciidoc Linking Units Test",
             "description": "Inferred from test source artifact.",
@@ -612,6 +656,28 @@
               {
                 "name": "verification-id",
                 "value": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-6E4BE8"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "a2a69cac-d5c2-5de5-9673-ab2285520c97",
+            "title": "Composition Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-016",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-COMPOSITION_TEST-8FE8F1"
               },
               {
                 "name": "verification-status",
@@ -904,6 +970,28 @@
                 "value": "not-run"
               }
             ]
+          },
+          {
+            "uuid": "fc1d032d-62c7-5425-9dde-a0dbaf54d8ff",
+            "title": "Composition Test",
+            "description": "Inferred from test source artifact.",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-EMG-007",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "value": "VER-INF-TEST-COMPOSITION_TEST-AB66B8"
+              },
+              {
+                "name": "verification-status",
+                "value": "not-run"
+              }
+            ]
           }
         ],
         "risks": [
@@ -912,7 +1000,7 @@
             "title": "Traceability drift weakens assurance evidence",
             "description": "Code and tests evolve without updating requirement trace markers, eroding coverage evidence.",
             "status": "mitigating",
-            "statement": "Strict code-linking coverage and inferred verification keep drift detectable."
+            "statement": "Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable."
           },
           {
             "uuid": "9f3684ca-831c-5b20-b4dd-adbbaeb5214c",
@@ -925,8 +1013,8 @@
             "uuid": "aca3aec4-390d-58eb-b386-97151ec2cd88",
             "title": "Stale generated artifacts misrepresent the system",
             "description": "Generated documentation or exchange artifacts fall out of sync with the authored model.",
-            "status": "open",
-            "statement": "Determinism plus staleness checks make drift visible; residual risk accepted between regenerations."
+            "status": "mitigating",
+            "statement": "Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the model."
           }
         ]
       }

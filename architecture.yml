@@ -91,6 +91,10 @@ authoredArchitecture:
       name: CLI Orchestration
       group: FG-MODEL-AUTHORING
       prose: Command entrypoints orchestrating model load, validation, generation, and exports.
+    - id: FU-MODEL-CHANGE
+      name: Model Change
+      group: FG-MODEL-AUTHORING
+      prose: Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.
 
   actors:
     - id: ACT-ARCHITECTURE-AUTHOR
@@ -210,6 +214,12 @@ authoredArchitecture:
       endpoint: cmd/engview
       schemaRef: view/project.go
       owner: FU-VIEW-PROJECTION
+    - id: IF-CLI-ENGCHANGE
+      name: engchange CLI
+      protocol: cli
+      endpoint: cmd/engchange
+      schemaRef: requirements_delta.go
+      owner: FU-MODEL-CHANGE
 
   dataObjects:
     - id: DO-ARCHITECTURE-MODEL
@@ -222,6 +232,36 @@ authoredArchitecture:
       confidentiality: medium
       integrity: high
       availability: high
+    - id: DO-REQUIREMENTS-DELTA
+      name: Requirements Delta
+      termRef: DATA-REQUIREMENTS-DELTA
+      schemaRef: requirements_delta.go
+      sensitivity: internal
+      classification: model-change
+      retention: change-lifetime
+      confidentiality: low
+      integrity: high
+      availability: medium
+    - id: DO-REQUIREMENTS-DOCUMENT
+      name: Requirements Document
+      termRef: DATA-REQUIREMENTS-DOCUMENT
+      schemaRef: requirements.yml
+      sensitivity: internal
+      classification: requirements-source
+      retention: repository-history
+      confidentiality: low
+      integrity: high
+      availability: high
+    - id: DO-REQUIREMENTS-DIFF
+      name: Requirements Change Summary
+      termRef: DATA-REQUIREMENTS-DIFF
+      schemaRef: requirements_delta.go
+      sensitivity: internal
+      classification: model-change-preview
+      retention: ephemeral
+      confidentiality: low
+      integrity: high
+      availability: medium
     - id: DO-MCP-TOOL-RESULT
       name: MCP Tool Result
       termRef: DATA-MCP-TOOL-RESULT
@@ -409,8 +449,60 @@ authoredArchitecture:
     - id: EVT-MCP-TOOL-CALL-RECEIVED
       name: MCP Tool Call Received
       description: MCP server receives a structured tool invocation request.
+    - id: EVT-REQUIREMENTS-DELTA-RECEIVED
+      name: Requirements Delta Received
+      description: A typed requirements delta is ready for strict parsing and candidate validation.
+    - id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      name: Requirements Delta Apply Requested
+      description: A validated requirements candidate is ready for atomic replacement.
 
   flows:
+    - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
+      title: Requirements Delta to Canonical Requirements Flow
+      kind: control
+      methodology: validate-before-write
+      direction: internal
+      frequency: on-demand
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-MODEL-CHANGE
+      protocol: cli
+      channel: local-shell
+      dataRefs: [DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT, DO-ARCHITECTURE-MODEL, DO-REQUIREMENTS-DIFF]
+      description: Strictly plans and validates a requirements delta before atomically updating canonical requirements.
+      entry: [load-requirements-delta]
+      exits: [replace-requirements]
+      steps:
+        - id: load-requirements-delta
+          kind: system_action
+          ref: FU-MODEL-CHANGE
+          action: Strictly decode and validate stable-ID operations.
+          dataIn: [DO-REQUIREMENTS-DELTA]
+          next: [merge-requirements-candidate]
+        - id: merge-requirements-candidate
+          kind: system_action
+          ref: FU-MODEL-CHANGE
+          action: Apply operations to an in-memory YAML candidate while preserving unchanged nodes.
+          dataIn: [DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT]
+          dataOut: [DO-REQUIREMENTS-DIFF]
+          next: [validate-requirements-candidate]
+        - id: validate-requirements-candidate
+          kind: control_action
+          ref: FU-VALIDATION-ENGINE
+          action: Run complete-model and EARS validation against the candidate.
+          dataIn: [DO-REQUIREMENTS-DOCUMENT, DO-ARCHITECTURE-MODEL]
+          next: [replace-requirements]
+          onError: [reject-requirements-delta]
+        - id: reject-requirements-delta
+          kind: notification
+          ref: FU-MODEL-CHANGE
+          action: Return diagnostics without modifying canonical requirements.
+          dataOut: [DO-REQUIREMENTS-DIFF]
+        - id: replace-requirements
+          kind: system_action
+          ref: FU-MODEL-CHANGE
+          action: Atomically replace canonical requirements while preserving file permissions.
+          dataIn: [DO-REQUIREMENTS-DOCUMENT]
+
     - id: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
       title: Model Change to Verified Artifacts Flow
       kind: control
@@ -516,6 +608,9 @@ authoredArchitecture:
       from: FG-MODEL-AUTHORING
       to: FU-CLI-ORCHESTRATION
     - type: contains
+      from: FG-MODEL-AUTHORING
+      to: FU-MODEL-CHANGE
+    - type: contains
       from: FG-VALIDATION-ANALYSIS
       to: FU-VALIDATION-ENGINE
     - type: contains
@@ -586,6 +681,12 @@ authoredArchitecture:
       from: FU-CLI-ORCHESTRATION
       to: FU-ASCIIDOC-GENERATOR
     - type: depends_on
+      from: FU-MODEL-CHANGE
+      to: FU-MODEL-LOADER
+    - type: depends_on
+      from: FU-MODEL-CHANGE
+      to: FU-VALIDATION-ENGINE
+    - type: depends_on
       from: FU-VALIDATION-ENGINE
       to: REF-GO-TOOLCHAIN
       description: Runs Go tests and static checks as part of repository validation.
@@ -640,6 +741,9 @@ authoredArchitecture:
     - type: contains
       from: FU-VIEW-PROJECTION
       to: IF-CLI-ENGVIEW
+    - type: contains
+      from: FU-MODEL-CHANGE
+      to: IF-CLI-ENGCHANGE
 
     - type: writes
       from: FU-MCP-SERVER
@@ -653,6 +757,15 @@ authoredArchitecture:
     - type: reads
       from: FU-MODEL-LOADER
       to: DO-ARCHITECTURE-MODEL
+    - type: reads
+      from: FU-MODEL-CHANGE
+      to: DO-REQUIREMENTS-DELTA
+    - type: writes
+      from: FU-MODEL-CHANGE
+      to: DO-REQUIREMENTS-DOCUMENT
+    - type: writes
+      from: FU-MODEL-CHANGE
+      to: DO-REQUIREMENTS-DIFF
 
     - type: deployed_to
       from: FU-MCP-SERVER
@@ -748,7 +861,7 @@ views:
     authoredStatusExplanation: Initial repository self-model with stable top-level domains; implementation details will be expanded iteratively.
   - id: VIEW-TRACEABILITY
     kind: traceability
-    roots: [FU-MODEL-LOADER, FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
+    roots: [FU-MODEL-LOADER, FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE, FU-TRLC-EXPORTER, FU-LOBSTER-EXPORTER]
     authoredStatus: in-review
     authoredStatusExplanation: Traceability scope is seeded and will be tightened as requirements are added.
   - id: VIEW-SECURITY

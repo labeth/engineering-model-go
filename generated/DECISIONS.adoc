@@ -333,3 +333,29 @@ stable.
 - The generation gates are load-bearing: a broken model or a stale committed document fails CI.
 - Generated artifacts are deterministic and reproducible from the model.
 - One script is the source of truth for local pre-commit checks and CI.
+
+[[ADR-EMG-014]]
+== ADR-EMG-014: Apply model deltas through YAML nodes and typed candidate validation
+
+Status:: accepted
+Date:: 2026-09-15
+
+=== Context
+
+Local change workflows need deterministic add, update, and remove operations without making
+agents rewrite complete model documents. Marshaling the typed Go structs would rewrite unrelated
+YAML, drop comments, and emit zero-value fields, while text patches would bypass model semantics.
+
+=== Decision
+
+Apply stable-ID operations to yaml.Node trees, preserving unchanged nodes and comments. Decode the
+merged candidate into the existing typed model and run the existing structural and EARS validators
+before permitting an atomic same-directory replacement. Begin with requirements.yml and whole-entity
+updates; extend the same contract to other authored documents after the vertical slice is proven.
+
+=== Consequences
+
+- Change diffs stay focused on intended entities instead of reformatting the complete document.
+- Existing model validation remains the authority for candidate correctness.
+- Updates replace complete requirement entities rather than applying ambiguous field-level patches.
+- The first schema version mutates requirements only.

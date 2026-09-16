@@ -52,7 +52,7 @@ risks:
     - name: ACT-COMPLIANCE-ENGINEER
     informed:
     - name: ACT-COMPLIANCE-ENGINEER
-  impact: Strict code-linking coverage and inferred verification keep drift detectable.
+  impact: Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable.
   threats:
   - entries:
     - reference-id: TS-TRACEABILITY-DRIFT
@@ -70,4 +70,4 @@ risks:
     - name: ACT-ARCHITECTURE-AUTHOR
     informed:
     - name: ACT-ARCHITECTURE-AUTHOR
-  impact: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.
+  impact: Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the model.

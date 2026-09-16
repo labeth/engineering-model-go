@@ -12,6 +12,7 @@ coverage.out
 bin/
 dist/
 tmp/
+.requirements.yml.engchange.lock
 
 # Composition cache: external git subsystems cloned for the composed view
 .engmod/

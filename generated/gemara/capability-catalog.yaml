@@ -53,11 +53,19 @@ capabilities:
   group: FG-TRACEABILITY-COMPLIANCE
 - id: FU-OSCAL-EXPORTER
   title: OSCAL Exporter
-  description: Exports OSCAL SSP control and risk views.
+  description: Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M).
   group: FG-TRACEABILITY-COMPLIANCE
 - id: FU-GEMARA-EXPORTER
   title: Gemara Exporter
-  description: Renders OpenSSF Gemara control, threat, risk, vector, and capability catalogs plus the evaluation log, validated by the Gemara SDK.
+  description: Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.
+  group: FG-TRACEABILITY-COMPLIANCE
+- id: FU-SYSTEM-COMPOSITION
+  title: System Composition
+  description: Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.
+  group: FG-MODEL-AUTHORING
+- id: FU-ALLOCATION-TRACE
+  title: Allocation Trace
+  description: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models.
   group: FG-TRACEABILITY-COMPLIANCE
 - id: FU-MCP-SERVER
   title: MCP Server
@@ -66,6 +74,10 @@ capabilities:
 - id: FU-CLI-ORCHESTRATION
   title: CLI Orchestration
   description: Command entrypoints orchestrating model load, validation, generation, and exports.
+  group: FG-MODEL-AUTHORING
+- id: FU-MODEL-CHANGE
+  title: Model Change
+  description: Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.
   group: FG-MODEL-AUTHORING
 groups:
 - id: FG-MODEL-AUTHORING

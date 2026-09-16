@@ -32,6 +32,9 @@ scope:
     - stdio-jsonrpc
     sensitivity:
     - design-source
+    - model-change
+    - requirements-source
+    - model-change-preview
     - runtime-api
     - exchange-artifact
     users:
@@ -62,12 +65,10 @@ risks:
     risk:
       reference-id: ENGMOD-RISK-CATALOG
       entry-id: RISK-TRACEABILITY-DRIFT
-  accepted:
-  - id: ACC-RISK-STALE-ARTIFACTS
+  - id: MIT-RISK-STALE-ARTIFACTS
     risk:
       reference-id: ENGMOD-RISK-CATALOG
       entry-id: RISK-STALE-ARTIFACTS
-    justification: Determinism plus staleness checks make drift visible; residual risk accepted between regenerations.
 adherence:
   evaluation-methods:
   - id: EM-INTENT

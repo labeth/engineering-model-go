@@ -58,25 +58,25 @@ a[href^="#SEC_VIEW_"] {
 |Architecture Intent View (`VIEW-ARCHITECTURE-INTENT`)
 |in-review
 |Initial repository self-model with stable top-level domains; implementation details will be expanded iteratively.
-|15
-|15
+|16
+|16
 |0
 |high
 |Defaults authored units to covered; use authoredStatus as the primary publication signal.
 |Security View (`VIEW-SECURITY`)
 |in-review
 |Security scope starts from MCP boundary and export-validation supply chain paths.
-|10
-|10
-|7
+|11
+|11
+|8
 |high
 |Counts a unit as covered when explicit authored attack-vector mapping exists.
 |Traceability View (`VIEW-TRACEABILITY`)
 |in-review
 |Traceability scope is seeded and will be tightened as requirements are added.
-|8
-|8
-|8
+|9
+|9
+|9
 |high
 |Counts a unit as covered when direct inferred runtime or code evidence exists.
 |State Lifecycle View (`VIEW-STATE-LIFECYCLE`)
@@ -117,7 +117,7 @@ a[href^="#SEC_VIEW_"] {
 |[[REF_CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS]]<<REF_IDX-CATALOG_DATA_ARCHITECTURE_DECISION_RECORDS,architecture decision records document>> (DATA-ARCHITECTURE-DECISION-RECORDS)
 |Generated document containing authored architecture decision records. Aliases:adr document, decisions document
 |[[REF_CATALOG_DATA_ARCHITECTURE_MODEL]]<<REF_IDX-CATALOG_DATA_ARCHITECTURE_MODEL,architecture model>> (DATA-ARCHITECTURE-MODEL)
-|Authored architecture source describing functional intent and mappings. Aliases:architecture yml
+|Authored architecture source describing functional intent and mappings. Aliases:architecture yml, candidate architecture model
 |[[REF_CATALOG_EVT_ARTIFACT_GENERATED]]<<REF_IDX-CATALOG_EVT_ARTIFACT_GENERATED,artifact generated event is raised>> (EVT-ARTIFACT-GENERATED)
 |Event indicating one or more generated outputs were produced successfully. Aliases:artifact generated
 |[[REF_CATALOG_FG_ARTIFACT_GENERATION]]<<REF_IDX-CATALOG_FG_ARTIFACT_GENERATION,artifact generation>> (FG-ARTIFACT-GENERATION)
@@ -168,6 +168,8 @@ a[href^="#SEC_VIEW_"] {
 |Authored design narrative organized by model entities and architecture views.
 |[[REF_ENGMODEL_TERM_DESIGN_VIEW]]<<REF_IDX-ENGMODEL_TERM_DESIGN_VIEW,design view>> (TERM-DESIGN-VIEW)
 |View-scoped design narrative attached to an authored functional group or functional unit.
+|[[REF_CATALOG_MODE_DRY_RUN]]<<REF_IDX-CATALOG_MODE_DRY_RUN,dry run mode is active>> (MODE-DRY-RUN)
+|Change-planning mode that computes and validates a candidate without writing canonical files. Aliases:preview mode
 |[[REF_CATALOG_SYS_ENGINEERING_MODEL_GO]]<<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> (SYS-ENGINEERING-MODEL-GO)
 |Go-based architecture modeling system that generates docs, analysis views, and compliance artifacts. Aliases:engineering model toolchain, engmodel
 |[[REF_ENGMODEL_TERM_EVENT]]<<REF_IDX-ENGMODEL_TERM_EVENT,event>> (TERM-EVENT)
@@ -244,6 +246,8 @@ a[href^="#SEC_VIEW_"] {
 |Authoring and loading of architecture, catalog, requirements, and design inputs. Aliases:authoring
 |[[REF_ENGMODEL_TERM_BUNDLE]]<<REF_IDX-ENGMODEL_TERM_BUNDLE,model bundle>> (TERM-BUNDLE)
 |Loaded architecture, catalog, and companion documents resolved as one working model context.
+|[[REF_CATALOG_FU_MODEL_CHANGE]]<<REF_IDX-CATALOG_FU_MODEL_CHANGE,model change>> (FU-MODEL-CHANGE)
+|Plans, validates, summarizes, and atomically applies typed changes to authored model documents. Aliases:delta merger, requirements merger
 |[[REF_CATALOG_STATE_MODEL_INVALID]]<<REF_IDX-CATALOG_STATE_MODEL_INVALID,model is invalid>> (STATE-MODEL-INVALID)
 |State where validation diagnostics include one or more errors. Aliases:invalid
 |[[REF_CATALOG_STATE_MODEL_VALID]]<<REF_IDX-CATALOG_STATE_MODEL_VALID,model is valid>> (STATE-MODEL-VALID)
@@ -280,6 +284,16 @@ a[href^="#SEC_VIEW_"] {
 |A structured requirement statement that defines expected system behavior and maps to functional ownership.
 |[[REF_CATALOG_COND_REQUIREMENT_TRACE_COMPLETE]]<<REF_IDX-CATALOG_COND_REQUIREMENT_TRACE_COMPLETE,requirement trace is complete>> (COND-REQUIREMENT-TRACE-COMPLETE)
 |Condition requiring requirements to map to implementation and verification evidence. Aliases:trace complete
+|[[REF_CATALOG_DATA_REQUIREMENTS_DIFF]]<<REF_IDX-CATALOG_DATA_REQUIREMENTS_DIFF,requirements change summary>> (DATA-REQUIREMENTS-DIFF)
+|Deterministic human-readable summary of added, updated, and removed requirements. Aliases:requirements diff
+|[[REF_CATALOG_DATA_REQUIREMENTS_DELTA]]<<REF_IDX-CATALOG_DATA_REQUIREMENTS_DELTA,requirements delta>> (DATA-REQUIREMENTS-DELTA)
+|Versioned add, whole-entity update, and remove operations keyed by requirement stable ID. Aliases:requirements change
+|[[REF_CATALOG_EVT_REQUIREMENTS_DELTA_APPLY_REQUESTED]]<<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_APPLY_REQUESTED,requirements delta apply is requested>> (EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED)
+|Event indicating a validated requirements change should replace the canonical document. Aliases:requirements apply requested
+|[[REF_CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED]]<<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED,requirements delta is received>> (EVT-REQUIREMENTS-DELTA-RECEIVED)
+|Event indicating a typed requirements change is ready for planning and validation. Aliases:requirements change received
+|[[REF_CATALOG_DATA_REQUIREMENTS_DOCUMENT]]<<REF_IDX-CATALOG_DATA_REQUIREMENTS_DOCUMENT,requirements document>> (DATA-REQUIREMENTS-DOCUMENT)
+|Canonical authored requirements YAML document. Aliases:requirements yml
 |[[REF_ENGMODEL_TERM_RISK]]<<REF_IDX-ENGMODEL_TERM_RISK,risk>> (TERM-RISK)
 |Authored risk record with likelihood, impact, response, scope, controls, and evidence.
 |[[REF_ENGMODEL_TERM_RUNTIME_ELEMENT]]<<REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT,runtime element>> (TERM-RUNTIME-ELEMENT)
@@ -423,6 +437,10 @@ Architecture decision records are generated separately and linked here as a comp
 |CI enforces the generation gates and artifact freshness
 |accepted
 |2026-06-28
+|xref:DECISIONS.adoc#ADR-EMG-014[ADR-EMG-014]
+|Apply model deltas through YAML nodes and typed candidate validation
+|accepted
+|2026-09-15
 |===
 
 === Diagram Color and Shape Legend
@@ -537,6 +555,7 @@ flowchart LR
       FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
       FU_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
       FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+      FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
     end
     style FGCTX_FG_MODEL_AUTHORING fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_VALIDATION_ANALYSIS["Validation and Analysis"]
@@ -651,6 +670,8 @@ flowchart TB
   FG_FG_MCP_INTEGRATION -->|contains| FU_FU_MCP_SERVER
   FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
   FG_FG_MODEL_AUTHORING -->|contains| FU_FU_CLI_ORCHESTRATION
+  FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+  FG_FG_MODEL_AUTHORING -->|contains| FU_FU_MODEL_CHANGE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -690,14 +711,14 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 <td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
 </tr>
 <tr>
-<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">CLI Orchestration</div></td>
 <td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
 <td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">AsciiDoc Generator</div></td>
 <td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Gemara Exporter</div></td>
 <td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
 </tr>
 <tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">CLI Orchestration</div></td>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Model Change</div></td>
 <td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
 <td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Structurizr Exporter</div></td>
 <td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">LOBSTER Exporter</div></td>
@@ -768,6 +789,7 @@ flowchart LR
   subgraph FGDEP_FG_MODEL_AUTHORING["Model Authoring"]
     direction TB
     FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+    FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
     FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
     FU_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
     subgraph RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_["CLI Orchestration runtime (inferred)"]
@@ -778,6 +800,13 @@ flowchart LR
     end
     style RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_
+    subgraph RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_["Model Change runtime (inferred)"]
+      direction TB
+      CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go"]:::code_element
+      CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go"]:::code_element
+    end
+    style RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+    FU_FU_MODEL_CHANGE -->|runtime evidence| RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_
     subgraph RT_FU_MODEL_LOADER_MODEL_LOADER_RUNTIME__INFERRED_["Model Loader runtime (inferred)"]
       direction TB
       CODE_LOAD_GO["load.go"]:::code_element
@@ -808,6 +837,8 @@ flowchart LR
   FU_FU_CLI_ORCHESTRATION -->|depends_on| FU_FU_MODEL_LOADER
   FU_FU_CLI_ORCHESTRATION -->|depends_on| FU_FU_VALIDATION_ENGINE
   FU_FU_CLI_ORCHESTRATION -->|depends_on| FU_FU_ASCIIDOC_GENERATOR
+  FU_FU_MODEL_CHANGE -->|depends_on| FU_FU_MODEL_LOADER
+  FU_FU_MODEL_CHANGE -->|depends_on| FU_FU_VALIDATION_ENGINE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -867,7 +898,35 @@ functional responsibility for <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,cli orchest
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_IDX-REQ_REQ_EMG_034,REQ-EMG-034>>
+
+
+
+
+
+
+===== Model Change (FU-MODEL-CHANGE)
+
+
+
+
+
+Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored <<REF_IDX-ENGMODEL_TERM_MODEL,model>> documents.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_IDX-CATALOG_MODEL_CHANGE,model change>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>> and decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,Validation Engine>>
+
+[discrete]
+====== Key Collaborators
+
+<<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,Validation Engine>>
+
+[discrete]
+====== Linked Requirements
+
+<<REF_IDX-REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_IDX-REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_IDX-REQ_REQ_EMG_034,REQ-EMG-034>>
 
 
 
@@ -895,7 +954,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_IDX-REQ_REQ_EMG_027,REQ-EMG-027>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_IDX-REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_IDX-REQ_REQ_EMG_031,REQ-EMG-031>>
 
 
 
@@ -1049,6 +1108,8 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 
 
+
+
 ===== Codemap Inference (FU-CODEMAP-INFERENCE)
 
 
@@ -1098,7 +1159,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,validation 
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_IDX-REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_IDX-REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_IDX-REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>
 
 
 
@@ -1346,6 +1407,8 @@ none
 
 
 
+
+
 ==== Traceability and Compliance (FG-TRACEABILITY-COMPLIANCE)
 
 
@@ -1447,6 +1510,8 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 	
 
 	
+
+
 
 
 
@@ -1743,6 +1808,8 @@ functional responsibility for <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,mcp server>>; i
 
 
 
+
+
 <<<
 
 [[SEC_VIEW_VIEW-SECURITY]]
@@ -1761,7 +1828,7 @@ Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points
 
 === Coverage Gaps
 
-Coverage summary: 3/10 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
+Coverage summary: 3/11 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 - <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,AsciiDoc Generator>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
@@ -1769,6 +1836,8 @@ Coverage summary: 3/10 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,eviden
 - <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,CLI Orchestration>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
 
 - <<REF_IDX-CATALOG_FU_LOBSTER_EXPORTER,LOBSTER Exporter>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
+
+- <<REF_IDX-CATALOG_MODEL_CHANGE,Model Change>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
 
 - <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,Structurizr Exporter>> has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.
 
@@ -1802,15 +1871,20 @@ What these diagrams show: OWASP-style context views split by functional group. E
 flowchart LR
   subgraph CTXGROUP_FG_MODEL_AUTHORING["Model Authoring"]
     direction TB
+    CTX_DO_REQUIREMENTS_DIFF[("Requirements Change Summary")]:::data_object
+    CTX_DO_REQUIREMENTS_DOCUMENT[("Requirements Document")]:::data_object
     CTX_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+    CTX_FU_MODEL_CHANGE["Model Change"]:::functional_unit
     CTX_FU_MODEL_LOADER["Model Loader"]:::functional_unit
     CTX_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
+    CTX_IF_CLI_ENGCHANGE[/"engchange CLI"/]:::interface
   end
   style CTXGROUP_FG_MODEL_AUTHORING fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
   CTX_ACT_ARCHITECTURE_AUTHOR(("Architecture Author")):::actor
   CTX_ACT_CI_PIPELINE(("CI Pipeline")):::actor
   CTX_ACT_IMPLEMENTATION_ENGINEER(("Implementation Engineer")):::actor
   CTX_DO_ARCHITECTURE_MODEL[("Architecture Model")]:::data_object
+  CTX_DO_REQUIREMENTS_DELTA[("Requirements Delta")]:::data_object
   CTX_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
   CTX_FU_MCP_SERVER["MCP Server"]:::functional_unit
   CTX_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
@@ -1820,8 +1894,14 @@ flowchart LR
   CTX_FU_CLI_ORCHESTRATION -->|depends_on| CTX_FU_MODEL_LOADER
   CTX_FU_CLI_ORCHESTRATION -->|depends_on| CTX_FU_VALIDATION_ENGINE
   CTX_FU_CLI_ORCHESTRATION -->|depends_on| CTX_FU_ASCIIDOC_GENERATOR
+  CTX_FU_MODEL_CHANGE -->|depends_on| CTX_FU_MODEL_LOADER
+  CTX_FU_MODEL_CHANGE -->|depends_on| CTX_FU_VALIDATION_ENGINE
   CTX_FU_MCP_SERVER -->|depends_on| CTX_FU_MODEL_LOADER
+  CTX_FU_MODEL_CHANGE -->|contains| CTX_IF_CLI_ENGCHANGE
   CTX_FU_MODEL_LOADER -->|reads| CTX_DO_ARCHITECTURE_MODEL
+  CTX_FU_MODEL_CHANGE -->|reads| CTX_DO_REQUIREMENTS_DELTA
+  CTX_FU_MODEL_CHANGE -->|writes| CTX_DO_REQUIREMENTS_DOCUMENT
+  CTX_FU_MODEL_CHANGE -->|writes| CTX_DO_REQUIREMENTS_DIFF
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1858,9 +1938,11 @@ flowchart LR
   style CTXGROUP_FG_VALIDATION_ANALYSIS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
   CTX_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
   CTX_FU_MCP_SERVER["MCP Server"]:::functional_unit
+  CTX_FU_MODEL_CHANGE["Model Change"]:::functional_unit
   CTX_REF_GO_TOOLCHAIN["Go Toolchain"]:::referenced_element
   CTX_TB_REPO_WORKSPACE[/"Repository Workspace Boundary"\]:::trust_boundary
   CTX_FU_CLI_ORCHESTRATION -->|depends_on| CTX_FU_VALIDATION_ENGINE
+  CTX_FU_MODEL_CHANGE -->|depends_on| CTX_FU_VALIDATION_ENGINE
   CTX_FU_VALIDATION_ENGINE -->|depends_on| CTX_REF_GO_TOOLCHAIN
   CTX_FU_MCP_SERVER -->|depends_on| CTX_FU_VALIDATION_ENGINE
   CTX_FU_CODEMAP_INFERENCE -->|bounded_by| CTX_TB_REPO_WORKSPACE
@@ -2162,6 +2244,8 @@ Untrusted MCP input attempts to escape repo root for sensitive file reads.
 
 |<<REF_IDX-FLOW_FLOW_MODEL_CHANGE_TO_VERIFIED_ARTIFACTS,FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS>> |<<REF_IDX-FLOW_FLOW_MODEL_CHANGE_TO_VERIFIED_ARTIFACTS,Model Change to Verified Artifacts Flow>> |<<REF_IDX-ENGMODEL_TERM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_ACT_IMPLEMENTATION_ENGINEER,Implementation Engineer>> |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,CLI Orchestration>> |cli
 
+|<<REF_IDX-FLOW_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL,FLOW-REQUIREMENTS-DELTA-TO-CANONICAL>> |<<REF_IDX-FLOW_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL,Requirements Delta to Canonical Requirements Flow>> |<<REF_IDX-ENGMODEL_TERM_CONTROL,control>> |internal |on-demand |<<REF_IDX-CATALOG_ACT_IMPLEMENTATION_ENGINEER,Implementation Engineer>> |<<REF_IDX-CATALOG_MODEL_CHANGE,Model Change>> |cli
+
 |===
 
 [cols="1,1,1,1,1,2,2,2",options="header"]
@@ -2169,6 +2253,8 @@ Untrusted MCP input attempts to escape repo root for sensitive file reads.
 |ID |Auth |Encryption |Integrity |Boundary Crossing |Trust Boundary |Threats |Data
 
 |<<REF_IDX-FLOW_FLOW_MODEL_CHANGE_TO_VERIFIED_ARTIFACTS,FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS>> |repository-access |none |git-history |false |none |none |<<REF_IDX-DO_DO_ARCHITECTURE_MODEL,Architecture Model>>, <<REF_IDX-DO_DO_MCP_TOOL_RESULT,MCP Tool Result>>, <<REF_IDX-DO_DO_STRUCTURIZR_DSL,Structurizr DSL>>, <<REF_IDX-DO_DO_THREAT_DRAGON_JSON,Threat Dragon JSON>>
+
+|<<REF_IDX-FLOW_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL,FLOW-REQUIREMENTS-DELTA-TO-CANONICAL>> |n/a |n/a |n/a |false |none |none |<<REF_IDX-DO_DO_ARCHITECTURE_MODEL,Architecture Model>>, <<REF_IDX-DO_DO_REQUIREMENTS_DIFF,Requirements Change Summary>>, <<REF_IDX-DO_DO_REQUIREMENTS_DELTA,Requirements Delta>>, <<REF_IDX-DO_DO_REQUIREMENTS_DOCUMENT,Requirements Document>>
 
 |===
 
@@ -2453,7 +2539,7 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 
 === Coverage Gaps
 
-Coverage summary: 8/8 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
+Coverage summary: 9/9 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
 
 
 - <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,AsciiDoc Generator>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
@@ -2465,6 +2551,8 @@ Coverage summary: 8/8 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 - <<REF_IDX-CATALOG_FU_LOBSTER_EXPORTER,LOBSTER Exporter>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 - <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP Server>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
+
+- <<REF_IDX-CATALOG_MODEL_CHANGE,Model Change>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
 - <<REF_IDX-CATALOG_FU_MODEL_LOADER,Model Loader>> has no direct inferred runtime <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> yet.
 
@@ -2935,6 +3023,38 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|REQ-EMG-031
+|
+|
+|
+|
+|
+|
+|
+|REQ-EMG-032
+|
+|
+|
+|
+|
+|
+|
+|REQ-EMG-033
+|
+|
+|X
+|
+|
+|
+|
+|REQ-EMG-034
+|
+|
+|X
+|
+|
+|
+|
 |===
 
 *Functional Unit Columns 8-14*
@@ -2942,21 +3062,21 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 [cols="2,1,1,1,1,1,1,1",options="header"]
 |===
 |Requirement
+|FU-MODEL-CHANGE
 |FU-MODEL-LOADER
 |FU-OSCAL-EXPORTER
 |FU-STRUCTURIZR-EXPORTER
 |FU-SYSTEM-COMPOSITION
 |FU-THREAT-EXPORTER
 |FU-TRLC-EXPORTER
-|FU-VALIDATION-ENGINE
 |REQ-EMG-001
+|
 |X
 |X
 |X
 |
 |X
 |
-|X
 |REQ-EMG-003
 |
 |
@@ -2970,14 +3090,14 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
 |
+|X
 |
 |REQ-EMG-005
 |
 |
-|X
 |
+|X
 |
 |
 |
@@ -2987,8 +3107,8 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
 |
+|X
 |REQ-EMG-007
 |
 |
@@ -3012,7 +3132,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-010
 |
 |
@@ -3024,11 +3144,11 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |REQ-EMG-011
 |
 |
-|X
 |
 |X
 |
 |X
+|
 |REQ-EMG-012
 |
 |
@@ -3039,8 +3159,8 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |REQ-EMG-013
 |
-|X
 |
+|X
 |
 |
 |
@@ -3062,35 +3182,35 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |REQ-EMG-016
-|X
-|
 |
 |X
 |
+|
+|X
 |
 |
 |REQ-EMG-017
 |
 |
 |
-|X
 |
+|X
 |
 |
 |REQ-EMG-018
 |
 |
 |
+|
 |X
 |
 |
-|X
 |REQ-EMG-019
 |
 |
 |
-|X
 |
+|X
 |
 |
 |REQ-EMG-020
@@ -3108,7 +3228,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-022
 |
 |
@@ -3116,7 +3236,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-023
 |
 |
@@ -3124,7 +3244,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-024
 |
 |
@@ -3148,13 +3268,13 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-027
-|X
-|
 |
 |X
 |
+|
+|X
 |
 |
 |REQ-EMG-028
@@ -3164,7 +3284,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-029
 |
 |
@@ -3172,7 +3292,7 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
-|X
+|
 |REQ-EMG-030
 |
 |
@@ -3181,71 +3301,145 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 |
 |
 |
+|REQ-EMG-031
+|X
+|X
+|
+|
+|
+|
+|
+|REQ-EMG-032
+|X
+|
+|
+|
+|
+|
+|
+|REQ-EMG-033
+|X
+|
+|
+|
+|
+|
+|
+|REQ-EMG-034
+|X
+|
+|
+|
+|
+|
+|
 |===
 
-*Functional Unit Columns 15-15*
+*Functional Unit Columns 15-16*
 
-[cols="2,1",options="header"]
+[cols="2,1,1",options="header"]
 |===
 |Requirement
+|FU-VALIDATION-ENGINE
 |FU-VIEW-PROJECTION
 |REQ-EMG-001
+|X
 |
 |REQ-EMG-003
+|
 |X
 |REQ-EMG-004
 |
+|
 |REQ-EMG-005
+|
 |
 |REQ-EMG-006
 |
+|
 |REQ-EMG-007
+|
 |
 |REQ-EMG-008
 |
+|
 |REQ-EMG-009
+|X
 |
 |REQ-EMG-010
 |
+|
 |REQ-EMG-011
+|X
 |
 |REQ-EMG-012
 |
+|
 |REQ-EMG-013
+|
 |
 |REQ-EMG-014
 |
+|
 |REQ-EMG-015
+|
 |
 |REQ-EMG-016
 |
+|
 |REQ-EMG-017
 |
+|
 |REQ-EMG-018
+|X
 |
 |REQ-EMG-019
 |
+|
 |REQ-EMG-020
 |
+|
 |REQ-EMG-021
+|X
 |
 |REQ-EMG-022
+|X
 |
 |REQ-EMG-023
+|X
 |
 |REQ-EMG-024
+|
 |X
 |REQ-EMG-025
 |
+|
 |REQ-EMG-026
+|X
 |
 |REQ-EMG-027
 |
+|
 |REQ-EMG-028
+|X
 |
 |REQ-EMG-029
+|X
 |
 |REQ-EMG-030
+|
+|
+|REQ-EMG-031
+|
+|
+|REQ-EMG-032
+|X
+|
+|REQ-EMG-033
+|X
+|
+|REQ-EMG-034
+|
 |
 |===
 
@@ -3522,6 +3716,21 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119>>
+|<<REF_IDX-REQ_REQ_EMG_031,REQ-EMG-031>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119>>
+|<<REF_IDX-REQ_REQ_EMG_032,REQ-EMG-032>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119>>
+|<<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_1B5367,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-1B5367>>
 |REQ-PAY-001
 |not-run
@@ -3658,7 +3867,7 @@ flowchart LR
   CODE_GENERATE_GO["generate.go:23,33"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_GENERATE_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_GENERATE_GO
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_MAIN_GO
   FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
@@ -3831,7 +4040,7 @@ flowchart LR
   CODE_GENERATE_GO["generate.go:23,33"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_GENERATE_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_GENERATE_GO
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_MAIN_GO
   FU_FU_VIEW_PROJECTION["View Projection"]:::functional_unit
@@ -3923,7 +4132,7 @@ flowchart LR
   REQC_REQ_EMG_004 -->|applies_to| FU_FU_THREAT_EXPORTER
   RTC_FU_THREAT_EXPORTER_RUNTIME["Threat Exporter runtime (inferred)"]:::runtime_element
   FU_FU_THREAT_EXPORTER -->|runtime evidence| RTC_FU_THREAT_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_THREAT_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_004 -->|code trace| CODE_MAIN_GO
   CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go:35,45,133,395,412,423,554,771,784,799"]:::code_element
@@ -3981,7 +4190,7 @@ flowchart LR
   REQC_REQ_EMG_005 -->|applies_to| FU_FU_STRUCTURIZR_EXPORTER
   RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME["Structurizr Exporter runtime (inferred)"]:::runtime_element
   FU_FU_STRUCTURIZR_EXPORTER -->|runtime evidence| RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_STRUCTURIZR_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_005 -->|code trace| CODE_MAIN_GO
   CODE_STRUCTURIZR_EXPORT_GO["structurizr_export.go:128,138,274,315,388,411,427,438,465,480,500,535,551,559,567,575,583,591,599,607,615,623,631,639,649,658,696,712"]:::code_element
@@ -4045,7 +4254,7 @@ flowchart LR
   CODE_LOBSTER_EXPORT_TEST_GO["lobster_export_test.go:12"]:::code_element
   RTC_FU_LOBSTER_EXPORTER_RUNTIME -->|implemented_by| CODE_LOBSTER_EXPORT_TEST_GO
   REQC_REQ_EMG_006 -->|code trace| CODE_LOBSTER_EXPORT_TEST_GO
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_LOBSTER_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_006 -->|code trace| CODE_MAIN_GO
   FU_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
@@ -4112,7 +4321,7 @@ flowchart LR
   CODE_COMPOSITION_TEST_GO["composition_test.go:14,18,49,54,74,95,134,166,227"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_COMPOSITION_TEST_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_COMPOSITION_TEST_GO
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_007 -->|code trace| CODE_MAIN_GO
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
@@ -4178,7 +4387,7 @@ flowchart LR
   REQC_REQ_EMG_008 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_MAIN_GO
   CODE_MAIN_TEST_GO["main_test.go:12,22"]:::code_element
@@ -4240,7 +4449,7 @@ flowchart LR
   REQC_REQ_EMG_009 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_009 -->|code trace| CODE_MAIN_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
@@ -4397,7 +4606,7 @@ flowchart LR
   REQC_REQ_EMG_011 -->|applies_to| FU_FU_THREAT_EXPORTER
   RTC_FU_THREAT_EXPORTER_RUNTIME["Threat Exporter runtime (inferred)"]:::runtime_element
   FU_FU_THREAT_EXPORTER -->|runtime evidence| RTC_FU_THREAT_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_THREAT_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_011 -->|code trace| CODE_MAIN_GO
   CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go:35,45,133,395,412,423,554,771,784,799"]:::code_element
@@ -4527,7 +4736,7 @@ flowchart LR
   REQC_REQ_EMG_013 -->|applies_to| FU_FU_OSCAL_EXPORTER
   RTC_FU_OSCAL_EXPORTER_RUNTIME["OSCAL Exporter runtime (inferred)"]:::runtime_element
   FU_FU_OSCAL_EXPORTER -->|runtime evidence| RTC_FU_OSCAL_EXPORTER_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_OSCAL_EXPORTER_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_013 -->|code trace| CODE_MAIN_GO
   CODE_OSCAL_AR_GO["oscal_ar.go:106,127"]:::code_element
@@ -4614,7 +4823,7 @@ flowchart LR
   REQC_REQ_EMG_014 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_MAIN_GO
   VERC_VER_INF_TEST_ASCIIDOC_TEST_F60765["VER-INF-TEST-ASCIIDOC_TEST-F60765 (not-run)"]:::verification
@@ -4664,7 +4873,7 @@ flowchart LR
   REQC_REQ_EMG_015 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_MAIN_GO
   FU_FU_GEMARA_EXPORTER["Gemara Exporter"]:::functional_unit
@@ -5469,7 +5678,7 @@ flowchart LR
   REQC_REQ_EMG_030 -->|applies_to| FU_FU_ALLOCATION_TRACE
   RTC_FU_ALLOCATION_TRACE_RUNTIME["Allocation Trace runtime (inferred)"]:::runtime_element
   FU_FU_ALLOCATION_TRACE -->|runtime evidence| RTC_FU_ALLOCATION_TRACE_RUNTIME
-  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,89,95,113"]:::code_element
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_MAIN_GO
   CODE_TRACE_MATRIX_GO["trace_matrix.go:84,96,193,210,270,286,345,430,472"]:::code_element
@@ -5487,6 +5696,231 @@ flowchart LR
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C["VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C (not-run)"]:::verification
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C -->|verifies| REQC_REQ_EMG_030
   VERC_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C -->|implemented_by| CODE_TRACE_MATRIX_TEST_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_EMG_031]]
+==== REQ-EMG-031
+
+When <<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED,requirements delta is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall strictly validate <<REF_IDX-DO_DO_REQUIREMENTS_DELTA,requirements delta>> schema plus stable identifier operation uniqueness.
+
+
+NOTE: Version 1 supports add, whole-entity update, and remove operations. Unknown fields, empty operations, duplicate operations, adds of existing IDs, and updates or removals of missing IDs are rejected.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_031["REQ-EMG-031"]:::requirement
+  FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+  REQC_REQ_EMG_031 -->|applies_to| FU_FU_MODEL_CHANGE
+  RTC_FU_MODEL_CHANGE_RUNTIME["Model Change runtime (inferred)"]:::runtime_element
+  FU_FU_MODEL_CHANGE -->|runtime evidence| RTC_FU_MODEL_CHANGE_RUNTIME
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
+  REQC_REQ_EMG_031 -->|code trace| CODE_MAIN_GO
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
+  REQC_REQ_EMG_031 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
+  CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,440,448"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+  REQC_REQ_EMG_031 -->|code trace| CODE_REQUIREMENTS_DELTA_TEST_GO
+  FU_FU_MODEL_LOADER["Model Loader"]:::functional_unit
+  REQC_REQ_EMG_031 -->|applies_to| FU_FU_MODEL_LOADER
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119["VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119 (not-run)"]:::verification
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|verifies| REQC_REQ_EMG_031
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_EMG_032]]
+==== REQ-EMG-032
+
+While <<REF_IDX-CATALOG_MODE_DRY_RUN,dry run mode is active>>, when <<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED,requirements delta is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall validate <<REF_IDX-CATALOG_CANDIDATE_ARCHITECTURE_MODEL,candidate architecture model>> without modifying <<REF_IDX-DO_DO_REQUIREMENTS_DOCUMENT,requirements document>>.
+
+
+NOTE: The candidate reuses complete-model structural, <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>>, EARS, and internal-link <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> before any write is permitted.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_032["REQ-EMG-032"]:::requirement
+  FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+  REQC_REQ_EMG_032 -->|applies_to| FU_FU_MODEL_CHANGE
+  RTC_FU_MODEL_CHANGE_RUNTIME["Model Change runtime (inferred)"]:::runtime_element
+  FU_FU_MODEL_CHANGE -->|runtime evidence| RTC_FU_MODEL_CHANGE_RUNTIME
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
+  REQC_REQ_EMG_032 -->|code trace| CODE_MAIN_GO
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
+  REQC_REQ_EMG_032 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
+  CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,440,448"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+  REQC_REQ_EMG_032 -->|code trace| CODE_REQUIREMENTS_DELTA_TEST_GO
+  FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
+  REQC_REQ_EMG_032 -->|applies_to| FU_FU_VALIDATION_ENGINE
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119["VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119 (not-run)"]:::verification
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|verifies| REQC_REQ_EMG_032
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_EMG_033]]
+==== REQ-EMG-033
+
+While <<REF_IDX-CATALOG_STATE_MODEL_VALID,model is valid>>, when <<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_APPLY_REQUESTED,requirements delta apply is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall atomically replace <<REF_IDX-DO_DO_REQUIREMENTS_DOCUMENT,requirements document>>.
+
+
+NOTE: The YAML AST merger preserves unchanged nodes and comments. Atomic replacement preserves file permissions and refuses a candidate with blocking diagnostics.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_033["REQ-EMG-033"]:::requirement
+  FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+  REQC_REQ_EMG_033 -->|applies_to| FU_FU_CLI_ORCHESTRATION
+  FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+  REQC_REQ_EMG_033 -->|applies_to| FU_FU_MODEL_CHANGE
+  RTC_FU_MODEL_CHANGE_RUNTIME["Model Change runtime (inferred)"]:::runtime_element
+  FU_FU_MODEL_CHANGE -->|runtime evidence| RTC_FU_MODEL_CHANGE_RUNTIME
+  CODE_MAIN_GO["main.go:15,16,17,20,21,26,37,50,51,53,68,80,89,95,113"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
+  REQC_REQ_EMG_033 -->|code trace| CODE_MAIN_GO
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
+  REQC_REQ_EMG_033 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
+  CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,440,448"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+  REQC_REQ_EMG_033 -->|code trace| CODE_REQUIREMENTS_DELTA_TEST_GO
+  FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
+  REQC_REQ_EMG_033 -->|applies_to| FU_FU_VALIDATION_ENGINE
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119["VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119 (not-run)"]:::verification
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|verifies| REQC_REQ_EMG_033
+  VERC_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119 -->|implemented_by| CODE_REQUIREMENTS_DELTA_TEST_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_EMG_034]]
+==== REQ-EMG-034
+
+When <<REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED,requirements delta is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall produce deterministic <<REF_IDX-DO_DO_REQUIREMENTS_DIFF,requirements change summary>>.
+
+
+NOTE: The summary sorts added, updated, and removed stable IDs and reports changed fields for whole-entity updates.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+flowchart LR
+  REQC_REQ_EMG_034["REQ-EMG-034"]:::requirement
+  FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+  REQC_REQ_EMG_034 -->|applies_to| FU_FU_CLI_ORCHESTRATION
+  FU_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+  REQC_REQ_EMG_034 -->|applies_to| FU_FU_MODEL_CHANGE
+  RTC_FU_MODEL_CHANGE_RUNTIME["Model Change runtime (inferred)"]:::runtime_element
+  FU_FU_MODEL_CHANGE -->|runtime evidence| RTC_FU_MODEL_CHANGE_RUNTIME
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
+  REQC_REQ_EMG_034 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -6155,6 +6589,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+[[REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119]]
+==== Requirements Delta Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_IDX-REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>
+|Test Code Elements |requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,440,448
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_CHANGE,FU-MODEL-CHANGE>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Result Summary |not-run:3
+|Evidence |requirements_delta_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
 [[REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81]]
 ==== Scan Test
 
@@ -6395,7 +6849,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |2
 |L2
 |Capability Catalog
-|16
+|17
 |L2
 |Control Catalog
 |5
@@ -6413,7 +6867,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |3
 |-
 |Lexicon
-|59
+|66
 |L7
 |Audit Log
 |5
@@ -6573,6 +7027,45 @@ termRef=DATA-MCP-TOOL-RESULT; schemaRef=mcp.tool-response.v1; sensitivity=intern
 |Name |MCP Tool Result
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>
 |===
+[[REF_IDX-DO_DO_REQUIREMENTS_DELTA]]
+[discrete]
+==== DO-REQUIREMENTS-DELTA
+
+termRef=DATA-REQUIREMENTS-DELTA; schemaRef=requirements_delta.go; sensitivity=internal
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Requirements Delta
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_031,REQ-EMG-031>>
+|===
+[[REF_IDX-DO_DO_REQUIREMENTS_DIFF]]
+[discrete]
+==== DO-REQUIREMENTS-DIFF
+
+termRef=DATA-REQUIREMENTS-DIFF; schemaRef=requirements_delta.go; sensitivity=internal
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Requirements Change Summary
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_034,REQ-EMG-034>>
+|===
+[[REF_IDX-DO_DO_REQUIREMENTS_DOCUMENT]]
+[discrete]
+==== DO-REQUIREMENTS-DOCUMENT
+
+termRef=DATA-REQUIREMENTS-DOCUMENT; schemaRef=requirements.yml; sensitivity=internal
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Data Object
+|Name |Requirements Document
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_033,REQ-EMG-033>>
+|===
 [[REF_IDX-DO_DO_STRUCTURIZR_DSL]]
 [discrete]
 ==== DO-STRUCTURIZR-DSL
@@ -6638,6 +7131,19 @@ entry=edit-model; exits=publish-artifacts; steps=5
 |Name |Model Change to Verified Artifacts Flow
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
+[[REF_IDX-FLOW_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
+
+entry=load-requirements-delta; exits=replace-requirements; steps=5
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow
+|Name |Requirements Delta to Canonical Requirements Flow
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
+|===
 [[REF_IDX-FLOW-STEP_FLOW_MODEL_CHANGE_TO_VERIFIED_ARTIFACTS__EDIT_MODEL]]
 [discrete]
 ==== FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model
@@ -6701,6 +7207,84 @@ kind=system_action; ref=FU-VALIDATION-ENGINE; action=Validate authored model ref
 |Key |Value
 |Kind |Flow Step
 |Name |Validate authored model references and relationships
+|Mentioned In |n/a
+|===
+[[REF_IDX-FLOW-STEP_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL__LOAD_REQUIREMENTS_DELTA]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL::load-requirements-delta
+
+kind=system_action; ref=FU-MODEL-CHANGE; action=Strictly decode and validate stable-ID operations.; dataIn=DO-REQUIREMENTS-DELTA; dataOut=; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Strictly decode and validate stable-ID operations.
+|Mentioned In |n/a
+|===
+[[REF_IDX-FLOW-STEP_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL__MERGE_REQUIREMENTS_CANDIDATE]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL::merge-requirements-candidate
+
+kind=system_action; ref=FU-MODEL-CHANGE; action=Apply operations to an in-memory YAML candidate while preserving unchanged nodes.; dataIn=DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT; dataOut=DO-REQUIREMENTS-DIFF; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Apply operations to an in-memory YAML candidate while preserving unchanged nodes.
+|Mentioned In |n/a
+|===
+[[REF_IDX-FLOW-STEP_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL__REJECT_REQUIREMENTS_DELTA]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL::reject-requirements-delta
+
+kind=notification; ref=FU-MODEL-CHANGE; action=Return diagnostics without modifying canonical requirements.; dataIn=; dataOut=DO-REQUIREMENTS-DIFF; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Return diagnostics without modifying canonical requirements.
+|Mentioned In |n/a
+|===
+[[REF_IDX-FLOW-STEP_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL__REPLACE_REQUIREMENTS]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL::replace-requirements
+
+kind=system_action; ref=FU-MODEL-CHANGE; action=Atomically replace canonical requirements while preserving file permissions.; dataIn=DO-REQUIREMENTS-DOCUMENT; dataOut=; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Atomically replace canonical requirements while preserving file permissions.
+|Mentioned In |n/a
+|===
+[[REF_IDX-FLOW-STEP_FLOW_REQUIREMENTS_DELTA_TO_CANONICAL__VALIDATE_REQUIREMENTS_CANDIDATE]]
+[discrete]
+==== FLOW-REQUIREMENTS-DELTA-TO-CANONICAL::validate-requirements-candidate
+
+kind=control_action; ref=FU-VALIDATION-ENGINE; action=Run complete-model and EARS validation against the candidate.; dataIn=DO-REQUIREMENTS-DOCUMENT, DO-ARCHITECTURE-MODEL; dataOut=; async=false
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Flow Step
+|Name |Run complete-model and EARS validation against the candidate.
+|Mentioned In |n/a
+|===
+[[REF_IDX-IF_IF_CLI_ENGCHANGE]]
+[discrete]
+==== IF-CLI-ENGCHANGE
+
+protocol=cli; endpoint=cmd/engchange; schemaRef=requirements_delta.go; owner=FU-MODEL-CHANGE
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Interface
+|Name |engchange CLI
 |Mentioned In |n/a
 |===
 [[REF_IDX-IF_IF_CLI_ENGDOC]]
@@ -7210,6 +7794,58 @@ When generation run is requested, the engineering model go shall export a machin
 |Name |REQ-EMG-030
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>
 |===
+[[REF_IDX-REQ_REQ_EMG_031]]
+[discrete]
+==== REQ-EMG-031
+
+When requirements delta is received, the engineering model go shall strictly validate requirements delta schema plus stable identifier operation uniqueness.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-031
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>
+|===
+[[REF_IDX-REQ_REQ_EMG_032]]
+[discrete]
+==== REQ-EMG-032
+
+While dry run mode is active, when requirements delta is received, the engineering model go shall validate candidate architecture model without modifying requirements document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-032
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>
+|===
+[[REF_IDX-REQ_REQ_EMG_033]]
+[discrete]
+==== REQ-EMG-033
+
+While model is valid, when requirements delta apply is requested, the engineering model go shall atomically replace requirements document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-033
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>
+|===
+[[REF_IDX-REQ_REQ_EMG_034]]
+[discrete]
+==== REQ-EMG-034
+
+When requirements delta is received, the engineering model go shall produce deterministic requirements change summary.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-034
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|===
 [[REF_IDX-TB_TB_EXTERNAL_VALIDATION_TOOLS]]
 [discrete]
 ==== TB-EXTERNAL-VALIDATION-TOOLS
@@ -7420,6 +8056,19 @@ Loads and normalizes architecture, catalog, requirements, and design documents.
 |Name |bundle loader
 |Mentioned In |n/a
 |===
+[[REF_IDX-CATALOG_CANDIDATE_ARCHITECTURE_MODEL]]
+[discrete]
+==== candidate architecture model
+
+Authored architecture source describing functional intent and mappings.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |candidate architecture model
+|Mentioned In |<<REF_REQ_REQ_EMG_032,REQ-EMG-032>>
+|===
 [[REF_IDX-CATALOG_CATALOG_RESOLVED]]
 [discrete]
 ==== catalog resolved
@@ -7522,6 +8171,19 @@ Generated document containing authored architecture decision records.
 |Key |Value
 |Kind |Catalog Alias
 |Name |decisions document
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_DELTA_MERGER]]
+[discrete]
+==== delta merger
+
+Plans, validates, summarizes, and atomically applies typed changes to authored model documents.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |delta merger
 |Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_DSL]]
@@ -7886,7 +8548,7 @@ Event indicating architecture or requirement model source changed.
 |Key |Value
 |Kind |Catalog Alias
 |Name |model change
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>
 |===
 [[REF_IDX-CATALOG_OTM_SCHEMA]]
 [discrete]
@@ -7914,6 +8576,19 @@ Host file access attempts through untrusted path arguments in MCP tools.
 |Name |path traversal
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
+[[REF_IDX-CATALOG_PREVIEW_MODE]]
+[discrete]
+==== preview mode
+
+Change-planning mode that computes and validates a candidate without writing canonical files.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |preview mode
+|Mentioned In |n/a
+|===
 [[REF_IDX-CATALOG_PROJECTION]]
 [discrete]
 ==== projection
@@ -7926,6 +8601,84 @@ Builds view-specific projections for architecture communication and traceability
 |Kind |Catalog Alias
 |Name |projection
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_APPLY_REQUESTED]]
+[discrete]
+==== requirements apply requested
+
+Event indicating a validated requirements change should replace the canonical document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements apply requested
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_CHANGE]]
+[discrete]
+==== requirements change
+
+Versioned add, whole-entity update, and remove operations keyed by requirement stable ID.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements change
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_CHANGE_RECEIVED]]
+[discrete]
+==== requirements change received
+
+Event indicating a typed requirements change is ready for planning and validation.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements change received
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_DIFF]]
+[discrete]
+==== requirements diff
+
+Deterministic human-readable summary of added, updated, and removed requirements.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements diff
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_MERGER]]
+[discrete]
+==== requirements merger
+
+Plans, validates, summarizes, and atomically applies typed changes to authored model documents.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements merger
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_REQUIREMENTS_YML]]
+[discrete]
+==== requirements yml
+
+Canonical authored requirements YAML document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |requirements yml
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_SCHEMA_AVAILABLE]]
 [discrete]
@@ -8330,6 +9083,45 @@ Generated OSCAL system security plan JSON output.
 |Name |oscal ssp artifact
 |Mentioned In |n/a
 |===
+[[REF_IDX-CATALOG_DATA_REQUIREMENTS_DELTA]]
+[discrete]
+==== DATA-REQUIREMENTS-DELTA
+
+Versioned add, whole-entity update, and remove operations keyed by requirement stable ID.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |requirements delta
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_DATA_REQUIREMENTS_DIFF]]
+[discrete]
+==== DATA-REQUIREMENTS-DIFF
+
+Deterministic human-readable summary of added, updated, and removed requirements.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |requirements change summary
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_DATA_REQUIREMENTS_DOCUMENT]]
+[discrete]
+==== DATA-REQUIREMENTS-DOCUMENT
+
+Canonical authored requirements YAML document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Data Term
+|Name |requirements document
+|Mentioned In |n/a
+|===
 [[REF_IDX-CATALOG_DATA_STRUCTURIZR_DSL]]
 [discrete]
 ==== DATA-STRUCTURIZR-DSL
@@ -8420,6 +9212,32 @@ Event indicating architecture or requirement model source changed.
 |Kind |Catalog Event
 |Name |model updated event is received
 |Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>
+|===
+[[REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_APPLY_REQUESTED]]
+[discrete]
+==== EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+
+Event indicating a validated requirements change should replace the canonical document.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |requirements delta apply is requested
+|Mentioned In |<<REF_REQ_REQ_EMG_033,REQ-EMG-033>>
+|===
+[[REF_IDX-CATALOG_EVT_REQUIREMENTS_DELTA_RECEIVED]]
+[discrete]
+==== EVT-REQUIREMENTS-DELTA-RECEIVED
+
+Event indicating a typed requirements change is ready for planning and validation.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |requirements delta is received
+|Mentioned In |<<REF_REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_034,REQ-EMG-034>>
 |===
 [[REF_IDX-CATALOG_EVT_VALIDATION_FAILED]]
 [discrete]
@@ -8640,7 +9458,7 @@ Command entrypoints that orchestrate loading, validation, generation, and export
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |cli orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_CODEMAP_INFERENCE]]
 [discrete]
@@ -8694,6 +9512,19 @@ Serves model-backed MCP tools with validated inputs and structured responses.
 |Name |mcp server
 |Mentioned In |<<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
 |===
+[[REF_IDX-CATALOG_FU_MODEL_CHANGE]]
+[discrete]
+==== FU-MODEL-CHANGE
+
+Plans, validates, summarizes, and atomically applies typed changes to authored model documents.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Functional Unit
+|Name |model change
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>
+|===
 [[REF_IDX-CATALOG_FU_MODEL_LOADER]]
 [discrete]
 ==== FU-MODEL-LOADER
@@ -8705,7 +9536,7 @@ Loads and normalizes architecture, catalog, requirements, and design documents.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |model loader
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_OSCAL_EXPORTER]]
 [discrete]
@@ -8783,7 +9614,7 @@ Validates IDs, references, and model consistency across authored entities and ma
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |validation engine
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_VIEW_PROJECTION]]
 [discrete]
@@ -8810,6 +9641,19 @@ Automated pipeline mode focused on deterministic checks and artifacts.
 |Kind |Catalog Mode
 |Name |ci validation mode is active
 |Mentioned In |<<REF_REQ_REQ_EMG_009,REQ-EMG-009>>
+|===
+[[REF_IDX-CATALOG_MODE_DRY_RUN]]
+[discrete]
+==== MODE-DRY-RUN
+
+Change-planning mode that computes and validates a candidate without writing canonical files.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Mode
+|Name |dry run mode is active
+|Mentioned In |<<REF_REQ_REQ_EMG_032,REQ-EMG-032>>
 |===
 [[REF_IDX-CATALOG_MODE_LOCAL_DEVELOPMENT]]
 [discrete]
@@ -8939,7 +9783,7 @@ State where authored model passes validation checks.
 |Key |Value
 |Kind |Catalog State
 |Name |model is valid
-|Mentioned In |<<REF_REQ_REQ_EMG_003,REQ-EMG-003>>
+|Mentioned In |<<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_033,REQ-EMG-033>>
 |===
 [[REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO]]
 [discrete]
@@ -8952,7 +9796,7 @@ Go-based architecture modeling system that generates docs, analysis views, and c
 |Key |Value
 |Kind |Catalog System
 |Name |engineering model go
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_REQ_REQ_EMG_034,REQ-EMG-034>>
 |===
 [[REF_IDX-ENGMODEL_TERM_ACTOR]]
 [discrete]
@@ -9056,7 +9900,7 @@ Controlled vocabulary document used to normalize model, requirement, and generat
 |Key |Value
 |Kind |Engineering Model Term
 |Name |catalog
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>
 |===
 [[REF_IDX-ENGMODEL_TERM_CATALOG_ENTRY]]
 [discrete]
@@ -9758,7 +10602,7 @@ Model quality gate that checks authored documents, references, relationship sema
 |Key |Value
 |Kind |Engineering Model Term
 |Name |validation
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,Ota Campaign Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,Ota Campaign Test>>
 |===
 [[REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]
 [discrete]
@@ -9985,6 +10829,20 @@ Inferred library_external dependency owned by FU-GEMARA-EXPORTER from gemara_exp
 |Source |gemara_export.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_GOFRS_FLOCK__REQUIREMENTS_DELTA_GO__REQUIREMENTS_DELTA_GO]]
+[discrete]
+==== github.com/gofrs/flock (requirements_delta.go)
+
+Inferred library_external dependency owned by FU-MODEL-CHANGE from requirements_delta.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MODEL-CHANGE
+|Source |requirements_delta.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_HASHICORP_HCL_V2__INFERRED_LAYERS_GO__INFERRED_LAYERS_GO]]
 [discrete]
 ==== github.com/hashicorp/hcl/v2 (inferred_layers.go)
@@ -10053,6 +10911,20 @@ Inferred library_external dependency owned by FU-MCP-SERVER from mcp/gemara.go.
 |Kind |Code library_external
 |Owner |FU-MCP-SERVER
 |Source |mcp/gemara.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__MAIN_GO__CMD_ENGCHANGE_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (main.go)
+
+Inferred library_external dependency owned by FU-MODEL-CHANGE from cmd/engchange/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MODEL-CHANGE
+|Source |cmd/engchange/main.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__MAIN_GO__CMD_ENGDOC_MAIN_GO]]
@@ -10291,6 +11163,20 @@ Inferred library_external dependency owned by FU-MODEL-LOADER from model/load.go
 |Kind |Code library_external
 |Owner |FU-MODEL-LOADER
 |Source |model/load.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__REQUIREMENTS_DELTA_GO__REQUIREMENTS_DELTA_GO]]
+[discrete]
+==== gopkg.in/yaml.v3 (requirements_delta.go)
+
+Inferred library_external dependency owned by FU-MODEL-CHANGE from requirements_delta.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MODEL-CHANGE
+|Source |requirements_delta.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__PAYMENT_ENGINE_RS__SRC_PAYMENT_ENGINE_RS]]
@@ -10979,6 +11865,34 @@ Inferred library_first_party dependency owned by FU-VIEW-PROJECTION from view/pr
 |Source |view/project_test.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__REQUIREMENTS_DELTA_GO__REQUIREMENTS_DELTA_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/model (requirements_delta.go)
+
+Inferred library_first_party dependency owned by FU-MODEL-CHANGE from requirements_delta.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-MODEL-CHANGE
+|Source |requirements_delta.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__REQUIREMENTS_DELTA_TEST_GO__REQUIREMENTS_DELTA_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/model (requirements_delta_test.go)
+
+Inferred library_first_party dependency owned by FU-MODEL-CHANGE from requirements_delta_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-MODEL-CHANGE
+|Source |requirements_delta_test.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__SERVER_GO__MCP_SERVER_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go/model (server.go)
@@ -11343,6 +12257,20 @@ Inferred library_first_party dependency owned by FU-CODEMAP-INFERENCE from infer
 |Source |inferred_verification.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGCHANGE_MAIN_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go/validate (main.go)
+
+Inferred library_first_party dependency owned by FU-MODEL-CHANGE from cmd/engchange/main.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_first_party
+|Owner |FU-MODEL-CHANGE
+|Source |cmd/engchange/main.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGDOC_MAIN_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go/validate (main.go)
@@ -11397,90 +12325,6 @@ Inferred library_first_party dependency owned by FU-STRUCTURIZR-EXPORTER from cm
 |Kind |Code library_first_party
 |Owner |FU-STRUCTURIZR-EXPORTER
 |Source |cmd/engstruct/main.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGTRACE_MAIN_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (main.go)
-
-Inferred library_first_party dependency owned by FU-ALLOCATION-TRACE from cmd/engtrace/main.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ALLOCATION-TRACE
-|Source |cmd/engtrace/main.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__MAIN_GO__CMD_ENGVIEW_MAIN_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (main.go)
-
-Inferred library_first_party dependency owned by FU-CLI-ORCHESTRATION from cmd/engview/main.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-CLI-ORCHESTRATION
-|Source |cmd/engview/main.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_AR_GO__OSCAL_AR_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (oscal_ar.go)
-
-Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ar.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-OSCAL-EXPORTER
-|Source |oscal_ar.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_COMPLIANCE_GO__OSCAL_COMPLIANCE_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (oscal_compliance.go)
-
-Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_compliance.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-OSCAL-EXPORTER
-|Source |oscal_compliance.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_POAM_GO__OSCAL_POAM_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (oscal_poam.go)
-
-Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_poam.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-OSCAL-EXPORTER
-|Source |oscal_poam.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__OSCAL_SSP_GO__OSCAL_SSP_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (oscal_ssp.go)
-
-Inferred library_first_party dependency owned by FU-OSCAL-EXPORTER from oscal_ssp.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-OSCAL-EXPORTER
-|Source |oscal_ssp.go
 |Mentioned In |n/a
 |===
 
@@ -11964,6 +12808,21 @@ Inferred from test source artifact.
 |Source |render/mermaid/render_test.go
 |Name |Render Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119]]
+[discrete]
+==== VER-INF-TEST-REQUIREMENTS_DELTA_TEST-64E119
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |requirements_delta_test.go
+|Name |Requirements Delta Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_SCAN_TEST_B04F81]]
 [discrete]
