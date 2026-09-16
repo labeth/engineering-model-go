@@ -8,11 +8,10 @@ This repo includes a Structurizr DSL exporter and validation workflow.
 go run ./cmd/engstruct --model examples/payments-engineering-sample/architecture.yml --out examples/payments-engineering-sample/generated/STRUCTURIZR.dsl
 ```
 
-For the root model, both tracked aliases are maintained:
+For the root model, generate the canonical tracked artifact:
 
 ```bash
 go run ./cmd/engstruct --model architecture.yml --out generated/STRUCTURIZR.dsl
-go run ./cmd/engstruct --model architecture.yml --out generated/structurizr.dsl
 ```
 
 ## Validate DSL
