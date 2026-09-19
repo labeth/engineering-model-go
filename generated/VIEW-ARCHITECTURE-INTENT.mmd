@@ -1,0 +1,161 @@
+flowchart LR
+%% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
+N_ACT_AI_AGENT(("AI Agent")):::actor
+N_ACT_ARCHITECTURE_AUTHOR(("Architecture Author")):::actor
+N_ACT_CI_PIPELINE(("CI Pipeline")):::actor
+N_ACT_COMPLIANCE_ENGINEER(("Compliance Engineer")):::actor
+N_ACT_IMPLEMENTATION_ENGINEER(("Implementation Engineer")):::actor
+N_DO_ARCHITECTURE_MODEL[("Architecture Model")]:::data_object
+N_DO_CANONICAL_SEMANTIC_MODEL[("Canonical Semantic Model")]:::data_object
+N_DO_MCP_TOOL_RESULT[("MCP Tool Result")]:::data_object
+N_DO_MODEL_AUTHORING_CONTRACT[("Model Authoring Contract")]:::data_object
+N_DO_NAF_V4_ARCHITECTURE[("NAF v4.1 Architecture Document")]:::data_object
+N_DO_REQUIREMENTS_DELTA[("Requirements Delta")]:::data_object
+N_DO_REQUIREMENTS_DIFF[("Requirements Change Summary")]:::data_object
+N_DO_REQUIREMENTS_DOCUMENT[("Requirements Document")]:::data_object
+N_DO_STRUCTURIZR_DSL[("Structurizr DSL")]:::data_object
+N_DO_SYSML_V2_METAMODEL[("SysML v2 Metamodel")]:::data_object
+N_DO_SYSML_V2_MODEL[("SysML v2 Model")]:::data_object
+N_DO_THREAT_DRAGON_JSON[("Threat Dragon JSON")]:::data_object
+N_DEP_CI_PIPELINE["CI Pipeline Runner"]:::deployment_target
+N_DEP_LOCAL_WORKSPACE["Local Workspace"]:::deployment_target
+N_FG_ARTIFACT_GENERATION["Artifact Generation"]:::functional_group
+N_FG_MCP_INTEGRATION["MCP Integration"]:::functional_group
+N_FG_MODEL_AUTHORING["Model Authoring"]:::functional_group
+N_FG_TRACEABILITY_COMPLIANCE["Traceability and Compliance"]:::functional_group
+N_FG_VALIDATION_ANALYSIS["Validation and Analysis"]:::functional_group
+N_FU_ALLOCATION_TRACE["Allocation Trace"]:::functional_unit
+N_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
+N_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+N_FU_CODEMAP_INFERENCE["Codemap Inference"]:::functional_unit
+N_FU_GEMARA_EXPORTER["Gemara Exporter"]:::functional_unit
+N_FU_LOBSTER_EXPORTER["LOBSTER Exporter"]:::functional_unit
+N_FU_MCP_SERVER["MCP Server"]:::functional_unit
+N_FU_MODEL_CHANGE["Model Change"]:::functional_unit
+N_FU_MODEL_LOADER["Model Loader"]:::functional_unit
+N_FU_NAF_EXPORTER["NAF Exporter"]:::functional_unit
+N_FU_OSCAL_EXPORTER["OSCAL Exporter"]:::functional_unit
+N_FU_STRUCTURIZR_EXPORTER["Structurizr Exporter"]:::functional_unit
+N_FU_SYSML_EXPORTER["SysML Exporter"]:::functional_unit
+N_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
+N_FU_THREAT_EXPORTER["Threat Exporter"]:::functional_unit
+N_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
+N_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
+N_FU_VIEW_PROJECTION["View Projection"]:::functional_unit
+N_IF_CLI_ENGCHANGE[/"engchange CLI"/]:::interface
+N_IF_CLI_ENGDOC[/"engdoc CLI"/]:::interface
+N_IF_CLI_ENGDRAGON[/"engdragon CLI"/]:::interface
+N_IF_CLI_ENGGEMARA[/"enggemara CLI"/]:::interface
+N_IF_CLI_ENGLOBSTER[/"englobster CLI"/]:::interface
+N_IF_CLI_ENGMCP[/"engmcp CLI"/]:::interface
+N_IF_CLI_ENGNAF[/"engnaf CLI"/]:::interface
+N_IF_CLI_ENGOSCAL[/"engoscal CLI"/]:::interface
+N_IF_CLI_ENGSTRUCT[/"engstruct CLI"/]:::interface
+N_IF_CLI_ENGSYSML[/"engsysml CLI"/]:::interface
+N_IF_CLI_ENGTRACE[/"engtrace CLI"/]:::interface
+N_IF_CLI_ENGTRLC[/"engtrlc CLI"/]:::interface
+N_IF_CLI_ENGVIEW[/"engview CLI"/]:::interface
+N_REF_GO_TOOLCHAIN["Go Toolchain"]:::referenced_element
+N_REF_LOBSTER_TOOLCHAIN["LOBSTER Toolchain"]:::referenced_element
+N_REF_NAF_V4_1_SPECIFICATION["NATO Architecture Framework v4.1"]:::referenced_element
+N_REF_OPEN_OTM_SCHEMA["Open OTM Schema"]:::referenced_element
+N_REF_STRUCTURIZR_VALIDATOR["Structurizr Validator"]:::referenced_element
+N_REF_SYSML_V2_TOOLCHAIN["Pinned SysML 2.0 / KerML 1.0 Toolchain"]:::referenced_element
+N_REF_THREAT_DRAGON_SCHEMAS["Threat Dragon Schemas"]:::referenced_element
+N_REF_TRLC_TOOLCHAIN["TRLC Toolchain"]:::referenced_element
+N_TB_EXTERNAL_VALIDATION_TOOLS[/"External Validation Tools Boundary"\]:::trust_boundary
+N_TB_REPO_WORKSPACE[/"Repository Workspace Boundary"\]:::trust_boundary
+N_ACT_AI_AGENT --> N_FU_MCP_SERVER
+N_ACT_ARCHITECTURE_AUTHOR --> N_FU_CLI_ORCHESTRATION
+N_ACT_CI_PIPELINE --> N_FU_CLI_ORCHESTRATION
+N_ACT_COMPLIANCE_ENGINEER --> N_FU_OSCAL_EXPORTER
+N_ACT_IMPLEMENTATION_ENGINEER --> N_FU_CLI_ORCHESTRATION
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_ASCIIDOC_GENERATOR
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_NAF_EXPORTER
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_STRUCTURIZR_EXPORTER
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_SYSML_EXPORTER
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_THREAT_EXPORTER
+N_FG_ARTIFACT_GENERATION -->|contains| N_FU_VIEW_PROJECTION
+N_FG_MCP_INTEGRATION -->|contains| N_FU_MCP_SERVER
+N_FG_MODEL_AUTHORING -->|contains| N_FU_CLI_ORCHESTRATION
+N_FG_MODEL_AUTHORING -->|contains| N_FU_MODEL_CHANGE
+N_FG_MODEL_AUTHORING -->|contains| N_FU_MODEL_LOADER
+N_FG_MODEL_AUTHORING -->|contains| N_FU_SYSTEM_COMPOSITION
+N_FG_TRACEABILITY_COMPLIANCE -->|contains| N_FU_ALLOCATION_TRACE
+N_FG_TRACEABILITY_COMPLIANCE -->|contains| N_FU_GEMARA_EXPORTER
+N_FG_TRACEABILITY_COMPLIANCE -->|contains| N_FU_LOBSTER_EXPORTER
+N_FG_TRACEABILITY_COMPLIANCE -->|contains| N_FU_OSCAL_EXPORTER
+N_FG_TRACEABILITY_COMPLIANCE -->|contains| N_FU_TRLC_EXPORTER
+N_FG_VALIDATION_ANALYSIS -->|contains| N_FU_CODEMAP_INFERENCE
+N_FG_VALIDATION_ANALYSIS -->|contains| N_FU_VALIDATION_ENGINE
+N_FU_ALLOCATION_TRACE -->|contains| N_IF_CLI_ENGTRACE
+N_FU_ASCIIDOC_GENERATOR -->|contains| N_IF_CLI_ENGDOC
+N_FU_CLI_ORCHESTRATION --> N_DEP_CI_PIPELINE
+N_FU_CLI_ORCHESTRATION --> N_FU_ASCIIDOC_GENERATOR
+N_FU_CLI_ORCHESTRATION --> N_FU_MODEL_LOADER
+N_FU_CLI_ORCHESTRATION --> N_FU_VALIDATION_ENGINE
+N_FU_CODEMAP_INFERENCE --> N_TB_REPO_WORKSPACE
+N_FU_GEMARA_EXPORTER -->|contains| N_IF_CLI_ENGGEMARA
+N_FU_LOBSTER_EXPORTER -->|contains| N_IF_CLI_ENGLOBSTER
+N_FU_LOBSTER_EXPORTER --> N_REF_LOBSTER_TOOLCHAIN
+N_FU_LOBSTER_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_MCP_SERVER --> N_DEP_LOCAL_WORKSPACE
+N_FU_MCP_SERVER -->|writes| N_DO_MCP_TOOL_RESULT
+N_FU_MCP_SERVER -->|writes| N_DO_MODEL_AUTHORING_CONTRACT
+N_FU_MCP_SERVER --> N_FU_MODEL_LOADER
+N_FU_MCP_SERVER --> N_FU_VALIDATION_ENGINE
+N_FU_MCP_SERVER -->|contains| N_IF_CLI_ENGMCP
+N_FU_MCP_SERVER --> N_TB_REPO_WORKSPACE
+N_FU_MODEL_CHANGE -->|reads| N_DO_REQUIREMENTS_DELTA
+N_FU_MODEL_CHANGE -->|writes| N_DO_REQUIREMENTS_DIFF
+N_FU_MODEL_CHANGE -->|writes| N_DO_REQUIREMENTS_DOCUMENT
+N_FU_MODEL_CHANGE --> N_FU_MODEL_LOADER
+N_FU_MODEL_CHANGE --> N_FU_VALIDATION_ENGINE
+N_FU_MODEL_CHANGE -->|contains| N_IF_CLI_ENGCHANGE
+N_FU_MODEL_LOADER -->|reads| N_DO_ARCHITECTURE_MODEL
+N_FU_MODEL_LOADER -->|writes| N_DO_CANONICAL_SEMANTIC_MODEL
+N_FU_NAF_EXPORTER -->|writes| N_DO_NAF_V4_ARCHITECTURE
+N_FU_NAF_EXPORTER --> N_FU_VIEW_PROJECTION
+N_FU_NAF_EXPORTER -->|contains| N_IF_CLI_ENGNAF
+N_FU_NAF_EXPORTER --> N_REF_NAF_V4_1_SPECIFICATION
+N_FU_OSCAL_EXPORTER -->|contains| N_IF_CLI_ENGOSCAL
+N_FU_STRUCTURIZR_EXPORTER -->|writes| N_DO_STRUCTURIZR_DSL
+N_FU_STRUCTURIZR_EXPORTER -->|contains| N_IF_CLI_ENGSTRUCT
+N_FU_STRUCTURIZR_EXPORTER --> N_REF_STRUCTURIZR_VALIDATOR
+N_FU_STRUCTURIZR_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_SYSML_EXPORTER -->|reads| N_DO_SYSML_V2_METAMODEL
+N_FU_SYSML_EXPORTER -->|writes| N_DO_SYSML_V2_MODEL
+N_FU_SYSML_EXPORTER -->|contains| N_IF_CLI_ENGSYSML
+N_FU_SYSML_EXPORTER --> N_REF_SYSML_V2_TOOLCHAIN
+N_FU_SYSML_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_THREAT_EXPORTER -->|writes| N_DO_THREAT_DRAGON_JSON
+N_FU_THREAT_EXPORTER -->|contains| N_IF_CLI_ENGDRAGON
+N_FU_THREAT_EXPORTER --> N_REF_OPEN_OTM_SCHEMA
+N_FU_THREAT_EXPORTER --> N_REF_THREAT_DRAGON_SCHEMAS
+N_FU_THREAT_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_TRLC_EXPORTER -->|contains| N_IF_CLI_ENGTRLC
+N_FU_TRLC_EXPORTER --> N_REF_TRLC_TOOLCHAIN
+N_FU_TRLC_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_VALIDATION_ENGINE --> N_REF_GO_TOOLCHAIN
+N_FU_VIEW_PROJECTION -->|contains| N_IF_CLI_ENGVIEW
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;

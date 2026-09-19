@@ -1,0 +1,92 @@
+{
+  "system-security-plan": {
+    "control-implementation": {
+      "description": "Control implementation allocations derived from authored compliance mappings.",
+      "implemented-requirements": []
+    },
+    "import-profile": {
+      "href": "https://raw.githubusercontent.com/usnistgov/OSCAL/main/content/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+    },
+    "metadata": {
+      "last-modified": "1970-01-01T00:00:00Z",
+      "oscal-version": "1.1.2",
+      "title": "Engineering Model Go Repository Architecture",
+      "version": "0.1.0"
+    },
+    "system-characteristics": {
+      "authorization-boundary": {
+        "description": "Authorization boundary aligns with authored architecture scope and allocated components."
+      },
+      "description": "This architecture models the engineering-model-go repository as a model-driven toolchain.\nIt captures authored functional intent, export surfaces, and verification-oriented traceability.\nThe model is intended to guide implementation work in this repository using stable IDs and support paths.",
+      "security-impact-level": {
+        "security-objective-availability": "moderate",
+        "security-objective-confidentiality": "moderate",
+        "security-objective-integrity": "moderate"
+      },
+      "security-sensitivity-level": "moderate",
+      "status": {
+        "state": "operational"
+      },
+      "system-ids": [
+        {
+          "id": "engineering-model-go",
+          "identifier-type": "https://engineering-model-go/system-id"
+        }
+      ],
+      "system-information": {
+        "information-types": [
+          {
+            "availability-impact": {
+              "base": "fips-199-moderate"
+            },
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "description": "Application and operational data managed by the engineered system.",
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "title": "Operational Data",
+            "uuid": "eb452761-11a4-4d01-b349-cabed5352132"
+          }
+        ]
+      },
+      "system-name": "Engineering Model Go Repository Architecture"
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "description": "Uses MCP tools to plan and execute scoped implementation work.",
+          "short-name": "ai-agent",
+          "title": "AI Agent",
+          "uuid": "16b335ca-605f-44c1-9c2e-d61b25966a69"
+        },
+        {
+          "description": "Maintains modeled structure, mappings, and architecture intent.",
+          "short-name": "architecture-author",
+          "title": "Architecture Author",
+          "uuid": "e29ef726-3763-4006-ada9-2ee6f96178f1"
+        },
+        {
+          "description": "Executes regression tests, validation checks, and artifact generation.",
+          "short-name": "ci-pipeline",
+          "title": "CI Pipeline",
+          "uuid": "9e7286c1-8f49-496a-93f1-082679e868c2"
+        },
+        {
+          "description": "Uses control/risk and traceability outputs for assurance workflows.",
+          "short-name": "compliance-engineer",
+          "title": "Compliance Engineer",
+          "uuid": "2ee6645a-082e-484b-bb30-dab3489ec3a5"
+        },
+        {
+          "description": "Implements code and tests guided by requirement support paths.",
+          "short-name": "implementation-engineer",
+          "title": "Implementation Engineer",
+          "uuid": "f158fab8-eb45-4cec-bce2-d3b5762d7565"
+        }
+      ]
+    },
+    "uuid": "56d72ebc-515c-43bf-8818-84002abe0bdf"
+  }
+}

@@ -9,11 +9,25 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
             "sourceId" "FU-ASCIIDOC-GENERATOR"
           }
         }
+        fu_fu_naf_exporter = container "NAF Exporter" "Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing canonical views." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-ARTIFACT-GENERATION"
+            "sourceId" "FU-NAF-EXPORTER"
+          }
+        }
         fu_fu_structurizr_exporter = container "Structurizr Exporter" "Emits Structurizr DSL and deployment-aware model views." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
             "functionalGroup" "FG-ARTIFACT-GENERATION"
             "sourceId" "FU-STRUCTURIZR-EXPORTER"
+          }
+        }
+        fu_fu_sysml_exporter = container "SysML Exporter" "Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting conformance coverage." "Functional Unit" {
+          tags "FunctionalUnit"
+          properties {
+            "functionalGroup" "FG-ARTIFACT-GENERATION"
+            "sourceId" "FU-SYSML-EXPORTER"
           }
         }
         fu_fu_threat_exporter = container "Threat Exporter" "Exports Threat Dragon and Open OTM model artifacts." "Functional Unit" {
@@ -55,7 +69,7 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
             "sourceId" "FU-MODEL-CHANGE"
           }
         }
-        fu_fu_model_loader = container "Model Loader" "Loads and normalizes architecture, catalog, requirements, and design documents." "Functional Unit" {
+        fu_fu_model_loader = container "Model Loader" "Validates canonical YAML against the authoritative CUE contract before strict Go decoding and normalization." "Functional Unit" {
           tags "FunctionalUnit"
           properties {
             "functionalGroup" "FG-MODEL-AUTHORING"
@@ -200,6 +214,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "REF-LOBSTER-TOOLCHAIN"
       }
     }
+    ref_ref_naf_v4_1_specification = softwareSystem "NATO Architecture Framework v4.1" "architecture" {
+      tags "ReferencedElement,external_standard"
+      properties {
+        "kind" "external_standard"
+        "layer" "architecture"
+        "sourceId" "REF-NAF-V4-1-SPECIFICATION"
+      }
+    }
     ref_ref_open_otm_schema = softwareSystem "Open OTM Schema" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
       properties {
@@ -214,6 +236,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "kind" "external_service_endpoint"
         "layer" "runtime"
         "sourceId" "REF-STRUCTURIZR-VALIDATOR"
+      }
+    }
+    ref_ref_sysml_v2_toolchain = softwareSystem "Pinned SysML 2.0 / KerML 1.0 Toolchain" "runtime" {
+      tags "ReferencedElement,external_service_endpoint"
+      properties {
+        "kind" "external_service_endpoint"
+        "layer" "runtime"
+        "sourceId" "REF-SYSML-V2-TOOLCHAIN"
       }
     }
     ref_ref_threat_dragon_schemas = softwareSystem "Threat Dragon Schemas" "runtime" {
@@ -286,6 +316,15 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "IF-CLI-ENGMCP"
       }
     }
+    if_if_cli_engnaf = softwareSystem "engnaf CLI" "cli cmd/engnaf" {
+      tags "Interface"
+      properties {
+        "endpoint" "cmd/engnaf"
+        "owner" "FU-NAF-EXPORTER"
+        "protocol" "cli"
+        "sourceId" "IF-CLI-ENGNAF"
+      }
+    }
     if_if_cli_engoscal = softwareSystem "engoscal CLI" "cli cmd/engoscal" {
       tags "Interface"
       properties {
@@ -302,6 +341,15 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "owner" "FU-STRUCTURIZR-EXPORTER"
         "protocol" "cli"
         "sourceId" "IF-CLI-ENGSTRUCT"
+      }
+    }
+    if_if_cli_engsysml = softwareSystem "engsysml CLI" "cli cmd/engsysml" {
+      tags "Interface"
+      properties {
+        "endpoint" "cmd/engsysml"
+        "owner" "FU-SYSML-EXPORTER"
+        "protocol" "cli"
+        "sourceId" "IF-CLI-ENGSYSML"
       }
     }
     if_if_cli_engtrace = softwareSystem "engtrace CLI" "cli cmd/engtrace" {
@@ -331,12 +379,20 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "IF-CLI-ENGVIEW"
       }
     }
-    data_do_architecture_model = softwareSystem "Architecture Model" "architecture.yml" {
+    data_do_architecture_model = softwareSystem "Architecture Model" "model/schema/architecture.cue" {
       tags "DataObject,internal"
       properties {
         "classification" "design-source"
         "retention" "repository-history"
         "sourceId" "DO-ARCHITECTURE-MODEL"
+      }
+    }
+    data_do_canonical_semantic_model = softwareSystem "Canonical Semantic Model" "model/semantic.go" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "design-source"
+        "retention" "repository-history"
+        "sourceId" "DO-CANONICAL-SEMANTIC-MODEL"
       }
     }
     data_do_mcp_tool_result = softwareSystem "MCP Tool Result" "mcp.tool-response.v1" {
@@ -345,6 +401,22 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "classification" "runtime-api"
         "retention" "ephemeral"
         "sourceId" "DO-MCP-TOOL-RESULT"
+      }
+    }
+    data_do_model_authoring_contract = softwareSystem "Model Authoring Contract" "model/authoring.go" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "design-source"
+        "retention" "repository-history"
+        "sourceId" "DO-MODEL-AUTHORING-CONTRACT"
+      }
+    }
+    data_do_naf_v4_architecture = softwareSystem "NAF v4.1 Architecture Document" "generated/ARCHITECTURE.naf.adoc" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "architecture-product"
+        "retention" "build-artifact"
+        "sourceId" "DO-NAF-V4-ARCHITECTURE"
       }
     }
     data_do_requirements_delta = softwareSystem "Requirements Delta" "requirements_delta.go" {
@@ -363,7 +435,7 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "sourceId" "DO-REQUIREMENTS-DIFF"
       }
     }
-    data_do_requirements_document = softwareSystem "Requirements Document" "requirements.yml" {
+    data_do_requirements_document = softwareSystem "Requirements Document" "model/schema/requirements.cue" {
       tags "DataObject,internal"
       properties {
         "classification" "requirements-source"
@@ -377,6 +449,22 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "classification" "exchange-artifact"
         "retention" "build-artifact"
         "sourceId" "DO-STRUCTURIZR-DSL"
+      }
+    }
+    data_do_sysml_v2_metamodel = softwareSystem "SysML v2 Metamodel" "tools/sysml/metamodel" {
+      tags "DataObject,public"
+      properties {
+        "classification" "external-standard"
+        "retention" "pinned-tool-version"
+        "sourceId" "DO-SYSML-V2-METAMODEL"
+      }
+    }
+    data_do_sysml_v2_model = softwareSystem "SysML v2 Model" "generated/ARCHITECTURE.sysml" {
+      tags "DataObject,internal"
+      properties {
+        "classification" "exchange-artifact"
+        "retention" "build-artifact"
+        "sourceId" "DO-SYSML-V2-MODEL"
       }
     }
     data_do_threat_dragon_json = softwareSystem "Threat Dragon JSON" "generated/threat-dragon-v2.json" {
@@ -503,6 +591,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
       }
     }
+    fu_fu_sysml_exporter -> tb_tb_external_validation_tools "bounded_by" {
+      tags "Mapping,bounded_by"
+      properties {
+        "fromId" "FU-SYSML-EXPORTER"
+        "mappingType" "bounded_by"
+        "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
+      }
+    }
     fu_fu_threat_exporter -> tb_tb_external_validation_tools "bounded_by" {
       tags "Mapping,bounded_by"
       properties {
@@ -527,12 +623,28 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "FU-ASCIIDOC-GENERATOR"
       }
     }
+    group_fg_artifact_generation -> fu_fu_naf_exporter "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-ARTIFACT-GENERATION"
+        "mappingType" "contains"
+        "toId" "FU-NAF-EXPORTER"
+      }
+    }
     group_fg_artifact_generation -> fu_fu_structurizr_exporter "contains" {
       tags "Mapping,contains"
       properties {
         "fromId" "FG-ARTIFACT-GENERATION"
         "mappingType" "contains"
         "toId" "FU-STRUCTURIZR-EXPORTER"
+      }
+    }
+    group_fg_artifact_generation -> fu_fu_sysml_exporter "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FG-ARTIFACT-GENERATION"
+        "mappingType" "contains"
+        "toId" "FU-SYSML-EXPORTER"
       }
     }
     group_fg_artifact_generation -> fu_fu_threat_exporter "contains" {
@@ -695,6 +807,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "IF-CLI-ENGCHANGE"
       }
     }
+    fu_fu_naf_exporter -> if_if_cli_engnaf "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FU-NAF-EXPORTER"
+        "mappingType" "contains"
+        "toId" "IF-CLI-ENGNAF"
+      }
+    }
     fu_fu_oscal_exporter -> if_if_cli_engoscal "contains" {
       tags "Mapping,contains"
       properties {
@@ -709,6 +829,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "fromId" "FU-STRUCTURIZR-EXPORTER"
         "mappingType" "contains"
         "toId" "IF-CLI-ENGSTRUCT"
+      }
+    }
+    fu_fu_sysml_exporter -> if_if_cli_engsysml "contains" {
+      tags "Mapping,contains"
+      properties {
+        "fromId" "FU-SYSML-EXPORTER"
+        "mappingType" "contains"
+        "toId" "IF-CLI-ENGSYSML"
       }
     }
     fu_fu_threat_exporter -> if_if_cli_engdragon "contains" {
@@ -799,12 +927,36 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "FU-VALIDATION-ENGINE"
       }
     }
+    fu_fu_naf_exporter -> fu_fu_view_projection "depends_on" {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-NAF-EXPORTER"
+        "mappingType" "depends_on"
+        "toId" "FU-VIEW-PROJECTION"
+      }
+    }
+    fu_fu_naf_exporter -> ref_ref_naf_v4_1_specification "depends_on" {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-NAF-EXPORTER"
+        "mappingType" "depends_on"
+        "toId" "REF-NAF-V4-1-SPECIFICATION"
+      }
+    }
     fu_fu_structurizr_exporter -> ref_ref_structurizr_validator "depends_on" {
       tags "Mapping,depends_on"
       properties {
         "fromId" "FU-STRUCTURIZR-EXPORTER"
         "mappingType" "depends_on"
         "toId" "REF-STRUCTURIZR-VALIDATOR"
+      }
+    }
+    fu_fu_sysml_exporter -> ref_ref_sysml_v2_toolchain "depends_on" {
+      tags "Mapping,depends_on"
+      properties {
+        "fromId" "FU-SYSML-EXPORTER"
+        "mappingType" "depends_on"
+        "toId" "REF-SYSML-V2-TOOLCHAIN"
       }
     }
     fu_fu_threat_exporter -> ref_ref_open_otm_schema "depends_on" {
@@ -919,6 +1071,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "DO-ARCHITECTURE-MODEL"
       }
     }
+    fu_fu_sysml_exporter -> data_do_sysml_v2_metamodel "reads" {
+      tags "Mapping,reads"
+      properties {
+        "fromId" "FU-SYSML-EXPORTER"
+        "mappingType" "reads"
+        "toId" "DO-SYSML-V2-METAMODEL"
+      }
+    }
     av_av_malformed_model_input -> fu_fu_model_loader "targets" {
       tags "Mapping,targets"
       properties {
@@ -967,6 +1127,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "DO-MCP-TOOL-RESULT"
       }
     }
+    fu_fu_mcp_server -> data_do_model_authoring_contract "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-MCP-SERVER"
+        "mappingType" "writes"
+        "toId" "DO-MODEL-AUTHORING-CONTRACT"
+      }
+    }
     fu_fu_model_change -> data_do_requirements_diff "writes" {
       tags "Mapping,writes"
       properties {
@@ -983,12 +1151,36 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         "toId" "DO-REQUIREMENTS-DOCUMENT"
       }
     }
+    fu_fu_model_loader -> data_do_canonical_semantic_model "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-MODEL-LOADER"
+        "mappingType" "writes"
+        "toId" "DO-CANONICAL-SEMANTIC-MODEL"
+      }
+    }
+    fu_fu_naf_exporter -> data_do_naf_v4_architecture "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-NAF-EXPORTER"
+        "mappingType" "writes"
+        "toId" "DO-NAF-V4-ARCHITECTURE"
+      }
+    }
     fu_fu_structurizr_exporter -> data_do_structurizr_dsl "writes" {
       tags "Mapping,writes"
       properties {
         "fromId" "FU-STRUCTURIZR-EXPORTER"
         "mappingType" "writes"
         "toId" "DO-STRUCTURIZR-DSL"
+      }
+    }
+    fu_fu_sysml_exporter -> data_do_sysml_v2_model "writes" {
+      tags "Mapping,writes"
+      properties {
+        "fromId" "FU-SYSML-EXPORTER"
+        "mappingType" "writes"
+        "toId" "DO-SYSML-V2-MODEL"
       }
     }
     fu_fu_threat_exporter -> data_do_threat_dragon_json "writes" {

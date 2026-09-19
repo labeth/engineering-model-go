@@ -14,6 +14,36 @@ It combines:
 - EARS requirement preflight linting
 - code trace mapping (Go, TypeScript, Rust)
 
+YAML remains the canonical authored and persistence format, with CUE as the
+authoritative schema and cross-field constraint layer. The canonical YAML/CUE
+model is a semantic superset of the pinned formal SysML 2.0/KerML 1.0 abstract
+syntax, with typed `Engineering::` extensions. This is evidenced by exhaustive
+inventory coverage, official-parser validation, and semantic project-interchange
+round trip. It does not claim execution/simulation semantics or graphical
+concrete syntax. SysML textual DSL is generated output, not another source
+model. See
+[`docs/sysml-v2-superset-plan.md`](docs/sysml-v2-superset-plan.md).
+
+The five canonical documents can declare a shared input schema version and
+explicit companion-document paths:
+
+```yaml
+schemaVersion: 1
+model:
+  id: example-system
+  documents:
+    catalog: ./catalog.yml
+    requirements: ./requirements.yml
+    design: ./design.yml
+    decisions: ./decisions.yml
+```
+
+Existing unversioned files remain version 1, `baseCatalogRef` remains accepted,
+and the established companion filenames remain defaults. AI agents should call
+the no-argument MCP tool `model.authoringContract` first; it returns the resolved
+document set, schema files, top-level YAML fields, stable-ID conventions, and
+recommended editing order without requiring a broad repository scan.
+
 ## Scope
 
 This project models development-state architecture inputs from YAML and produces deterministic documentation/view artifacts.
@@ -22,7 +52,8 @@ It is not a runtime observability or incident/compliance runtime system.
 
 ## Features
 
-- strict YAML loading for architecture/catalog/requirements/design documents
+- CUE-backed, closed-schema YAML loading for architecture, catalog,
+  requirements, decisions, and design documents, followed by strict Go decoding
 - model validation for IDs, references, relations, and viewpoint configuration
 - expanded mapping relation taxonomy for communication/deployment/security/traceability/lifecycle semantics
 - catalog-linked architecture relation labeling
@@ -31,6 +62,9 @@ It is not a runtime observability or incident/compliance runtime system.
   - Flux resources (GitRepository/Kustomization/HelmRelease)
   - Helm chart metadata via Helm SDK chart loader
 - deterministic Mermaid view rendering
+- canonical semantic projection with stable IDs, typed relationships, ownership,
+  source metadata, and explicit unsupported/lossy diagnostics
+- deterministic SysML v2 textual projection and executable coverage manifest
 - AsciiDoc architecture generation with chapter scope diagrams
 - view-level filtering controls (`includeKinds`, `excludeKinds`, `includeMappings`, `excludeMappings`, `maxDepth`)
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
@@ -54,6 +88,11 @@ Primary entry points:
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
+- `model.ProjectSemanticModel(bundle)`
+- `GenerateSysMLV2FromFile(architecturePath)`
+- `GenerateSysMLV2(bundle)`
+- `GenerateSysMLV2Projection(semanticModel)`
+- `SysMLV2Coverage()`
 - `GenerateThreatModelExportFromFile(architecturePath, options)`
 - `GenerateTRLCRequirementsFromFile(requirementsPath, options)`
 - `GenerateLobsterActivityTraceFromDir(testsDir, options)`
@@ -250,6 +289,240 @@ Generate Structurizr DSL:
 ```bash
 go run ./cmd/engstruct --model examples/payments-engineering-sample/architecture.yml --out examples/payments-engineering-sample/generated/STRUCTURIZR.dsl
 ```
+
+Generate the deterministic SysML v2 textual projection:
+
+```bash
+go run ./cmd/engsysml \
+  --model examples/payments-engineering-sample/architecture.yml \
+  --out examples/payments-engineering-sample/generated/architecture.sysml
+```
+
+Author NATO Architecture Framework 4.1 metadata directly in `architecture.yml`
+without duplicating the canonical architecture graph:
+
+```yaml
+naf:
+  framework: NAF
+  version: "4.1"
+  architectureDescription: Example NAF Architecture Description
+  stakeholders:
+    - actorRef: ACT-ARCHITECT
+      role: Owns architecture decisions.
+  concerns:
+    - id: NAF-CONCERN-STRUCTURE
+      name: System structure
+      stakeholderRefs: [ACT-ARCHITECT]
+  products:
+    - id: NAF-P2-RESOURCE-STRUCTURE
+      viewpoint: P2
+      title: Physical resource structure
+      viewRef: VIEW-DEPLOYMENT
+      concernRefs: [NAF-CONCERN-STRUCTURE]
+```
+
+Each NAF product references an existing Engmod view. Capability, service,
+logical, resource, interface, behavior, and requirement concepts therefore
+remain represented once in the canonical SysML/KerML-aligned model. Generate
+the deterministic NAF architecture document with:
+
+```bash
+go run ./cmd/engnaf \
+  --model architecture.yml \
+  --out generated/ARCHITECTURE.naf.adoc
+```
+
+The profile accepts the official NAF 4.1 viewpoint codes (`C*`, `S*`, `L*`,
+`P*`, and `A*`, including roadmap and cross-domain viewpoints). CUE rejects
+unsupported framework versions and viewpoint codes; model validation also
+checks actor, stakeholder, concern, and Engmod view references. This output is
+a framework-aligned architecture description and is not a claim of NATO
+certification.
+
+Emit the executable metaclass/property-level coverage manifest:
+
+```bash
+go run ./cmd/engsysml --coverage
+```
+
+The formal metamodel inventory is separate from that projection report. The
+formal `Systems-Modeling/SysML-v2-Release` tag `2026-04` is pinned at commit
+`9baca5908ca28b53da085de69336fde48420ea8f`. That release does **not** contain a
+normative metamodel XMI/Ecore: its XMI directories are standard-library model
+instances, and the release notes explicitly state that their Eclipse XMI is not
+fully normative OMG XMI.
+
+The closest official machine-readable metamodel artifact is therefore the Ecore
+published by the aligned official Pilot Implementation tag `2026-04`, commit
+`20897e3122f2c2f8b29389745f0caaaeb7c6e21a`:
+
+| Origin | Path | SHA-256 |
+| --- | --- | --- |
+| KerML 1.0 | `org.omg.sysml/model/kerml.ecore` | `62db52cbccf41266ccfa9b3b9cbb4a40384f16ab513f1d8522fd29d9d0fda8e7` |
+| SysML 2.0 | `org.omg.sysml.model/src/main/resources/model/SysML.ecore` | `be71998ca0d9bb7e6081a25e8ead93ce49d623a47ca414b30ee8c572d6d0d753` |
+
+Exact immutable URLs and authority notes are tracked in
+`tools/sysml/metamodel-sources.json`. Refresh downloads into the ignored
+`.engmod/cache` tree, verifies both hashes, and regenerates the compact inventory
+and semantic coverage binding:
+
+```bash
+scripts/refresh-sysml-metamodel.sh
+scripts/check-sysml-metamodel.sh
+```
+
+The offline check uses only tracked artifacts. It inventories exactly 175
+metaclasses, 415 owned properties, 13,318 effective properties, 209 inheritance
+edges, 328 derived properties, and 66 relationships. The strict binding records
+262 mapped entries, 328 derived/implied entries, and zero unimplemented entries.
+Textual rendering classifies 54 metaclasses as native-rendered and 121 as
+abstract/implicit, with zero missing rules; all 66 relationships are classified.
+CI rejects stale inventory hashes, omitted properties or renderer
+classifications, partial/unsupported normative statuses, stale coverage JSON,
+official-parser failures, and semantic round-trip differences.
+
+Install the pinned official parser wrapper and Sysand KPAR packager into the
+ignored `.engmod` tool/cache tree:
+
+```bash
+scripts/install-sysml-toolchain.sh
+```
+
+The installer verifies the official `2026-04` Pilot Implementation
+`jupyter-sysml-kernel-0.59.0.zip` checksum and the platform-specific Sysand
+`0.2.1` release checksum. The validator wrapper is checked out at commit
+`63abbd9fbc7851dc437d01b2dc07836b919770b8`; GitHub does not publish a separate
+source-archive checksum for that commit, so the immutable Git object ID is the
+documented verification boundary.
+
+Build and reopen a normative KPAR through Sysand:
+
+```bash
+go run ./cmd/engsysml \
+  --model architecture.yml \
+  --project-out .engmod/validation/sysml/project \
+  --kpar-out .engmod/validation/sysml/engineering-model.kpar \
+  --sysand .engmod/tooling/bin/sysand
+
+go run ./cmd/engsysml \
+  --model architecture.yml \
+  --verify-kpar .engmod/validation/sysml/engineering-model.kpar \
+  --reopen-out .engmod/validation/sysml/reopened \
+  --sysand .engmod/tooling/bin/sysand
+```
+
+`engsysml` delegates KPAR creation and reopening to Sysand; it does not create
+or label a custom ZIP as KPAR. The generated project source carries one typed
+`EngineeringProject` metadata payload containing the canonical semantic model.
+The import path reconstructs that model and compares stable identity, ownership,
+relationships, expressions, library/project references, and typed extensions.
+Run the complete blocking gate with `scripts/validate-sysml.sh`. Local users may
+explicitly skip unavailable external tools with
+`ENGMOD_SYSML_SKIP_EXTERNAL=1 scripts/validate-all.sh`; CI installs the pinned
+tools and never sets that skip.
+
+The exporter preserves engineering-specific concepts and source properties in a
+typed metadata payload and reports unsupported, lossy, external-endpoint, and
+toolchain-conformance limitations as diagnostics. The generated text and KPAR
+are validated by the official parser baseline, but the coverage manifest still
+describes a documented subset/projection rather than claiming complete SysML v2
+semantic conformance.
+
+`architecture.yml` may use the canonical `semantics` section for concepts that
+legacy architecture fields cannot express. Existing functional units, actors,
+interfaces, data objects, hardware, deployment, flows, states, events,
+composition, and mappings are migration aliases projected into the same model:
+
+```yaml
+semantics:
+  imports:
+    - namespace: MODEL-ID
+      imported: DomainLibrary
+      visibility: private
+      recursive: true
+  elements:
+    - id: ACTION-PROCESS
+      kind: action_definition
+      namespace: MODEL-ID
+      features:
+        - name: request
+          kind: parameter
+          direction: in
+          type: ITEM-REQUEST
+  relationships:
+    - id: TRANSITION-READY
+      kind: transition
+      source: STATE-PENDING
+      target: STATE-READY
+      triggers: [EVENT-ACCEPTED]
+      guard: {language: expression, value: isValid}
+      effect: {language: expression, value: publishReady}
+```
+
+The compact semantic schema uses `kind` rather than a separate Go/YAML type for
+each grammar production. Supported standard kinds include requirement, concern,
+stakeholder, constraint, calculation, case, analysis-case, verification-case,
+use-case, view/viewpoint, occurrence/individual, snapshot/time-slice, quantity,
+and unit definitions/usages. Relationships include satisfaction, verification,
+allocation, binding, transfer, succession, transition, and variant membership.
+
+Reusable expression values use `typedValue`:
+
+```yaml
+features:
+  - name: maximumLatency
+    kind: attribute
+    multiplicity: {lower: 1, upper: 1}
+    value:
+      kind: literal
+      typedValue:
+        kind: quantity
+        quantity: {value: 250, unit: UNIT-MS}
+```
+
+Occurrence and variability semantics stay on the common element shape:
+
+```yaml
+- id: OCC-DEPLOYMENT
+  kind: occurrence_usage
+  occurrenceId: deployment-42
+  variation: true
+  variants: [OCC-BLUE, OCC-GREEN]
+- id: OCC-BLUE
+  kind: snapshot
+  occurrenceId: deployment-42-blue
+  portionOf: OCC-DEPLOYMENT
+```
+
+Engineering-only concepts use `kind: engineering_extension` with an extension
+namespace/type identity and explicit targets. Typed metadata also names its
+target:
+
+```yaml
+- id: RISK-EXAMPLE
+  kind: engineering_extension
+  extensionNamespace: engineering
+  extension: engineering.risk
+  targets: [REQ-EXAMPLE]
+  metadata:
+    - namespace: engineering
+      type: engineering.classification
+      target: RISK-EXAMPLE
+      properties: {level: high}
+```
+
+Every authored YAML document is validated against the embedded modular schemas
+in `model/schema/` before strict Go decoding. CUE is authoritative for document
+shape and cross-field constraints, produces path-aware diagnostics, and rejects
+unknown fields recursively. A reflection-based contract test detects drift
+between CUE fields and the Go runtime API representations. Semantic validation
+then checks identities, ownership, references, multiplicities, expression/value
+shape, occurrence
+identity, time portions, variation links, extension targets, and metadata
+targets. Legacy requirements, actors, control verifications, views, design
+narratives, assurance entities, composition, ownership policy, and evidence are
+adapted into these same canonical concepts rather than copied into a parallel
+SysML model.
 
 Generate TRLC requirements package:
 

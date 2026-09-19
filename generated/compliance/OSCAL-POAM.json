@@ -1,0 +1,89 @@
+{
+  "plan-of-action-and-milestones": {
+    "import-ssp": {
+      "href": "./OSCAL-SSP.json"
+    },
+    "metadata": {
+      "last-modified": "1970-01-01T00:00:00Z",
+      "oscal-version": "1.1.2",
+      "title": "Engineering Model Go Repository Architecture POA\u0026M",
+      "version": "0.1.0"
+    },
+    "poam-items": [
+      {
+        "description": "Add fuzz coverage for MCP path normalization",
+        "props": [
+          {
+            "name": "due-date",
+            "value": "2026-09-30"
+          },
+          {
+            "name": "status",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "value": "ACT-ARCHITECTURE-AUTHOR"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "27d4b366-4f58-4a5c-b408-4b3b16ffd25c"
+          }
+        ],
+        "remarks": "Artifacts: mcp/server_test.go",
+        "title": "Add fuzz coverage for MCP path normalization",
+        "uuid": "eaa05dd5-5318-4211-9986-bd1b67560b78"
+      },
+      {
+        "description": "Enforce strict trace coverage in the CI gate",
+        "props": [
+          {
+            "name": "due-date",
+            "value": "2026-08-31"
+          },
+          {
+            "name": "status",
+            "value": "in-progress"
+          },
+          {
+            "name": "responsible-role",
+            "value": "ACT-COMPLIANCE-ENGINEER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "2aea13f3-7202-4192-8c20-022239c67525"
+          }
+        ],
+        "remarks": "Artifacts: codemap/scan.go",
+        "title": "Enforce strict trace coverage in the CI gate",
+        "uuid": "0ac727ec-be45-450d-8548-da81456811f8"
+      }
+    ],
+    "risks": [
+      {
+        "description": "An attacker uses crafted MCP path arguments to read files outside the repository workspace.",
+        "statement": "Path boundary enforcement and strict input schemas reduce exposure to low residual risk.",
+        "status": "mitigating",
+        "title": "MCP path traversal exposes non-repository files",
+        "uuid": "27d4b366-4f58-4a5c-b408-4b3b16ffd25c"
+      },
+      {
+        "description": "Code and tests evolve without updating requirement trace markers, eroding coverage evidence.",
+        "statement": "Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable.",
+        "status": "mitigating",
+        "title": "Traceability drift weakens assurance evidence",
+        "uuid": "2aea13f3-7202-4192-8c20-022239c67525"
+      },
+      {
+        "description": "Generated documentation or exchange artifacts fall out of sync with the authored model.",
+        "statement": "Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the model.",
+        "status": "mitigating",
+        "title": "Stale generated artifacts misrepresent the system",
+        "uuid": "78c61d12-bd95-450a-8ce6-08bf0c4ca635"
+      }
+    ],
+    "uuid": "1325b120-175a-4e83-af78-5c990d7cce8c"
+  }
+}

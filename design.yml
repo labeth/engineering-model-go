@@ -1,3 +1,5 @@
+schemaVersion: 1
+
 design:
   id: engineering-model-go-design
   title: Engineering Model Go Repository Design
@@ -125,7 +127,7 @@ design:
       views:
         architecture_intent:
           title: Model Loader Intent
-          narrative: Loads architecture, catalog, requirements, and design inputs into a single normalized bundle.
+          narrative: Validates schema-versioned canonical YAML inputs, resolves explicit companion-document references with legacy defaults, and assembles one normalized bundle.
         communication:
           title: Model Loader Communication
           narrative: Provides canonical model structures to validators, generators, and MCP handlers.
@@ -134,7 +136,7 @@ design:
           narrative: Shipped as reusable package APIs consumed by command entrypoints.
         security:
           title: Model Loader Security
-          narrative: Rejects invalid parsing states and unresolved core model references.
+          narrative: Rejects unknown fields, invalid cross-field constraints, invalid parsing states, and unresolved core model references with path-aware diagnostics.
         traceability:
           title: Model Loader Traceability
           narrative: Preserves stable ID fidelity from source YAML through runtime structures.
@@ -253,6 +255,44 @@ design:
           title: Structurizr Exporter Traceability
           narrative: Preserves architecture IDs across DSL elements for cross-tool alignment.
 
+    - id: FU-SYSML-EXPORTER
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: SysML Exporter Intent
+          narrative: Projects the canonical semantic model into SysML v2 without introducing a parallel authoring vocabulary.
+        communication:
+          title: SysML Exporter Communication
+          narrative: Resolves standard SysML and KerML concepts through one mapping registry and exposes engineering-specific concepts as typed extensions.
+        deployment:
+          title: SysML Exporter Deployment
+          narrative: Runs through engsysml locally and in CI with deterministic textual and project interchange outputs.
+        security:
+          title: SysML Exporter Security
+          narrative: Rejects unknown, duplicate, and lossy mappings before publishing an artifact with a conformance claim.
+        traceability:
+          title: SysML Exporter Traceability
+          narrative: Preserves stable Engineering Model identifiers and emits executable coverage evidence for every mapped concept.
+
+    - id: FU-NAF-EXPORTER
+      group: FG-ARTIFACT-GENERATION
+      views:
+        architecture_intent:
+          title: NAF Exporter Intent
+          narrative: Applies NAF 4.1 stakeholder, concern, and viewpoint metadata to canonical model views without creating duplicate capability, service, logical, or resource concepts.
+        communication:
+          title: NAF Exporter Communication
+          narrative: Generates deterministic architecture products organized by official NAF 4.1 viewpoint codes.
+        deployment:
+          title: NAF Exporter Deployment
+          narrative: Runs through engnaf locally and in CI using the same YAML and CUE validated model as every other exporter.
+        security:
+          title: NAF Exporter Security
+          narrative: Rejects unsupported framework versions, unknown viewpoint codes, and dangling stakeholder, concern, actor, or model-view references.
+        traceability:
+          title: NAF Exporter Traceability
+          narrative: Preserves canonical IDs from each referenced Engmod view in the generated NAF architecture product.
+
     - id: FU-TRLC-EXPORTER
       group: FG-TRACEABILITY-COMPLIANCE
       views:
@@ -318,7 +358,7 @@ design:
           narrative: Exposes model-aware operations for AI agents using a stable tool contract.
         communication:
           title: MCP Server Communication
-          narrative: Processes initialize/list/call JSON-RPC messages and returns structured payloads.
+          narrative: Processes initialize/list/call JSON-RPC messages and returns structured payloads, including a compact machine-readable model authoring contract.
         deployment:
           title: MCP Server Deployment
           narrative: Runs as stdio server executable in local and automated agent environments.

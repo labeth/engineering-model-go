@@ -8,6 +8,17 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-046
+func TestBundleValidationRejectsUnsupportedSchemaVersion(t *testing.T) {
+	diagnostics := Bundle(model.Bundle{Architecture: model.ArchitectureDocument{SchemaVersion: 2}})
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == "model.unsupported_schema_version" && diagnostic.Path == "schemaVersion" {
+			return
+		}
+	}
+	t.Fatalf("expected unsupported schema version diagnostic, got %+v", diagnostics)
+}
+
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidationNoErrors(t *testing.T) {
 	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
@@ -18,6 +29,91 @@ func TestBundleValidationNoErrors(t *testing.T) {
 	diags := Bundle(b)
 	if HasErrors(diags) {
 		t.Fatalf("expected no validation errors, got: %+v", diags)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func TestBundleValidationIncludesCanonicalSemanticDiagnostics(t *testing.T) {
+	tests := []struct {
+		name string
+		edit func(*model.Bundle)
+		code string
+	}{
+		{
+			name: "duplicate identity",
+			edit: func(bundle *model.Bundle) {
+				bundle.Architecture.AuthoredArchitecture.FunctionalGroups = append(
+					bundle.Architecture.AuthoredArchitecture.FunctionalGroups,
+					model.FunctionalGroup{ID: "FG-A", Name: "Duplicate"},
+				)
+			},
+			code: "semantic.duplicate_identity",
+		},
+		{
+			name: "dangling semantic relationship",
+			edit: func(bundle *model.Bundle) {
+				bundle.Architecture.AuthoredArchitecture.Mappings = append(
+					bundle.Architecture.AuthoredArchitecture.Mappings,
+					model.Mapping{Type: "depends_on", From: "FU-A", To: "FU-MISSING"},
+				)
+			},
+			code: "semantic.dangling_relationship",
+		},
+		{
+			name: "invalid ownership",
+			edit: func(bundle *model.Bundle) {
+				bundle.Architecture.AuthoredArchitecture.Interfaces = append(
+					bundle.Architecture.AuthoredArchitecture.Interfaces,
+					model.Interface{ID: "IF-A", Name: "API", Owner: "FU-MISSING"},
+				)
+			},
+			code: "semantic.invalid_ownership",
+		},
+		{
+			name: "unsupported projection",
+			edit: func(bundle *model.Bundle) {
+				bundle.Architecture.AuthoredArchitecture.Mappings = append(
+					bundle.Architecture.AuthoredArchitecture.Mappings,
+					model.Mapping{Type: "future_relation", From: "FU-A", To: "FG-A"},
+				)
+			},
+			code: "semantic.unsupported_relationship",
+		},
+		{
+			name: "lossy projection",
+			edit: func(bundle *model.Bundle) {
+				bundle.Architecture.AuthoredArchitecture.Mappings = append(
+					bundle.Architecture.AuthoredArchitecture.Mappings,
+					model.Mapping{Type: "depends_on", From: "", To: "FG-A"},
+				)
+			},
+			code: "semantic.lossy_relationship",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bundle := model.Bundle{Architecture: model.ArchitectureDocument{
+				Model: model.ModelMeta{ID: "MODEL-A"},
+				AuthoredArchitecture: model.AuthoredArchitecture{
+					FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+					FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Name: "Unit A", Group: "FG-A"}},
+				},
+			}}
+			tt.edit(&bundle)
+			diagnostics := Bundle(bundle)
+			found := false
+			for _, diagnostic := range diagnostics {
+				if diagnostic.Code == tt.code {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatalf("expected %s diagnostic, got %+v", tt.code, diagnostics)
+			}
+		})
 	}
 }
 

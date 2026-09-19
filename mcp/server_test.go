@@ -3,9 +3,12 @@ package mcp
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/model"
 )
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
@@ -92,6 +95,27 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 			t.Fatalf("tool %s echo mismatch, got %v", name, payload["tool"])
 		}
 		assertUsefulToolPayload(t, name, payload, text)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-045
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	contract, ok := payload["contract"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing authoring contract: %+v", payload)
+	}
+	if contract["contractVersion"] != model.AuthoringContractVersion {
+		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
+	}
+	documents, _ := contract["documents"].([]any)
+	if len(documents) != 5 {
+		t.Fatalf("expected five canonical documents, got %d", len(documents))
+	}
+	if !strings.Contains(fmt.Sprint(contract["compatibility"]), "schemaVersion") {
+		t.Fatalf("missing compatibility guidance: %+v", contract)
 	}
 }
 

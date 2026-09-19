@@ -28,7 +28,8 @@ type CatalogGroups struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type CatalogDocument struct {
-	Catalog CatalogGroups `yaml:"catalog"`
+	SchemaVersion int           `yaml:"schemaVersion"`
+	Catalog       CatalogGroups `yaml:"catalog"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -49,14 +50,16 @@ type Requirement struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type RequirementsDocument struct {
-	LintRun      LintRun       `yaml:"lintRun"`
-	Requirements []Requirement `yaml:"requirements"`
-	Expected     []Expected    `yaml:"expected"`
+	SchemaVersion int           `yaml:"schemaVersion"`
+	LintRun       LintRun       `yaml:"lintRun"`
+	Requirements  []Requirement `yaml:"requirements"`
+	Expected      []Expected    `yaml:"expected"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type DecisionsDocument struct {
-	Decisions []Decision `yaml:"decisions"`
+	SchemaVersion int        `yaml:"schemaVersion"`
+	Decisions     []Decision `yaml:"decisions"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -94,15 +97,27 @@ type DesignModel struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type DesignDocument struct {
-	Design DesignModel `yaml:"design"`
+	SchemaVersion int         `yaml:"schemaVersion"`
+	Design        DesignModel `yaml:"design"`
+}
+
+// DocumentReferences makes the complete canonical YAML document set explicit.
+// Empty non-catalog references retain the established companion filenames.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type DocumentReferences struct {
+	Catalog      string `yaml:"catalog"`
+	Requirements string `yaml:"requirements"`
+	Design       string `yaml:"design"`
+	Decisions    string `yaml:"decisions"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ModelMeta struct {
-	ID             string `yaml:"id"`
-	Title          string `yaml:"title"`
-	Introduction   string `yaml:"introduction"`
-	BaseCatalogRef string `yaml:"baseCatalogRef"`
+	ID             string             `yaml:"id"`
+	Title          string             `yaml:"title"`
+	Introduction   string             `yaml:"introduction"`
+	Documents      DocumentReferences `yaml:"documents"`
+	BaseCatalogRef string             `yaml:"baseCatalogRef"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -525,15 +540,64 @@ type View struct {
 	Abstraction               string   `yaml:"abstraction"`
 }
 
+// NAFProfile adds NATO Architecture Framework metadata to canonical model views.
+// It does not define another architecture element graph.
+// TRLC-LINKS: REQ-EMG-041
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-NAF-EXPORTER, REF-NAF-V4-1-SPECIFICATION
+type NAFProfile struct {
+	Framework               string           `yaml:"framework"`
+	Version                 string           `yaml:"version"`
+	ArchitectureDescription string           `yaml:"architectureDescription"`
+	Stakeholders            []NAFStakeholder `yaml:"stakeholders"`
+	Concerns                []NAFConcern     `yaml:"concerns"`
+	Products                []NAFProduct     `yaml:"products"`
+}
+
+// Enabled reports whether a NAF profile was authored.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) Enabled() bool {
+	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != "" ||
+		len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
+}
+
+// NAFStakeholder binds a NAF stakeholder role to an existing canonical actor.
+// TRLC-LINKS: REQ-EMG-041
+type NAFStakeholder struct {
+	ActorRef string `yaml:"actorRef"`
+	Role     string `yaml:"role"`
+}
+
+// NAFConcern identifies an architecture concern and its existing stakeholders.
+// TRLC-LINKS: REQ-EMG-041
+type NAFConcern struct {
+	ID              string   `yaml:"id"`
+	Name            string   `yaml:"name"`
+	Description     string   `yaml:"description"`
+	StakeholderRefs []string `yaml:"stakeholderRefs"`
+}
+
+// NAFProduct applies an official NAF viewpoint to an existing Engmod view.
+// TRLC-LINKS: REQ-EMG-041, REQ-EMG-042
+type NAFProduct struct {
+	ID          string   `yaml:"id"`
+	Viewpoint   string   `yaml:"viewpoint"`
+	Title       string   `yaml:"title"`
+	ViewRef     string   `yaml:"viewRef"`
+	ConcernRefs []string `yaml:"concernRefs"`
+}
+
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ArchitectureDocument struct {
+	SchemaVersion        int                  `yaml:"schemaVersion"`
 	Model                ModelMeta            `yaml:"model"`
+	Semantics            SemanticContent      `yaml:"semantics"`
 	Decisions            []Decision           `yaml:"-"`
 	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
 	Compliance           ComplianceModel      `yaml:"compliance"`
 	Contract             ContractModel        `yaml:"contract"`
 	Composition          CompositionModel     `yaml:"composition"`
 	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
+	NAF                  NAFProfile           `yaml:"naf"`
 	Views                []View               `yaml:"views"`
 }
 
@@ -622,8 +686,12 @@ type Bundle struct {
 	ArchitecturePath string
 	CatalogPath      string
 	DecisionsPath    string
+	RequirementsPath string
+	DesignPath       string
 
 	Architecture ArchitectureDocument
 	Catalog      CatalogDocument
 	Decisions    DecisionsDocument
+	Requirements RequirementsDocument
+	Design       DesignDocument
 }

@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "model": "engineering-model-go",
+  "artifacts": [
+    {
+      "path": "ARCHITECTURE.adoc",
+      "domain": "architecture",
+      "format": "adoc",
+      "status": "generated"
+    },
+    {
+      "path": "ASSURANCE-MANIFEST.json",
+      "domain": "assurance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "ASSURANCE-SUMMARY.md",
+      "domain": "assurance",
+      "format": "md",
+      "status": "generated"
+    },
+    {
+      "path": "DECISIONS.adoc",
+      "domain": "assurance",
+      "format": "adoc",
+      "status": "generated"
+    },
+    {
+      "path": "STRUCTURIZR.dsl",
+      "domain": "architecture",
+      "format": "dsl",
+      "status": "generated"
+    },
+    {
+      "path": "TRACE-MATRIX.csv",
+      "domain": "requirements",
+      "format": "csv",
+      "status": "generated"
+    },
+    {
+      "path": "TRACE-MATRIX.json",
+      "domain": "requirements",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "VIEW-ARCHITECTURE-INTENT.mmd",
+      "domain": "architecture",
+      "format": "mmd",
+      "status": "generated"
+    },
+    {
+      "path": "VIEW-INTERACTION-FLOW.mmd",
+      "domain": "architecture",
+      "format": "mmd",
+      "status": "generated"
+    },
+    {
+      "path": "VIEW-SECURITY.mmd",
+      "domain": "architecture",
+      "format": "mmd",
+      "status": "generated"
+    },
+    {
+      "path": "VIEW-STATE-LIFECYCLE.mmd",
+      "domain": "architecture",
+      "format": "mmd",
+      "status": "generated"
+    },
+    {
+      "path": "VIEW-TRACEABILITY.mmd",
+      "domain": "architecture",
+      "format": "mmd",
+      "status": "generated"
+    },
+    {
+      "path": "compliance/GEMARA-OSCAL-ASSESSMENT-RESULTS.json",
+      "domain": "compliance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "compliance/GEMARA-OSCAL-CATALOG.json",
+      "domain": "compliance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "compliance/OSCAL-ASSESSMENT-RESULTS.json",
+      "domain": "compliance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "compliance/OSCAL-POAM.json",
+      "domain": "compliance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "compliance/OSCAL-SSP.json",
+      "domain": "compliance",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/audit-log.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/capability-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/control-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/control-threat-mapping.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/enforcement-log.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/evaluation-log.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/guidance-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/lexicon.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/policy.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/principle-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/risk-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/threat-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "governance/gemara/vector-catalog.yaml",
+      "domain": "governance",
+      "format": "yaml",
+      "status": "generated"
+    },
+    {
+      "path": "requirements/requirements.rsl",
+      "domain": "requirements",
+      "format": "rsl",
+      "status": "generated"
+    },
+    {
+      "path": "requirements/requirements.trlc",
+      "domain": "requirements",
+      "format": "trlc",
+      "status": "generated"
+    },
+    {
+      "path": "requirements/tests.lobster.json",
+      "domain": "requirements",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "security/THREAT-MODEL.open-otm.json",
+      "domain": "security",
+      "format": "json",
+      "status": "generated"
+    },
+    {
+      "path": "security/THREAT-MODEL.threat-dragon.json",
+      "domain": "security",
+      "format": "json",
+      "status": "generated"
+    }
+  ],
+  "coverage": [
+    {
+      "domain": "architecture-decisions",
+      "status": "covered",
+      "count": 19,
+      "required": 1,
+      "nextAction": "Record material architectural and governance trade-offs as decisions."
+    },
+    {
+      "domain": "architecture-structure",
+      "status": "covered",
+      "count": 38,
+      "required": 1,
+      "nextAction": "Model functional boundaries, interfaces, and important flows."
+    },
+    {
+      "domain": "architecture-view/architecture-intent",
+      "status": "covered",
+      "count": 1,
+      "required": 1,
+      "nextAction": "Author the architecture-intent view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/communication",
+      "status": "missing-model",
+      "count": 0,
+      "required": 1,
+      "nextAction": "Author the communication view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/deployment",
+      "status": "missing-model",
+      "count": 0,
+      "required": 1,
+      "nextAction": "Author the deployment view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/interaction-flow",
+      "status": "covered",
+      "count": 1,
+      "required": 1,
+      "nextAction": "Author the interaction-flow view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/security",
+      "status": "covered",
+      "count": 1,
+      "required": 1,
+      "nextAction": "Author the security view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/state-lifecycle",
+      "status": "covered",
+      "count": 1,
+      "required": 1,
+      "nextAction": "Author the state-lifecycle view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "architecture-view/traceability",
+      "status": "covered",
+      "count": 1,
+      "required": 1,
+      "nextAction": "Author the traceability view with relevant roots, scope, audience, and design narrative."
+    },
+    {
+      "domain": "compliance",
+      "status": "missing-model",
+      "count": 0,
+      "required": 1,
+      "nextAction": "Select applicable compliance profiles and map implemented controls, or record a reviewed non-applicability decision."
+    },
+    {
+      "domain": "data-classification",
+      "status": "missing-model",
+      "count": 0,
+      "required": 12,
+      "nextAction": "Model every data object with sensitivity, classification, CIA impact, retention, and explicit regulatory tags."
+    },
+    {
+      "domain": "governance-controls",
+      "status": "covered",
+      "count": 7,
+      "required": 1,
+      "nextAction": "Model controls with responsible verification evidence."
+    },
+    {
+      "domain": "implementation-traceability",
+      "status": "covered",
+      "count": 45,
+      "required": 45,
+      "nextAction": "Add TRLC-LINKS implementation evidence for each non-delegated requirement."
+    },
+    {
+      "domain": "requirements-engineering",
+      "status": "covered",
+      "count": 45,
+      "required": 1,
+      "nextAction": "Author at least one durable requirement with implementation and verification traceability."
+    },
+    {
+      "domain": "risk-and-poam",
+      "status": "covered",
+      "count": 5,
+      "required": 1,
+      "nextAction": "Model identified risks and add POA\u0026M items for accepted remediation work."
+    },
+    {
+      "domain": "security-threat-model",
+      "status": "covered",
+      "count": 8,
+      "required": 1,
+      "nextAction": "Model trust boundaries, attack vectors, and threat scenarios or record why they are not applicable."
+    },
+    {
+      "domain": "verification-traceability",
+      "status": "missing-model",
+      "count": 38,
+      "required": 45,
+      "nextAction": "Add observable verification evidence for each non-delegated requirement."
+    }
+  ],
+  "summary": {
+    "generated": 35,
+    "notApplicable": 0,
+    "blocked": 0,
+    "covered": 12,
+    "missingModel": 5
+  }
+}

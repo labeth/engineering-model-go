@@ -33,9 +33,27 @@ type index struct {
 	verifications map[string]model.ControlVerification
 }
 
-// TRLC-LINKS: REQ-EMG-003
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
+	canonical, err := model.NewCanonicalBundle(b)
+	if err != nil {
+		diags := make([]validate.Diagnostic, 0, len(canonical.Diagnostics()))
+		for _, diagnostic := range canonical.Diagnostics() {
+			severity := validate.SeverityWarning
+			if diagnostic.Severity == model.SemanticSeverityError {
+				severity = validate.SeverityError
+			}
+			diags = append(diags, validate.Diagnostic{
+				Code:     diagnostic.Code,
+				Severity: severity,
+				Message:  diagnostic.Message,
+				Path:     diagnostic.Path,
+			})
+		}
+		return ProjectedView{}, validate.SortDiagnostics(diags)
+	}
+	b = canonical.Documents()
 	idx := buildIndex(b)
 	v, ok := findView(b.Architecture.Views, viewID)
 	if !ok {

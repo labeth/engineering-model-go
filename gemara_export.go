@@ -92,9 +92,14 @@ func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions
 }
 
 // GenerateGemara renders the engineering model bundle into Gemara L1-L3 documents.
-// TRLC-LINKS: REQ-EMG-015
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemara(bundle model.Bundle, options GemaraExportOptions) (GemaraExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return GemaraExportResult{}, err
+	}
+	bundle = canonical.Documents()
 	cfg := newGemaraConfig(bundle, options)
 
 	res := GemaraExportResult{

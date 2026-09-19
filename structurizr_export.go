@@ -133,9 +133,14 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 	return GenerateStructurizrDSL(bundle)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return StructurizrExportResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return StructurizrExportResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

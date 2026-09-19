@@ -1,3 +1,5 @@
+schemaVersion: 1
+
 catalog:
   systems:
     - id: SYS-ENGINEERING-MODEL-GO
@@ -30,7 +32,7 @@ catalog:
   functionalUnits:
     - id: FU-MODEL-LOADER
       name: model loader
-      definition: Loads and normalizes architecture, catalog, requirements, and design documents.
+      definition: Validates canonical YAML documents against embedded CUE schemas, strictly decodes them into Go runtime representations, and normalizes them for downstream use.
       aliases: [bundle loader]
     - id: FU-VALIDATION-ENGINE
       name: validation engine
@@ -56,6 +58,14 @@ catalog:
       name: structurizr exporter
       definition: Exports Structurizr DSL and supports validation/static-site workflows.
       aliases: [engstruct]
+    - id: FU-SYSML-EXPORTER
+      name: sysml exporter
+      definition: Generates SysML v2 model artifacts from the canonical semantic model and reports conformance coverage.
+      aliases: [engsysml]
+    - id: FU-NAF-EXPORTER
+      name: naf exporter
+      definition: Validates NATO Architecture Framework 4.1 profile metadata and generates NAF architecture products from canonical model views.
+      aliases: [engnaf, naf]
     - id: FU-TRLC-EXPORTER
       name: trlc exporter
       definition: Exports requirements and model structures to TRLC artifacts.
@@ -110,6 +120,14 @@ catalog:
       name: structurizr validator
       definition: Structurizr DSL validation runtime used to verify generated DSL.
       aliases: [structurizr]
+    - id: REF-SYSML-V2-TOOLCHAIN
+      name: sysml v2 toolchain
+      definition: SysML 2.0 and KerML 1.0 with Pilot Implementation 2026-04 artifact 0.59.0, the pinned validator wrapper, and Sysand 0.2.1 for normative KPAR packaging.
+      aliases: [sysml, kerml]
+    - id: REF-NAF-V4-1-SPECIFICATION
+      name: nato architecture framework v4.1
+      definition: NATO Architecture Framework version 4.1 viewpoint taxonomy and architecture-description guidance.
+      aliases: [naf, naf v4.1]
     - id: REF-TRLC-TOOLCHAIN
       name: trlc toolchain
       definition: TRLC parser and runtime used for requirements language validation.
@@ -216,6 +234,18 @@ catalog:
       name: structurizr export is enabled
       definition: Feature enabling Structurizr DSL generation and validation.
       aliases: [dsl export]
+    - id: FEAT-SYSML-EXPORT
+      name: sysml export is enabled
+      definition: Feature enabling SysML v2 textual and project interchange generation.
+      aliases: [sysml generation]
+    - id: FEAT-NAF-PROFILE
+      name: naf profile authoring is enabled
+      definition: Feature enabling NATO Architecture Framework stakeholder, concern, and viewpoint metadata in the architecture model.
+      aliases: [naf authoring]
+    - id: FEAT-NAF-EXPORT
+      name: naf export is enabled
+      definition: Feature enabling NATO Architecture Framework architecture document generation.
+      aliases: [naf generation]
     - id: FEAT-TRACEABILITY-EXPORT
       name: traceability export is enabled
       definition: Feature enabling TRLC and LOBSTER generation flows.
@@ -266,10 +296,34 @@ catalog:
       aliases: [schema available]
 
   dataTerms:
+    - id: DATA-SYSML-V2-METAMODEL
+      name: sysml v2 metamodel
+      definition: Pinned formal SysML 2.0 and KerML 1.0 abstract syntax used to derive semantic coverage and schema constraints.
+      aliases: [sysml metamodel, kerml metamodel]
     - id: DATA-ARCHITECTURE-MODEL
       name: architecture model
       definition: Authored architecture source describing functional intent and mappings.
       aliases: [architecture yml, candidate architecture model]
+    - id: DATA-CANONICAL-SEMANTIC-MODEL
+      name: canonical semantic model
+      definition: SysML v2 and KerML aligned semantic representation used by validation and every output projection.
+      aliases: [semantic model, canonical model]
+    - id: DATA-MODEL-AUTHORING-CONTRACT
+      name: model authoring contract
+      definition: Machine-readable description of canonical YAML documents, schema versions, explicit references, top-level sections, identifier conventions, and authoring order.
+      aliases: [authoring manifest, input contract]
+    - id: DATA-CATALOG-DOCUMENT
+      name: catalog document
+      definition: Canonical authored vocabulary YAML document used by strict requirement and model validation.
+      aliases: [catalog yml]
+    - id: DATA-DESIGN-DOCUMENT
+      name: design document
+      definition: Canonical authored design-view YAML document.
+      aliases: [design yml]
+    - id: DATA-DECISIONS-DOCUMENT
+      name: decisions document
+      definition: Canonical authored architecture decision YAML document.
+      aliases: [decisions yml]
     - id: DATA-REQUIREMENTS-DELTA
       name: requirements delta
       definition: Versioned add, whole-entity update, and remove operations keyed by requirement stable ID.
@@ -290,6 +344,14 @@ catalog:
       name: structurizr dsl artifact
       definition: Generated Structurizr workspace DSL document.
       aliases: [dsl]
+    - id: DATA-SYSML-V2-MODEL
+      name: sysml v2 model artifact
+      definition: Generated SysML v2 textual or project interchange representation of the canonical semantic model.
+      aliases: [sysml artifact, sysml model]
+    - id: DATA-NAF-V4-ARCHITECTURE
+      name: naf v4.1 architecture document
+      definition: Generated NATO Architecture Framework v4.1 architecture document assembled from profile metadata and canonical model views.
+      aliases: [naf document, naf architecture]
     - id: DATA-THREAT-DRAGON-JSON
       name: threat dragon json artifact
       definition: Generated threat model artifact for OWASP Threat Dragon.

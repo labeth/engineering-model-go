@@ -436,6 +436,13 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 	if err != nil {
 		return TraceMatrix{}, nil, err
 	}
+	bundle.Requirements = requirements
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return TraceMatrix{}, nil, err
+	}
+	bundle = canonical.Documents()
+	requirements = bundle.Requirements
 	resolvedRoot := strings.TrimSpace(codeRoot)
 	if resolvedRoot != "" && !filepath.IsAbs(resolvedRoot) {
 		resolvedRoot = filepath.Join(filepath.Dir(modelPath), resolvedRoot)

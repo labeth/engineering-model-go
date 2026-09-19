@@ -40,9 +40,14 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 	return GenerateThreatModelExport(bundle, options)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return ThreatModelExportResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return ThreatModelExportResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

@@ -77,7 +77,7 @@ func GenerateCompositionFromFile(architecturePath string) (CompositionResult, er
 
 // resolveSystem loads the model and recursively resolves its subsystems, detecting
 // cycles via the ancestry stack and rejecting references outside the workspace.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-017, REQ-EMG-018
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-017, REQ-EMG-018, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY, DEP-LOCAL-WORKSPACE
 func resolveSystem(subsystemID, architectureAbsPath, workspace string, ancestry map[string]bool) (*ComposedSystem, []validate.Diagnostic) {
 	var diags []validate.Diagnostic
@@ -91,16 +91,19 @@ func resolveSystem(subsystemID, architectureAbsPath, workspace string, ancestry 
 	ancestry[architectureAbsPath] = true
 	defer delete(ancestry, architectureAbsPath)
 
-	bundle, err := model.LoadBundle(architectureAbsPath)
+	canonical, err := model.LoadCanonicalBundle(architectureAbsPath)
 	if err != nil {
 		return nil, []validate.Diagnostic{{
 			Code: "composition.load_failed", Severity: validate.SeverityError,
 			Message: err.Error(), Path: architectureAbsPath,
 		}}
 	}
-	sys := &ComposedSystem{SubsystemID: subsystemID, Dir: filepath.Dir(architectureAbsPath), Bundle: bundle}
-	if reqs, rerr := model.LoadRequirements(filepath.Join(sys.Dir, "requirements.yml")); rerr == nil {
-		sys.Requirements = reqs
+	bundle := canonical.Documents()
+	sys := &ComposedSystem{
+		SubsystemID:  subsystemID,
+		Dir:          filepath.Dir(architectureAbsPath),
+		Bundle:       bundle,
+		Requirements: bundle.Requirements,
 	}
 
 	for _, sub := range bundle.Architecture.Composition.Subsystems {

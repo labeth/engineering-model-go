@@ -1,3 +1,5 @@
+schemaVersion: 1
+
 model:
   id: engineering-model-go
   title: Engineering Model Go Repository Architecture
@@ -5,7 +7,11 @@ model:
     This architecture models the engineering-model-go repository as a model-driven toolchain.
     It captures authored functional intent, export surfaces, and verification-oriented traceability.
     The model is intended to guide implementation work in this repository using stable IDs and support paths.
-  baseCatalogRef: ./catalog.yml
+  documents:
+    catalog: ./catalog.yml
+    requirements: ./requirements.yml
+    design: ./design.yml
+    decisions: ./decisions.yml
 
 authoredArchitecture:
   functionalGroups:
@@ -34,7 +40,7 @@ authoredArchitecture:
     - id: FU-MODEL-LOADER
       name: Model Loader
       group: FG-MODEL-AUTHORING
-      prose: Loads and normalizes architecture, catalog, requirements, and design documents.
+      prose: Validates canonical YAML against the authoritative CUE contract before strict Go decoding and normalization.
     - id: FU-VALIDATION-ENGINE
       name: Validation Engine
       group: FG-VALIDATION-ANALYSIS
@@ -59,6 +65,14 @@ authoredArchitecture:
       name: Structurizr Exporter
       group: FG-ARTIFACT-GENERATION
       prose: Emits Structurizr DSL and deployment-aware model views.
+    - id: FU-SYSML-EXPORTER
+      name: SysML Exporter
+      group: FG-ARTIFACT-GENERATION
+      prose: Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting conformance coverage.
+    - id: FU-NAF-EXPORTER
+      name: NAF Exporter
+      group: FG-ARTIFACT-GENERATION
+      prose: Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing canonical views.
     - id: FU-TRLC-EXPORTER
       name: TRLC Exporter
       group: FG-TRACEABILITY-COMPLIANCE
@@ -144,6 +158,10 @@ authoredArchitecture:
       kind: external_service_endpoint
       layer: runtime
       name: Structurizr Validator
+    - id: REF-SYSML-V2-TOOLCHAIN
+      kind: external_service_endpoint
+      layer: runtime
+      name: Pinned SysML 2.0 / KerML 1.0 Toolchain
     - id: REF-TRLC-TOOLCHAIN
       kind: external_service_endpoint
       layer: runtime
@@ -152,6 +170,10 @@ authoredArchitecture:
       kind: external_service_endpoint
       layer: runtime
       name: LOBSTER Toolchain
+    - id: REF-NAF-V4-1-SPECIFICATION
+      kind: external_standard
+      layer: architecture
+      name: NATO Architecture Framework v4.1
 
   interfaces:
     - id: IF-CLI-ENGDOC
@@ -178,6 +200,18 @@ authoredArchitecture:
       endpoint: cmd/engstruct
       schemaRef: structurizr_export.go
       owner: FU-STRUCTURIZR-EXPORTER
+    - id: IF-CLI-ENGSYSML
+      name: engsysml CLI
+      protocol: cli
+      endpoint: cmd/engsysml
+      schemaRef: sysml_export.go
+      owner: FU-SYSML-EXPORTER
+    - id: IF-CLI-ENGNAF
+      name: engnaf CLI
+      protocol: cli
+      endpoint: cmd/engnaf
+      schemaRef: naf_export.go
+      owner: FU-NAF-EXPORTER
     - id: IF-CLI-ENGTRLC
       name: engtrlc CLI
       protocol: cli
@@ -225,7 +259,7 @@ authoredArchitecture:
     - id: DO-ARCHITECTURE-MODEL
       name: Architecture Model
       termRef: DATA-ARCHITECTURE-MODEL
-      schemaRef: architecture.yml
+      schemaRef: model/schema/architecture.cue
       sensitivity: internal
       classification: design-source
       retention: repository-history
@@ -245,7 +279,7 @@ authoredArchitecture:
     - id: DO-REQUIREMENTS-DOCUMENT
       name: Requirements Document
       termRef: DATA-REQUIREMENTS-DOCUMENT
-      schemaRef: requirements.yml
+      schemaRef: model/schema/requirements.cue
       sensitivity: internal
       classification: requirements-source
       retention: repository-history
@@ -280,6 +314,56 @@ authoredArchitecture:
       classification: exchange-artifact
       retention: build-artifact
       confidentiality: low
+      integrity: high
+      availability: high
+    - id: DO-CANONICAL-SEMANTIC-MODEL
+      name: Canonical Semantic Model
+      termRef: DATA-CANONICAL-SEMANTIC-MODEL
+      schemaRef: model/semantic.go
+      sensitivity: internal
+      classification: design-source
+      retention: repository-history
+      confidentiality: medium
+      integrity: high
+      availability: high
+    - id: DO-MODEL-AUTHORING-CONTRACT
+      name: Model Authoring Contract
+      termRef: DATA-MODEL-AUTHORING-CONTRACT
+      schemaRef: model/authoring.go
+      sensitivity: internal
+      classification: design-source
+      retention: repository-history
+      confidentiality: low
+      integrity: high
+      availability: high
+    - id: DO-SYSML-V2-MODEL
+      name: SysML v2 Model
+      termRef: DATA-SYSML-V2-MODEL
+      schemaRef: generated/ARCHITECTURE.sysml
+      sensitivity: internal
+      classification: exchange-artifact
+      retention: build-artifact
+      confidentiality: low
+      integrity: high
+      availability: high
+    - id: DO-SYSML-V2-METAMODEL
+      name: SysML v2 Metamodel
+      termRef: DATA-SYSML-V2-METAMODEL
+      schemaRef: tools/sysml/metamodel
+      sensitivity: public
+      classification: external-standard
+      retention: pinned-tool-version
+      confidentiality: low
+      integrity: high
+      availability: medium
+    - id: DO-NAF-V4-ARCHITECTURE
+      name: NAF v4.1 Architecture Document
+      termRef: DATA-NAF-V4-ARCHITECTURE
+      schemaRef: generated/ARCHITECTURE.naf.adoc
+      sensitivity: internal
+      classification: architecture-product
+      retention: build-artifact
+      confidentiality: medium
       integrity: high
       availability: high
     - id: DO-THREAT-DRAGON-JSON
@@ -629,6 +713,12 @@ authoredArchitecture:
       from: FG-ARTIFACT-GENERATION
       to: FU-STRUCTURIZR-EXPORTER
     - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-SYSML-EXPORTER
+    - type: contains
+      from: FG-ARTIFACT-GENERATION
+      to: FU-NAF-EXPORTER
+    - type: contains
       from: FG-TRACEABILITY-COMPLIANCE
       to: FU-TRLC-EXPORTER
     - type: contains
@@ -700,6 +790,18 @@ authoredArchitecture:
       from: FU-STRUCTURIZR-EXPORTER
       to: REF-STRUCTURIZR-VALIDATOR
     - type: depends_on
+      from: FU-SYSML-EXPORTER
+      to: REF-SYSML-V2-TOOLCHAIN
+    - type: reads
+      from: FU-SYSML-EXPORTER
+      to: DO-SYSML-V2-METAMODEL
+    - type: depends_on
+      from: FU-NAF-EXPORTER
+      to: FU-VIEW-PROJECTION
+    - type: depends_on
+      from: FU-NAF-EXPORTER
+      to: REF-NAF-V4-1-SPECIFICATION
+    - type: depends_on
       from: FU-TRLC-EXPORTER
       to: REF-TRLC-TOOLCHAIN
     - type: depends_on
@@ -723,6 +825,12 @@ authoredArchitecture:
     - type: contains
       from: FU-STRUCTURIZR-EXPORTER
       to: IF-CLI-ENGSTRUCT
+    - type: contains
+      from: FU-SYSML-EXPORTER
+      to: IF-CLI-ENGSYSML
+    - type: contains
+      from: FU-NAF-EXPORTER
+      to: IF-CLI-ENGNAF
     - type: contains
       from: FU-TRLC-EXPORTER
       to: IF-CLI-ENGTRLC
@@ -749,8 +857,20 @@ authoredArchitecture:
       from: FU-MCP-SERVER
       to: DO-MCP-TOOL-RESULT
     - type: writes
+      from: FU-MCP-SERVER
+      to: DO-MODEL-AUTHORING-CONTRACT
+    - type: writes
       from: FU-STRUCTURIZR-EXPORTER
       to: DO-STRUCTURIZR-DSL
+    - type: writes
+      from: FU-SYSML-EXPORTER
+      to: DO-SYSML-V2-MODEL
+    - type: writes
+      from: FU-NAF-EXPORTER
+      to: DO-NAF-V4-ARCHITECTURE
+    - type: writes
+      from: FU-MODEL-LOADER
+      to: DO-CANONICAL-SEMANTIC-MODEL
     - type: writes
       from: FU-THREAT-EXPORTER
       to: DO-THREAT-DRAGON-JSON
@@ -785,6 +905,9 @@ authoredArchitecture:
       to: TB-EXTERNAL-VALIDATION-TOOLS
     - type: bounded_by
       from: FU-STRUCTURIZR-EXPORTER
+      to: TB-EXTERNAL-VALIDATION-TOOLS
+    - type: bounded_by
+      from: FU-SYSML-EXPORTER
       to: TB-EXTERNAL-VALIDATION-TOOLS
     - type: bounded_by
       from: FU-TRLC-EXPORTER
@@ -852,6 +975,52 @@ inferenceHints:
     - explicit_annotation
     - path_convention
     - unresolved_warning
+
+naf:
+  framework: NAF
+  version: "4.1"
+  architectureDescription: Engineering Model Go NAF 4.1 Architecture Description
+  stakeholders:
+    - actorRef: ACT-ARCHITECTURE-AUTHOR
+      role: Owns architecture scope, viewpoints, and model decisions.
+    - actorRef: ACT-IMPLEMENTATION-ENGINEER
+      role: Uses architecture products to implement and assess change impact.
+    - actorRef: ACT-COMPLIANCE-ENGINEER
+      role: Uses correspondence and evidence views for assurance.
+  concerns:
+    - id: NAF-CONCERN-ARCHITECTURE-COVERAGE
+      name: Architecture coverage
+      description: The architecture must communicate model responsibilities and generated products.
+      stakeholderRefs: [ACT-ARCHITECTURE-AUTHOR, ACT-IMPLEMENTATION-ENGINEER]
+    - id: NAF-CONCERN-TRACEABILITY
+      name: Architecture correspondence
+      description: Requirements, implementation ownership, and verification evidence must remain traceable.
+      stakeholderRefs: [ACT-ARCHITECTURE-AUTHOR, ACT-COMPLIANCE-ENGINEER]
+    - id: NAF-CONCERN-LIFECYCLE
+      name: Generation lifecycle
+      description: Model changes must progress through validation and deterministic artifact generation.
+      stakeholderRefs: [ACT-ARCHITECTURE-AUTHOR, ACT-IMPLEMENTATION-ENGINEER]
+  products:
+    - id: NAF-A2-ARCHITECTURE-PRODUCTS
+      viewpoint: A2
+      title: Engineering Model architecture products
+      viewRef: VIEW-ARCHITECTURE-INTENT
+      concernRefs: [NAF-CONCERN-ARCHITECTURE-COVERAGE]
+    - id: NAF-A3-ARCHITECTURE-CORRESPONDENCE
+      viewpoint: A3
+      title: Requirements and implementation correspondence
+      viewRef: VIEW-TRACEABILITY
+      concernRefs: [NAF-CONCERN-TRACEABILITY]
+    - id: NAF-L6-LOGICAL-SEQUENCE
+      viewpoint: L6
+      title: Model change to verified artifact sequence
+      viewRef: VIEW-INTERACTION-FLOW
+      concernRefs: [NAF-CONCERN-LIFECYCLE]
+    - id: NAF-P5-RESOURCE-STATES
+      viewpoint: P5
+      title: Model validation and artifact freshness states
+      viewRef: VIEW-STATE-LIFECYCLE
+      concernRefs: [NAF-CONCERN-LIFECYCLE]
 
 views:
   - id: VIEW-ARCHITECTURE-INTENT

@@ -1,0 +1,172 @@
+title: "Engineering Model Go Repository Architecture - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  description: Security controls for Engineering Model Go Repository Architecture
+  author:
+    id: engmod
+    name: Engineering Model
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-MODEL-LOADER
+    title: Model Loader
+    description: Validates canonical YAML against the authoritative CUE contract before strict Go decoding and normalization.
+  - id: FU-VALIDATION-ENGINE
+    title: Validation Engine
+    description: Validates authored entities, IDs, references, and mapping consistency.
+  - id: FU-CODEMAP-INFERENCE
+    title: Codemap Inference
+    description: Infers code/runtime ownership and verification links from source and tests.
+  - id: FU-VIEW-PROJECTION
+    title: View Projection
+    description: Builds projection graphs for architecture, traceability, security, and flow views.
+  - id: FU-ASCIIDOC-GENERATOR
+    title: AsciiDoc Generator
+    description: Renders architecture publication docs and view narratives for human consumption.
+  - id: FU-THREAT-EXPORTER
+    title: Threat Exporter
+    description: Exports Threat Dragon and Open OTM model artifacts.
+  - id: FU-STRUCTURIZR-EXPORTER
+    title: Structurizr Exporter
+    description: Emits Structurizr DSL and deployment-aware model views.
+  - id: FU-SYSML-EXPORTER
+    title: SysML Exporter
+    description: Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting conformance coverage.
+  - id: FU-NAF-EXPORTER
+    title: NAF Exporter
+    description: Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing canonical views.
+  - id: FU-TRLC-EXPORTER
+    title: TRLC Exporter
+    description: Emits TRLC model and requirement artifacts.
+  - id: FU-LOBSTER-EXPORTER
+    title: LOBSTER Exporter
+    description: Generates LOBSTER traceability inputs and reports.
+  - id: FU-OSCAL-EXPORTER
+    title: OSCAL Exporter
+    description: Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M).
+  - id: FU-GEMARA-EXPORTER
+    title: Gemara Exporter
+    description: Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.
+  - id: FU-SYSTEM-COMPOSITION
+    title: System Composition
+    description: Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.
+  - id: FU-ALLOCATION-TRACE
+    title: Allocation Trace
+    description: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models.
+  - id: FU-MCP-SERVER
+    title: MCP Server
+    description: Serves model-backed tools over MCP with path safety and structured errors.
+  - id: FU-CLI-ORCHESTRATION
+    title: CLI Orchestration
+    description: Command entrypoints orchestrating model load, validation, generation, and exports.
+  - id: FU-MODEL-CHANGE
+    title: Model Change
+    description: Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-MCP-PATH-BOUNDARY
+  title: MCP Path Boundary Enforcement
+  objective: Enforce repo-root path constraints and reject traversal paths in MCP tools.
+  group: input-validation
+  assessment-requirements:
+  - id: VER-MCP-PATH-BOUNDARY
+    text: The control "MCP Path Boundary Enforcement" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Path traversal rejected and error payload returned in MCP tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-input-validation
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-MCP-PATH-TRAVERSAL
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-STRICT-MCP-INPUT-SCHEMA
+  title: Strict MCP Input Schemas
+  objective: Enforce per-tool input schema and reject unknown arguments.
+  group: input-validation
+  assessment-requirements:
+  - id: CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1
+    text: "The system MUST implement the control \"Strict MCP Input Schemas\": Enforce per-tool input schema and reject unknown arguments."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-input-validation
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-MCP-PATH-TRAVERSAL
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-TRACEABILITY-COVERAGE
+  title: Requirement Traceability Coverage
+  objective: Require requirement-linked verification evidence for modeled behavior.
+  group: assurance
+  assessment-requirements:
+  - id: VER-TRACEABILITY-COVERAGE
+    text: The control "Requirement Traceability Coverage" MUST be verified by analysis.
+    applicability:
+    - all-systems
+    recommendation: Coverage depends on TRLC-LINKS completeness in source and tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-assurance
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-TRACEABILITY-DRIFT
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-TRACE-LINK-INTEGRITY
+  title: Trace Link Integrity
+  objective: Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup.
+  group: assurance
+  assessment-requirements:
+  - id: CTRL-TRACE-LINK-INTEGRITY-AR-1
+    text: "The system MUST implement the control \"Trace Link Integrity\": Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-assurance
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-ARTIFACT-FRESHNESS-GATE
+  title: Generated Artifact Freshness Gate
+  objective: Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts.
+  group: assurance
+  assessment-requirements:
+  - id: CTRL-ARTIFACT-FRESHNESS-GATE-AR-1
+    text: "The system MUST implement the control \"Generated Artifact Freshness Gate\": Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-assurance
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: input-validation
+  title: input-validation
+  description: "Control category: input-validation."
+- id: assurance
+  title: assurance
+  description: "Control category: assurance."

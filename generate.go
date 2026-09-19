@@ -28,9 +28,14 @@ func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	return Generate(bundle, viewID)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func Generate(bundle model.Bundle, viewID string) (Result, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return Result{Bundle: bundle}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	pv, viewDiags := view.Build(bundle, viewID)
 	diags = append(diags, viewDiags...)

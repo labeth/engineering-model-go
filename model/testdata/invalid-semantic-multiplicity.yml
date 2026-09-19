@@ -1,0 +1,10 @@
+model:
+  id: MODEL-INVALID
+  baseCatalogRef: ./catalog.yml
+semantics:
+  elements:
+    - id: PART-INVALID
+      kind: part_usage
+      multiplicity:
+        lower: 2
+        upper: 1

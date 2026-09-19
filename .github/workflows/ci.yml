@@ -48,16 +48,34 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Setup Java for official SysML parser
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Cache pinned SysML toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            .engmod/tooling/downloads
+            .engmod/cache/m2
+          key: sysml-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/sysml-toolchain.env', 'scripts/install-sysml-toolchain.sh') }}
+
       - name: Download dependencies
         run: go mod download
 
       - name: Install cue (Gemara schema validation)
         run: go install cuelang.org/go/cmd/cue@v0.15.4
 
+      - name: Install pinned SysML validator and Sysand
+        run: scripts/install-sysml-toolchain.sh
+
       - name: Validation gauntlet
         # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling
-        # links, EARS, composition), engtrace 0 dangling, artifact freshness (drift),
-        # and Gemara/Structurizr schema validation. See scripts/validate-all.sh.
+        # links, EARS, composition), zero-gap SysML coverage, official parser and
+        # semantic round trip, artifact freshness, and schema validation.
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh

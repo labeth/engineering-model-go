@@ -36,9 +36,14 @@ func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraE
 
 // GenerateGemaraOSCALCatalog converts the Gemara Control Catalog to an OSCAL
 // Catalog JSON document via the go-gemara SDK. Returns "" when there are no controls.
-// TRLC-LINKS: REQ-EMG-015
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALCatalog(bundle model.Bundle, options GemaraExportOptions) (string, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return "", err
+	}
+	bundle = canonical.Documents()
 	res, err := GenerateGemara(bundle, options)
 	if err != nil {
 		return "", err
@@ -79,9 +84,16 @@ func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirement
 // GenerateGemaraOSCALAssessmentResults converts the Gemara Evaluation Log to OSCAL
 // Assessment Results JSON via the go-gemara SDK. Returns "" when there is nothing
 // to evaluate.
-// TRLC-LINKS: REQ-EMG-015
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, codeRoot string, options GemaraExportOptions) (string, error) {
+	bundle.Requirements = requirements
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return "", err
+	}
+	bundle = canonical.Documents()
+	requirements = bundle.Requirements
 	evalRes, err := GenerateGemaraEvaluationLog(bundle, requirements, codeRoot, options)
 	if err != nil {
 		return "", err

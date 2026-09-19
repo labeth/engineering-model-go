@@ -122,9 +122,16 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 	return GenerateOSCALAssessmentResults(bundle, req, options)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
+	bundle.Requirements = requirements
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return OSCALARResult{}, err
+	}
+	bundle = canonical.Documents()
+	requirements = bundle.Requirements
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return OSCALARResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

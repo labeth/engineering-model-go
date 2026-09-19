@@ -78,9 +78,14 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 	return GenerateOSCALPOAM(bundle, options)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return OSCALPOAMResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return OSCALPOAMResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")

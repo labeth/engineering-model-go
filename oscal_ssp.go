@@ -184,9 +184,14 @@ func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) 
 	return GenerateOSCALSSP(bundle, options)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return OSCALSSPResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
