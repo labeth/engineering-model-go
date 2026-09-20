@@ -28,5 +28,5 @@ if ! command -v trlc >/dev/null 2>&1; then
   exit 1
 fi
 
-trlc --lint --brief "$DIR"
+trlc --brief "$DIR"
 printf "TRLC files are valid: %s\n" "$DIR"

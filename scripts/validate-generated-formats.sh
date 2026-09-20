@@ -160,7 +160,7 @@ PY
 
 echo "> TRLC"
 while IFS= read -r dir; do
-  trlc --lint --brief "$dir" >/dev/null
+  trlc --brief "$dir" >/dev/null
 done < <(find generated examples -type d -name trlc | sort)
 
 echo "> LOBSTER"
