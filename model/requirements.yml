@@ -54,7 +54,7 @@ requirements:
       - FU-MCP-SERVER
   - id: REQ-EMG-009
     text: While ci validation mode is active, when generation run is requested, the engineering model go shall execute validation plus tests before artifact generated event is raised.
-    notes: CI installs only the runtimes required by validation and configures dependency caches only when their native project metadata exists, so setup does not fail before the validation gauntlet runs.
+    notes: CI installs only the runtimes required by validation, uses mutually compatible exact validator versions, and configures dependency caches only when their native project metadata exists, so setup does not fail before the validation gauntlet runs.
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-VALIDATION-ENGINE
