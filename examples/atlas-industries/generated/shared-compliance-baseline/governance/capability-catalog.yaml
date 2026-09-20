@@ -1,0 +1,32 @@
+title: "Atlas Shared Compliance Baseline - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of Atlas Shared Compliance Baseline
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Atlas Shared Compliance Baseline
+  description: "The system as a whole: Atlas Shared Compliance Baseline."
+  group: system
+- id: FU-COMP-EVIDENCE
+  title: Compliance Evidence Service
+  description: Collects, retains, and reports control assessment evidence.
+  group: FG-COMP
+- id: FU-COMP-PEOPLE
+  title: People Security and Awareness
+  description: Governs screening, employment responsibilities, awareness training, role changes, and offboarding.
+  group: FG-COMP
+groups:
+- id: FG-COMP
+  title: Compliance Assurance
+  description: Shared control and evidence lifecycle.
+- id: system
+  title: System
+  description: Whole-system capability scope.

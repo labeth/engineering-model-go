@@ -1,0 +1,16 @@
+schemaVersion: 2
+replacements:
+- module: models.atlas.example/shared/edge-platform@v0
+  path: ./repos/shared-edge-platform
+- module: models.atlas.example/shared/cloud-platform@v0
+  path: ./repos/shared-cloud-platform
+- module: models.atlas.example/shared/security-services@v0
+  path: ./repos/shared-security-services
+- module: models.atlas.example/shared/compliance-baseline@v0
+  path: ./repos/shared-compliance-baseline
+- module: models.atlas.example/products/aegis-sentinel@v0
+  path: ./repos/aegis-sentinel
+- module: models.atlas.example/products/orion-relay@v0
+  path: ./repos/orion-relay
+- module: models.atlas.example/portfolio/atlas-industries@v0
+  path: ./repos/company-portfolio

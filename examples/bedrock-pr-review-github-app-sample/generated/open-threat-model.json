@@ -59,6 +59,15 @@
       "risk": {
         "trustRating": 50
       }
+    },
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
     }
   ],
   "components": [
@@ -573,12 +582,34 @@
       ]
     },
     {
+      "id": "d55dd2ad-91aa-5a7d-80f2-06488aec2eea",
+      "name": "Uses the GitHub REST SDK to fetch pull request files and metadata.",
+      "description": "Uses the GitHub REST SDK to fetch pull request files and metadata.",
+      "bidirectional": true,
+      "source": "FU-PR-CONTEXT-ASSEMBLY",
+      "destination": "REF-GITHUB-REST-SDK",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
       "id": "e97ea3d8-4478-5c76-8202-6152f8368645",
       "name": "Uses managed secret store for runtime credentials.",
       "description": "Uses managed secret store for runtime credentials.",
       "bidirectional": true,
       "source": "FU-LAMBDA-RUNTIME-OPERATIONS",
       "destination": "REF-AWS-SECRETS-MANAGER",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "ed9d4476-65b3-5029-a122-991dd545ec41",
+      "name": "Uses AWS SDK for Go clients to load managed secret configuration.",
+      "description": "Uses AWS SDK for Go clients to load managed secret configuration.",
+      "bidirectional": true,
+      "source": "FU-SECRETS-CONFIGURATION",
+      "destination": "REF-AWS-SDK-GO",
       "tags": [
         "depends_on"
       ]

@@ -9,7 +9,7 @@
 
 Align root model artifacts with the current repository without changing runtime behavior.
 
-- Inputs: `catalog.yml`, `architecture.yml`, `requirements.yml`, `design.yml`
+- Inputs: `model/catalog.yml`, `engmod.yml`, `model/requirements.yml`, `model/views.yml`
 - Generated artifacts: maintained files under `generated/`, excluding removed machine-view artifacts.
 - Code scope for alignment: `cmd/`, `mcp/`, root `*.go`, `codemap/`, `validate/`, `view/`, exporters (`*_export.go`)
 

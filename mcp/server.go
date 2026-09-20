@@ -30,6 +30,7 @@ type Server struct {
 	tools map[string]Tool
 
 	bundle           *model.Bundle
+	canonical        *model.CanonicalBundle
 	requirements     *model.RequirementsDocument
 	design           *model.DesignDocument
 	modelPath        string
@@ -77,6 +78,7 @@ var toolArgsAllowlist = map[string][]string{
 	"graph.search":                 {"query", "q", "name", "id"},
 	"model.list":                   {"query", "q", "kind", "max"},
 	"entities.list":                {"query", "q", "kind", "max"},
+	"model.authoringContract":      {},
 	"model.entity":                 {"entityId", "id"},
 	"model.implementations":        {"entityId", "id", "groupBy", "max"},
 	"code.contextForTask":          {"query", "q", "requirementId", "reqId", "entityId", "id", "path", "file", "max"},
@@ -132,7 +134,7 @@ type indexedFile struct {
 	Content string
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-045
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func NewServer() *Server {
 	all := []Tool{
@@ -157,6 +159,7 @@ func NewServer() *Server {
 		{Name: "graph.search", Description: "Search graph entities"},
 		{Name: "model.list", Description: "List model entities"},
 		{Name: "entities.list", Description: "List model entities"},
+		{Name: "model.authoringContract", Description: "Get the compact canonical YAML authoring contract"},
 		{Name: "model.entity", Description: "Get model entity detail"},
 		{Name: "model.implementations", Description: "List source declarations linked to any model entity"},
 		{Name: "code.contextForTask", Description: "Assemble compact code and model context for a task"},
@@ -331,7 +334,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-007
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-035, REQ-EMG-036, REQ-EMG-044
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 func (s *Server) loadContext(params any) error {
 	p, _ := params.(map[string]any)
@@ -345,33 +348,39 @@ func (s *Server) loadContext(params any) error {
 	s.designPath = nonEmptyString(init["designPath"], s.designPath)
 	s.repoRoot = nonEmptyString(init["repoRoot"], s.repoRoot)
 
+	loadedBundle := false
 	if s.modelPath != "" {
 		absModel, err := filepath.Abs(s.modelPath)
 		if err == nil {
 			s.modelPath = absModel
 		}
-		b, err := model.LoadBundle(s.modelPath)
+		canonical, err := model.LoadCanonicalBundle(s.modelPath)
 		if err != nil {
-			return fmt.Errorf("load model bundle: %w", err)
+			return fmt.Errorf("load canonical model bundle: %w", err)
 		}
+		b := canonical.Documents()
+		s.canonical = &canonical
 		s.bundle = &b
+		s.requirements = &b.Requirements
+		s.design = &b.Design
+		loadedBundle = true
 		if s.repoRoot == "" {
 			s.repoRoot = filepath.Dir(filepath.Dir(b.ArchitecturePath))
 		}
 		if s.requirementsPath == "" {
-			cand := filepath.Join(filepath.Dir(b.ArchitecturePath), "requirements.yml")
+			cand := b.RequirementsPath
 			if _, err := os.Stat(cand); err == nil {
 				s.requirementsPath = cand
 			}
 		}
 		if s.designPath == "" {
-			cand := filepath.Join(filepath.Dir(b.ArchitecturePath), "design.yml")
+			cand := b.DesignPath
 			if _, err := os.Stat(cand); err == nil {
 				s.designPath = cand
 			}
 		}
 	}
-	if s.requirementsPath != "" {
+	if s.requirementsPath != "" && !loadedBundle {
 		if absReq, err := filepath.Abs(s.requirementsPath); err == nil {
 			s.requirementsPath = absReq
 		}
@@ -381,7 +390,7 @@ func (s *Server) loadContext(params any) error {
 		}
 		s.requirements = &r
 	}
-	if s.designPath != "" {
+	if s.designPath != "" && !loadedBundle {
 		if absDesign, err := filepath.Abs(s.designPath); err == nil {
 			s.designPath = absDesign
 		}
@@ -390,6 +399,22 @@ func (s *Server) loadContext(params any) error {
 			return fmt.Errorf("load design: %w", err)
 		}
 		s.design = &d
+	}
+	if s.bundle != nil {
+		merged := *s.bundle
+		if s.requirements != nil {
+			merged.Requirements = *s.requirements
+		}
+		if s.design != nil {
+			merged.Design = *s.design
+		}
+		canonical, err := model.NewCanonicalBundle(merged)
+		if err != nil {
+			return fmt.Errorf("project canonical MCP model: %w", err)
+		}
+		documents := canonical.Documents()
+		s.canonical = &canonical
+		s.bundle = &documents
 	}
 	if s.repoRoot != "" {
 		if absRoot, err := filepath.Abs(s.repoRoot); err == nil {
@@ -403,11 +428,14 @@ func (s *Server) loadContext(params any) error {
 	return nil
 }
 
-// TRLC-LINKS: REQ-EMG-007
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION, FU-CODEMAP-INFERENCE
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
 		return map[string]any{"ok": false, "tool": name, "error": "model not loaded; pass initializationOptions.modelPath"}, nil
+	}
+	if s.canonical == nil {
+		return nil, fmt.Errorf("canonical semantic model not loaded")
 	}
 	a := s.bundle.Architecture.AuthoredArchitecture
 	reqID := firstNonEmptyArg(args, "requirementId", "id", "reqId")
@@ -592,6 +620,8 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"nodes": s.graphNodes(query, 200)})
 	case "model.list", "entities.list":
 		return simple(map[string]any{"entities": s.modelEntityNodes(query, firstNonEmptyArg(args, "kind"), maxArg(args, 500))})
+	case "model.authoringContract":
+		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle)})
 	case "model.entity":
 		id := firstNonEmptyArg(args, "entityId", "id")
 		if id == "" {

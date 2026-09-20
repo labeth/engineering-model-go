@@ -1,0 +1,3468 @@
+{
+  "data": [
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "airborne_assurance.go",
+        "kind": "file",
+        "line": 50
+      },
+      "name": "airborne_assurance.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_054",
+        "req engineering_model_go_lint.REQ_EMG_055"
+      ],
+      "status": "ok",
+      "tag": "act tests.airborne_assurance_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "airborne_assurance_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "airborne_assurance_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_055",
+        "req engineering_model_go_lint.REQ_EMG_056"
+      ],
+      "status": "ok",
+      "tag": "act tests.airborne_assurance_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_backlinks.go",
+        "kind": "file",
+        "line": 17
+      },
+      "name": "asciidoc_backlinks.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_014"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_backlinks_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_composition.go",
+        "kind": "file",
+        "line": 19
+      },
+      "name": "asciidoc_composition.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_023",
+        "req engineering_model_go_lint.REQ_EMG_024",
+        "req engineering_model_go_lint.REQ_EMG_025",
+        "req engineering_model_go_lint.REQ_EMG_026",
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_composition_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_decisions.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "asciidoc_decisions.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_014"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_decisions_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_design_refs.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "asciidoc_design_refs.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_design_refs_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_diagrams_core.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "asciidoc_diagrams_core.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_026"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_diagrams_core_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_diagrams_core_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "asciidoc_diagrams_core_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_diagrams_core_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_diagrams_runtime.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "asciidoc_diagrams_runtime.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_diagrams_runtime_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_diagrams_runtime_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "asciidoc_diagrams_runtime_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_diagrams_runtime_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_gemara.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "asciidoc_gemara.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_gemara_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc.go",
+        "kind": "file",
+        "line": 30
+      },
+      "name": "asciidoc.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_014",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_linking_units.go",
+        "kind": "file",
+        "line": 23
+      },
+      "name": "asciidoc_linking_units.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_012"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_linking_units_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_linking_units_test.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "asciidoc_linking_units_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_linking_units_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_template.go",
+        "kind": "file",
+        "line": 451
+      },
+      "name": "asciidoc_template.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_template_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_test.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "asciidoc_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_014",
+        "req engineering_model_go_lint.REQ_PAY_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_views.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "asciidoc_views.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_views_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "asciidoc_views_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "asciidoc_views_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.asciidoc_views_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "catalog_description_validation.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "catalog_description_validation.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009"
+      ],
+      "status": "ok",
+      "tag": "act tests.catalog_description_validation_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "catalog_systems_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "catalog_systems_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.catalog_systems_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engair/main.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_055",
+        "req engineering_model_go_lint.REQ_EMG_056"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engair_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engchange/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_031",
+        "req engineering_model_go_lint.REQ_EMG_032",
+        "req engineering_model_go_lint.REQ_EMG_033"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engchange_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engdoc/main.go",
+        "kind": "file",
+        "line": 18
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_009",
+        "req engineering_model_go_lint.REQ_EMG_014"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engdoc_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engdragon/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_004",
+        "req engineering_model_go_lint.REQ_EMG_011"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engdragon_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/enggemara/main.go",
+        "kind": "file",
+        "line": 18
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_enggemara_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/englobster/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_englobster_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engmcp/main.go",
+        "kind": "file",
+        "line": 19
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_007",
+        "req engineering_model_go_lint.REQ_EMG_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engmcp_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engmcp/main_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "main_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_007",
+        "req engineering_model_go_lint.REQ_EMG_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engmcp_main_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engnaf/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_042",
+        "req engineering_model_go_lint.REQ_EMG_043"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engnaf_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engnaf/main_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "main_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_042",
+        "req engineering_model_go_lint.REQ_EMG_043"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engnaf_main_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engoscal/main.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_013"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engoscal_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engstruct/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engstruct_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engsysml/main.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engsysml_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engsysml/main_test.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "main_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engsysml_main_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engtrace/main.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_030"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engtrace_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engtrlc/main.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engtrlc_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/engview/main.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_engview_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "cmd/sysmlmetamodel/main.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "main.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039"
+      ],
+      "status": "ok",
+      "tag": "act tests.cmd_sysmlmetamodel_main_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "codemap/scan.go",
+        "kind": "file",
+        "line": 66
+      },
+      "name": "scan.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010"
+      ],
+      "status": "ok",
+      "tag": "act tests.codemap_scan_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "codemap/scan_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "scan_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010",
+        "req engineering_model_go_lint.REQ_IGNORED_001",
+        "req engineering_model_go_lint.REQ_SAMPLE_001",
+        "req engineering_model_go_lint.REQ_SAMPLE_002"
+      ],
+      "status": "ok",
+      "tag": "act tests.codemap_scan_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "coffee_six_view_test.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "coffee_six_view_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_052"
+      ],
+      "status": "ok",
+      "tag": "act tests.coffee_six_view_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "composition.go",
+        "kind": "file",
+        "line": 49
+      },
+      "name": "composition.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_016",
+        "req engineering_model_go_lint.REQ_EMG_017",
+        "req engineering_model_go_lint.REQ_EMG_018",
+        "req engineering_model_go_lint.REQ_EMG_019",
+        "req engineering_model_go_lint.REQ_EMG_020",
+        "req engineering_model_go_lint.REQ_EMG_021",
+        "req engineering_model_go_lint.REQ_EMG_022",
+        "req engineering_model_go_lint.REQ_EMG_024",
+        "req engineering_model_go_lint.REQ_EMG_025",
+        "req engineering_model_go_lint.REQ_EMG_026",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.composition_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "composition_oci_test.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "composition_oci_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049"
+      ],
+      "status": "ok",
+      "tag": "act tests.composition_oci_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "composition_projection.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "composition_projection.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.composition_projection_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "composition_projection_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "composition_projection_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.composition_projection_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "composition_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "composition_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.composition_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "e2e_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "e2e_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.e2e_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "ears_preflight.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "ears_preflight.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009"
+      ],
+      "status": "ok",
+      "tag": "act tests.ears_preflight_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "ears_preflight_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "ears_preflight_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009"
+      ],
+      "status": "ok",
+      "tag": "act tests.ears_preflight_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/lambda_runtime_ops.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "lambda_runtime_ops.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_011"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_lambda_runtime_ops_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 8,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/policy_checks.rs",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "policy_checks.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_004",
+        "req engineering_model_go_lint.REQ_PRR_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_policy_checks_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 6,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/pr_context_assembly.ts",
+        "kind": "file",
+        "line": 8
+      },
+      "name": "pr_context_assembly.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_002",
+        "req engineering_model_go_lint.REQ_PRR_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_pr_context_assembly_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 8,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/review_orchestrator.rs",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "review_orchestrator.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_003",
+        "req engineering_model_go_lint.REQ_PRR_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_review_orchestrator_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 6,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/review_publication.ts",
+        "kind": "file",
+        "line": 8
+      },
+      "name": "review_publication.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_005",
+        "req engineering_model_go_lint.REQ_PRR_007",
+        "req engineering_model_go_lint.REQ_PRR_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_review_publication_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 6,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/secrets_configuration.ts",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "secrets_configuration.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_007"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_secrets_configuration_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/src/webhook_ingress.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "webhook_ingress.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_001",
+        "req engineering_model_go_lint.REQ_PRR_002"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_src_webhook_ingress_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/tests/contract/github_check_run_contract_test.go",
+        "kind": "file",
+        "line": 7
+      },
+      "name": "github_check_run_contract_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_tests_contract_github_check_run_contract_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 3,
+        "file": "examples/bedrock-pr-review-github-app-sample/tests/e2e/pr_opened_review_flow.yaml",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "pr_opened_review_flow.yaml",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_001",
+        "req engineering_model_go_lint.REQ_PRR_002",
+        "req engineering_model_go_lint.REQ_PRR_003",
+        "req engineering_model_go_lint.REQ_PRR_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_tests_e2e_pr_opened_review_flow_yaml"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/tests/integration/audit_redaction_test.ts",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "audit_redaction_test.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_007"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_tests_integration_audit_redaction_test_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/tests/integration/policy_only_fallback_test.rs",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "policy_only_fallback_test.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_004",
+        "req engineering_model_go_lint.REQ_PRR_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_tests_integration_policy_only_fallback_test_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/bedrock-pr-review-github-app-sample/tests/unit/rate_limit_deferral_test.go",
+        "kind": "file",
+        "line": 7
+      },
+      "name": "rate_limit_deferral_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PRR_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_bedrock_pr_review_github_app_sample_tests_unit_rate_limit_deferral_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/cloud_runtime_ops.go",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "cloud_runtime_ops.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_cloud_runtime_ops_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/device_identity_secrets.ts",
+        "kind": "file",
+        "line": 4
+      },
+      "name": "device_identity_secrets.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_004",
+        "req engineering_model_go_lint.REQ_COF_007"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_device_identity_secrets_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/fleet_ingestion_api.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "fleet_ingestion_api.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_001",
+        "req engineering_model_go_lint.REQ_COF_002",
+        "req engineering_model_go_lint.REQ_COF_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_fleet_ingestion_api_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/fleet_observability_reporting.ts",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "fleet_observability_reporting.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_002",
+        "req engineering_model_go_lint.REQ_COF_007",
+        "req engineering_model_go_lint.REQ_COF_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_fleet_observability_reporting_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/machine_telemetry.rs",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "machine_telemetry.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_001",
+        "req engineering_model_go_lint.REQ_COF_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_machine_telemetry_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/ota_update_agent.rs",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "ota_update_agent.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_003",
+        "req engineering_model_go_lint.REQ_COF_004",
+        "req engineering_model_go_lint.REQ_COF_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_ota_update_agent_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/src/update_campaign_orchestrator.ts",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "update_campaign_orchestrator.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_003",
+        "req engineering_model_go_lint.REQ_COF_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_src_update_campaign_orchestrator_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/src/cloud_api.ts",
+        "kind": "file",
+        "line": 4
+      },
+      "name": "cloud_api.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_CLOUD_001",
+        "req engineering_model_go_lint.REQ_CLOUD_002"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_subsystems_cloud_api_src_cloud_api_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent/src/ota_agent.rs",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "ota_agent.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_OTA_001",
+        "req engineering_model_go_lint.REQ_OTA_002",
+        "req engineering_model_go_lint.REQ_OTA_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_subsystems_ota_agent_src_ota_agent_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry/src/telemetry.rs",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "telemetry.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_TELEM_001",
+        "req engineering_model_go_lint.REQ_TELEM_002",
+        "req engineering_model_go_lint.REQ_TELEM_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_subsystems_telemetry_src_telemetry_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/tests/contract/telemetry_ingest_contract_test.go",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "telemetry_ingest_contract_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_tests_contract_telemetry_ingest_contract_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 3,
+        "file": "examples/coffee-fleet-ota-cloud-sample/tests/e2e/ota_rollout_flow.yaml",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "ota_rollout_flow.yaml",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_003",
+        "req engineering_model_go_lint.REQ_COF_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_tests_e2e_ota_rollout_flow_yaml"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/tests/integration/logging_pipeline_test.ts",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "logging_pipeline_test.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_002",
+        "req engineering_model_go_lint.REQ_COF_007"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_tests_integration_logging_pipeline_test_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/coffee-fleet-ota-cloud-sample/tests/unit/ota_campaign_test.go",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "ota_campaign_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_COF_003",
+        "req engineering_model_go_lint.REQ_COF_004"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_coffee_fleet_ota_cloud_sample_tests_unit_ota_campaign_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples_company_test.go",
+        "kind": "file",
+        "line": 17
+      },
+      "name": "examples_company_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_050"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_company_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/src/checkout_api.go",
+        "kind": "file",
+        "line": 19
+      },
+      "name": "checkout_api.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_001",
+        "req engineering_model_go_lint.REQ_PAY_003",
+        "req engineering_model_go_lint.REQ_PAY_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_src_checkout_api_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 8,
+        "file": "examples/payments-engineering-sample/src/domain/events.rs",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "events.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_src_domain_events_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 8,
+        "file": "examples/payments-engineering-sample/src/payment_engine.rs",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "payment_engine.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_001",
+        "req engineering_model_go_lint.REQ_PAY_004",
+        "req engineering_model_go_lint.REQ_PAY_005",
+        "req engineering_model_go_lint.REQ_PAY_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_src_payment_engine_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 6,
+        "file": "examples/payments-engineering-sample/src/risk_scorer.ts",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "risk_scorer.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_002",
+        "req engineering_model_go_lint.REQ_PAY_004",
+        "req engineering_model_go_lint.REQ_PAY_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_src_risk_scorer_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/src/support/audit_envelope.ts",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "audit_envelope.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_src_support_audit_envelope_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/tests/contract/checkout_decline_response_test.go",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "checkout_decline_response_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_003",
+        "req engineering_model_go_lint.REQ_PAY_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_tests_contract_checkout_decline_response_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 3,
+        "file": "examples/payments-engineering-sample/tests/e2e/authorized_checkout_flow.yaml",
+        "kind": "file",
+        "line": 2
+      },
+      "name": "authorized_checkout_flow.yaml",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_001"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_tests_e2e_authorized_checkout_flow_yaml"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/tests/integration/audit_record_persistence_test.ts",
+        "kind": "file",
+        "line": 4
+      },
+      "name": "audit_record_persistence_test.ts",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_tests_integration_audit_record_persistence_test_ts"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/tests/integration/fraud_gate_test.rs",
+        "kind": "file",
+        "line": 4
+      },
+      "name": "fraud_gate_test.rs",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_002",
+        "req engineering_model_go_lint.REQ_PAY_004"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_tests_integration_fraud_gate_test_rs"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "examples/payments-engineering-sample/tests/unit/checkout_decline_reason_test.go",
+        "kind": "file",
+        "line": 6
+      },
+      "name": "checkout_decline_reason_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_PAY_003",
+        "req engineering_model_go_lint.REQ_PAY_008"
+      ],
+      "status": "ok",
+      "tag": "act tests.examples_payments_engineering_sample_tests_unit_checkout_decline_reason_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_evaluation.go",
+        "kind": "file",
+        "line": 32
+      },
+      "name": "gemara_evaluation.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_evaluation_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_export.go",
+        "kind": "file",
+        "line": 85
+      },
+      "name": "gemara_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_015",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_export_test.go",
+        "kind": "file",
+        "line": 26
+      },
+      "name": "gemara_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_extended.go",
+        "kind": "file",
+        "line": 27
+      },
+      "name": "gemara_extended.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_extended_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_l1l3.go",
+        "kind": "file",
+        "line": 27
+      },
+      "name": "gemara_l1l3.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_l1l3_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_oscal.go",
+        "kind": "file",
+        "line": 30
+      },
+      "name": "gemara_oscal.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_015",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_oscal_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "gemara_oscal_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "gemara_oscal_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.gemara_oscal_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "generate.go",
+        "kind": "file",
+        "line": 23
+      },
+      "name": "generate.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.generate_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "generation_time.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "generation_time.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.generation_time_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "inferred_code.go",
+        "kind": "file",
+        "line": 21
+      },
+      "name": "inferred_code.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010",
+        "req engineering_model_go_lint.REQ_EMG_012"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_code_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "inferred_code_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "inferred_code_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_code_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "inferred_layers.go",
+        "kind": "file",
+        "line": 45
+      },
+      "name": "inferred_layers.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_layers_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "inferred_layers_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "inferred_layers_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_layers_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 77,
+        "file": "inferred_verification.go",
+        "kind": "file",
+        "line": 44
+      },
+      "name": "inferred_verification.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_verification_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "inferred_verification_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "inferred_verification_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_010",
+        "req engineering_model_go_lint.REQ_PRR_004"
+      ],
+      "status": "ok",
+      "tag": "act tests.inferred_verification_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "internal/sysmlmetamodel/metamodel.go",
+        "kind": "file",
+        "line": 199
+      },
+      "name": "metamodel.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039"
+      ],
+      "status": "ok",
+      "tag": "act tests.internal_sysmlmetamodel_metamodel_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "internal/sysmlmetamodel/metamodel_test.go",
+        "kind": "file",
+        "line": 32
+      },
+      "name": "metamodel_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039"
+      ],
+      "status": "ok",
+      "tag": "act tests.internal_sysmlmetamodel_metamodel_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 51,
+        "file": "lobster_export.go",
+        "kind": "file",
+        "line": 66
+      },
+      "name": "lobster_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_006",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.lobster_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "lobster_export_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "lobster_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_ABC_001",
+        "req engineering_model_go_lint.REQ_ABC_002",
+        "req engineering_model_go_lint.REQ_EMG_006",
+        "req engineering_model_go_lint.REQ_EMG_012"
+      ],
+      "status": "ok",
+      "tag": "act tests.lobster_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "mcp/composition.go",
+        "kind": "file",
+        "line": 21
+      },
+      "name": "composition.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_016",
+        "req engineering_model_go_lint.REQ_EMG_020",
+        "req engineering_model_go_lint.REQ_EMG_026",
+        "req engineering_model_go_lint.REQ_EMG_030"
+      ],
+      "status": "ok",
+      "tag": "act tests.mcp_composition_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "mcp/composition_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "composition_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_007",
+        "req engineering_model_go_lint.REQ_EMG_016",
+        "req engineering_model_go_lint.REQ_EMG_030",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.mcp_composition_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "mcp/gemara.go",
+        "kind": "file",
+        "line": 56
+      },
+      "name": "gemara.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_015"
+      ],
+      "status": "ok",
+      "tag": "act tests.mcp_gemara_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "mcp/server.go",
+        "kind": "file",
+        "line": 137
+      },
+      "name": "server.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_007",
+        "req engineering_model_go_lint.REQ_EMG_008",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_045"
+      ],
+      "status": "ok",
+      "tag": "act tests.mcp_server_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "mcp/server_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "server_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_007",
+        "req engineering_model_go_lint.REQ_EMG_008",
+        "req engineering_model_go_lint.REQ_EMG_045",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048"
+      ],
+      "status": "ok",
+      "tag": "act tests.mcp_server_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/authoring.go",
+        "kind": "file",
+        "line": 50
+      },
+      "name": "authoring.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_045",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_053"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_authoring_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/aviation.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "aviation.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_054",
+        "req engineering_model_go_lint.REQ_EMG_055"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_aviation_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/aviation_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "aviation_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_054"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_aviation_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/load.go",
+        "kind": "file",
+        "line": 17
+      },
+      "name": "load.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_046",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051",
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_054"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_load_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/load_test.go",
+        "kind": "file",
+        "line": 36
+      },
+      "name": "load_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_045",
+        "req engineering_model_go_lint.REQ_EMG_046",
+        "req engineering_model_go_lint.REQ_EMG_051",
+        "req engineering_model_go_lint.REQ_EMG_052",
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_056"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_load_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/metamodel_instance.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "metamodel_instance.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_metamodel_instance_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/metamodel_instance_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "metamodel_instance_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_metamodel_instance_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/naf.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "naf.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_043"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_naf_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/projection.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "projection.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_046"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_projection_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/projection_test.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "projection_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_projection_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/schema.go",
+        "kind": "file",
+        "line": 30
+      },
+      "name": "schema.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_053",
+        "req engineering_model_go_lint.REQ_EMG_054"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_schema_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/schema_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "schema_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_043",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_046",
+        "req engineering_model_go_lint.REQ_EMG_052"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_schema_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/semantic.go",
+        "kind": "file",
+        "line": 153
+      },
+      "name": "semantic.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_038",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_semantic_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/semantic_test.go",
+        "kind": "file",
+        "line": 9
+      },
+      "name": "semantic_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_semantic_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/subsystem.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "subsystem.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_subsystem_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/types.go",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "types.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_042",
+        "req engineering_model_go_lint.REQ_EMG_044",
+        "req engineering_model_go_lint.REQ_EMG_046",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_049",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_types_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "model/workspace.go",
+        "kind": "file",
+        "line": 17
+      },
+      "name": "workspace.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_048",
+        "req engineering_model_go_lint.REQ_EMG_049"
+      ],
+      "status": "ok",
+      "tag": "act tests.model_workspace_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "naf_export.go",
+        "kind": "file",
+        "line": 22
+      },
+      "name": "naf_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_042",
+        "req engineering_model_go_lint.REQ_EMG_043"
+      ],
+      "status": "ok",
+      "tag": "act tests.naf_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "naf_export_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "naf_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_042",
+        "req engineering_model_go_lint.REQ_EMG_043"
+      ],
+      "status": "ok",
+      "tag": "act tests.naf_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_ap.go",
+        "kind": "file",
+        "line": 38
+      },
+      "name": "oscal_ap.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_013"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_ap_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_ar.go",
+        "kind": "file",
+        "line": 104
+      },
+      "name": "oscal_ar.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_ar_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_chain_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "oscal_chain_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_050"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_chain_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_compliance.go",
+        "kind": "file",
+        "line": 60
+      },
+      "name": "oscal_compliance.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_013"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_compliance_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_poam.go",
+        "kind": "file",
+        "line": 74
+      },
+      "name": "oscal_poam.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_poam_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_profile.go",
+        "kind": "file",
+        "line": 40
+      },
+      "name": "oscal_profile.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_013"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_profile_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_profile_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "oscal_profile_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_013"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_profile_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_ssp.go",
+        "kind": "file",
+        "line": 59
+      },
+      "name": "oscal_ssp.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_050"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_ssp_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "oscal_ssp_test.go",
+        "kind": "file",
+        "line": 15
+      },
+      "name": "oscal_ssp_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_013",
+        "req engineering_model_go_lint.REQ_EMG_050"
+      ],
+      "status": "ok",
+      "tag": "act tests.oscal_ssp_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "render/diagramstyle/mermaid.go",
+        "kind": "file",
+        "line": 31
+      },
+      "name": "mermaid.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.render_diagramstyle_mermaid_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "render/mermaid/render.go",
+        "kind": "file",
+        "line": 37
+      },
+      "name": "render.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_052"
+      ],
+      "status": "ok",
+      "tag": "act tests.render_mermaid_render_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "render/mermaid/render_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "render_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.render_mermaid_render_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "render/svg/render.go",
+        "kind": "file",
+        "line": 23
+      },
+      "name": "render.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_052"
+      ],
+      "status": "ok",
+      "tag": "act tests.render_svg_render_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "requirements_delta.go",
+        "kind": "file",
+        "line": 60
+      },
+      "name": "requirements_delta.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_031",
+        "req engineering_model_go_lint.REQ_EMG_032",
+        "req engineering_model_go_lint.REQ_EMG_033",
+        "req engineering_model_go_lint.REQ_EMG_034"
+      ],
+      "status": "ok",
+      "tag": "act tests.requirements_delta_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "requirements_delta_test.go",
+        "kind": "file",
+        "line": 14
+      },
+      "name": "requirements_delta_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_031",
+        "req engineering_model_go_lint.REQ_EMG_032",
+        "req engineering_model_go_lint.REQ_EMG_033"
+      ],
+      "status": "ok",
+      "tag": "act tests.requirements_delta_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "schema_v2_fixture_test.go",
+        "kind": "file",
+        "line": 5
+      },
+      "name": "schema_v2_fixture_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_046"
+      ],
+      "status": "ok",
+      "tag": "act tests.schema_v2_fixture_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "schema_v2_projection_test.go",
+        "kind": "file",
+        "line": 21
+      },
+      "name": "schema_v2_projection_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037"
+      ],
+      "status": "ok",
+      "tag": "act tests.schema_v2_projection_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "structurizr_export.go",
+        "kind": "file",
+        "line": 127
+      },
+      "name": "structurizr_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_005",
+        "req engineering_model_go_lint.REQ_EMG_012",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.structurizr_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "structurizr_export_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "structurizr_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_005"
+      ],
+      "status": "ok",
+      "tag": "act tests.structurizr_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_coverage.go",
+        "kind": "file",
+        "line": 106
+      },
+      "name": "sysml_coverage.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_coverage_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_coverage_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "sysml_coverage_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_coverage_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_export.go",
+        "kind": "file",
+        "line": 40
+      },
+      "name": "sysml_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_export_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "sysml_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_039",
+        "req engineering_model_go_lint.REQ_EMG_040",
+        "req engineering_model_go_lint.REQ_EMG_047",
+        "req engineering_model_go_lint.REQ_EMG_050"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_interchange.go",
+        "kind": "file",
+        "line": 39
+      },
+      "name": "sysml_interchange.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_interchange_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "sysml_interchange_test.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "sysml_interchange_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_040"
+      ],
+      "status": "ok",
+      "tag": "act tests.sysml_interchange_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "threat_model_export.go",
+        "kind": "file",
+        "line": 33
+      },
+      "name": "threat_model_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_004",
+        "req engineering_model_go_lint.REQ_EMG_011",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.threat_model_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "threat_model_export_test.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "threat_model_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_004",
+        "req engineering_model_go_lint.REQ_EMG_011",
+        "req engineering_model_go_lint.REQ_EMG_012"
+      ],
+      "status": "ok",
+      "tag": "act tests.threat_model_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "trace_matrix.go",
+        "kind": "file",
+        "line": 49
+      },
+      "name": "trace_matrix.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_028",
+        "req engineering_model_go_lint.REQ_EMG_029",
+        "req engineering_model_go_lint.REQ_EMG_030",
+        "req engineering_model_go_lint.REQ_EMG_050",
+        "req engineering_model_go_lint.REQ_EMG_051"
+      ],
+      "status": "ok",
+      "tag": "act tests.trace_matrix_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "trace_matrix_test.go",
+        "kind": "file",
+        "line": 16
+      },
+      "name": "trace_matrix_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_028",
+        "req engineering_model_go_lint.REQ_EMG_029",
+        "req engineering_model_go_lint.REQ_EMG_030"
+      ],
+      "status": "ok",
+      "tag": "act tests.trace_matrix_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "trlc_export.go",
+        "kind": "file",
+        "line": 56
+      },
+      "name": "trlc_export.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_006",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.trlc_export_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "trlc_export_test.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "trlc_export_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_006"
+      ],
+      "status": "ok",
+      "tag": "act tests.trlc_export_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "validate/diagnostic.go",
+        "kind": "file",
+        "line": 23
+      },
+      "name": "diagnostic.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009",
+        "req engineering_model_go_lint.REQ_EMG_011",
+        "req engineering_model_go_lint.REQ_EMG_012"
+      ],
+      "status": "ok",
+      "tag": "act tests.validate_diagnostic_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "validate/validate.go",
+        "kind": "file",
+        "line": 256
+      },
+      "name": "validate.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009",
+        "req engineering_model_go_lint.REQ_EMG_011",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_041",
+        "req engineering_model_go_lint.REQ_EMG_043",
+        "req engineering_model_go_lint.REQ_EMG_049"
+      ],
+      "status": "ok",
+      "tag": "act tests.validate_validate_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "validate/validate_test.go",
+        "kind": "file",
+        "line": 11
+      },
+      "name": "validate_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_001",
+        "req engineering_model_go_lint.REQ_EMG_009",
+        "req engineering_model_go_lint.REQ_EMG_011",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036",
+        "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_046"
+      ],
+      "status": "ok",
+      "tag": "act tests.validate_validate_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "view/project.go",
+        "kind": "file",
+        "line": 13
+      },
+      "name": "project.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003",
+        "req engineering_model_go_lint.REQ_EMG_035",
+        "req engineering_model_go_lint.REQ_EMG_036"
+      ],
+      "status": "ok",
+      "tag": "act tests.view_project_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "view/project_test.go",
+        "kind": "file",
+        "line": 10
+      },
+      "name": "project_test.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.view_project_test_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "view/semantic_concerns.go",
+        "kind": "file",
+        "line": 12
+      },
+      "name": "semantic_concerns.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_052"
+      ],
+      "status": "ok",
+      "tag": "act tests.view_semantic_concerns_go"
+    },
+    {
+      "framework": "Tests",
+      "just_down": [],
+      "just_global": [],
+      "just_up": [],
+      "kind": "test",
+      "location": {
+        "column": 4,
+        "file": "view/types.go",
+        "kind": "file",
+        "line": 4
+      },
+      "name": "types.go",
+      "refs": [
+        "req engineering_model_go_lint.REQ_EMG_003"
+      ],
+      "status": "ok",
+      "tag": "act tests.view_types_go"
+    }
+  ],
+  "generator": "engmodel",
+  "schema": "lobster-act-trace",
+  "version": 3
+}

@@ -1,0 +1,18 @@
+schemaVersion: 2
+views: []
+design:
+  id: atlas-cloud-design
+  title: Atlas Shared Cloud Platform Design
+  functionalGroups:
+  - id: FG-CLOUD
+    views:
+      deployment:
+        title: Multi-region deployment
+        narrative: Product services use isolated accounts and durable regional event stores.
+  functionalUnits:
+  - id: FU-CLOUD-RUNTIME
+    group: FG-CLOUD
+    views:
+      architecture_intent:
+        title: Cloud runtime intent
+        narrative: The runtime hides availability and event durability mechanics from products.

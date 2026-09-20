@@ -71,9 +71,14 @@ func GenerateTRLCRequirementsFromFile(requirementsPath string, options TRLCExpor
 	return GenerateTRLCRequirements(reqDoc, TRLCExportOptions{PackageName: pkg})
 }
 
-// TRLC-LINKS: REQ-EMG-006
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateTRLCRequirements(requirements model.RequirementsDocument, options TRLCExportOptions) (TRLCExportResult, error) {
+	canonical, err := model.NewCanonicalRequirements(requirements)
+	if err != nil {
+		return TRLCExportResult{}, err
+	}
+	requirements = canonical.Documents().Requirements
 	pkg := sanitizeTRLCIdentifier(strings.TrimSpace(options.PackageName))
 	if pkg == "" {
 		pkg = sanitizeTRLCIdentifier(strings.TrimSpace(requirements.LintRun.ID))

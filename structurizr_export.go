@@ -72,6 +72,7 @@ type structurizrRelationship struct {
 	From       string
 	To         string
 	Label      string
+	Technology string
 	Tags       []string
 	Properties []structurizrProperty
 }
@@ -130,16 +131,31 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 	if err != nil {
 		return StructurizrExportResult{}, err
 	}
-	return GenerateStructurizrDSL(bundle)
+	projection, _, err := ResolveCompositionProjection(bundle)
+	if err != nil {
+		return StructurizrExportResult{}, err
+	}
+	return generateStructurizrDSL(bundle, projection)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-005, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error) {
+	return generateStructurizrDSL(bundle, CompositionProjection{})
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjection) (StructurizrExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return StructurizrExportResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return StructurizrExportResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
+	bundle = projection.EnrichBundle(bundle, "architecture", "behavior")
 
 	a := bundle.Architecture.AuthoredArchitecture
 	usedIdentifiers := map[string]bool{}
@@ -160,19 +176,19 @@ func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error
 	for _, x := range sortedActors(a.Actors) {
 		id := registerIdentifier(x.ID, "person", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "person"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "person", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Actor"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "person", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Actor"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
 	}
 
 	for _, x := range sortedFunctionalGroups(a.FunctionalGroups) {
 		id := registerIdentifier(x.ID, "group", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"FunctionalGroup"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"FunctionalGroup"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
 	}
 
 	for _, x := range sortedFunctionalUnits(a.FunctionalUnits) {
 		id := registerIdentifier(x.ID, "fu", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "container"
-		containers = append(containers, structurizrElement{Identifier: id, Keyword: "container", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Prose)), Technology: safeDSLText("Functional Unit"), Tags: []string{"FunctionalUnit"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "functionalGroup", Value: strings.TrimSpace(x.Group)}}})
+		containers = append(containers, structurizrElement{Identifier: id, Keyword: "container", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Prose)), Technology: safeDSLText("Functional Unit"), Tags: []string{"FunctionalUnit"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "functionalGroup", Value: strings.TrimSpace(x.Group)}}})
 	}
 
 	for _, x := range sortedReferencedElements(a.ReferencedElements) {
@@ -182,19 +198,19 @@ func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error
 			d = strings.TrimSpace(x.Kind)
 		}
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(d), Tags: []string{"ReferencedElement", sanitizeIdentifier(strings.TrimSpace(x.Kind))}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "layer", Value: strings.TrimSpace(x.Layer)}, {Name: "kind", Value: strings.TrimSpace(x.Kind)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(d), Tags: []string{"ReferencedElement", sanitizeIdentifier(strings.TrimSpace(x.Kind))}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "layer", Value: strings.TrimSpace(x.Layer)}, {Name: "kind", Value: strings.TrimSpace(x.Kind)}}})
 	}
 
 	for _, x := range sortedInterfaces(a.Interfaces) {
 		id := registerIdentifier(x.ID, "if", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Protocol + " " + x.Endpoint)), Tags: []string{"Interface"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "protocol", Value: strings.TrimSpace(x.Protocol)}, {Name: "endpoint", Value: strings.TrimSpace(x.Endpoint)}, {Name: "owner", Value: strings.TrimSpace(x.Owner)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Protocol + " " + x.Endpoint)), Tags: []string{"Interface"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "protocol", Value: strings.TrimSpace(x.Protocol)}, {Name: "endpoint", Value: strings.TrimSpace(x.Endpoint)}, {Name: "owner", Value: strings.TrimSpace(x.Owner)}}})
 	}
 
 	for _, x := range sortedDataObjects(a.DataObjects) {
 		id := registerIdentifier(x.ID, "data", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.SchemaRef)), Tags: []string{"DataObject", strings.TrimSpace(x.Sensitivity)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "classification", Value: strings.TrimSpace(x.Classification)}, {Name: "retention", Value: strings.TrimSpace(x.Retention)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.SchemaRef)), Tags: []string{"DataObject", strings.TrimSpace(x.Sensitivity)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "classification", Value: strings.TrimSpace(x.Classification)}, {Name: "retention", Value: strings.TrimSpace(x.Retention)}}})
 	}
 
 	for _, x := range sortedDeploymentTargets(a.DeploymentTargets) {
@@ -240,7 +256,11 @@ func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error
 			continue
 		}
 		label := nonEmpty(strings.TrimSpace(m.Description), strings.TrimSpace(m.Type))
-		relationships = append(relationships, structurizrRelationship{From: from, To: to, Label: safeDSLText(label), Tags: []string{"Mapping", strings.TrimSpace(m.Type)}, Properties: []structurizrProperty{{Name: "mappingType", Value: strings.TrimSpace(m.Type)}, {Name: "fromId", Value: strings.TrimSpace(m.From)}, {Name: "toId", Value: strings.TrimSpace(m.To)}}})
+		technology := "Model relationship"
+		if mappingType := strings.TrimSpace(m.Type); mappingType != "" {
+			technology = "Model relationship: " + mappingType
+		}
+		relationships = append(relationships, structurizrRelationship{From: from, To: to, Label: safeDSLText(label), Technology: safeDSLText(technology), Tags: []string{"Mapping", strings.TrimSpace(m.Type)}, Properties: []structurizrProperty{{Name: "mappingType", Value: strings.TrimSpace(m.Type)}, {Name: "fromId", Value: strings.TrimSpace(m.From)}, {Name: "toId", Value: strings.TrimSpace(m.To)}}})
 	}
 	relationships = appendFlowRelationships(a, relationships, elementIDByModelID)
 
@@ -267,6 +287,16 @@ func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error
 	}
 
 	return StructurizrExportResult{DSL: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func projectionDisplayName(id, name string) string {
+	id = strings.TrimSpace(id)
+	name = nonEmpty(strings.TrimSpace(name), id)
+	if strings.Contains(id, "::") {
+		return id + " — " + name
+	}
+	return name
 }
 
 // TRLC-LINKS: REQ-EMG-005
@@ -393,8 +423,7 @@ func buildDynamicViews(a model.AuthoredArchitecture, elementIDByModelID map[stri
 		if from == "" || to == "" {
 			continue
 		}
-		label := nonEmpty(strings.TrimSpace(f.Description), nonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)))
-		step := structurizrRelationship{From: from, To: to, Label: safeDSLText(label)}
+		step := structurizrRelationship{From: from, To: to, Label: safeDSLText(flowRelationshipLabel(f)), Technology: safeDSLText(flowTechnology(f))}
 		views = append(views, structurizrDynamicView{
 			Scope:       scope,
 			Key:         "dynamic_" + sanitizeIdentifier(strings.TrimSpace(f.ID)),
@@ -438,7 +467,7 @@ func propValue(props []structurizrProperty, name string) string {
 func appendFlowRelationships(a model.AuthoredArchitecture, relationships []structurizrRelationship, elementIDByModelID map[string]string) []structurizrRelationship {
 	seen := map[string]bool{}
 	for _, r := range relationships {
-		seen[r.From+"->"+r.To] = true
+		seen[structurizrRelationshipKey(r)] = true
 	}
 	for _, f := range a.Flows {
 		from := elementIDByModelID[strings.TrimSpace(f.SourceRef)]
@@ -446,18 +475,45 @@ func appendFlowRelationships(a model.AuthoredArchitecture, relationships []struc
 		if from == "" || to == "" {
 			continue
 		}
-		key := from + "->" + to
+		relationship := structurizrRelationship{From: from, To: to, Label: safeDSLText(flowRelationshipLabel(f)), Technology: safeDSLText(flowTechnology(f)), Tags: []string{"Flow"}, Properties: []structurizrProperty{{Name: "flowId", Value: strings.TrimSpace(f.ID)}}}
+		key := structurizrRelationshipKey(relationship)
 		if seen[key] {
 			continue
 		}
 		seen[key] = true
-		label := "flow"
-		if title := strings.TrimSpace(f.Title); title != "" {
-			label = title
-		}
-		relationships = append(relationships, structurizrRelationship{From: from, To: to, Label: safeDSLText(label), Tags: []string{"Flow"}, Properties: []structurizrProperty{{Name: "flowId", Value: strings.TrimSpace(f.ID)}}})
+		relationships = append(relationships, relationship)
 	}
 	return relationships
+}
+
+// TRLC-LINKS: REQ-EMG-005, REQ-EMG-012
+func structurizrRelationshipKey(relationship structurizrRelationship) string {
+	return strings.Join([]string{relationship.From, relationship.To, relationship.Label, relationship.Technology}, "\x00")
+}
+
+// TRLC-LINKS: REQ-EMG-005, REQ-EMG-012
+func flowRelationshipLabel(flow model.Flow) string {
+	if title := strings.TrimSpace(flow.Title); title != "" {
+		return title
+	}
+	return "flow"
+}
+
+// TRLC-LINKS: REQ-EMG-005, REQ-EMG-012
+func flowTechnology(flow model.Flow) string {
+	parts := []string{}
+	for _, value := range []string{flow.Protocol, flow.Channel} {
+		if value = strings.TrimSpace(value); value != "" {
+			parts = append(parts, value)
+		}
+	}
+	if len(parts) > 0 {
+		return strings.Join(parts, " / ")
+	}
+	if kind := strings.TrimSpace(flow.Kind); kind != "" {
+		return "Model flow: " + kind
+	}
+	return "Model flow"
 }
 
 // TRLC-LINKS: REQ-EMG-005

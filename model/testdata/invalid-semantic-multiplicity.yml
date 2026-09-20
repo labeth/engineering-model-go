@@ -1,0 +1,6 @@
+schemaVersion: 2
+architecture:
+semantics:
+  elements:
+    - id: PART-INVALID
+      kind: part_usage

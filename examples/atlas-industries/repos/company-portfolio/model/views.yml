@@ -1,0 +1,18 @@
+schemaVersion: 2
+views: []
+design:
+  id: atlas-portfolio-design
+  title: Atlas Industries Portfolio Design
+  functionalGroups:
+  - id: FG-PORT
+    views:
+      architecture_intent:
+        title: Company portfolio intent
+        narrative: Company requirements delegate to stable product contracts while products independently reuse shared modules.
+  functionalUnits:
+  - id: FU-PORT-GOVERNANCE
+    group: FG-PORT
+    views:
+      traceability:
+        title: Portfolio allocation traceability
+        narrative: Aegis and Orion contract capabilities satisfy separate company requirements.

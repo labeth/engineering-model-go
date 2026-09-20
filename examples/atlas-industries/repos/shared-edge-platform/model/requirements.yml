@@ -1,0 +1,15 @@
+schemaVersion: 2
+lintRun:
+  id: atlas-edge-strict
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-EDGE-001
+  text: The atlas edge platform shall execute signed workloads on the edge runtime.
+  appliesTo:
+  - FU-EDGE-RUNTIME
+- id: REQ-EDGE-002
+  text: The atlas edge platform shall authenticate the edge runtime using device identity.
+  appliesTo:
+  - FU-EDGE-RUNTIME

@@ -1,0 +1,147 @@
+title: "Atlas Shared Compliance Baseline - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Atlas Shared Compliance Baseline
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-COMP-EVIDENCE
+    title: Compliance Evidence Service
+    description: Collects, retains, and reports control assessment evidence.
+  - id: FU-COMP-PEOPLE
+    title: People Security and Awareness
+    description: Governs screening, employment responsibilities, awareness training, role changes, and offboarding.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-COMP-ACCESS-REVIEW
+  title: Quarterly Access Review
+  objective: Reviews privileged access quarterly.
+  group: access-control
+  assessment-requirements:
+  - id: CV-COMP-ACCESS-REVIEW
+    text: The control "Quarterly Access Review" MUST be verified by inspection.
+    applicability:
+    - FU-COMP-EVIDENCE
+    recommendation: Review completed; delegated reviewer escalation remains open.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-EVIDENCE-RETENTION
+  title: Evidence Retention
+  objective: Retains signed assessment evidence for seven years.
+  group: audit
+  assessment-requirements:
+  - id: CTRL-COMP-EVIDENCE-RETENTION-AR-1
+    text: "The system MUST implement the control \"Evidence Retention\": Retains signed assessment evidence for seven years."
+    applicability:
+    - FU-COMP-EVIDENCE
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-audit
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-PERSONNEL-SCREENING
+  title: Personnel Screening
+  objective: Applies risk-appropriate screening before privileged access is authorized.
+  group: personnel-security
+  assessment-requirements:
+  - id: CV-COMP-PERSONNEL-SCREENING
+    text: The control "Personnel Screening" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-POLICY-ACKNOWLEDGMENT
+  title: Employment Security Responsibilities
+  objective: Records acceptance of security and acceptable-use responsibilities.
+  group: personnel-security
+  assessment-requirements:
+  - id: CTRL-COMP-POLICY-ACKNOWLEDGMENT-AR-1
+    text: "The system MUST implement the control \"Employment Security Responsibilities\": Records acceptance of security and acceptable-use responsibilities."
+    applicability:
+    - FU-COMP-PEOPLE
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-SECURITY-AWARENESS
+  title: Security Awareness Education
+  objective: Provides initial and annual awareness education with completion tracking.
+  group: awareness-and-training
+  assessment-requirements:
+  - id: CV-COMP-AWARENESS
+    text: The control "Security Awareness Education" MUST be verified by inspection.
+    applicability:
+    - FU-COMP-PEOPLE
+    recommendation: Employee completion is reported; contractor integration is tracked in POAM-COMP-002.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-awareness-and-training
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-ROLE-CHANGE-REVIEW
+  title: Role Change Review
+  objective: Reassesses access and responsibilities when an employee changes role.
+  group: access-control
+  assessment-requirements:
+  - id: CV-COMP-ROLE-CHANGE
+    text: The control "Role Change Review" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: CTRL-COMP-OFFBOARDING
+  title: Personnel Offboarding
+  objective: Coordinates access revocation, responsibility transfer, and company asset return.
+  group: personnel-security
+  assessment-requirements:
+  - id: CV-COMP-OFFBOARDING
+    text: The control "Personnel Offboarding" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: access-control
+  title: access-control
+  description: "Control category: access-control."
+- id: audit
+  title: audit
+  description: "Control category: audit."
+- id: personnel-security
+  title: personnel-security
+  description: "Control category: personnel-security."
+- id: awareness-and-training
+  title: awareness-and-training
+  description: "Control category: awareness-and-training."

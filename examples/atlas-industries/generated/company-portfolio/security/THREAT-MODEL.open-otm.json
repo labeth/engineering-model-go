@@ -1,0 +1,228 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Atlas Industries Company Portfolio",
+    "id": "atlas-industries-portfolio",
+    "description": "Company-level composition of Aegis Sentinel and Orion Relay.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Portfolio Status",
+      "id": "DO-PORT-STATUS",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "company-confidential"
+      }
+    },
+    {
+      "name": "Perimeter Track",
+      "id": "aegis::DO-AEG-TRACK",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    },
+    {
+      "name": "Relay Message",
+      "id": "orion::DO-ORI-MESSAGE",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-PORT-EXECUTIVE",
+      "name": "Portfolio Executive",
+      "type": "actor",
+      "description": "Owns company product outcomes.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-PORT-GOVERNANCE",
+      "name": "Portfolio Governance Service",
+      "type": "service",
+      "description": "Consolidates product capability and assurance status.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "aegis::ACT-AEG-ENGINEER",
+      "name": "Product Security Engineer",
+      "type": "actor",
+      "description": "Owns product threats and controls.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "aegis::ACT-AEG-OPERATOR",
+      "name": "Security Operator",
+      "type": "actor",
+      "description": "Reviews tracks and authorizes response.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "aegis::FU-AEG-MISSION",
+      "name": "Mission Coordination Software",
+      "type": "service",
+      "description": "Presents incidents for operator review and dispatch.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "aegis::FU-AEG-SENSOR-FUSION",
+      "name": "Sensor Fusion Software",
+      "type": "service",
+      "description": "Correlates observations and assigns confidence.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "aegis::TS-AEG-SENSOR-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "aegis::MIT-AEG-TRACK-CONFIDENCE",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aegis::IF-AEG-TRACK",
+      "name": "Perimeter Track Interface",
+      "type": "interface",
+      "description": "protobuf grpc://mission/tracks",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "aegis::TS-AEG-SENSOR-SPOOF",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "aegis::MIT-AEG-TRACK-CONFIDENCE",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "orion::ACT-ORI-CONTROLLER",
+      "name": "Network Controller",
+      "type": "actor",
+      "description": "Sets delivery priorities and monitors link state.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "orion::ACT-ORI-ENGINEER",
+      "name": "Relay Security Engineer",
+      "type": "actor",
+      "description": "Owns product security risk.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "orion::FU-ORI-LINK",
+      "name": "Link Scheduler Software",
+      "type": "service",
+      "description": "Selects available radio links and transmission windows.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "orion::FU-ORI-ROUTER",
+      "name": "Message Router Software",
+      "type": "service",
+      "description": "Stores, prioritizes, and forwards operational messages.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "orion::IF-ORI-MESSAGE",
+      "name": "Relay Message Interface",
+      "type": "interface",
+      "description": "quic quic://relay/messages",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": [],
+  "threats": [
+    {
+      "id": "aegis::TS-AEG-SENSOR-SPOOF",
+      "name": "Crafted observations create a false track",
+      "description": "An adversary injects mutually consistent false observations.",
+      "categories": [
+        "sensor-integrity"
+      ],
+      "cwes": [
+        "CWE-345"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "tampering"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "aegis::MIT-AEG-TRACK-CONFIDENCE",
+      "name": "aegis::CTRL-AEG-TRACK-CONFIDENCE",
+      "description": "aegis::CTRL-AEG-TRACK-CONFIDENCE",
+      "riskReduction": 5
+    }
+  ]
+}

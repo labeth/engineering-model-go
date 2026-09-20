@@ -1,0 +1,20 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-ORI-001,orphan,FU-ORI-ROUTER,,,,
+REQ-ORI-002,delegated,FU-ORI-LINK,,,SUB-ORI-EDGE/REQ-EDGE-001,
+REQ-ORI-003,delegated,FU-ORI-ROUTER,,,SUB-ORI-CLOUD/REQ-CLOUD-001,
+REQ-ORI-004,delegated,FU-ORI-LINK FU-ORI-ROUTER,,,SUB-ORI-SECURITY/REQ-SEC-002,
+REQ-ORI-005,delegated,FU-ORI-ROUTER,,,SUB-ORI-COMPLIANCE/REQ-COMP-001,
+cloud::REQ-CLOUD-001,allocated,cloud::FU-CLOUD-RUNTIME,,,SUB-ORI-CLOUD/cloud::REQ-CLOUD-001,cloud:public@v0.1.0
+cloud::REQ-CLOUD-002,published,cloud::FU-CLOUD-RUNTIME,,,,cloud:public@v0.1.0
+compliance::REQ-COMP-001,allocated,compliance::FU-COMP-EVIDENCE,,,SUB-ORI-COMPLIANCE/compliance::REQ-COMP-001,compliance:public@v0.1.0
+compliance::REQ-COMP-002,published,compliance::FU-COMP-EVIDENCE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-003,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-004,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-005,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-006,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-007,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-008,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+edge::REQ-EDGE-001,allocated,edge::FU-EDGE-RUNTIME,,,SUB-ORI-EDGE/edge::REQ-EDGE-001,edge:public@v0.1.0
+edge::REQ-EDGE-002,published,edge::FU-EDGE-RUNTIME,,,,edge:public@v0.1.0
+security::REQ-SEC-001,published,security::FU-SEC-IDENTITY,,,,security:public@v0.1.0
+security::REQ-SEC-002,allocated,security::FU-SEC-MONITORING,,,SUB-ORI-SECURITY/security::REQ-SEC-002,security:public@v0.1.0

@@ -1,0 +1,41 @@
+schemaVersion: 2
+module:
+  path: models.example/coffee-fleet/cloud-api@v0
+  version: v0.1.0
+  modelId: COF-CLOUD-API
+  title: Cloud API Subsystem
+  introduction: 'The cloud API subsystem ingests fleet telemetry, persists metrics, and drives OTA
+
+    campaigns. It is a leaf system of the connected coffee fleet, hosted on the cloud platform.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-CLOUD
+  - FU-CLOUD-INGEST
+  - FU-CLOUD-CAMPAIGN
+  - IF-CLOUD-INGEST
+  - DO-FLEET-METRIC
+  - CAP-CLOUD-INGEST
+  - NEED-INTERNET
+  assurance:
+  - CTRL-INGEST-AUTH
+  - VER-INGEST-AUTH
+  requirements:
+  - REQ-CLOUD-001
+  - REQ-CLOUD-002
+inferenceHints:
+  codeSources:
+  - ./src

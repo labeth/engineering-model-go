@@ -1,0 +1,50 @@
+title: "Atlas Industries Company Portfolio - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Atlas Industries Company Portfolio
+  description: "The system as a whole: Atlas Industries Company Portfolio."
+  group: system
+- id: FU-PORT-GOVERNANCE
+  title: Portfolio Governance Service
+  description: Consolidates product capability and assurance status.
+  group: FG-PORT
+- id: aegis::FU-AEG-MISSION
+  title: Mission Coordination Software
+  description: Presents incidents for operator review and dispatch.
+  group: aegis::FG-AEG
+- id: aegis::FU-AEG-SENSOR-FUSION
+  title: Sensor Fusion Software
+  description: Correlates observations and assigns confidence.
+  group: aegis::FG-AEG
+- id: orion::FU-ORI-LINK
+  title: Link Scheduler Software
+  description: Selects available radio links and transmission windows.
+  group: orion::FG-ORI
+- id: orion::FU-ORI-ROUTER
+  title: Message Router Software
+  description: Stores, prioritizes, and forwards operational messages.
+  group: orion::FG-ORI
+groups:
+- id: FG-PORT
+  title: Portfolio Governance
+  description: Company capability and assurance governance.
+- id: aegis::FG-AEG
+  title: Sentinel Mission
+  description: Product-specific sensing and incident coordination.
+- id: orion::FG-ORI
+  title: Relay Mission
+  description: Product-specific link scheduling and delivery.
+- id: system
+  title: System
+  description: Whole-system capability scope.

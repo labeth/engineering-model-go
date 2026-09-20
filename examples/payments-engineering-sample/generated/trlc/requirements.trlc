@@ -1,4 +1,4 @@
-package PaymentsRequirements
+package requirements
 Requirement REQ_PAY_001 {
   id         = "REQ-PAY-001"
   text       = "While normal mode is active, when payment authorization is requested, the payments system shall create a payment session."

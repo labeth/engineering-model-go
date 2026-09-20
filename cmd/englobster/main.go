@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -28,6 +29,14 @@ func main() {
 		RequirementsPackage: strings.TrimSpace(*reqPackage),
 		ActivityNamespace:   strings.TrimSpace(*activityNamespace),
 	})
+	if errors.Is(err, engmodel.ErrNoLobsterActivities) {
+		if removeErr := os.Remove(strings.TrimSpace(*outPath)); removeErr != nil && !os.IsNotExist(removeErr) {
+			fmt.Fprintln(os.Stderr, "error removing inapplicable output:", removeErr)
+			os.Exit(1)
+		}
+		fmt.Fprintln(os.Stderr, "skip LOBSTER activity output:", err)
+		return
+	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)

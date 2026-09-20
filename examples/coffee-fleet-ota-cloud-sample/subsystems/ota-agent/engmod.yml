@@ -1,0 +1,45 @@
+schemaVersion: 2
+module:
+  path: models.example/coffee-fleet/ota-agent@v0
+  version: v0.1.0
+  modelId: COF-OTA-AGENT
+  title: OTA Update Agent Subsystem
+  introduction: 'The OTA update agent subsystem verifies and applies signed firmware on the machine,
+
+    rolling back on validation failure. It is a leaf system of the connected coffee fleet,
+
+    hosted on the fleet edge gateway.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-OTA
+  - FU-OTA-VERIFY
+  - FU-OTA-APPLY
+  - IF-OTA-APPLY
+  - DO-FIRMWARE-BUNDLE
+  - CAP-OTA-APPLY
+  - NEED-TELEMETRY-FEED
+  - NEED-CELLULAR-LINK
+  assurance:
+  - CTRL-FIRMWARE-SIGNATURE
+  - VER-FIRMWARE-SIGNATURE
+  requirements:
+  - REQ-OTA-001
+  - REQ-OTA-002
+  - REQ-OTA-003
+inferenceHints:
+  codeSources:
+  - ./src

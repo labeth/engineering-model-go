@@ -1,0 +1,43 @@
+title: "Atlas Shared Edge Platform - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Atlas Shared Edge Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-EDGE-RUNTIME
+    title: Edge Runtime
+    description: Hosts signed product workloads and normalizes device observations.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-EDGE-SIGNED-WORKLOAD
+  title: Signed Workload Enforcement
+  objective: Verifies workload signatures before execution.
+  group: integrity
+  assessment-requirements:
+  - id: CTRL-EDGE-SIGNED-WORKLOAD-AR-1
+    text: "The system MUST implement the control \"Signed Workload Enforcement\": Verifies workload signatures before execution."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: integrity
+  title: integrity
+  description: "Control category: integrity."

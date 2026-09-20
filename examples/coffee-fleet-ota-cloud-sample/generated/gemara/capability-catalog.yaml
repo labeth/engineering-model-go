@@ -3,12 +3,12 @@ metadata:
   id: ENGMOD-CAPABILITY-CATALOG
   type: CapabilityCatalog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: System capabilities of Connected Coffee Fleet OTA + Cloud Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
 capabilities:
 - id: CAP-SYSTEM
@@ -50,6 +50,30 @@ capabilities:
   description: |
     Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
   group: FG-PLATFORM-OPERATIONS
+- id: cloud-api::FU-CLOUD-CAMPAIGN
+  title: Cloud Campaign
+  description: Plans and dispatches OTA campaigns.
+  group: cloud-api::FG-CLOUD
+- id: cloud-api::FU-CLOUD-INGEST
+  title: Cloud Ingest
+  description: Ingests and persists fleet telemetry.
+  group: cloud-api::FG-CLOUD
+- id: ota-agent::FU-OTA-APPLY
+  title: OTA Apply
+  description: Applies verified firmware and rolls back on failure.
+  group: ota-agent::FG-OTA
+- id: ota-agent::FU-OTA-VERIFY
+  title: OTA Verification
+  description: Verifies firmware signature and update eligibility.
+  group: ota-agent::FG-OTA
+- id: telemetry::FU-TELEM-REPORT
+  title: Telemetry Reporting
+  description: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  group: telemetry::FG-TELEMETRY
+- id: telemetry::FU-TELEM-SAMPLE
+  title: Telemetry Sampling
+  description: Samples machine sensors at the configured cadence.
+  group: telemetry::FG-TELEMETRY
 groups:
 - id: FG-MACHINE-EDGE
   title: Machine Edge
@@ -60,6 +84,15 @@ groups:
 - id: FG-PLATFORM-OPERATIONS
   title: Platform Operations
   description: Cloud runtime operations plus identity and secret-management controls.
+- id: cloud-api::FG-CLOUD
+  title: Cloud
+  description: Cloud ingestion and campaign control.
+- id: ota-agent::FG-OTA
+  title: OTA
+  description: On-machine OTA update verification and application.
+- id: telemetry::FG-TELEMETRY
+  title: Telemetry
+  description: Telemetry collection and reporting.
 - id: system
   title: System
   description: Whole-system capability scope.

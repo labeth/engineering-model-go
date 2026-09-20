@@ -1,0 +1,497 @@
+{
+  "assessment-results": {
+    "back-matter": {
+      "resources": [
+        {
+          "citation": {
+            "text": "*Control Catalog*. "
+          },
+          "title": "Control Catalog",
+          "uuid": "e7bdf901-8d2a-4527-9b6e-0ebd56d2a83a"
+        }
+      ]
+    },
+    "import-ap": {
+      "href": "#"
+    },
+    "metadata": {
+      "last-modified": "1970-01-01T00:00:00Z",
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model",
+          "type": "person",
+          "uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b"
+        }
+      ],
+      "published": "2026-09-19T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "d9d983e7-ed99-45f4-8ec8-288ca00cb74b"
+          ],
+          "role-id": "assessor"
+        }
+      ],
+      "roles": [
+        {
+          "id": "assessor",
+          "title": "Assessor"
+        }
+      ],
+      "title": "Assessment Results: engineering-model-go-EVALUATION-LOG",
+      "version": "0.0.0"
+    },
+    "results": [
+      {
+        "assessment-log": {
+          "entries": [
+            {
+              "description": "Assessment of \"MCP Path Boundary Enforcement\" via test.",
+              "logged-by": [
+                {
+                  "party-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "CTRL-MCP-PATH-BOUNDARY / VER-MCP-PATH-BOUNDARY",
+              "uuid": "73e713e7-98da-4a8a-898e-c510c95da0b0"
+            },
+            {
+              "description": "No authored verification for control Strict MCP Input Schemas; manual review required.",
+              "logged-by": [
+                {
+                  "party-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "CTRL-STRICT-MCP-INPUT-SCHEMA / CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1",
+              "uuid": "e4c249b4-4b58-494d-b578-e60ff2a6de42"
+            },
+            {
+              "description": "Assessment of \"Requirement Traceability Coverage\" via analysis.",
+              "logged-by": [
+                {
+                  "party-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "CTRL-TRACEABILITY-COVERAGE / VER-TRACEABILITY-COVERAGE",
+              "uuid": "746da347-89e7-4f4b-987b-5b15630a348d"
+            },
+            {
+              "description": "No authored verification for control Trace Link Integrity; manual review required.",
+              "logged-by": [
+                {
+                  "party-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "CTRL-TRACE-LINK-INTEGRITY / CTRL-TRACE-LINK-INTEGRITY-AR-1",
+              "uuid": "7e052ad4-2ba1-42af-8e69-0e1506acd5d3"
+            },
+            {
+              "description": "No authored verification for control Generated Artifact Freshness Gate; manual review required.",
+              "logged-by": [
+                {
+                  "party-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "CTRL-ARTIFACT-FRESHNESS-GATE / CTRL-ARTIFACT-FRESHNESS-GATE-AR-1",
+              "uuid": "c1bdb0ec-23bd-44b8-867b-b8c89fdaa8cd"
+            }
+          ]
+        },
+        "description": "Results from Gemara EvaluationLog engineering-model-go-EVALUATION-LOG",
+        "findings": [
+          {
+            "description": "1 assessment(s) recorded for control CTRL-MCP-PATH-BOUNDARY.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "32236a00-8551-40a8-8d33-a13f5c676844"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "ctrl-mcp-path-boundary",
+              "type": "objective-id"
+            },
+            "title": "MCP Path Boundary Enforcement",
+            "uuid": "aee40079-5fc3-46a4-8cd9-c6a6fcedf995"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-STRICT-MCP-INPUT-SCHEMA.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "161cd14e-2ab9-4f80-aae9-7b9693007d3c"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "needs-review",
+                "state": "not-satisfied"
+              },
+              "target-id": "ctrl-strict-mcp-input-schema",
+              "type": "objective-id"
+            },
+            "title": "Strict MCP Input Schemas",
+            "uuid": "d2305095-778a-4d5b-b929-a95f23bcb0c3"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-TRACEABILITY-COVERAGE.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "d910168c-34fa-4db2-8090-ca304f7537f8"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "needs-review",
+                "state": "not-satisfied"
+              },
+              "target-id": "ctrl-traceability-coverage",
+              "type": "objective-id"
+            },
+            "title": "Requirement Traceability Coverage",
+            "uuid": "4a0cc7b9-59ea-4379-9889-a167f7d10222"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-TRACE-LINK-INTEGRITY.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "0f00f143-b213-4045-abe9-4f09d41abeb5"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "needs-review",
+                "state": "not-satisfied"
+              },
+              "target-id": "ctrl-trace-link-integrity",
+              "type": "objective-id"
+            },
+            "title": "Trace Link Integrity",
+            "uuid": "9e818a1e-37bd-44de-b3e8-6d39a7339616"
+          },
+          {
+            "description": "1 assessment(s) recorded for control CTRL-ARTIFACT-FRESHNESS-GATE.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "6eebd39b-9671-40ad-a132-842c9a2b141c"
+              }
+            ],
+            "target": {
+              "status": {
+                "reason": "needs-review",
+                "state": "not-satisfied"
+              },
+              "target-id": "ctrl-artifact-freshness-gate",
+              "type": "objective-id"
+            },
+            "title": "Generated Artifact Freshness Gate",
+            "uuid": "ad311458-6a68-4de0-8cd0-6906a4408922"
+          }
+        ],
+        "local-definitions": {
+          "inventory-items": [
+            {
+              "description": "Evaluation target: Engineering Model Go Repository Architecture",
+              "props": [
+                {
+                  "name": "gemara-resource-id",
+                  "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                  "value": "engineering-model-go"
+                },
+                {
+                  "name": "name",
+                  "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                  "value": "Engineering Model Go Repository Architecture"
+                }
+              ],
+              "uuid": "ceea52f8-8d3b-40d0-8b62-3aa6e3c0b2c5"
+            }
+          ]
+        },
+        "observations": [
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of \"MCP Path Boundary Enforcement\" via test.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "VER-MCP-PATH-BOUNDARY"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-MCP-PATH-BOUNDARY"
+              }
+            ],
+            "uuid": "32236a00-8551-40a8-8d33-a13f5c676844"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "No authored verification for control Strict MCP Input Schemas; manual review required.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-STRICT-MCP-INPUT-SCHEMA"
+              }
+            ],
+            "uuid": "161cd14e-2ab9-4f80-aae9-7b9693007d3c"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of \"Requirement Traceability Coverage\" via analysis.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "VER-TRACEABILITY-COVERAGE"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-TRACEABILITY-COVERAGE"
+              }
+            ],
+            "uuid": "d910168c-34fa-4db2-8090-ca304f7537f8"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "No authored verification for control Trace Link Integrity; manual review required.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-TRACE-LINK-INTEGRITY-AR-1"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-TRACE-LINK-INTEGRITY"
+              }
+            ],
+            "uuid": "0f00f143-b213-4045-abe9-4f09d41abeb5"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "No authored verification for control Generated Artifact Freshness Gate; manual review required.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Needs Review"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "CTRL-ARTIFACT-FRESHNESS-GATE"
+              }
+            ],
+            "uuid": "6eebd39b-9671-40ad-a132-842c9a2b141c"
+          }
+        ],
+        "props": [
+          {
+            "name": "aggregate-result",
+            "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+            "value": "Needs Review"
+          }
+        ],
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "include-controls": [
+                {
+                  "control-id": "ctrl-mcp-path-boundary"
+                },
+                {
+                  "control-id": "ctrl-strict-mcp-input-schema"
+                },
+                {
+                  "control-id": "ctrl-traceability-coverage"
+                },
+                {
+                  "control-id": "ctrl-trace-link-integrity"
+                },
+                {
+                  "control-id": "ctrl-artifact-freshness-gate"
+                }
+              ]
+            }
+          ]
+        },
+        "start": "2026-09-19T00:00:00Z",
+        "title": "Evaluation: engineering-model-go-EVALUATION-LOG",
+        "uuid": "c3b4436e-6001-4ce0-ad17-70c0a8ea919b"
+      }
+    ],
+    "uuid": "534ca6b3-cbfa-4748-8169-379ab713f674"
+  }
+}

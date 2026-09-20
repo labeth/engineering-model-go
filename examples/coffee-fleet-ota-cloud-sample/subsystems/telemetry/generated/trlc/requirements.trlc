@@ -1,4 +1,4 @@
-package TelemetryRequirements
+package requirements
 Requirement REQ_TELEM_001 {
   id         = "REQ-TELEM-001"
   text       = "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet."

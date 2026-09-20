@@ -4,28 +4,13 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 semantic versioning.
 
-## [Unreleased] — Gemara GRC rendering
+## [Unreleased] — Schema-v2 domain documents
 
-This is a **backward-compatible, additive** release. **There are no breaking changes
-from `v0.0.1`.** Existing models, library APIs, CLIs, MCP tools, and generated
-artifact formats continue to work unchanged.
-
-### Compatibility summary (verified against `v0.0.1`)
-
-| Surface | Status |
-|---|---|
-| Model schema (`model/types.go`) | **Unchanged** — every `v0.0.1` `architecture.yml`/`catalog.yml`/`requirements.yml`/`design.yml` parses as-is |
-| Validation rules (`validate/validate.go`) | **Tightened** — new gates can fail models that passed under `v0.0.1`: `code.dangling_requirement_link`, `code.dangling_model_link`, `code.missing_trlc_link`, `requirement.internal_link`, and the `composition.*` family (all `SeverityError`), plus the `requirement.orphan` warning. Models with fully-resolved trace links and no composition/delegation issues stay valid |
-| Go library API | **No exported symbol removed or changed**; all new functionality is in new files/functions |
-| CLIs (`cmd/*`) | **No flag removed or renamed**; new `cmd/enggemara` and `cmd/engtrace`, plus new optional flags only |
-| MCP tools | **No tool removed or renamed**; new `gemara.*` tools only |
-| Generated artifact formats | **Additive** — a new `TRACE-MATRIX.json` artifact is generated (committed and drift-gated); `ARCHITECTURE.adoc` gains a `Gemara GRC Model` chapter plus composition/hardware/subsystem/delegation sections and inferred `var`/`const` symbols. No existing artifact chapter is altered |
-| Go version directive | **Unchanged** (`go 1.25.0`) |
-
-A `v0.0.1`-era example whose requirements are traced and whose code trace links all
-resolve regenerates with **zero new validation errors** (it may surface new
-`requirement.orphan` warnings); models that adopt code linking, composition, hardware,
-or delegation are subject to the new gates described above.
+This release introduces a breaking model input contract. `engmod.yml` is the
+only entry point and declares module identity, exact dependencies,
+publications, inference hints, and all eight schema-v2 domain-document paths.
+Architecture, behavior, assurance, compliance, views, catalog, requirements,
+and decisions are authored separately under `model/`.
 
 ### Added
 
@@ -83,9 +68,8 @@ or delegation are subject to the new gates described above.
   - **No previously-passing model fails**: `var`/`const` are not trace-*required*, so no
     new `code.missing_trlc_link` errors are introduced. Only functions/methods remain
     trace-required.
-  - *Migration:* none required. Consumers relying on `var`-marker warnings as a lint
-    signal should note that markers before `var`/`const` are now considered valid
-    placements.
+  - Consumers relying on `var`-marker warnings as a lint signal should note that
+    markers before `var`/`const` are now considered valid placements.
 - The generated `ARCHITECTURE.adoc` gains a trailing `Gemara GRC Model` chapter. Existing
   chapters are unchanged; consumers that assert an exact document structure should expect
   the additional chapter.
@@ -96,7 +80,7 @@ or delegation are subject to the new gates described above.
   zero-error gate and make `engtrace` exit `1`. Functions/methods remain trace-required
   (`code.missing_trlc_link`), requirements with internal-only links raise
   `requirement.internal_link`, and untraced requirements raise the `requirement.orphan`
-  warning. **These gates can fail models that passed under `v0.0.1`.**
+  warning.
 - **Composition and delegation are validated.** Subsystem references are checked for
   workspace containment, acyclicity, and satisfied `provides`/`requires` bindings, emitting
   the `composition.*` diagnostics listed above; delegations without a resolvable target are

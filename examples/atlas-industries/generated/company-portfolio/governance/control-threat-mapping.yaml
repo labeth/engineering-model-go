@@ -1,0 +1,33 @@
+title: "Atlas Industries Company Portfolio - Control to Threat Mapping"
+metadata:
+  id: atlas-industries-portfolio-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: How controls relate to threats for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-aegis::CTRL-AEG-TRACK-CONFIDENCE
+  source: aegis::CTRL-AEG-TRACK-CONFIDENCE
+  targets:
+  - entry-id: aegis::TS-AEG-SENSOR-SPOOF
+    strength: 7
+    rationale: Control aegis::CTRL-AEG-TRACK-CONFIDENCE mitigates threat aegis::TS-AEG-SENSOR-SPOOF.
+  relationship: relates-to

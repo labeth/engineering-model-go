@@ -1,0 +1,40 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "COVERAGE-YD-001",
+      "metric": "statement",
+      "baseline": "BASELINE-YD-001",
+      "build": "BUILD-YD-001",
+      "toolRefs": [
+        "TOOL-COVERAGE-001"
+      ],
+      "total": 12,
+      "covered": 11,
+      "uncovered": 1,
+      "dispositions": [
+        {
+          "id": "GAP-COVERAGE-001",
+          "disposition": "open",
+          "count": 1,
+          "rationale": "Defensive clamp statement needs a targeted boundary test.",
+          "evidence": null,
+          "reviewer": "Coverage Reviewer",
+          "status": "planned"
+        }
+      ],
+      "evidence": [
+        "DATA-RESULTS"
+      ],
+      "reviewer": "Coverage Reviewer",
+      "status": "reviewed"
+    }
+  ]
+}

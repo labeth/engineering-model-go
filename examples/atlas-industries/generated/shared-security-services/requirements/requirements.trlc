@@ -1,0 +1,11 @@
+package requirements
+Requirement REQ_SEC_001 {
+  id         = "REQ-SEC-001"
+  text       = "The atlas security services shall issue short-lived identity credentials using the identity service."
+  applies_to = ["FU-SEC-IDENTITY"]
+}
+Requirement REQ_SEC_002 {
+  id         = "REQ-SEC-002"
+  text       = "When credential replay is detected, the atlas security services shall notify the security analyst."
+  applies_to = ["FU-SEC-MONITORING"]
+}

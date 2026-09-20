@@ -1,0 +1,383 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-MODEL-AUTHORING
+    name: Model Authoring
+    description: Inputs and model loading responsibilities.
+    prose: Maintains authored architecture, requirements, design, and catalog handling.
+  - id: FG-VALIDATION-ANALYSIS
+    name: Validation and Analysis
+    description: Validation and inference responsibilities.
+    prose: Performs consistency checks and derives runtime, code, and verification evidence.
+  - id: FG-ARTIFACT-GENERATION
+    name: Artifact Generation
+    description: Publication and exchange artifact generation.
+    prose: Produces AsciiDoc publication docs and external modeling outputs.
+  - id: FG-TRACEABILITY-COMPLIANCE
+    name: Traceability and Compliance
+    description: Trace and compliance export responsibilities.
+    prose: Produces TRLC, LOBSTER, and OSCAL outputs from modeled content.
+  - id: FG-MCP-INTEGRATION
+    name: MCP Integration
+    description: AI-agent integration and runtime API responsibilities.
+    prose: Exposes model-aware tools over MCP with strict input and error contracts.
+  functionalUnits:
+  - id: FU-MODEL-LOADER
+    name: Model Loader
+    group: FG-MODEL-AUTHORING
+    prose: Validates canonical YAML against the authoritative CUE contract before strict Go decoding and normalization.
+  - id: FU-VALIDATION-ENGINE
+    name: Validation Engine
+    group: FG-VALIDATION-ANALYSIS
+    prose: Validates authored entities, IDs, references, and mapping consistency.
+  - id: FU-CODEMAP-INFERENCE
+    name: Codemap Inference
+    group: FG-VALIDATION-ANALYSIS
+    prose: Infers code/runtime ownership and verification links from source and tests.
+  - id: FU-VIEW-PROJECTION
+    name: View Projection
+    group: FG-ARTIFACT-GENERATION
+    prose: Builds projection graphs for architecture, traceability, security, and flow views.
+  - id: FU-ASCIIDOC-GENERATOR
+    name: AsciiDoc Generator
+    group: FG-ARTIFACT-GENERATION
+    prose: Renders architecture publication docs and view narratives for human consumption.
+  - id: FU-THREAT-EXPORTER
+    name: Threat Exporter
+    group: FG-ARTIFACT-GENERATION
+    prose: Exports Threat Dragon and Open OTM model artifacts.
+  - id: FU-STRUCTURIZR-EXPORTER
+    name: Structurizr Exporter
+    group: FG-ARTIFACT-GENERATION
+    prose: Emits Structurizr DSL and deployment-aware model views.
+  - id: FU-SYSML-EXPORTER
+    name: SysML Exporter
+    group: FG-ARTIFACT-GENERATION
+    prose: Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting
+      conformance coverage.
+  - id: FU-NAF-EXPORTER
+    name: NAF Exporter
+    group: FG-ARTIFACT-GENERATION
+    prose: Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing
+      canonical views.
+  - id: FU-TRLC-EXPORTER
+    name: TRLC Exporter
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Emits TRLC model and requirement artifacts.
+  - id: FU-LOBSTER-EXPORTER
+    name: LOBSTER Exporter
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Generates LOBSTER traceability inputs and reports.
+  - id: FU-OSCAL-EXPORTER
+    name: OSCAL Exporter
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M).
+  - id: FU-GEMARA-EXPORTER
+    name: Gemara Exporter
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk,
+      evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara
+      SDK.
+  - id: FU-AIRBORNE-ASSURANCE-EXPORTER
+    name: Airborne Assurance Exporter
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Validates aviation assurance evidence-readiness profiles and generates clearly marked draft lifecycle-data indexes,
+      trace matrices, gap reports, and certification-support summaries without claiming compliance or authority acceptance.
+  - id: FU-SYSTEM-COMPOSITION
+    name: System Composition
+    group: FG-MODEL-AUTHORING
+    prose: Resolves downward subsystem references from local paths, external git repositories, or exact-version CUE modules
+      fetched from OCI registries into the .engmod cache, and composes a federated system-of-systems model.
+  - id: FU-ALLOCATION-TRACE
+    name: Allocation Trace
+    group: FG-TRACEABILITY-COMPLIANCE
+    prose: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying
+      subsystem models.
+  - id: FU-MCP-SERVER
+    name: MCP Server
+    group: FG-MCP-INTEGRATION
+    prose: Serves model-backed tools over MCP with path safety and structured errors.
+  - id: FU-CLI-ORCHESTRATION
+    name: CLI Orchestration
+    group: FG-MODEL-AUTHORING
+    prose: Command entrypoints orchestrating model load, validation, generation, and exports.
+  - id: FU-MODEL-CHANGE
+    name: Model Change
+    group: FG-MODEL-AUTHORING
+    prose: Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents.
+  actors:
+  - id: ACT-ARCHITECTURE-AUTHOR
+    name: Architecture Author
+    description: Maintains modeled structure, mappings, and architecture intent.
+  - id: ACT-IMPLEMENTATION-ENGINEER
+    name: Implementation Engineer
+    description: Implements code and tests guided by requirement support paths.
+  - id: ACT-COMPLIANCE-ENGINEER
+    name: Compliance Engineer
+    description: Uses control/risk and traceability outputs for assurance workflows.
+  - id: ACT-AI-AGENT
+    name: AI Agent
+    description: Uses MCP tools to plan and execute scoped implementation work.
+  - id: ACT-CI-PIPELINE
+    name: CI Pipeline
+    description: Executes regression tests, validation checks, and artifact generation.
+  referencedElements:
+  - id: REF-GO-TOOLCHAIN
+    kind: platform_service
+    layer: code
+    name: Go Toolchain
+  - id: REF-THREAT-DRAGON-SCHEMAS
+    kind: external_service_endpoint
+    layer: runtime
+    name: Threat Dragon Schemas
+  - id: REF-OPEN-OTM-SCHEMA
+    kind: external_service_endpoint
+    layer: runtime
+    name: Open OTM Schema
+  - id: REF-STRUCTURIZR-VALIDATOR
+    kind: external_service_endpoint
+    layer: runtime
+    name: Structurizr Validator
+  - id: REF-SYSML-V2-TOOLCHAIN
+    kind: external_service_endpoint
+    layer: runtime
+    name: Pinned SysML 2.0 / KerML 1.0 Toolchain
+  - id: REF-CUE-OCI-MODULE-REGISTRY
+    kind: external_service_endpoint
+    layer: runtime
+    name: CUE OCI Module Registry
+  - id: REF-TRLC-TOOLCHAIN
+    kind: external_service_endpoint
+    layer: runtime
+    name: TRLC Toolchain
+  - id: REF-LOBSTER-TOOLCHAIN
+    kind: external_service_endpoint
+    layer: runtime
+    name: LOBSTER Toolchain
+  - id: REF-NAF-V4-1-SPECIFICATION
+    kind: external_standard
+    layer: architecture
+    name: NATO Architecture Framework v4.1
+  interfaces:
+  - id: IF-CLI-ENGDOC
+    name: engdoc CLI
+    protocol: cli
+    endpoint: cmd/engdoc
+    schemaRef: docs/asciidoc-architecture-generator-design.md
+    owner: FU-ASCIIDOC-GENERATOR
+  - id: IF-CLI-ENGMCP
+    name: engmcp CLI
+    protocol: stdio-jsonrpc
+    endpoint: cmd/engmcp
+    schemaRef: mcp/server.go
+    owner: FU-MCP-SERVER
+  - id: IF-CLI-ENGDRAGON
+    name: engdragon CLI
+    protocol: cli
+    endpoint: cmd/engdragon
+    schemaRef: threat_model_export.go
+    owner: FU-THREAT-EXPORTER
+  - id: IF-CLI-ENGSTRUCT
+    name: engstruct CLI
+    protocol: cli
+    endpoint: cmd/engstruct
+    schemaRef: structurizr_export.go
+    owner: FU-STRUCTURIZR-EXPORTER
+  - id: IF-CLI-ENGSYSML
+    name: engsysml CLI
+    protocol: cli
+    endpoint: cmd/engsysml
+    schemaRef: sysml_export.go
+    owner: FU-SYSML-EXPORTER
+  - id: IF-CLI-ENGNAF
+    name: engnaf CLI
+    protocol: cli
+    endpoint: cmd/engnaf
+    schemaRef: naf_export.go
+    owner: FU-NAF-EXPORTER
+  - id: IF-CLI-ENGTRLC
+    name: engtrlc CLI
+    protocol: cli
+    endpoint: cmd/engtrlc
+    schemaRef: trlc_export.go
+    owner: FU-TRLC-EXPORTER
+  - id: IF-CLI-ENGTRACE
+    name: engtrace CLI
+    protocol: cli
+    endpoint: cmd/engtrace
+    schemaRef: trace_matrix.go
+    owner: FU-ALLOCATION-TRACE
+  - id: IF-CLI-ENGGEMARA
+    name: enggemara CLI
+    protocol: cli
+    endpoint: cmd/enggemara
+    schemaRef: gemara_export.go
+    owner: FU-GEMARA-EXPORTER
+  - id: IF-CLI-ENGLOBSTER
+    name: englobster CLI
+    protocol: cli
+    endpoint: cmd/englobster
+    schemaRef: lobster_export.go
+    owner: FU-LOBSTER-EXPORTER
+  - id: IF-CLI-ENGOSCAL
+    name: engoscal CLI
+    protocol: cli
+    endpoint: cmd/engoscal
+    schemaRef: oscal_ssp.go
+    owner: FU-OSCAL-EXPORTER
+  - id: IF-CLI-ENGAIR
+    name: engair CLI
+    protocol: cli
+    endpoint: cmd/engair
+    schemaRef: airborne_assurance.go
+    owner: FU-AIRBORNE-ASSURANCE-EXPORTER
+  - id: IF-CLI-ENGVIEW
+    name: engview CLI
+    protocol: cli
+    endpoint: cmd/engview
+    schemaRef: view/project.go
+    owner: FU-VIEW-PROJECTION
+  - id: IF-CLI-ENGCHANGE
+    name: engchange CLI
+    protocol: cli
+    endpoint: cmd/engchange
+    schemaRef: requirements_delta.go
+    owner: FU-MODEL-CHANGE
+  dataObjects:
+  - id: DO-ARCHITECTURE-MODEL
+    name: Architecture Model
+    termRef: DATA-ARCHITECTURE-MODEL
+    schemaRef: model/schema/architecture.cue
+    sensitivity: internal
+    classification: design-source
+    retention: repository-history
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-REQUIREMENTS-DELTA
+    name: Requirements Delta
+    termRef: DATA-REQUIREMENTS-DELTA
+    schemaRef: requirements_delta.go
+    sensitivity: internal
+    classification: model-change
+    retention: change-lifetime
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-REQUIREMENTS-DOCUMENT
+    name: Requirements Document
+    termRef: DATA-REQUIREMENTS-DOCUMENT
+    schemaRef: model/schema/requirements.cue
+    sensitivity: internal
+    classification: requirements-source
+    retention: repository-history
+    confidentiality: low
+    integrity: high
+    availability: high
+  - id: DO-REQUIREMENTS-DIFF
+    name: Requirements Change Summary
+    termRef: DATA-REQUIREMENTS-DIFF
+    schemaRef: requirements_delta.go
+    sensitivity: internal
+    classification: model-change-preview
+    retention: ephemeral
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-MCP-TOOL-RESULT
+    name: MCP Tool Result
+    termRef: DATA-MCP-TOOL-RESULT
+    schemaRef: mcp.tool-response.v1
+    sensitivity: internal
+    classification: runtime-api
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-STRUCTURIZR-DSL
+    name: Structurizr DSL
+    termRef: DATA-STRUCTURIZR-DSL
+    schemaRef: generated/STRUCTURIZR.dsl
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: low
+    integrity: high
+    availability: high
+  - id: DO-CANONICAL-SEMANTIC-MODEL
+    name: Canonical Semantic Model
+    termRef: DATA-CANONICAL-SEMANTIC-MODEL
+    schemaRef: model/semantic.go
+    sensitivity: internal
+    classification: design-source
+    retention: repository-history
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-MODEL-AUTHORING-CONTRACT
+    name: Model Authoring Contract
+    termRef: DATA-MODEL-AUTHORING-CONTRACT
+    schemaRef: model/authoring.go
+    sensitivity: internal
+    classification: design-source
+    retention: repository-history
+    confidentiality: low
+    integrity: high
+    availability: high
+  - id: DO-SYSML-V2-MODEL
+    name: SysML v2 Model
+    termRef: DATA-SYSML-V2-MODEL
+    schemaRef: generated/ARCHITECTURE.sysml
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: low
+    integrity: high
+    availability: high
+  - id: DO-SYSML-V2-METAMODEL
+    name: SysML v2 Metamodel
+    termRef: DATA-SYSML-V2-METAMODEL
+    schemaRef: tools/sysml/metamodel
+    sensitivity: public
+    classification: external-standard
+    retention: pinned-tool-version
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-NAF-V4-ARCHITECTURE
+    name: NAF v4.1 Architecture Document
+    termRef: DATA-NAF-V4-ARCHITECTURE
+    schemaRef: generated/ARCHITECTURE.naf.adoc
+    sensitivity: internal
+    classification: architecture-product
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-THREAT-DRAGON-JSON
+    name: Threat Dragon JSON
+    termRef: DATA-THREAT-DRAGON-JSON
+    schemaRef: generated/threat-dragon-v2.json
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: high
+  deploymentTargets:
+  - id: DEP-LOCAL-WORKSPACE
+    name: Local Workspace
+    environment: dev
+    region: local
+    account: workstation
+    cluster: local-shell
+    namespace: engineering-model-go
+    trustZone: developer
+  - id: DEP-CI-PIPELINE
+    name: CI Pipeline Runner
+    environment: ci
+    region: hosted
+    account: github-actions
+    cluster: shared-runner
+    namespace: engineering-model-go
+    trustZone: automation

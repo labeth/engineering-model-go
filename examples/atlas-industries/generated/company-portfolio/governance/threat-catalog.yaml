@@ -1,0 +1,45 @@
+title: "Atlas Industries Company Portfolio - Threats"
+metadata:
+  id: ENGMOD-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Threat scenarios for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CAPABILITY-CATALOG
+    title: Capability Catalog
+    version: 1.1.0
+  - id: ENGMOD-VECTOR-CATALOG
+    title: Vector Catalog
+    version: 1.1.0
+groups:
+- id: stride-tampering
+  title: tampering
+  description: "Threat classification: tampering."
+threats:
+- id: aegis::TS-AEG-SENSOR-SPOOF
+  title: Crafted observations create a false track
+  description: An adversary injects mutually consistent false observations.
+  group: stride-tampering
+  capabilities:
+  - entries:
+    - reference-id: aegis::FU-AEG-SENSOR-FUSION
+    reference-id: ENGMOD-CAPABILITY-CATALOG
+  vectors:
+  - entries:
+    - reference-id: aegis::AV-AEG-SENSOR-SPOOF
+    reference-id: ENGMOD-VECTOR-CATALOG
+  actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+    description: An unauthenticated adversary outside the trust boundary.
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+    description: An authorized party abusing legitimate access.

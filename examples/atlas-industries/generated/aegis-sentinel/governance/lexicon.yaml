@@ -1,0 +1,37 @@
+title: "Aegis Sentinel Product System - Lexicon"
+metadata:
+  id: atlas-aegis-sentinel-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Aegis Sentinel Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-AEG
+  title: aegis sentinel system
+  definition: Autonomous perimeter sensing and incident response product.
+- id: FG-AEG
+  title: sentinel mission
+  definition: Product-specific sensing and mission coordination.
+- id: FU-AEG-SENSOR-FUSION
+  title: sensor fusion software
+  definition: Correlates radar and optical observations.
+- id: FU-AEG-MISSION
+  title: mission coordination software
+  definition: Produces reviewed perimeter incident tracks.
+- id: ACT-AEG-OPERATOR
+  title: security operator
+  definition: Reviews and responds to perimeter incidents.
+- id: ACT-AEG-ENGINEER
+  title: product security engineer
+  definition: Owns Aegis security controls and risk.
+- id: AV-AEG-SENSOR-SPOOF
+  title: sensor spoofing
+  definition: Crafted observations attempt to create false tracks.
+- id: DATA-AEG-TRACK
+  title: perimeter track
+  definition: Correlated position and confidence record for a detected object.

@@ -1,0 +1,15 @@
+schemaVersion: 2
+lintRun:
+  id: atlas-security-strict
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-SEC-001
+  text: The atlas security services shall issue short-lived identity credentials using the identity service.
+  appliesTo:
+  - FU-SEC-IDENTITY
+- id: REQ-SEC-002
+  text: When credential replay is detected, the atlas security services shall notify the security analyst.
+  appliesTo:
+  - FU-SEC-MONITORING

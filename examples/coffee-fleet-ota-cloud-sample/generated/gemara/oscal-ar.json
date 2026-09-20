@@ -6,41 +6,29 @@
           "citation": {
             "text": "*Control Catalog*. "
           },
-          "props": [
-            {
-              "name": "id",
-              "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
-              "value": "ENGMOD-CONTROL-CATALOG"
-            }
-          ],
-          "rlinks": [
-            {
-              "href": ""
-            }
-          ],
           "title": "Control Catalog",
-          "uuid": "1e41b409-2b43-4f51-b29f-e887cf0c8755"
+          "uuid": "a20aa6a5-de9a-54cf-b96e-bee347f74d12"
         }
       ]
     },
     "import-ap": {
-      "href": "#"
+      "href": "../ARCHITECTURE.ap.json"
     },
     "metadata": {
-      "last-modified": "2026-06-27T08:38:54.337313027+02:00",
+      "last-modified": "2026-09-19T00:00:00Z",
       "oscal-version": "1.1.3",
       "parties": [
         {
-          "name": "Engineering Model",
+          "name": "Engineering Model Go Examples",
           "type": "person",
-          "uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5"
+          "uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9"
         }
       ],
-      "published": "2026-06-27T00:00:00Z",
+      "published": "2026-09-19T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
-            "86fc9d9d-173e-42e0-a660-d2c0cd569ed5"
+            "7cc881c8-b0e5-57e2-b89a-3a81258853f9"
           ],
           "role-id": "assessor"
         }
@@ -52,7 +40,7 @@
         }
       ],
       "title": "Assessment Results: sample-coffee-fleet-ota-cloud-model-EVALUATION-LOG",
-      "version": "1.0.0"
+      "version": "v0.1.0"
     },
     "results": [
       {
@@ -63,52 +51,88 @@
               "end": "2026-04-13T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-COFFEE-DEVICE-IDENTITY / CV-COFFEE-DEVICE-IDENTITY-TEST",
-              "uuid": "87325061-54e6-4184-9d79-af1ecabb49f6"
+              "uuid": "fec414ee-f106-54dd-a51e-cddf0ada62b8"
             },
             {
               "description": "Assessment of \"Device Identity Validation\" via analysis.",
               "end": "2026-04-18T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-COFFEE-DEVICE-IDENTITY / CV-COFFEE-TELEMETRY-REPLAY",
-              "uuid": "76799526-319a-4695-8c69-6dbf204b9a40"
+              "uuid": "48ff1731-54f9-51ee-9d19-3d2f0ba28cf0"
             },
             {
               "description": "Assessment of \"Device Identity Validation\" via inspection.",
               "end": "2026-04-20T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-COFFEE-DEVICE-IDENTITY / CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS",
-              "uuid": "386aa0a5-9edb-4ec9-93eb-949a119fe5b6"
+              "uuid": "6fb3436f-a06d-56fb-9104-fc3a39a95045"
             },
             {
               "description": "Assessment of \"Firmware Signature Enforcement\" via test.",
               "end": "2026-04-12T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-COFFEE-FIRMWARE-SIGNATURE / CV-COFFEE-FW-SIGNATURE-TEST",
-              "uuid": "a76f1c2a-7a39-4151-9cce-2a5d285a44eb"
+              "uuid": "01ad1f9a-45d1-504b-812b-0576f035f09c"
+            },
+            {
+              "description": "Assessment of \"Ingest Authentication\" via test.",
+              "logged-by": [
+                {
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "cloud-api::CTRL-INGEST-AUTH / cloud-api::VER-INGEST-AUTH",
+              "uuid": "dcf3a0d9-7abe-5162-8a1e-a632c2105310"
+            },
+            {
+              "description": "Assessment of \"Firmware Signature Verification\" via test.",
+              "logged-by": [
+                {
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "ota-agent::CTRL-FIRMWARE-SIGNATURE / ota-agent::VER-FIRMWARE-SIGNATURE",
+              "uuid": "6c0919e0-2ff2-5541-bda1-111081d1394a"
+            },
+            {
+              "description": "Assessment of \"Telemetry Integrity\" via test.",
+              "logged-by": [
+                {
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "telemetry::CTRL-TELEM-INTEGRITY / telemetry::VER-TELEM-INTEGRITY",
+              "uuid": "52015fef-771d-5f40-889a-d2c2fa62e9dc"
             }
           ]
         },
@@ -120,34 +144,34 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
             ],
             "related-observations": [
               {
-                "observation-uuid": "1886ee1b-de30-4cc8-b6bc-a1f2fa87fc53"
+                "observation-uuid": "4e8e0257-f5df-5298-b42e-977d25271613"
               },
               {
-                "observation-uuid": "a6623cb6-55ec-438f-9834-00d0e80a1ecc"
+                "observation-uuid": "0ee27086-2831-5416-b1c7-4c0351b70023"
               },
               {
-                "observation-uuid": "72009306-f1ea-4069-8736-b6ccd7846ff6"
+                "observation-uuid": "300898c6-1d77-5073-87dd-eea35a30180f"
               }
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-COFFEE-DEVICE-IDENTITY",
+              "target-id": "ctrl-coffee-device-identity",
               "type": "objective-id"
             },
             "title": "Device Identity Validation",
-            "uuid": "be587585-df87-4f59-ba2d-fbc426d203cc"
+            "uuid": "221857b6-2378-5611-9784-a1c141a87a67"
           },
           {
             "description": "1 assessment(s) recorded for control CTRL-COFFEE-FIRMWARE-SIGNATURE.",
@@ -155,27 +179,111 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
             ],
             "related-observations": [
               {
-                "observation-uuid": "ae2f5be9-fa7e-4c01-ba4d-7cc90313409d"
+                "observation-uuid": "8a614aa3-b0a2-5f08-852f-0c7de12a7c1c"
               }
             ],
             "target": {
               "status": {
                 "state": "satisfied"
               },
-              "target-id": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+              "target-id": "ctrl-coffee-firmware-signature",
               "type": "objective-id"
             },
             "title": "Firmware Signature Enforcement",
-            "uuid": "a583eaca-e54d-45e6-b231-487986f9a244"
+            "uuid": "e9e57b39-d3ec-5669-90fa-74d54d4069c3"
+          },
+          {
+            "description": "1 assessment(s) recorded for control cloud-api::CTRL-INGEST-AUTH.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "b9d844ad-31bd-553f-bc1b-4af0a8a94347"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "cloud-api-ctrl-ingest-auth",
+              "type": "objective-id"
+            },
+            "title": "Ingest Authentication",
+            "uuid": "8d26d8b2-2333-5167-b1ba-7ce6eafeb9f9"
+          },
+          {
+            "description": "1 assessment(s) recorded for control ota-agent::CTRL-FIRMWARE-SIGNATURE.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "d0a4cf21-6088-5e0c-ae94-7ada0fa2bf3f"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "ota-agent-ctrl-firmware-signature",
+              "type": "objective-id"
+            },
+            "title": "Firmware Signature Verification",
+            "uuid": "64dc7867-c373-5ab8-b2b9-2d945c7919a5"
+          },
+          {
+            "description": "1 assessment(s) recorded for control telemetry::CTRL-TELEM-INTEGRITY.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "dfd74a97-a6d3-5f2a-8468-a57d1286d0e6"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "telemetry-ctrl-telem-integrity",
+              "type": "objective-id"
+            },
+            "title": "Telemetry Integrity",
+            "uuid": "a23d9358-a0f9-5516-97ad-712d96348ade"
           }
         ],
         "local-definitions": {
@@ -194,13 +302,13 @@
                   "value": "Connected Coffee Fleet OTA + Cloud Architecture"
                 }
               ],
-              "uuid": "13359316-28d4-4101-b20a-6810961f5385"
+              "uuid": "2677ed08-a815-55dc-b536-87d5446652cc"
             }
           ]
         },
         "observations": [
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Device Identity Validation\" via test.",
             "methods": [
               "EXAMINE"
@@ -209,9 +317,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -233,10 +341,10 @@
                 "value": "CTRL-COFFEE-DEVICE-IDENTITY"
               }
             ],
-            "uuid": "1886ee1b-de30-4cc8-b6bc-a1f2fa87fc53"
+            "uuid": "4e8e0257-f5df-5298-b42e-977d25271613"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Device Identity Validation\" via analysis.",
             "methods": [
               "EXAMINE"
@@ -245,9 +353,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -269,10 +377,10 @@
                 "value": "CTRL-COFFEE-DEVICE-IDENTITY"
               }
             ],
-            "uuid": "a6623cb6-55ec-438f-9834-00d0e80a1ecc"
+            "uuid": "0ee27086-2831-5416-b1c7-4c0351b70023"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Device Identity Validation\" via inspection.",
             "methods": [
               "EXAMINE"
@@ -281,9 +389,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -305,10 +413,10 @@
                 "value": "CTRL-COFFEE-DEVICE-IDENTITY"
               }
             ],
-            "uuid": "72009306-f1ea-4069-8736-b6ccd7846ff6"
+            "uuid": "300898c6-1d77-5073-87dd-eea35a30180f"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Firmware Signature Enforcement\" via test.",
             "methods": [
               "EXAMINE"
@@ -317,9 +425,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "86fc9d9d-173e-42e0-a660-d2c0cd569ed5",
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -341,7 +449,115 @@
                 "value": "CTRL-COFFEE-FIRMWARE-SIGNATURE"
               }
             ],
-            "uuid": "ae2f5be9-fa7e-4c01-ba4d-7cc90313409d"
+            "uuid": "8a614aa3-b0a2-5f08-852f-0c7de12a7c1c"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of \"Ingest Authentication\" via test.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "cloud-api::VER-INGEST-AUTH"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "cloud-api::CTRL-INGEST-AUTH"
+              }
+            ],
+            "uuid": "b9d844ad-31bd-553f-bc1b-4af0a8a94347"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of \"Firmware Signature Verification\" via test.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "ota-agent::VER-FIRMWARE-SIGNATURE"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "ota-agent::CTRL-FIRMWARE-SIGNATURE"
+              }
+            ],
+            "uuid": "d0a4cf21-6088-5e0c-ae94-7ada0fa2bf3f"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of \"Telemetry Integrity\" via test.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "party"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "telemetry::VER-TELEM-INTEGRITY"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "telemetry::CTRL-TELEM-INTEGRITY"
+              }
+            ],
+            "uuid": "dfd74a97-a6d3-5f2a-8468-a57d1286d0e6"
           }
         ],
         "props": [
@@ -356,20 +572,29 @@
             {
               "include-controls": [
                 {
-                  "control-id": "CTRL-COFFEE-DEVICE-IDENTITY"
+                  "control-id": "ctrl-coffee-device-identity"
                 },
                 {
-                  "control-id": "CTRL-COFFEE-FIRMWARE-SIGNATURE"
+                  "control-id": "ctrl-coffee-firmware-signature"
+                },
+                {
+                  "control-id": "cloud-api-ctrl-ingest-auth"
+                },
+                {
+                  "control-id": "ota-agent-ctrl-firmware-signature"
+                },
+                {
+                  "control-id": "telemetry-ctrl-telem-integrity"
                 }
               ]
             }
           ]
         },
-        "start": "2026-06-27T00:00:00Z",
+        "start": "2026-09-19T00:00:00Z",
         "title": "Evaluation: sample-coffee-fleet-ota-cloud-model-EVALUATION-LOG",
-        "uuid": "08deeff8-f269-47eb-b83a-a71308607706"
+        "uuid": "a95da49f-edcc-5d2b-840d-e65e7f82982d"
       }
     ],
-    "uuid": "49aaedc1-a272-4c97-aeae-7a4b066400bb"
+    "uuid": "aee8dd0a-9343-54e6-b51d-9c411b220477"
   }
 }

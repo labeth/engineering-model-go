@@ -1,0 +1,41 @@
+title: "Atlas Shared Security Services - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Risk register for Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-SEC-CREDENTIAL-REPLAY
+  title: Credential replay risk
+  description: Captured credentials may permit unauthorized product access.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-SEC-ANALYST
+    accountable:
+    - name: ACT-SEC-ANALYST
+    informed:
+    - name: ACT-SEC-ANALYST
+  impact: Short credential lifetime and replay detection reduce exposure.
+  threats:
+  - entries:
+    - reference-id: TS-SEC-CREDENTIAL-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG

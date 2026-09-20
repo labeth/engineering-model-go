@@ -1,0 +1,52 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": {
+    "baselines": [
+      {
+        "id": "BASELINE-YD-001",
+        "version": "1.0",
+        "hash": "sha256:placeholder-baseline",
+        "artifacts": [
+          {
+            "path": "model/requirements.yml",
+            "hash": "sha256:placeholder-req"
+          },
+          {
+            "path": "evidence/src/yaw_damper.c",
+            "hash": "sha256:placeholder-source"
+          }
+        ],
+        "state": "reviewed"
+      }
+    ],
+    "builds": [
+      {
+        "id": "BUILD-YD-001",
+        "baseline": "BASELINE-YD-001",
+        "hash": "sha256:placeholder-build",
+        "artifacts": [
+          {
+            "path": "evidence/build/yaw-damper.bin",
+            "hash": "sha256:placeholder-object"
+          }
+        ],
+        "compiler": "Example C Compiler 1.0",
+        "compilerOptions": [
+          "-O1",
+          "-Wall"
+        ],
+        "target": "HW-FLIGHT-CONTROL-COMPUTER",
+        "environment": "BUILD-ENV-1",
+        "reproducibility": "Planned independent rebuild has not yet been completed.",
+        "status": "executed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COMMUNICATION-title" viewBox="0 0 602 910" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-COMMUNICATION">
+  <title id="VIEW-COMMUNICATION-title">VIEW-COMMUNICATION — communication view</title>
+  <metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-COMMUNICATION; kind=communication</metadata>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-COMMUNICATION</text>
+  <line x1="146" y1="122" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Submits payment at checkout.</text>
+  <line x1="456" y1="122" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Performs manual payment reviews.</text>
+  <line x1="146" y1="416" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads final authorization decision for user-facing response.</text>
+  <line x1="146" y1="416" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists normalized authorization request.</text>
+  <line x1="146" y1="416" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Delegates payment authorization.</text>
+  <line x1="146" y1="416" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Receives and validates checkout request payload.</text>
+  <line x1="456" y1="416" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists final authorization decision.</text>
+  <line x1="456" y1="416" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads normalized request for authorization pipeline.</text>
+  <line x1="456" y1="416" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads manual review outcome before returning decision.</text>
+  <line x1="456" y1="416" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads risk signal before final authorization decision.</text>
+  <line x1="456" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requests fraud scoring before final authorization.</text>
+  <line x1="456" y1="416" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Escalates high-risk payments for manual review.</text>
+  <line x1="456" y1="416" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Calls external bank authorization interface.</text>
+  <line x1="456" y1="416" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Calls risk scoring interface for fraud decision support.</text>
+  <line x1="456" y1="416" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Calls external bank authorization endpoint.</text>
+  <line x1="146" y1="514" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads normalized request to compute risk signal.</text>
+  <line x1="146" y1="514" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">publishes: Publishes risk signal updates for downstream consumers.</text>
+  <line x1="146" y1="514" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists computed risk signal.</text>
+  <line x1="146" y1="514" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses external library for audit persistence.</text>
+  <line x1="456" y1="514" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists manual review ticket records.</text>
+  <line x1="456" y1="514" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">subscribes: Subscribes to high-risk signal updates.</text>
+  <g id="ACT-CUSTOMER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer</text>
+    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-CUSTOMER</text></g>
+  <g id="ACT-SUPPORT"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Agent</text>
+    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-SUPPORT</text></g>
+  <g id="DO-PAYMENTS-AUTH-DECISION"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Decision</text>
+    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-DECISION</text></g>
+  <g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Request</text>
+    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-REQUEST</text></g>
+  <g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Manual Review Ticket</text>
+    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-REVIEW-TICKET</text></g>
+  <g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Signal</text>
+    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-RISK-SIGNAL</text></g>
+  <g id="FU-CHECKOUT"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Handling</text>
+    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FU-CHECKOUT</text></g>
+  <g id="FU-PAYMENT-AUTHORIZATION"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorization</text>
+    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FU-PAYMENT-AUTHORIZATION</text></g>
+  <g id="FU-RISK-SCORING"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Scoring</text>
+    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FU-RISK-SCORING</text></g>
+  <g id="FU-SUPPORT-REVIEW"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Review</text>
+    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FU-SUPPORT-REVIEW</text></g>
+  <g id="IF-PAYMENTS-BANK-AUTH"><rect x="36" y="580" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Authorization Interface</text>
+    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-BANK-AUTH</text></g>
+  <g id="IF-PAYMENTS-CHECKOUT-API"><rect x="346" y="580" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout API Interface</text>
+    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-CHECKOUT-API</text></g>
+  <g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="36" y="678" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Score Interface</text>
+    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-RISK-SCORE-API</text></g>
+  <g id="REF-BANK-GATEWAY-ENDPOINT"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Gateway Endpoint</text>
+    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">REF-BANK-GATEWAY-ENDPOINT</text></g>
+  <g id="REF-POSTGRES-DRIVER"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PostgreSQL Client Driver</text>
+    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">REF-POSTGRES-DRIVER</text></g>
+</svg>

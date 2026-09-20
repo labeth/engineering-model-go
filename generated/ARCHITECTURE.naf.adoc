@@ -1,0 +1,306 @@
+= Engineering Model Go NAF 4.1 Architecture Description
+:naf-framework: NATO Architecture Framework
+:naf-version: 4.1
+:engmod-model-id: engineering-model-go
+
+This architecture description applies NAF 4.1 profile metadata to canonical Engineering Model views.
+Architecture elements and relationships remain defined once in the canonical SysML/KerML-aligned semantic model.
+
+== Stakeholders
+
+[cols="1,2,3",options="header"]
+|===
+|Actor ID |Stakeholder |Role
+|`ACT-ARCHITECTURE-AUTHOR` |Architecture Author |Owns architecture scope, viewpoints, and model decisions.
+|`ACT-COMPLIANCE-ENGINEER` |Compliance Engineer |Uses correspondence and evidence views for assurance.
+|`ACT-IMPLEMENTATION-ENGINEER` |Implementation Engineer |Uses architecture products to implement and assess change impact.
+|===
+
+== Concerns
+
+[cols="1,2,4,3",options="header"]
+|===
+|Concern ID |Name |Description |Stakeholders
+|`NAF-CONCERN-ARCHITECTURE-COVERAGE` |Architecture coverage |The architecture must communicate model responsibilities and generated products. |ACT-ARCHITECTURE-AUTHOR, ACT-IMPLEMENTATION-ENGINEER
+|`NAF-CONCERN-LIFECYCLE` |Generation lifecycle |Model changes must progress through validation and deterministic artifact generation. |ACT-ARCHITECTURE-AUTHOR, ACT-IMPLEMENTATION-ENGINEER
+|`NAF-CONCERN-TRACEABILITY` |Architecture correspondence |Requirements, implementation ownership, and verification evidence must remain traceable. |ACT-ARCHITECTURE-AUTHOR, ACT-COMPLIANCE-ENGINEER
+|===
+
+== Architecture Products
+
+=== A2 - Architecture Products
+
+*Product:* `NAF-A2-ARCHITECTURE-PRODUCTS` +
+*Title:* Engineering Model architecture products +
+*Canonical view:* `VIEW-ARCHITECTURE-INTENT` +
+*Concerns:* NAF-CONCERN-ARCHITECTURE-COVERAGE
+
+==== Elements
+
+[cols="2,2,4",options="header"]
+|===
+|Canonical ID |Kind |Label
+|`ACT-AI-AGENT` |actor |AI Agent
+|`ACT-ARCHITECTURE-AUTHOR` |actor |Architecture Author
+|`ACT-CI-PIPELINE` |actor |CI Pipeline
+|`ACT-COMPLIANCE-ENGINEER` |actor |Compliance Engineer
+|`ACT-IMPLEMENTATION-ENGINEER` |actor |Implementation Engineer
+|`DO-ARCHITECTURE-MODEL` |data_object |Architecture Model
+|`DO-CANONICAL-SEMANTIC-MODEL` |data_object |Canonical Semantic Model
+|`DO-MCP-TOOL-RESULT` |data_object |MCP Tool Result
+|`DO-MODEL-AUTHORING-CONTRACT` |data_object |Model Authoring Contract
+|`DO-NAF-V4-ARCHITECTURE` |data_object |NAF v4.1 Architecture Document
+|`DO-REQUIREMENTS-DELTA` |data_object |Requirements Delta
+|`DO-REQUIREMENTS-DIFF` |data_object |Requirements Change Summary
+|`DO-REQUIREMENTS-DOCUMENT` |data_object |Requirements Document
+|`DO-STRUCTURIZR-DSL` |data_object |Structurizr DSL
+|`DO-SYSML-V2-METAMODEL` |data_object |SysML v2 Metamodel
+|`DO-SYSML-V2-MODEL` |data_object |SysML v2 Model
+|`DO-THREAT-DRAGON-JSON` |data_object |Threat Dragon JSON
+|`DEP-CI-PIPELINE` |deployment_target |CI Pipeline Runner
+|`DEP-LOCAL-WORKSPACE` |deployment_target |Local Workspace
+|`FG-ARTIFACT-GENERATION` |functional_group |Artifact Generation
+|`FG-MCP-INTEGRATION` |functional_group |MCP Integration
+|`FG-MODEL-AUTHORING` |functional_group |Model Authoring
+|`FG-TRACEABILITY-COMPLIANCE` |functional_group |Traceability and Compliance
+|`FG-VALIDATION-ANALYSIS` |functional_group |Validation and Analysis
+|`FU-ALLOCATION-TRACE` |functional_unit |Allocation Trace
+|`FU-ASCIIDOC-GENERATOR` |functional_unit |AsciiDoc Generator
+|`FU-CLI-ORCHESTRATION` |functional_unit |CLI Orchestration
+|`FU-CODEMAP-INFERENCE` |functional_unit |Codemap Inference
+|`FU-GEMARA-EXPORTER` |functional_unit |Gemara Exporter
+|`FU-LOBSTER-EXPORTER` |functional_unit |LOBSTER Exporter
+|`FU-MCP-SERVER` |functional_unit |MCP Server
+|`FU-MODEL-CHANGE` |functional_unit |Model Change
+|`FU-MODEL-LOADER` |functional_unit |Model Loader
+|`FU-NAF-EXPORTER` |functional_unit |NAF Exporter
+|`FU-OSCAL-EXPORTER` |functional_unit |OSCAL Exporter
+|`FU-STRUCTURIZR-EXPORTER` |functional_unit |Structurizr Exporter
+|`FU-SYSML-EXPORTER` |functional_unit |SysML Exporter
+|`FU-SYSTEM-COMPOSITION` |functional_unit |System Composition
+|`FU-THREAT-EXPORTER` |functional_unit |Threat Exporter
+|`FU-TRLC-EXPORTER` |functional_unit |TRLC Exporter
+|`FU-VALIDATION-ENGINE` |functional_unit |Validation Engine
+|`FU-VIEW-PROJECTION` |functional_unit |View Projection
+|`IF-CLI-ENGCHANGE` |interface |engchange CLI
+|`IF-CLI-ENGDOC` |interface |engdoc CLI
+|`IF-CLI-ENGDRAGON` |interface |engdragon CLI
+|`IF-CLI-ENGGEMARA` |interface |enggemara CLI
+|`IF-CLI-ENGLOBSTER` |interface |englobster CLI
+|`IF-CLI-ENGMCP` |interface |engmcp CLI
+|`IF-CLI-ENGNAF` |interface |engnaf CLI
+|`IF-CLI-ENGOSCAL` |interface |engoscal CLI
+|`IF-CLI-ENGSTRUCT` |interface |engstruct CLI
+|`IF-CLI-ENGSYSML` |interface |engsysml CLI
+|`IF-CLI-ENGTRACE` |interface |engtrace CLI
+|`IF-CLI-ENGTRLC` |interface |engtrlc CLI
+|`IF-CLI-ENGVIEW` |interface |engview CLI
+|`REF-CUE-OCI-MODULE-REGISTRY` |referenced_element |CUE OCI Module Registry
+|`REF-GO-TOOLCHAIN` |referenced_element |Go Toolchain
+|`REF-LOBSTER-TOOLCHAIN` |referenced_element |LOBSTER Toolchain
+|`REF-NAF-V4-1-SPECIFICATION` |referenced_element |NATO Architecture Framework v4.1
+|`REF-OPEN-OTM-SCHEMA` |referenced_element |Open OTM Schema
+|`REF-STRUCTURIZR-VALIDATOR` |referenced_element |Structurizr Validator
+|`REF-SYSML-V2-TOOLCHAIN` |referenced_element |Pinned SysML 2.0 / KerML 1.0 Toolchain
+|`REF-THREAT-DRAGON-SCHEMAS` |referenced_element |Threat Dragon Schemas
+|`REF-TRLC-TOOLCHAIN` |referenced_element |TRLC Toolchain
+|`TB-EXTERNAL-VALIDATION-TOOLS` |trust_boundary |External Validation Tools Boundary
+|`TB-REPO-WORKSPACE` |trust_boundary |Repository Workspace Boundary
+|===
+
+==== Relationships
+
+[cols="2,2,2,4",options="header"]
+|===
+|From |Type |To |Description
+|`ACT-AI-AGENT` |interacts_with |`FU-MCP-SERVER` |interacts_with: Uses model-backed MCP tools to inspect and update implementation scope.
+|`ACT-ARCHITECTURE-AUTHOR` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Maintains model and design artifacts through CLI generation workflows.
+|`ACT-CI-PIPELINE` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Executes validation and generation commands in automated checks.
+|`ACT-COMPLIANCE-ENGINEER` |interacts_with |`FU-OSCAL-EXPORTER` |interacts_with: Uses OSCAL and traceability outputs for assurance workflows.
+|`ACT-IMPLEMENTATION-ENGINEER` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Runs validation, generation, and export commands during implementation work.
+|`FG-ARTIFACT-GENERATION` |contains |`FU-ASCIIDOC-GENERATOR` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-NAF-EXPORTER` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-STRUCTURIZR-EXPORTER` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-SYSML-EXPORTER` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-THREAT-EXPORTER` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-VIEW-PROJECTION` |contains
+|`FG-MCP-INTEGRATION` |contains |`FU-MCP-SERVER` |contains
+|`FG-MODEL-AUTHORING` |contains |`FU-CLI-ORCHESTRATION` |contains
+|`FG-MODEL-AUTHORING` |contains |`FU-MODEL-CHANGE` |contains
+|`FG-MODEL-AUTHORING` |contains |`FU-MODEL-LOADER` |contains
+|`FG-MODEL-AUTHORING` |contains |`FU-SYSTEM-COMPOSITION` |contains
+|`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-ALLOCATION-TRACE` |contains
+|`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-GEMARA-EXPORTER` |contains
+|`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-LOBSTER-EXPORTER` |contains
+|`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-OSCAL-EXPORTER` |contains
+|`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-TRLC-EXPORTER` |contains
+|`FG-VALIDATION-ANALYSIS` |contains |`FU-CODEMAP-INFERENCE` |contains
+|`FG-VALIDATION-ANALYSIS` |contains |`FU-VALIDATION-ENGINE` |contains
+|`FU-ALLOCATION-TRACE` |contains |`IF-CLI-ENGTRACE` |contains
+|`FU-ASCIIDOC-GENERATOR` |contains |`IF-CLI-ENGDOC` |contains
+|`FU-CLI-ORCHESTRATION` |deployed_to |`DEP-CI-PIPELINE` |deployed_to
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-CODEMAP-INFERENCE` |bounded_by |`TB-REPO-WORKSPACE` |bounded_by
+|`FU-GEMARA-EXPORTER` |contains |`IF-CLI-ENGGEMARA` |contains
+|`FU-LOBSTER-EXPORTER` |contains |`IF-CLI-ENGLOBSTER` |contains
+|`FU-LOBSTER-EXPORTER` |depends_on |`REF-LOBSTER-TOOLCHAIN` |depends_on
+|`FU-LOBSTER-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-MCP-SERVER` |deployed_to |`DEP-LOCAL-WORKSPACE` |deployed_to
+|`FU-MCP-SERVER` |writes |`DO-MCP-TOOL-RESULT` |writes
+|`FU-MCP-SERVER` |writes |`DO-MODEL-AUTHORING-CONTRACT` |writes
+|`FU-MCP-SERVER` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-MCP-SERVER` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-MCP-SERVER` |contains |`IF-CLI-ENGMCP` |contains
+|`FU-MCP-SERVER` |bounded_by |`TB-REPO-WORKSPACE` |bounded_by
+|`FU-MODEL-CHANGE` |reads |`DO-REQUIREMENTS-DELTA` |reads
+|`FU-MODEL-CHANGE` |writes |`DO-REQUIREMENTS-DIFF` |writes
+|`FU-MODEL-CHANGE` |writes |`DO-REQUIREMENTS-DOCUMENT` |writes
+|`FU-MODEL-CHANGE` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-MODEL-CHANGE` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-MODEL-CHANGE` |contains |`IF-CLI-ENGCHANGE` |contains
+|`FU-MODEL-LOADER` |reads |`DO-ARCHITECTURE-MODEL` |reads
+|`FU-MODEL-LOADER` |writes |`DO-CANONICAL-SEMANTIC-MODEL` |writes
+|`FU-NAF-EXPORTER` |writes |`DO-NAF-V4-ARCHITECTURE` |writes
+|`FU-NAF-EXPORTER` |depends_on |`FU-VIEW-PROJECTION` |depends_on
+|`FU-NAF-EXPORTER` |contains |`IF-CLI-ENGNAF` |contains
+|`FU-NAF-EXPORTER` |depends_on |`REF-NAF-V4-1-SPECIFICATION` |depends_on
+|`FU-OSCAL-EXPORTER` |contains |`IF-CLI-ENGOSCAL` |contains
+|`FU-STRUCTURIZR-EXPORTER` |writes |`DO-STRUCTURIZR-DSL` |writes
+|`FU-STRUCTURIZR-EXPORTER` |contains |`IF-CLI-ENGSTRUCT` |contains
+|`FU-STRUCTURIZR-EXPORTER` |depends_on |`REF-STRUCTURIZR-VALIDATOR` |depends_on
+|`FU-STRUCTURIZR-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-SYSML-EXPORTER` |reads |`DO-SYSML-V2-METAMODEL` |reads
+|`FU-SYSML-EXPORTER` |writes |`DO-SYSML-V2-MODEL` |writes
+|`FU-SYSML-EXPORTER` |contains |`IF-CLI-ENGSYSML` |contains
+|`FU-SYSML-EXPORTER` |depends_on |`REF-SYSML-V2-TOOLCHAIN` |depends_on
+|`FU-SYSML-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-SYSTEM-COMPOSITION` |depends_on |`REF-CUE-OCI-MODULE-REGISTRY` |depends_on: Fetches exact-version reusable model modules using CUE registry configuration and credentials.
+|`FU-THREAT-EXPORTER` |writes |`DO-THREAT-DRAGON-JSON` |writes
+|`FU-THREAT-EXPORTER` |contains |`IF-CLI-ENGDRAGON` |contains
+|`FU-THREAT-EXPORTER` |depends_on |`REF-OPEN-OTM-SCHEMA` |depends_on
+|`FU-THREAT-EXPORTER` |depends_on |`REF-THREAT-DRAGON-SCHEMAS` |depends_on
+|`FU-THREAT-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-TRLC-EXPORTER` |contains |`IF-CLI-ENGTRLC` |contains
+|`FU-TRLC-EXPORTER` |depends_on |`REF-TRLC-TOOLCHAIN` |depends_on
+|`FU-TRLC-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-VALIDATION-ENGINE` |depends_on |`REF-GO-TOOLCHAIN` |depends_on: Runs Go tests and static checks as part of repository validation.
+|`FU-VIEW-PROJECTION` |contains |`IF-CLI-ENGVIEW` |contains
+|===
+
+=== A3 - Architecture Correspondence
+
+*Product:* `NAF-A3-ARCHITECTURE-CORRESPONDENCE` +
+*Title:* Requirements and implementation correspondence +
+*Canonical view:* `VIEW-TRACEABILITY` +
+*Concerns:* NAF-CONCERN-TRACEABILITY
+
+==== Elements
+
+[cols="2,2,4",options="header"]
+|===
+|Canonical ID |Kind |Label
+|`DEP-CI-PIPELINE` |deployment_target |CI Pipeline Runner
+|`DEP-LOCAL-WORKSPACE` |deployment_target |Local Workspace
+|`FU-ASCIIDOC-GENERATOR` |functional_unit |AsciiDoc Generator
+|`FU-CLI-ORCHESTRATION` |functional_unit |CLI Orchestration
+|`FU-CODEMAP-INFERENCE` |functional_unit |Codemap Inference
+|`FU-LOBSTER-EXPORTER` |functional_unit |LOBSTER Exporter
+|`FU-MCP-SERVER` |functional_unit |MCP Server
+|`FU-MODEL-CHANGE` |functional_unit |Model Change
+|`FU-MODEL-LOADER` |functional_unit |Model Loader
+|`FU-TRLC-EXPORTER` |functional_unit |TRLC Exporter
+|`FU-VALIDATION-ENGINE` |functional_unit |Validation Engine
+|`REF-GO-TOOLCHAIN` |referenced_element |Go Toolchain
+|`REF-LOBSTER-TOOLCHAIN` |referenced_element |LOBSTER Toolchain
+|`REF-TRLC-TOOLCHAIN` |referenced_element |TRLC Toolchain
+|===
+
+==== Relationships
+
+[cols="2,2,2,4",options="header"]
+|===
+|From |Type |To |Description
+|`FU-CLI-ORCHESTRATION` |deployed_to |`DEP-CI-PIPELINE` |deployed_to
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-CLI-ORCHESTRATION` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-LOBSTER-EXPORTER` |depends_on |`REF-LOBSTER-TOOLCHAIN` |depends_on
+|`FU-MCP-SERVER` |deployed_to |`DEP-LOCAL-WORKSPACE` |deployed_to
+|`FU-MCP-SERVER` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-MCP-SERVER` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-MODEL-CHANGE` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-MODEL-CHANGE` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-TRLC-EXPORTER` |depends_on |`REF-TRLC-TOOLCHAIN` |depends_on
+|`FU-VALIDATION-ENGINE` |depends_on |`REF-GO-TOOLCHAIN` |depends_on: Runs Go tests and static checks as part of repository validation.
+|===
+
+=== L6 - Logical Sequence
+
+*Product:* `NAF-L6-LOGICAL-SEQUENCE` +
+*Title:* Model change to verified artifact sequence +
+*Canonical view:* `VIEW-INTERACTION-FLOW` +
+*Concerns:* NAF-CONCERN-LIFECYCLE
+
+==== Elements
+
+[cols="2,2,4",options="header"]
+|===
+|Canonical ID |Kind |Label
+|`ACT-IMPLEMENTATION-ENGINEER` |actor |Implementation Engineer
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS` |flow |Model Change to Verified Artifacts Flow
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model` |flow_step |Update model and requirements artifacts
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::fail-validation` |flow_step |Emit validation diagnostics and block publication
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::generate-artifacts` |flow_step |Run generation and export commands
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::publish-artifacts` |flow_step |Persist generated outputs for downstream use
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_step |Validate authored model references and relationships
+|`FU-ASCIIDOC-GENERATOR` |functional_unit |AsciiDoc Generator
+|`FU-CLI-ORCHESTRATION` |functional_unit |CLI Orchestration
+|`FU-VALIDATION-ENGINE` |functional_unit |Validation Engine
+|===
+
+==== Relationships
+
+[cols="2,2,2,4",options="header"]
+|===
+|From |Type |To |Description
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS` |flow_next |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model` |flow_next
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model` |flow_ref |`ACT-IMPLEMENTATION-ENGINEER` |flow_ref
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model` |flow_next |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_next
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::fail-validation` |flow_ref |`FU-VALIDATION-ENGINE` |flow_ref
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::generate-artifacts` |flow_next |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::publish-artifacts` |flow_next
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::generate-artifacts` |flow_ref |`FU-CLI-ORCHESTRATION` |flow_ref
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::publish-artifacts` |flow_ref |`FU-ASCIIDOC-GENERATOR` |flow_ref
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_error |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::fail-validation` |flow_error
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_next |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::generate-artifacts` |flow_next
+|`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_ref |`FU-VALIDATION-ENGINE` |flow_ref
+|===
+
+=== P5 - Resource States
+
+*Product:* `NAF-P5-RESOURCE-STATES` +
+*Title:* Model validation and artifact freshness states +
+*Canonical view:* `VIEW-STATE-LIFECYCLE` +
+*Concerns:* NAF-CONCERN-LIFECYCLE
+
+==== Elements
+
+[cols="2,2,4",options="header"]
+|===
+|Canonical ID |Kind |Label
+|`CTRL-STRICT-MCP-INPUT-SCHEMA` |control |Strict MCP Input Schemas
+|`EVT-MODEL-UPDATED` |event |Model Updated
+|`STATE-MODEL-INVALID` |state |Model Invalid
+|`STATE-MODEL-VALID` |state |Model Valid
+|===
+
+==== Relationships
+
+[cols="2,2,2,4",options="header"]
+|===
+|From |Type |To |Description
+|`STATE-MODEL-INVALID` |transitions_to |`STATE-MODEL-VALID` |transitions_to: Model becomes valid after diagnostics are resolved.
+|`STATE-MODEL-VALID` |guarded_by |`CTRL-STRICT-MCP-INPUT-SCHEMA` |guarded_by: Model-aware tool usage requires strict MCP input semantics.
+|`STATE-MODEL-VALID` |triggered_by |`EVT-MODEL-UPDATED` |triggered_by: Any model update can invalidate freshness and trigger regeneration.
+|===

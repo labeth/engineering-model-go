@@ -6,41 +6,29 @@
           "citation": {
             "text": "*Control Catalog*. "
           },
-          "props": [
-            {
-              "name": "id",
-              "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
-              "value": "ENGMOD-CONTROL-CATALOG"
-            }
-          ],
-          "rlinks": [
-            {
-              "href": ""
-            }
-          ],
           "title": "Control Catalog",
-          "uuid": "9076120a-b2bf-4c9b-b501-68d0fef06ea2"
+          "uuid": "0e64732a-d5f3-58c4-8ecd-31128d36de76"
         }
       ]
     },
     "import-ap": {
-      "href": "#"
+      "href": "../ARCHITECTURE.ap.json"
     },
     "metadata": {
-      "last-modified": "2026-06-27T08:38:54.060370838+02:00",
+      "last-modified": "2026-09-19T00:00:00Z",
       "oscal-version": "1.1.3",
       "parties": [
         {
-          "name": "Engineering Model",
+          "name": "Engineering Model Go Examples",
           "type": "person",
-          "uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed"
+          "uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b"
         }
       ],
-      "published": "2026-06-27T00:00:00Z",
+      "published": "2026-09-19T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
-            "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed"
+            "0210d994-20ef-51cd-8c80-40d40ea7573b"
           ],
           "role-id": "assessor"
         }
@@ -52,7 +40,7 @@
         }
       ],
       "title": "Assessment Results: sample-payments-layered-model-EVALUATION-LOG",
-      "version": "1.0.0"
+      "version": "v0.1.0"
     },
     "results": [
       {
@@ -63,51 +51,51 @@
               "end": "2026-04-10T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-PAYMENTS-SSO-MFA / CV-PAYMENTS-CHECKOUT-SCHEMA-TEST",
-              "uuid": "3765ce33-83f9-4824-9782-e741d5983285"
+              "uuid": "094e4f9e-97ba-5014-a7cd-7cfa90f89328"
             },
             {
               "description": "Assessment of \"SSO MFA Enforcement\" via analysis.",
               "end": "2026-04-20T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-PAYMENTS-SSO-MFA / CV-PAYMENTS-MANUAL-REVIEW-TRACE",
-              "uuid": "66128119-8c00-4d6b-a339-304d92e8262a"
+              "uuid": "25b46624-f441-58d9-9305-1217c1af1f63"
             },
             {
               "description": "No authored verification for control Immutable Image Digests; manual review required.",
               "logged-by": [
                 {
-                  "party-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-PAYMENTS-IMAGE-DIGEST / CTRL-PAYMENTS-IMAGE-DIGEST-AR-1",
-              "uuid": "64582c5e-f8e5-44fc-8cd9-28108dc0230c"
+              "uuid": "6e7e5fb1-355e-5e68-909d-9c4e2541c2b9"
             },
             {
               "description": "Assessment of \"Callback Nonce and Idempotency Guard\" via test.",
               "end": "2026-04-15T00:00:00Z",
               "logged-by": [
                 {
-                  "party-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                   "role-id": "assessor"
                 }
               ],
-              "start": "2026-06-27T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-PAYMENTS-CALLBACK-NONCE / CV-PAYMENTS-CALLBACK-REPLAY-TEST",
-              "uuid": "97c90862-43af-4389-9018-d10a7cfc56b3"
+              "uuid": "a3a9e20c-8ae0-5409-9bdb-d86f55de18e1"
             }
           ]
         },
@@ -119,31 +107,31 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
             ],
             "related-observations": [
               {
-                "observation-uuid": "f52a3ac3-f846-453c-8aaf-85c4afe7def5"
+                "observation-uuid": "58b9b9b6-a27d-5ca3-ba7b-42be14ab11a2"
               },
               {
-                "observation-uuid": "7170f4a2-8c6d-4035-8f26-d598bc7b3060"
+                "observation-uuid": "62838b67-38de-53e3-b9ed-90fa742058f3"
               }
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-PAYMENTS-SSO-MFA",
+              "target-id": "ctrl-payments-sso-mfa",
               "type": "objective-id"
             },
             "title": "SSO MFA Enforcement",
-            "uuid": "73e6bdfd-bdd3-4d4e-b40e-fcba3b3088f4"
+            "uuid": "1143de12-2fa0-5bfd-ae1d-e7e836fc6afe"
           },
           {
             "description": "1 assessment(s) recorded for control CTRL-PAYMENTS-IMAGE-DIGEST.",
@@ -151,28 +139,28 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
             ],
             "related-observations": [
               {
-                "observation-uuid": "316a0a48-5147-49ec-8da8-fa00977df4db"
+                "observation-uuid": "f9ac823f-bbee-5236-bfd1-e3d2be75697e"
               }
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-PAYMENTS-IMAGE-DIGEST",
+              "target-id": "ctrl-payments-image-digest",
               "type": "objective-id"
             },
             "title": "Immutable Image Digests",
-            "uuid": "30f16333-e988-438b-a40b-302db5bc149e"
+            "uuid": "c4983e5f-5700-5b8e-868a-f6c47e563e86"
           },
           {
             "description": "1 assessment(s) recorded for control CTRL-PAYMENTS-CALLBACK-NONCE.",
@@ -180,27 +168,27 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
             ],
             "related-observations": [
               {
-                "observation-uuid": "22aa78c7-3315-4df9-a58d-88dafa93fe27"
+                "observation-uuid": "1c48faf4-6edf-5ae5-acd8-087f7304715b"
               }
             ],
             "target": {
               "status": {
                 "state": "satisfied"
               },
-              "target-id": "CTRL-PAYMENTS-CALLBACK-NONCE",
+              "target-id": "ctrl-payments-callback-nonce",
               "type": "objective-id"
             },
             "title": "Callback Nonce and Idempotency Guard",
-            "uuid": "b0d141d6-516f-405d-a6f0-c34f7d6df1d9"
+            "uuid": "d0298e88-74ce-5e97-b777-af00c86214bb"
           }
         ],
         "local-definitions": {
@@ -219,13 +207,13 @@
                   "value": "Sample Payments Layered Architecture"
                 }
               ],
-              "uuid": "969323fa-c91b-40da-a92b-43dd0373af6c"
+              "uuid": "b1e0fcd0-395e-5633-afd4-33e14c152768"
             }
           ]
         },
         "observations": [
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"SSO MFA Enforcement\" via test.",
             "methods": [
               "EXAMINE"
@@ -234,9 +222,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -258,10 +246,10 @@
                 "value": "CTRL-PAYMENTS-SSO-MFA"
               }
             ],
-            "uuid": "f52a3ac3-f846-453c-8aaf-85c4afe7def5"
+            "uuid": "58b9b9b6-a27d-5ca3-ba7b-42be14ab11a2"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"SSO MFA Enforcement\" via analysis.",
             "methods": [
               "EXAMINE"
@@ -270,9 +258,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -294,10 +282,10 @@
                 "value": "CTRL-PAYMENTS-SSO-MFA"
               }
             ],
-            "uuid": "7170f4a2-8c6d-4035-8f26-d598bc7b3060"
+            "uuid": "62838b67-38de-53e3-b9ed-90fa742058f3"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "No authored verification for control Immutable Image Digests; manual review required.",
             "methods": [
               "EXAMINE"
@@ -306,9 +294,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -330,10 +318,10 @@
                 "value": "CTRL-PAYMENTS-IMAGE-DIGEST"
               }
             ],
-            "uuid": "316a0a48-5147-49ec-8da8-fa00977df4db"
+            "uuid": "f9ac823f-bbee-5236-bfd1-e3d2be75697e"
           },
           {
-            "collected": "2026-06-27T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Callback Nonce and Idempotency Guard\" via test.",
             "methods": [
               "EXAMINE"
@@ -342,9 +330,9 @@
               {
                 "actors": [
                   {
-                    "actor-uuid": "2c5044d5-fae0-4dd1-89dc-9cffde4f40ed",
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -366,7 +354,7 @@
                 "value": "CTRL-PAYMENTS-CALLBACK-NONCE"
               }
             ],
-            "uuid": "22aa78c7-3315-4df9-a58d-88dafa93fe27"
+            "uuid": "1c48faf4-6edf-5ae5-acd8-087f7304715b"
           }
         ],
         "props": [
@@ -381,23 +369,23 @@
             {
               "include-controls": [
                 {
-                  "control-id": "CTRL-PAYMENTS-SSO-MFA"
+                  "control-id": "ctrl-payments-sso-mfa"
                 },
                 {
-                  "control-id": "CTRL-PAYMENTS-IMAGE-DIGEST"
+                  "control-id": "ctrl-payments-image-digest"
                 },
                 {
-                  "control-id": "CTRL-PAYMENTS-CALLBACK-NONCE"
+                  "control-id": "ctrl-payments-callback-nonce"
                 }
               ]
             }
           ]
         },
-        "start": "2026-06-27T00:00:00Z",
+        "start": "2026-09-19T00:00:00Z",
         "title": "Evaluation: sample-payments-layered-model-EVALUATION-LOG",
-        "uuid": "aced96d2-194c-473c-9c08-1167d56954d0"
+        "uuid": "8b395745-9703-598d-8446-86dcfe4c4c59"
       }
     ],
-    "uuid": "926c1837-8d69-41c9-b5be-3b2a73f7ff0c"
+    "uuid": "a0f69862-47d0-5350-9db4-f9f27b3f7e32"
   }
 }

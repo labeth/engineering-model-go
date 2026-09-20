@@ -717,12 +717,483 @@
             }
           },
           {
-            "id": "14e86be2-29f5-5112-b8ab-c51c5537cd77",
-            "shape": "trust-boundary-box",
+            "id": "162fc94c-3c92-5598-b811-650fff2c0527",
+            "shape": "store",
             "zIndex": 16,
             "position": {
+              "x": 840,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Fleet Metric"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Fleet Metric",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "aedee479-dc90-578c-a236-a5b4373ad699",
+            "shape": "process",
+            "zIndex": 17,
+            "position": {
+              "x": 60,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Campaign"
+              }
+            },
+            "data": {
+              "description": "Plans and dispatches OTA campaigns.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Campaign",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "3f851a00-ea4c-5c08-810b-119b05e528b6",
+            "shape": "process",
+            "zIndex": 18,
+            "position": {
+              "x": 320,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Ingest"
+              }
+            },
+            "data": {
+              "description": "Ingests and persists fleet telemetry.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Ingest",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "6d1d8aa2-bcc3-5728-b7b0-424dc2a0f872",
+            "shape": "process",
+            "zIndex": 19,
+            "position": {
+              "x": 580,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Ingest Interface"
+              }
+            },
+            "data": {
+              "description": "https /ingest",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Ingest Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "93877dd6-46f5-5b4b-80b7-f599b0961f50",
+            "shape": "store",
+            "zIndex": 20,
+            "position": {
+              "x": 840,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Firmware Bundle"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Firmware Bundle",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "6fa1590b-b01b-5477-ae29-87e7bdd55315",
+            "shape": "process",
+            "zIndex": 21,
+            "position": {
+              "x": 60,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Apply"
+              }
+            },
+            "data": {
+              "description": "Applies verified firmware and rolls back on failure.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Apply",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "957fa337-1da2-5786-b639-125edda32f38",
+            "shape": "process",
+            "zIndex": 22,
+            "position": {
+              "x": 320,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Verification"
+              }
+            },
+            "data": {
+              "description": "Verifies firmware signature and update eligibility.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Verification",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "5702b595-f229-5593-b9e8-bb606a89618a",
+            "shape": "process",
+            "zIndex": 23,
+            "position": {
+              "x": 580,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "OTA Apply Interface"
+              }
+            },
+            "data": {
+              "description": "internal /ota/apply",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "OTA Apply Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "393a1d3a-5d94-5da1-8276-f135b85255bb",
+            "shape": "store",
+            "zIndex": 24,
+            "position": {
+              "x": 840,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Record"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Record",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "20b539cd-031f-58c5-ba3a-a010127f0ac6",
+            "shape": "process",
+            "zIndex": 25,
+            "position": {
+              "x": 60,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Reporting"
+              }
+            },
+            "data": {
+              "description": "Encodes, signs, and reports telemetry to the fleet ingestion endpoint.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Reporting",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "a031fe0f-14ec-5d80-9ae1-fc3c57dbb8f0",
+            "shape": "process",
+            "zIndex": 26,
+            "position": {
+              "x": 320,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Sampling"
+              }
+            },
+            "data": {
+              "description": "Samples machine sensors at the configured cadence.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Sampling",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "de60c2bb-cd7f-5a9c-953c-661158348314",
+            "shape": "process",
+            "zIndex": 27,
+            "position": {
+              "x": 580,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Telemetry Report Interface"
+              }
+            },
+            "data": {
+              "description": "https /telemetry",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Telemetry Report Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "14e86be2-29f5-5112-b8ab-c51c5537cd77",
+            "shape": "trust-boundary-box",
+            "zIndex": 28,
+            "position": {
               "x": 330,
-              "y": 1130
+              "y": 2010
             },
             "size": {
               "height": 180,
@@ -749,10 +1220,10 @@
           {
             "id": "46be6994-af61-5e84-bc7f-7479ba1be285",
             "shape": "trust-boundary-box",
-            "zIndex": 17,
+            "zIndex": 29,
             "position": {
               "x": 630,
-              "y": 1130
+              "y": 2010
             },
             "size": {
               "height": 180,
@@ -779,7 +1250,7 @@
           {
             "id": "f09e4061-b881-5e3c-9730-a3da8d1b8ab5",
             "shape": "flow",
-            "zIndex": 27,
+            "zIndex": 39,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -824,7 +1295,7 @@
           {
             "id": "340c2487-1725-54ac-b0c0-9199563e154f",
             "shape": "flow",
-            "zIndex": 28,
+            "zIndex": 40,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -869,7 +1340,7 @@
           {
             "id": "0961a1c4-7d7e-5887-83fe-84829fd66976",
             "shape": "flow",
-            "zIndex": 29,
+            "zIndex": 41,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -914,7 +1385,7 @@
           {
             "id": "6abfd94b-7323-5706-aeed-906b9156f3e6",
             "shape": "flow",
-            "zIndex": 30,
+            "zIndex": 42,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -959,7 +1430,7 @@
           {
             "id": "6d4c75c3-0793-54b0-b628-db2e408154e0",
             "shape": "flow",
-            "zIndex": 31,
+            "zIndex": 43,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1004,7 +1475,7 @@
           {
             "id": "8b4d2c5e-748b-5624-bebd-c2012c87d2fc",
             "shape": "flow",
-            "zIndex": 32,
+            "zIndex": 44,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1049,7 +1520,7 @@
           {
             "id": "721507d3-c610-5b43-8f10-210f472073b4",
             "shape": "flow",
-            "zIndex": 33,
+            "zIndex": 45,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1119,7 +1590,7 @@
           {
             "id": "29c1456a-3797-5768-8196-422240e97acf",
             "shape": "flow",
-            "zIndex": 34,
+            "zIndex": 46,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1189,7 +1660,7 @@
           {
             "id": "0f606a92-eaac-586a-8d23-89011a363e5e",
             "shape": "flow",
-            "zIndex": 35,
+            "zIndex": 47,
             "attrs": {
               "line": {
                 "stroke": "#333333",
@@ -1259,7 +1730,7 @@
           {
             "id": "47e4c30f-78e6-563a-bef9-67439929f52d",
             "shape": "flow",
-            "zIndex": 36,
+            "zIndex": 48,
             "attrs": {
               "line": {
                 "stroke": "#555555",
@@ -1341,7 +1812,7 @@
           {
             "id": "dbc09994-b0ea-57aa-9a06-b07b1a24496b",
             "shape": "flow",
-            "zIndex": 37,
+            "zIndex": 49,
             "attrs": {
               "line": {
                 "stroke": "#555555",

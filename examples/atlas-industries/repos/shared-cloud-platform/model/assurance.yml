@@ -1,0 +1,7 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-CLOUD-BACKUP
+    name: Encrypted Backup
+    category: resilience
+    description: Encrypts and regularly restores cloud backups.

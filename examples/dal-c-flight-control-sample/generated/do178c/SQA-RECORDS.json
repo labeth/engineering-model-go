@@ -1,0 +1,27 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "SQA-YD-001",
+      "scope": "Baseline and verification evidence sampling",
+      "auditor": "Independent SQA Auditor",
+      "findings": [
+        "Coverage gap remains open and environment index is incomplete."
+      ],
+      "correctiveActions": [
+        "Close PR-YD-001 and complete DATA-ENV."
+      ],
+      "evidence": [
+        "REVIEW-YD-001"
+      ],
+      "state": "reviewed"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+title: "Atlas Shared Edge Platform - Lexicon"
+metadata:
+  id: atlas-shared-edge-platform-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Atlas Shared Edge Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-EDGE
+  title: atlas edge platform
+  definition: Shared rugged compute and device integration platform.
+- id: FG-EDGE
+  title: edge platform
+  definition: Shared edge hardware and software capabilities.
+- id: FU-EDGE-RUNTIME
+  title: edge runtime
+  definition: Runs signed workloads and acquires device data.
+- id: ACT-EDGE-OPERATOR
+  title: edge operator
+  definition: Operates deployed edge equipment.
+- id: DATA-EDGE-TELEMETRY
+  title: edge telemetry
+  definition: Operational observations produced by edge devices.

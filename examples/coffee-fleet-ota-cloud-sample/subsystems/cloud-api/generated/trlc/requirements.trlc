@@ -1,4 +1,4 @@
-package CloudApiRequirements
+package requirements
 Requirement REQ_CLOUD_001 {
   id         = "REQ-CLOUD-001"
   text       = "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric."

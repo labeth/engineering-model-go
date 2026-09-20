@@ -1,0 +1,53 @@
+metadata:
+  id: atlas-shared-security-services-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Point-in-time audit of Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Atlas Shared Security Services: 2 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-CV-SEC-TOKEN-REPLAY
+  title: Verification of CTRL-SEC-SHORT-LIVED-IDENTITY
+  type: Strength
+  description: Control CTRL-SEC-SHORT-LIVED-IDENTITY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-SEC-SHORT-LIVED-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-SEC-TOKEN-REPLAY-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/security/token-replay-test.json
+    description: Automated negative authentication test.
+  recommendations:
+  - text: Expired and replayed credentials were rejected.
+    required: false
+- id: AUD-RISK-SEC-CREDENTIAL-REPLAY
+  title: "Residual risk: Credential replay risk"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-SEC-SHORT-LIVED-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: atlas-shared-security-services
+  name: Atlas Shared Security Services
+  type: Software
+  description: "System under governance: Atlas Shared Security Services"

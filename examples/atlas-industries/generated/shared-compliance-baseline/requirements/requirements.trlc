@@ -1,0 +1,41 @@
+package requirements
+Requirement REQ_COMP_001 {
+  id         = "REQ-COMP-001"
+  text       = "The atlas compliance baseline shall retain compliance evidence using the compliance evidence service."
+  applies_to = ["FU-COMP-EVIDENCE"]
+}
+Requirement REQ_COMP_002 {
+  id         = "REQ-COMP-002"
+  text       = "The atlas compliance baseline shall report control implementation status to the compliance officer."
+  applies_to = ["FU-COMP-EVIDENCE"]
+}
+Requirement REQ_COMP_003 {
+  id         = "REQ-COMP-003"
+  text       = "The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access."
+  applies_to = ["FU-COMP-PEOPLE"]
+}
+Requirement REQ_COMP_004 {
+  id         = "REQ-COMP-004"
+  text       = "The people security and awareness shall record policy acknowledgment for every employee at onboarding."
+  applies_to = ["FU-COMP-PEOPLE"]
+}
+Requirement REQ_COMP_005 {
+  id         = "REQ-COMP-005"
+  text       = "The people security and awareness shall record annual employee completion in the security awareness training record."
+  applies_to = ["FU-COMP-PEOPLE"]
+}
+Requirement REQ_COMP_006 {
+  id         = "REQ-COMP-006"
+  text       = "The people security and awareness shall request a line manager access review following an employee role change."
+  applies_to = ["FU-COMP-PEOPLE"]
+}
+Requirement REQ_COMP_007 {
+  id         = "REQ-COMP-007"
+  text       = "The people security and awareness shall revoke employee access following employment termination."
+  applies_to = ["FU-COMP-PEOPLE"]
+}
+Requirement REQ_COMP_008 {
+  id         = "REQ-COMP-008"
+  text       = "The people security and awareness shall request people operations partner confirmation of company asset return following employment termination."
+  applies_to = ["FU-COMP-PEOPLE"]
+}

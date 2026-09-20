@@ -3,12 +3,12 @@ metadata:
   id: ENGMOD-CONTROL-CATALOG
   type: ControlCatalog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Security controls for Connected Coffee Fleet OTA + Cloud Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-THREAT-CATALOG
@@ -46,6 +46,24 @@ metadata:
     title: Device Identity and Secrets
     description: |
       Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+  - id: cloud-api::FU-CLOUD-CAMPAIGN
+    title: Cloud Campaign
+    description: Plans and dispatches OTA campaigns.
+  - id: cloud-api::FU-CLOUD-INGEST
+    title: Cloud Ingest
+    description: Ingests and persists fleet telemetry.
+  - id: ota-agent::FU-OTA-APPLY
+    title: OTA Apply
+    description: Applies verified firmware and rolls back on failure.
+  - id: ota-agent::FU-OTA-VERIFY
+    title: OTA Verification
+    description: Verifies firmware signature and update eligibility.
+  - id: telemetry::FU-TELEM-REPORT
+    title: Telemetry Reporting
+    description: Encodes, signs, and reports telemetry to the fleet ingestion endpoint.
+  - id: telemetry::FU-TELEM-SAMPLE
+    title: Telemetry Sampling
+    description: Samples machine sensors at the configured cadence.
   - id: all-systems
     title: All Systems
     description: Applies across the whole system.
@@ -108,6 +126,54 @@ controls:
     - reference-id: TS-COFFEE-MALICIOUS-OTA-BUNDLE
     reference-id: ENGMOD-THREAT-CATALOG
   state: Active
+- id: cloud-api::CTRL-INGEST-AUTH
+  title: Ingest Authentication
+  objective: Authenticate machines before accepting telemetry.
+  group: access-control
+  assessment-requirements:
+  - id: cloud-api::VER-INGEST-AUTH
+    text: The control "Ingest Authentication" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Unauthenticated ingest rejected in tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: ota-agent::CTRL-FIRMWARE-SIGNATURE
+  title: Firmware Signature Verification
+  objective: Verify firmware signatures before apply.
+  group: integrity
+  assessment-requirements:
+  - id: ota-agent::VER-FIRMWARE-SIGNATURE
+    text: The control "Firmware Signature Verification" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Signature rejection verified in unit tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: telemetry::CTRL-TELEM-INTEGRITY
+  title: Telemetry Integrity
+  objective: Sign telemetry records to protect integrity in transit.
+  group: integrity
+  assessment-requirements:
+  - id: telemetry::VER-TELEM-INTEGRITY
+    text: The control "Telemetry Integrity" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Telemetry signature verified in unit tests.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
 groups:
 - id: identity-access
   title: identity-access
@@ -115,3 +181,6 @@ groups:
 - id: integrity
   title: integrity
   description: "Control category: integrity."
+- id: access-control
+  title: access-control
+  description: "Control category: access-control."

@@ -3,11 +3,12 @@ metadata:
   id: ENGMOD-CAPABILITY-CATALOG
   type: CapabilityCatalog
   gemara-version: 1.1.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: System capabilities of Cloud API Subsystem
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
 capabilities:
 - id: CAP-SYSTEM

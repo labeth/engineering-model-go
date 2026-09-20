@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-EDGE-001
+  title: Standardize the rugged edge compute boundary
+  status: accepted
+  date: 2026-09-19
+  context: Product teams require a common field-compute foundation.
+  decision: Publish the hardware and signed runtime as one reusable model module.
+  consequences:
+  - Products inherit a consistent edge trust boundary.

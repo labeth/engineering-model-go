@@ -3,91 +3,125 @@
 #
 # Strict (always enforced):
 #   1. go build.
-#   2. Generation gates: engdoc exits non-zero on any error, which transitively
+#   2. Zero-gap SysML/KerML inventory, renderer, property, relationship, and
+#      generated coverage-manifest validation.
+#   3. Generation gates: engdoc exits non-zero on any error, which transitively
 #      enforces trace integrity (dangling links), EARS lint, and composition checks.
-#   3. engtrace: 0 dangling code trace links per model.
-#   4. Artifact freshness: regenerated ARCHITECTURE.adoc / DECISIONS.adoc /
-#      TRACE-MATRIX.json must match what is committed (no stale generated docs).
+#   4. engtrace: 0 dangling code trace links per model.
+#   5. Artifact freshness: every maintained example artifact must regenerate
+#      bit-for-bit.
+#   6. Authoritative format validation for AsciiDoc, Mermaid, Structurizr,
+#      SysML, TRLC, LOBSTER, OSCAL, Gemara, Threat Dragon, Open OTM, JSON, CSV.
 #
-# Best-effort (run only when the external tool is on PATH; never fails on a
-# missing tool, but a real validation failure does fail):
-#   5. Gemara CUE schema validation (cue).
-#   6. Structurizr DSL validation (docker/podman).
-#   7. TRLC validation (trlc).
+# External validation may only be skipped locally by explicitly setting the
+# relevant ENGMOD_*_SKIP_EXTERNAL flag. CI installs and requires pinned tools.
 set -uo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 fail=0
 section() { printf '\n========== %s ==========\n' "$*"; }
+log_dir="$repo_root/.engmod/validation/logs"
+mkdir -p "$log_dir"
+generated_before="$log_dir/generated.before.sha256"
+generated_after="$log_dir/generated.after.sha256"
+find generated examples -type f \( -path 'generated/*' -o -path '*/generated/*' \) -print0 |
+  sort -z | xargs -0 sha256sum >"$generated_before"
 
-# name|model-dir — each dir has architecture.yml, requirements.yml, design.yml and
+# name|model-dir — each dir has engmod.yml plus schema-v2 domain documents and
 # inferenceHints.codeSources, so engdoc/engtrace need no --code-root.
 MODELS=(
   "self|."
-  "payments|examples/payments-engineering-sample"
-  "bedrock|examples/bedrock-pr-review-github-app-sample"
-  "coffee-fleet|examples/coffee-fleet-ota-cloud-sample"
-  "telemetry|examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
-  "ota-agent|examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
-  "cloud-api|examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+  "dal-c-flight-control|examples/dal-c-flight-control-sample"
 )
 
 section "Build"
 go build ./... && echo "  ok" || fail=1
 
+section "Enterprise OCI workspace"
+if go test . -run '^TestAtlasIndustriesCompanyExample$' -count=1; then
+  echo "  ok   Atlas Industries multi-repository composition"
+else
+  echo "  FAIL Atlas Industries multi-repository composition"
+  fail=1
+fi
+if scripts/generate-examples.sh >"$log_dir/example-generation.log" 2>&1; then
+  echo "  ok   all maintained example projections"
+else
+  echo "  FAIL maintained example projections"
+  tail -12 "$log_dir/example-generation.log" | sed 's/^/         /'
+  fail=1
+fi
+
 section "Generation gates (engdoc 0 errors, engtrace 0 dangling) + regeneration"
 for entry in "${MODELS[@]}"; do
   name="${entry%%|*}"; dir="${entry#*|}"; g="$dir/generated"
   mkdir -p "$g"
-  if go run ./cmd/engdoc --model "$dir/architecture.yml" --requirements "$dir/requirements.yml" \
-       --design "$dir/design.yml" --out "$g/ARCHITECTURE.adoc" --decisions-out "$g/DECISIONS.adoc" 2>"/tmp/$name.engdoc.err"; then
+  if go run ./cmd/engdoc --model "$dir/engmod.yml" --requirements "$dir/model/requirements.yml" \
+       --design "$dir/model/views.yml" --out "$g/ARCHITECTURE.adoc" --decisions-out "$g/DECISIONS.adoc" 2>"$log_dir/$name.engdoc.err"; then
     echo "  ok   engdoc   $name"
   else
-    echo "  FAIL engdoc   $name"; grep -E '\[error\]' "/tmp/$name.engdoc.err" | sed 's/^/         /' | head; fail=1
+    echo "  FAIL engdoc   $name"; grep -E '\[error\]' "$log_dir/$name.engdoc.err" | sed 's/^/         /' | head; fail=1
   fi
-  if go run ./cmd/engtrace --model "$dir/architecture.yml" --requirements "$dir/requirements.yml" \
-       --out "$g/TRACE-MATRIX.json" 2>"/tmp/$name.engtrace.err"; then
+  if go run ./cmd/engtrace --model "$dir/engmod.yml" --requirements "$dir/model/requirements.yml" \
+       --out "$g/TRACE-MATRIX.json" 2>"$log_dir/$name.engtrace.err"; then
     echo "  ok   engtrace $name"
   else
-    echo "  FAIL engtrace $name"; grep -E 'dangling' "/tmp/$name.engtrace.err" | sed 's/^/         /' | head; fail=1
+    echo "  FAIL engtrace $name"; grep -E 'dangling' "$log_dir/$name.engtrace.err" | sed 's/^/         /' | head; fail=1
   fi
+  if grep -q '^naf:' "$dir/model/views.yml"; then
+    if go run ./cmd/engnaf --model "$dir/engmod.yml" --out "$g/ARCHITECTURE.naf.adoc" 2>"$log_dir/$name.engnaf.err"; then
+      echo "  ok   engnaf   $name"
+    else
+      echo "  FAIL engnaf   $name"; head -10 "$log_dir/$name.engnaf.err" | sed 's/^/         /'; fail=1
+    fi
+  fi
+
 done
 
-section "Artifact freshness (regenerated must match committed)"
-if git diff --quiet -- '*ARCHITECTURE.adoc' '*DECISIONS.adoc' '*TRACE-MATRIX.json'; then
-  echo "  ok   no drift"
+go run ./cmd/engoscal --model engmod.yml --requirements model/requirements.yml --code-root . \
+  --profile-out generated/ARCHITECTURE.profile.json \
+  --ssp-out generated/ARCHITECTURE.ssp.json \
+  --ap-out generated/ARCHITECTURE.ap.json \
+  --ar-out generated/ARCHITECTURE.ar.json \
+  --poam-out generated/ARCHITECTURE.poam.json \
+  --import-profile-href ./ARCHITECTURE.profile.json \
+  --ap-href ./ARCHITECTURE.ap.json \
+  --ssp-href ./ARCHITECTURE.ssp.json \
+  --last-modified 2026-09-19T00:00:00Z >/dev/null
+go run ./cmd/engoscal --model engmod.yml --requirements model/requirements.yml \
+  --ar-out generated/compliance/OSCAL-ASSESSMENT-RESULTS.json \
+  --ap-href ./ASSESSMENT-PLAN.json \
+  --last-modified 2026-09-19T00:00:00Z >/dev/null
+
+section "SysML v2 official parser and KPAR round trip"
+if bash scripts/validate-sysml.sh; then
+  echo "  ok   SysML v2 conformance gates"
 else
-  echo "  FAIL committed generated artifacts are stale — regenerate and commit:"
-  git diff --name-only -- '*ARCHITECTURE.adoc' '*DECISIONS.adoc' '*TRACE-MATRIX.json' | sed 's/^/         /'
+  echo "  FAIL SysML v2 conformance gates"
   fail=1
 fi
 
-section "Gemara schema validation (cue)"
-if command -v cue >/dev/null 2>&1; then
-  if bash scripts/validate-gemara.sh >/tmp/gemara.log 2>&1; then echo "  ok   all Gemara artifacts valid"; else echo "  FAIL"; tail -8 /tmp/gemara.log | sed 's/^/         /'; fail=1; fi
+section "Artifact freshness (regeneration is a no-op)"
+find generated examples -type f \( -path 'generated/*' -o -path '*/generated/*' \) -print0 |
+  sort -z | xargs -0 sha256sum >"$generated_after"
+if cmp -s "$generated_before" "$generated_after"; then
+  echo "  ok   no drift"
 else
-  echo "  skip cue not on PATH (go install cuelang.org/go/cmd/cue@v0.15.4)"
+  echo "  FAIL generated artifacts changed during regeneration:"
+  diff -u "$generated_before" "$generated_after" | sed 's/^/         /' || true
+  fail=1
 fi
 
-section "Structurizr DSL validation (docker/podman)"
-if [ "${ENGMOD_VALIDATE_STRUCTURIZR:-0}" != "1" ]; then
-  echo "  skip set ENGMOD_VALIDATE_STRUCTURIZR=1 to validate (pulls the structurizr docker image)"
-elif command -v docker >/dev/null 2>&1 || command -v podman >/dev/null 2>&1; then
-  while IFS= read -r dsl; do
-    if bash scripts/validate-structurizr.sh "$dsl" >/tmp/struct.log 2>&1; then echo "  ok   $dsl"; else echo "  FAIL $dsl"; tail -4 /tmp/struct.log | sed 's/^/         /'; fail=1; fi
-  done < <(find . -path ./.git -prune -o -name STRUCTURIZR.dsl -print)
+section "Generated format conformance"
+if [ "${ENGMOD_FORMAT_SKIP_EXTERNAL:-0}" = "1" ]; then
+  echo "  skip external generated-format validation explicitly disabled"
+elif scripts/validate-generated-formats.sh >"$log_dir/generated-formats.log" 2>&1; then
+  echo "  ok   all generated formats"
 else
-  echo "  skip no docker/podman on PATH"
-fi
-
-section "TRLC validation (trlc)"
-if command -v trlc >/dev/null 2>&1; then
-  while IFS= read -r tdir; do
-    if bash scripts/validate-trlc.sh "$tdir" >/tmp/trlc.log 2>&1; then echo "  ok   $tdir"; else echo "  FAIL $tdir"; tail -4 /tmp/trlc.log | sed 's/^/         /'; fail=1; fi
-  done < <(find . -path ./.git -prune -o -type d -name trlc -print)
-else
-  echo "  skip trlc not on PATH (python3 -m pip install --user trlc)"
+  echo "  FAIL generated format conformance"
+  tail -20 "$log_dir/generated-formats.log" | sed 's/^/         /'
+  fail=1
 fi
 
 section "Result"

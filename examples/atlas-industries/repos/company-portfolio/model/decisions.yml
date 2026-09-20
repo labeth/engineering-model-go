@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-PORT-001
+  title: Compose products through published contracts
+  status: accepted
+  date: 2026-09-19
+  context: Portfolio governance must not depend on product internals.
+  decision: Allocate company requirements only to product contract capabilities.
+  consequences:
+  - Products and shared modules can version independently behind stable contracts.

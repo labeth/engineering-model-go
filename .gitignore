@@ -25,3 +25,12 @@ tmp/
 # Local secrets / env
 .env
 .env.*
+
+# ENGMOD
+.engflow.yaml
+.engflow/
+.github/.engflow-guidance.json
+.github/instructions/
+.github/mcp.json
+.github/skills/
+openspec/

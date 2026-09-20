@@ -1,0 +1,72 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "5109bd56-7d7a-568a-9cd7-1c3fe2565b01",
+    "metadata": {
+      "title": "Bedrock Lambda GitHub PR Review App Architecture POA\u0026M",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./ARCHITECTURE.ssp.json"
+    },
+    "poam-items": [
+      {
+        "uuid": "2b975da1-57f6-5774-b711-45bf82ec58fe",
+        "title": "Add nonce and timestamp replay window hardening",
+        "description": "Add nonce and timestamp replay window hardening",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "POAM-BEDROCK-REPLAY-HARDENING"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-07-15"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "ACT-SECURITY-ENGINEER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "6217b48a-1591-50df-8dee-98e02713278f"
+          }
+        ],
+        "remarks": "Artifacts: tickets/SEC-2045.md"
+      }
+    ],
+    "risks": [
+      {
+        "uuid": "6217b48a-1591-50df-8dee-98e02713278f",
+        "title": "Webhook spoofing risk",
+        "description": "Forged webhook requests could trigger unauthorized review actions.",
+        "status": "mitigating",
+        "statement": "Signature verification is implemented; replay defenses are periodically revalidated."
+      },
+      {
+        "uuid": "872567ee-563f-546d-9aae-c2c8d376156e",
+        "title": "Review output secret leakage risk",
+        "description": "Findings publication may expose sensitive content if redaction and credential controls drift.",
+        "status": "mitigating",
+        "statement": "Current controls reduce exposure but need ongoing tuning for new secret formats."
+      },
+      {
+        "uuid": "ea23a1c2-1841-53a6-8bde-4704a11823e0",
+        "title": "Prompt injection in PR context risk",
+        "description": "Prompt-like diff content can degrade policy-aligned review output quality.",
+        "status": "mitigating",
+        "statement": "Prompt hardening exists, but adversarial payload patterns evolve."
+      }
+    ]
+  }
+}

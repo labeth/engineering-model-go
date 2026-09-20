@@ -757,7 +757,7 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 			parts = append(parts, "code modules: "+strings.Join(cm, ", "))
 		}
 		if len(parts) > 0 {
-			out[owner] = strings.Join(parts, " | ")
+			out[owner] = strings.Join(parts, "; ")
 		}
 	}
 	return out

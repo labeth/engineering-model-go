@@ -14,9 +14,9 @@ import (
 
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "design.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
+	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
+	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
 
 	res, err := GenerateAsciiDocFromFiles(modelPath, requirementsPath, designPath, AsciiDocOptions{})
 	if err != nil {
@@ -62,7 +62,7 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "engmod.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "decisions-sample", Title: "Decisions Sample"},
 		Decisions: []model.Decision{{
 			ID:           "ADR-SAMPLE-001",
@@ -80,7 +80,7 @@ func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
 		Views: []model.View{{ID: "VIEW-A", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
 	}}
 
-	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{
+	res, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), AsciiDocOptions{
 		DecisionsDocPath: "DECISIONS.adoc",
 	})
 	if err != nil {
@@ -108,9 +108,9 @@ func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_EndToEnd(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "design.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
+	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
+	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
 
 	cmd := exec.Command("go", "run", "./cmd/engdoc",
 		"--model", modelPath,
@@ -132,9 +132,9 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_DecisionsOut(t *testing.T) {
-	modelPath := "architecture.yml"
-	requirementsPath := "requirements.yml"
-	designPath := "design.yml"
+	modelPath := "engmod.yml"
+	requirementsPath := filepath.Join("model", "requirements.yml")
+	designPath := filepath.Join("model", "views.yml")
 	outDir := t.TempDir()
 	mainOut := filepath.Join(outDir, "ARCHITECTURE.adoc")
 	decisionsOut := filepath.Join(outDir, "DECISIONS.adoc")
@@ -168,9 +168,9 @@ func TestEngdocCLI_DecisionsOut(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "design.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
+	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
+	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
 
 	bundle, err := model.LoadBundle(modelPath)
 	if err != nil {
@@ -188,7 +188,7 @@ func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 	requirements.LintRun.Mode = "strict"
 	requirements.Requirements[0].Text = "The door control system lock the door."
 
-	res, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	res, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), AsciiDocOptions{})
 	if err == nil {
 		t.Fatalf("expected strict EARS lint failure")
 	}
@@ -199,9 +199,9 @@ func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "design.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
+	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
+	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
 
 	bundle, err := model.LoadBundle(modelPath)
 	if err != nil {
@@ -221,7 +221,7 @@ func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
 	}
 	bundle.Catalog.Catalog.FunctionalGroups[0].Definition = ""
 
-	res, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	res, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), AsciiDocOptions{})
 	if err == nil {
 		t.Fatalf("expected validation failure for missing catalog description")
 	}
@@ -240,15 +240,15 @@ func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatch(t *testing.T) {
 	sample := filepath.Join("examples", "payments-engineering-sample")
-	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
+	bundle, err := model.LoadBundle(filepath.Join(sample, "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load bundle failed: %v", err)
 	}
-	requirements, err := model.LoadRequirements(filepath.Join(sample, "requirements.yml"))
+	requirements, err := model.LoadRequirements(filepath.Join(sample, "model", "requirements.yml"))
 	if err != nil {
 		t.Fatalf("load requirements failed: %v", err)
 	}
-	design, err := model.LoadDesign(filepath.Join(sample, "design.yml"))
+	design, err := model.LoadDesign(filepath.Join(sample, "model", "views.yml"))
 	if err != nil {
 		t.Fatalf("load design failed: %v", err)
 	}
@@ -275,7 +275,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 		t.Fatalf("write validation result fixture: %v", err)
 	}
 
-	bundle.ArchitecturePath = filepath.Join(root, "architecture.yml")
+	bundle.ManifestPath = filepath.Join(root, "engmod.yml")
 
 	checks, _ := inferVerificationChecks(bundle, requirements, nil, "")
 	validationCheck, ok := findCheckByEvidence(checks, filepath.ToSlash(filepath.Join("tests", "validation.test.js")))
@@ -287,7 +287,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 		t.Fatalf("expected inferred verification status pass for %s, got %q", validationCheck.ID, validationCheck.Status)
 	}
 
-	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	adocRes, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), AsciiDocOptions{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}
@@ -308,15 +308,15 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testing.T) {
 	sample := filepath.Join("examples", "payments-engineering-sample")
-	bundle, err := model.LoadBundle(filepath.Join(sample, "architecture.yml"))
+	bundle, err := model.LoadBundle(filepath.Join(sample, "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load bundle failed: %v", err)
 	}
-	requirements, err := model.LoadRequirements(filepath.Join(sample, "requirements.yml"))
+	requirements, err := model.LoadRequirements(filepath.Join(sample, "model", "requirements.yml"))
 	if err != nil {
 		t.Fatalf("load requirements failed: %v", err)
 	}
-	design, err := model.LoadDesign(filepath.Join(sample, "design.yml"))
+	design, err := model.LoadDesign(filepath.Join(sample, "model", "views.yml"))
 	if err != nil {
 		t.Fatalf("load design failed: %v", err)
 	}
@@ -345,10 +345,10 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 		t.Fatalf("write flux kustomization: %v", err)
 	}
 
-	bundle.ArchitecturePath = filepath.Join(root, "architecture.yml")
+	bundle.ManifestPath = filepath.Join(root, "engmod.yml")
 	bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
 
-	adocRes, err := GenerateAsciiDoc(bundle, requirements, design, AsciiDocOptions{})
+	adocRes, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), AsciiDocOptions{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}
@@ -365,7 +365,7 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *testing.T) {
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "engmod.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
 		AuthoredArchitecture: model.AuthoredArchitecture{
 			FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-MEDIACHESTV-CORE", Name: "Core"}},
@@ -458,7 +458,7 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 		},
 	}, Catalog: model.CatalogDocument{}}
 
-	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{})
+	res, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), AsciiDocOptions{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}
@@ -539,7 +539,7 @@ func referenceBlockByID(doc, id string) string {
 
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "architecture.yml"), Architecture: model.ArchitectureDocument{
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "engmod.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "m", Title: "m"},
 		AuthoredArchitecture: model.AuthoredArchitecture{
 			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
@@ -561,7 +561,7 @@ func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
 		Views: []model.View{{ID: "VIEW-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT"}}},
 	}}
 
-	res, err := GenerateAsciiDoc(bundle, model.RequirementsDocument{}, model.DesignDocument{}, AsciiDocOptions{})
+	res, err := GenerateAsciiDoc(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), AsciiDocOptions{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}

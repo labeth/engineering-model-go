@@ -1,0 +1,43 @@
+title: "Atlas Shared Cloud Platform - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Atlas Shared Cloud Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-CLOUD-RUNTIME
+    title: Cloud Runtime
+    description: Hosts product APIs and durable event processing.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-CLOUD-BACKUP
+  title: Encrypted Backup
+  objective: Encrypts and regularly restores cloud backups.
+  group: resilience
+  assessment-requirements:
+  - id: CTRL-CLOUD-BACKUP-AR-1
+    text: "The system MUST implement the control \"Encrypted Backup\": Encrypts and regularly restores cloud backups."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-resilience
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: resilience
+  title: resilience
+  description: "Control category: resilience."

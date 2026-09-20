@@ -1,0 +1,72 @@
+title: "Atlas Shared Security Services - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-SEC-IDENTITY
+    title: Identity Service
+    description: Issues short-lived device and workload credentials.
+  - id: FU-SEC-MONITORING
+    title: Security Monitoring
+    description: Correlates authentication and audit events.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-SEC-SHORT-LIVED-IDENTITY
+  title: Short-lived Identity
+  objective: Issues scoped credentials with bounded lifetime.
+  group: identity-access
+  assessment-requirements:
+  - id: CV-SEC-TOKEN-REPLAY
+    text: The control "Short-lived Identity" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Expired and replayed credentials were rejected.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-identity-access
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: TS-SEC-CREDENTIAL-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: CTRL-SEC-AUDIT-INTEGRITY
+  title: Audit Integrity
+  objective: Signs and immutably stores security audit events.
+  group: audit
+  assessment-requirements:
+  - id: CTRL-SEC-AUDIT-INTEGRITY-AR-1
+    text: "The system MUST implement the control \"Audit Integrity\": Signs and immutably stores security audit events."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-audit
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: identity-access
+  title: identity-access
+  description: "Control category: identity-access."
+- id: audit
+  title: audit
+  description: "Control category: audit."

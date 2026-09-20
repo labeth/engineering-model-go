@@ -1457,7 +1457,7 @@ Deployed as independent cloud ingestion boundary to isolate scaling concerns.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>, <<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>, <<REF_IDX-REQ_REQ_COF_006,REQ-COF-006>>, <<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_009,REQ-COF-009>>, <<REF_IDX-REQ_REQ_COF_011,REQ-COF-011>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
 |===
 
 
@@ -1482,7 +1482,7 @@ Deployed as reporting plane with independent scaling and retention controls.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>, <<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>, <<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_009,REQ-COF-009>>, <<REF_IDX-REQ_REQ_COF_010,REQ-COF-010>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
 |===
 
 
@@ -1507,7 +1507,7 @@ Isolated deployment supports safe OTA policy evolution.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>, <<REF_IDX-REQ_REQ_COF_010,REQ-COF-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
 |===
 
 
@@ -1565,7 +1565,7 @@ Owns source-to-runtime release controls and rollback guardrails.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-|Inferred deployment evidence |runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>>, <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>> | code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
+|Inferred deployment evidence |runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>>, <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>>; code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
 |===
 
 
@@ -2149,7 +2149,7 @@ Preserves audit integrity and protects sensitive identifiers in persisted record
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
 
 
 
@@ -2244,7 +2244,7 @@ Enforces signed-firmware policy and campaign authorization boundaries.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>> | code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
 
 
 
@@ -2325,7 +2325,7 @@ Applies identity checks and replay throttling for ingest requests.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
 
 ===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
 
@@ -2418,7 +2418,7 @@ Applies identity checks and replay throttling for ingest requests.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
 
 ===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
 
@@ -2434,7 +2434,7 @@ Preserves audit integrity and protects sensitive identifiers in persisted record
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>> | code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
 
 
 
@@ -3746,7 +3746,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == System Composition & Hardware
 
-This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from local subdirectories.
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
 
 === Hardware Items
 
@@ -3818,13 +3818,200 @@ flowchart LR
 |ID |Name |Reference
 |SUB-TELEMETRY
 |Machine Telemetry Subsystem
-|`./subsystems/telemetry`
+|`telemetry::public`
 |SUB-OTA-AGENT
 |OTA Update Agent Subsystem
-|`./subsystems/ota-agent`
+|`ota-agent::public`
 |SUB-CLOUD-API
 |Cloud API Subsystem
-|`./subsystems/cloud-api`
+|`cloud-api::public`
+|===
+
+=== Selected Dependency Publications
+
+[cols="2,2,3,2,2",options="header"]
+|===
+|Alias |Publication |Module |Version |Source model
+|`cloud-api`
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0`
+|`v0.1.0`
+|`COF-CLOUD-API`
+|`ota-agent`
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0`
+|`v0.1.0`
+|`COF-OTA-AGENT`
+|`telemetry`
+|`public`
+|`models.example/coffee-fleet/telemetry@v0`
+|`v0.1.0`
+|`COF-TELEMETRY`
+|===
+
+==== Published Architecture
+
+[cols="3,3,2,2",options="header"]
+|===
+|Qualified ID |Name |Publication |Source
+|`cloud-api::CAP-CLOUD-INGEST`
+|capability
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::DO-FLEET-METRIC`
+|Fleet Metric
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::FG-CLOUD`
+|Cloud
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::FU-CLOUD-CAMPAIGN`
+|Cloud Campaign
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::FU-CLOUD-INGEST`
+|Cloud Ingest
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::IF-CLOUD-INGEST`
+|Cloud Ingest Interface
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::NEED-INTERNET`
+|interface
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`ota-agent::CAP-OTA-APPLY`
+|capability
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::DO-FIRMWARE-BUNDLE`
+|Firmware Bundle
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::FG-OTA`
+|OTA
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::FU-OTA-APPLY`
+|OTA Apply
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::FU-OTA-VERIFY`
+|OTA Verification
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::IF-OTA-APPLY`
+|OTA Apply Interface
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::NEED-CELLULAR-LINK`
+|assumption
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::NEED-TELEMETRY-FEED`
+|interface
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`telemetry::CAP-TELEM-REPORT`
+|capability
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::DO-TELEM-RECORD`
+|Telemetry Record
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::FG-TELEMETRY`
+|Telemetry
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::FU-TELEM-REPORT`
+|Telemetry Reporting
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::FU-TELEM-SAMPLE`
+|Telemetry Sampling
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::IF-TELEM-REPORT`
+|Telemetry Report Interface
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::NEED-CAN-BUS`
+|interface
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|===
+
+==== Published Requirements
+
+[cols="3,3,2,2",options="header"]
+|===
+|Qualified ID |Name |Publication |Source
+|`cloud-api::REQ-CLOUD-001`
+|Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::REQ-CLOUD-002`
+|Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`ota-agent::REQ-OTA-001`
+|Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::REQ-OTA-002`
+|Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::REQ-OTA-003`
+|When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`telemetry::REQ-TELEM-001`
+|Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet.
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::REQ-TELEM-002`
+|Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::REQ-TELEM-003`
+|Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|===
+
+==== Published Assurance
+
+[cols="3,3,2,2",options="header"]
+|===
+|Qualified ID |Name |Publication |Source
+|`cloud-api::CTRL-INGEST-AUTH`
+|Ingest Authentication
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`cloud-api::VER-INGEST-AUTH`
+|-
+|`public`
+|`models.example/coffee-fleet/cloud-api@v0@v0.1.0`
+|`ota-agent::CTRL-FIRMWARE-SIGNATURE`
+|Firmware Signature Verification
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`ota-agent::VER-FIRMWARE-SIGNATURE`
+|-
+|`public`
+|`models.example/coffee-fleet/ota-agent@v0@v0.1.0`
+|`telemetry::CTRL-TELEM-INTEGRITY`
+|Telemetry Integrity
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
+|`telemetry::VER-TELEM-INTEGRITY`
+|-
+|`public`
+|`models.example/coffee-fleet/telemetry@v0@v0.1.0`
 |===
 
 === Requirement Allocation Matrix
@@ -3834,15 +4021,15 @@ flowchart LR
 |Requirement |Subsystem |Target |Resolved
 |REQ-COF-001
 |SUB-TELEMETRY
-|CAP-TELEM-REPORT
+|telemetry::CAP-TELEM-REPORT
 |yes
 |REQ-COF-003
 |SUB-OTA-AGENT
-|CAP-OTA-APPLY
+|ota-agent::CAP-OTA-APPLY
 |yes
 |REQ-COF-002
 |SUB-CLOUD-API
-|CAP-CLOUD-INGEST
+|cloud-api::CAP-CLOUD-INGEST
 |yes
 |===
 
@@ -3859,13 +4046,13 @@ flowchart LR
     REQ_COF_002["REQ-COF-002"]
   end
   subgraph SUB_TELEMETRY["Machine Telemetry Subsystem"]
-    SUB_TELEMETRY__REQ_TELEM_001(["REQ-TELEM-001 (CAP-TELEM-REPORT)"])
+    SUB_TELEMETRY__REQ_TELEM_001(["REQ-TELEM-001 (telemetry::CAP-TELEM-REPORT)"])
   end
   subgraph SUB_OTA_AGENT["OTA Update Agent Subsystem"]
-    SUB_OTA_AGENT__REQ_OTA_001(["REQ-OTA-001 (CAP-OTA-APPLY)"])
+    SUB_OTA_AGENT__REQ_OTA_001(["REQ-OTA-001 (ota-agent::CAP-OTA-APPLY)"])
   end
   subgraph SUB_CLOUD_API["Cloud API Subsystem"]
-    SUB_CLOUD_API__REQ_CLOUD_001(["REQ-CLOUD-001 (CAP-CLOUD-INGEST)"])
+    SUB_CLOUD_API__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud-api::CAP-CLOUD-INGEST)"])
   end
   REQ_COF_001 -->|delegates to| SUB_TELEMETRY__REQ_TELEM_001
   REQ_COF_003 -->|delegates to| SUB_OTA_AGENT__REQ_OTA_001

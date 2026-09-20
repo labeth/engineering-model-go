@@ -1,0 +1,53 @@
+schemaVersion: 2
+assurance:
+  attackVectors:
+  - id: AV-ORI-MESSAGE-FLOOD
+    name: Message Flooding
+    description: Excess traffic attempts to starve critical relay messages.
+  controls:
+  - id: CTRL-ORI-ADMISSION
+    name: Priority Admission Control
+    category: availability
+    description: Reserves capacity for authenticated priority messages.
+  risks:
+  - id: RISK-ORI-LINK-EXHAUSTION
+    title: Relay link exhaustion
+    statement: Message flooding may prevent delivery of priority messages.
+    status: mitigating
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-ORI-ENGINEER
+    appliesTo:
+    - FU-ORI-ROUTER
+    - IF-ORI-MESSAGE
+    relatedControls:
+    - CTRL-ORI-ADMISSION
+    attackVectors:
+    - AV-ORI-MESSAGE-FLOOD
+    residualRisk: medium
+    rationale: Admission control preserves priority capacity under tested loads.
+  poamItems:
+  - id: POAM-ORI-001
+    riskRef: RISK-ORI-LINK-EXHAUSTION
+    milestone: Extend admission testing to simultaneous multi-band congestion.
+    dueDate: 2027-02-28
+    status: planned
+    responsibleRole: ACT-ORI-ENGINEER
+    artifacts:
+    - path: evidence/orion/congestion-test-plan.md
+      description: Approved future verification campaign.
+  controlVerifications:
+  - id: CV-ORI-ADMISSION
+    controlRef: CTRL-ORI-ADMISSION
+    riskRefs:
+    - RISK-ORI-LINK-EXHAUSTION
+    method: test
+    status: partial
+    owner: ACT-ORI-ENGINEER
+    lastTested: 2026-09-11
+    findings:
+    - Single-band priority traffic remained available during flooding.
+    evidence:
+    - path: evidence/orion/admission-load-test.json
+      description: Current load test evidence.

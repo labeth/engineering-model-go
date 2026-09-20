@@ -1,0 +1,66 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/products/aegis-sentinel@v0
+  version: v0.1.0
+  modelId: atlas-aegis-sentinel
+  title: Aegis Sentinel Product System
+  introduction: Product model for autonomous perimeter sensing and reviewed response.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies:
+- alias: edge
+  path: models.atlas.example/shared/edge-platform@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: cloud
+  path: models.atlas.example/shared/cloud-platform@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: security
+  path: models.atlas.example/shared/security-services@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: compliance
+  path: models.atlas.example/shared/compliance-baseline@v0
+  version: v0.1.0
+  publications:
+  - public
+publications:
+- id: public
+  architecture:
+  - FG-AEG
+  - FU-AEG-SENSOR-FUSION
+  - FU-AEG-MISSION
+  - ACT-AEG-OPERATOR
+  - ACT-AEG-ENGINEER
+  - IF-AEG-TRACK
+  - DO-AEG-TRACK
+  - HW-AEG-RADAR
+  - HW-AEG-OPTICAL
+  - HWIF-AEG-SENSOR-BUS
+  - CAP-AEGIS-MISSION
+  assurance:
+  - AV-AEG-SENSOR-SPOOF
+  - CTRL-AEG-TRACK-CONFIDENCE
+  - RISK-AEG-FALSE-TRACK
+  - TS-AEG-SENSOR-SPOOF
+  - MIT-AEG-TRACK-CONFIDENCE
+  - CV-AEG-TRACK-CONFIDENCE
+  requirements:
+  - REQ-AEG-001
+  - REQ-AEG-002
+  - REQ-AEG-003
+  - REQ-AEG-004
+  - REQ-AEG-005
+inferenceHints: {}

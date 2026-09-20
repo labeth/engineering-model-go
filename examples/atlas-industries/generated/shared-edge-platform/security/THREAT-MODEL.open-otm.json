@@ -1,0 +1,73 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Atlas Shared Edge Platform",
+    "id": "atlas-shared-edge-platform",
+    "description": "Reusable rugged hardware and signed edge runtime.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Edge Telemetry Record",
+      "id": "DO-EDGE-TELEMETRY",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-EDGE-OPERATOR",
+      "name": "Edge Operator",
+      "type": "actor",
+      "description": "Maintains deployed edge nodes.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-EDGE-RUNTIME",
+      "name": "Edge Runtime",
+      "type": "service",
+      "description": "Hosts signed product workloads and normalizes device observations.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-EDGE-TELEMETRY",
+      "name": "Edge Telemetry Interface",
+      "type": "interface",
+      "description": "mqtt mqtt://edge/telemetry",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

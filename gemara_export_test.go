@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	gemara "github.com/gemaraproj/go-gemara"
@@ -14,9 +15,9 @@ import (
 )
 
 var gemaraExampleModels = []string{
-	filepath.Join("examples", "payments-engineering-sample", "architecture.yml"),
-	filepath.Join("examples", "bedrock-pr-review-github-app-sample", "architecture.yml"),
-	filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "architecture.yml"),
+	filepath.Join("examples", "payments-engineering-sample", "engmod.yml"),
+	filepath.Join("examples", "bedrock-pr-review-github-app-sample", "engmod.yml"),
+	filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "engmod.yml"),
 }
 
 // TestGemaraArtifactsLoadThroughSDK generates every Gemara catalog for each
@@ -34,6 +35,7 @@ func TestGemaraArtifactsLoadThroughSDK(t *testing.T) {
 			if err != nil {
 				t.Fatalf("load bundle: %v", err)
 			}
+
 			res, err := GenerateGemara(bundle, opts)
 			if err != nil {
 				t.Fatalf("generate gemara: %v", err)
@@ -128,6 +130,20 @@ func TestGemaraArtifactsLoadThroughSDK(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraDerivesMeaningfulAuthoredDate(t *testing.T) {
+	res, err := GenerateGemaraFromFile("engmod.yml", GemaraExportOptions{Version: "1.0.0"})
+	if err != nil {
+		t.Fatalf("generate gemara: %v", err)
+	}
+	for name, content := range res.YAML {
+		if strings.Contains(content, "1970-01-01T00:00:00Z") {
+			t.Errorf("%s contains epoch placeholder instead of an authored date", name)
+		}
 	}
 }
 

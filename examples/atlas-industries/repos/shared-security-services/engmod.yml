@@ -1,0 +1,44 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/shared/security-services@v0
+  version: v0.1.0
+  modelId: atlas-shared-security-services
+  title: Atlas Shared Security Services
+  introduction: Company identity, key management, and detection services.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-SEC
+  - FU-SEC-IDENTITY
+  - FU-SEC-MONITORING
+  - ACT-SEC-ANALYST
+  - IF-SEC-TOKEN
+  - DO-SEC-AUDIT-EVENT
+  - CAP-DEVICE-IDENTITY
+  - CAP-ZERO-TRUST
+  behavior:
+  - EVT-CREDENTIAL-REPLAY-DETECTED
+  assurance:
+  - AV-CREDENTIAL-REPLAY
+  - CTRL-SEC-SHORT-LIVED-IDENTITY
+  - CTRL-SEC-AUDIT-INTEGRITY
+  - RISK-SEC-CREDENTIAL-REPLAY
+  - TB-SEC-CONTROL-PLANE
+  - TS-SEC-CREDENTIAL-REPLAY
+  - MIT-SEC-TOKEN-REPLAY
+  - CV-SEC-TOKEN-REPLAY
+  requirements:
+  - REQ-SEC-001
+  - REQ-SEC-002
+inferenceHints: {}

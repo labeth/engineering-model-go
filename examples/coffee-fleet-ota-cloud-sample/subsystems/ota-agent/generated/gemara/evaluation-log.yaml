@@ -2,11 +2,12 @@ metadata:
   id: cof-ota-agent-EVALUATION-LOG
   type: EvaluationLog
   gemara-version: 1.1.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Control evaluation results for OTA Update Agent Subsystem
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -31,7 +32,7 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     confidence-level: High
 target:
   id: cof-ota-agent

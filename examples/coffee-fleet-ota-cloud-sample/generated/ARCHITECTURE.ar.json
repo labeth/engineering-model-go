@@ -1,0 +1,118 @@
+{
+  "assessment-results": {
+    "uuid": "7b710d31-9b58-5c25-84a8-88858a2d81a5",
+    "metadata": {
+      "title": "Connected Coffee Fleet OTA + Cloud Architecture Assessment Results",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./ARCHITECTURE.ap.json"
+    },
+    "results": [
+      {
+        "uuid": "0d0f33b9-bd76-51f0-9e2c-02924f5fa919",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
+              "include-controls": [
+                {
+                  "control-id": "ia-3"
+                },
+                {
+                  "control-id": "si-7"
+                }
+              ]
+            }
+          ]
+        },
+        "findings": [
+          {
+            "uuid": "fa31746c-2e6a-55bb-b698-bbf50b1a57fd",
+            "title": "Logging Pipeline Test",
+            "description": "validates telemetry logging pipeline persistence and operational reporting signals",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-002",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
+              },
+              {
+                "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "partial"
+              }
+            ]
+          },
+          {
+            "uuid": "fb47c6e5-222c-5e52-89ce-e384ff327b67",
+            "title": "Ota Rollout Flow",
+            "description": "runs fleet OTA rollout scenario including scheduling, deployment, and telemetry confirmation",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-COF-003",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
+              },
+              {
+                "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "not-run"
+              }
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "uuid": "07bf6538-5262-5525-84f0-b29be8858e65",
+            "title": "Device identity spoofing risk",
+            "description": "Spoofed devices may inject telemetry and OTA requests without strong identity controls.",
+            "status": "mitigating",
+            "statement": "Identity validation is active; replay hardening remains under review."
+          },
+          {
+            "uuid": "6562072d-a5e7-5a13-b780-8891ea67b66d",
+            "title": "Malicious OTA payload execution risk",
+            "description": "Tampered firmware artifacts could execute on fleet devices if signature enforcement drifts.",
+            "status": "mitigating",
+            "statement": "Verification and signer controls are strong with regular regression checks."
+          },
+          {
+            "uuid": "98849204-1056-5ff8-af44-eb5f8a0d4c4b",
+            "title": "Telemetry replay distortion risk",
+            "description": "Replayed telemetry can distort observability and trigger noisy operational decisions.",
+            "status": "mitigating",
+            "statement": "Replay controls are present but require aggressive tuning under burst traffic."
+          },
+          {
+            "uuid": "d07be4e4-b0fc-59d2-bfd6-f53bb647423f",
+            "title": "Audit log tampering risk",
+            "description": "Log tampering could conceal OTA incident traces and delay response.",
+            "status": "open",
+            "statement": "Core logging exists; immutability hardening is incomplete."
+          }
+        ]
+      }
+    ]
+  }
+}

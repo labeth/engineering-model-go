@@ -14,6 +14,55 @@ It combines:
 - EARS requirement preflight linting
 - code trace mapping (Go, TypeScript, Rust)
 
+YAML remains the canonical authored and persistence format, with CUE as the
+authoritative schema and cross-field constraint layer. The canonical YAML/CUE
+model is a semantic superset of the pinned formal SysML 2.0/KerML 1.0 abstract
+syntax, with typed `Engineering::` extensions. This is evidenced by exhaustive
+inventory coverage, official-parser validation, and semantic project-interchange
+round trip. It does not claim execution/simulation semantics or graphical
+concrete syntax. SysML textual DSL is generated output, not another source
+model. See
+[`docs/sysml-v2-superset-plan.md`](docs/sysml-v2-superset-plan.md).
+
+Each model directory has one schema-v2 manifest entry point and eight required
+domain documents. An optional ninth `documents.aviation` document adds an
+airborne software evidence-readiness profile without changing models that omit it:
+
+```yaml
+schemaVersion: 2
+module:
+  path: models.example/example-system@v0
+  version: v0.1.0
+  modelId: example-system
+  title: Example System
+  introduction: Example schema-v2 model.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+  # aviation: model/aviation.yml
+dependencies: []
+publications:
+  - id: public
+    architecture: [FU-EXAMPLE]
+    requirements: [REQ-EXAMPLE-001]
+inferenceHints: {}
+```
+
+`engmod.yml` is the only model entry point. Every manifest and domain document
+uses `schemaVersion: 2`; paths are explicit and no companion filename is
+inferred. AI agents should call the no-argument MCP tool
+`model.authoringContract` first; it returns the resolved
+document set, schema files, top-level YAML fields, stable-ID conventions,
+dependency/source rules, and recommended editing order without requiring a broad
+repository scan.
+
 ## Scope
 
 This project models development-state architecture inputs from YAML and produces deterministic documentation/view artifacts.
@@ -22,7 +71,8 @@ It is not a runtime observability or incident/compliance runtime system.
 
 ## Features
 
-- strict YAML loading for architecture/catalog/requirements/design documents
+- CUE-backed, closed-schema YAML loading for architecture, catalog,
+  requirements, decisions, and design documents, followed by strict Go decoding
 - model validation for IDs, references, relations, and viewpoint configuration
 - expanded mapping relation taxonomy for communication/deployment/security/traceability/lifecycle semantics
 - catalog-linked architecture relation labeling
@@ -31,6 +81,11 @@ It is not a runtime observability or incident/compliance runtime system.
   - Flux resources (GitRepository/Kustomization/HelmRelease)
   - Helm chart metadata via Helm SDK chart loader
 - deterministic Mermaid view rendering
+- canonical semantic projection with stable IDs, typed relationships, ownership,
+  source metadata, and explicit unsupported/lossy diagnostics
+- deterministic SysML v2 textual projection and executable coverage manifest
+- optional DO-178C/ED-12C evidence-readiness modeling and deterministic draft
+  package generation; this is not a compliance or certification determination
 - AsciiDoc architecture generation with chapter scope diagrams
 - view-level filtering controls (`includeKinds`, `excludeKinds`, `includeMappings`, `excludeMappings`, `maxDepth`)
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
@@ -54,6 +109,24 @@ Primary entry points:
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
+- `model.ProjectSemanticModel(bundle)`
+- `GenerateSysMLV2FromFile(architecturePath)`
+- `GenerateSysMLV2(bundle)`
+- `GenerateAirborneAssuranceFromFile(manifestPath, options)`
+
+For a model that declares `documents.aviation`, generate the readiness package:
+
+```bash
+go run ./cmd/engair --model engmod.yml --out-dir generated/do178c \
+  --date 2026-09-19 --version v0.1.0
+```
+
+The package is visibly marked `DRAFT / NOT A COMPLIANCE OR CERTIFICATION
+DETERMINATION`, identifies exact authored baselines and open gaps, and uses only
+customer-supplied opaque objective references. See
+`examples/dal-c-flight-control-sample/`.
+- `GenerateSysMLV2Projection(semanticModel)`
+- `SysMLV2Coverage()`
 - `GenerateThreatModelExportFromFile(architecturePath, options)`
 - `GenerateTRLCRequirementsFromFile(requirementsPath, options)`
 - `GenerateLobsterActivityTraceFromDir(testsDir, options)`
@@ -62,7 +135,7 @@ Primary entry points:
 Example:
 
 ```go
-res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/architecture.yml", "VIEW-ARCHITECTURE-INTENT")
+res, err := engmodel.GenerateFromFile("examples/payments-engineering-sample/engmod.yml", "VIEW-ARCHITECTURE-INTENT")
 if err != nil {
     panic(err)
 }
@@ -82,7 +155,7 @@ View IDs are free-form, but view `kind` must be one of:
 - `state-lifecycle` (optional)
 - `interaction-flow` (optional)
 
-Optional view projection controls in `architecture.yml`:
+Optional view projection controls in `model/views.yml`:
 
 - `includeKinds` / `excludeKinds`: node kind filtering
 - `includeMappings` / `excludeMappings`: relation type filtering
@@ -102,7 +175,7 @@ Authored architecture optionally supports additional first-class entities:
 - `hardwareItems` (physical items with DO-254 DAL safety levels, part numbers, suppliers)
 - `hardwareInterfaces` (HW/SW interface contracts: ICD/IRS with buses such as `arinc429`, `can`, `spi`, `i2c`, `ethernet`, `cellular`)
 
-Top-level (sibling to `authoredArchitecture`) composition entities:
+Structural composition entities in `model/architecture.yml`:
 
 - `contract` (the system's `provides`/`requires` public interface contract)
 - `composition.subsystems` (downward references to child system models)
@@ -112,20 +185,20 @@ Top-level (sibling to `authoredArchitecture`) composition entities:
 `engdoc` renders HW/SW interface allocation views from `hardwareItems`, `hardwareInterfaces`, and
 `composition.allocations`. See System-of-Systems Composition for the composition gates.
 
-Flow step fields (`authoredArchitecture.flows[].steps[]`) support:
+Flow step fields (`model/behavior.yml` `behavior.flows[].steps[]`) support:
 
 - `id`, `ref`, `kind`, `action`
 - `dataIn`, `dataOut`
 - `next`, `onError`
 - `async`, `optional`
 
-OSCAL authoring fields in `authoredArchitecture`:
+Assurance authoring fields in `model/assurance.yml`:
 
 - `controls`
 - `risks`
 - `poamItems`
 
-OSCAL catalog/profile integration is authored in top-level `compliance`:
+OSCAL catalog/profile integration is authored in `model/compliance.yml`:
 
 - `compliance.profiles[]`: OSCAL profile/catalog sources for the selected baseline
 - `compliance.mappings[]`: maps local `CTRL-*` implementation controls to selected OSCAL `controlIds` and architecture `appliesTo` entities; unmapped controls remain local model controls and are not exported as OSCAL implementations
@@ -138,11 +211,11 @@ Expanded mapping relation vocabulary includes:
 - Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
 - Flow projection (view-only): `flow_next`, `flow_error`, `flow_async`, `flow_ref`
 
-Optional per-view publication metadata (in `architecture.yml`):
+Optional per-view publication metadata (in `model/views.yml`):
 - `authoredStatus` (for example `draft`, `in-review`, `stable`)
 - `authoredStatusExplanation` (short rationale shown in Document Health Snapshot)
 
-Verification metadata is inferred from test artifacts (not authored in `architecture.yml`):
+Verification metadata is inferred from test artifacts:
 - test sources under `tests/` (for inferred verification checks and test code element links)
 - result artifacts under `test-results/` (for inferred requirement-level outcomes)
 - requirement IDs in test sources are inferred from `TRLC-LINKS: REQ-*` markers
@@ -192,25 +265,38 @@ go run ./cmd/engchange apply --root examples/payments-engineering-sample --delta
 
 Delta version 1 supports requirement `add`, whole-entity `update`, and `remove` operations.
 Planning and diffing never write canonical files. Apply validates the complete candidate model,
-preserves unchanged YAML nodes and comments, and atomically replaces `requirements.yml` only
+preserves unchanged YAML nodes and comments, and atomically replaces `model/requirements.yml` only
 when no blocking diagnostics are present.
 
 Generate a single Mermaid view:
 
 ```bash
 go run ./cmd/engview \
-  --model examples/payments-engineering-sample/architecture.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
   --view VIEW-DEPLOYMENT \
   --out out.mmd
 ```
+
+Generate every authored view as deterministic Mermaid and native SVG:
+
+```bash
+go run ./cmd/engview \
+  --model examples/coffee-appliance-six-view/engmod.yml \
+  --out-dir examples/coffee-appliance-six-view/generated
+```
+
+The coffee appliance fixture demonstrates use-case, logical, process, physical,
+implementation, and deployment concerns from canonical schema-v2 semantics.
+Its process output is a Mermaid sequence diagram, and every SVG includes an
+accessible title plus source and view provenance.
 
 Generate architecture AsciiDoc:
 
 ```bash
 go run ./cmd/engdoc \
-  --model examples/payments-engineering-sample/architecture.yml \
-  --requirements examples/payments-engineering-sample/requirements.yml \
-  --design examples/payments-engineering-sample/design.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
+  --design examples/payments-engineering-sample/model/views.yml \
   --code-root ./src \
   --view VIEW-ARCHITECTURE-INTENT \
   --view VIEW-TRACEABILITY \
@@ -220,14 +306,14 @@ go run ./cmd/engdoc \
 
 `--view` is repeatable to scope the document to specific viewpoint IDs (omit to include all
 configured views). When `--decisions-out` is set, `engdoc` emits the architecture decision
-records (from `decisions.yml`) as a separate `DECISIONS.adoc` document.
+records (from `model/decisions.yml`) as a separate `DECISIONS.adoc` document.
 
 Generate the machine-readable traceability matrix:
 
 ```bash
 go run ./cmd/engtrace \
-  --model examples/payments-engineering-sample/architecture.yml \
-  --requirements examples/payments-engineering-sample/requirements.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
   --code-root examples/payments-engineering-sample/src \
   --format json \
   --out examples/payments-engineering-sample/generated/TRACE-MATRIX.json
@@ -241,20 +327,167 @@ references and delegations. `engtrace` exits non-zero when it finds dangling cod
 Generate Threat Dragon/Open Threat Model exports:
 
 ```bash
-go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format threat-dragon-v2 --out examples/payments-engineering-sample/generated/threat-dragon-v2.json
-go run ./cmd/engdragon --model examples/payments-engineering-sample/architecture.yml --format open-otm --out examples/payments-engineering-sample/generated/open-threat-model.json
+go run ./cmd/engdragon --model examples/payments-engineering-sample/engmod.yml --format threat-dragon-v2 --out examples/payments-engineering-sample/generated/threat-dragon-v2.json
+go run ./cmd/engdragon --model examples/payments-engineering-sample/engmod.yml --format open-otm --out examples/payments-engineering-sample/generated/open-threat-model.json
 ```
 
 Generate Structurizr DSL:
 
 ```bash
-go run ./cmd/engstruct --model examples/payments-engineering-sample/architecture.yml --out examples/payments-engineering-sample/generated/STRUCTURIZR.dsl
+go run ./cmd/engstruct --model examples/payments-engineering-sample/engmod.yml --out examples/payments-engineering-sample/generated/STRUCTURIZR.dsl
 ```
+
+Generate the deterministic SysML v2 textual projection:
+
+```bash
+go run ./cmd/engsysml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --out examples/payments-engineering-sample/generated/architecture.sysml
+```
+
+Author NATO Architecture Framework 4.1 metadata in `model/views.yml`
+without duplicating the canonical architecture graph:
+
+```yaml
+naf:
+  framework: NAF
+  version: "4.1"
+  architectureDescription: Example NAF Architecture Description
+  stakeholders:
+    - actorRef: ACT-ARCHITECT
+      role: Owns architecture decisions.
+  concerns:
+    - id: NAF-CONCERN-STRUCTURE
+      name: System structure
+      stakeholderRefs: [ACT-ARCHITECT]
+  products:
+    - id: NAF-P2-RESOURCE-STRUCTURE
+      viewpoint: P2
+      title: Physical resource structure
+      viewRef: VIEW-DEPLOYMENT
+      concernRefs: [NAF-CONCERN-STRUCTURE]
+```
+
+Each NAF product references an existing Engmod view. Capability, service,
+logical, resource, interface, behavior, and requirement concepts therefore
+remain represented once in the canonical SysML/KerML-aligned model. Generate
+the deterministic NAF architecture document with:
+
+```bash
+go run ./cmd/engnaf \
+  --model engmod.yml \
+  --out generated/ARCHITECTURE.naf.adoc
+```
+
+The profile accepts the official NAF 4.1 viewpoint codes (`C*`, `S*`, `L*`,
+`P*`, and `A*`, including roadmap and cross-domain viewpoints). CUE rejects
+unsupported framework versions and viewpoint codes; model validation also
+checks actor, stakeholder, concern, and Engmod view references. This output is
+a framework-aligned architecture description and is not a claim of NATO
+certification.
+
+Emit the executable metaclass/property-level coverage manifest:
+
+```bash
+go run ./cmd/engsysml --coverage
+```
+
+The formal metamodel inventory is separate from that projection report. The
+formal `Systems-Modeling/SysML-v2-Release` tag `2026-04` is pinned at commit
+`9baca5908ca28b53da085de69336fde48420ea8f`. That release does **not** contain a
+normative metamodel XMI/Ecore: its XMI directories are standard-library model
+instances, and the release notes explicitly state that their Eclipse XMI is not
+fully normative OMG XMI.
+
+The closest official machine-readable metamodel artifact is therefore the Ecore
+published by the aligned official Pilot Implementation tag `2026-04`, commit
+`20897e3122f2c2f8b29389745f0caaaeb7c6e21a`:
+
+| Origin | Path | SHA-256 |
+| --- | --- | --- |
+| KerML 1.0 | `org.omg.sysml/model/kerml.ecore` | `62db52cbccf41266ccfa9b3b9cbb4a40384f16ab513f1d8522fd29d9d0fda8e7` |
+| SysML 2.0 | `org.omg.sysml.model/src/main/resources/model/SysML.ecore` | `be71998ca0d9bb7e6081a25e8ead93ce49d623a47ca414b30ee8c572d6d0d753` |
+
+Exact immutable URLs and authority notes are tracked in
+`tools/sysml/metamodel-sources.json`. Refresh downloads into the ignored
+`.engmod/cache` tree, verifies both hashes, and regenerates the compact inventory
+and semantic coverage binding:
+
+```bash
+scripts/refresh-sysml-metamodel.sh
+scripts/check-sysml-metamodel.sh
+```
+
+The offline check uses only tracked artifacts. It inventories exactly 175
+metaclasses, 415 owned properties, 13,318 effective properties, 209 inheritance
+edges, 328 derived properties, and 66 relationships. The strict binding records
+262 mapped entries, 328 derived/implied entries, and zero unimplemented entries.
+Textual rendering classifies 54 metaclasses as native-rendered and 121 as
+abstract/implicit, with zero missing rules; all 66 relationships are classified.
+CI rejects stale inventory hashes, omitted properties or renderer
+classifications, partial/unsupported normative statuses, stale coverage JSON,
+official-parser failures, and semantic round-trip differences.
+
+Install the pinned official parser wrapper and Sysand KPAR packager into the
+ignored `.engmod` tool/cache tree:
+
+```bash
+scripts/install-sysml-toolchain.sh
+```
+
+The installer verifies the official `2026-04` Pilot Implementation
+`jupyter-sysml-kernel-0.59.0.zip` checksum and the platform-specific Sysand
+`0.2.1` release checksum. The validator wrapper is checked out at commit
+`63abbd9fbc7851dc437d01b2dc07836b919770b8`; GitHub does not publish a separate
+source-archive checksum for that commit, so the immutable Git object ID is the
+documented verification boundary.
+
+Build and reopen a normative KPAR through Sysand:
+
+```bash
+go run ./cmd/engsysml \
+  --model engmod.yml \
+  --project-out .engmod/validation/sysml/project \
+  --kpar-out .engmod/validation/sysml/engineering-model.kpar \
+  --sysand .engmod/tooling/bin/sysand
+
+go run ./cmd/engsysml \
+  --model engmod.yml \
+  --verify-kpar .engmod/validation/sysml/engineering-model.kpar \
+  --reopen-out .engmod/validation/sysml/reopened \
+  --sysand .engmod/tooling/bin/sysand
+```
+
+`engsysml` delegates KPAR creation and reopening to Sysand; it does not create
+or label a custom ZIP as KPAR. The generated project contains only native SysML
+source; engineering-model data without a native SysML representation is omitted
+rather than embedded in descriptions, metadata payloads, or extension bags.
+Verification reopens the KPAR and compares its SysML source byte-for-byte with a
+fresh deterministic projection.
+Run the complete blocking gate with `scripts/validate-sysml.sh`. Local users may
+explicitly skip unavailable external tools with
+`ENGMOD_SYSML_SKIP_EXTERNAL=1 scripts/validate-all.sh`; CI installs the pinned
+tools and never sets that skip.
+
+The exporter preserves engineering-specific concepts and source properties in a
+typed metadata payload and reports unsupported, lossy, external-endpoint, and
+toolchain-conformance limitations as diagnostics. The generated text and KPAR
+are validated by the official parser baseline, but the coverage manifest still
+describes a documented subset/projection rather than claiming complete SysML v2
+semantic conformance.
+
+Every authored YAML document is validated against the embedded modular schemas
+in `model/schema/` before strict Go decoding. CUE is authoritative for document
+shape and cross-field constraints, produces path-aware diagnostics, and rejects
+unknown fields recursively. A reflection-based contract test detects drift
+between CUE fields and the Go runtime API representations. The loader aggregates
+the domain documents into one canonical semantic graph for validation and
+projection.
 
 Generate TRLC requirements package:
 
 ```bash
-go run ./cmd/engtrlc --requirements examples/payments-engineering-sample/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
+go run ./cmd/engtrlc --requirements examples/payments-engineering-sample/model/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
 ```
 
 Generate LOBSTER activity trace from tests:
@@ -283,7 +516,7 @@ The generated document starts with:
 Each generated view includes:
 - `What This View Answers`
 - `Coverage Gaps` and `Recommended Next Evidence Additions`
-- view-scoped narratives from `design.yml`
+- view-scoped narratives from `model/views.yml`
   - for `security`, content is organized as attack-vector chapters with per-attack diagrams and related FU sections
 
 The Traceability View includes:
@@ -334,39 +567,72 @@ Additional export/validation docs:
 
 ## System-of-Systems Composition
 
-A model can compose downward over child systems via a top-level `composition` block. Each
-entry under `composition.subsystems` references a child model either from a local subdirectory
-or from an external git repository:
+A model declares exact dependencies in `engmod.yml` and composes their selected
+publications from `model/architecture.yml`.
 
 ```yaml
-composition:
-  subsystems:
-    - id: SUB-TELEMETRY
-      name: Machine Telemetry Subsystem
-      ref: ./subsystems/telemetry        # local subdirectory model
-    - id: SUB-CLOUD-API
-      name: Cloud API Subsystem
-      git: https://example.com/org/cloud-api.git   # external repo
-      rev: main                           # optional branch/tag/commit
-      path: model                         # optional subdir inside the repo
-  allocations:
-    - requirement: REQ-COF-001            # this system's requirement
-      to: SUB-TELEMETRY                   # target subsystem (or hardware item) id
-      target: CAP-TELEM-REPORT            # provided contract id inside the subsystem
-      rationale: Reporting is realized by the telemetry subsystem.
-  satisfactions:
-    - need: SUB-OTA-AGENT/NEED-TELEMETRY-FEED   # a subsystem's required interface
-      by: SUB-TELEMETRY/CAP-TELEM-REPORT        # the provider that satisfies it
+# engmod.yml
+dependencies:
+  - alias: telemetry
+    path: models.example/coffee-fleet/telemetry@v0
+    version: v0.1.0
+    publications: [public]
+
+# model/architecture.yml
+architecture:
+  composition:
+    subsystems:
+      - id: SUB-TELEMETRY
+        name: Machine Telemetry Subsystem
+        dependency: telemetry
+        publication: public
+    allocations:
+      - requirement: REQ-COF-001
+        to: SUB-TELEMETRY
+        target: telemetry::CAP-TELEM-REPORT
+        rationale: Reporting is realized by the telemetry subsystem.
+    satisfactions:
+      - need: ota-agent::NEED-TELEMETRY-FEED
+        by: telemetry::CAP-TELEM-REPORT
 ```
 
-External `git:` subsystems are cloned into a local `.engmod/subsystems/<id>` cache before
-resolution. Composition is validated against the workspace boundary and the cross-system
-`provides`/`requires` contracts, surfacing diagnostics such as `composition.cycle`,
-`composition.out_of_workspace`, `composition.missing_ref`, `composition.invalid_ref`,
-`composition.clone_failed`, `composition.unsatisfied_require`, and
-`composition.untraceable_delegation`.
+Dependencies are standard CUE modules fetched from the OCI registry selected by
+`CUE_REGISTRY` and materialized under `.engmod/modules`. A module contains
+`cue.mod/module.cue`, `engmod.yml`, and the eight domain documents:
 
-See `examples/coffee-fleet-ota-cloud-sample` for an end-to-end composed model.
+```cue
+module: "models.example.com/company/security@v0"
+language: version: "v0.17.0"
+```
+
+Publish with the standard CUE workflow:
+
+```sh
+export CUE_REGISTRY=registry.example.com/company-models
+cue mod tidy
+cue mod publish v0.3.1
+```
+
+For multi-repository local development, place `engmod.work.yml` above the
+repositories. Published coordinates stay unchanged while dependencies resolve
+from explicit sibling paths:
+
+```yaml
+schemaVersion: 2
+replacements:
+  - module: models.example.com/company/security@v0
+    path: ./repos/security
+```
+
+Replacement paths must remain inside the workspace and their
+`cue.mod/module.cue` identity must match. Composition rejects floating or
+invalid versions, path escapes, cycles, missing manifests, unpublished targets,
+and unsatisfied requirements.
+
+See `examples/coffee-fleet-ota-cloud-sample` for local composition and
+`examples/atlas-industries` for a seven-repository company portfolio with two
+products reusing shared hardware/software, security, compliance, and cloud
+modules through OCI coordinates.
 
 ### Requirement delegation (no tiers)
 
@@ -385,15 +651,15 @@ Use `engoscal` to generate SSP, Assessment Results, and POA&M artifacts from arc
 SSP only:
 
 ```bash
-go run ./cmd/engoscal --model examples/payments-engineering-sample/architecture.yml --ssp-out examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json
+go run ./cmd/engoscal --model examples/payments-engineering-sample/engmod.yml --ssp-out examples/payments-engineering-sample/generated/ARCHITECTURE.ssp.json
 ```
 
 Full chain:
 
 ```bash
 go run ./cmd/engoscal \
-  --model examples/payments-engineering-sample/architecture.yml \
-  --requirements examples/payments-engineering-sample/requirements.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
   --code-root examples/payments-engineering-sample/src \
   --profile examples/payments-engineering-sample/oscal/profile-nist-800-53-low.json \
   --catalog examples/payments-engineering-sample/oscal/catalog-nist-800-53-rev5-subset.json \
@@ -437,8 +703,8 @@ Generate the catalogs and logs:
 
 ```bash
 go run ./cmd/enggemara \
-  --model examples/payments-engineering-sample/architecture.yml \
-  --requirements examples/payments-engineering-sample/requirements.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
   --out-dir examples/payments-engineering-sample/generated/gemara \
   --version 1.0.0 --date 2026-06-26T00:00:00Z
 ```
@@ -447,7 +713,7 @@ Optionally emit OSCAL via the Gemara SDK bridge (additive; the hand-written OSCA
 SSP/AR/POA&M under `engoscal` are retained):
 
 ```bash
-go run ./cmd/enggemara --model <architecture.yml> --requirements <requirements.yml> \
+go run ./cmd/enggemara --model <engmod.yml> --requirements <model/requirements.yml> \
   --out-dir <dir> \
   --oscal-catalog-out <dir>/oscal-catalog.json \
   --oscal-ar-out <dir>/oscal-ar.json
@@ -483,11 +749,15 @@ End-to-end sample inputs and generated outputs are under:
 - `examples/coffee-fleet-ota-cloud-sample`
 
 Core files:
-- `catalog.yml`
-- `architecture.yml`
-- `requirements.yml`
-- `design.yml`
-- `decisions.yml` (architecture decision records; auto-discovered next to `architecture.yml`)
+- `engmod.yml`
+- `model/catalog.yml`
+- `model/requirements.yml`
+- `model/architecture.yml`
+- `model/behavior.yml`
+- `model/assurance.yml`
+- `model/compliance.yml`
+- `model/views.yml`
+- `model/decisions.yml`
 - `infra/terraform`
 - `src` (Go/Rust/TypeScript traced code)
 

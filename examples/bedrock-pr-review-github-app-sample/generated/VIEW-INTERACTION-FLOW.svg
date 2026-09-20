@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 602 1106" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
+  <title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
+  <metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
+  <line x1="146" y1="318" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="318" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="318" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="416" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="416" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="416" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="514" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="514" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="146" y1="612" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="146" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_async</text>
+  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
+  <line x1="456" y1="612" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="710" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="710" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="710" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="146" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="456" y1="906" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
+  <line x1="456" y1="906" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <g id="ACT-DEVELOPER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Developer</text>
+    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-DEVELOPER</text></g>
+  <g id="ACT-SECURITY-ENGINEER"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Engineer</text>
+    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-SECURITY-ENGINEER</text></g>
+  <g id="DO-BEDROCK-PR-CONTEXT"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Pull Request Context</text>
+    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-PR-CONTEXT</text></g>
+  <g id="DO-BEDROCK-REVIEW-FINDINGS"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Findings</text>
+    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-REVIEW-FINDINGS</text></g>
+  <g id="FLOW-BEDROCK-POLICY-TUNING"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Policy Tuning Flow</text>
+    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING</text></g>
+  <g id="FLOW-BEDROCK-POLICY-TUNING__orchestrate-policy-validation"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Orchestrate dry-run review validation with policy outputs</text>
+    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::orchestrate-policy-validation</text></g>
+  <g id="FLOW-BEDROCK-POLICY-TUNING__publish-policy-validation"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Publish policy validation findings to repository maintainers</text>
+    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::publish-policy-validation</text></g>
+  <g id="FLOW-BEDROCK-POLICY-TUNING__run-policy-checks"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Execute deterministic policy checks on candidate rules</text>
+    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::run-policy-checks</text></g>
+  <g id="FLOW-BEDROCK-POLICY-TUNING__update-policy-rules"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security engineer updates review policy rules</text>
+    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::update-policy-rules</text></g>
+  <g id="FLOW-BEDROCK-PR-REVIEW"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Review Interaction Flow</text>
+    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW</text></g>
+  <g id="FLOW-BEDROCK-PR-REVIEW__assemble-context"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Build bounded review context</text>
+    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::assemble-context</text></g>
+  <g id="FLOW-BEDROCK-PR-REVIEW__orchestrate-review"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Run AI + policy checks and prepare findings</text>
+    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::orchestrate-review</text></g>
+  <g id="FLOW-BEDROCK-PR-REVIEW__publish-review"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Publish findings to GitHub check run</text>
+    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::publish-review</text></g>
+  <g id="FLOW-BEDROCK-PR-REVIEW__receive-webhook"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Developer pushes PR updates that trigger webhook processing</text>
+    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::receive-webhook</text></g>
+  <g id="FU-POLICY-CHECKS"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Policy Checks</text>
+    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-POLICY-CHECKS</text></g>
+  <g id="FU-PR-CONTEXT-ASSEMBLY"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Context Assembly</text>
+    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-PR-CONTEXT-ASSEMBLY</text></g>
+  <g id="FU-REVIEW-ORCHESTRATION"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Orchestration</text>
+    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-ORCHESTRATION</text></g>
+  <g id="FU-REVIEW-PUBLICATION"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publication</text>
+    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-PUBLICATION</text></g>
+  <g id="IF-BEDROCK-REVIEW-PUBLISH-API"><rect x="36" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publish API</text>
+    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-BEDROCK-REVIEW-PUBLISH-API</text></g>
+</svg>

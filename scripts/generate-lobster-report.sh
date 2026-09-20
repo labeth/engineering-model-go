@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
 
 usage() {
   cat <<'EOF'
@@ -35,10 +36,10 @@ for bin in trlc lobster-trlc lobster-report lobster-html-report; do
   fi
 done
 
-REQ_FILE="${EXAMPLE_DIR}/requirements.yml"
+REQ_FILE="${EXAMPLE_DIR}/model/requirements.yml"
 TESTS_DIR="${EXAMPLE_DIR}/tests"
-OUT_DIR="${ROOT_DIR}/${EXAMPLE_DIR}/generated/lobster"
-TRLC_OUT_DIR="${ROOT_DIR}/${EXAMPLE_DIR}/generated/trlc"
+OUT_DIR="${EXAMPLE_DIR}/generated/lobster"
+TRLC_OUT_DIR="${EXAMPLE_DIR}/generated/trlc"
 
 mkdir -p "$OUT_DIR"
 

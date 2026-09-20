@@ -67,7 +67,7 @@ requirements:
 		t.Fatalf("unexpected diff:\n%s", result.Diff)
 	}
 
-	original, err := os.ReadFile(filepath.Join(root, "requirements.yml"))
+	original, err := os.ReadFile(filepath.Join(root, "model", "requirements.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ requirements:
 // TRLC-LINKS: REQ-EMG-033
 func TestApplyRequirementsDelta_RejectsSymlink(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	target := filepath.Join(root, "requirements.yml")
+	target := filepath.Join(root, "model", "requirements.yml")
 	realTarget := filepath.Join(root, "requirements-real.yml")
 	if err := os.Rename(target, realTarget); err != nil {
 		t.Fatal(err)
@@ -134,7 +134,7 @@ requirements:
 // TRLC-LINKS: REQ-EMG-033
 func TestApplyRequirementsDelta_RejectsConcurrentWriterLock(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	release, err := acquireRequirementsLock(filepath.Join(root, "requirements.yml"))
+	release, err := acquireRequirementsLock(filepath.Join(root, "model", "requirements.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +158,7 @@ func TestApplyRequirementsDelta_SharesLockAcrossDirectorySymlinks(t *testing.T) 
 	if err := os.Symlink(root, alias); err != nil {
 		t.Skipf("directory symlink unavailable: %v", err)
 	}
-	release, err := acquireRequirementsLock(filepath.Join(root, "requirements.yml"))
+	release, err := acquireRequirementsLock(filepath.Join(root, "model", "requirements.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +191,7 @@ func TestRequirementsPath_CanonicalizesDirectorySymlink(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want := filepath.Join(canonicalRoot, "requirements.yml"); target != want {
+	if want := filepath.Join(canonicalRoot, "model", "requirements.yml"); target != want {
 		t.Fatalf("requirements path = %q, want canonical path %q", target, want)
 	}
 }
@@ -199,7 +199,7 @@ func TestRequirementsPath_CanonicalizesDirectorySymlink(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-033
 func TestApplyRequirementsDelta_ReusesReleasedLockFile(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	target := filepath.Join(root, "requirements.yml")
+	target := filepath.Join(root, "model", "requirements.yml")
 	release, err := acquireRequirementsLock(target)
 	if err != nil {
 		t.Fatal(err)
@@ -221,7 +221,7 @@ requirements:
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
 func TestApplyRequirementsDelta_WritesValidatedCandidate(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	target := filepath.Join(root, "requirements.yml")
+	target := filepath.Join(root, "model", "requirements.yml")
 	before, err := os.Stat(target)
 	if err != nil {
 		t.Fatal(err)
@@ -280,7 +280,7 @@ requirements:
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
 func TestApplyRequirementsDelta_InvalidCandidateDoesNotWrite(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	target := filepath.Join(root, "requirements.yml")
+	target := filepath.Join(root, "model", "requirements.yml")
 	before, err := os.ReadFile(target)
 	if err != nil {
 		t.Fatal(err)
@@ -313,7 +313,7 @@ requirements:
 // TRLC-LINKS: REQ-EMG-032, REQ-EMG-033
 func TestApplyRequirementsDelta_DanglingAppliesToDoesNotWrite(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
-	target := filepath.Join(root, "requirements.yml")
+	target := filepath.Join(root, "model", "requirements.yml")
 	before, err := os.ReadFile(target)
 	if err != nil {
 		t.Fatal(err)
@@ -369,12 +369,31 @@ requirements:
 func writeRequirementsDeltaFixture(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
-	writeFixtureFile(t, filepath.Join(root, "architecture.yml"), `
-model:
-  id: test-model
+	writeFixtureFile(t, filepath.Join(root, "engmod.yml"), `
+schemaVersion: 2
+module:
+  path: example.com/test-model@v0
+  version: v0.1.0
+  modelId: test-model
   title: Test Model
-  baseCatalogRef: ./catalog.yml
-authoredArchitecture:
+  introduction: ""
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications: []
+inferenceHints: {}
+`)
+	writeFixtureFile(t, filepath.Join(root, "model", "architecture.yml"), `
+schemaVersion: 2
+architecture:
   functionalGroups:
     - id: FG-TEST
       name: Test
@@ -383,13 +402,17 @@ authoredArchitecture:
     - id: FU-STORE
       name: Store
       group: FG-TEST
-  mappings:
+`)
+	writeFixtureFile(t, filepath.Join(root, "model", "behavior.yml"), `
+schemaVersion: 2
+behavior:
+  relationships:
     - type: contains
       from: FG-TEST
       to: FU-STORE
-views: []
 `)
-	writeFixtureFile(t, filepath.Join(root, "catalog.yml"), `
+	writeFixtureFile(t, filepath.Join(root, "model", "catalog.yml"), `
+schemaVersion: 2
 catalog:
   systems:
     - id: SYS-TEST
@@ -412,7 +435,8 @@ catalog:
       name: audit record
       definition: Record retained for audit.
 `)
-	writeFixtureFile(t, filepath.Join(root, "requirements.yml"), `
+	writeFixtureFile(t, filepath.Join(root, "model", "requirements.yml"), `
+schemaVersion: 2
 lintRun:
   id: test-lint
   mode: guided
@@ -433,6 +457,10 @@ requirements:
 
 expected: []
 `)
+	writeFixtureFile(t, filepath.Join(root, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
 	return root
 }
 
@@ -447,6 +475,9 @@ func writeDelta(t *testing.T, root, content string) string {
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-033
 func writeFixtureFile(t *testing.T, path, content string) {
 	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(path, []byte(strings.TrimLeft(content, "\n")), 0o640); err != nil {
 		t.Fatal(err)
 	}

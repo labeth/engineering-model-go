@@ -1,0 +1,43 @@
+{
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "requirements": [
+    {
+      "id": "REQ-YD-HLR-001",
+      "text": "When yaw rate input is received, the yaw damping software shall filter the yaw rate input.",
+      "units": [
+        "FU-YAW-CONTROL"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-YD-LLR-001",
+      "text": "When yaw rate input is received, the yaw damping software shall limit the bounded rudder command.",
+      "units": [
+        "FU-YAW-CONTROL"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-YD-SYS-001",
+      "text": "When yaw rate input is received, the yaw damping software shall compute a bounded rudder command.",
+      "units": [
+        "FU-YAW-CONTROL"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-YD-SYS-001",
+    "REQ-YD-HLR-001",
+    "REQ-YD-LLR-001"
+  ],
+  "summary": {
+    "requirements": 3,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 3,
+    "danglingLinks": 0
+  }
+}

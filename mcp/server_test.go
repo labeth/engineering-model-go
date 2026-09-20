@@ -6,14 +6,16 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/model"
 )
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	s := NewServer()
-	modelPath := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
-	reqPath := filepath.Join("..", "examples", "payments-engineering-sample", "requirements.yml")
-	designPath := filepath.Join("..", "examples", "payments-engineering-sample", "design.yml")
+	modelPath := filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml")
+	reqPath := filepath.Join("..", "examples", "payments-engineering-sample", "model", "requirements.yml")
+	designPath := filepath.Join("..", "examples", "payments-engineering-sample", "model", "views.yml")
 	repoRoot := filepath.Join("..")
 
 	initResp := rpcCall(t, s, map[string]any{
@@ -95,6 +97,31 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	contract, ok := payload["contract"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing authoring contract: %+v", payload)
+	}
+	if contract["contractVersion"] != model.AuthoringContractVersion {
+		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
+	}
+	documents, _ := contract["documents"].([]any)
+	if len(documents) != 9 {
+		t.Fatalf("expected manifest plus eight domain documents, got %d", len(documents))
+	}
+	if compatibility, ok := contract["compatibility"].([]any); !ok || len(compatibility) != 0 {
+		t.Fatalf("schema-v2 contract must not advertise compatibility modes: %+v", contract)
+	}
+	dependencies, ok := contract["dependencies"].(map[string]any)
+	if !ok || dependencies["registryEnvironment"] != "CUE_REGISTRY" || dependencies["workspaceFile"] != model.WorkspaceFileName {
+		t.Fatalf("missing dependency authoring guidance: %+v", contract)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestHandleJSONRPCValidation(t *testing.T) {
 	s := NewServer()
@@ -129,7 +156,7 @@ func TestPathTraversalIsRejected(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
+				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
 				"repoRoot":  filepath.Join(".."),
 			},
 		},
@@ -187,7 +214,7 @@ func TestToolsCallRejectsBadInput(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
+				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
 				"repoRoot":  filepath.Join(".."),
 			},
 		},
@@ -217,7 +244,7 @@ func TestToolMissingRequiredArgument(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
+				"modelPath": filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
 				"repoRoot":  filepath.Join(".."),
 			},
 		},
@@ -441,8 +468,8 @@ func TestInterfaceImplementationsReturnsLinkedSymbols(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
-				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "requirements.yml"),
+				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
+				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "model", "requirements.yml"),
 				"repoRoot":         filepath.Join(".."),
 			},
 		},
@@ -494,8 +521,8 @@ func TestModelImplementationsReturnsLinkedSymbolsForFlowAndData(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
-				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "requirements.yml"),
+				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
+				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "model", "requirements.yml"),
 				"repoRoot":         filepath.Join(".."),
 			},
 		},
@@ -538,8 +565,8 @@ func TestGraphSearchIncludesFlowsAndOtherModelEntities(t *testing.T) {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
-				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "requirements.yml"),
+				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
+				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "model", "requirements.yml"),
 				"repoRoot":         filepath.Join(".."),
 			},
 		},
@@ -631,8 +658,8 @@ func initializedPaymentsServer(t *testing.T) *Server {
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
-				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "requirements.yml"),
+				"modelPath":        filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
+				"requirementsPath": filepath.Join("..", "examples", "payments-engineering-sample", "model", "requirements.yml"),
 				"repoRoot":         filepath.Join(".."),
 			},
 		},

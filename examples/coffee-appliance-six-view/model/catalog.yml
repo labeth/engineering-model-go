@@ -1,0 +1,32 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-COFFEE-APPLIANCE
+    name: coffee appliance
+    definition: Countertop appliance that prepares a selected coffee beverage.
+    aliases:
+    - the coffee appliance
+  actors:
+  - id: ACT-COFFEE-DRINKER
+    name: coffee drinker
+    definition: Person who selects and receives a beverage.
+    aliases:
+    - the coffee drinker
+  events:
+  - id: EVT-BREW-REQUESTED
+    name: brew request is received
+    definition: Event raised after a drink selection is submitted.
+    aliases:
+    - brew request
+  states:
+  - id: STATE-READY
+    name: appliance is ready
+    definition: State in which water, beans, and the cup station are ready for a brew cycle.
+    aliases:
+    - ready
+  dataTerms:
+  - id: DATA-BREW-SELECTION
+    name: brew selection
+    definition: Typed request containing beverage size and strength.
+    aliases:
+    - beverage selection

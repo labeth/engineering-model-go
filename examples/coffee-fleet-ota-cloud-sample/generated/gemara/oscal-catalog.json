@@ -8,20 +8,20 @@
             "class": "identity-access",
             "controls": [
               {
-                "id": "CV-COFFEE-DEVICE-IDENTITY-TEST",
+                "id": "cv-coffee-device-identity-test",
                 "parts": [
                   {
-                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_smt",
+                    "id": "cv-coffee-device-identity-test_smt",
                     "name": "statement",
                     "prose": "The control \"Device Identity Validation\" MUST be verified by test."
                   },
                   {
-                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_gdn",
+                    "id": "cv-coffee-device-identity-test_gdn",
                     "name": "guidance",
                     "prose": "unauthorized command publishers rejected by identity policy"
                   },
                   {
-                    "id": "CV-COFFEE-DEVICE-IDENTITY-TEST_obj",
+                    "id": "cv-coffee-device-identity-test_obj",
                     "links": [
                       {
                         "href": "#CV-COFFEE-DEVICE-IDENTITY-TEST_smt",
@@ -34,20 +34,20 @@
                 "title": "CV-COFFEE-DEVICE-IDENTITY-TEST"
               },
               {
-                "id": "CV-COFFEE-TELEMETRY-REPLAY",
+                "id": "cv-coffee-telemetry-replay",
                 "parts": [
                   {
-                    "id": "CV-COFFEE-TELEMETRY-REPLAY_smt",
+                    "id": "cv-coffee-telemetry-replay_smt",
                     "name": "statement",
                     "prose": "The control \"Device Identity Validation\" MUST be verified by analysis."
                   },
                   {
-                    "id": "CV-COFFEE-TELEMETRY-REPLAY_gdn",
+                    "id": "cv-coffee-telemetry-replay_gdn",
                     "name": "guidance",
                     "prose": "replay detection works for standard windows; high-burst tuning still in progress"
                   },
                   {
-                    "id": "CV-COFFEE-TELEMETRY-REPLAY_obj",
+                    "id": "cv-coffee-telemetry-replay_obj",
                     "links": [
                       {
                         "href": "#CV-COFFEE-TELEMETRY-REPLAY_smt",
@@ -60,20 +60,20 @@
                 "title": "CV-COFFEE-TELEMETRY-REPLAY"
               },
               {
-                "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS",
+                "id": "cv-coffee-audit-integrity-analysis",
                 "parts": [
                   {
-                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_smt",
+                    "id": "cv-coffee-audit-integrity-analysis_smt",
                     "name": "statement",
                     "prose": "The control \"Device Identity Validation\" MUST be verified by inspection."
                   },
                   {
-                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_gdn",
+                    "id": "cv-coffee-audit-integrity-analysis_gdn",
                     "name": "guidance",
                     "prose": "log write permissions are constrained but immutable retention still being expanded"
                   },
                   {
-                    "id": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_obj",
+                    "id": "cv-coffee-audit-integrity-analysis_obj",
                     "links": [
                       {
                         "href": "#CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS_smt",
@@ -86,16 +86,16 @@
                 "title": "CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS"
               }
             ],
-            "id": "CTRL-COFFEE-DEVICE-IDENTITY",
+            "id": "ctrl-coffee-device-identity",
             "links": [
               {
-                "href": "https://gemara.local/controls/1.0.0#ctrl-coffee-device-identity",
+                "href": "https://gemara.local/controls/v0.1.0#ctrl-coffee-device-identity",
                 "rel": "canonical"
               }
             ],
             "parts": [
               {
-                "id": "CTRL-COFFEE-DEVICE-IDENTITY_smt",
+                "id": "ctrl-coffee-device-identity_smt",
                 "name": "statement",
                 "prose": "Require authenticated device identity for telemetry and OTA command channels."
               }
@@ -113,20 +113,20 @@
             "class": "integrity",
             "controls": [
               {
-                "id": "CV-COFFEE-FW-SIGNATURE-TEST",
+                "id": "cv-coffee-fw-signature-test",
                 "parts": [
                   {
-                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_smt",
+                    "id": "cv-coffee-fw-signature-test_smt",
                     "name": "statement",
                     "prose": "The control \"Firmware Signature Enforcement\" MUST be verified by test."
                   },
                   {
-                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_gdn",
+                    "id": "cv-coffee-fw-signature-test_gdn",
                     "name": "guidance",
                     "prose": "unsigned or tampered bundles rejected during OTA execution"
                   },
                   {
-                    "id": "CV-COFFEE-FW-SIGNATURE-TEST_obj",
+                    "id": "cv-coffee-fw-signature-test_obj",
                     "links": [
                       {
                         "href": "#CV-COFFEE-FW-SIGNATURE-TEST_smt",
@@ -139,48 +139,193 @@
                 "title": "CV-COFFEE-FW-SIGNATURE-TEST"
               }
             ],
-            "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE",
+            "id": "ctrl-coffee-firmware-signature",
             "links": [
               {
-                "href": "https://gemara.local/controls/1.0.0#ctrl-coffee-firmware-signature",
+                "href": "https://gemara.local/controls/v0.1.0#ctrl-coffee-firmware-signature",
                 "rel": "canonical"
               }
             ],
             "parts": [
               {
-                "id": "CTRL-COFFEE-FIRMWARE-SIGNATURE_smt",
+                "id": "ctrl-coffee-firmware-signature_smt",
                 "name": "statement",
                 "prose": "Require signed firmware bundles before applying OTA updates."
               }
             ],
             "title": "Firmware Signature Enforcement"
+          },
+          {
+            "class": "integrity",
+            "controls": [
+              {
+                "id": "ota-agent-ver-firmware-signature",
+                "parts": [
+                  {
+                    "id": "ota-agent-ver-firmware-signature_smt",
+                    "name": "statement",
+                    "prose": "The control \"Firmware Signature Verification\" MUST be verified by test."
+                  },
+                  {
+                    "id": "ota-agent-ver-firmware-signature_gdn",
+                    "name": "guidance",
+                    "prose": "Signature rejection verified in unit tests."
+                  },
+                  {
+                    "id": "ota-agent-ver-firmware-signature_obj",
+                    "links": [
+                      {
+                        "href": "#ota-agent::VER-FIRMWARE-SIGNATURE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "ota-agent::VER-FIRMWARE-SIGNATURE"
+              }
+            ],
+            "id": "ota-agent-ctrl-firmware-signature",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#ota-agent::ctrl-firmware-signature",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ota-agent-ctrl-firmware-signature_smt",
+                "name": "statement",
+                "prose": "Verify firmware signatures before apply."
+              }
+            ],
+            "title": "Firmware Signature Verification"
+          },
+          {
+            "class": "integrity",
+            "controls": [
+              {
+                "id": "telemetry-ver-telem-integrity",
+                "parts": [
+                  {
+                    "id": "telemetry-ver-telem-integrity_smt",
+                    "name": "statement",
+                    "prose": "The control \"Telemetry Integrity\" MUST be verified by test."
+                  },
+                  {
+                    "id": "telemetry-ver-telem-integrity_gdn",
+                    "name": "guidance",
+                    "prose": "Telemetry signature verified in unit tests."
+                  },
+                  {
+                    "id": "telemetry-ver-telem-integrity_obj",
+                    "links": [
+                      {
+                        "href": "#telemetry::VER-TELEM-INTEGRITY_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "telemetry::VER-TELEM-INTEGRITY"
+              }
+            ],
+            "id": "telemetry-ctrl-telem-integrity",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#telemetry::ctrl-telem-integrity",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "telemetry-ctrl-telem-integrity_smt",
+                "name": "statement",
+                "prose": "Sign telemetry records to protect integrity in transit."
+              }
+            ],
+            "title": "Telemetry Integrity"
           }
         ],
         "id": "integrity",
         "title": "Control category: integrity."
+      },
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "access-control",
+            "controls": [
+              {
+                "id": "cloud-api-ver-ingest-auth",
+                "parts": [
+                  {
+                    "id": "cloud-api-ver-ingest-auth_smt",
+                    "name": "statement",
+                    "prose": "The control \"Ingest Authentication\" MUST be verified by test."
+                  },
+                  {
+                    "id": "cloud-api-ver-ingest-auth_gdn",
+                    "name": "guidance",
+                    "prose": "Unauthenticated ingest rejected in tests."
+                  },
+                  {
+                    "id": "cloud-api-ver-ingest-auth_obj",
+                    "links": [
+                      {
+                        "href": "#cloud-api::VER-INGEST-AUTH_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "cloud-api::VER-INGEST-AUTH"
+              }
+            ],
+            "id": "cloud-api-ctrl-ingest-auth",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#cloud-api::ctrl-ingest-auth",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "cloud-api-ctrl-ingest-auth_smt",
+                "name": "statement",
+                "prose": "Authenticate machines before accepting telemetry."
+              }
+            ],
+            "title": "Ingest Authentication"
+          }
+        ],
+        "id": "access-control",
+        "title": "Control category: access-control."
       }
     ],
     "metadata": {
-      "last-modified": "2026-06-27T08:38:54.330001329+02:00",
+      "last-modified": "2026-09-19T00:00:00Z",
       "links": [
         {
-          "href": "https://gemara.local/controls/1.0.0#",
+          "href": "https://gemara.local/controls/v0.1.0#",
           "rel": "canonical"
         }
       ],
       "oscal-version": "1.1.3",
       "parties": [
         {
-          "name": "Engineering Model",
+          "name": "Engineering Model Go Examples",
           "type": "person",
-          "uuid": "935563f2-e8b7-4cf4-a73c-bcb3b0cda0df"
+          "uuid": "a2af0acc-16b6-547a-b566-fbcfbf9b29a7"
         }
       ],
-      "published": "2026-06-27T00:00:00Z",
+      "published": "2026-09-19T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
-            "935563f2-e8b7-4cf4-a73c-bcb3b0cda0df"
+            "a2af0acc-16b6-547a-b566-fbcfbf9b29a7"
           ],
           "role-id": "author"
         }
@@ -193,8 +338,8 @@
         }
       ],
       "title": "Connected Coffee Fleet OTA + Cloud Architecture - Controls",
-      "version": "1.0.0"
+      "version": "v0.1.0"
     },
-    "uuid": "2ddf19e3-311c-4638-a822-46805b31d964"
+    "uuid": "51e7ff0b-abc1-55f0-8168-c17695f1950f"
   }
 }

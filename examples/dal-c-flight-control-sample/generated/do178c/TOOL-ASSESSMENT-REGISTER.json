@@ -1,0 +1,48 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "TOOL-COMPILER-001",
+      "name": "Example C Compiler",
+      "version": "1.0",
+      "intendedUse": "Produce target object code; outputs are verified without certification credit.",
+      "creditClaimed": false,
+      "assessment": {
+        "criterion": "",
+        "tql": "",
+        "operationalRequirements": null,
+        "evidence": null
+      },
+      "environment": "BUILD-ENV-1",
+      "baseline": "BASELINE-YD-001",
+      "status": "declared"
+    },
+    {
+      "id": "TOOL-COVERAGE-001",
+      "name": "Example Coverage Analyzer",
+      "version": "2.0",
+      "intendedUse": "Measure statement coverage with claimed verification credit.",
+      "creditClaimed": true,
+      "assessment": {
+        "criterion": "CUSTOMER-TOOL-CRITERION-REF-001",
+        "tql": "TQL-5",
+        "operationalRequirements": [
+          "Record statement execution for the exact instrumented build."
+        ],
+        "evidence": [
+          "REVIEW-YD-001"
+        ]
+      },
+      "environment": "HOST-TEST-RIG-1",
+      "baseline": "BASELINE-YD-001",
+      "status": "reviewed"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "profile": {
+    "uuid": "f6985521-6e6e-5b3c-83ac-f11ee13dbfb0",
+    "metadata": {
+      "title": "Sample Payments Layered Architecture Compliance Profile",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "./oscal/profile-nist-800-53-low.json"
+      }
+    ]
+  }
+}

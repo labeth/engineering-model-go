@@ -1,0 +1,78 @@
+metadata:
+  id: atlas-industries-portfolio-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Point-in-time audit of Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Atlas Industries Company Portfolio: 4 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-aegis::CV-AEG-TRACK-CONFIDENCE
+  title: Verification of aegis::CTRL-AEG-TRACK-CONFIDENCE
+  type: Strength
+  description: Control aegis::CTRL-AEG-TRACK-CONFIDENCE assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: aegis::CTRL-AEG-TRACK-CONFIDENCE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-aegis::CV-AEG-TRACK-CONFIDENCE-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/aegis/sensor-spoof-campaign.json
+    description: Hardware-in-the-loop spoofing campaign.
+  recommendations:
+  - text: Single-source false observations were rejected.
+    required: false
+- id: AUD-orion::CV-ORI-ADMISSION
+  title: Verification of orion::CTRL-ORI-ADMISSION
+  type: Observation
+  description: Control orion::CTRL-ORI-ADMISSION assessed via test with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: orion::CTRL-ORI-ADMISSION
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-orion::CV-ORI-ADMISSION-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/orion/admission-load-test.json
+    description: Current load test evidence.
+  recommendations:
+  - text: Single-band priority traffic remained available during flooding.
+    required: false
+- id: AUD-aegis::RISK-AEG-FALSE-TRACK
+  title: "Residual risk: False perimeter track"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: aegis::CTRL-AEG-TRACK-CONFIDENCE
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-orion::RISK-ORI-LINK-EXHAUSTION
+  title: "Residual risk: Relay link exhaustion"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: orion::CTRL-ORI-ADMISSION
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: atlas-industries-portfolio
+  name: Atlas Industries Company Portfolio
+  type: Software
+  description: "System under governance: Atlas Industries Company Portfolio"

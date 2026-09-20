@@ -1,0 +1,88 @@
+{
+  "model": "atlas-shared-compliance-baseline",
+  "requirements": [
+    {
+      "id": "REQ-COMP-001",
+      "text": "The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.",
+      "units": [
+        "FU-COMP-EVIDENCE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-002",
+      "text": "The atlas compliance baseline shall report control implementation status to the compliance officer.",
+      "units": [
+        "FU-COMP-EVIDENCE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-003",
+      "text": "The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-004",
+      "text": "The people security and awareness shall record policy acknowledgment for every employee at onboarding.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-005",
+      "text": "The people security and awareness shall record annual employee completion in the security awareness training record.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-006",
+      "text": "The people security and awareness shall request a line manager access review following an employee role change.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-007",
+      "text": "The people security and awareness shall revoke employee access following employment termination.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-COMP-008",
+      "text": "The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.",
+      "units": [
+        "FU-COMP-PEOPLE"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-COMP-001",
+    "REQ-COMP-002",
+    "REQ-COMP-003",
+    "REQ-COMP-004",
+    "REQ-COMP-005",
+    "REQ-COMP-006",
+    "REQ-COMP-007",
+    "REQ-COMP-008"
+  ],
+  "summary": {
+    "requirements": 8,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 8,
+    "danglingLinks": 0
+  }
+}

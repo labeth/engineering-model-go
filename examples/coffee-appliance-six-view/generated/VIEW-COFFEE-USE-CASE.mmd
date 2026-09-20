@@ -1,0 +1,9 @@
+flowchart LR
+%% view: VIEW-COFFEE-USE-CASE (use-case)
+N_ACT_COFFEE_DRINKER(("Coffee Drinker")):::actor
+N_UC_HEAT_WATER(["Heat Water"]):::use_case
+N_UC_PREPARE_COFFEE(["Prepare Coffee"]):::use_case
+N_ACT_COFFEE_DRINKER -->|participates| N_UC_PREPARE_COFFEE
+N_UC_PREPARE_COFFEE -.->|include| N_UC_HEAT_WATER
+classDef actor fill:#fff8e1,stroke:#ef6c00,color:#7f3600;
+classDef use_case fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;

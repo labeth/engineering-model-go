@@ -1,0 +1,206 @@
+schemaVersion: 2
+assurance:
+  attackVectors:
+  - id: AV-MALFORMED-MODEL-INPUT
+    name: Malformed Model Input
+    description: Invalid or ambiguous model content causing incorrect parsing or graph interpretation.
+  - id: AV-SCHEMA-SUPPLY-CHAIN-TAMPER
+    name: Schema Supply Chain Tamper
+    description: Drift or tampering in external schemas used by export validation.
+  - id: AV-PATH-TRAVERSAL-IN-MCP
+    name: Path Traversal in MCP Calls
+    description: Attempts to read files outside repository root via MCP path arguments.
+  - id: AV-TRACEABILITY-GAP-DRIFT
+    name: Traceability Gap Drift
+    description: Requirement and verification links diverge from implementation over time.
+  controls:
+  - id: CTRL-MCP-PATH-BOUNDARY
+    name: MCP Path Boundary Enforcement
+    category: input-validation
+    description: Enforce repo-root path constraints and reject traversal paths in MCP tools.
+  - id: CTRL-STRICT-MCP-INPUT-SCHEMA
+    name: Strict MCP Input Schemas
+    category: input-validation
+    description: Enforce per-tool input schema and reject unknown arguments.
+  - id: CTRL-TRACEABILITY-COVERAGE
+    name: Requirement Traceability Coverage
+    category: assurance
+    description: Require requirement-linked verification evidence for modeled behavior.
+  - id: CTRL-TRACE-LINK-INTEGRITY
+    name: Trace Link Integrity
+    category: assurance
+    description: Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and
+      export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup.
+  - id: CTRL-ARTIFACT-FRESHNESS-GATE
+    name: Generated Artifact Freshness Gate
+    category: assurance
+    description: Generate artifacts deterministically and fail continuous integration when regenerated documents differ from
+      the committed artifacts.
+  risks:
+  - id: RISK-MCP-PATH-ESCAPE
+    title: MCP path traversal exposes non-repository files
+    statement: An attacker uses crafted MCP path arguments to read files outside the repository workspace.
+    status: mitigating
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-ARCHITECTURE-AUTHOR
+    appliesTo:
+    - FU-MCP-SERVER
+    relatedControls:
+    - CTRL-MCP-PATH-BOUNDARY
+    - CTRL-STRICT-MCP-INPUT-SCHEMA
+    attackVectors:
+    - AV-PATH-TRAVERSAL-IN-MCP
+    threatScenarios:
+    - TS-MCP-PATH-TRAVERSAL
+    residualRisk: low
+    rationale: Path boundary enforcement and strict input schemas reduce exposure to low residual risk.
+  - id: RISK-TRACEABILITY-DRIFT
+    title: Traceability drift weakens assurance evidence
+    statement: Code and tests evolve without updating requirement trace markers, eroding coverage evidence.
+    status: mitigating
+    likelihood: medium
+    impact: medium
+    response: mitigate
+    owner: ACT-COMPLIANCE-ENGINEER
+    appliesTo:
+    - FU-CODEMAP-INFERENCE
+    relatedControls:
+    - CTRL-TRACEABILITY-COVERAGE
+    - CTRL-TRACE-LINK-INTEGRITY
+    attackVectors:
+    - AV-TRACEABILITY-GAP-DRIFT
+    threatScenarios:
+    - TS-TRACEABILITY-DRIFT
+    residualRisk: low
+    rationale: Strict code-linking coverage, dangling-link rejection, and inferred verification keep drift detectable.
+  - id: RISK-STALE-ARTIFACTS
+    title: Stale generated artifacts misrepresent the system
+    statement: Generated documentation or exchange artifacts fall out of sync with the authored model.
+    status: mitigating
+    likelihood: low
+    impact: medium
+    response: mitigate
+    owner: ACT-ARCHITECTURE-AUTHOR
+    appliesTo:
+    - FU-CLI-ORCHESTRATION
+    relatedControls:
+    - CTRL-TRACEABILITY-COVERAGE
+    - CTRL-ARTIFACT-FRESHNESS-GATE
+    residualRisk: low
+    rationale: Deterministic generation plus the CI freshness gate fail the build when committed artifacts drift from the
+      model.
+  poamItems:
+  - id: POAM-MCP-PATH-FUZZING
+    riskRef: RISK-MCP-PATH-ESCAPE
+    milestone: Add fuzz coverage for MCP path normalization
+    dueDate: 2026-09-30
+    status: planned
+    responsibleRole: ACT-ARCHITECTURE-AUTHOR
+    artifacts:
+    - path: mcp/server_test.go
+      description: Path-boundary test coverage to extend with fuzzing.
+  - id: POAM-TRACE-COVERAGE-GATE
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: Enforce strict trace coverage in the CI gate
+    dueDate: 2026-08-31
+    status: in-progress
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: codemap/scan.go
+      description: Strict code-linking scanner backing the coverage gate.
+  trustBoundaries:
+  - id: TB-REPO-WORKSPACE
+    name: Repository Workspace Boundary
+    description: Boundary limiting file operations to repository-root owned paths.
+    boundaryType: filesystem
+    members:
+    - FU-MCP-SERVER
+    - FU-CODEMAP-INFERENCE
+  - id: TB-EXTERNAL-VALIDATION-TOOLS
+    name: External Validation Tools Boundary
+    description: Boundary for external validators, schemas, and compliance toolchains.
+    boundaryType: external-tooling
+    members:
+    - REF-THREAT-DRAGON-SCHEMAS
+    - REF-OPEN-OTM-SCHEMA
+    - REF-STRUCTURIZR-VALIDATOR
+    - REF-TRLC-TOOLCHAIN
+    - REF-LOBSTER-TOOLCHAIN
+  threatScenarios:
+  - id: TS-MCP-PATH-TRAVERSAL
+    title: MCP path traversal accesses non-repo files
+    summary: Untrusted MCP input attempts to escape repo root for sensitive file reads.
+    category: input-validation
+    stride: tampering
+    attackVectorRef: AV-PATH-TRAVERSAL-IN-MCP
+    appliesTo:
+    - FU-MCP-SERVER
+    flowRefs:
+    - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-ARCHITECTURE-AUTHOR
+    relatedControls:
+    - CTRL-MCP-PATH-BOUNDARY
+    - CTRL-STRICT-MCP-INPUT-SCHEMA
+  - id: TS-TRACEABILITY-DRIFT
+    title: Requirement traceability drifts from implementation
+    summary: Code and tests change without corresponding requirement trace updates.
+    category: assurance
+    stride: repudiation
+    attackVectorRef: AV-TRACEABILITY-GAP-DRIFT
+    appliesTo:
+    - FU-CODEMAP-INFERENCE
+    - FU-TRLC-EXPORTER
+    - FU-LOBSTER-EXPORTER
+    likelihood: medium
+    impact: medium
+    severity: medium
+    status: mitigating
+    owner: ACT-COMPLIANCE-ENGINEER
+    relatedControls:
+    - CTRL-TRACEABILITY-COVERAGE
+  threatMitigations:
+  - id: TM-MCP-PATH-BOUNDARY
+    threatScenarioRef: TS-MCP-PATH-TRAVERSAL
+    controlRef: CTRL-MCP-PATH-BOUNDARY
+    status: implemented
+    effectiveness: high
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - VER-MCP-PATH-BOUNDARY
+  - id: TM-TRACE-COVERAGE
+    threatScenarioRef: TS-TRACEABILITY-DRIFT
+    controlRef: CTRL-TRACEABILITY-COVERAGE
+    status: implemented
+    effectiveness: medium
+    owner: ACT-COMPLIANCE-ENGINEER
+  controlVerifications:
+  - id: VER-MCP-PATH-BOUNDARY
+    controlRef: CTRL-MCP-PATH-BOUNDARY
+    threatScenarioRefs:
+    - TS-MCP-PATH-TRAVERSAL
+    method: test
+    status: pass
+    owner: ACT-ARCHITECTURE-AUTHOR
+    findings:
+    - Path traversal rejected and error payload returned in MCP tests.
+    evidence:
+    - path: mcp/server_test.go
+      description: Traversal rejection tests for MCP path arguments.
+  - id: VER-TRACEABILITY-COVERAGE
+    controlRef: CTRL-TRACEABILITY-COVERAGE
+    threatScenarioRefs:
+    - TS-TRACEABILITY-DRIFT
+    method: analysis
+    status: partial
+    owner: ACT-COMPLIANCE-ENGINEER
+    findings:
+    - Coverage depends on TRLC-LINKS completeness in source and tests.
+    evidence:
+    - path: inferred_verification_test.go
+      description: Verification inference and trace marker coverage tests.

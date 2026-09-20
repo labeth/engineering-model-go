@@ -47,10 +47,11 @@ const systemCapabilityID = "CAP-SYSTEM"
 // GemaraExportOptions configures the deterministic metadata stamped into artifacts.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type GemaraExportOptions struct {
-	AuthorID   string // metadata.author.id (default "engmod")
-	AuthorName string // metadata.author.name (default "Engineering Model")
-	Version    string // metadata.version (optional)
-	Date       string // metadata.date, ISO 8601 (optional; omitted when empty for reproducibility)
+	AuthorID           string // metadata.author.id (default "engmod")
+	AuthorName         string // metadata.author.name (default "Engineering Model")
+	Version            string // metadata.version (optional)
+	Date               string // metadata.date, ISO 8601 (optional; omitted when empty for reproducibility)
+	AssessmentPlanHref string // OSCAL Assessment Results import-ap href
 }
 
 // GemaraExportResult holds the typed Gemara documents and their YAML serializations.
@@ -88,13 +89,26 @@ func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions
 	if err != nil {
 		return GemaraExportResult{}, err
 	}
+	bundle, err = enrichBundleFromComposition(bundle, "architecture", "behavior", "assurance", "compliance")
+	if err != nil {
+		return GemaraExportResult{}, err
+	}
 	return GenerateGemara(bundle, options)
 }
 
 // GenerateGemara renders the engineering model bundle into Gemara L1-L3 documents.
-// TRLC-LINKS: REQ-EMG-015
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemara(bundle model.Bundle, options GemaraExportOptions) (GemaraExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return GemaraExportResult{}, err
+	}
+	bundle = canonical.Documents()
+	options, err = resolveGemaraOptions(bundle, options)
+	if err != nil {
+		return GemaraExportResult{}, err
+	}
 	cfg := newGemaraConfig(bundle, options)
 
 	res := GemaraExportResult{
@@ -176,6 +190,27 @@ func GenerateGemara(bundle model.Bundle, options GemaraExportOptions) (GemaraExp
 		res.YAML[d.name] = out
 	}
 	return res, nil
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func resolveGemaraOptions(bundle model.Bundle, options GemaraExportOptions) (GemaraExportOptions, error) {
+	if len(bundle.Architecture.AuthoredArchitecture.Controls) > 0 ||
+		len(bundle.Architecture.AuthoredArchitecture.ControlVerifications) > 0 ||
+		len(bundle.Architecture.AuthoredArchitecture.POAMItems) > 0 {
+		resolved, err := resolveGeneratedTimestamp(bundle, options.Date, "Gemara")
+		if err != nil {
+			return options, err
+		}
+		options.Date = resolved
+	} else if raw := strings.TrimSpace(options.Date); raw != "" {
+		resolved, err := resolveGeneratedTimestamp(bundle, raw, "Gemara")
+		if err != nil {
+			return options, err
+		}
+		options.Date = resolved
+	}
+	return options, nil
 }
 
 // marshalGemara serializes a Gemara document with the same codec the SDK uses.

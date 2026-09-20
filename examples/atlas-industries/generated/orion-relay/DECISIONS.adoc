@@ -1,0 +1,22 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-ORI-001]]
+== ADR-ORI-001: Keep adaptive radio scheduling product-specific
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+Orion radio behavior and constrained-link scheduling define product differentiation.
+
+=== Decision
+
+Reuse company platforms while retaining link scheduling and routing locally.
+
+=== Consequences
+
+- Shared controls evolve independently from radio algorithms.

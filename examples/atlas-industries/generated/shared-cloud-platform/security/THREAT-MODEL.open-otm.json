@@ -1,0 +1,73 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Atlas Shared Cloud Platform",
+    "id": "atlas-shared-cloud-platform",
+    "description": "Reusable multi-region application runtime and event services.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Cloud Event",
+      "id": "DO-CLOUD-EVENT",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-CLOUD-OPERATOR",
+      "name": "Cloud Operator",
+      "type": "actor",
+      "description": "Owns cloud availability and recovery.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-CLOUD-RUNTIME",
+      "name": "Cloud Runtime",
+      "type": "service",
+      "description": "Hosts product APIs and durable event processing.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLOUD-EVENTS",
+      "name": "Cloud Event Ingestion",
+      "type": "interface",
+      "description": "https https://events.atlas.example/v1",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

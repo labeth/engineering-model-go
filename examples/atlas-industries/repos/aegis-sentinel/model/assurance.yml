@@ -1,0 +1,88 @@
+schemaVersion: 2
+assurance:
+  attackVectors:
+  - id: AV-AEG-SENSOR-SPOOF
+    name: Sensor Spoofing
+    description: Adversarial observations attempt to create a false perimeter track.
+  controls:
+  - id: CTRL-AEG-TRACK-CONFIDENCE
+    name: Track Confidence Gate
+    category: mission-integrity
+    description: Requires multi-sensor confidence before operator presentation.
+  risks:
+  - id: RISK-AEG-FALSE-TRACK
+    title: False perimeter track
+    statement: Spoofed observations may cause an incorrect perimeter incident.
+    status: mitigating
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-AEG-ENGINEER
+    appliesTo:
+    - FU-AEG-SENSOR-FUSION
+    - IF-AEG-TRACK
+    relatedControls:
+    - CTRL-AEG-TRACK-CONFIDENCE
+    attackVectors:
+    - AV-AEG-SENSOR-SPOOF
+    threatScenarios:
+    - TS-AEG-SENSOR-SPOOF
+    residualRisk: medium
+    rationale: Multi-sensor correlation reduces but does not eliminate sophisticated spoofing.
+  threatScenarios:
+  - id: TS-AEG-SENSOR-SPOOF
+    title: Crafted observations create a false track
+    summary: An adversary injects mutually consistent false observations.
+    category: sensor-integrity
+    stride: tampering
+    cwe:
+    - CWE-345
+    attackVectorRef: AV-AEG-SENSOR-SPOOF
+    appliesTo:
+    - FU-AEG-SENSOR-FUSION
+    - IF-AEG-TRACK
+    entryPoint: IF-AEG-TRACK
+    preconditions:
+    - sensor-channel-access
+    exploitPath:
+    - inject-observation
+    - correlate-false-track
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-AEG-ENGINEER
+    riskRef: RISK-AEG-FALSE-TRACK
+    relatedControls:
+    - CTRL-AEG-TRACK-CONFIDENCE
+    mitigationRefs:
+    - MIT-AEG-TRACK-CONFIDENCE
+    verificationRefs:
+    - CV-AEG-TRACK-CONFIDENCE
+    detection:
+    - cross-sensor-disagreement
+  threatMitigations:
+  - id: MIT-AEG-TRACK-CONFIDENCE
+    threatScenarioRef: TS-AEG-SENSOR-SPOOF
+    controlRef: CTRL-AEG-TRACK-CONFIDENCE
+    status: implemented
+    effectiveness: medium
+    owner: ACT-AEG-ENGINEER
+    verificationRefs:
+    - CV-AEG-TRACK-CONFIDENCE
+  controlVerifications:
+  - id: CV-AEG-TRACK-CONFIDENCE
+    controlRef: CTRL-AEG-TRACK-CONFIDENCE
+    threatScenarioRefs:
+    - TS-AEG-SENSOR-SPOOF
+    riskRefs:
+    - RISK-AEG-FALSE-TRACK
+    method: test
+    status: pass
+    owner: ACT-AEG-ENGINEER
+    lastTested: 2026-09-10
+    findings:
+    - Single-source false observations were rejected.
+    evidence:
+    - path: evidence/aegis/sensor-spoof-campaign.json
+      description: Hardware-in-the-loop spoofing campaign.

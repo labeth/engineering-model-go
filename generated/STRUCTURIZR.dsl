@@ -4,1044 +4,504 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       group "Artifact Generation" {
         fu_fu_asciidoc_generator = container "AsciiDoc Generator" "Renders architecture publication docs and view narratives for human consumption." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-ARTIFACT-GENERATION"
-            "sourceId" "FU-ASCIIDOC-GENERATOR"
-          }
+        }
+        fu_fu_naf_exporter = container "NAF Exporter" "Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing canonical views." "Functional Unit" {
+          tags "FunctionalUnit"
         }
         fu_fu_structurizr_exporter = container "Structurizr Exporter" "Emits Structurizr DSL and deployment-aware model views." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-ARTIFACT-GENERATION"
-            "sourceId" "FU-STRUCTURIZR-EXPORTER"
-          }
+        }
+        fu_fu_sysml_exporter = container "SysML Exporter" "Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting conformance coverage." "Functional Unit" {
+          tags "FunctionalUnit"
         }
         fu_fu_threat_exporter = container "Threat Exporter" "Exports Threat Dragon and Open OTM model artifacts." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-ARTIFACT-GENERATION"
-            "sourceId" "FU-THREAT-EXPORTER"
-          }
         }
         fu_fu_view_projection = container "View Projection" "Builds projection graphs for architecture, traceability, security, and flow views." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-ARTIFACT-GENERATION"
-            "sourceId" "FU-VIEW-PROJECTION"
-          }
         }
       }
       group "MCP Integration" {
         fu_fu_mcp_server = container "MCP Server" "Serves model-backed tools over MCP with path safety and structured errors." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-MCP-INTEGRATION"
-            "sourceId" "FU-MCP-SERVER"
-          }
         }
       }
       group "Model Authoring" {
         fu_fu_cli_orchestration = container "CLI Orchestration" "Command entrypoints orchestrating model load, validation, generation, and exports." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-MODEL-AUTHORING"
-            "sourceId" "FU-CLI-ORCHESTRATION"
-          }
         }
         fu_fu_model_change = container "Model Change" "Plans, validates, summarizes, and atomically applies typed stable-ID changes to authored model documents." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-MODEL-AUTHORING"
-            "sourceId" "FU-MODEL-CHANGE"
-          }
         }
-        fu_fu_model_loader = container "Model Loader" "Loads and normalizes architecture, catalog, requirements, and design documents." "Functional Unit" {
+        fu_fu_model_loader = container "Model Loader" "Validates canonical YAML against the authoritative CUE contract before strict Go decoding and normalization." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-MODEL-AUTHORING"
-            "sourceId" "FU-MODEL-LOADER"
-          }
         }
-        fu_fu_system_composition = container "System Composition" "Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model." "Functional Unit" {
+        fu_fu_system_composition = container "System Composition" "Resolves downward subsystem references from local paths, external git repositories, or exact-version CUE modules fetched from OCI registries into the .engmod cache, and composes a federated system-of-systems model." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-MODEL-AUTHORING"
-            "sourceId" "FU-SYSTEM-COMPOSITION"
-          }
         }
       }
       group "Traceability and Compliance" {
+        fu_fu_airborne_assurance_exporter = container "Airborne Assurance Exporter" "Validates aviation assurance evidence-readiness profiles and generates clearly marked draft lifecycle-data indexes, trace matrices, gap reports, and certification-support summaries without claiming compliance or authority acceptance." "Functional Unit" {
+          tags "FunctionalUnit"
+        }
         fu_fu_allocation_trace = container "Allocation Trace" "Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
-            "sourceId" "FU-ALLOCATION-TRACE"
-          }
         }
         fu_fu_gemara_exporter = container "Gemara Exporter" "Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
-            "sourceId" "FU-GEMARA-EXPORTER"
-          }
         }
         fu_fu_lobster_exporter = container "LOBSTER Exporter" "Generates LOBSTER traceability inputs and reports." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
-            "sourceId" "FU-LOBSTER-EXPORTER"
-          }
         }
         fu_fu_oscal_exporter = container "OSCAL Exporter" "Exports OSCAL System Security Plan (SSP), Assessment Results (AR), and Plan of Action and Milestones (POA&M)." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
-            "sourceId" "FU-OSCAL-EXPORTER"
-          }
         }
         fu_fu_trlc_exporter = container "TRLC Exporter" "Emits TRLC model and requirement artifacts." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-TRACEABILITY-COMPLIANCE"
-            "sourceId" "FU-TRLC-EXPORTER"
-          }
         }
       }
       group "Validation and Analysis" {
         fu_fu_codemap_inference = container "Codemap Inference" "Infers code/runtime ownership and verification links from source and tests." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-VALIDATION-ANALYSIS"
-            "sourceId" "FU-CODEMAP-INFERENCE"
-          }
         }
         fu_fu_validation_engine = container "Validation Engine" "Validates authored entities, IDs, references, and mapping consistency." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-VALIDATION-ANALYSIS"
-            "sourceId" "FU-VALIDATION-ENGINE"
-          }
         }
       }
     }
     person_act_ai_agent = person "AI Agent" "Uses MCP tools to plan and execute scoped implementation work." {
       tags "Actor"
-      properties {
-        "sourceId" "ACT-AI-AGENT"
-      }
     }
     person_act_architecture_author = person "Architecture Author" "Maintains modeled structure, mappings, and architecture intent." {
       tags "Actor"
-      properties {
-        "sourceId" "ACT-ARCHITECTURE-AUTHOR"
-      }
     }
     person_act_ci_pipeline = person "CI Pipeline" "Executes regression tests, validation checks, and artifact generation." {
       tags "Actor"
-      properties {
-        "sourceId" "ACT-CI-PIPELINE"
-      }
     }
     person_act_compliance_engineer = person "Compliance Engineer" "Uses control/risk and traceability outputs for assurance workflows." {
       tags "Actor"
-      properties {
-        "sourceId" "ACT-COMPLIANCE-ENGINEER"
-      }
     }
     person_act_implementation_engineer = person "Implementation Engineer" "Implements code and tests guided by requirement support paths." {
       tags "Actor"
-      properties {
-        "sourceId" "ACT-IMPLEMENTATION-ENGINEER"
-      }
     }
     group_fg_artifact_generation = softwareSystem "Artifact Generation" "Publication and exchange artifact generation." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-ARTIFACT-GENERATION"
-      }
     }
     group_fg_mcp_integration = softwareSystem "MCP Integration" "AI-agent integration and runtime API responsibilities." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-MCP-INTEGRATION"
-      }
     }
     group_fg_model_authoring = softwareSystem "Model Authoring" "Inputs and model loading responsibilities." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-MODEL-AUTHORING"
-      }
     }
     group_fg_traceability_compliance = softwareSystem "Traceability and Compliance" "Trace and compliance export responsibilities." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-TRACEABILITY-COMPLIANCE"
-      }
     }
     group_fg_validation_analysis = softwareSystem "Validation and Analysis" "Validation and inference responsibilities." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-VALIDATION-ANALYSIS"
-      }
+    }
+    ref_ref_cue_oci_module_registry = softwareSystem "CUE OCI Module Registry" "runtime" {
+      tags "ReferencedElement,external_service_endpoint"
     }
     ref_ref_go_toolchain = softwareSystem "Go Toolchain" "code" {
       tags "ReferencedElement,platform_service"
-      properties {
-        "kind" "platform_service"
-        "layer" "code"
-        "sourceId" "REF-GO-TOOLCHAIN"
-      }
     }
     ref_ref_lobster_toolchain = softwareSystem "LOBSTER Toolchain" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
-      properties {
-        "kind" "external_service_endpoint"
-        "layer" "runtime"
-        "sourceId" "REF-LOBSTER-TOOLCHAIN"
-      }
+    }
+    ref_ref_naf_v4_1_specification = softwareSystem "NATO Architecture Framework v4.1" "architecture" {
+      tags "ReferencedElement,external_standard"
     }
     ref_ref_open_otm_schema = softwareSystem "Open OTM Schema" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
-      properties {
-        "kind" "external_service_endpoint"
-        "layer" "runtime"
-        "sourceId" "REF-OPEN-OTM-SCHEMA"
-      }
     }
     ref_ref_structurizr_validator = softwareSystem "Structurizr Validator" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
-      properties {
-        "kind" "external_service_endpoint"
-        "layer" "runtime"
-        "sourceId" "REF-STRUCTURIZR-VALIDATOR"
-      }
+    }
+    ref_ref_sysml_v2_toolchain = softwareSystem "Pinned SysML 2.0 / KerML 1.0 Toolchain" "runtime" {
+      tags "ReferencedElement,external_service_endpoint"
     }
     ref_ref_threat_dragon_schemas = softwareSystem "Threat Dragon Schemas" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
-      properties {
-        "kind" "external_service_endpoint"
-        "layer" "runtime"
-        "sourceId" "REF-THREAT-DRAGON-SCHEMAS"
-      }
     }
     ref_ref_trlc_toolchain = softwareSystem "TRLC Toolchain" "runtime" {
       tags "ReferencedElement,external_service_endpoint"
-      properties {
-        "kind" "external_service_endpoint"
-        "layer" "runtime"
-        "sourceId" "REF-TRLC-TOOLCHAIN"
-      }
+    }
+    if_if_cli_engair = softwareSystem "engair CLI" "cli cmd/engair" {
+      tags "Interface"
     }
     if_if_cli_engchange = softwareSystem "engchange CLI" "cli cmd/engchange" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engchange"
-        "owner" "FU-MODEL-CHANGE"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGCHANGE"
-      }
     }
     if_if_cli_engdoc = softwareSystem "engdoc CLI" "cli cmd/engdoc" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engdoc"
-        "owner" "FU-ASCIIDOC-GENERATOR"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGDOC"
-      }
     }
     if_if_cli_engdragon = softwareSystem "engdragon CLI" "cli cmd/engdragon" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engdragon"
-        "owner" "FU-THREAT-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGDRAGON"
-      }
     }
     if_if_cli_enggemara = softwareSystem "enggemara CLI" "cli cmd/enggemara" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/enggemara"
-        "owner" "FU-GEMARA-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGGEMARA"
-      }
     }
     if_if_cli_englobster = softwareSystem "englobster CLI" "cli cmd/englobster" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/englobster"
-        "owner" "FU-LOBSTER-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGLOBSTER"
-      }
     }
     if_if_cli_engmcp = softwareSystem "engmcp CLI" "stdio-jsonrpc cmd/engmcp" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engmcp"
-        "owner" "FU-MCP-SERVER"
-        "protocol" "stdio-jsonrpc"
-        "sourceId" "IF-CLI-ENGMCP"
-      }
+    }
+    if_if_cli_engnaf = softwareSystem "engnaf CLI" "cli cmd/engnaf" {
+      tags "Interface"
     }
     if_if_cli_engoscal = softwareSystem "engoscal CLI" "cli cmd/engoscal" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engoscal"
-        "owner" "FU-OSCAL-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGOSCAL"
-      }
     }
     if_if_cli_engstruct = softwareSystem "engstruct CLI" "cli cmd/engstruct" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engstruct"
-        "owner" "FU-STRUCTURIZR-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGSTRUCT"
-      }
+    }
+    if_if_cli_engsysml = softwareSystem "engsysml CLI" "cli cmd/engsysml" {
+      tags "Interface"
     }
     if_if_cli_engtrace = softwareSystem "engtrace CLI" "cli cmd/engtrace" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engtrace"
-        "owner" "FU-ALLOCATION-TRACE"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGTRACE"
-      }
     }
     if_if_cli_engtrlc = softwareSystem "engtrlc CLI" "cli cmd/engtrlc" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engtrlc"
-        "owner" "FU-TRLC-EXPORTER"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGTRLC"
-      }
     }
     if_if_cli_engview = softwareSystem "engview CLI" "cli cmd/engview" {
       tags "Interface"
-      properties {
-        "endpoint" "cmd/engview"
-        "owner" "FU-VIEW-PROJECTION"
-        "protocol" "cli"
-        "sourceId" "IF-CLI-ENGVIEW"
-      }
     }
-    data_do_architecture_model = softwareSystem "Architecture Model" "architecture.yml" {
+    data_do_architecture_model = softwareSystem "Architecture Model" "model/schema/architecture.cue" {
       tags "DataObject,internal"
-      properties {
-        "classification" "design-source"
-        "retention" "repository-history"
-        "sourceId" "DO-ARCHITECTURE-MODEL"
-      }
+    }
+    data_do_canonical_semantic_model = softwareSystem "Canonical Semantic Model" "model/semantic.go" {
+      tags "DataObject,internal"
     }
     data_do_mcp_tool_result = softwareSystem "MCP Tool Result" "mcp.tool-response.v1" {
       tags "DataObject,internal"
-      properties {
-        "classification" "runtime-api"
-        "retention" "ephemeral"
-        "sourceId" "DO-MCP-TOOL-RESULT"
-      }
+    }
+    data_do_model_authoring_contract = softwareSystem "Model Authoring Contract" "model/authoring.go" {
+      tags "DataObject,internal"
+    }
+    data_do_naf_v4_architecture = softwareSystem "NAF v4.1 Architecture Document" "generated/ARCHITECTURE.naf.adoc" {
+      tags "DataObject,internal"
     }
     data_do_requirements_delta = softwareSystem "Requirements Delta" "requirements_delta.go" {
       tags "DataObject,internal"
-      properties {
-        "classification" "model-change"
-        "retention" "change-lifetime"
-        "sourceId" "DO-REQUIREMENTS-DELTA"
-      }
     }
     data_do_requirements_diff = softwareSystem "Requirements Change Summary" "requirements_delta.go" {
       tags "DataObject,internal"
-      properties {
-        "classification" "model-change-preview"
-        "retention" "ephemeral"
-        "sourceId" "DO-REQUIREMENTS-DIFF"
-      }
     }
-    data_do_requirements_document = softwareSystem "Requirements Document" "requirements.yml" {
+    data_do_requirements_document = softwareSystem "Requirements Document" "model/schema/requirements.cue" {
       tags "DataObject,internal"
-      properties {
-        "classification" "requirements-source"
-        "retention" "repository-history"
-        "sourceId" "DO-REQUIREMENTS-DOCUMENT"
-      }
     }
     data_do_structurizr_dsl = softwareSystem "Structurizr DSL" "generated/STRUCTURIZR.dsl" {
       tags "DataObject,internal"
-      properties {
-        "classification" "exchange-artifact"
-        "retention" "build-artifact"
-        "sourceId" "DO-STRUCTURIZR-DSL"
-      }
+    }
+    data_do_sysml_v2_metamodel = softwareSystem "SysML v2 Metamodel" "tools/sysml/metamodel" {
+      tags "DataObject,public"
+    }
+    data_do_sysml_v2_model = softwareSystem "SysML v2 Model" "generated/ARCHITECTURE.sysml" {
+      tags "DataObject,internal"
     }
     data_do_threat_dragon_json = softwareSystem "Threat Dragon JSON" "generated/threat-dragon-v2.json" {
       tags "DataObject,internal"
-      properties {
-        "classification" "exchange-artifact"
-        "retention" "build-artifact"
-        "sourceId" "DO-THREAT-DRAGON-JSON"
-      }
     }
     ctrl_ctrl_artifact_freshness_gate = softwareSystem "Generated Artifact Freshness Gate" "Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts." {
       tags "Control,assurance"
-      properties {
-        "sourceId" "CTRL-ARTIFACT-FRESHNESS-GATE"
-      }
     }
     ctrl_ctrl_mcp_path_boundary = softwareSystem "MCP Path Boundary Enforcement" "Enforce repo-root path constraints and reject traversal paths in MCP tools." {
       tags "Control,input-validation"
-      properties {
-        "sourceId" "CTRL-MCP-PATH-BOUNDARY"
-      }
     }
     ctrl_ctrl_strict_mcp_input_schema = softwareSystem "Strict MCP Input Schemas" "Enforce per-tool input schema and reject unknown arguments." {
       tags "Control,input-validation"
-      properties {
-        "sourceId" "CTRL-STRICT-MCP-INPUT-SCHEMA"
-      }
     }
     ctrl_ctrl_trace_link_integrity = softwareSystem "Trace Link Integrity" "Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup." {
       tags "Control,assurance"
-      properties {
-        "sourceId" "CTRL-TRACE-LINK-INTEGRITY"
-      }
     }
     ctrl_ctrl_traceability_coverage = softwareSystem "Requirement Traceability Coverage" "Require requirement-linked verification evidence for modeled behavior." {
       tags "Control,assurance"
-      properties {
-        "sourceId" "CTRL-TRACEABILITY-COVERAGE"
-      }
     }
     av_av_malformed_model_input = softwareSystem "Malformed Model Input" "Invalid or ambiguous model content causing incorrect parsing or graph interpretation." {
       tags "AttackVector"
-      properties {
-        "sourceId" "AV-MALFORMED-MODEL-INPUT"
-      }
     }
     av_av_path_traversal_in_mcp = softwareSystem "Path Traversal in MCP Calls" "Attempts to read files outside repository root via MCP path arguments." {
       tags "AttackVector"
-      properties {
-        "sourceId" "AV-PATH-TRAVERSAL-IN-MCP"
-      }
     }
     av_av_schema_supply_chain_tamper = softwareSystem "Schema Supply Chain Tamper" "Drift or tampering in external schemas used by export validation." {
       tags "AttackVector"
-      properties {
-        "sourceId" "AV-SCHEMA-SUPPLY-CHAIN-TAMPER"
-      }
     }
     av_av_traceability_gap_drift = softwareSystem "Traceability Gap Drift" "Requirement and verification links diverge from implementation over time." {
       tags "AttackVector"
-      properties {
-        "sourceId" "AV-TRACEABILITY-GAP-DRIFT"
-      }
     }
     tb_tb_external_validation_tools = softwareSystem "External Validation Tools Boundary" "Boundary for external validators, schemas, and compliance toolchains." {
       tags "TrustBoundary,external-tooling"
-      properties {
-        "sourceId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
     }
     tb_tb_repo_workspace = softwareSystem "Repository Workspace Boundary" "Boundary limiting file operations to repository-root owned paths." {
       tags "TrustBoundary,filesystem"
-      properties {
-        "sourceId" "TB-REPO-WORKSPACE"
-      }
     }
     ts_ts_mcp_path_traversal = softwareSystem "MCP path traversal accesses non-repo files" "Untrusted MCP input attempts to escape repo root for sensitive file reads." {
       tags "ThreatScenario,tampering,mitigating"
-      properties {
-        "impact" "high"
-        "likelihood" "medium"
-        "severity" "high"
-        "sourceId" "TS-MCP-PATH-TRAVERSAL"
-      }
     }
     ts_ts_traceability_drift = softwareSystem "Requirement traceability drifts from implementation" "Code and tests change without corresponding requirement trace updates." {
       tags "ThreatScenario,repudiation,mitigating"
-      properties {
-        "impact" "medium"
-        "likelihood" "medium"
-        "severity" "medium"
-        "sourceId" "TS-TRACEABILITY-DRIFT"
-      }
     }
-    fu_fu_codemap_inference -> tb_tb_repo_workspace "bounded_by" {
+    fu_fu_codemap_inference -> tb_tb_repo_workspace "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-CODEMAP-INFERENCE"
-        "mappingType" "bounded_by"
-        "toId" "TB-REPO-WORKSPACE"
-      }
     }
-    fu_fu_lobster_exporter -> tb_tb_external_validation_tools "bounded_by" {
+    fu_fu_lobster_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-LOBSTER-EXPORTER"
-        "mappingType" "bounded_by"
-        "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
     }
-    fu_fu_mcp_server -> tb_tb_repo_workspace "bounded_by" {
+    fu_fu_mcp_server -> tb_tb_repo_workspace "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "bounded_by"
-        "toId" "TB-REPO-WORKSPACE"
-      }
     }
-    fu_fu_structurizr_exporter -> tb_tb_external_validation_tools "bounded_by" {
+    fu_fu_structurizr_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-STRUCTURIZR-EXPORTER"
-        "mappingType" "bounded_by"
-        "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
     }
-    fu_fu_threat_exporter -> tb_tb_external_validation_tools "bounded_by" {
+    fu_fu_sysml_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-THREAT-EXPORTER"
-        "mappingType" "bounded_by"
-        "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
     }
-    fu_fu_trlc_exporter -> tb_tb_external_validation_tools "bounded_by" {
+    fu_fu_threat_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
-      properties {
-        "fromId" "FU-TRLC-EXPORTER"
-        "mappingType" "bounded_by"
-        "toId" "TB-EXTERNAL-VALIDATION-TOOLS"
-      }
     }
-    group_fg_artifact_generation -> fu_fu_asciidoc_generator "contains" {
+    fu_fu_trlc_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
+      tags "Mapping,bounded_by"
+    }
+    group_fg_artifact_generation -> fu_fu_asciidoc_generator "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-ARTIFACT-GENERATION"
-        "mappingType" "contains"
-        "toId" "FU-ASCIIDOC-GENERATOR"
-      }
     }
-    group_fg_artifact_generation -> fu_fu_structurizr_exporter "contains" {
+    group_fg_artifact_generation -> fu_fu_naf_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-ARTIFACT-GENERATION"
-        "mappingType" "contains"
-        "toId" "FU-STRUCTURIZR-EXPORTER"
-      }
     }
-    group_fg_artifact_generation -> fu_fu_threat_exporter "contains" {
+    group_fg_artifact_generation -> fu_fu_structurizr_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-ARTIFACT-GENERATION"
-        "mappingType" "contains"
-        "toId" "FU-THREAT-EXPORTER"
-      }
     }
-    group_fg_artifact_generation -> fu_fu_view_projection "contains" {
+    group_fg_artifact_generation -> fu_fu_sysml_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-ARTIFACT-GENERATION"
-        "mappingType" "contains"
-        "toId" "FU-VIEW-PROJECTION"
-      }
     }
-    group_fg_mcp_integration -> fu_fu_mcp_server "contains" {
+    group_fg_artifact_generation -> fu_fu_threat_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-MCP-INTEGRATION"
-        "mappingType" "contains"
-        "toId" "FU-MCP-SERVER"
-      }
     }
-    group_fg_model_authoring -> fu_fu_cli_orchestration "contains" {
+    group_fg_artifact_generation -> fu_fu_view_projection "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-MODEL-AUTHORING"
-        "mappingType" "contains"
-        "toId" "FU-CLI-ORCHESTRATION"
-      }
     }
-    group_fg_model_authoring -> fu_fu_model_change "contains" {
+    group_fg_mcp_integration -> fu_fu_mcp_server "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-MODEL-AUTHORING"
-        "mappingType" "contains"
-        "toId" "FU-MODEL-CHANGE"
-      }
     }
-    group_fg_model_authoring -> fu_fu_model_loader "contains" {
+    group_fg_model_authoring -> fu_fu_cli_orchestration "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-MODEL-AUTHORING"
-        "mappingType" "contains"
-        "toId" "FU-MODEL-LOADER"
-      }
     }
-    group_fg_model_authoring -> fu_fu_system_composition "contains" {
+    group_fg_model_authoring -> fu_fu_model_change "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-MODEL-AUTHORING"
-        "mappingType" "contains"
-        "toId" "FU-SYSTEM-COMPOSITION"
-      }
     }
-    group_fg_traceability_compliance -> fu_fu_allocation_trace "contains" {
+    group_fg_model_authoring -> fu_fu_model_loader "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-TRACEABILITY-COMPLIANCE"
-        "mappingType" "contains"
-        "toId" "FU-ALLOCATION-TRACE"
-      }
     }
-    group_fg_traceability_compliance -> fu_fu_gemara_exporter "contains" {
+    group_fg_model_authoring -> fu_fu_system_composition "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-TRACEABILITY-COMPLIANCE"
-        "mappingType" "contains"
-        "toId" "FU-GEMARA-EXPORTER"
-      }
     }
-    group_fg_traceability_compliance -> fu_fu_lobster_exporter "contains" {
+    group_fg_traceability_compliance -> fu_fu_allocation_trace "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-TRACEABILITY-COMPLIANCE"
-        "mappingType" "contains"
-        "toId" "FU-LOBSTER-EXPORTER"
-      }
     }
-    group_fg_traceability_compliance -> fu_fu_oscal_exporter "contains" {
+    group_fg_traceability_compliance -> fu_fu_gemara_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-TRACEABILITY-COMPLIANCE"
-        "mappingType" "contains"
-        "toId" "FU-OSCAL-EXPORTER"
-      }
     }
-    group_fg_traceability_compliance -> fu_fu_trlc_exporter "contains" {
+    group_fg_traceability_compliance -> fu_fu_lobster_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-TRACEABILITY-COMPLIANCE"
-        "mappingType" "contains"
-        "toId" "FU-TRLC-EXPORTER"
-      }
     }
-    group_fg_validation_analysis -> fu_fu_codemap_inference "contains" {
+    group_fg_traceability_compliance -> fu_fu_oscal_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-VALIDATION-ANALYSIS"
-        "mappingType" "contains"
-        "toId" "FU-CODEMAP-INFERENCE"
-      }
     }
-    group_fg_validation_analysis -> fu_fu_validation_engine "contains" {
+    group_fg_traceability_compliance -> fu_fu_trlc_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-VALIDATION-ANALYSIS"
-        "mappingType" "contains"
-        "toId" "FU-VALIDATION-ENGINE"
-      }
     }
-    fu_fu_allocation_trace -> if_if_cli_engtrace "contains" {
+    group_fg_validation_analysis -> fu_fu_codemap_inference "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-ALLOCATION-TRACE"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGTRACE"
-      }
     }
-    fu_fu_asciidoc_generator -> if_if_cli_engdoc "contains" {
+    group_fg_validation_analysis -> fu_fu_validation_engine "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-ASCIIDOC-GENERATOR"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGDOC"
-      }
     }
-    fu_fu_gemara_exporter -> if_if_cli_enggemara "contains" {
+    fu_fu_allocation_trace -> if_if_cli_engtrace "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-GEMARA-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGGEMARA"
-      }
     }
-    fu_fu_lobster_exporter -> if_if_cli_englobster "contains" {
+    fu_fu_asciidoc_generator -> if_if_cli_engdoc "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-LOBSTER-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGLOBSTER"
-      }
     }
-    fu_fu_mcp_server -> if_if_cli_engmcp "contains" {
+    fu_fu_gemara_exporter -> if_if_cli_enggemara "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGMCP"
-      }
     }
-    fu_fu_model_change -> if_if_cli_engchange "contains" {
+    fu_fu_lobster_exporter -> if_if_cli_englobster "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGCHANGE"
-      }
     }
-    fu_fu_oscal_exporter -> if_if_cli_engoscal "contains" {
+    fu_fu_mcp_server -> if_if_cli_engmcp "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-OSCAL-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGOSCAL"
-      }
     }
-    fu_fu_structurizr_exporter -> if_if_cli_engstruct "contains" {
+    fu_fu_model_change -> if_if_cli_engchange "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-STRUCTURIZR-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGSTRUCT"
-      }
     }
-    fu_fu_threat_exporter -> if_if_cli_engdragon "contains" {
+    fu_fu_naf_exporter -> if_if_cli_engnaf "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-THREAT-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGDRAGON"
-      }
     }
-    fu_fu_trlc_exporter -> if_if_cli_engtrlc "contains" {
+    fu_fu_oscal_exporter -> if_if_cli_engoscal "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-TRLC-EXPORTER"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGTRLC"
-      }
     }
-    fu_fu_view_projection -> if_if_cli_engview "contains" {
+    fu_fu_structurizr_exporter -> if_if_cli_engstruct "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FU-VIEW-PROJECTION"
-        "mappingType" "contains"
-        "toId" "IF-CLI-ENGVIEW"
-      }
     }
-    fu_fu_cli_orchestration -> fu_fu_asciidoc_generator "depends_on" {
+    fu_fu_sysml_exporter -> if_if_cli_engsysml "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    fu_fu_threat_exporter -> if_if_cli_engdragon "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    fu_fu_trlc_exporter -> if_if_cli_engtrlc "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    fu_fu_view_projection -> if_if_cli_engview "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    fu_fu_cli_orchestration -> fu_fu_asciidoc_generator "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-CLI-ORCHESTRATION"
-        "mappingType" "depends_on"
-        "toId" "FU-ASCIIDOC-GENERATOR"
-      }
     }
-    fu_fu_cli_orchestration -> fu_fu_model_loader "depends_on" {
+    fu_fu_cli_orchestration -> fu_fu_model_loader "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-CLI-ORCHESTRATION"
-        "mappingType" "depends_on"
-        "toId" "FU-MODEL-LOADER"
-      }
     }
-    fu_fu_cli_orchestration -> fu_fu_validation_engine "depends_on" {
+    fu_fu_cli_orchestration -> fu_fu_validation_engine "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-CLI-ORCHESTRATION"
-        "mappingType" "depends_on"
-        "toId" "FU-VALIDATION-ENGINE"
-      }
     }
-    fu_fu_lobster_exporter -> ref_ref_lobster_toolchain "depends_on" {
+    fu_fu_lobster_exporter -> ref_ref_lobster_toolchain "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-LOBSTER-EXPORTER"
-        "mappingType" "depends_on"
-        "toId" "REF-LOBSTER-TOOLCHAIN"
-      }
     }
-    fu_fu_mcp_server -> fu_fu_model_loader "depends_on" {
+    fu_fu_mcp_server -> fu_fu_model_loader "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "depends_on"
-        "toId" "FU-MODEL-LOADER"
-      }
     }
-    fu_fu_mcp_server -> fu_fu_validation_engine "depends_on" {
+    fu_fu_mcp_server -> fu_fu_validation_engine "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "depends_on"
-        "toId" "FU-VALIDATION-ENGINE"
-      }
     }
-    fu_fu_model_change -> fu_fu_model_loader "depends_on" {
+    fu_fu_model_change -> fu_fu_model_loader "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "depends_on"
-        "toId" "FU-MODEL-LOADER"
-      }
     }
-    fu_fu_model_change -> fu_fu_validation_engine "depends_on" {
+    fu_fu_model_change -> fu_fu_validation_engine "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "depends_on"
-        "toId" "FU-VALIDATION-ENGINE"
-      }
     }
-    fu_fu_structurizr_exporter -> ref_ref_structurizr_validator "depends_on" {
+    fu_fu_naf_exporter -> fu_fu_view_projection "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-STRUCTURIZR-EXPORTER"
-        "mappingType" "depends_on"
-        "toId" "REF-STRUCTURIZR-VALIDATOR"
-      }
     }
-    fu_fu_threat_exporter -> ref_ref_open_otm_schema "depends_on" {
+    fu_fu_naf_exporter -> ref_ref_naf_v4_1_specification "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-THREAT-EXPORTER"
-        "mappingType" "depends_on"
-        "toId" "REF-OPEN-OTM-SCHEMA"
-      }
     }
-    fu_fu_threat_exporter -> ref_ref_threat_dragon_schemas "depends_on" {
+    fu_fu_structurizr_exporter -> ref_ref_structurizr_validator "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-THREAT-EXPORTER"
-        "mappingType" "depends_on"
-        "toId" "REF-THREAT-DRAGON-SCHEMAS"
-      }
     }
-    fu_fu_trlc_exporter -> ref_ref_trlc_toolchain "depends_on" {
+    fu_fu_sysml_exporter -> ref_ref_sysml_v2_toolchain "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-TRLC-EXPORTER"
-        "mappingType" "depends_on"
-        "toId" "REF-TRLC-TOOLCHAIN"
-      }
     }
-    fu_fu_validation_engine -> ref_ref_go_toolchain "Runs Go tests and static checks as part of repository validation." {
+    fu_fu_system_composition -> ref_ref_cue_oci_module_registry "Fetches exact-version reusable model modules using CUE registry configuration and credentials." "Model relationship: depends_on" {
       tags "Mapping,depends_on"
-      properties {
-        "fromId" "FU-VALIDATION-ENGINE"
-        "mappingType" "depends_on"
-        "toId" "REF-GO-TOOLCHAIN"
-      }
     }
-    person_act_ai_agent -> fu_fu_mcp_server "Uses model-backed MCP tools to inspect and update implementation scope." {
+    fu_fu_threat_exporter -> ref_ref_open_otm_schema "depends_on" "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    fu_fu_threat_exporter -> ref_ref_threat_dragon_schemas "depends_on" "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    fu_fu_trlc_exporter -> ref_ref_trlc_toolchain "depends_on" "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    fu_fu_validation_engine -> ref_ref_go_toolchain "Runs Go tests and static checks as part of repository validation." "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    person_act_ai_agent -> fu_fu_mcp_server "Uses model-backed MCP tools to inspect and update implementation scope." "Model relationship: interacts_with" {
       tags "Mapping,interacts_with"
-      properties {
-        "fromId" "ACT-AI-AGENT"
-        "mappingType" "interacts_with"
-        "toId" "FU-MCP-SERVER"
-      }
     }
-    person_act_architecture_author -> fu_fu_cli_orchestration "Maintains model and design artifacts through CLI generation workflows." {
+    person_act_architecture_author -> fu_fu_cli_orchestration "Maintains model and design artifacts through CLI generation workflows." "Model relationship: interacts_with" {
       tags "Mapping,interacts_with"
-      properties {
-        "fromId" "ACT-ARCHITECTURE-AUTHOR"
-        "mappingType" "interacts_with"
-        "toId" "FU-CLI-ORCHESTRATION"
-      }
     }
-    person_act_ci_pipeline -> fu_fu_cli_orchestration "Executes validation and generation commands in automated checks." {
+    person_act_ci_pipeline -> fu_fu_cli_orchestration "Executes validation and generation commands in automated checks." "Model relationship: interacts_with" {
       tags "Mapping,interacts_with"
-      properties {
-        "fromId" "ACT-CI-PIPELINE"
-        "mappingType" "interacts_with"
-        "toId" "FU-CLI-ORCHESTRATION"
-      }
     }
-    person_act_compliance_engineer -> fu_fu_oscal_exporter "Uses OSCAL and traceability outputs for assurance workflows." {
+    person_act_compliance_engineer -> fu_fu_oscal_exporter "Uses OSCAL and traceability outputs for assurance workflows." "Model relationship: interacts_with" {
       tags "Mapping,interacts_with"
-      properties {
-        "fromId" "ACT-COMPLIANCE-ENGINEER"
-        "mappingType" "interacts_with"
-        "toId" "FU-OSCAL-EXPORTER"
-      }
     }
-    person_act_implementation_engineer -> fu_fu_cli_orchestration "Runs validation, generation, and export commands during implementation work." {
+    person_act_implementation_engineer -> fu_fu_cli_orchestration "Runs validation, generation, and export commands during implementation work." "Model relationship: interacts_with" {
       tags "Mapping,interacts_with"
-      properties {
-        "fromId" "ACT-IMPLEMENTATION-ENGINEER"
-        "mappingType" "interacts_with"
-        "toId" "FU-CLI-ORCHESTRATION"
-      }
     }
-    av_av_path_traversal_in_mcp -> ctrl_ctrl_mcp_path_boundary "mitigated_by" {
+    av_av_path_traversal_in_mcp -> ctrl_ctrl_mcp_path_boundary "mitigated_by" "Model relationship: mitigated_by" {
       tags "Mapping,mitigated_by"
-      properties {
-        "fromId" "AV-PATH-TRAVERSAL-IN-MCP"
-        "mappingType" "mitigated_by"
-        "toId" "CTRL-MCP-PATH-BOUNDARY"
-      }
     }
-    av_av_path_traversal_in_mcp -> ctrl_ctrl_strict_mcp_input_schema "mitigated_by" {
+    av_av_path_traversal_in_mcp -> ctrl_ctrl_strict_mcp_input_schema "mitigated_by" "Model relationship: mitigated_by" {
       tags "Mapping,mitigated_by"
-      properties {
-        "fromId" "AV-PATH-TRAVERSAL-IN-MCP"
-        "mappingType" "mitigated_by"
-        "toId" "CTRL-STRICT-MCP-INPUT-SCHEMA"
-      }
     }
-    av_av_traceability_gap_drift -> ctrl_ctrl_traceability_coverage "mitigated_by" {
+    av_av_traceability_gap_drift -> ctrl_ctrl_traceability_coverage "mitigated_by" "Model relationship: mitigated_by" {
       tags "Mapping,mitigated_by"
-      properties {
-        "fromId" "AV-TRACEABILITY-GAP-DRIFT"
-        "mappingType" "mitigated_by"
-        "toId" "CTRL-TRACEABILITY-COVERAGE"
-      }
     }
-    fu_fu_model_change -> data_do_requirements_delta "reads" {
+    fu_fu_model_change -> data_do_requirements_delta "reads" "Model relationship: reads" {
       tags "Mapping,reads"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "reads"
-        "toId" "DO-REQUIREMENTS-DELTA"
-      }
     }
-    fu_fu_model_loader -> data_do_architecture_model "reads" {
+    fu_fu_model_loader -> data_do_architecture_model "reads" "Model relationship: reads" {
       tags "Mapping,reads"
-      properties {
-        "fromId" "FU-MODEL-LOADER"
-        "mappingType" "reads"
-        "toId" "DO-ARCHITECTURE-MODEL"
-      }
     }
-    av_av_malformed_model_input -> fu_fu_model_loader "targets" {
+    fu_fu_sysml_exporter -> data_do_sysml_v2_metamodel "reads" "Model relationship: reads" {
+      tags "Mapping,reads"
+    }
+    av_av_malformed_model_input -> fu_fu_model_loader "targets" "Model relationship: targets" {
       tags "Mapping,targets"
-      properties {
-        "fromId" "AV-MALFORMED-MODEL-INPUT"
-        "mappingType" "targets"
-        "toId" "FU-MODEL-LOADER"
-      }
     }
-    av_av_path_traversal_in_mcp -> fu_fu_mcp_server "targets" {
+    av_av_path_traversal_in_mcp -> fu_fu_mcp_server "targets" "Model relationship: targets" {
       tags "Mapping,targets"
-      properties {
-        "fromId" "AV-PATH-TRAVERSAL-IN-MCP"
-        "mappingType" "targets"
-        "toId" "FU-MCP-SERVER"
-      }
     }
-    av_av_schema_supply_chain_tamper -> ref_ref_open_otm_schema "targets" {
+    av_av_schema_supply_chain_tamper -> ref_ref_open_otm_schema "targets" "Model relationship: targets" {
       tags "Mapping,targets"
-      properties {
-        "fromId" "AV-SCHEMA-SUPPLY-CHAIN-TAMPER"
-        "mappingType" "targets"
-        "toId" "REF-OPEN-OTM-SCHEMA"
-      }
     }
-    av_av_schema_supply_chain_tamper -> ref_ref_threat_dragon_schemas "targets" {
+    av_av_schema_supply_chain_tamper -> ref_ref_threat_dragon_schemas "targets" "Model relationship: targets" {
       tags "Mapping,targets"
-      properties {
-        "fromId" "AV-SCHEMA-SUPPLY-CHAIN-TAMPER"
-        "mappingType" "targets"
-        "toId" "REF-THREAT-DRAGON-SCHEMAS"
-      }
     }
-    av_av_traceability_gap_drift -> fu_fu_codemap_inference "targets" {
+    av_av_traceability_gap_drift -> fu_fu_codemap_inference "targets" "Model relationship: targets" {
       tags "Mapping,targets"
-      properties {
-        "fromId" "AV-TRACEABILITY-GAP-DRIFT"
-        "mappingType" "targets"
-        "toId" "FU-CODEMAP-INFERENCE"
-      }
     }
-    fu_fu_mcp_server -> data_do_mcp_tool_result "writes" {
+    fu_fu_mcp_server -> data_do_mcp_tool_result "writes" "Model relationship: writes" {
       tags "Mapping,writes"
-      properties {
-        "fromId" "FU-MCP-SERVER"
-        "mappingType" "writes"
-        "toId" "DO-MCP-TOOL-RESULT"
-      }
     }
-    fu_fu_model_change -> data_do_requirements_diff "writes" {
+    fu_fu_mcp_server -> data_do_model_authoring_contract "writes" "Model relationship: writes" {
       tags "Mapping,writes"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "writes"
-        "toId" "DO-REQUIREMENTS-DIFF"
-      }
     }
-    fu_fu_model_change -> data_do_requirements_document "writes" {
+    fu_fu_model_change -> data_do_requirements_diff "writes" "Model relationship: writes" {
       tags "Mapping,writes"
-      properties {
-        "fromId" "FU-MODEL-CHANGE"
-        "mappingType" "writes"
-        "toId" "DO-REQUIREMENTS-DOCUMENT"
-      }
     }
-    fu_fu_structurizr_exporter -> data_do_structurizr_dsl "writes" {
+    fu_fu_model_change -> data_do_requirements_document "writes" "Model relationship: writes" {
       tags "Mapping,writes"
-      properties {
-        "fromId" "FU-STRUCTURIZR-EXPORTER"
-        "mappingType" "writes"
-        "toId" "DO-STRUCTURIZR-DSL"
-      }
     }
-    fu_fu_threat_exporter -> data_do_threat_dragon_json "writes" {
+    fu_fu_model_loader -> data_do_canonical_semantic_model "writes" "Model relationship: writes" {
       tags "Mapping,writes"
-      properties {
-        "fromId" "FU-THREAT-EXPORTER"
-        "mappingType" "writes"
-        "toId" "DO-THREAT-DRAGON-JSON"
-      }
     }
-    person_act_implementation_engineer -> fu_fu_model_change "Requirements Delta to Canonical Requirements Flow" {
+    fu_fu_naf_exporter -> data_do_naf_v4_architecture "writes" "Model relationship: writes" {
+      tags "Mapping,writes"
+    }
+    fu_fu_structurizr_exporter -> data_do_structurizr_dsl "writes" "Model relationship: writes" {
+      tags "Mapping,writes"
+    }
+    fu_fu_sysml_exporter -> data_do_sysml_v2_model "writes" "Model relationship: writes" {
+      tags "Mapping,writes"
+    }
+    fu_fu_threat_exporter -> data_do_threat_dragon_json "writes" "Model relationship: writes" {
+      tags "Mapping,writes"
+    }
+    person_act_implementation_engineer -> fu_fu_model_change "Requirements Delta to Canonical Requirements Flow" "cli / local-shell" {
       tags "Flow"
-      properties {
-        "flowId" "FLOW-REQUIREMENTS-DELTA-TO-CANONICAL"
-      }
+    }
+    person_act_implementation_engineer -> fu_fu_cli_orchestration "Model Change to Verified Artifacts Flow" "cli / local-shell" {
+      tags "Flow"
     }
     deploymentEnvironment "ci" {
       dn_dep_ci_pipeline = deploymentNode "CI Pipeline Runner" "github-actions hosted engineering-model-go" "shared-runner" {
         tags "DeploymentTarget,ci"
-        properties {
-          "account" "github-actions"
-          "cluster" "shared-runner"
-          "environment" "ci"
-          "namespace" "engineering-model-go"
-          "region" "hosted"
-          "sourceId" "DEP-CI-PIPELINE"
-          "trustZone" "automation"
-        }
         containerInstance fu_fu_cli_orchestration {
           tags "Deployed"
-          properties {
-            "sourceId" "FU-CLI-ORCHESTRATION"
-          }
         }
       }
     }
     deploymentEnvironment "dev" {
       dn_dep_local_workspace = deploymentNode "Local Workspace" "workstation local engineering-model-go" "local-shell" {
         tags "DeploymentTarget,dev"
-        properties {
-          "account" "workstation"
-          "cluster" "local-shell"
-          "environment" "dev"
-          "namespace" "engineering-model-go"
-          "region" "local"
-          "sourceId" "DEP-LOCAL-WORKSPACE"
-          "trustZone" "developer"
-        }
         containerInstance fu_fu_mcp_server {
           tags "Deployed"
-          properties {
-            "sourceId" "FU-MCP-SERVER"
-          }
         }
       }
     }
@@ -1063,11 +523,11 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       autolayout lr
     }
     dynamic sys_engineering_model_go "dynamic_flow_model_change_to_verified_artifacts" "Primary engineering workflow from authored model update through validation and artifact generation." {
-      person_act_implementation_engineer -> fu_fu_cli_orchestration "Primary engineering workflow from authored model update through validation and artifact generation."
+      person_act_implementation_engineer -> fu_fu_cli_orchestration "Model Change to Verified Artifacts Flow" "cli / local-shell"
       autolayout lr
     }
     dynamic sys_engineering_model_go "dynamic_flow_requirements_delta_to_canonical" "Strictly plans and validates a requirements delta before atomically updating canonical requirements." {
-      person_act_implementation_engineer -> fu_fu_model_change "Strictly plans and validates a requirements delta before atomically updating canonical requirements."
+      person_act_implementation_engineer -> fu_fu_model_change "Requirements Delta to Canonical Requirements Flow" "cli / local-shell"
       autolayout lr
     }
     deployment sys_engineering_model_go "ci" "deployment_ci" "Deployment view for environment: ci" {
@@ -1104,6 +564,10 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       container "Functional Unit"
       relationship "Mapping"
     }
+  }
+
+  configuration {
+    scope softwaresystem
   }
 
 }

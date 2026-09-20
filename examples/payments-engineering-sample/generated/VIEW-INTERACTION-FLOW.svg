@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 602 1204" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
+  <title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
+  <metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
+  <line x1="456" y1="318" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="146" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_async</text>
+  <line x1="146" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
+  <line x1="146" y1="416" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="416" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
+  <line x1="456" y1="416" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="514" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="514" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="146" y1="612" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="710" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="146" y1="710" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="456" y1="710" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
+  <line x1="456" y1="710" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
+  <line x1="146" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="146" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="146" y1="808" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
+  <line x1="146" y1="808" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="456" y1="808" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="456" y1="808" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="456" y1="808" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
+  <line x1="456" y1="808" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="808" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
+  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
+  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">publishes</text>
+  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="146" y1="906" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
+  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
+  <line x1="456" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">subscribes</text>
+  <g id="ACT-CUSTOMER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer</text>
+    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-CUSTOMER</text></g>
+  <g id="DO-PAYMENTS-AUTH-DECISION"><rect x="346" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Decision</text>
+    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-DECISION</text></g>
+  <g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Request</text>
+    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-REQUEST</text></g>
+  <g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Manual Review Ticket</text>
+    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-REVIEW-TICKET</text></g>
+  <g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Signal</text>
+    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-RISK-SIGNAL</text></g>
+  <g id="FLOW-CUSTOMER-CHECKOUT"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer Checkout Authorization Flow</text>
+    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT</text></g>
+  <g id="FLOW-CUSTOMER-CHECKOUT__authorize-payment"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Request fraud score and external authorization</text>
+    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::authorize-payment</text></g>
+  <g id="FLOW-CUSTOMER-CHECKOUT__normalize-request"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Normalize and validate checkout payload</text>
+    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::normalize-request</text></g>
+  <g id="FLOW-CUSTOMER-CHECKOUT__show-outcome"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Return approval or decline outcome to customer</text>
+    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::show-outcome</text></g>
+  <g id="FLOW-CUSTOMER-CHECKOUT__submit-payment"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer submits checkout payment form</text>
+    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::submit-payment</text></g>
+  <g id="FLOW-PAYMENTS-MANUAL-REVIEW"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">High-Risk Manual Review Flow</text>
+    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW</text></g>
+  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__complete-review"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Complete authorization using manual review outcome</text>
+    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::complete-review</text></g>
+  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__create-review-ticket"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Create manual review ticket for support operations</text>
+    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket</text></g>
+  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__detect-high-risk"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Detect high-risk signal and emit escalation trigger</text>
+    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk</text></g>
+  <g id="FU-CHECKOUT"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Handling</text>
+    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-CHECKOUT</text></g>
+  <g id="FU-PAYMENT-AUTHORIZATION"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorization</text>
+    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-PAYMENT-AUTHORIZATION</text></g>
+  <g id="FU-RISK-SCORING"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Scoring</text>
+    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-RISK-SCORING</text></g>
+  <g id="FU-SUPPORT-REVIEW"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Review</text>
+    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-SUPPORT-REVIEW</text></g>
+  <g id="IF-PAYMENTS-BANK-AUTH"><rect x="36" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Authorization Interface</text>
+    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-BANK-AUTH</text></g>
+  <g id="IF-PAYMENTS-CHECKOUT-API"><rect x="346" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout API Interface</text>
+    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-CHECKOUT-API</text></g>
+  <g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Score Interface</text>
+    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-RISK-SCORE-API</text></g>
+</svg>

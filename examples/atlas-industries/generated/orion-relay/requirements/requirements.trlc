@@ -1,0 +1,26 @@
+package requirements
+Requirement REQ_ORI_001 {
+  id         = "REQ-ORI-001"
+  text       = "The orion relay system shall deliver each relay message according to network controller priority."
+  applies_to = ["FU-ORI-ROUTER"]
+}
+Requirement REQ_ORI_002 {
+  id         = "REQ-ORI-002"
+  text       = "The orion relay system shall execute the link scheduler software on managed edge compute."
+  applies_to = ["FU-ORI-LINK"]
+}
+Requirement REQ_ORI_003 {
+  id         = "REQ-ORI-003"
+  text       = "The orion relay system shall retain relay configuration using managed cloud operations."
+  applies_to = ["FU-ORI-ROUTER"]
+}
+Requirement REQ_ORI_004 {
+  id         = "REQ-ORI-004"
+  text       = "The orion relay system shall authenticate product services using shared security services."
+  applies_to = ["FU-ORI-LINK", "FU-ORI-ROUTER"]
+}
+Requirement REQ_ORI_005 {
+  id         = "REQ-ORI-005"
+  text       = "The orion relay system shall retain compliance evidence using the company control baseline."
+  applies_to = ["FU-ORI-ROUTER"]
+}

@@ -37,16 +37,31 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 	if err != nil {
 		return ThreatModelExportResult{}, err
 	}
-	return GenerateThreatModelExport(bundle, options)
+	projection, _, err := ResolveCompositionProjection(bundle)
+	if err != nil {
+		return ThreatModelExportResult{}, err
+	}
+	return generateThreatModelExport(bundle, options, projection)
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
+	return generateThreatModelExport(bundle, options, CompositionProjection{})
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func generateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions, projection CompositionProjection) (ThreatModelExportResult, error) {
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return ThreatModelExportResult{}, err
+	}
+	bundle = canonical.Documents()
 	diags := validate.Bundle(bundle)
 	if validate.HasErrors(diags) {
 		return ThreatModelExportResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
+	bundle = projection.EnrichBundle(bundle, "architecture", "behavior", "assurance")
 
 	format := strings.TrimSpace(string(options.Format))
 	if format == "" {
@@ -146,21 +161,32 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	for _, ts := range a.ThreatScenarios {
 		severity := tdSeverity(ts.Severity, ts.Impact)
 		status := tdStatus(ts.Status)
-		mitigation := ""
+		mitigations := []string{}
 		for _, m := range a.ThreatMitigations {
 			if strings.TrimSpace(m.ThreatScenarioRef) == strings.TrimSpace(ts.ID) {
 				if strings.TrimSpace(m.Notes) != "" {
-					mitigation = strings.TrimSpace(m.Notes)
-					break
+					mitigations = append(mitigations, strings.TrimSpace(m.Notes))
+					continue
 				}
+				details := []string{"Mitigation " + strings.TrimSpace(m.ID)}
+				if controlRef := strings.TrimSpace(m.ControlRef); controlRef != "" {
+					details = append(details, "applies control "+controlRef)
+				}
+				if mitigationStatus := strings.TrimSpace(m.Status); mitigationStatus != "" {
+					details = append(details, "status "+mitigationStatus)
+				}
+				if effectiveness := strings.TrimSpace(m.Effectiveness); effectiveness != "" {
+					details = append(details, "effectiveness "+effectiveness)
+				}
+				mitigations = append(mitigations, strings.Join(details, "; ")+".")
 			}
 		}
-		if mitigation == "" {
-			mitigation = "See mapped control mitigations and verification evidence."
+		if len(mitigations) == 0 {
+			mitigations = append(mitigations, "No mitigation is authored for threat "+strings.TrimSpace(ts.ID)+".")
 		}
 		th := map[string]any{
 			"description": nonEmpty(strings.TrimSpace(ts.Summary), strings.TrimSpace(ts.Title)),
-			"mitigation":  mitigation,
+			"mitigation":  strings.Join(mitigations, " "),
 			"modelType":   "STRIDE",
 			"number":      threatCount,
 			"score":       strings.ToLower(nonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Impact))),
@@ -570,7 +596,14 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		Mitigations:     []otmMitigation{},
 	}
 
-	if len(a.TrustBoundaries) == 0 {
+	hasDefaultZone := false
+	for _, tb := range a.TrustBoundaries {
+		if strings.TrimSpace(tb.ID) == "TZ-SYSTEM" {
+			hasDefaultZone = true
+			break
+		}
+	}
+	if !hasDefaultZone {
 		defaultTZ := otmTrustZone{ID: "TZ-SYSTEM", Name: "System Boundary", Type: "system", Description: "Default trust zone for components without explicit boundary mapping."}
 		defaultTZ.Risk.TrustRating = 50
 		doc.TrustZones = append(doc.TrustZones, defaultTZ)

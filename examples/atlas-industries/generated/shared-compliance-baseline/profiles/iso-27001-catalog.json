@@ -1,0 +1,91 @@
+{
+  "catalog": {
+    "uuid": "ae011302-3d65-42fb-bb1c-b3be9ed27db8",
+    "metadata": {
+      "title": "Atlas ISO/IEC 27001 Control Extract",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "groups": [
+      {
+        "id": "a-5",
+        "title": "Organizational Controls",
+        "controls": [
+          {
+            "id": "a-5.15",
+            "title": "Access Control",
+            "parts": [
+              {
+                "id": "a-5.15_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for organizational access-control requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          },
+          {
+            "id": "a-5.18",
+            "title": "Access Rights",
+            "parts": [
+              {
+                "id": "a-5.18_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for access-right lifecycle requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "a-6",
+        "title": "People Controls",
+        "controls": [
+          {
+            "id": "a-6.1",
+            "title": "Screening",
+            "parts": [
+              {
+                "id": "a-6.1_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for workforce-screening requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          },
+          {
+            "id": "a-6.2",
+            "title": "Terms and Conditions of Employment",
+            "parts": [
+              {
+                "id": "a-6.2_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for employment terms and conditions; consult the authoritative framework for normative text."
+              }
+            ]
+          },
+          {
+            "id": "a-6.3",
+            "title": "Information Security Awareness, Education and Training",
+            "parts": [
+              {
+                "id": "a-6.3_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for security awareness, education, and training; consult the authoritative framework for normative text."
+              }
+            ]
+          },
+          {
+            "id": "a-6.5",
+            "title": "Responsibilities after Termination or Change of Employment",
+            "parts": [
+              {
+                "id": "a-6.5_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for responsibilities after termination or role change; consult the authoritative framework for normative text."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,8 +1,8 @@
 inputs:
-  - /home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/model.rsl
-  - /home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc
+  - examples/coffee-fleet-ota-cloud-sample/generated/trlc/model.rsl
+  - examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc
 conversion-rules:
-  - package: CoffeeFleetRequirements
+  - package: requirements
     record-type: Requirement
     namespace: req
     description-fields:

@@ -1,0 +1,8 @@
+schemaVersion: 2
+replacements:
+- module: models.example/coffee-fleet/telemetry@v0
+  path: ./subsystems/telemetry
+- module: models.example/coffee-fleet/ota-agent@v0
+  path: ./subsystems/ota-agent
+- module: models.example/coffee-fleet/cloud-api@v0
+  path: ./subsystems/cloud-api

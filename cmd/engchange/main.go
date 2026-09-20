@@ -21,7 +21,7 @@ func main() {
 	operation := strings.TrimSpace(os.Args[1])
 	flags := flag.NewFlagSet("engchange "+operation, flag.ContinueOnError)
 	flags.SetOutput(os.Stderr)
-	root := flags.String("root", ".", "model root containing architecture.yml and requirements.yml")
+	root := flags.String("root", ".", "model root containing engmod.yml and requirements.yml")
 	delta := flags.String("delta", "", "requirements delta YAML")
 	if err := flags.Parse(os.Args[2:]); err != nil {
 		os.Exit(2)

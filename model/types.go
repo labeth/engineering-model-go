@@ -28,7 +28,8 @@ type CatalogGroups struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type CatalogDocument struct {
-	Catalog CatalogGroups `yaml:"catalog"`
+	SchemaVersion int           `yaml:"schemaVersion"`
+	Catalog       CatalogGroups `yaml:"catalog"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -49,14 +50,16 @@ type Requirement struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type RequirementsDocument struct {
-	LintRun      LintRun       `yaml:"lintRun"`
-	Requirements []Requirement `yaml:"requirements"`
-	Expected     []Expected    `yaml:"expected"`
+	SchemaVersion int           `yaml:"schemaVersion"`
+	LintRun       LintRun       `yaml:"lintRun"`
+	Requirements  []Requirement `yaml:"requirements"`
+	Expected      []Expected    `yaml:"expected"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type DecisionsDocument struct {
-	Decisions []Decision `yaml:"decisions"`
+	SchemaVersion int        `yaml:"schemaVersion"`
+	Decisions     []Decision `yaml:"decisions"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -94,15 +97,74 @@ type DesignModel struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type DesignDocument struct {
-	Design DesignModel `yaml:"design"`
+	SchemaVersion int         `yaml:"schemaVersion"`
+	Design        DesignModel `yaml:"design"`
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+// DocumentReferences makes the complete schema-v2 domain document set explicit.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type DocumentReferences struct {
+	Catalog      string `yaml:"catalog"`
+	Requirements string `yaml:"requirements"`
+	Architecture string `yaml:"architecture"`
+	Behavior     string `yaml:"behavior"`
+	Assurance    string `yaml:"assurance"`
+	Compliance   string `yaml:"compliance"`
+	Views        string `yaml:"views"`
+	Decisions    string `yaml:"decisions"`
+	Aviation     string `yaml:"aviation,omitempty"`
+}
+
+// ModuleIdentity is the published identity and human-facing metadata of a model.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-047
+type ModuleIdentity struct {
+	Path         string `yaml:"path"`
+	Version      string `yaml:"version"`
+	ModelID      string `yaml:"modelId"`
+	Title        string `yaml:"title"`
+	Introduction string `yaml:"introduction"`
+	Kind         string `yaml:"kind"`
+}
+
+// ManifestDependency selects publications from an exact external module.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
+type ManifestDependency struct {
+	Alias        string   `yaml:"alias"`
+	Path         string   `yaml:"path"`
+	Version      string   `yaml:"version"`
+	Publications []string `yaml:"publications"`
+}
+
+// ManifestPublication exports typed stable identifiers from this module.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
+type ManifestPublication struct {
+	ID           string   `yaml:"id"`
+	Architecture []string `yaml:"architecture"`
+	Behavior     []string `yaml:"behavior"`
+	Assurance    []string `yaml:"assurance"`
+	Compliance   []string `yaml:"compliance"`
+	Requirements []string `yaml:"requirements"`
+	Views        []string `yaml:"views"`
+}
+
+// ManifestDocument is the only schema-v2 model entry point.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
+type ManifestDocument struct {
+	SchemaVersion  int                   `yaml:"schemaVersion"`
+	Module         ModuleIdentity        `yaml:"module"`
+	Documents      DocumentReferences    `yaml:"documents"`
+	Dependencies   []ManifestDependency  `yaml:"dependencies"`
+	Publications   []ManifestPublication `yaml:"publications"`
+	InferenceHints InferenceHints        `yaml:"inferenceHints"`
+}
+
+// ModelMeta is the aggregate model identity retained for downstream consumers.
 type ModelMeta struct {
-	ID             string `yaml:"id"`
-	Title          string `yaml:"title"`
-	Introduction   string `yaml:"introduction"`
-	BaseCatalogRef string `yaml:"baseCatalogRef"`
+	ID             string             `yaml:"id"`
+	Title          string             `yaml:"title"`
+	Introduction   string             `yaml:"introduction"`
+	Documents      DocumentReferences `yaml:"-"`
+	BaseCatalogRef string             `yaml:"-"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -501,6 +563,97 @@ type AuthoredArchitecture struct {
 	Mappings             []Mapping             `yaml:"mappings"`
 }
 
+// ArchitectureInput owns schema-v2 structural architecture declarations.
+type ArchitectureInput struct {
+	FunctionalGroups   []FunctionalGroup   `yaml:"functionalGroups"`
+	FunctionalUnits    []FunctionalUnit    `yaml:"functionalUnits"`
+	Actors             []Actor             `yaml:"actors"`
+	ReferencedElements []ReferencedElement `yaml:"referencedElements"`
+	Interfaces         []Interface         `yaml:"interfaces"`
+	DataObjects        []DataObject        `yaml:"dataObjects"`
+	DeploymentTargets  []DeploymentTarget  `yaml:"deploymentTargets"`
+	HardwareItems      []HardwareItem      `yaml:"hardwareItems"`
+	HardwareInterfaces []HardwareInterface `yaml:"hardwareInterfaces"`
+	Contract           ContractModel       `yaml:"contract"`
+	Composition        InputComposition    `yaml:"composition"`
+	Semantics          SemanticContent     `yaml:"semantics"`
+}
+
+// InputComposition references manifest dependencies and their selected publications.
+type InputComposition struct {
+	Subsystems    []InputSubsystem `yaml:"subsystems"`
+	Allocations   []Allocation     `yaml:"allocations"`
+	Satisfactions []Satisfaction   `yaml:"satisfactions"`
+}
+
+// InputSubsystem identifies a child solely through a manifest dependency publication.
+type InputSubsystem struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Dependency  string `yaml:"dependency"`
+	Publication string `yaml:"publication"`
+	Description string `yaml:"description"`
+}
+
+// ArchitectureInputDocument is the schema-v2 structural architecture document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type ArchitectureInputDocument struct {
+	SchemaVersion int               `yaml:"schemaVersion"`
+	Architecture  ArchitectureInput `yaml:"architecture"`
+}
+
+// BehaviorModel owns authored behavior and typed relationships.
+type BehaviorModel struct {
+	States        []State   `yaml:"states"`
+	Events        []Event   `yaml:"events"`
+	Flows         []Flow    `yaml:"flows"`
+	Relationships []Mapping `yaml:"relationships"`
+}
+
+// BehaviorDocument is the schema-v2 behavioral document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type BehaviorDocument struct {
+	SchemaVersion int           `yaml:"schemaVersion"`
+	Behavior      BehaviorModel `yaml:"behavior"`
+}
+
+// AssuranceModel owns schema-v2 security and assurance declarations.
+type AssuranceModel struct {
+	AttackVectors        []AttackVector        `yaml:"attackVectors"`
+	Controls             []Control             `yaml:"controls"`
+	Risks                []Risk                `yaml:"risks"`
+	POAMItems            []POAMItem            `yaml:"poamItems"`
+	TrustBoundaries      []TrustBoundary       `yaml:"trustBoundaries"`
+	ThreatScenarios      []ThreatScenario      `yaml:"threatScenarios"`
+	ThreatAssumptions    []ThreatAssumption    `yaml:"threatAssumptions"`
+	ThreatOutOfScope     []ThreatOutOfScope    `yaml:"threatOutOfScope"`
+	ThreatMitigations    []ThreatMitigation    `yaml:"threatMitigations"`
+	ControlVerifications []ControlVerification `yaml:"controlVerifications"`
+}
+
+// AssuranceDocument is the schema-v2 assurance document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type AssuranceDocument struct {
+	SchemaVersion int            `yaml:"schemaVersion"`
+	Assurance     AssuranceModel `yaml:"assurance"`
+}
+
+// ComplianceDocument is the schema-v2 compliance document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type ComplianceDocument struct {
+	SchemaVersion int             `yaml:"schemaVersion"`
+	Compliance    ComplianceModel `yaml:"compliance"`
+}
+
+// ViewsDocument owns projections, NAF metadata, and authored narratives.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type ViewsDocument struct {
+	SchemaVersion int         `yaml:"schemaVersion"`
+	Views         []View      `yaml:"views"`
+	NAF           NAFProfile  `yaml:"naf"`
+	Design        DesignModel `yaml:"design"`
+}
+
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type InferenceHints struct {
 	RuntimeSources           []string `yaml:"runtimeSources"`
@@ -525,15 +678,64 @@ type View struct {
 	Abstraction               string   `yaml:"abstraction"`
 }
 
+// NAFProfile adds NATO Architecture Framework metadata to canonical model views.
+// It does not define another architecture element graph.
+// TRLC-LINKS: REQ-EMG-041
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-NAF-EXPORTER, REF-NAF-V4-1-SPECIFICATION
+type NAFProfile struct {
+	Framework               string           `yaml:"framework"`
+	Version                 string           `yaml:"version"`
+	ArchitectureDescription string           `yaml:"architectureDescription"`
+	Stakeholders            []NAFStakeholder `yaml:"stakeholders"`
+	Concerns                []NAFConcern     `yaml:"concerns"`
+	Products                []NAFProduct     `yaml:"products"`
+}
+
+// Enabled reports whether a NAF profile was authored.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) Enabled() bool {
+	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != "" ||
+		len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
+}
+
+// NAFStakeholder binds a NAF stakeholder role to an existing canonical actor.
+// TRLC-LINKS: REQ-EMG-041
+type NAFStakeholder struct {
+	ActorRef string `yaml:"actorRef"`
+	Role     string `yaml:"role"`
+}
+
+// NAFConcern identifies an architecture concern and its existing stakeholders.
+// TRLC-LINKS: REQ-EMG-041
+type NAFConcern struct {
+	ID              string   `yaml:"id"`
+	Name            string   `yaml:"name"`
+	Description     string   `yaml:"description"`
+	StakeholderRefs []string `yaml:"stakeholderRefs"`
+}
+
+// NAFProduct applies an official NAF viewpoint to an existing Engmod view.
+// TRLC-LINKS: REQ-EMG-041, REQ-EMG-042
+type NAFProduct struct {
+	ID          string   `yaml:"id"`
+	Viewpoint   string   `yaml:"viewpoint"`
+	Title       string   `yaml:"title"`
+	ViewRef     string   `yaml:"viewRef"`
+	ConcernRefs []string `yaml:"concernRefs"`
+}
+
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ArchitectureDocument struct {
+	SchemaVersion        int                  `yaml:"schemaVersion"`
 	Model                ModelMeta            `yaml:"model"`
+	Semantics            SemanticContent      `yaml:"semantics"`
 	Decisions            []Decision           `yaml:"-"`
 	AuthoredArchitecture AuthoredArchitecture `yaml:"authoredArchitecture"`
 	Compliance           ComplianceModel      `yaml:"compliance"`
 	Contract             ContractModel        `yaml:"contract"`
 	Composition          CompositionModel     `yaml:"composition"`
 	InferenceHints       InferenceHints       `yaml:"inferenceHints"`
+	NAF                  NAFProfile           `yaml:"naf"`
 	Views                []View               `yaml:"views"`
 }
 
@@ -588,42 +790,76 @@ type CompositionModel struct {
 	Satisfactions []Satisfaction `yaml:"satisfactions"`
 }
 
-// Subsystem is a downward reference to a child system model, resolved either from a
-// local subdirectory (ref) or an external git repository (git) cloned into .engmod.
+// Subsystem is a downward reference to one publication selected from a manifest
+// dependency.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Subsystem struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
-	Ref         string `yaml:"ref"`  // local subdirectory path to the child model
-	Git         string `yaml:"git"`  // external git repository URL; cloned into .engmod/subsystems/<id>
-	Rev         string `yaml:"rev"`  // optional branch, tag, or commit to check out after clone
-	Path        string `yaml:"path"` // optional subdirectory within the repository containing the model
+	Dependency  string `yaml:"dependency"`
+	Publication string `yaml:"publication"`
 	Description string `yaml:"description"`
 }
 
-// Allocation binds a parent requirement onto a subsystem's published (provided) identifier.
+// WorkspaceDocument provides local development replacements for published CUE
+// module identities. It is never included in a published module.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+type WorkspaceDocument struct {
+	SchemaVersion int                    `yaml:"schemaVersion"`
+	Replacements  []WorkspaceReplacement `yaml:"replacements"`
+}
+
+// WorkspaceReplacement maps one CUE module identity to a local repository.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+type WorkspaceReplacement struct {
+	Module string `yaml:"module"`
+	Path   string `yaml:"path"`
+}
+
+// Allocation binds a parent requirement onto an alias-qualified identifier
+// visible through the subsystem's selected publication.
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Allocation struct {
 	Requirement string `yaml:"requirement"` // this system's requirement id
 	To          string `yaml:"to"`          // subsystem id or hardware item id
-	Target      string `yaml:"target"`      // public id within the subsystem (provided contract id)
+	Target      string `yaml:"target"`      // alias::ID selected by the subsystem publication
 	Rationale   string `yaml:"rationale"`
 }
 
-// Satisfaction records how a subsystem's required interface is satisfied by a provider.
+// Satisfaction records how a published subsystem need is satisfied by a
+// publication-qualified provider or a local hardware item.
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Satisfaction struct {
-	Need string `yaml:"need"` // subsystem-qualified required id (SUBSYS/needId)
-	By   string `yaml:"by"`   // provider: subsystem-qualified provided id or hardware item id
+	Need string `yaml:"need"` // alias::ID
+	By   string `yaml:"by"`   // alias::ID or local hardware item id
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Bundle struct {
+	ManifestPath     string
 	ArchitecturePath string
+	BehaviorPath     string
+	AssurancePath    string
+	CompliancePath   string
+	ViewsPath        string
 	CatalogPath      string
 	DecisionsPath    string
+	RequirementsPath string
+	DesignPath       string
+	AviationPath     string
 
+	Manifest     ManifestDocument
 	Architecture ArchitectureDocument
+	Behavior     BehaviorDocument
+	Assurance    AssuranceDocument
+	Compliance   ComplianceDocument
+	Views        ViewsDocument
 	Catalog      CatalogDocument
 	Decisions    DecisionsDocument
+	Requirements RequirementsDocument
+	Design       DesignDocument
+	Aviation     *AviationDocument
 }

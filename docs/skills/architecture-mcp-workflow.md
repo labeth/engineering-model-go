@@ -9,13 +9,18 @@ so the agent's job is to keep the model, the code, and the trace links consisten
 
 ## Required inputs
 
-1. Model files: `architecture.yml`, `requirements.yml`, `design.yml`, `catalog.yml`, `decisions.yml`.
-2. MCP tool responses for model context, implementation lookup, trace status, composition, and verification.
-3. The source tree, tests, and the generated artifacts under each model's `generated/`.
+1. The `model.authoringContract` MCP response, which identifies the resolved canonical files,
+   schema versions, authoritative CUE schemas, top-level fields, stable-ID conventions,
+   module dependency rules, and recommended editing order.
+2. Model files: `engmod.yml`, `model/requirements.yml`, `model/views.yml`, `model/catalog.yml`, `model/decisions.yml`
+   or the explicit paths declared under `architecture.model.documents`.
+3. MCP tool responses for model context, implementation lookup, trace status, composition, and verification.
+4. The source tree, tests, and the generated artifacts under each model's `generated/`.
 
 ## MCP tools to lean on
 
 Discover and inspect the model:
+- `model.authoringContract` — call this first to discover the canonical document set and editing rules without scanning implementation code.
 - `model.list` / `entities.list`, `model.entity`, `model.implementations` — enumerate and inspect any entity (functional units, interfaces, data objects, flows, controls, threats, risks, hardware items, hardware interfaces).
 - `requirements.get`, `requirements.impact`, `requirements.supportPath`, `requirements.suggestEditPlan` — requirement context and edit planning.
 - `files.forRequirement` / `files.forControl` / `files.forThreat` / `files.owner` — find the code linked to a model id.
@@ -31,19 +36,21 @@ Verify, plan, and self-check:
 
 ## Workflow
 
-1. **Frame the task in model ids.** Start from the user task and the affected `REQ-*`, `FU-*`, `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, `TS-*` ids. Use `requirements.impact` and `model.entity` to scope the blast radius.
+1. **Load the authoring contract.** Call `model.authoringContract` before broad reads. Follow its resolved paths and authoring order; do not assume companion filenames when explicit references are present.
 
-2. **Establish the trace baseline.** Run `trace.matrix` to see which requirements are implemented, verified, delegated, or orphan, and whether any code trace links are dangling. For a composed system, run `composition.resolve` to see how requirements are delegated to subsystems.
+2. **Frame the task in model ids.** Start from the user task and the affected `REQ-*`, `FU-*`, `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, `TS-*` ids. Use `requirements.impact` and `model.entity` to scope the blast radius.
 
-3. **Model (author the model when behavior is new).** Add or change requirements (EARS-linted), functional units, interfaces, data objects, controls, hardware items/interfaces, or composition (subsystems, allocations, satisfactions) directly in the YAML. A requirement is either **implemented here** (its code) or **delegated** to a subsystem via `composition.allocations` to a published contract entry — there are no requirement tiers.
+3. **Establish the trace baseline.** Run `trace.matrix` to see which requirements are implemented, verified, delegated, or orphan, and whether any code trace links are dangling. For a composed system, run `composition.resolve` to see how requirements are delegated to subsystems.
 
-4. **Engineer (compose and delegate).** For multi-repo or multi-team work, model subsystems under `composition.subsystems` (local `ref:` or external `git:`), publish each subsystem's `contract.provides`/`requires`, and allocate parent requirements to a subsystem's contract entry whose `ref` names the realizing subsystem requirement. Verify with `composition.resolve` that every allocation resolves and every required interface is satisfied.
+4. **Model (author the model when behavior is new).** Add or change requirements (EARS-linted), functional units, interfaces, data objects, controls, hardware items/interfaces, or composition (subsystems, allocations, satisfactions) directly in the YAML. A requirement is either **implemented here** (its code) or **delegated** to a subsystem via `composition.allocations` to a published contract entry — there are no requirement tiers.
 
-5. **Implement (minimal, traceable edits).** Prefer files already linked to the target entities. On each function/method that realizes behavior, add the markers (below). Every trace-required function MUST carry a `TRLC-LINKS` marker, and every linked id MUST exist — unresolved links are build errors.
+5. **Engineer (compose and delegate).** For multi-repo or multi-team work, model subsystems under `composition.subsystems[].source` using exactly one of `local`, `git`, or `module`. Prefer exact-version CUE modules for released dependencies, with `engmod.work.yml` replacements for sibling repositories during local development. Publish each subsystem's `contract.provides`/`requires`, and allocate parent requirements to a subsystem contract entry whose `ref` names the realizing subsystem requirement. Verify with `composition.resolve` that every allocation resolves and every required interface is satisfied.
 
-6. **Verify.** Add or update tests carrying `TRLC-LINKS: REQ-*`; keep test-result artifacts parseable. Re-run `trace.matrix` and confirm the touched requirements moved to `implemented`/`verified` and there are zero dangling links.
+6. **Implement (minimal, traceable edits).** Prefer files already linked to the target entities. On each function/method that realizes behavior, add the markers (below). Every trace-required function MUST carry a `TRLC-LINKS` marker, and every linked id MUST exist — unresolved links are build errors.
 
-7. **Regenerate and validate.** Regenerate the maintained artifacts (`engdoc` for AsciiDoc + decisions, `engtrace` for `TRACE-MATRIX.json`, `proven-docs render` for PDF, and the relevant exporters), then run the gauntlet `bash scripts/validate-all.sh`. Generation is deterministic and CI fails on drift, so regenerate and commit the artifacts you changed.
+7. **Verify.** Add or update tests carrying `TRLC-LINKS: REQ-*`; keep test-result artifacts parseable. Re-run `trace.matrix` and confirm the touched requirements moved to `implemented`/`verified` and there are zero dangling links.
+
+8. **Regenerate and validate.** Regenerate the maintained artifacts (`engdoc` for AsciiDoc + decisions, `engtrace` for `TRACE-MATRIX.json`, `proven-docs render` for PDF, and the relevant exporters), then run the gauntlet `bash scripts/validate-all.sh`. Generation is deterministic and CI fails on drift, so regenerate and commit the artifacts you changed.
 
 ## Tagging rules
 
@@ -68,7 +75,7 @@ Concrete model-element links (must resolve to real model ids):
 Rules:
 - Link to specific model ids, not generic catalog concepts.
 - A `TRLC-LINKS` to a non-existent requirement is `code.dangling_requirement_link` (error); an `ENGMODEL-LINKS` to a non-existent element is `code.dangling_model_link` (error); a trace-required function with no `TRLC-LINKS` is `code.missing_trlc_link` (error). All fail engdoc and engtrace.
-- Code is attributed to the model whose `architecture.yml` is its nearest enclosing root, so a parent model never claims a subsystem's code.
+- Code is attributed to the model whose `engmod.yml` is its nearest enclosing root, so a parent model never claims a subsystem's code.
 - Do not add inferred `RT-*` or `CODE-*` ids to authored mappings. Generated, vendor, and dependency-cache (dot-directory) files do not take ownership markers.
 
 ## Done criteria

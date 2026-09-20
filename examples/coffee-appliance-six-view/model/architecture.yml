@@ -1,0 +1,236 @@
+schemaVersion: 2
+architecture:
+  semantics:
+    elements:
+    - id: ACT-COFFEE-DRINKER
+      name: Coffee Drinker
+      kind: stakeholder_definition
+      extensionNamespace: coffee
+      extension: engineering.actor
+    - id: UC-PREPARE-COFFEE
+      name: Prepare Coffee
+      kind: use_case_definition
+    - id: UC-HEAT-WATER
+      name: Heat Water
+      kind: use_case_definition
+    - id: CAP-MAKE-DRINK
+      name: Make Drink
+      kind: action_definition
+      extensionNamespace: coffee
+      extension: engineering.capability
+    - id: CAP-BREW-BEVERAGE
+      name: Brew Beverage
+      kind: action_definition
+      extensionNamespace: coffee
+      extension: engineering.capability
+    - id: CAP-CONTROL-TEMPERATURE
+      name: Control Water Temperature
+      kind: action_definition
+      extensionNamespace: coffee
+      extension: engineering.capability
+    - id: PART-COFFEE-APPLIANCE
+      name: Coffee Appliance
+      kind: part_definition
+    - id: HW-APPLIANCE-CHASSIS
+      name: Appliance Chassis
+      kind: part_definition
+      extensionNamespace: coffee
+      extension: engineering.hardware
+    - id: HW-WATER-SYSTEM
+      name: Water System
+      kind: part_usage
+      owner: HW-APPLIANCE-CHASSIS
+      extensionNamespace: coffee
+      extension: engineering.hardware
+    - id: HW-HEATER
+      name: Thermoblock Heater
+      kind: part_usage
+      owner: HW-WATER-SYSTEM
+      extensionNamespace: coffee
+      extension: engineering.hardware
+    - id: HW-PUMP
+      name: Water Pump
+      kind: part_usage
+      owner: HW-WATER-SYSTEM
+      extensionNamespace: coffee
+      extension: engineering.hardware
+    - id: PORT-HEATER-IN
+      name: Heater Water Inlet
+      kind: port_usage
+      owner: HW-HEATER
+    - id: PORT-HEATER-OUT
+      name: Heater Water Outlet
+      kind: port_usage
+      owner: HW-HEATER
+    - id: PORT-PUMP-OUT
+      name: Pump Outlet
+      kind: port_usage
+      owner: HW-PUMP
+    - id: CONN-PUMP-HEATER
+      name: Pump to Heater Line
+      kind: part_usage
+      owner: HW-WATER-SYSTEM
+      extensionNamespace: coffee
+      extension: engineering.connector
+    - id: ITEM-WATER
+      name: Water
+      kind: item_definition
+    - id: ITEM-HOT-WATER
+      name: Heated Water
+      kind: item_definition
+    - id: ITEM-BREW-SELECTION
+      name: Brew Selection
+      kind: item_definition
+    - id: ITEM-BREW-STATUS
+      name: Brew Status
+      kind: item_definition
+    - id: UNIT-CELSIUS
+      name: Degree Celsius
+      kind: unit_definition
+    - id: QTY-BREW-TEMPERATURE
+      name: Brew Temperature
+      kind: quantity_definition
+    - id: SW-APPLIANCE-CONTROLLER
+      name: Appliance Controller
+      kind: part_definition
+      extensionNamespace: coffee
+      extension: engineering.software_component
+      features:
+      - name: commandPort
+        kind: attribute
+      - name: statusPort
+        kind: attribute
+    - id: SW-BREW-COORDINATOR
+      name: Brew Coordinator
+      kind: part_usage
+      owner: SW-APPLIANCE-CONTROLLER
+      extensionNamespace: coffee
+      extension: engineering.software_component
+    - id: SW-TEMPERATURE-CONTROLLER
+      name: Temperature Controller
+      kind: part_usage
+      owner: SW-APPLIANCE-CONTROLLER
+      extensionNamespace: coffee
+      extension: engineering.software_component
+    - id: DEP-COUNTERTOP-DEVICE
+      name: Countertop Device
+      kind: part_definition
+      extensionNamespace: coffee
+      extension: engineering.deployment_target
+    relationships:
+    - id: REL-ACTOR-PREPARE
+      kind: dependency
+      source: ACT-COFFEE-DRINKER
+      target: UC-PREPARE-COFFEE
+      sourceType: participates
+    - id: REL-PREPARE-INCLUDES-HEAT
+      kind: dependency
+      source: UC-PREPARE-COFFEE
+      target: UC-HEAT-WATER
+      sourceType: include
+    - id: REL-CAP-BREW-PARENT
+      kind: specialization
+      source: CAP-BREW-BEVERAGE
+      target: CAP-MAKE-DRINK
+      sourceType: capability decomposition
+    - id: REL-CAP-TEMP-PARENT
+      kind: specialization
+      source: CAP-CONTROL-TEMPERATURE
+      target: CAP-BREW-BEVERAGE
+      sourceType: capability decomposition
+    - id: MSG-01-SELECTION
+      kind: transfer
+      source: ACT-COFFEE-DRINKER
+      target: SW-BREW-COORDINATOR
+      sourceType: submit selection
+      itemRef: ITEM-BREW-SELECTION
+    - id: MSG-02-HEAT
+      kind: transfer
+      source: SW-BREW-COORDINATOR
+      target: SW-TEMPERATURE-CONTROLLER
+      sourceType: request heat
+      itemRef: QTY-BREW-TEMPERATURE
+    - id: MSG-03-CONTROL-LOOP
+      kind: transfer
+      source: SW-TEMPERATURE-CONTROLLER
+      target: SW-TEMPERATURE-CONTROLLER
+      sourceType: regulate temperature
+      itemRef: QTY-BREW-TEMPERATURE
+    - id: MSG-04-STATUS
+      kind: transfer
+      source: SW-BREW-COORDINATOR
+      target: ACT-COFFEE-DRINKER
+      sourceType: report ready
+      itemRef: ITEM-BREW-STATUS
+    - id: REL-CHASSIS-WATER
+      kind: containment
+      source: HW-APPLIANCE-CHASSIS
+      target: HW-WATER-SYSTEM
+      sourceType: contains
+    - id: REL-WATER-HEATER
+      kind: containment
+      source: HW-WATER-SYSTEM
+      target: HW-HEATER
+      sourceType: contains
+    - id: REL-WATER-PUMP
+      kind: containment
+      source: HW-WATER-SYSTEM
+      target: HW-PUMP
+      sourceType: contains
+    - id: REL-WATER-CONNECTOR
+      kind: containment
+      source: HW-WATER-SYSTEM
+      target: CONN-PUMP-HEATER
+      sourceType: contains
+    - id: REL-HEATER-IN
+      kind: containment
+      source: HW-HEATER
+      target: PORT-HEATER-IN
+      sourceType: owns port
+    - id: REL-HEATER-OUT
+      kind: containment
+      source: HW-HEATER
+      target: PORT-HEATER-OUT
+      sourceType: owns port
+    - id: REL-PUMP-OUT
+      kind: containment
+      source: HW-PUMP
+      target: PORT-PUMP-OUT
+      sourceType: owns port
+    - id: REL-PUMP-HEATER
+      kind: dependency
+      source: PORT-PUMP-OUT
+      target: PORT-HEATER-IN
+      owner: CONN-PUMP-HEATER
+      sourceType: carries water
+      itemRef: ITEM-WATER
+    - id: REL-HEAT-QUANTITY
+      kind: dependency
+      source: HW-HEATER
+      target: QTY-BREW-TEMPERATURE
+      sourceType: temperature target
+    - id: REL-SW-COORDINATOR
+      kind: containment
+      source: SW-APPLIANCE-CONTROLLER
+      target: SW-BREW-COORDINATOR
+      sourceType: contains
+    - id: REL-SW-TEMPERATURE
+      kind: containment
+      source: SW-APPLIANCE-CONTROLLER
+      target: SW-TEMPERATURE-CONTROLLER
+      sourceType: contains
+    - id: REL-SW-HARDWARE
+      kind: allocation
+      source: SW-APPLIANCE-CONTROLLER
+      target: HW-APPLIANCE-CHASSIS
+      sourceType: allocated to
+    - id: REL-SW-DEPLOYMENT
+      kind: allocation
+      source: SW-APPLIANCE-CONTROLLER
+      target: DEP-COUNTERTOP-DEVICE
+      sourceType: deployed to
+    - id: REL-HW-DEPLOYMENT
+      kind: containment
+      source: DEP-COUNTERTOP-DEVICE
+      target: HW-APPLIANCE-CHASSIS
+      sourceType: contains

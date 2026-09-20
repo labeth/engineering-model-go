@@ -14,13 +14,13 @@ import (
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 // ENGMODEL-LINKS: IF-CLI-ENGDRAGON, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func main() {
-	modelPath := flag.String("model", "", "path to architecture model YAML")
+	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	format := flag.String("format", string(engmodel.ThreatModelFormatThreatDragonV2), "export format: threat-dragon-v2 or open-otm")
 	outPath := flag.String("out", "", "optional output .json path; defaults to stdout")
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engdragon --model <architecture.yml> [--format threat-dragon-v2|open-otm] [--out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engdragon --model <engmod.yml> [--format threat-dragon-v2|open-otm] [--out <file>]")
 		os.Exit(2)
 	}
 

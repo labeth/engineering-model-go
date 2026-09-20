@@ -1,0 +1,16 @@
+package requirements
+Requirement REQ_PORT_001 {
+  id         = "REQ-PORT-001"
+  text       = "The atlas industries portfolio shall report portfolio status to the portfolio executive."
+  applies_to = ["FU-PORT-GOVERNANCE"]
+}
+Requirement REQ_PORT_002 {
+  id         = "REQ-PORT-002"
+  text       = "The atlas industries portfolio shall provide perimeter awareness using the Aegis Sentinel product capability."
+  applies_to = ["FU-PORT-GOVERNANCE"]
+}
+Requirement REQ_PORT_003 {
+  id         = "REQ-PORT-003"
+  text       = "The atlas industries portfolio shall provide resilient communications using the Orion Relay product capability."
+  applies_to = ["FU-PORT-GOVERNANCE"]
+}

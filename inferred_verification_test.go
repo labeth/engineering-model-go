@@ -39,7 +39,7 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 	}
 
 	bundle := model.Bundle{
-		ArchitecturePath: filepath.Join(root, "architecture.yml"),
+		ArchitecturePath: filepath.Join(root, "engmod.yml"),
 		Architecture: model.ArchitectureDocument{
 			InferenceHints: model.InferenceHints{},
 		},
@@ -72,7 +72,7 @@ func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
 	}
 
 	bundle := model.Bundle{
-		ArchitecturePath: filepath.Join(root, "architecture.yml"),
+		ArchitecturePath: filepath.Join(root, "engmod.yml"),
 		Architecture: model.ArchitectureDocument{
 			InferenceHints: model.InferenceHints{CodeSources: []string{"./"}},
 		},
@@ -111,7 +111,7 @@ func TestInferVerificationChecks_UsesTestFunctionCodeElement(t *testing.T) {
 		t.Fatalf("write test fixture: %v", err)
 	}
 
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "architecture.yml")}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	requirements := model.RequirementsDocument{
 		Requirements: []model.Requirement{{ID: "REQ-FEATURE-001", AppliesTo: []string{"FU-FEATURE"}}},
 	}
@@ -159,7 +159,7 @@ func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIden
 		t.Fatalf("write validation result fixture: %v", err)
 	}
 
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "architecture.yml")}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	requirements := model.RequirementsDocument{
 		Requirements: []model.Requirement{{ID: "REQ-PRR-004", AppliesTo: []string{"FU-POLICY-CHECKS"}}},
 	}

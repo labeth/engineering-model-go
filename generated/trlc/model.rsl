@@ -1,8 +1,0 @@
-package EngineeringModelRequirements
-
-type Requirement {
-  id         String
-  text       String
-  notes      optional String
-  applies_to String [0 .. *]
-}

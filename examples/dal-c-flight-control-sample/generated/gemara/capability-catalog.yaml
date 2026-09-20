@@ -1,0 +1,28 @@
+title: "DAL C Yaw Damping Readiness Sample - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of DAL C Yaw Damping Readiness Sample
+  author:
+    id: engineering-model-go
+    name: Engineering Model Go Examples
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: DAL C Yaw Damping Readiness Sample
+  description: "The system as a whole: DAL C Yaw Damping Readiness Sample."
+  group: system
+- id: FU-YAW-CONTROL
+  title: Yaw Damping Software
+  description: Filters yaw rate and produces a bounded command.
+  group: FG-FLIGHT-CONTROL
+groups:
+- id: FG-FLIGHT-CONTROL
+  title: Flight Control
+  description: Bounded flight-control functions.
+- id: system
+  title: System
+  description: Whole-system capability scope.

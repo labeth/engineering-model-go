@@ -1,0 +1,549 @@
+{
+  "system-security-plan": {
+    "uuid": "73246680-cffc-57f4-8f1a-f1a34c6d175b",
+    "metadata": {
+      "title": "Atlas Shared Compliance Baseline",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-profile": {
+      "href": "./OSCAL-PROFILE.json"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "identifier-type": "https://engineering-model-go/system-id",
+          "id": "atlas-shared-compliance-baseline"
+        }
+      ],
+      "system-name": "Atlas Shared Compliance Baseline",
+      "description": "NIST and ISO aligned company control baseline with verification evidence.",
+      "security-sensitivity-level": "moderate",
+      "system-information": {
+        "information-types": [
+          {
+            "uuid": "d7fdb24e-3571-565b-bc8f-3d2a6a9c1c93",
+            "title": "Operational Data",
+            "description": "Application and operational data managed by the engineered system.",
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "availability-impact": {
+              "base": "fips-199-moderate"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "moderate",
+        "security-objective-integrity": "moderate",
+        "security-objective-availability": "moderate"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "Authorization boundary aligns with authored architecture scope and allocated components."
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "f3825276-5122-5e68-92f3-e929828cc7d7",
+          "title": "Compliance Officer",
+          "description": "Approves controls and remediation plans.",
+          "short-name": "compliance-officer"
+        },
+        {
+          "uuid": "67682552-1b7f-524d-a0bc-e223db30b8a5",
+          "title": "Employee",
+          "description": "Completes policy acknowledgment and security awareness obligations.",
+          "short-name": "employee"
+        },
+        {
+          "uuid": "33b01ddd-d415-5c2d-ba78-1f11a0d9cfc0",
+          "title": "Line Manager",
+          "description": "Initiates and confirms role-change access reviews.",
+          "short-name": "line-manager"
+        },
+        {
+          "uuid": "0823a6cb-c814-586e-ab24-c099f9fafa77",
+          "title": "People Operations Partner",
+          "description": "Coordinates personnel screening, employment records, and offboarding.",
+          "short-name": "people-operations-partner"
+        }
+      ],
+      "components": [
+        {
+          "uuid": "ccbc4265-bb93-5944-8c82-c398dfbda3bb",
+          "type": "functional_unit",
+          "title": "Compliance Evidence Service",
+          "description": "Architecture component mapped from FU-COMP-EVIDENCE.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-COMP-EVIDENCE"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "7cad4723-157b-5201-aace-749df832b74e",
+          "type": "functional_unit",
+          "title": "People Security and Awareness",
+          "description": "Architecture component mapped from FU-COMP-PEOPLE.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-COMP-PEOPLE"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "Control implementation allocations derived from authored compliance mappings.",
+      "implemented-requirements": [
+        {
+          "uuid": "c5e836f2-956b-5010-849b-4420ac0c270c",
+          "control-id": "a-5.15",
+          "by-components": [
+            {
+              "uuid": "008b005b-c5ba-5982-be24-5cdb87c7e738",
+              "component-uuid": "ccbc4265-bb93-5944-8c82-c398dfbda3bb",
+              "description": "Signed evidence is retained under the company records policy.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-EVIDENCE-RETENTION"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/retention-policy.pdf"
+            }
+          ]
+        },
+        {
+          "uuid": "f59ca3db-48d8-5177-8d1e-cc21803ee087",
+          "control-id": "a-5.18",
+          "by-components": [
+            {
+              "uuid": "4a2f03bf-5c89-5bd5-b8e7-4d58965abdf1",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally governed.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-POLICY-ACKNOWLEDGMENT"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "One reusable organizational baseline gives both products consistent people-control evidence."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/policy-acknowledgments.json, evidence/compliance/role-change-review-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "2d171aea-e1a0-5dcd-a5b6-ab4f7ed350ec",
+          "control-id": "a-6.1",
+          "by-components": [
+            {
+              "uuid": "8ad10783-5d9e-5d0b-8f86-b202805ca34a",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally governed.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-POLICY-ACKNOWLEDGMENT"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "One reusable organizational baseline gives both products consistent people-control evidence."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/policy-acknowledgments.json, evidence/compliance/role-change-review-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "86e469bc-fab1-5992-8661-5039c8dd635c",
+          "control-id": "a-6.2",
+          "by-components": [
+            {
+              "uuid": "9e1ffb71-0c62-5ec9-85c1-418effc16854",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally governed.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-POLICY-ACKNOWLEDGMENT"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "One reusable organizational baseline gives both products consistent people-control evidence."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/policy-acknowledgments.json, evidence/compliance/role-change-review-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "7c02d59c-d2dd-50a4-802b-4e60b9f27eb7",
+          "control-id": "a-6.3",
+          "by-components": [
+            {
+              "uuid": "e8450d16-4c9f-538a-9ef0-91369c49dc4e",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally governed.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-POLICY-ACKNOWLEDGMENT"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "One reusable organizational baseline gives both products consistent people-control evidence."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/policy-acknowledgments.json, evidence/compliance/role-change-review-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "a2dcba8f-c369-55f8-8c7d-e59e5c1954e7",
+          "control-id": "a-6.5",
+          "by-components": [
+            {
+              "uuid": "c87fcf1d-3fdb-5f59-bd73-147826404a58",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally governed.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-POLICY-ACKNOWLEDGMENT"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-ISO-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "One reusable organizational baseline gives both products consistent people-control evidence."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/policy-acknowledgments.json, evidence/compliance/role-change-review-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "207f59d5-58d6-51b4-a54d-07b03a3bbc6d",
+          "control-id": "ac-2",
+          "by-components": [
+            {
+              "uuid": "edf5ec14-da2b-59d9-b9fc-25d8f14a37a5",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Atlas governs screening, awareness, role changes, account lifecycle, and termination as one employee lifecycle.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-SECURITY-AWARENESS"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "Shared People Operations evidence supports every product without duplicating company controls."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/security-awareness-completion.json, evidence/compliance/offboarding-ticket-sample.json"
+            },
+            {
+              "uuid": "312295ac-39ae-5e54-8c54-52676440b604",
+              "component-uuid": "ccbc4265-bb93-5944-8c82-c398dfbda3bb",
+              "description": "Atlas performs quarterly privileged access reviews.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-ACCESS-REVIEW"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "Central evidence collection enables consistent assessment."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/q3-access-review.csv"
+            }
+          ]
+        },
+        {
+          "uuid": "aaafe655-ce22-5146-9e98-e6fb7d66521c",
+          "control-id": "at-2",
+          "by-components": [
+            {
+              "uuid": "2e97e58f-a9a9-56cb-a95b-42ea4e80f59c",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Atlas governs screening, awareness, role changes, account lifecycle, and termination as one employee lifecycle.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-SECURITY-AWARENESS"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "Shared People Operations evidence supports every product without duplicating company controls."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/security-awareness-completion.json, evidence/compliance/offboarding-ticket-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "ef53f5db-eaac-5410-8d8c-9ccf8e639bb2",
+          "control-id": "ps-3",
+          "by-components": [
+            {
+              "uuid": "749ec217-a90d-5de9-9198-9fb7cd1fa03a",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Atlas governs screening, awareness, role changes, account lifecycle, and termination as one employee lifecycle.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-SECURITY-AWARENESS"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "Shared People Operations evidence supports every product without duplicating company controls."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/security-awareness-completion.json, evidence/compliance/offboarding-ticket-sample.json"
+            }
+          ]
+        },
+        {
+          "uuid": "dbf1892f-5aef-58c1-9c79-a7edf195f864",
+          "control-id": "ps-4",
+          "by-components": [
+            {
+              "uuid": "75d0a368-01bc-5a97-9a0c-0a3b6eb1784c",
+              "component-uuid": "7cad4723-157b-5201-aace-749df832b74e",
+              "description": "Atlas governs screening, awareness, role changes, account lifecycle, and termination as one employee lifecycle.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "partial"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "procedural"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COMP-SECURITY-AWARENESS"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-ATLAS"
+                },
+                {
+                  "name": "mapping-rationale",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "Shared People Operations evidence supports every product without duplicating company controls."
+                }
+              ],
+              "remarks": "Evidence: evidence/compliance/security-awareness-completion.json, evidence/compliance/offboarding-ticket-sample.json"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

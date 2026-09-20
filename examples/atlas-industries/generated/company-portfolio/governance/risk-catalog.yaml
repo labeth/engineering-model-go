@@ -1,0 +1,55 @@
+title: "Atlas Industries Company Portfolio - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Risk register for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: aegis::RISK-AEG-FALSE-TRACK
+  title: False perimeter track
+  description: Spoofed observations may cause an incorrect perimeter incident.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: aegis::ACT-AEG-ENGINEER
+    accountable:
+    - name: aegis::ACT-AEG-ENGINEER
+    informed:
+    - name: aegis::ACT-AEG-ENGINEER
+  impact: Multi-sensor correlation reduces but does not eliminate sophisticated spoofing.
+  threats:
+  - entries:
+    - reference-id: aegis::TS-AEG-SENSOR-SPOOF
+    reference-id: ENGMOD-THREAT-CATALOG
+- id: orion::RISK-ORI-LINK-EXHAUSTION
+  title: Relay link exhaustion
+  description: Message flooding may prevent delivery of priority messages.
+  group: operational-risk
+  severity: High
+  rank: 2
+  owner:
+    responsible:
+    - name: orion::ACT-ORI-ENGINEER
+    accountable:
+    - name: orion::ACT-ORI-ENGINEER
+    informed:
+    - name: orion::ACT-ORI-ENGINEER
+  impact: Admission control preserves priority capacity under tested loads.

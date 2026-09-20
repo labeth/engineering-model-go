@@ -1,0 +1,21 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-COF-001,implemented,FU-FLEET-INGESTION-API FU-MACHINE-TELEMETRY-COLLECTION,fleet_ingestion_api.go:13 machine_telemetry.rs:12,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794,SUB-TELEMETRY/REQ-TELEM-001,
+REQ-COF-002,implemented,FU-FLEET-INGESTION-API FU-FLEET-OBSERVABILITY-REPORTING,fleet_ingestion_api.go:13 fleet_observability_reporting.ts:6,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF,SUB-CLOUD-API/REQ-CLOUD-001,
+REQ-COF-003,implemented,FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,update_campaign_orchestrator.ts:6 ota_update_agent.rs:6,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8,SUB-OTA-AGENT/REQ-OTA-001,
+REQ-COF-004,implemented,FU-DEVICE-IDENTITY-SECRETS FU-OTA-UPDATE-AGENT,ota_update_agent.rs:6 device_identity_secrets.ts:5,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8,,
+REQ-COF-005,implemented,FU-FLEET-OBSERVABILITY-REPORTING FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,update_campaign_orchestrator.ts:12 ota_update_agent.rs:16,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC,,
+REQ-COF-006,implemented,FU-FLEET-INGESTION-API FU-MACHINE-TELEMETRY-COLLECTION,machine_telemetry.rs:18,,,
+REQ-COF-007,implemented,FU-DEVICE-IDENTITY-SECRETS FU-FLEET-OBSERVABILITY-REPORTING,fleet_observability_reporting.ts:12 device_identity_secrets.ts:10,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF,,
+REQ-COF-008,implemented,FU-CLOUD-RUNTIME-OPERATIONS FU-FLEET-INGESTION-API FU-FLEET-OBSERVABILITY-REPORTING,fleet_observability_reporting.ts:18 cloud_runtime_ops.go:6 fleet_ingestion_api.go:19,,,
+REQ-COF-009,orphan,FU-FLEET-INGESTION-API FU-FLEET-OBSERVABILITY-REPORTING,,,,
+REQ-COF-010,orphan,FU-FLEET-OBSERVABILITY-REPORTING FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,,,,
+REQ-COF-011,orphan,FU-FLEET-INGESTION-API FU-MACHINE-TELEMETRY-COLLECTION,,,,
+REQ-COF-012,orphan,FU-CLOUD-RUNTIME-OPERATIONS FU-FLEET-INGESTION-API FU-FLEET-OBSERVABILITY-REPORTING,,,,
+cloud-api::REQ-CLOUD-001,allocated,cloud-api::FU-CLOUD-INGEST,,,SUB-CLOUD-API/cloud-api::REQ-CLOUD-001,cloud-api:public@v0.1.0
+cloud-api::REQ-CLOUD-002,published,cloud-api::FU-CLOUD-INGEST,,,,cloud-api:public@v0.1.0
+ota-agent::REQ-OTA-001,allocated,ota-agent::FU-OTA-APPLY,,,SUB-OTA-AGENT/ota-agent::REQ-OTA-001,ota-agent:public@v0.1.0
+ota-agent::REQ-OTA-002,published,ota-agent::FU-OTA-VERIFY,,,,ota-agent:public@v0.1.0
+ota-agent::REQ-OTA-003,published,ota-agent::FU-OTA-APPLY,,,,ota-agent:public@v0.1.0
+telemetry::REQ-TELEM-001,allocated,telemetry::FU-TELEM-REPORT,,,SUB-TELEMETRY/telemetry::REQ-TELEM-001,telemetry:public@v0.1.0
+telemetry::REQ-TELEM-002,published,telemetry::FU-TELEM-SAMPLE,,,,telemetry:public@v0.1.0
+telemetry::REQ-TELEM-003,published,telemetry::FU-TELEM-REPORT,,,,telemetry:public@v0.1.0

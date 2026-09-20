@@ -1,0 +1,26 @@
+package requirements
+Requirement REQ_AEG_001 {
+  id         = "REQ-AEG-001"
+  text       = "The aegis sentinel system shall present each perimeter track to the security operator."
+  applies_to = ["FU-AEG-MISSION"]
+}
+Requirement REQ_AEG_002 {
+  id         = "REQ-AEG-002"
+  text       = "The aegis sentinel system shall execute the sensor fusion software on managed edge compute."
+  applies_to = ["FU-AEG-SENSOR-FUSION"]
+}
+Requirement REQ_AEG_003 {
+  id         = "REQ-AEG-003"
+  text       = "The aegis sentinel system shall retain each perimeter track using managed cloud operations."
+  applies_to = ["FU-AEG-MISSION"]
+}
+Requirement REQ_AEG_004 {
+  id         = "REQ-AEG-004"
+  text       = "The aegis sentinel system shall authenticate product services using shared security services."
+  applies_to = ["FU-AEG-MISSION", "FU-AEG-SENSOR-FUSION"]
+}
+Requirement REQ_AEG_005 {
+  id         = "REQ-AEG-005"
+  text       = "The aegis sentinel system shall retain compliance evidence using the company control baseline."
+  applies_to = ["FU-AEG-MISSION"]
+}

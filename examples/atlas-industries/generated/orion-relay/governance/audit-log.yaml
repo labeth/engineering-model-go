@@ -1,0 +1,178 @@
+metadata:
+  id: atlas-orion-relay-AUDIT-LOG
+  type: AuditLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Point-in-time audit of Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+summary: "Audit of Orion Relay Product System: 12 result(s) reviewed against the control catalog."
+criteria:
+- reference-id: ENGMOD-CONTROL-CATALOG
+  remarks: Control catalog defines the acceptable state.
+results:
+- id: AUD-CV-ORI-ADMISSION
+  title: Verification of CTRL-ORI-ADMISSION
+  type: Observation
+  description: Control CTRL-ORI-ADMISSION assessed via test with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-ORI-ADMISSION
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-CV-ORI-ADMISSION-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/orion/admission-load-test.json
+    description: Current load test evidence.
+  recommendations:
+  - text: Single-band priority traffic remained available during flooding.
+    required: false
+- id: AUD-compliance::CV-COMP-ACCESS-REVIEW
+  title: Verification of compliance::CTRL-COMP-ACCESS-REVIEW
+  type: Observation
+  description: Control compliance::CTRL-COMP-ACCESS-REVIEW assessed via inspection with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-ACCESS-REVIEW
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-compliance::CV-COMP-ACCESS-REVIEW-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/compliance/q3-access-review.csv
+    description: Quarterly review export.
+  recommendations:
+  - text: Review completed; delegated reviewer escalation remains open.
+    required: false
+- id: AUD-compliance::CV-COMP-AWARENESS
+  title: Verification of compliance::CTRL-COMP-SECURITY-AWARENESS
+  type: Observation
+  description: Control compliance::CTRL-COMP-SECURITY-AWARENESS assessed via inspection with status partial.
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-SECURITY-AWARENESS
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-compliance::CV-COMP-AWARENESS-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/compliance/security-awareness-completion.json
+    description: Monthly completion and overdue-personnel report.
+  recommendations:
+  - text: Employee completion is reported; contractor integration is tracked in POAM-COMP-002.
+    required: false
+- id: AUD-compliance::CV-COMP-OFFBOARDING
+  title: Verification of compliance::CTRL-COMP-OFFBOARDING
+  type: Strength
+  description: Control compliance::CTRL-COMP-OFFBOARDING assessed via inspection with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-OFFBOARDING
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-compliance::CV-COMP-OFFBOARDING-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/compliance/offboarding-ticket-sample.json
+    description: Quarterly sample of timely access revocation and asset return.
+- id: AUD-compliance::CV-COMP-PERSONNEL-SCREENING
+  title: Verification of compliance::CTRL-COMP-PERSONNEL-SCREENING
+  type: Strength
+  description: Control compliance::CTRL-COMP-PERSONNEL-SCREENING assessed via inspection with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-PERSONNEL-SCREENING
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-compliance::CV-COMP-PERSONNEL-SCREENING-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/compliance/personnel-screening-attestation.json
+    description: Aggregate attestation that screening preceded privileged access.
+- id: AUD-compliance::CV-COMP-ROLE-CHANGE
+  title: Verification of compliance::CTRL-COMP-ROLE-CHANGE-REVIEW
+  type: Strength
+  description: Control compliance::CTRL-COMP-ROLE-CHANGE-REVIEW assessed via inspection with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-ROLE-CHANGE-REVIEW
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-compliance::CV-COMP-ROLE-CHANGE-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/compliance/role-change-review-sample.json
+    description: Quarterly sample of completed role-change reviews.
+- id: AUD-security::CV-SEC-TOKEN-REPLAY
+  title: Verification of security::CTRL-SEC-SHORT-LIVED-IDENTITY
+  type: Strength
+  description: Control security::CTRL-SEC-SHORT-LIVED-IDENTITY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: security::CTRL-SEC-SHORT-LIVED-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  evidence:
+  - id: AUD-security::CV-SEC-TOKEN-REPLAY-EV-1
+    type: ControlVerification
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: evidence/security/token-replay-test.json
+    description: Automated negative authentication test.
+  recommendations:
+  - text: Expired and replayed credentials were rejected.
+    required: false
+- id: AUD-RISK-ORI-LINK-EXHAUSTION
+  title: "Residual risk: Relay link exhaustion"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: CTRL-ORI-ADMISSION
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-compliance::RISK-COMP-ACCESS-REVIEW-GAP
+  title: "Residual risk: Delayed privileged access review"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-ACCESS-REVIEW
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-compliance::RISK-COMP-RETAINED-ACCESS
+  title: "Residual risk: Former or transferred personnel retain access"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-ROLE-CHANGE-REVIEW
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-compliance::RISK-COMP-UNTRAINED-PERSONNEL
+  title: "Residual risk: Personnel miss security obligations"
+  type: Observation
+  description: "Residual risk after mitigation: medium"
+  criteria-reference:
+    entries:
+    - reference-id: compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT
+    reference-id: ENGMOD-CONTROL-CATALOG
+- id: AUD-security::RISK-SEC-CREDENTIAL-REPLAY
+  title: "Residual risk: Credential replay risk"
+  type: Observation
+  description: "Residual risk after mitigation: low"
+  criteria-reference:
+    entries:
+    - reference-id: security::CTRL-SEC-SHORT-LIVED-IDENTITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+target:
+  id: atlas-orion-relay
+  name: Orion Relay Product System
+  type: Software
+  description: "System under governance: Orion Relay Product System"

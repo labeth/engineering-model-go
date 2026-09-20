@@ -1,0 +1,14 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-INGEST-AUTH
+    name: Ingest Authentication
+    category: access-control
+    description: Authenticate machines before accepting telemetry.
+  controlVerifications:
+  - id: VER-INGEST-AUTH
+    controlRef: CTRL-INGEST-AUTH
+    method: test
+    status: pass
+    findings:
+    - Unauthenticated ingest rejected in tests.

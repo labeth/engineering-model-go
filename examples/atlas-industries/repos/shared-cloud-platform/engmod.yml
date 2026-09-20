@@ -1,0 +1,35 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/shared/cloud-platform@v0
+  version: v0.1.0
+  modelId: atlas-shared-cloud-platform
+  title: Atlas Shared Cloud Platform
+  introduction: Reusable multi-region application runtime and event services.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-CLOUD
+  - FU-CLOUD-RUNTIME
+  - ACT-CLOUD-OPERATOR
+  - IF-CLOUD-EVENTS
+  - DO-CLOUD-EVENT
+  - HW-CLOUD-REGION
+  - CAP-CLOUD-OPERATIONS
+  - NEED-CLOUD-IDENTITY
+  assurance:
+  - CTRL-CLOUD-BACKUP
+  requirements:
+  - REQ-CLOUD-001
+  - REQ-CLOUD-002
+inferenceHints: {}

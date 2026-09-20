@@ -18,7 +18,7 @@ import (
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-GEMARA-EXPORTER
 func main() {
-	modelPath := flag.String("model", "", "path to architecture YAML")
+	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	requirementsPath := flag.String("requirements", "", "path to requirements YAML (for the evaluation log)")
 	codeRoot := flag.String("code-root", "", "code root for inferred verification (for the evaluation log)")
 	outDir := flag.String("out-dir", "", "output directory for Gemara YAML documents")
@@ -28,18 +28,20 @@ func main() {
 	date := flag.String("date", "", "metadata.date (ISO 8601)")
 	oscalCatalogOut := flag.String("oscal-catalog-out", "", "also emit an OSCAL Catalog (JSON) derived from the Gemara control catalog")
 	oscalAROut := flag.String("oscal-ar-out", "", "also emit OSCAL Assessment Results (JSON) derived from the Gemara evaluation log")
+	oscalAPHref := flag.String("oscal-ap-href", "", "assessment-plan href imported by the optional OSCAL Assessment Results")
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*outDir) == "" {
-		fmt.Fprintln(os.Stderr, "usage: enggemara --model <architecture.yml> --out-dir <dir> [--requirements <reqs.yml>] [--code-root <dir>] [--author <name>] [--version <v>]")
+		fmt.Fprintln(os.Stderr, "usage: enggemara --model <engmod.yml> --out-dir <dir> [--requirements <model/requirements.yml>] [--code-root <dir>] [--author <name>] [--version <v>]")
 		os.Exit(2)
 	}
 
 	opts := engmodel.GemaraExportOptions{
-		AuthorID:   strings.TrimSpace(*authorID),
-		AuthorName: strings.TrimSpace(*author),
-		Version:    strings.TrimSpace(*version),
-		Date:       strings.TrimSpace(*date),
+		AuthorID:           strings.TrimSpace(*authorID),
+		AuthorName:         strings.TrimSpace(*author),
+		Version:            strings.TrimSpace(*version),
+		Date:               strings.TrimSpace(*date),
+		AssessmentPlanHref: strings.TrimSpace(*oscalAPHref),
 	}
 
 	res, err := engmodel.GenerateGemaraFromFile(*modelPath, opts)

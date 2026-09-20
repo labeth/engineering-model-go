@@ -1,12 +1,12 @@
 # TRLC Requirements Export
 
-This repo can generate TRLC requirement files from `requirements.yml`.
+This repo can generate TRLC requirement files from `model/requirements.yml`.
 
 ## Generate
 
 ```bash
 go run ./cmd/engtrlc \
-  --requirements examples/payments-engineering-sample/requirements.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
   --out-dir examples/payments-engineering-sample/generated/trlc \
   --package PaymentsRequirements
 ```
@@ -42,7 +42,7 @@ The root package is generated with:
 
 ```bash
 go run ./cmd/engtrlc \
-  --requirements requirements.yml \
+  --requirements model/requirements.yml \
   --out-dir generated/trlc \
   --package EngineeringModelRequirements
 ```

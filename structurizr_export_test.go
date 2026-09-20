@@ -13,9 +13,9 @@ import (
 // TRLC-LINKS: REQ-EMG-005
 func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 	examples := []string{
-		filepath.Join("examples", "payments-engineering-sample", "architecture.yml"),
-		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "architecture.yml"),
-		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "architecture.yml"),
+		filepath.Join("examples", "payments-engineering-sample", "engmod.yml"),
+		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "engmod.yml"),
+		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "engmod.yml"),
 	}
 	for _, modelPath := range examples {
 		modelPath := modelPath
@@ -38,7 +38,7 @@ func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-005
 func TestGenerateStructurizrDSL_CLI(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	cmd := exec.Command("go", "run", "./cmd/engstruct", "--model", modelPath)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

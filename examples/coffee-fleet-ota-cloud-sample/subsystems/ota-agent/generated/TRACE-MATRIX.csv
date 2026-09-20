@@ -1,0 +1,4 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-OTA-001,implemented,FU-OTA-APPLY,ota_agent.rs:12,,,
+REQ-OTA-002,implemented,FU-OTA-VERIFY,ota_agent.rs:18,,,
+REQ-OTA-003,implemented,FU-OTA-APPLY,ota_agent.rs:24,,,

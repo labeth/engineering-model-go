@@ -1,0 +1,30 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+    - id: FG-FLIGHT-CONTROL
+      name: Flight Control
+      description: Bounded flight-control functions.
+  functionalUnits:
+    - id: FU-YAW-CONTROL
+      name: Yaw Damping Software
+      group: FG-FLIGHT-CONTROL
+      prose: Filters yaw rate and produces a bounded command.
+  interfaces:
+    - id: IF-YAW-RATE
+      name: Yaw Rate Input
+      protocol: sampled-data
+      endpoint: input
+      owner: FU-YAW-CONTROL
+    - id: IF-RUDDER-COMMAND
+      name: Rudder Command Output
+      protocol: sampled-data
+      endpoint: output
+      owner: FU-YAW-CONTROL
+  hardwareItems:
+    - id: HW-FLIGHT-CONTROL-COMPUTER
+      name: Flight Control Computer
+      kind: computer
+  contract:
+    provides: []
+    requires: []
+  semantics: {}

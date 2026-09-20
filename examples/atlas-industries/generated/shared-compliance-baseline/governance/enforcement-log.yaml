@@ -1,0 +1,55 @@
+metadata:
+  id: atlas-shared-compliance-baseline-ENFORCEMENT-LOG
+  type: EnforcementLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Remediation enforcement actions for Atlas Shared Compliance Baseline
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+  - id: ENGMOD-POLICY
+    title: Policy
+    version: 1.1.0
+disposition: Enforced
+actions:
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-COMP-ACCESS-REVIEW-GAP (milestone: Add delegated reviewer escalation and overdue reporting., due: 2026-12-15, status: in-progress)."
+  start: "2026-09-19T00:00:00Z"
+  steps:
+  - ACT-COMP-OFFICER
+  - evidence/compliance/access-review-plan.md
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-COMP-ACCESS-REVIEW-GAP
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for RISK-COMP-UNTRAINED-PERSONNEL (milestone: Add contractor learning-platform completion data to the common monthly report., due: 2026-11-30, status: planned)."
+  start: "2026-09-19T00:00:00Z"
+  steps:
+  - ACT-COMP-OFFICER
+  - evidence/compliance/contractor-training-plan.md
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: RISK-COMP-UNTRAINED-PERSONNEL
+target:
+  id: atlas-shared-compliance-baseline
+  name: Atlas Shared Compliance Baseline
+  type: Software
+  description: "System under governance: Atlas Shared Compliance Baseline"

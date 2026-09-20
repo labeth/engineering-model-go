@@ -1,0 +1,75 @@
+{
+  "catalog": {
+    "uuid": "ad9c1847-fc09-4891-924f-9c180a3f39ec",
+    "metadata": {
+      "title": "Atlas NIST SP 800-53 Control Extract",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "groups": [
+      {
+        "id": "ac",
+        "title": "Access Control",
+        "controls": [
+          {
+            "id": "ac-2",
+            "title": "Account Management",
+            "parts": [
+              {
+                "id": "ac-2_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for account-management requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "at",
+        "title": "Awareness and Training",
+        "controls": [
+          {
+            "id": "at-2",
+            "title": "Literacy Training and Awareness",
+            "parts": [
+              {
+                "id": "at-2_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for security literacy and awareness requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ps",
+        "title": "Personnel Security",
+        "controls": [
+          {
+            "id": "ps-3",
+            "title": "Personnel Screening",
+            "parts": [
+              {
+                "id": "ps-3_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for personnel-screening requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          },
+          {
+            "id": "ps-4",
+            "title": "Personnel Termination",
+            "parts": [
+              {
+                "id": "ps-4_smt",
+                "name": "statement",
+                "prose": "Atlas control reference for personnel-termination requirements; consult the authoritative framework for normative text."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

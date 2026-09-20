@@ -1347,7 +1347,7 @@ Deploys as an independently managed Lambda runtime boundary.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 |===
 
 
@@ -1451,7 +1451,7 @@ Isolated deployment enables cautious <<REF_IDX-ENGMODEL_TERM_MODEL,model>>/confi
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
 |Deployment dependencies |AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
 |===
 
 
@@ -1476,7 +1476,7 @@ Release isolation protects <<REF_IDX-CATALOG_PUBLICATION,publication>> reliabili
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>> | code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
 |===
 
 
@@ -2065,7 +2065,7 @@ AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-C
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
 
 
 
@@ -2143,7 +2143,7 @@ Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMO
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 
 ===== Review Orchestration (FU-REVIEW-ORCHESTRATION)
 
@@ -2159,7 +2159,7 @@ AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-C
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>> | code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
 
 
 
@@ -2233,7 +2233,7 @@ Applies redaction and policy-aware output filtering before publishing findings.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>> | code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
 
 ===== Secrets and Configuration (FU-SECRETS-CONFIGURATION)
 
@@ -2313,7 +2313,7 @@ Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMO
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>> | code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
 
 
 

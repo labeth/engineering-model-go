@@ -1,0 +1,22 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-EDGE
+    name: atlas edge platform
+    definition: Shared rugged compute and device integration platform.
+  functionalGroups:
+  - id: FG-EDGE
+    name: edge platform
+    definition: Shared edge hardware and software capabilities.
+  functionalUnits:
+  - id: FU-EDGE-RUNTIME
+    name: edge runtime
+    definition: Runs signed workloads and acquires device data.
+  actors:
+  - id: ACT-EDGE-OPERATOR
+    name: edge operator
+    definition: Operates deployed edge equipment.
+  dataTerms:
+  - id: DATA-EDGE-TELEMETRY
+    name: edge telemetry
+    definition: Operational observations produced by edge devices.

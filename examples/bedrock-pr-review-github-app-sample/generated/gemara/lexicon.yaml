@@ -3,12 +3,12 @@ metadata:
   id: sample-bedrock-pr-review-model-LEXICON
   type: Lexicon
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Controlled vocabulary for Bedrock Lambda GitHub PR Review App Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
 terms:
 - id: SYS-PR-REVIEW-SYSTEM

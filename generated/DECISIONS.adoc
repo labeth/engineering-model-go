@@ -359,3 +359,185 @@ updates; extend the same contract to other authored documents after the vertical
 - Existing model validation remains the authority for candidate correctness.
 - Updates replace complete requirement entities rather than applying ambiguous field-level patches.
 - The first schema version mutates requirements only.
+
+[[ADR-EMG-015]]
+== ADR-EMG-015: Make SysML and KerML semantics canonical without duplicating Engineering Model concepts
+
+Status:: accepted
+Date:: 2026-09-18
+
+=== Context
+
+A parallel SysML export schema would duplicate parts, interfaces, flows, requirements, allocations,
+and views already authored in the Engineering Model. It would allow the two representations to drift
+and still would not establish SysML abstract-syntax or semantic conformance.
+
+=== Decision
+
+Keep YAML as the canonical authoring and persistence format, while evolving its schema and the typed
+in-memory model toward the SysML v2 and KerML abstract syntax. The current YAML schema may be accepted
+through a migration adapter, but it is not a second semantic authority. SysML textual syntax is an
+output, not the canonical input. Every standard concept has one canonical representation shared by
+validation and all exporters. Threat, compliance, risk, POA&M, ADR,
+repository-composition, code-ownership, and verification-evidence concepts remain typed extensions.
+The SysML exporter must report unsupported or lossy mappings and must not claim semantic-superset
+conformance until executable coverage and round-trip checks cover the normative language.
+
+=== Consequences
+
+- YAML remains the authored source of truth, but its schema may change as the canonical semantic model matures.
+- SysML textual syntax and project interchange remain generated outputs.
+- Existing document, assurance, traceability, and validation behavior must be preserved through adapters.
+- Exporters migrate to one canonical model instead of maintaining format-specific source models.
+- SysML conformance claims are evidence-based and distinguish subset export from semantic-superset coverage.
+
+[[ADR-EMG-016]]
+== ADR-EMG-016: Use CUE as the schema contract for canonical YAML
+
+Status:: accepted
+Date:: 2026-09-18
+
+=== Context
+
+The canonical model needs one maintainable constraint language that rejects unknown fields,
+expresses cross-field invariants, and detects drift in runtime representations. Replacing YAML
+authoring with a CUE-authored domain model would create a second persistence format and disrupt
+existing repositories, while treating Go structs as the schema authority would limit declarative
+constraints and external schema reuse.
+
+=== Decision
+
+Keep YAML instances as the canonical authored and persisted model. Use embedded, modular CUE schemas
+as the authoritative shape and cross-field constraint contract for every canonical YAML document.
+Validate YAML against CUE before strict Go decoding. Treat Go types as runtime API representations
+whose YAML fields are checked against the CUE contract, not as a separately authored semantic model.
+Do not create a CUE-authored domain instance model. Keep SysML textual DSL as generated output from
+the normalized canonical model.
+
+=== Consequences
+
+- Existing YAML authoring workflows and repositories remain compatible.
+- CUE validation provides closed schemas, path-aware diagnostics, and cross-field constraints before runtime decoding.
+- Tests must fail when CUE document shapes and Go YAML representations drift.
+- Schema changes require coordinated CUE, runtime API, fixture, and documentation updates.
+- SysML textual DSL remains a projection and cannot become an alternate source of truth.
+
+[[ADR-EMG-017]]
+== ADR-EMG-017: Pin the official SysML 2.0 parser baseline and delegate KPAR packaging to Sysand
+
+Status:: accepted
+Date:: 2026-09-18
+
+=== Context
+
+SysML project interchange must be externally consumable and its conformance claims must be
+reproducible in CI. A hand-built ZIP cannot establish KerML KPAR conformance, an unpinned
+installer cannot provide repeatable evidence, and the 2026-08 Pilot Implementation targets
+SysML 2.1 Beta 2 rather than the formal SysML 2.0 and KerML 1.0 baseline.
+
+=== Decision
+
+Validate generated source with the official Pilot Implementation release 2026-04, artifact
+0.59.0, commit 20897e3122f2c2f8b29389745f0caaaeb7c6e21a, through the
+DeciSym/sysmlv2-validator wrapper pinned at commit
+63abbd9fbc7851dc437d01b2dc07836b919770b8 and configured with the matching
+release tag and artifact version. Delegate project creation, KPAR packaging, and KPAR reopen
+to Sysand 0.2.1 at commit 8430ab04d4d825fb1c196670692d2dafa344e713.
+Cache all tools under the ignored .engmod tree, verify published release-asset SHA-256
+digests, and use immutable Git commits where no separate source-archive checksum is
+published. Preserve the canonical semantic model in typed EngineeringProject metadata and
+require reconstructed semantic equivalence after reopening the KPAR.
+
+=== Consequences
+
+- CI blocks syntax errors, unsupported or lossy diagnostics, stale generated SysML, KPAR reopen failures, and semantic round-trip differences.
+- KPAR files are produced by Sysand and are not custom archives presented as normative interchange.
+- Local validation may be explicitly skipped when external tools are deliberately unavailable, while CI must install and run the pinned toolchain.
+- Official parser success proves syntax against the selected baseline but does not by itself imply complete semantic conformance.
+
+[[ADR-EMG-018]]
+== ADR-EMG-018: Implement NAF 4.1 as a profile over canonical model views
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+The NATO Architecture Framework organizes architecture descriptions by stakeholders, concerns,
+and viewpoint products. Its capability, service, logical, resource, and architecture concepts
+overlap with concepts already represented by the canonical SysML and KerML aligned semantic graph.
+Creating a separate NAF domain graph would duplicate those concepts and allow the two models to drift.
+
+=== Decision
+
+Keep capability, service, logical, resource, behavior, interface, and requirement concepts in the
+canonical semantic graph. Author only NAF-specific profile metadata in YAML: framework version,
+architecture-description identity, stakeholder bindings, concerns, and official NAF viewpoint
+selections. Each NAF architecture product references an existing Engmod view, and the NAF exporter
+renders that projection with stable canonical identifiers. Validate the profile with CUE and
+cross-reference checks before generation.
+
+=== Consequences
+
+- NAF architecture products and existing SysML, Structurizr, assurance, and document outputs share one source of truth.
+- NAF viewpoint products cannot introduce private copies of system elements or relationships.
+- Adding another NAF release requires an explicit versioned viewpoint registry and validation update.
+- Generated NAF documents provide framework-aligned architecture descriptions but do not imply certification by NATO.
+
+[[ADR-EMG-019]]
+== ADR-EMG-019: Make the YAML document set self-describing without breaking legacy inputs
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+The canonical model is split across architecture, catalog, requirements, design, and decisions YAML.
+Only the catalog path was explicit; the remaining companion files were discovered through fixed names,
+and none of the documents declared a common schema version. Humans could learn these conventions from
+repository history, but an AI agent had to infer them from loader code and multiple schemas.
+
+=== Decision
+
+Add an optional schemaVersion field to every canonical YAML document and explicit companion-document
+references under architecture.model.documents. Version 1 is the implicit value for existing inputs.
+Keep baseCatalogRef and the established default filenames as compatibility adapters, reject conflicting
+old and new catalog references, and expose the resolved document set, schema locations, top-level fields,
+stable-ID conventions, and recommended authoring order through a model.authoringContract MCP tool.
+
+=== Consequences
+
+- Existing repositories and all generated output formats remain compatible.
+- New models can declare their entire input document set in one discoverable location.
+- AI agents can obtain a compact editing contract before reading broad YAML or Go implementation files.
+- Future incompatible input changes require a new explicit schema version rather than silent reinterpretation.
+
+[[ADR-EMG-020]]
+== ADR-EMG-020: Distribute reusable model systems as CUE modules in OCI registries
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+Company-scale engineering models span multiple repositories and products. Shared hardware,
+software platforms, security services, and compliance baselines must be reused without copying
+their concepts into each product model. Local paths help monorepositories and git references
+help source-based integration, but neither provides a standard immutable package distribution
+contract with existing registry authentication and caching conventions.
+
+=== Decision
+
+Treat each reusable Engineering Model directory as a CUE module containing cue.mod/module.cue
+plus the canonical YAML document set. A subsystem may select a module path and exact semantic
+version; the composition resolver uses CUE_REGISTRY and CUE's OCI module protocol to fetch and
+cache it. Keep local and git references as compatibility adapters. Add engmod.work.yml as a
+development-only replacement map from module identity to sibling repository paths, analogous
+to workspace replacement mechanisms in established module ecosystems.
+
+=== Consequences
+
+- Multiple product repositories can consume the same versioned hardware, software, security, and compliance models.
+- CI and released products resolve exact OCI module versions while local workspaces can use explicit sibling-repository replacements.
+- Published artifacts remain valid CUE modules and can use existing OCI registry authentication and mirroring.
+- The resolver must reject ambiguous source declarations, invalid versions, path escapes, and replacement module identity mismatches.

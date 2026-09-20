@@ -1,0 +1,35 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-CLOUD
+    name: Cloud
+    description: Cloud ingestion and campaign control.
+  functionalUnits:
+  - id: FU-CLOUD-INGEST
+    name: Cloud Ingest
+    group: FG-CLOUD
+    prose: Ingests and persists fleet telemetry.
+  - id: FU-CLOUD-CAMPAIGN
+    name: Cloud Campaign
+    group: FG-CLOUD
+    prose: Plans and dispatches OTA campaigns.
+  interfaces:
+  - id: IF-CLOUD-INGEST
+    name: Cloud Ingest Interface
+    protocol: https
+    endpoint: /ingest
+    owner: FU-CLOUD-INGEST
+  dataObjects:
+  - id: DO-FLEET-METRIC
+    name: Fleet Metric
+    classification: internal
+  contract:
+    provides:
+    - id: CAP-CLOUD-INGEST
+      kind: capability
+      ref: REQ-CLOUD-001
+      note: Ingest and persist fleet telemetry.
+    requires:
+    - id: NEED-INTERNET
+      kind: interface
+      note: Internet connectivity from the edge gateway.

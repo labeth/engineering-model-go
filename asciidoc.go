@@ -49,8 +49,17 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036
 func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
+	bundle.Requirements = requirements
+	bundle.Design = design
+	canonical, err := model.NewCanonicalBundle(bundle)
+	if err != nil {
+		return AsciiDocResult{}, err
+	}
+	bundle = canonical.Documents()
+	requirements = bundle.Requirements
+	design = bundle.Design
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
@@ -129,14 +138,14 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 
 	delegationsByReq := map[string][]MaterializedAllocation{}
 	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
+		if res, derr := GenerateCompositionFromFile(bundle.ManifestPath); derr == nil {
 			for _, m := range res.Allocations {
 				rid := strings.TrimSpace(m.Requirement)
 				delegationsByReq[rid] = append(delegationsByReq[rid], m)
 			}
 		}
 	}
-	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), filepath.Dir(bundle.ArchitecturePath))
+	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), modelRootDir(bundle))
 	diags = append(diags, validateTraceIntegrity(bundle, requirements, scopedCode, inferredVerification, delegationsByReq)...)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))

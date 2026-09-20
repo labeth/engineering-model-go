@@ -1,0 +1,120 @@
+schemaVersion: 2
+module:
+  path: models.example/bedrock-pr-review@v0
+  version: v0.1.0
+  modelId: sample-bedrock-pr-review-model
+  title: Bedrock Lambda GitHub PR Review App Architecture
+  introduction: 'This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.
+
+    The authored functional architecture remains stable while deployment/runtime/code evidence is inferred
+
+    from infrastructure manifests, source files, and verification artifacts.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-PR-INTEGRATION
+  - FG-REVIEW-INTELLIGENCE
+  - FG-PLATFORM-OPERATIONS
+  - FU-GITHUB-WEBHOOK-INGRESS
+  - FU-PR-CONTEXT-ASSEMBLY
+  - FU-REVIEW-ORCHESTRATION
+  - FU-POLICY-CHECKS
+  - FU-REVIEW-PUBLICATION
+  - FU-LAMBDA-RUNTIME-OPERATIONS
+  - FU-SECRETS-CONFIGURATION
+  - ACT-DEVELOPER
+  - ACT-SECURITY-ENGINEER
+  - ACT-PLATFORM-OPERATOR
+  - ACT-REPOSITORY-MAINTAINER
+  - REF-GITHUB-APP-API
+  - REF-AWS-BEDROCK-RUNTIME
+  - REF-AWS-SECRETS-MANAGER
+  - REF-GITHUB-REST-SDK
+  - REF-AWS-SDK-GO
+  - REF-POLICY-RULESET
+  - IF-BEDROCK-WEBHOOK-API
+  - IF-BEDROCK-REVIEW-PUBLISH-API
+  - DO-BEDROCK-PR-CONTEXT
+  - DO-BEDROCK-REVIEW-FINDINGS
+  - DEP-BEDROCK-LAMBDA-PRIMARY
+  - DEP-BEDROCK-GITHUB-BOUNDARY
+  behavior:
+  - STATE-BEDROCK-PR-RECEIVED
+  - STATE-BEDROCK-REVIEW-PUBLISHED
+  - EVT-BEDROCK-REVIEW-REQUESTED
+  - EVT-BEDROCK-REVIEW-COMPLETED
+  - FLOW-BEDROCK-PR-REVIEW
+  - FLOW-BEDROCK-POLICY-TUNING
+  assurance:
+  - AV-SPOOFED-GITHUB-WEBHOOK
+  - AV-PROMPT-INJECTION-IN-DIFF
+  - AV-SECRET-LEAKAGE-IN-REVIEW
+  - AV-PR-SPAM-ABUSE
+  - CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  - CTRL-BEDROCK-SECRETS-ROTATION
+  - RISK-BEDROCK-WEBHOOK-SPOOFING
+  - RISK-BEDROCK-PROMPT-INJECTION
+  - RISK-BEDROCK-SECRET-LEAKAGE
+  - POAM-BEDROCK-REPLAY-HARDENING
+  - TB-BEDROCK-GITHUB-EXTERNAL
+  - TB-BEDROCK-AWS-CONTROL
+  - TS-BEDROCK-WEBHOOK-SPOOF
+  - TS-BEDROCK-PROMPT-INJECTION
+  - TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+  - ASM-BEDROCK-GITHUB-SIGNATURE-TRUST
+  - OOS-BEDROCK-GITHUB-CLOUD-PLATFORM
+  - MIT-BEDROCK-WEBHOOK-HMAC
+  - MIT-BEDROCK-CONTEXT-SANITIZATION
+  - MIT-BEDROCK-OUTPUT-REDACTION
+  - CV-BEDROCK-WEBHOOK-SIGNATURE
+  - CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+  - CV-BEDROCK-REDACTION-CHECK
+  compliance:
+  - PROF-NIST-800-53-MODERATE
+  - MAP-BEDROCK-WEBHOOK-SIGNATURE
+  - MAP-BEDROCK-SECRETS-ROTATION
+  requirements:
+  - REQ-PRR-001
+  - REQ-PRR-002
+  - REQ-PRR-003
+  - REQ-PRR-004
+  - REQ-PRR-005
+  - REQ-PRR-006
+  - REQ-PRR-007
+  - REQ-PRR-008
+  - REQ-PRR-009
+  - REQ-PRR-010
+  - REQ-PRR-011
+  views:
+  - VIEW-ARCHITECTURE-INTENT
+  - VIEW-COMMUNICATION
+  - VIEW-DEPLOYMENT
+  - VIEW-SECURITY
+  - VIEW-TRACEABILITY
+  - VIEW-INTERACTION-FLOW
+  - VIEW-STATE-LIFECYCLE
+inferenceHints:
+  runtimeSources:
+  - ./infra/terraform
+  codeSources:
+  - ./src
+  expectedRuntimeKinds:
+  - terraform_resource
+  - lambda_function
+  ownershipResolutionOrder:
+  - explicit_annotation
+  - path_convention
+  - unresolved_warning

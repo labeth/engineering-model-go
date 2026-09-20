@@ -22,15 +22,15 @@ Inference fixtures included:
 ## System-of-systems composition
 
 Although the highlights above describe the fleet as a single system, this sample is actually authored as a
-parent system that composes three downward subsystems. The parent `architecture.yml` declares them under
+parent system that composes three downward subsystems. The parent `engmod.yml` declares them under
 `composition.subsystems`, each referencing a local subdirectory:
 
 - `subsystems/telemetry` (`SUB-TELEMETRY`) — collects and reports machine telemetry.
 - `subsystems/ota-agent` (`SUB-OTA-AGENT`) — verifies and applies signed OTA updates on the machine.
 - `subsystems/cloud-api` (`SUB-CLOUD-API`) — ingests telemetry and drives OTA campaigns.
 
-Each subsystem directory is a complete engmod model in its own right (its own `architecture.yml`,
-`requirements.yml`, `catalog.yml`, `design.yml`, and `src/`), and each regenerates its own
+Each subsystem directory is a complete engmod model in its own right (its own `engmod.yml`,
+eight `model/*.yml` domain documents, `cue.mod/module.cue`, and `src/`), and each regenerates its own
 `generated/ARCHITECTURE.adoc` and `generated/TRACE-MATRIX.json` independently of the parent.
 
 Requirement delegation runs downward across the boundary. Top-level requirements are delegated to a specific

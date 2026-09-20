@@ -1,0 +1,33 @@
+title: "Atlas Industries Company Portfolio - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Attack vectors relevant to Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  applicability-groups:
+  - id: all-environments
+    title: All Environments
+    description: Applies across every environment.
+groups:
+- id: attack-vector
+  title: Attack Vector
+  description: Methods and pathways through which a threat may be realized.
+vectors:
+- id: aegis::AV-AEG-SENSOR-SPOOF
+  title: Sensor Spoofing
+  description: Adversarial observations attempt to create a false perimeter track.
+  group: attack-vector
+  applicability:
+  - all-environments
+- id: orion::AV-ORI-MESSAGE-FLOOD
+  title: Message Flooding
+  description: Excess traffic attempts to starve critical relay messages.
+  group: attack-vector
+  applicability:
+  - all-environments

@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
@@ -40,13 +40,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           cache: true
+
+      - name: Setup Java for official SysML parser
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache pinned SysML toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            .engmod/tooling/downloads
+            .engmod/cache/m2
+          key: sysml-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/sysml-toolchain.env', 'scripts/install-sysml-toolchain.sh') }}
 
       - name: Download dependencies
         run: go mod download
@@ -54,10 +68,20 @@ jobs:
       - name: Install cue (Gemara schema validation)
         run: go install cuelang.org/go/cmd/cue@v0.15.4
 
+      - name: Install TRLC and LOBSTER validators
+        run: |
+          python3 -m pip install \
+            trlc==2.0.2 \
+            bmw-lobster-core==1.0.6 \
+            bmw-lobster-tool-trlc==1.0.6
+
+      - name: Install pinned SysML validator and Sysand
+        run: scripts/install-sysml-toolchain.sh
+
       - name: Validation gauntlet
         # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling
-        # links, EARS, composition), engtrace 0 dangling, artifact freshness (drift),
-        # and Gemara/Structurizr schema validation. See scripts/validate-all.sh.
+        # links, EARS, composition), zero-gap SysML coverage, official parser and
+        # native KPAR source round trip, artifact freshness, and schema validation.
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh

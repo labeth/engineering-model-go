@@ -1,0 +1,24 @@
+schemaVersion: 2
+views: []
+design:
+  id: orion-design
+  title: Orion Relay Design
+  functionalGroups:
+  - id: FG-ORI
+    views:
+      architecture_intent:
+        title: Relay mission intent
+        narrative: Product radio scheduling is deployed over shared edge, cloud, identity, and compliance contracts.
+  functionalUnits:
+  - id: FU-ORI-LINK
+    group: FG-ORI
+    views:
+      communication:
+        title: Adaptive link selection
+        narrative: Link state and priority drive deterministic transmission windows.
+  - id: FU-ORI-ROUTER
+    group: FG-ORI
+    views:
+      security:
+        title: Message admission
+        narrative: Authenticated priority queues preserve critical capacity.

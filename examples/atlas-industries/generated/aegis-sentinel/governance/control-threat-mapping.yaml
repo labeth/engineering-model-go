@@ -1,0 +1,40 @@
+title: "Aegis Sentinel Product System - Control to Threat Mapping"
+metadata:
+  id: atlas-aegis-sentinel-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: How controls relate to threats for Aegis Sentinel Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-CTRL-AEG-TRACK-CONFIDENCE
+  source: CTRL-AEG-TRACK-CONFIDENCE
+  targets:
+  - entry-id: TS-AEG-SENSOR-SPOOF
+    strength: 7
+    rationale: Control CTRL-AEG-TRACK-CONFIDENCE mitigates threat TS-AEG-SENSOR-SPOOF.
+  relationship: relates-to
+- id: MAP-security::CTRL-SEC-SHORT-LIVED-IDENTITY
+  source: security::CTRL-SEC-SHORT-LIVED-IDENTITY
+  targets:
+  - entry-id: security::TS-SEC-CREDENTIAL-REPLAY
+    strength: 7
+    rationale: Control security::CTRL-SEC-SHORT-LIVED-IDENTITY mitigates threat security::TS-SEC-CREDENTIAL-REPLAY.
+  relationship: relates-to

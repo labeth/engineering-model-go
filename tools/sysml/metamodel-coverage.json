@@ -1,0 +1,4141 @@
+{
+  "schemaVersion": "1",
+  "baseline": "2026-04 / SysML 2.0 / KerML 1.0",
+  "inventorySha256": "5dc288682c7b8b063f7963d21a55d555eee078e5a33d4d5fe2b89d9976e66c06",
+  "entries": [
+    {
+      "id": "KerML::AnnotatingElement",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::AnnotatingElement"
+      ]
+    },
+    {
+      "id": "KerML::AnnotatingElement::annotatedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::AnnotatingElement::annotation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::AnnotatingElement::ownedAnnotatingRelationship",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::AnnotatingElement::owningAnnotatingRelationship",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Annotation",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Annotation"
+      ]
+    },
+    {
+      "id": "KerML::Annotation::annotatedElement",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Annotation::annotatedElement"
+      ]
+    },
+    {
+      "id": "KerML::Annotation::annotatingElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Annotation::ownedAnnotatingElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Annotation::owningAnnotatedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Annotation::owningAnnotatingElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Association",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Association"
+      ]
+    },
+    {
+      "id": "KerML::Association::associationEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Association::relatedType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Association::sourceType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Association::targetType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::AssociationStructure",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::AssociationStructure"
+      ]
+    },
+    {
+      "id": "KerML::Behavior",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Behavior"
+      ]
+    },
+    {
+      "id": "KerML::Behavior::parameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Behavior::step",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::BindingConnector",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::BindingConnector"
+      ]
+    },
+    {
+      "id": "KerML::BooleanExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::BooleanExpression"
+      ]
+    },
+    {
+      "id": "KerML::BooleanExpression::predicate",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Class",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Class"
+      ]
+    },
+    {
+      "id": "KerML::Classifier",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Classifier"
+      ]
+    },
+    {
+      "id": "KerML::Classifier::ownedSubclassification",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::CollectExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::CollectExpression"
+      ]
+    },
+    {
+      "id": "KerML::Comment",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Comment"
+      ]
+    },
+    {
+      "id": "KerML::Comment::body",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Comment::body"
+      ]
+    },
+    {
+      "id": "KerML::Comment::locale",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Comment::locale"
+      ]
+    },
+    {
+      "id": "KerML::Conjugation",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Conjugation"
+      ]
+    },
+    {
+      "id": "KerML::Conjugation::conjugatedType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Conjugation::conjugatedType"
+      ]
+    },
+    {
+      "id": "KerML::Conjugation::originalType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Conjugation::originalType"
+      ]
+    },
+    {
+      "id": "KerML::Conjugation::owningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Connector"
+      ]
+    },
+    {
+      "id": "KerML::Connector::association",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector::connectorEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector::defaultFeaturingType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector::relatedFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector::sourceFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Connector::targetFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::ConstructorExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ConstructorExpression"
+      ]
+    },
+    {
+      "id": "KerML::CrossSubsetting",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::CrossSubsetting"
+      ]
+    },
+    {
+      "id": "KerML::CrossSubsetting::crossedFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::CrossSubsetting::crossedFeature"
+      ]
+    },
+    {
+      "id": "KerML::CrossSubsetting::crossingFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::DataType",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::DataType"
+      ]
+    },
+    {
+      "id": "KerML::Dependency",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "dependency",
+        "official:KerML::Dependency"
+      ]
+    },
+    {
+      "id": "KerML::Dependency::client",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Dependency::client"
+      ]
+    },
+    {
+      "id": "KerML::Dependency::supplier",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Dependency::supplier"
+      ]
+    },
+    {
+      "id": "KerML::Differencing",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Differencing"
+      ]
+    },
+    {
+      "id": "KerML::Differencing::differencingType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Differencing::differencingType"
+      ]
+    },
+    {
+      "id": "KerML::Differencing::typeDifferenced",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Disjoining",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Disjoining"
+      ]
+    },
+    {
+      "id": "KerML::Disjoining::disjoiningType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Disjoining::disjoiningType"
+      ]
+    },
+    {
+      "id": "KerML::Disjoining::owningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Disjoining::typeDisjoined",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Disjoining::typeDisjoined"
+      ]
+    },
+    {
+      "id": "KerML::Documentation",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Documentation"
+      ]
+    },
+    {
+      "id": "KerML::Documentation::documentedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element"
+      ]
+    },
+    {
+      "id": "KerML::Element::aliasIds",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::aliasIds"
+      ]
+    },
+    {
+      "id": "KerML::Element::declaredName",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::declaredName"
+      ]
+    },
+    {
+      "id": "KerML::Element::declaredShortName",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::declaredShortName"
+      ]
+    },
+    {
+      "id": "KerML::Element::documentation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::elementId",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::elementId"
+      ]
+    },
+    {
+      "id": "KerML::Element::isImpliedIncluded",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::isImpliedIncluded"
+      ]
+    },
+    {
+      "id": "KerML::Element::isLibraryElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::name",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::ownedAnnotation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::ownedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::ownedRelationship",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::ownedRelationship"
+      ]
+    },
+    {
+      "id": "KerML::Element::owner",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::owningMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::owningNamespace",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::owningRelationship",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Element::owningRelationship"
+      ]
+    },
+    {
+      "id": "KerML::Element::qualifiedName",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::shortName",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Element::textualRepresentation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::ElementFilterMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ElementFilterMembership"
+      ]
+    },
+    {
+      "id": "KerML::ElementFilterMembership::condition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::EndFeatureMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::EndFeatureMembership"
+      ]
+    },
+    {
+      "id": "KerML::Expression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Expression"
+      ]
+    },
+    {
+      "id": "KerML::Expression::function",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Expression::isModelLevelEvaluable",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Expression::result",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature"
+      ]
+    },
+    {
+      "id": "KerML::Feature::chainingFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::crossFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::direction",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::direction"
+      ]
+    },
+    {
+      "id": "KerML::Feature::endOwningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::featureTarget",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::featuringType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::isComposite",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isComposite"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isConstant",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isConstant"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isDerived",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isDerived"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isEnd",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isEnd"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isOrdered",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isOrdered"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isPortion",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isPortion"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isUnique",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isUnique"
+      ]
+    },
+    {
+      "id": "KerML::Feature::isVariable",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Feature::isVariable"
+      ]
+    },
+    {
+      "id": "KerML::Feature::ownedCrossSubsetting",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedFeatureChaining",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedFeatureInverting",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedRedefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedReferenceSubsetting",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedSubsetting",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedTypeFeaturing",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::ownedTyping",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::owningFeatureMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::owningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Feature::type",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureChainExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureChainExpression"
+      ]
+    },
+    {
+      "id": "KerML::FeatureChainExpression::targetFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureChaining",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureChaining"
+      ]
+    },
+    {
+      "id": "KerML::FeatureChaining::chainingFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureChaining::chainingFeature"
+      ]
+    },
+    {
+      "id": "KerML::FeatureChaining::featureChained",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureInverting",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureInverting"
+      ]
+    },
+    {
+      "id": "KerML::FeatureInverting::featureInverted",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureInverting::featureInverted"
+      ]
+    },
+    {
+      "id": "KerML::FeatureInverting::invertingFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureInverting::invertingFeature"
+      ]
+    },
+    {
+      "id": "KerML::FeatureInverting::owningFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureMembership"
+      ]
+    },
+    {
+      "id": "KerML::FeatureMembership::ownedMemberFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureMembership::owningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureReferenceExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureReferenceExpression"
+      ]
+    },
+    {
+      "id": "KerML::FeatureReferenceExpression::referent",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureTyping",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureTyping",
+        "typing"
+      ]
+    },
+    {
+      "id": "KerML::FeatureTyping::owningFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureTyping::type",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureTyping::type"
+      ]
+    },
+    {
+      "id": "KerML::FeatureTyping::typedFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureTyping::typedFeature"
+      ]
+    },
+    {
+      "id": "KerML::FeatureValue",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureValue"
+      ]
+    },
+    {
+      "id": "KerML::FeatureValue::featureWithValue",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FeatureValue::isDefault",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureValue::isDefault"
+      ]
+    },
+    {
+      "id": "KerML::FeatureValue::isInitial",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FeatureValue::isInitial"
+      ]
+    },
+    {
+      "id": "KerML::FeatureValue::value",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Flow"
+      ]
+    },
+    {
+      "id": "KerML::Flow::flowEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow::interaction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow::payloadFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow::payloadType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow::sourceOutputFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Flow::targetInputFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::FlowEnd",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::FlowEnd"
+      ]
+    },
+    {
+      "id": "KerML::Function",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Function"
+      ]
+    },
+    {
+      "id": "KerML::Function::expression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Function::isModelLevelEvaluable",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Function::result",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Import",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Import"
+      ]
+    },
+    {
+      "id": "KerML::Import::importOwningNamespace",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Import::importedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Import::isImportAll",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Import::isImportAll"
+      ]
+    },
+    {
+      "id": "KerML::Import::isRecursive",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Import::isRecursive"
+      ]
+    },
+    {
+      "id": "KerML::Import::visibility",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Import::visibility"
+      ]
+    },
+    {
+      "id": "KerML::IndexExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::IndexExpression"
+      ]
+    },
+    {
+      "id": "KerML::InstantiationExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::InstantiationExpression"
+      ]
+    },
+    {
+      "id": "KerML::InstantiationExpression::argument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::InstantiationExpression::instantiatedType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Interaction",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Interaction"
+      ]
+    },
+    {
+      "id": "KerML::Intersecting",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Intersecting"
+      ]
+    },
+    {
+      "id": "KerML::Intersecting::intersectingType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Intersecting::intersectingType"
+      ]
+    },
+    {
+      "id": "KerML::Intersecting::typeIntersected",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Invariant",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Invariant"
+      ]
+    },
+    {
+      "id": "KerML::Invariant::isNegated",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Invariant::isNegated"
+      ]
+    },
+    {
+      "id": "KerML::InvocationExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::InvocationExpression"
+      ]
+    },
+    {
+      "id": "KerML::InvocationExpression::operand",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::LibraryPackage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LibraryPackage"
+      ]
+    },
+    {
+      "id": "KerML::LibraryPackage::isStandard",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LibraryPackage::isStandard"
+      ]
+    },
+    {
+      "id": "KerML::LiteralBoolean",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralBoolean"
+      ]
+    },
+    {
+      "id": "KerML::LiteralBoolean::value",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralBoolean::value"
+      ]
+    },
+    {
+      "id": "KerML::LiteralExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralExpression"
+      ]
+    },
+    {
+      "id": "KerML::LiteralInfinity",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralInfinity"
+      ]
+    },
+    {
+      "id": "KerML::LiteralInteger",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralInteger"
+      ]
+    },
+    {
+      "id": "KerML::LiteralInteger::value",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralInteger::value"
+      ]
+    },
+    {
+      "id": "KerML::LiteralRational",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralRational"
+      ]
+    },
+    {
+      "id": "KerML::LiteralRational::value",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralRational::value"
+      ]
+    },
+    {
+      "id": "KerML::LiteralString",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralString"
+      ]
+    },
+    {
+      "id": "KerML::LiteralString::value",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::LiteralString::value"
+      ]
+    },
+    {
+      "id": "KerML::Membership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Membership"
+      ]
+    },
+    {
+      "id": "KerML::Membership::memberElement",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Membership::memberElement"
+      ]
+    },
+    {
+      "id": "KerML::Membership::memberElementId",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Membership::memberName",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Membership::memberName"
+      ]
+    },
+    {
+      "id": "KerML::Membership::memberShortName",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Membership::memberShortName"
+      ]
+    },
+    {
+      "id": "KerML::Membership::membershipOwningNamespace",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Membership::visibility",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Membership::visibility"
+      ]
+    },
+    {
+      "id": "KerML::MembershipImport",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::MembershipImport"
+      ]
+    },
+    {
+      "id": "KerML::MembershipImport::importedMembership",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::MembershipImport::importedMembership"
+      ]
+    },
+    {
+      "id": "KerML::Metaclass",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Metaclass"
+      ]
+    },
+    {
+      "id": "KerML::MetadataAccessExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::MetadataAccessExpression"
+      ]
+    },
+    {
+      "id": "KerML::MetadataAccessExpression::referencedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::MetadataFeature",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::MetadataFeature"
+      ]
+    },
+    {
+      "id": "KerML::MetadataFeature::metaclass",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Multiplicity",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Multiplicity"
+      ]
+    },
+    {
+      "id": "KerML::MultiplicityRange",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::MultiplicityRange"
+      ]
+    },
+    {
+      "id": "KerML::MultiplicityRange::bound",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::MultiplicityRange::lowerBound",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::MultiplicityRange::upperBound",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Namespace"
+      ]
+    },
+    {
+      "id": "KerML::Namespace::importedMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace::member",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace::membership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace::ownedImport",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace::ownedMember",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Namespace::ownedMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::NamespaceImport",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::NamespaceImport"
+      ]
+    },
+    {
+      "id": "KerML::NamespaceImport::importedNamespace",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::NamespaceImport::importedNamespace"
+      ]
+    },
+    {
+      "id": "KerML::NullExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::NullExpression"
+      ]
+    },
+    {
+      "id": "KerML::OperatorExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::OperatorExpression"
+      ]
+    },
+    {
+      "id": "KerML::OperatorExpression::operator",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::OperatorExpression::operator"
+      ]
+    },
+    {
+      "id": "KerML::OwningMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "containment",
+        "official:KerML::OwningMembership"
+      ]
+    },
+    {
+      "id": "KerML::OwningMembership::ownedMemberElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::OwningMembership::ownedMemberElementId",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::OwningMembership::ownedMemberName",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::OwningMembership::ownedMemberShortName",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Package",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Package",
+        "package_definition"
+      ]
+    },
+    {
+      "id": "KerML::Package::filterCondition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::ParameterMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ParameterMembership"
+      ]
+    },
+    {
+      "id": "KerML::ParameterMembership::ownedMemberParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::PayloadFeature",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::PayloadFeature"
+      ]
+    },
+    {
+      "id": "KerML::Predicate",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Predicate"
+      ]
+    },
+    {
+      "id": "KerML::Redefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Redefinition",
+        "redefinition"
+      ]
+    },
+    {
+      "id": "KerML::Redefinition::redefinedFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Redefinition::redefinedFeature"
+      ]
+    },
+    {
+      "id": "KerML::Redefinition::redefiningFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Redefinition::redefiningFeature"
+      ]
+    },
+    {
+      "id": "KerML::ReferenceSubsetting",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ReferenceSubsetting",
+        "reference"
+      ]
+    },
+    {
+      "id": "KerML::ReferenceSubsetting::referencedFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ReferenceSubsetting::referencedFeature"
+      ]
+    },
+    {
+      "id": "KerML::ReferenceSubsetting::referencingFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Relationship",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship"
+      ]
+    },
+    {
+      "id": "KerML::Relationship::isImplied",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship::isImplied"
+      ]
+    },
+    {
+      "id": "KerML::Relationship::ownedRelatedElement",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship::ownedRelatedElement"
+      ]
+    },
+    {
+      "id": "KerML::Relationship::owningRelatedElement",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship::owningRelatedElement"
+      ]
+    },
+    {
+      "id": "KerML::Relationship::relatedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Relationship::source",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship::source"
+      ]
+    },
+    {
+      "id": "KerML::Relationship::target",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Relationship::target"
+      ]
+    },
+    {
+      "id": "KerML::ResultExpressionMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ResultExpressionMembership"
+      ]
+    },
+    {
+      "id": "KerML::ResultExpressionMembership::ownedResultExpression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::ReturnParameterMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::ReturnParameterMembership"
+      ]
+    },
+    {
+      "id": "KerML::SelectExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::SelectExpression"
+      ]
+    },
+    {
+      "id": "KerML::Specialization",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Specialization",
+        "specialization"
+      ]
+    },
+    {
+      "id": "KerML::Specialization::general",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Specialization::general"
+      ]
+    },
+    {
+      "id": "KerML::Specialization::owningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Specialization::specific",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Specialization::specific"
+      ]
+    },
+    {
+      "id": "KerML::Step",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Step"
+      ]
+    },
+    {
+      "id": "KerML::Step::behavior",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Step::parameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Structure",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Structure"
+      ]
+    },
+    {
+      "id": "KerML::Subclassification",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subclassification"
+      ]
+    },
+    {
+      "id": "KerML::Subclassification::owningClassifier",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Subclassification::subclassifier",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subclassification::subclassifier"
+      ]
+    },
+    {
+      "id": "KerML::Subclassification::superclassifier",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subclassification::superclassifier"
+      ]
+    },
+    {
+      "id": "KerML::Subsetting",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subsetting",
+        "subsetting"
+      ]
+    },
+    {
+      "id": "KerML::Subsetting::owningFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Subsetting::subsettedFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subsetting::subsettedFeature"
+      ]
+    },
+    {
+      "id": "KerML::Subsetting::subsettingFeature",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Subsetting::subsettingFeature"
+      ]
+    },
+    {
+      "id": "KerML::Succession",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Succession",
+        "succession"
+      ]
+    },
+    {
+      "id": "KerML::SuccessionFlow",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::SuccessionFlow"
+      ]
+    },
+    {
+      "id": "KerML::TextualRepresentation",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TextualRepresentation"
+      ]
+    },
+    {
+      "id": "KerML::TextualRepresentation::body",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TextualRepresentation::body"
+      ]
+    },
+    {
+      "id": "KerML::TextualRepresentation::language",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TextualRepresentation::language"
+      ]
+    },
+    {
+      "id": "KerML::TextualRepresentation::representedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Type"
+      ]
+    },
+    {
+      "id": "KerML::Type::differencingType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::directedFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::endFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::feature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::featureMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::inheritedFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::inheritedMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::input",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::intersectingType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::isAbstract",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Type::isAbstract"
+      ]
+    },
+    {
+      "id": "KerML::Type::isConjugated",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::isSufficient",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Type::isSufficient"
+      ]
+    },
+    {
+      "id": "KerML::Type::multiplicity",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::output",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedConjugator",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedDifferencing",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedDisjoining",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedEndFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedFeatureMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedIntersecting",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedSpecialization",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::ownedUnioning",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Type::unioningType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::TypeFeaturing",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TypeFeaturing"
+      ]
+    },
+    {
+      "id": "KerML::TypeFeaturing::featureOfType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TypeFeaturing::featureOfType"
+      ]
+    },
+    {
+      "id": "KerML::TypeFeaturing::featuringType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::TypeFeaturing::featuringType"
+      ]
+    },
+    {
+      "id": "KerML::TypeFeaturing::owningFeatureOfType",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Unioning",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Unioning"
+      ]
+    },
+    {
+      "id": "KerML::Unioning::typeUnioned",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "KerML::Unioning::unioningType",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:KerML::Unioning::unioningType"
+      ]
+    },
+    {
+      "id": "SysML::AcceptActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::AcceptActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::AcceptActionUsage::payloadArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AcceptActionUsage::payloadParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AcceptActionUsage::receiverArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ActionDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "action_definition",
+        "official:SysML::ActionDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ActionDefinition::action",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "action_usage",
+        "official:SysML::ActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::ActionUsage::actionDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ActorMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ActorMembership"
+      ]
+    },
+    {
+      "id": "SysML::ActorMembership::ownedActorParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AllocationDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::AllocationDefinition"
+      ]
+    },
+    {
+      "id": "SysML::AllocationDefinition::allocation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AllocationUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "allocation",
+        "official:SysML::AllocationUsage"
+      ]
+    },
+    {
+      "id": "SysML::AllocationUsage::allocationDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AnalysisCaseDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "analysis_case_definition",
+        "official:SysML::AnalysisCaseDefinition"
+      ]
+    },
+    {
+      "id": "SysML::AnalysisCaseDefinition::resultExpression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AnalysisCaseUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "analysis_case_usage",
+        "official:SysML::AnalysisCaseUsage"
+      ]
+    },
+    {
+      "id": "SysML::AnalysisCaseUsage::analysisCaseDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AnalysisCaseUsage::resultExpression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AssertConstraintUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::AssertConstraintUsage"
+      ]
+    },
+    {
+      "id": "SysML::AssertConstraintUsage::assertedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AssignmentActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::AssignmentActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::AssignmentActionUsage::referent",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AssignmentActionUsage::targetArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AssignmentActionUsage::valueExpression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::AttributeDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "attribute_definition",
+        "official:SysML::AttributeDefinition"
+      ]
+    },
+    {
+      "id": "SysML::AttributeUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "attribute_usage",
+        "official:SysML::AttributeUsage"
+      ]
+    },
+    {
+      "id": "SysML::AttributeUsage::attributeDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::BindingConnectorAsUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "binding",
+        "official:SysML::BindingConnectorAsUsage"
+      ]
+    },
+    {
+      "id": "SysML::CalculationDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "calculation_definition",
+        "official:SysML::CalculationDefinition"
+      ]
+    },
+    {
+      "id": "SysML::CalculationDefinition::calculation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CalculationUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "calculation_usage",
+        "official:SysML::CalculationUsage"
+      ]
+    },
+    {
+      "id": "SysML::CalculationUsage::calculationDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "case_definition",
+        "official:SysML::CaseDefinition"
+      ]
+    },
+    {
+      "id": "SysML::CaseDefinition::actorParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseDefinition::objectiveRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseDefinition::subjectParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "case_usage",
+        "official:SysML::CaseUsage"
+      ]
+    },
+    {
+      "id": "SysML::CaseUsage::actorParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseUsage::caseDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseUsage::objectiveRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::CaseUsage::subjectParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConcernDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "concern_definition",
+        "official:SysML::ConcernDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ConcernUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "concern_usage",
+        "official:SysML::ConcernUsage"
+      ]
+    },
+    {
+      "id": "SysML::ConcernUsage::concernDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConjugatedPortDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ConjugatedPortDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ConjugatedPortDefinition::originalPortDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConjugatedPortDefinition::ownedPortConjugator",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConjugatedPortTyping",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ConjugatedPortTyping"
+      ]
+    },
+    {
+      "id": "SysML::ConjugatedPortTyping::conjugatedPortDefinition",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ConjugatedPortTyping::conjugatedPortDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ConjugatedPortTyping::portDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConnectionDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "connection_definition",
+        "official:SysML::ConnectionDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ConnectionDefinition::connectionEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConnectionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "connection",
+        "connection_usage",
+        "official:SysML::ConnectionUsage"
+      ]
+    },
+    {
+      "id": "SysML::ConnectionUsage::connectionDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ConnectorAsUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ConnectorAsUsage"
+      ]
+    },
+    {
+      "id": "SysML::ConstraintDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "constraint_definition",
+        "official:SysML::ConstraintDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ConstraintUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "constraint_usage",
+        "official:SysML::ConstraintUsage"
+      ]
+    },
+    {
+      "id": "SysML::ConstraintUsage::constraintDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ControlNode",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "control_node",
+        "official:SysML::ControlNode"
+      ]
+    },
+    {
+      "id": "SysML::DecisionNode",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::DecisionNode"
+      ]
+    },
+    {
+      "id": "SysML::Definition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::Definition"
+      ]
+    },
+    {
+      "id": "SysML::Definition::directedUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::isVariation",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::Definition::isVariation"
+      ]
+    },
+    {
+      "id": "SysML::Definition::ownedAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedAllocation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedAnalysisCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedAttribute",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedCalculation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedConnection",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedEnumeration",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedFlow",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedInterface",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedItem",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedMetadata",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedOccurrence",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedPart",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedPort",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedReference",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedState",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedTransition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedUseCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedVerificationCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedView",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::ownedViewpoint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::usage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::variant",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Definition::variantMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::EnumerationDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::EnumerationDefinition"
+      ]
+    },
+    {
+      "id": "SysML::EnumerationDefinition::enumeratedValue",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::EnumerationUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::EnumerationUsage"
+      ]
+    },
+    {
+      "id": "SysML::EnumerationUsage::enumerationDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::EventOccurrenceUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "event_definition",
+        "event_usage",
+        "official:SysML::EventOccurrenceUsage"
+      ]
+    },
+    {
+      "id": "SysML::EventOccurrenceUsage::eventOccurrence",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ExhibitStateUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ExhibitStateUsage"
+      ]
+    },
+    {
+      "id": "SysML::ExhibitStateUsage::exhibitedState",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Expose",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::Expose"
+      ]
+    },
+    {
+      "id": "SysML::FlowDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::FlowDefinition"
+      ]
+    },
+    {
+      "id": "SysML::FlowDefinition::flowEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::FlowUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::FlowUsage",
+        "transfer"
+      ]
+    },
+    {
+      "id": "SysML::FlowUsage::flowDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ForLoopActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ForLoopActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::ForLoopActionUsage::loopVariable",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ForLoopActionUsage::seqArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ForkNode",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ForkNode"
+      ]
+    },
+    {
+      "id": "SysML::FramedConcernMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::FramedConcernMembership"
+      ]
+    },
+    {
+      "id": "SysML::FramedConcernMembership::ownedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::FramedConcernMembership::referencedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::IfActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::IfActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::IfActionUsage::elseAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::IfActionUsage::ifArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::IfActionUsage::thenAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::IncludeUseCaseUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::IncludeUseCaseUsage"
+      ]
+    },
+    {
+      "id": "SysML::IncludeUseCaseUsage::useCaseIncluded",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::InterfaceDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "interface_definition",
+        "official:SysML::InterfaceDefinition"
+      ]
+    },
+    {
+      "id": "SysML::InterfaceDefinition::interfaceEnd",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::InterfaceUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "interface_usage",
+        "official:SysML::InterfaceUsage"
+      ]
+    },
+    {
+      "id": "SysML::InterfaceUsage::interfaceDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ItemDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "item_definition",
+        "official:SysML::ItemDefinition"
+      ]
+    },
+    {
+      "id": "SysML::ItemUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "item_usage",
+        "official:SysML::ItemUsage"
+      ]
+    },
+    {
+      "id": "SysML::ItemUsage::itemDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::JoinNode",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::JoinNode"
+      ]
+    },
+    {
+      "id": "SysML::LoopActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::LoopActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::LoopActionUsage::bodyAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::MembershipExpose",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::MembershipExpose"
+      ]
+    },
+    {
+      "id": "SysML::MergeNode",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::MergeNode"
+      ]
+    },
+    {
+      "id": "SysML::MetadataDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::MetadataDefinition"
+      ]
+    },
+    {
+      "id": "SysML::MetadataUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::MetadataUsage"
+      ]
+    },
+    {
+      "id": "SysML::MetadataUsage::metadataDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::NamespaceExpose",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::NamespaceExpose"
+      ]
+    },
+    {
+      "id": "SysML::ObjectiveMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ObjectiveMembership"
+      ]
+    },
+    {
+      "id": "SysML::ObjectiveMembership::ownedObjectiveRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::OccurrenceDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "individual_definition",
+        "occurrence_definition",
+        "official:SysML::OccurrenceDefinition"
+      ]
+    },
+    {
+      "id": "SysML::OccurrenceDefinition::isIndividual",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::OccurrenceDefinition::isIndividual"
+      ]
+    },
+    {
+      "id": "SysML::OccurrenceUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "individual_usage",
+        "occurrence_usage",
+        "official:SysML::OccurrenceUsage",
+        "snapshot",
+        "time_slice"
+      ]
+    },
+    {
+      "id": "SysML::OccurrenceUsage::individualDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::OccurrenceUsage::isIndividual",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::OccurrenceUsage::isIndividual"
+      ]
+    },
+    {
+      "id": "SysML::OccurrenceUsage::occurrenceDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::OccurrenceUsage::portionKind",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::OccurrenceUsage::portionKind"
+      ]
+    },
+    {
+      "id": "SysML::PartDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PartDefinition",
+        "part_definition"
+      ]
+    },
+    {
+      "id": "SysML::PartUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PartUsage",
+        "part_usage"
+      ]
+    },
+    {
+      "id": "SysML::PartUsage::partDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::PerformActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PerformActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::PerformActionUsage::performedAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::PortConjugation",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PortConjugation"
+      ]
+    },
+    {
+      "id": "SysML::PortConjugation::conjugatedPortDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::PortConjugation::originalPortDefinition",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PortConjugation::originalPortDefinition"
+      ]
+    },
+    {
+      "id": "SysML::PortDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PortDefinition",
+        "port_definition"
+      ]
+    },
+    {
+      "id": "SysML::PortDefinition::conjugatedPortDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::PortUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::PortUsage",
+        "port_usage"
+      ]
+    },
+    {
+      "id": "SysML::PortUsage::portDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ReferenceUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ReferenceUsage"
+      ]
+    },
+    {
+      "id": "SysML::RenderingDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RenderingDefinition"
+      ]
+    },
+    {
+      "id": "SysML::RenderingDefinition::rendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RenderingUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RenderingUsage"
+      ]
+    },
+    {
+      "id": "SysML::RenderingUsage::renderingDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementConstraintMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementConstraintMembership"
+      ]
+    },
+    {
+      "id": "SysML::RequirementConstraintMembership::kind",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementConstraintMembership::kind"
+      ]
+    },
+    {
+      "id": "SysML::RequirementConstraintMembership::ownedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementConstraintMembership::referencedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementDefinition",
+        "requirement_definition"
+      ]
+    },
+    {
+      "id": "SysML::RequirementDefinition::actorParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::assumedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::framedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::reqId",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementDefinition::reqId"
+      ]
+    },
+    {
+      "id": "SysML::RequirementDefinition::requiredConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::stakeholderParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::subjectParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementDefinition::text",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementUsage",
+        "requirement_usage",
+        "satisfaction"
+      ]
+    },
+    {
+      "id": "SysML::RequirementUsage::actorParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::assumedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::framedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::reqId",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementUsage::reqId"
+      ]
+    },
+    {
+      "id": "SysML::RequirementUsage::requiredConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::requirementDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::stakeholderParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::subjectParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementUsage::text",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementVerificationMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::RequirementVerificationMembership"
+      ]
+    },
+    {
+      "id": "SysML::RequirementVerificationMembership::ownedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::RequirementVerificationMembership::verifiedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SatisfyRequirementUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::SatisfyRequirementUsage"
+      ]
+    },
+    {
+      "id": "SysML::SatisfyRequirementUsage::satisfiedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SatisfyRequirementUsage::satisfyingFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SendActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::SendActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::SendActionUsage::payloadArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SendActionUsage::receiverArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SendActionUsage::senderArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StakeholderMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StakeholderMembership"
+      ]
+    },
+    {
+      "id": "SysML::StakeholderMembership::ownedStakeholderParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateDefinition",
+        "state_definition"
+      ]
+    },
+    {
+      "id": "SysML::StateDefinition::doAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateDefinition::entryAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateDefinition::exitAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateDefinition::isParallel",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateDefinition::isParallel"
+      ]
+    },
+    {
+      "id": "SysML::StateDefinition::state",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateSubactionMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateSubactionMembership"
+      ]
+    },
+    {
+      "id": "SysML::StateSubactionMembership::action",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateSubactionMembership::kind",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateSubactionMembership::kind"
+      ]
+    },
+    {
+      "id": "SysML::StateUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateUsage",
+        "state_usage"
+      ]
+    },
+    {
+      "id": "SysML::StateUsage::doAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateUsage::entryAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateUsage::exitAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::StateUsage::isParallel",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::StateUsage::isParallel"
+      ]
+    },
+    {
+      "id": "SysML::StateUsage::stateDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SubjectMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::SubjectMembership"
+      ]
+    },
+    {
+      "id": "SysML::SubjectMembership::ownedSubjectParameter",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::SuccessionAsUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::SuccessionAsUsage"
+      ]
+    },
+    {
+      "id": "SysML::SuccessionFlowUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::SuccessionFlowUsage"
+      ]
+    },
+    {
+      "id": "SysML::TerminateActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::TerminateActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::TerminateActionUsage::terminatedOccurrenceArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionFeatureMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::TransitionFeatureMembership"
+      ]
+    },
+    {
+      "id": "SysML::TransitionFeatureMembership::kind",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::TransitionFeatureMembership::kind"
+      ]
+    },
+    {
+      "id": "SysML::TransitionFeatureMembership::transitionFeature",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "effect",
+        "event_trigger",
+        "guard",
+        "official:SysML::TransitionUsage",
+        "transition"
+      ]
+    },
+    {
+      "id": "SysML::TransitionUsage::effectAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage::guardExpression",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage::source",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage::succession",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage::target",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TransitionUsage::triggerAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::TriggerInvocationExpression",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::TriggerInvocationExpression"
+      ]
+    },
+    {
+      "id": "SysML::TriggerInvocationExpression::kind",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::TriggerInvocationExpression::kind"
+      ]
+    },
+    {
+      "id": "SysML::Usage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::Usage"
+      ]
+    },
+    {
+      "id": "SysML::Usage::definition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::directedUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::isReference",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::isVariation",
+      "kind": "property",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::Usage::isVariation"
+      ]
+    },
+    {
+      "id": "SysML::Usage::mayTimeVary",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedAction",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedAllocation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedAnalysisCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedAttribute",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedCalculation",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedConcern",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedConnection",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedConstraint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedEnumeration",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedFlow",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedInterface",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedItem",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedMetadata",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedOccurrence",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedPart",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedPort",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedReference",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedState",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedTransition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedUseCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedVerificationCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedView",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::nestedViewpoint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::owningDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::owningUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::usage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::variant",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::Usage::variantMembership",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::UseCaseDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::UseCaseDefinition",
+        "use_case_definition"
+      ]
+    },
+    {
+      "id": "SysML::UseCaseDefinition::includedUseCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::UseCaseUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::UseCaseUsage",
+        "use_case_usage"
+      ]
+    },
+    {
+      "id": "SysML::UseCaseUsage::includedUseCase",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::UseCaseUsage::useCaseDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::VariantMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::VariantMembership",
+        "variant_membership"
+      ]
+    },
+    {
+      "id": "SysML::VariantMembership::ownedVariantUsage",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::VerificationCaseDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::VerificationCaseDefinition",
+        "verification_case_definition"
+      ]
+    },
+    {
+      "id": "SysML::VerificationCaseDefinition::verifiedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::VerificationCaseUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::VerificationCaseUsage",
+        "verification",
+        "verification_case_usage"
+      ]
+    },
+    {
+      "id": "SysML::VerificationCaseUsage::verificationCaseDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::VerificationCaseUsage::verifiedRequirement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ViewDefinition",
+        "view_definition"
+      ]
+    },
+    {
+      "id": "SysML::ViewDefinition::satisfiedViewpoint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewDefinition::view",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewDefinition::viewCondition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewDefinition::viewRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewRenderingMembership",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ViewRenderingMembership"
+      ]
+    },
+    {
+      "id": "SysML::ViewRenderingMembership::ownedRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewRenderingMembership::referencedRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ViewUsage",
+        "view_usage"
+      ]
+    },
+    {
+      "id": "SysML::ViewUsage::exposedElement",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewUsage::satisfiedViewpoint",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewUsage::viewCondition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewUsage::viewDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewUsage::viewRendering",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewpointDefinition",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ViewpointDefinition",
+        "viewpoint_definition"
+      ]
+    },
+    {
+      "id": "SysML::ViewpointDefinition::viewpointStakeholder",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewpointUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::ViewpointUsage",
+        "viewpoint_usage"
+      ]
+    },
+    {
+      "id": "SysML::ViewpointUsage::viewpointDefinition",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::ViewpointUsage::viewpointStakeholder",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::WhileLoopActionUsage",
+      "kind": "metaclass",
+      "status": "mapped",
+      "aliases": [
+        "official:SysML::WhileLoopActionUsage"
+      ]
+    },
+    {
+      "id": "SysML::WhileLoopActionUsage::untilArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    },
+    {
+      "id": "SysML::WhileLoopActionUsage::whileArgument",
+      "kind": "property",
+      "status": "derived",
+      "reason": "official metamodel marks this property derived"
+    }
+  ],
+  "counts": {
+    "mapped": 262,
+    "derived": 328,
+    "unimplemented": 0
+  }
+}

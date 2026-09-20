@@ -1,0 +1,99 @@
+{
+  "assessment-results": {
+    "uuid": "c374ef89-5964-5b53-97a3-59eeba904bcf",
+    "metadata": {
+      "title": "Orion Relay Product System Assessment Results",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./OSCAL-ASSESSMENT-PLAN.json"
+    },
+    "results": [
+      {
+        "uuid": "a433de43-043e-589b-9839-651e7b0df47a",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
+              "include-controls": [
+                {
+                  "control-id": "a-5.15"
+                },
+                {
+                  "control-id": "a-5.18"
+                },
+                {
+                  "control-id": "a-6.1"
+                },
+                {
+                  "control-id": "a-6.2"
+                },
+                {
+                  "control-id": "a-6.3"
+                },
+                {
+                  "control-id": "a-6.5"
+                },
+                {
+                  "control-id": "ac-2"
+                },
+                {
+                  "control-id": "at-2"
+                },
+                {
+                  "control-id": "ps-3"
+                },
+                {
+                  "control-id": "ps-4"
+                }
+              ]
+            }
+          ]
+        },
+        "risks": [
+          {
+            "uuid": "0535d3ee-b160-5d29-ada1-a34763b2be8b",
+            "title": "Credential replay risk",
+            "description": "Captured credentials may permit unauthorized product access.",
+            "status": "mitigating",
+            "statement": "Short credential lifetime and replay detection reduce exposure."
+          },
+          {
+            "uuid": "0d824404-dfa4-538c-83af-1fc716913356",
+            "title": "Personnel miss security obligations",
+            "description": "Missing or overdue awareness education may increase human-centered security incidents.",
+            "status": "open",
+            "statement": "Employee reporting is established but contractor completion is not yet integrated."
+          },
+          {
+            "uuid": "4728db8a-b0b9-5d09-bdc4-7f0e1ad198e8",
+            "title": "Delayed privileged access review",
+            "description": "A delayed access review may leave obsolete privileges active.",
+            "status": "open",
+            "statement": "Automated reminders exist but reviewer delegation remains incomplete."
+          },
+          {
+            "uuid": "66bc29cd-9f77-5227-9b33-a19ae1d02766",
+            "title": "Former or transferred personnel retain access",
+            "description": "Delayed role-change or termination processing may leave inappropriate privileges active.",
+            "status": "mitigating",
+            "statement": "Manager and People Operations checkpoints govern access removal."
+          },
+          {
+            "uuid": "7bfba845-56df-5b91-9e39-f08808e33c02",
+            "title": "Relay link exhaustion",
+            "description": "Message flooding may prevent delivery of priority messages.",
+            "status": "mitigating",
+            "statement": "Admission control preserves priority capacity under tested loads."
+          }
+        ]
+      }
+    ]
+  }
+}

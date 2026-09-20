@@ -1,0 +1,25 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "PR-YD-001",
+      "summary": "Boundary test does not yet execute one defensive clamp statement.",
+      "affectedRefs": [
+        "COVERAGE-YD-001"
+      ],
+      "disposition": "Add a targeted robustness case before readiness closure.",
+      "correctiveAction": "Extend PROC-YD-001 and rerun the exact controlled build.",
+      "evidence": [
+        "DATA-RESULTS"
+      ],
+      "state": "planned"
+    }
+  ]
+}

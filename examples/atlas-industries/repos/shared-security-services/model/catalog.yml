@@ -1,0 +1,33 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-SEC
+    name: atlas security services
+    definition: Shared identity, key management, and security monitoring services.
+  functionalGroups:
+  - id: FG-SEC
+    name: security services
+    definition: Shared preventive and detective security capabilities.
+  functionalUnits:
+  - id: FU-SEC-IDENTITY
+    name: identity service
+    definition: Issues and validates device and workload identities.
+  - id: FU-SEC-MONITORING
+    name: security monitoring
+    definition: Detects suspicious authentication and audit activity.
+  actors:
+  - id: ACT-SEC-ANALYST
+    name: security analyst
+    definition: Investigates threats and owns security risk treatment.
+  attackVectors:
+  - id: AV-CREDENTIAL-REPLAY
+    name: credential replay
+    definition: Reuse of captured credentials to impersonate a trusted workload.
+  events:
+  - id: EVT-CREDENTIAL-REPLAY-DETECTED
+    name: credential replay is detected
+    definition: Detection event raised when a credential is reused outside its permitted context.
+  dataTerms:
+  - id: DATA-AUDIT-EVENT
+    name: audit event
+    definition: Security-relevant immutable activity record.

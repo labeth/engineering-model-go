@@ -3,230 +3,360 @@ package engmodel
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// TestCompositionResolvesCoffeeFleet verifies the coffee-fleet system-of-systems
-// resolves its subsystems, materializes all allocations, and reports no errors.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-020
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func TestCompositionResolvesCoffeeFleet(t *testing.T) {
-	path := filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "architecture.yml")
-	res, err := GenerateCompositionFromFile(path)
-	if err != nil {
-		t.Fatalf("compose: %v", err)
-	}
-	if res.Root == nil {
-		t.Fatal("nil composition root")
-	}
-	if len(res.Root.Children) != 3 {
-		t.Fatalf("expected 3 resolved subsystems, got %d", len(res.Root.Children))
-	}
-	if len(res.Allocations) != 3 {
-		t.Fatalf("expected 3 allocations, got %d", len(res.Allocations))
-	}
-	for _, a := range res.Allocations {
-		if !a.Resolved {
-			t.Fatalf("allocation %s -> %s/%s did not resolve: %s", a.Requirement, a.Subsystem, a.Target, a.Note)
-		}
-	}
-	for _, d := range res.Diagnostics {
-		if d.Severity == validate.SeverityError {
-			t.Fatalf("unexpected composition error: %s %s", d.Code, d.Message)
-		}
-	}
-}
-
-// TestCompositionRejectsEscapingRef verifies a subsystem ref outside the workspace
-// boundary is rejected.
-// TRLC-LINKS: REQ-EMG-017
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
-func TestCompositionRejectsEscapingRef(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(t, filepath.Join(dir, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-X\n      name: x\n      definition: x.\n")
-	writeFile(t, filepath.Join(dir, "architecture.yml"),
-		"model:\n  id: TOP\n  title: Top\n  baseCatalogRef: ./catalog.yml\ncomposition:\n  subsystems:\n    - id: SUB-ESCAPE\n      ref: ../../etc\n")
-	res, err := GenerateCompositionFromFile(filepath.Join(dir, "architecture.yml"))
-	if err != nil {
-		t.Fatalf("compose: %v", err)
-	}
-	found := false
-	for _, d := range res.Diagnostics {
-		if d.Code == "composition.out_of_workspace" {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("expected composition.out_of_workspace diagnostic, got %+v", res.Diagnostics)
-	}
-}
-
-// TestRequirementInternalLinkWarns verifies that a requirement pointing at another
-// requirement in the same document is flagged: requirements carry no tiers and
-// delegate to subsystems, not to one another within a document.
-// TRLC-LINKS: REQ-EMG-023
-// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE
-func TestRequirementInternalLinkWarns(t *testing.T) {
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
-		{ID: "REQ-A", AppliesTo: []string{"REQ-B"}},
-		{ID: "REQ-B", AppliesTo: []string{"FU-OK"}},
-	}}
-	found := false
-	for _, d := range lintRequirementInternalLinks(reqs) {
-		if d.Code == "requirement.internal_link" && d.Severity == validate.SeverityWarning {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatal("expected requirement.internal_link warning for a requirement linking to another requirement")
-	}
-}
-
-// TestDelegationResolvesToSubsystemRequirement verifies a parent allocation resolves
-// through the subsystem contract ref to the specific subsystem requirement that
-// satisfies it, so the delegation names exactly what solves it.
-// TRLC-LINKS: REQ-EMG-022, REQ-EMG-025
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestDelegationResolvesToSubsystemRequirement(t *testing.T) {
-	dir := t.TempDir()
-	child := filepath.Join(dir, "child")
-	if err := os.MkdirAll(child, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, filepath.Join(child, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-C\n      name: c\n      definition: c.\n")
-	writeFile(t, filepath.Join(child, "architecture.yml"), "model:\n  id: CHILD\n  title: Child\n  baseCatalogRef: ./catalog.yml\ncontract:\n  provides:\n    - id: CAP-C\n      kind: capability\n      ref: REQ-C-001\n")
-	writeFile(t, filepath.Join(child, "requirements.yml"), "requirements:\n  - id: REQ-C-001\n    text: realizes CAP-C\n")
-	writeFile(t, filepath.Join(dir, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-P\n      name: p\n      definition: p.\n")
-	writeFile(t, filepath.Join(dir, "architecture.yml"), "model:\n  id: TOP\n  title: Top\n  baseCatalogRef: ./catalog.yml\ncomposition:\n  subsystems:\n    - id: SUB-C\n      ref: ./child\n  allocations:\n    - requirement: REQ-P-001\n      to: SUB-C\n      target: CAP-C\n")
-
-	res, err := GenerateCompositionFromFile(filepath.Join(dir, "architecture.yml"))
-	if err != nil {
-		t.Fatalf("compose: %v", err)
-	}
-	var found bool
-	for _, m := range res.Allocations {
-		if m.Target == "CAP-C" {
-			found = true
-			if m.TargetRef != "REQ-C-001" || !m.TargetRefResolved {
-				t.Fatalf("expected delegation to resolve to REQ-C-001, got ref=%q resolved=%v", m.TargetRef, m.TargetRefResolved)
-			}
-		}
-	}
-	if !found {
-		t.Fatal("allocation to CAP-C was not materialized")
-	}
-	for _, d := range res.Diagnostics {
-		if d.Code == "composition.unknown_target_requirement" || d.Code == "composition.untraceable_delegation" {
-			t.Fatalf("unexpected diagnostic %s: %s", d.Code, d.Message)
-		}
-	}
-}
-
-// TestDelegationUnknownTargetRequirementErrors verifies that a contract ref pointing
-// at a requirement the subsystem does not define is a hard error.
-// TRLC-LINKS: REQ-EMG-022
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func TestDelegationUnknownTargetRequirementErrors(t *testing.T) {
-	dir := t.TempDir()
-	child := filepath.Join(dir, "child")
-	if err := os.MkdirAll(child, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, filepath.Join(child, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-C\n      name: c\n      definition: c.\n")
-	writeFile(t, filepath.Join(child, "architecture.yml"), "model:\n  id: CHILD\n  title: Child\n  baseCatalogRef: ./catalog.yml\ncontract:\n  provides:\n    - id: CAP-C\n      kind: capability\n      ref: REQ-MISSING\n")
-	writeFile(t, filepath.Join(child, "requirements.yml"), "requirements:\n  - id: REQ-C-001\n    text: realizes CAP-C\n")
-	writeFile(t, filepath.Join(dir, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-P\n      name: p\n      definition: p.\n")
-	writeFile(t, filepath.Join(dir, "architecture.yml"), "model:\n  id: TOP\n  title: Top\n  baseCatalogRef: ./catalog.yml\ncomposition:\n  subsystems:\n    - id: SUB-C\n      ref: ./child\n  allocations:\n    - requirement: REQ-P-001\n      to: SUB-C\n      target: CAP-C\n")
-
-	res, err := GenerateCompositionFromFile(filepath.Join(dir, "architecture.yml"))
-	if err != nil {
-		t.Fatalf("compose: %v", err)
-	}
-	found := false
-	for _, d := range res.Diagnostics {
-		if d.Code == "composition.unknown_target_requirement" && d.Severity == validate.SeverityError {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("expected composition.unknown_target_requirement error, got %+v", res.Diagnostics)
-	}
-}
-
-// TestCompositionResolvesGitSubsystem verifies an external git subsystem is cloned
-// into the workspace .engmod cache and resolved into the composed view like a local
-// subsystem. The "external" repo is a local git repo, so the test stays hermetic.
-// TRLC-LINKS: REQ-EMG-027
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
-func TestCompositionResolvesGitSubsystem(t *testing.T) {
-	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git not available")
-	}
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func TestCompositionResolvesManifestPublicationAndWritesLock(t *testing.T) {
 	root := t.TempDir()
+	child := filepath.Join(root, "child")
+	writeV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, []string{"REQ-CHILD"})
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+replacements:
+  - module: example.com/child@v1
+    path: ./child
+`)
+	parent := filepath.Join(root, "parent")
+	writeV2CompositionParent(t, parent, `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [public]
+`, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: public
+    allocations:
+      - requirement: REQ-PARENT
+        to: SUB-CHILD
+        target: child::CAP-CHILD
+`)
 
-	// Build an external repository holding a subsystem model.
-	remote := filepath.Join(root, "remote")
-	if err := os.MkdirAll(remote, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, filepath.Join(remote, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-EXT\n      name: ext\n      definition: ext.\n")
-	writeFile(t, filepath.Join(remote, "architecture.yml"), "model:\n  id: EXT\n  title: External\n  baseCatalogRef: ./catalog.yml\ncontract:\n  provides:\n    - id: CAP-EXT\n      kind: capability\n      ref: REQ-EXT-001\n")
-	writeFile(t, filepath.Join(remote, "requirements.yml"), "requirements:\n  - id: REQ-EXT-001\n    text: realizes CAP-EXT\n")
-	for _, args := range [][]string{
-		{"init", "--quiet"},
-		{"-c", "user.email=t@t", "-c", "user.name=t", "add", "."},
-		{"-c", "user.email=t@t", "-c", "user.name=t", "commit", "--quiet", "-m", "init"},
-	} {
-		if out, err := runGit(remote, args...); err != nil {
-			t.Fatalf("git %v: %v: %s", args, err, out)
-		}
-	}
-
-	// Top model in a separate workspace references the repo via git:.
-	ws := filepath.Join(root, "ws")
-	if err := os.MkdirAll(ws, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	writeFile(t, filepath.Join(ws, "catalog.yml"), "catalog:\n  systems:\n    - id: SYS-TOP\n      name: top\n      definition: top.\n")
-	writeFile(t, filepath.Join(ws, "architecture.yml"), "model:\n  id: TOP\n  title: Top\n  baseCatalogRef: ./catalog.yml\ncomposition:\n  subsystems:\n    - id: SUB-EXT\n      git: "+remote+"\n  allocations:\n    - requirement: REQ-TOP-001\n      to: SUB-EXT\n      target: CAP-EXT\n")
-
-	res, err := GenerateCompositionFromFile(filepath.Join(ws, "architecture.yml"))
+	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
 	if err != nil {
-		t.Fatalf("compose: %v", err)
+		t.Fatal(err)
 	}
-	if _, statErr := os.Stat(filepath.Join(ws, ".engmod", "subsystems", "SUB-EXT", "architecture.yml")); statErr != nil {
-		t.Fatalf("expected external subsystem cloned into .engmod, got %v", statErr)
+	assertNoCompositionErrors(t, result.Diagnostics)
+	if result.Root == nil || len(result.Root.Children) != 1 {
+		t.Fatalf("expected one child, got %#v", result.Root)
 	}
-	if res.Root == nil || len(res.Root.Children) != 1 {
-		t.Fatalf("expected 1 resolved external subsystem, got %#v", res.Root)
+	if len(result.Allocations) != 1 || !result.Allocations[0].Resolved || result.Allocations[0].TargetRef != "REQ-CHILD" {
+		t.Fatalf("allocation did not resolve through publication: %+v", result.Allocations)
 	}
-	var resolved bool
-	for _, m := range res.Allocations {
-		if m.Target == "CAP-EXT" {
-			resolved = m.Resolved && m.TargetRef == "REQ-EXT-001" && m.TargetRefResolved
-		}
+	if len(result.Provenance) != 2 || result.Provenance[0].Alias != "child" || result.Provenance[0].ResolvedDir != child {
+		t.Fatalf("unexpected provenance: %+v", result.Provenance)
 	}
-	if !resolved {
-		t.Fatalf("expected allocation to the cloned subsystem to resolve to REQ-EXT-001, got %+v", res.Allocations)
+	lockPath := filepath.Join(parent, CompositionLockFileName)
+	first, err := os.ReadFile(lockPath)
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, d := range res.Diagnostics {
-		if d.Severity == validate.SeverityError {
-			t.Fatalf("unexpected composition error: %s %s", d.Code, d.Message)
+	if !strings.Contains(string(first), "sha256:") || !strings.Contains(string(first), "alias: child") {
+		t.Fatalf("unexpected lock file:\n%s", first)
+	}
+	if _, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml")); err != nil {
+		t.Fatal(err)
+	}
+	second, err := os.ReadFile(lockPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(first) != string(second) {
+		t.Fatalf("lock generation is not deterministic:\n%s\n---\n%s", first, second)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func TestCompositionRejectsUnpublishedQualifiedReference(t *testing.T) {
+	root := t.TempDir()
+	child := filepath.Join(root, "child")
+	writeV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+replacements:
+  - module: example.com/child@v1
+    path: ./child
+`)
+	parent := filepath.Join(root, "parent")
+	writeV2CompositionParent(t, parent, `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [public]
+`, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: public
+    allocations:
+      - requirement: REQ-PARENT
+        to: SUB-CHILD
+        target: child::REQ-CHILD
+`)
+	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertCompositionDiagnostic(t, result.Diagnostics, "composition.allocation_to_internal")
+}
+
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func TestCompositionRejectsUnpublishedBehaviorReference(t *testing.T) {
+	root := t.TempDir()
+	child := filepath.Join(root, "child")
+	writeV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
+	parent := filepath.Join(root, "parent")
+	writeV2CompositionParent(t, parent, `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [public]
+`, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: public
+`)
+	writeFile(t, filepath.Join(parent, "model", "behavior.yml"), `schemaVersion: 2
+behavior:
+  relationships:
+    - type: depends_on
+      from: child::CAP-CHILD
+      to: child::INTERNAL
+`)
+	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertCompositionDiagnostic(t, result.Diagnostics, "composition.unpublished_reference")
+}
+
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func TestCompositionValidatesDependencyPublicationAgreement(t *testing.T) {
+	root := t.TempDir()
+	child := filepath.Join(root, "child")
+	writeV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+replacements:
+  - module: example.com/child@v1
+    path: ./child
+`)
+	tests := []struct {
+		name, dependencies, publication, diagnostic string
+	}{
+		{"unknown alias", "dependencies: []\n", "public", "composition.unknown_dependency"},
+		{"duplicate alias", `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [public]
+  - alias: child
+    path: example.com/other@v1
+    version: v1.0.0
+    publications: [public]
+`, "public", "composition.duplicate_dependency_alias"},
+		{"unselected publication", `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [other]
+`, "public", "composition.publication_not_selected"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			parent := filepath.Join(root, strings.ReplaceAll(test.name, " ", "-"))
+			writeV2CompositionParent(t, parent, test.dependencies, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: `+test.publication+`
+`)
+			result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertCompositionDiagnostic(t, result.Diagnostics, test.diagnostic)
+		})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func TestQualifiedReferenceHelpers(t *testing.T) {
+	qualified, err := model.QualifyReference("child", "CAP-CHILD")
+	if err != nil || qualified != "child::CAP-CHILD" {
+		t.Fatalf("qualify: %q %v", qualified, err)
+	}
+	alias, id, err := model.ParseQualifiedReference(qualified)
+	if err != nil || alias != "child" || id != "CAP-CHILD" {
+		t.Fatalf("parse: alias=%q id=%q err=%v", alias, id, err)
+	}
+	if _, _, err := model.ParseQualifiedReference("SUB-CHILD/CAP-CHILD"); err == nil {
+		t.Fatal("expected legacy slash-qualified reference to be rejected")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-049
+func TestExactModuleCoordinates(t *testing.T) {
+	if _, err := model.ParseExactModuleVersion("example.com/child@v1", "v1.2.3"); err != nil {
+		t.Fatalf("valid exact module coordinate rejected: %v", err)
+	}
+	for _, test := range []struct {
+		path, version string
+	}{
+		{"example.com/child", "v1.2.3"},
+		{"example.com/child@v1", "latest"},
+		{"example.com/child@v1", "v1.2"},
+	} {
+		if _, err := model.ParseExactModuleVersion(test.path, test.version); err == nil {
+			t.Fatalf("expected invalid module coordinate %s@%s to fail", test.path, test.version)
 		}
 	}
 }
 
-// writeFile is a test helper.
-// TRLC-LINKS: REQ-EMG-017
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func TestCompositionRejectsPublicationIDOwnedByAnotherDomain(t *testing.T) {
+	root := t.TempDir()
+	child := filepath.Join(root, "child")
+	writeV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	manifestPath := filepath.Join(child, "engmod.yml")
+	manifest, err := os.ReadFile(manifestPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, manifestPath, strings.Replace(string(manifest), "architecture: [CAP-CHILD]", "architecture: [REQ-CHILD]", 1))
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+replacements:
+  - module: example.com/child@v1
+    path: ./child
+`)
+	parent := filepath.Join(root, "parent")
+	writeV2CompositionParent(t, parent, `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.2.3
+    publications: [public]
+`, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: public
+`)
+	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertCompositionDiagnostic(t, result.Diagnostics, "composition.publication_unowned_id")
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+func writeV2CompositionModule(t *testing.T, dir, modulePath, version, modelID, publication string, architectureIDs, requirementIDs []string) {
+	t.Helper()
+	capabilityID := "CAP-CHILD"
+	if len(architectureIDs) > 0 {
+		capabilityID = architectureIDs[0]
+	}
+	requirementID := "REQ-CHILD"
+	if len(requirementIDs) > 0 {
+		requirementID = requirementIDs[0]
+	}
+	writeV2ModuleFiles(t, dir, modulePath, version, modelID, "", `  contract:
+    provides:
+      - id: `+capabilityID+`
+        kind: capability
+        ref: `+requirementID+`
+`)
+	var publicationYAML strings.Builder
+	publicationYAML.WriteString("publications:\n  - id: " + publication + "\n")
+	if len(architectureIDs) > 0 {
+		publicationYAML.WriteString("    architecture: [" + strings.Join(architectureIDs, ", ") + "]\n")
+	}
+	if len(requirementIDs) > 0 {
+		publicationYAML.WriteString("    requirements: [" + strings.Join(requirementIDs, ", ") + "]\n")
+	}
+	path := filepath.Join(dir, "engmod.yml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, path, strings.Replace(string(data), "documents:\n", publicationYAML.String()+"documents:\n", 1))
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+func writeV2CompositionParent(t *testing.T, dir, dependencies, architecture string) {
+	t.Helper()
+	writeV2ModuleFiles(t, dir, "example.com/parent@v1", "v1.0.0", "PARENT", dependencies, architecture)
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+func writeV2ModuleFiles(t *testing.T, dir, modulePath, version, modelID, manifestExtra, architecture string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Join(dir, "cue.mod"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
+	writeFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+module:
+  path: `+modulePath+`
+  version: `+version+`
+  modelId: `+modelID+`
+  title: `+modelID+`
+  introduction: ""
+  kind: system
+`+manifestExtra+`documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+`)
+	writeFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
+	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-CHILD\n    text: Child requirement.\n  - id: REQ-SHARED-001\n    text: Shared requirement.\n  - id: REQ-PARENT\n    text: Parent requirement.\n")
+	writeFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
+	writeFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
+	writeFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
+	writeFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
+	writeFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	writeFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
 func writeFile(t *testing.T, path, content string) {
 	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+func assertNoCompositionErrors(t *testing.T, diagnostics []validate.Diagnostic) {
+	t.Helper()
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Severity == validate.SeverityError {
+			t.Fatalf("unexpected composition error: %s %s", diagnostic.Code, diagnostic.Message)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+func assertCompositionDiagnostic(t *testing.T, diagnostics []validate.Diagnostic, code string) {
+	t.Helper()
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == code {
+			return
+		}
+	}
+	t.Fatalf("expected %s diagnostic, got %+v", code, diagnostics)
 }

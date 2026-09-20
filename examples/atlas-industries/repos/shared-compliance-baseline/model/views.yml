@@ -1,0 +1,28 @@
+schemaVersion: 2
+views: []
+design:
+  id: atlas-compliance-design
+  title: Atlas Shared Compliance Baseline Design
+  functionalGroups:
+  - id: FG-COMP
+    views:
+      traceability:
+        title: Compliance traceability
+        narrative: Profiles map external controls to model controls, implementations, verification, evidence, risks, and POA&M.
+  functionalUnits:
+  - id: FU-COMP-EVIDENCE
+    group: FG-COMP
+    views:
+      architecture_intent:
+        title: Evidence service intent
+        narrative: Evidence is immutable, attributable, retained, and exportable for assessment.
+  - id: FU-COMP-PEOPLE
+    group: FG-COMP
+    views:
+      architecture_intent:
+        title: Employee security lifecycle intent
+        narrative: Screening, employment responsibilities, awareness, role changes, and offboarding are governed once for
+          every product.
+      traceability:
+        title: People-control traceability
+        narrative: NIST and ISO people controls map to company processes, evidence, risks, verification, and remediation.

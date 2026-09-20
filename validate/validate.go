@@ -69,6 +69,11 @@ var allowedViewKinds = map[string]bool{
 	"traceability":        true,
 	"state-lifecycle":     true,
 	"interaction-flow":    true,
+	"use-case":            true,
+	"logical":             true,
+	"process":             true,
+	"physical":            true,
+	"implementation":      true,
 }
 
 var allowedMappingTypes = map[string]bool{
@@ -248,10 +253,35 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
+	for path, version := range map[string]int{
+		"schemaVersion":              b.Architecture.SchemaVersion,
+		"catalog.schemaVersion":      b.Catalog.SchemaVersion,
+		"requirements.schemaVersion": b.Requirements.SchemaVersion,
+		"design.schemaVersion":       b.Design.SchemaVersion,
+		"decisions.schemaVersion":    b.Decisions.SchemaVersion,
+	} {
+		if _, err := model.EffectiveSchemaVersion(version); err != nil {
+			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: err.Error(), Path: path})
+		}
+	}
+	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
+		if _, err := model.ResolveDocumentReferences(b.Architecture.Model); err != nil {
+			diags = append(diags, Diagnostic{Code: "model.conflicting_document_reference", Severity: SeverityError, Message: err.Error(), Path: "model.documents.catalog"})
+		}
+	}
+	for i, subsystem := range b.Architecture.Composition.Subsystems {
+		path := fmt.Sprintf("composition.subsystems[%d]", i)
+		if strings.TrimSpace(subsystem.Dependency) == "" {
+			diags = append(diags, Diagnostic{Code: "composition.missing_dependency", Severity: SeverityError, Message: fmt.Sprintf("subsystem %q has no dependency alias", subsystem.ID), Path: path + ".dependency"})
+		}
+		if strings.TrimSpace(subsystem.Publication) == "" {
+			diags = append(diags, Diagnostic{Code: "composition.missing_publication", Severity: SeverityError, Message: fmt.Sprintf("subsystem %q has no publication", subsystem.ID), Path: path + ".publication"})
+		}
+	}
 
 	addID := func(id, owner string) {
 		if strings.TrimSpace(id) == "" {
@@ -408,6 +438,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 	for i, x := range b.Architecture.Compliance.Mappings {
 		addID(x.ID, fmt.Sprintf("compliance.mappings[%d]", i))
 		kindByID[x.ID] = "compliance_mapping"
+	}
+	for i, x := range b.Architecture.Semantics.Elements {
+		addID(x.ID, fmt.Sprintf("semantics.elements[%d]", i))
+		kindByID[x.ID] = string(x.Kind)
 	}
 
 	validID := func(id string) bool {
@@ -994,8 +1028,125 @@ func Bundle(b model.Bundle) []Diagnostic {
 			}
 		}
 	}
+	diags = append(diags, validateNAFProfile(b.Architecture, actors)...)
+
+	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)
+	projectionDiagnostics = append(projectionDiagnostics, model.ValidateSemanticModel(semantic)...)
+	for _, diagnostic := range projectionDiagnostics {
+		if diagnostic.Severity != model.SemanticSeverityError {
+			continue
+		}
+		if diagnostic.Code == "semantic.missing_id" {
+			continue
+		}
+		diags = append(diags, Diagnostic{
+			Code:     diagnostic.Code,
+			Severity: SeverityError,
+			Message:  diagnostic.Message,
+			Path:     diagnostic.Path,
+		})
+	}
 
 	return SortDiagnostics(diags)
+}
+
+// TRLC-LINKS: REQ-EMG-041, REQ-EMG-043
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-NAF-EXPORTER, REF-NAF-V4-1-SPECIFICATION
+func validateNAFProfile(architecture model.ArchitectureDocument, actors map[string]bool) []Diagnostic {
+	profile := architecture.NAF
+	if !profile.Enabled() {
+		return nil
+	}
+	var diags []Diagnostic
+	if strings.TrimSpace(profile.Framework) != "NAF" {
+		diags = append(diags, Diagnostic{Code: "naf.unsupported_framework", Severity: SeverityError, Message: fmt.Sprintf("unsupported architecture framework %q", profile.Framework), Path: "naf.framework"})
+	}
+	if strings.TrimSpace(profile.Version) != "4.1" {
+		diags = append(diags, Diagnostic{Code: "naf.unsupported_version", Severity: SeverityError, Message: fmt.Sprintf("unsupported NAF version %q", profile.Version), Path: "naf.version"})
+	}
+	if strings.TrimSpace(profile.ArchitectureDescription) == "" {
+		diags = append(diags, Diagnostic{Code: "naf.missing_architecture_description", Severity: SeverityError, Message: "NAF architectureDescription is required", Path: "naf.architectureDescription"})
+	}
+
+	stakeholders := map[string]bool{}
+	for i, stakeholder := range profile.Stakeholders {
+		path := fmt.Sprintf("naf.stakeholders[%d]", i)
+		actorRef := strings.TrimSpace(stakeholder.ActorRef)
+		if actorRef == "" || !actors[actorRef] {
+			diags = append(diags, Diagnostic{Code: "naf.invalid_stakeholder_actor_ref", Severity: SeverityError, Message: fmt.Sprintf("NAF stakeholder references unknown actor %q", actorRef), Path: path + ".actorRef"})
+		} else if stakeholders[actorRef] {
+			diags = append(diags, Diagnostic{Code: "naf.duplicate_stakeholder", Severity: SeverityError, Message: fmt.Sprintf("NAF stakeholder actor %q is declared more than once", actorRef), Path: path + ".actorRef"})
+		}
+		stakeholders[actorRef] = true
+		if strings.TrimSpace(stakeholder.Role) == "" {
+			diags = append(diags, Diagnostic{Code: "naf.missing_stakeholder_role", Severity: SeverityError, Message: "NAF stakeholder role is required", Path: path + ".role"})
+		}
+	}
+	if len(profile.Stakeholders) == 0 {
+		diags = append(diags, Diagnostic{Code: "naf.empty_stakeholders", Severity: SeverityError, Message: "NAF profile must declare at least one stakeholder", Path: "naf.stakeholders"})
+	}
+
+	concerns := map[string]bool{}
+	for i, concern := range profile.Concerns {
+		path := fmt.Sprintf("naf.concerns[%d]", i)
+		id := strings.TrimSpace(concern.ID)
+		if id == "" {
+			diags = append(diags, Diagnostic{Code: "naf.missing_concern_id", Severity: SeverityError, Message: "NAF concern id is required", Path: path + ".id"})
+		} else if concerns[id] {
+			diags = append(diags, Diagnostic{Code: "naf.duplicate_concern", Severity: SeverityError, Message: fmt.Sprintf("duplicate NAF concern %q", id), Path: path + ".id"})
+		}
+		concerns[id] = true
+		if strings.TrimSpace(concern.Name) == "" {
+			diags = append(diags, Diagnostic{Code: "naf.missing_concern_name", Severity: SeverityError, Message: "NAF concern name is required", Path: path + ".name"})
+		}
+		if len(concern.StakeholderRefs) == 0 {
+			diags = append(diags, Diagnostic{Code: "naf.empty_concern_stakeholders", Severity: SeverityError, Message: fmt.Sprintf("NAF concern %q must reference at least one stakeholder", id), Path: path + ".stakeholderRefs"})
+		}
+		for j, ref := range concern.StakeholderRefs {
+			ref = strings.TrimSpace(ref)
+			if !stakeholders[ref] {
+				diags = append(diags, Diagnostic{Code: "naf.invalid_concern_stakeholder_ref", Severity: SeverityError, Message: fmt.Sprintf("NAF concern %q references undeclared stakeholder %q", id, ref), Path: fmt.Sprintf("%s.stakeholderRefs[%d]", path, j)})
+			}
+		}
+	}
+	if len(profile.Concerns) == 0 {
+		diags = append(diags, Diagnostic{Code: "naf.empty_concerns", Severity: SeverityError, Message: "NAF profile must declare at least one concern", Path: "naf.concerns"})
+	}
+
+	views := map[string]bool{}
+	for _, architectureView := range architecture.Views {
+		views[strings.TrimSpace(architectureView.ID)] = true
+	}
+	products := map[string]bool{}
+	for i, product := range profile.Products {
+		path := fmt.Sprintf("naf.products[%d]", i)
+		id := strings.TrimSpace(product.ID)
+		if id == "" {
+			diags = append(diags, Diagnostic{Code: "naf.missing_product_id", Severity: SeverityError, Message: "NAF product id is required", Path: path + ".id"})
+		} else if products[id] {
+			diags = append(diags, Diagnostic{Code: "naf.duplicate_product", Severity: SeverityError, Message: fmt.Sprintf("duplicate NAF product %q", id), Path: path + ".id"})
+		}
+		products[id] = true
+		if _, ok := model.NAFV41ViewpointTitle(product.Viewpoint); !ok {
+			diags = append(diags, Diagnostic{Code: "naf.unknown_viewpoint", Severity: SeverityError, Message: fmt.Sprintf("unknown NAF v4.1 viewpoint %q", product.Viewpoint), Path: path + ".viewpoint"})
+		}
+		if viewRef := strings.TrimSpace(product.ViewRef); !views[viewRef] {
+			diags = append(diags, Diagnostic{Code: "naf.invalid_view_ref", Severity: SeverityError, Message: fmt.Sprintf("NAF product %q references unknown Engmod view %q", id, viewRef), Path: path + ".viewRef"})
+		}
+		if len(product.ConcernRefs) == 0 {
+			diags = append(diags, Diagnostic{Code: "naf.empty_product_concerns", Severity: SeverityError, Message: fmt.Sprintf("NAF product %q must address at least one concern", id), Path: path + ".concernRefs"})
+		}
+		for j, ref := range product.ConcernRefs {
+			ref = strings.TrimSpace(ref)
+			if !concerns[ref] {
+				diags = append(diags, Diagnostic{Code: "naf.invalid_product_concern_ref", Severity: SeverityError, Message: fmt.Sprintf("NAF product %q references unknown concern %q", id, ref), Path: fmt.Sprintf("%s.concernRefs[%d]", path, j)})
+			}
+		}
+	}
+	if len(profile.Products) == 0 {
+		diags = append(diags, Diagnostic{Code: "naf.empty_products", Severity: SeverityError, Message: "NAF profile must declare at least one architecture product", Path: "naf.products"})
+	}
+	return diags
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

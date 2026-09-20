@@ -1,0 +1,123 @@
+schemaVersion: 2
+module:
+  path: models.example/payments-engineering@v0
+  version: v0.1.0
+  modelId: sample-payments-layered-model
+  title: Sample Payments Layered Architecture
+  introduction: 'This document describes the payments architecture using authored functional design and inferred runtime/code
+    realization.
+
+    It is intended to help product, platform, security, and implementation engineers reason about one shared model.
+
+    Functional design is kept stable while realization details are inferred from infrastructure and source artifacts.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-PAYMENTS
+  - FG-FRAUD
+  - FG-PLATFORM
+  - FU-CHECKOUT
+  - FU-PAYMENT-AUTHORIZATION
+  - FU-RISK-SCORING
+  - FU-SUPPORT-REVIEW
+  - FU-CLUSTER-PROVISIONING
+  - FU-GITOPS-OPERATIONS
+  - ACT-CUSTOMER
+  - ACT-SUPPORT
+  - ACT-PLATFORM-OPERATOR
+  - REF-BANK-GATEWAY-ENDPOINT
+  - REF-POSTGRES-DRIVER
+  - REF-HELM-PLATFORM
+  - IF-PAYMENTS-CHECKOUT-API
+  - IF-PAYMENTS-BANK-AUTH
+  - IF-PAYMENTS-RISK-SCORE-API
+  - DO-PAYMENTS-AUTH-REQUEST
+  - DO-PAYMENTS-AUTH-DECISION
+  - DO-PAYMENTS-RISK-SIGNAL
+  - DO-PAYMENTS-REVIEW-TICKET
+  - DEP-PAYMENTS-CLUSTER-PROD
+  - DEP-PAYMENTS-BANK-EDGE
+  behavior:
+  - STATE-PAYMENTS-CHECKOUT-RECEIVED
+  - STATE-PAYMENTS-AUTHORIZED
+  - EVT-PAYMENTS-AUTH-REQUESTED
+  - EVT-PAYMENTS-AUTH-COMPLETED
+  - FLOW-CUSTOMER-CHECKOUT
+  - FLOW-PAYMENTS-MANUAL-REVIEW
+  assurance:
+  - AV-MALICIOUS-API-REQUEST
+  - AV-FRAUDULENT-TRANSACTION-PATTERN
+  - AV-REPLAYED-AUTH-CALLBACK
+  - AV-COMPROMISED-DEPENDENCY
+  - CTRL-PAYMENTS-SSO-MFA
+  - CTRL-PAYMENTS-IMAGE-DIGEST
+  - CTRL-PAYMENTS-CALLBACK-NONCE
+  - RISK-PAYMENTS-SSO-MFA-GAP
+  - RISK-PAYMENTS-CHECKOUT-SPOOFING
+  - RISK-PAYMENTS-BANK-CALLBACK-REPLAY
+  - RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
+  - POAM-PAYMENTS-SSO-LEGACY-CLEANUP
+  - TB-PAYMENTS-EXTERNAL-BANK
+  - TB-PAYMENTS-PLATFORM-CONTROL
+  - TS-PAYMENTS-CHECKOUT-SPOOFING
+  - TS-PAYMENTS-BANK-CALLBACK-REPLAY
+  - TS-PAYMENTS-RISK-TICKET-TAMPER
+  - ASM-PAYMENTS-BANK-SIGNING-VALID
+  - OOS-PAYMENTS-BANK-HSM-OPERATIONS
+  - OOS-PAYMENTS-SI-10-LOW-BASELINE
+  - MIT-PAYMENTS-CHECKOUT-STRICT-SCHEMA
+  - MIT-PAYMENTS-CALLBACK-NONCE-CHECK
+  - MIT-PAYMENTS-MANUAL-REVIEW-AUDIT
+  - CV-PAYMENTS-CHECKOUT-SCHEMA-TEST
+  - CV-PAYMENTS-CALLBACK-REPLAY-TEST
+  - CV-PAYMENTS-MANUAL-REVIEW-TRACE
+  compliance:
+  - PROF-NIST-800-53-LOW
+  - MAP-PAYMENTS-SSO-MFA
+  - MAP-PAYMENTS-IMAGE-DIGEST
+  requirements:
+  - REQ-PAY-001
+  - REQ-PAY-002
+  - REQ-PAY-003
+  - REQ-PAY-004
+  - REQ-PAY-005
+  - REQ-PAY-006
+  - REQ-PAY-007
+  - REQ-PAY-008
+  - REQ-PAY-009
+  views:
+  - VIEW-ARCHITECTURE-INTENT
+  - VIEW-COMMUNICATION
+  - VIEW-DEPLOYMENT
+  - VIEW-SECURITY
+  - VIEW-TRACEABILITY
+  - VIEW-INTERACTION-FLOW
+  - VIEW-STATE-LIFECYCLE
+inferenceHints:
+  runtimeSources:
+  - ./infra/terraform
+  - ./infra/flux
+  - ./infra/helm
+  codeSources:
+  - ./src
+  expectedRuntimeKinds:
+  - cluster
+  - namespace
+  - workload
+  ownershipResolutionOrder:
+  - explicit_annotation
+  - path_convention
+  - unresolved_warning

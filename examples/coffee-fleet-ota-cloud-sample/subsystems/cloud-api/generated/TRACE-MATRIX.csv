@@ -1,0 +1,3 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-CLOUD-001,implemented,FU-CLOUD-INGEST,cloud_api.ts:6,,,
+REQ-CLOUD-002,implemented,FU-CLOUD-INGEST,cloud_api.ts:12,,,

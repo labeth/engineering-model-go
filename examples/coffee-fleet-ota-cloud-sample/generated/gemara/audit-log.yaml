@@ -2,12 +2,12 @@ metadata:
   id: sample-coffee-fleet-ota-cloud-model-AUDIT-LOG
   type: AuditLog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Point-in-time audit of Connected Coffee Fleet OTA + Cloud Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -16,7 +16,7 @@ metadata:
   - id: ENGMOD-EVALUATION-LOG
     title: Evaluation Log
     version: 1.1.0
-summary: "Audit of Connected Coffee Fleet OTA + Cloud Architecture: 8 result(s) reviewed against the control catalog."
+summary: "Audit of Connected Coffee Fleet OTA + Cloud Architecture: 11 result(s) reviewed against the control catalog."
 criteria:
 - reference-id: ENGMOD-CONTROL-CATALOG
   remarks: Control catalog defines the acceptable state.
@@ -32,7 +32,8 @@ results:
   evidence:
   - id: AUD-CV-COFFEE-FW-SIGNATURE-TEST-EV-1
     type: ControlVerification
-    collected-at: "2026-06-27T00:00:00Z"
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: src/ota_agent.rs
     description: Signature verify and rejection path.
   recommendations:
   - text: unsigned or tampered bundles rejected during OTA execution
@@ -48,7 +49,8 @@ results:
   evidence:
   - id: AUD-CV-COFFEE-DEVICE-IDENTITY-TEST-EV-1
     type: ControlVerification
-    collected-at: "2026-06-27T00:00:00Z"
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: src/telemetry_ingest.ts
     description: Identity enforcement checks in ingress path.
   recommendations:
   - text: unauthorized command publishers rejected by identity policy
@@ -64,7 +66,8 @@ results:
   evidence:
   - id: AUD-CV-COFFEE-TELEMETRY-REPLAY-EV-1
     type: ControlVerification
-    collected-at: "2026-06-27T00:00:00Z"
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: src/telemetry_ingest.ts
     description: Replay window logic and dedup analysis.
   recommendations:
   - text: replay detection works for standard windows; high-burst tuning still in progress
@@ -80,10 +83,44 @@ results:
   evidence:
   - id: AUD-CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS-EV-1
     type: ControlVerification
-    collected-at: "2026-06-27T00:00:00Z"
+    collected-at: "2026-09-19T00:00:00Z"
+    payload: docs/security/log-integrity-review.md
     description: Inspection notes for audit integrity controls.
   recommendations:
   - text: log write permissions are constrained but immutable retention still being expanded
+    required: false
+- id: AUD-cloud-api::VER-INGEST-AUTH
+  title: Verification of cloud-api::CTRL-INGEST-AUTH
+  type: Strength
+  description: Control cloud-api::CTRL-INGEST-AUTH assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: cloud-api::CTRL-INGEST-AUTH
+    reference-id: ENGMOD-CONTROL-CATALOG
+  recommendations:
+  - text: Unauthenticated ingest rejected in tests.
+    required: false
+- id: AUD-ota-agent::VER-FIRMWARE-SIGNATURE
+  title: Verification of ota-agent::CTRL-FIRMWARE-SIGNATURE
+  type: Strength
+  description: Control ota-agent::CTRL-FIRMWARE-SIGNATURE assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: ota-agent::CTRL-FIRMWARE-SIGNATURE
+    reference-id: ENGMOD-CONTROL-CATALOG
+  recommendations:
+  - text: Signature rejection verified in unit tests.
+    required: false
+- id: AUD-telemetry::VER-TELEM-INTEGRITY
+  title: Verification of telemetry::CTRL-TELEM-INTEGRITY
+  type: Strength
+  description: Control telemetry::CTRL-TELEM-INTEGRITY assessed via test with status pass.
+  criteria-reference:
+    entries:
+    - reference-id: telemetry::CTRL-TELEM-INTEGRITY
+    reference-id: ENGMOD-CONTROL-CATALOG
+  recommendations:
+  - text: Telemetry signature verified in unit tests.
     required: false
 - id: AUD-RISK-COFFEE-DEVICE-SPOOFING
   title: "Residual risk: Device identity spoofing risk"

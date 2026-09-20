@@ -1,0 +1,71 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-COMP
+    name: Compliance Assurance
+    description: Shared control and evidence lifecycle.
+  functionalUnits:
+  - id: FU-COMP-EVIDENCE
+    name: Compliance Evidence Service
+    group: FG-COMP
+    prose: Collects, retains, and reports control assessment evidence.
+  - id: FU-COMP-PEOPLE
+    name: People Security and Awareness
+    group: FG-COMP
+    prose: Governs screening, employment responsibilities, awareness training, role changes, and offboarding.
+  actors:
+  - id: ACT-EMPLOYEE
+    name: Employee
+    description: Completes policy acknowledgment and security awareness obligations.
+  - id: ACT-LINE-MANAGER
+    name: Line Manager
+    description: Initiates and confirms role-change access reviews.
+  - id: ACT-PEOPLE-OPERATIONS
+    name: People Operations Partner
+    description: Coordinates personnel screening, employment records, and offboarding.
+  - id: ACT-COMP-OFFICER
+    name: Compliance Officer
+    description: Approves controls and remediation plans.
+  dataObjects:
+  - id: DO-COMP-EVIDENCE
+    name: Compliance Evidence Package
+    termRef: DATA-COMP-EVIDENCE
+    sensitivity: restricted
+    classification: assurance
+    regulatoryTags:
+    - nist-800-53
+    - iso-27001
+    retention: 2555_days
+    confidentiality: high
+    integrity: high
+    availability: medium
+  - id: DO-COMP-PERSONNEL-RECORD
+    name: Personnel Lifecycle Record
+    termRef: DATA-PERSONNEL-RECORD
+    sensitivity: restricted
+    classification: personal
+    regulatoryTags:
+    - nist-800-53
+    - iso-27001
+    retention: employment_plus_7_years
+    confidentiality: high
+    integrity: high
+    availability: medium
+  - id: DO-COMP-TRAINING-RECORD
+    name: Security Awareness Training Record
+    termRef: DATA-TRAINING-RECORD
+    sensitivity: internal
+    classification: assurance
+    regulatoryTags:
+    - nist-800-53
+    - iso-27001
+    retention: 2555_days
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  contract:
+    provides:
+    - id: CAP-CONTROL-BASELINE
+      kind: capability
+      ref: REQ-COMP-001
+      note: Shared control implementation and evidence baseline.

@@ -1,0 +1,14 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-FIRMWARE-SIGNATURE
+    name: Firmware Signature Verification
+    category: integrity
+    description: Verify firmware signatures before apply.
+  controlVerifications:
+  - id: VER-FIRMWARE-SIGNATURE
+    controlRef: CTRL-FIRMWARE-SIGNATURE
+    method: test
+    status: pass
+    findings:
+    - Signature rejection verified in unit tests.

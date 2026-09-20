@@ -1,0 +1,9 @@
+schemaVersion: 2
+behavior:
+  relationships:
+  - type: contains
+    from: FG-OTA
+    to: FU-OTA-VERIFY
+  - type: contains
+    from: FG-OTA
+    to: FU-OTA-APPLY

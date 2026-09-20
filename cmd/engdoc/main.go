@@ -35,7 +35,7 @@ func (v *viewFlags) Set(value string) error {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-009, REQ-EMG-014
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FU-VIEW-PROJECTION, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func main() {
-	modelPath := flag.String("model", "", "path to architecture model YAML")
+	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	reqPath := flag.String("requirements", "", "path to requirements YAML")
 	designPath := flag.String("design", "", "path to design mapping YAML")
 	codeRoot := flag.String("code-root", "", "optional source tree root for TRACE-* code mapping")
@@ -46,7 +46,7 @@ func main() {
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*reqPath) == "" || strings.TrimSpace(*designPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engdoc --model <architecture.yml> --requirements <requirements.yml> --design <design.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engdoc --model <engmod.yml> --requirements <model/requirements.yml> --design <model/views.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>]")
 		os.Exit(2)
 	}
 

@@ -1,0 +1,34 @@
+{
+  "model": "atlas-shared-security-services",
+  "requirements": [
+    {
+      "id": "REQ-SEC-001",
+      "text": "The atlas security services shall issue short-lived identity credentials using the identity service.",
+      "units": [
+        "FU-SEC-IDENTITY"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-SEC-002",
+      "text": "When credential replay is detected, the atlas security services shall notify the security analyst.",
+      "units": [
+        "FU-SEC-MONITORING"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-SEC-001",
+    "REQ-SEC-002"
+  ],
+  "summary": {
+    "requirements": 2,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 2,
+    "danglingLinks": 0
+  }
+}

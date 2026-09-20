@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1",
+  "baseline": "2026-04 / SysML 2.0 / KerML 1.0",
+  "formalRelease": {
+    "repository": "Systems-Modeling/SysML-v2-Release",
+    "tag": "2026-04",
+    "commit": "9baca5908ca28b53da085de69336fde48420ea8f",
+    "url": "https://github.com/Systems-Modeling/SysML-v2-Release/tree/9baca5908ca28b53da085de69336fde48420ea8f",
+    "authority": "Formal release repository. It contains the ISO-submitted specifications and standard-library XMI, but no normative metamodel XMI/Ecore. Its README explicitly says the library XMI is Eclipse XMI and is not fully normative OMG XMI."
+  },
+  "metamodelAuthority": "Closest official machine-readable implementation artifact aligned to the formal 2026-04 release; not a normative OMG XMI representation.",
+  "sources": [
+    {
+      "id": "kerml",
+      "origin": "KerML",
+      "package": "kerml",
+      "repository": "Systems-Modeling/SysML-v2-Pilot-Implementation",
+      "tag": "2026-04",
+      "commit": "20897e3122f2c2f8b29389745f0caaaeb7c6e21a",
+      "path": "org.omg.sysml/model/kerml.ecore",
+      "url": "https://raw.githubusercontent.com/Systems-Modeling/SysML-v2-Pilot-Implementation/20897e3122f2c2f8b29389745f0caaaeb7c6e21a/org.omg.sysml/model/kerml.ecore",
+      "sha256": "62db52cbccf41266ccfa9b3b9cbb4a40384f16ab513f1d8522fd29d9d0fda8e7"
+    },
+    {
+      "id": "sysml",
+      "origin": "SysML",
+      "package": "sysml",
+      "repository": "Systems-Modeling/SysML-v2-Pilot-Implementation",
+      "tag": "2026-04",
+      "commit": "20897e3122f2c2f8b29389745f0caaaeb7c6e21a",
+      "path": "org.omg.sysml.model/src/main/resources/model/SysML.ecore",
+      "url": "https://raw.githubusercontent.com/Systems-Modeling/SysML-v2-Pilot-Implementation/20897e3122f2c2f8b29389745f0caaaeb7c6e21a/org.omg.sysml.model/src/main/resources/model/SysML.ecore",
+      "sha256": "be71998ca0d9bb7e6081a25e8ead93ce49d623a47ca414b30ee8c572d6d0d753"
+    }
+  ]
+}

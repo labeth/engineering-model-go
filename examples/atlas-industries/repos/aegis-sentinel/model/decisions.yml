@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-AEG-001
+  title: Keep sensor fusion product-specific
+  status: accepted
+  date: 2026-09-19
+  context: Aegis sensing algorithms and hardware define product differentiation.
+  decision: Reuse company platforms while retaining sensor fusion and mission coordination locally.
+  consequences:
+  - Shared controls evolve independently from mission algorithms.

@@ -1,0 +1,145 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Atlas Shared Security Services",
+    "id": "atlas-shared-security-services",
+    "description": "Company identity, key management, and detection services.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Security Audit Event",
+      "id": "DO-SEC-AUDIT-EVENT",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TB-SEC-CONTROL-PLANE",
+      "name": "Security Control Plane",
+      "type": "control-plane",
+      "description": "Separates privileged identity operations from product workloads.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-SEC-ANALYST",
+      "name": "Security Analyst",
+      "type": "actor",
+      "description": "Owns threat monitoring and response.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-SEC-IDENTITY",
+      "name": "Identity Service",
+      "type": "service",
+      "description": "Issues short-lived device and workload credentials.",
+      "parent": {
+        "trustZone": "TB-SEC-CONTROL-PLANE"
+      },
+      "threats": [
+        {
+          "threat": "TS-SEC-CREDENTIAL-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-SEC-TOKEN-REPLAY",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FU-SEC-MONITORING",
+      "name": "Security Monitoring",
+      "type": "service",
+      "description": "Correlates authentication and audit events.",
+      "parent": {
+        "trustZone": "TB-SEC-CONTROL-PLANE"
+      }
+    },
+    {
+      "id": "IF-SEC-TOKEN",
+      "name": "Identity Token Interface",
+      "type": "interface",
+      "description": "https https://identity.atlas.example/token",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "TS-SEC-CREDENTIAL-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "MIT-SEC-TOKEN-REPLAY",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dataflows": [],
+  "threats": [
+    {
+      "id": "TS-SEC-CREDENTIAL-REPLAY",
+      "name": "Captured token is replayed",
+      "description": "An adversary reuses a captured identity token.",
+      "categories": [
+        "authentication"
+      ],
+      "cwes": [
+        "CWE-294"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "spoofing"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "MIT-SEC-TOKEN-REPLAY",
+      "name": "CTRL-SEC-SHORT-LIVED-IDENTITY",
+      "description": "CTRL-SEC-SHORT-LIVED-IDENTITY",
+      "riskReduction": 8
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+schemaVersion: 2
+assurance:
+  attackVectors:
+  - id: AV-CREDENTIAL-REPLAY
+    name: Credential Replay
+    description: Captured credentials are replayed against a trusted endpoint.
+  controls:
+  - id: CTRL-SEC-SHORT-LIVED-IDENTITY
+    name: Short-lived Identity
+    category: identity-access
+    description: Issues scoped credentials with bounded lifetime.
+  - id: CTRL-SEC-AUDIT-INTEGRITY
+    name: Audit Integrity
+    category: audit
+    description: Signs and immutably stores security audit events.
+  risks:
+  - id: RISK-SEC-CREDENTIAL-REPLAY
+    title: Credential replay risk
+    statement: Captured credentials may permit unauthorized product access.
+    status: mitigating
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-SEC-ANALYST
+    appliesTo:
+    - FU-SEC-IDENTITY
+    - IF-SEC-TOKEN
+    relatedControls:
+    - CTRL-SEC-SHORT-LIVED-IDENTITY
+    attackVectors:
+    - AV-CREDENTIAL-REPLAY
+    threatScenarios:
+    - TS-SEC-CREDENTIAL-REPLAY
+    residualRisk: low
+    rationale: Short credential lifetime and replay detection reduce exposure.
+  trustBoundaries:
+  - id: TB-SEC-CONTROL-PLANE
+    name: Security Control Plane
+    description: Separates privileged identity operations from product workloads.
+    boundaryType: control-plane
+    members:
+    - FU-SEC-IDENTITY
+    - FU-SEC-MONITORING
+  threatScenarios:
+  - id: TS-SEC-CREDENTIAL-REPLAY
+    title: Captured token is replayed
+    summary: An adversary reuses a captured identity token.
+    category: authentication
+    stride: spoofing
+    cwe:
+    - CWE-294
+    attackVectorRef: AV-CREDENTIAL-REPLAY
+    appliesTo:
+    - FU-SEC-IDENTITY
+    - IF-SEC-TOKEN
+    entryPoint: IF-SEC-TOKEN
+    preconditions:
+    - captured-token
+    exploitPath:
+    - present-captured-token
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-SEC-ANALYST
+    riskRef: RISK-SEC-CREDENTIAL-REPLAY
+    relatedControls:
+    - CTRL-SEC-SHORT-LIVED-IDENTITY
+    mitigationRefs:
+    - MIT-SEC-TOKEN-REPLAY
+    verificationRefs:
+    - CV-SEC-TOKEN-REPLAY
+    detection:
+    - duplicate-token-alert
+    evidence:
+    - path: evidence/security/token-replay-test.json
+      description: Replay test result.
+  threatMitigations:
+  - id: MIT-SEC-TOKEN-REPLAY
+    threatScenarioRef: TS-SEC-CREDENTIAL-REPLAY
+    controlRef: CTRL-SEC-SHORT-LIVED-IDENTITY
+    status: implemented
+    effectiveness: high
+    owner: ACT-SEC-ANALYST
+    verificationRefs:
+    - CV-SEC-TOKEN-REPLAY
+  controlVerifications:
+  - id: CV-SEC-TOKEN-REPLAY
+    controlRef: CTRL-SEC-SHORT-LIVED-IDENTITY
+    threatScenarioRefs:
+    - TS-SEC-CREDENTIAL-REPLAY
+    riskRefs:
+    - RISK-SEC-CREDENTIAL-REPLAY
+    method: test
+    status: pass
+    owner: ACT-SEC-ANALYST
+    lastTested: 2026-09-01
+    findings:
+    - Expired and replayed credentials were rejected.
+    evidence:
+    - path: evidence/security/token-replay-test.json
+      description: Automated negative authentication test.

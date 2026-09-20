@@ -1,0 +1,391 @@
+schemaVersion: 2
+behavior:
+  states:
+  - id: STATE-COFFEE-OTA-SCHEDULED
+    name: OTA Scheduled
+    description: Campaign prepared and waiting for rollout execution.
+  - id: STATE-COFFEE-OTA-APPLIED
+    name: OTA Applied
+    description: Firmware update successfully applied to target cohort.
+  events:
+  - id: EVT-COFFEE-OTA-REQUESTED
+    name: OTA Requested
+    description: OTA campaign request accepted.
+  - id: EVT-COFFEE-OTA-COMPLETED
+    name: OTA Completed
+    description: OTA rollout completed for cohort.
+  flows:
+  - id: FLOW-COFFEE-OTA-ROLLOUT
+    title: OTA Rollout Interaction Flow
+    kind: security
+    methodology: owasp-tm
+    direction: outbound
+    frequency: scheduled
+    sourceRef: ACT-FLEET-OPERATOR
+    destinationRef: FU-OTA-UPDATE-AGENT
+    protocol: mqtt
+    channel: ota-command
+    authentication: device-mtls
+    encryptionInTransit: tls1.3
+    integrityProtection: firmware-signature
+    dataRefs:
+    - DO-COFFEE-OTA-PLAN
+    description: OTA campaign command path from operator scheduling through edge execution and reporting.
+    entry:
+    - operator-schedules-rollout
+    exits:
+    - report-outcome
+    threats:
+    - TS-COFFEE-MALICIOUS-OTA-BUNDLE
+    - TS-COFFEE-OTA-COMMAND-SPOOF
+    steps:
+    - id: operator-schedules-rollout
+      kind: user_action
+      flowType: control
+      direction: inbound
+      frequency: scheduled
+      sourceRef: ACT-FLEET-OPERATOR
+      destinationRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      ref: ACT-FLEET-OPERATOR
+      action: Fleet operator schedules OTA campaign
+      next:
+      - plan-campaign
+    - id: plan-campaign
+      kind: system_action
+      flowType: control
+      direction: internal
+      frequency: scheduled
+      sourceRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      destinationRef: DO-COFFEE-OTA-PLAN
+      ref: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      action: Build rollout cohorts and policy checks
+      dataOut:
+      - ota_rollout_plan
+      dataRefs:
+      - DO-COFFEE-OTA-PLAN
+      next:
+      - execute-update
+    - id: execute-update
+      kind: system_action
+      flowType: security
+      direction: outbound
+      frequency: scheduled
+      sourceRef: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+      destinationRef: FU-OTA-UPDATE-AGENT
+      ref: FU-OTA-UPDATE-AGENT
+      action: Execute signed OTA update on edge devices
+      dataIn:
+      - ota_rollout_plan
+      dataRefs:
+      - DO-COFFEE-OTA-PLAN
+      interfaceRef: IF-COFFEE-OTA-COMMAND
+      trustBoundaryRef: TB-COFFEE-EDGE-DEVICE
+      boundaryCrossing: true
+      authentication: device-mtls
+      encryptionInTransit: tls1.3
+      integrityProtection: signature-verification
+      async: true
+      onError:
+      - report-outcome
+      next:
+      - report-outcome
+    - id: report-outcome
+      kind: system_action
+      flowType: notification
+      direction: inbound
+      frequency: scheduled
+      sourceRef: FU-OTA-UPDATE-AGENT
+      destinationRef: FU-FLEET-OBSERVABILITY-REPORTING
+      ref: FU-FLEET-OBSERVABILITY-REPORTING
+      action: Emit rollout status and observability summary
+      dataRefs:
+      - DO-COFFEE-OTA-PLAN
+  - id: FLOW-COFFEE-TELEMETRY-INGEST
+    title: Telemetry Ingestion Interaction Flow
+    kind: data
+    methodology: owasp-tm
+    direction: inbound
+    frequency: realtime
+    sourceRef: FU-MACHINE-TELEMETRY-COLLECTION
+    destinationRef: FU-FLEET-INGESTION-API
+    protocol: mqtt
+    channel: telemetry
+    authentication: device-identity-token
+    encryptionInTransit: tls1.3
+    integrityProtection: signed-telemetry-envelope
+    dataRefs:
+    - DO-COFFEE-TELEMETRY-EVENT
+    description: Telemetry path from device event collection to cloud ingest and reporting.
+    entry:
+    - capture-machine-telemetry
+    exits:
+    - publish-fleet-observability
+    threats:
+    - TS-COFFEE-TELEMETRY-REPLAY
+    - TS-COFFEE-LOG-TAMPERING
+    steps:
+    - id: capture-machine-telemetry
+      kind: user_action
+      flowType: interaction
+      direction: internal
+      frequency: realtime
+      sourceRef: ACT-BARISTA
+      destinationRef: FU-MACHINE-TELEMETRY-COLLECTION
+      ref: ACT-BARISTA
+      action: Barista machine activity produces telemetry events
+      next:
+      - collect-and-send-telemetry
+    - id: collect-and-send-telemetry
+      kind: system_action
+      flowType: data
+      direction: outbound
+      frequency: realtime
+      sourceRef: FU-MACHINE-TELEMETRY-COLLECTION
+      destinationRef: IF-COFFEE-TELEMETRY-INGEST
+      ref: FU-MACHINE-TELEMETRY-COLLECTION
+      action: Collect and send telemetry payloads to cloud ingest
+      dataOut:
+      - telemetry_event
+      dataRefs:
+      - DO-COFFEE-TELEMETRY-EVENT
+      interfaceRef: IF-COFFEE-TELEMETRY-INGEST
+      trustBoundaryRef: TB-COFFEE-EDGE-DEVICE
+      boundaryCrossing: true
+      authentication: device-identity-token
+      encryptionInTransit: tls1.3
+      integrityProtection: signed-telemetry-envelope
+      next:
+      - ingest-telemetry
+    - id: ingest-telemetry
+      kind: system_action
+      flowType: security
+      direction: inbound
+      frequency: realtime
+      sourceRef: IF-COFFEE-TELEMETRY-INGEST
+      destinationRef: FU-FLEET-INGESTION-API
+      ref: FU-FLEET-INGESTION-API
+      action: Validate and ingest telemetry records
+      dataIn:
+      - telemetry_event
+      dataRefs:
+      - DO-COFFEE-TELEMETRY-EVENT
+      authentication: device-identity-validation
+      integrityProtection: replay-window-check
+      next:
+      - publish-fleet-observability
+    - id: publish-fleet-observability
+      kind: system_action
+      flowType: notification
+      direction: internal
+      frequency: realtime
+      sourceRef: FU-FLEET-INGESTION-API
+      destinationRef: FU-FLEET-OBSERVABILITY-REPORTING
+      ref: FU-FLEET-OBSERVABILITY-REPORTING
+      action: Publish fleet observability and audit summaries
+      dataIn:
+      - telemetry_event
+      dataRefs:
+      - DO-COFFEE-TELEMETRY-EVENT
+  relationships:
+  - type: contains
+    from: FG-MACHINE-EDGE
+    to: FU-MACHINE-TELEMETRY-COLLECTION
+  - type: contains
+    from: FG-MACHINE-EDGE
+    to: FU-OTA-UPDATE-AGENT
+  - type: contains
+    from: FG-CLOUD-CONTROL
+    to: FU-FLEET-INGESTION-API
+  - type: contains
+    from: FG-CLOUD-CONTROL
+    to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  - type: contains
+    from: FG-CLOUD-CONTROL
+    to: FU-FLEET-OBSERVABILITY-REPORTING
+  - type: contains
+    from: FG-PLATFORM-OPERATIONS
+    to: FU-CLOUD-RUNTIME-OPERATIONS
+  - type: contains
+    from: FG-PLATFORM-OPERATIONS
+    to: FU-DEVICE-IDENTITY-SECRETS
+  - type: interacts_with
+    from: ACT-BARISTA
+    to: FU-MACHINE-TELEMETRY-COLLECTION
+    description: Daily machine operation produces brew and status telemetry.
+  - type: interacts_with
+    from: ACT-FLEET-OPERATOR
+    to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    description: Defines OTA target cohorts and rollout windows.
+  - type: interacts_with
+    from: ACT-PLATFORM-OPERATOR
+    to: FU-CLOUD-RUNTIME-OPERATIONS
+    description: Operates deployment and runtime controls.
+  - type: interacts_with
+    from: ACT-SECURITY-ANALYST
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Audits identity trust and secret rotation controls.
+  - type: depends_on
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: REF-IOT-INGEST-ENDPOINT
+    description: Publishes telemetry payloads to cloud ingestion.
+  - type: calls
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: IF-COFFEE-TELEMETRY-INGEST
+    description: Sends telemetry payloads via telemetry ingest interface.
+  - type: writes
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: DO-COFFEE-TELEMETRY-EVENT
+    description: Writes normalized telemetry event payload.
+  - type: depends_on
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: FU-FLEET-INGESTION-API
+    description: Sends normalized telemetry records to ingestion API.
+  - type: depends_on
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: REF-MQTT-DEVICE-SDK
+    description: Uses MQTT client for edge publish and command channels.
+  - type: depends_on
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Uses machine identity material for authenticated publish.
+  - type: depends_on
+    from: FU-OTA-UPDATE-AGENT
+    to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    description: Receives OTA rollout commands and policy constraints.
+  - type: calls
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: IF-COFFEE-OTA-COMMAND
+    description: Publishes OTA rollout commands to device fleet.
+  - type: writes
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: DO-COFFEE-OTA-PLAN
+    description: Persists rollout plan and cohort metadata.
+  - type: reads
+    from: FU-OTA-UPDATE-AGENT
+    to: DO-COFFEE-OTA-PLAN
+    description: Reads rollout plan before applying firmware.
+  - type: depends_on
+    from: FU-OTA-UPDATE-AGENT
+    to: REF-FIRMWARE-BUNDLE-STORE
+    description: Downloads signed firmware bundle.
+  - type: depends_on
+    from: FU-OTA-UPDATE-AGENT
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Uses trust anchors for firmware and endpoint authentication.
+  - type: depends_on
+    from: FU-FLEET-INGESTION-API
+    to: FU-FLEET-OBSERVABILITY-REPORTING
+    description: Forwards validated telemetry and machine status events.
+  - type: depends_on
+    from: FU-FLEET-INGESTION-API
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Validates device identity and token claims.
+  - type: depends_on
+    from: FU-FLEET-INGESTION-API
+    to: REF-CLOUD-RUNTIME-SDK
+    description: Uses cloud SDK clients for ingest and routing operations.
+  - type: depends_on
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: REF-FIRMWARE-SIGNER-SERVICE
+    description: Verifies firmware artifact signature metadata.
+  - type: depends_on
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: FU-FLEET-OBSERVABILITY-REPORTING
+    description: Emits OTA rollout and rollback events for fleet visibility.
+  - type: depends_on
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Uses trusted control-plane credentials.
+  - type: depends_on
+    from: FU-FLEET-OBSERVABILITY-REPORTING
+    to: REF-CLOUD-LOGGING-SERVICE
+    description: Persists telemetry, OTA outcomes, and audit records.
+  - type: depends_on
+    from: FU-FLEET-OBSERVABILITY-REPORTING
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Uses controlled credentials for audit-log writes.
+  - type: depends_on
+    from: FU-CLOUD-RUNTIME-OPERATIONS
+    to: FU-DEVICE-IDENTITY-SECRETS
+    description: Requires runtime credentials and encrypted config.
+  - type: depends_on
+    from: FU-CLOUD-RUNTIME-OPERATIONS
+    to: REF-CLOUD-LOGGING-SERVICE
+    description: Emits platform operation and deployment events.
+  - type: deployed_to
+    from: FU-FLEET-INGESTION-API
+    to: DEP-COFFEE-CLOUD-PROD
+    description: Ingestion API runs in cloud production target.
+  - type: deployed_to
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: DEP-COFFEE-CLOUD-PROD
+    description: Orchestration service runs in cloud production target.
+  - type: deployed_to
+    from: FU-OTA-UPDATE-AGENT
+    to: DEP-COFFEE-EDGE-FLEET
+    description: OTA agent executes on managed edge fleet.
+  - type: bounded_by
+    from: FU-OTA-UPDATE-AGENT
+    to: TB-COFFEE-EDGE-DEVICE
+    description: OTA execution constrained by edge trust boundary.
+  - type: bounded_by
+    from: FU-CLOUD-RUNTIME-OPERATIONS
+    to: TB-COFFEE-CLOUD-CONTROL
+    description: Cloud control-plane trust separation.
+  - type: targets
+    from: AV-MALICIOUS-FIRMWARE-BUNDLE
+    to: FU-OTA-UPDATE-AGENT
+  - type: targets
+    from: AV-MALICIOUS-FIRMWARE-BUNDLE
+    to: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  - type: targets
+    from: AV-SPOOFED-DEVICE-IDENTITY
+    to: FU-MACHINE-TELEMETRY-COLLECTION
+  - type: targets
+    from: AV-SPOOFED-DEVICE-IDENTITY
+    to: FU-FLEET-INGESTION-API
+  - type: targets
+    from: AV-TELEMETRY-REPLAY-ABUSE
+    to: FU-FLEET-INGESTION-API
+  - type: targets
+    from: AV-TELEMETRY-REPLAY-ABUSE
+    to: FU-FLEET-OBSERVABILITY-REPORTING
+  - type: targets
+    from: AV-LOG-TAMPERING
+    to: FU-FLEET-OBSERVABILITY-REPORTING
+  - type: targets
+    from: AV-LOG-TAMPERING
+    to: FU-DEVICE-IDENTITY-SECRETS
+  - type: mitigated_by
+    from: AV-SPOOFED-DEVICE-IDENTITY
+    to: CTRL-COFFEE-DEVICE-IDENTITY
+  - type: mitigated_by
+    from: AV-MALICIOUS-FIRMWARE-BUNDLE
+    to: CTRL-COFFEE-FIRMWARE-SIGNATURE
+  - type: contains
+    from: FU-FLEET-INGESTION-API
+    to: IF-COFFEE-TELEMETRY-INGEST
+  - type: contains
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: IF-COFFEE-OTA-COMMAND
+  - type: contains
+    from: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    to: DO-COFFEE-OTA-PLAN
+  - type: contains
+    from: FU-MACHINE-TELEMETRY-COLLECTION
+    to: DO-COFFEE-TELEMETRY-EVENT
+  - type: transitions_to
+    from: STATE-COFFEE-OTA-SCHEDULED
+    to: STATE-COFFEE-OTA-APPLIED
+  - type: triggered_by
+    from: STATE-COFFEE-OTA-SCHEDULED
+    to: EVT-COFFEE-OTA-REQUESTED
+  - type: triggered_by
+    from: STATE-COFFEE-OTA-APPLIED
+    to: EVT-COFFEE-OTA-COMPLETED
+  - type: guarded_by
+    from: STATE-COFFEE-OTA-APPLIED
+    to: CTRL-COFFEE-FIRMWARE-SIGNATURE
+  - type: guarded_by
+    from: STATE-COFFEE-OTA-APPLIED
+    to: TB-COFFEE-EDGE-DEVICE

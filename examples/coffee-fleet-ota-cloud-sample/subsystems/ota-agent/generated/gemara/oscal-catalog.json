@@ -1,0 +1,95 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "integrity",
+            "controls": [
+              {
+                "id": "ver-firmware-signature",
+                "parts": [
+                  {
+                    "id": "ver-firmware-signature_smt",
+                    "name": "statement",
+                    "prose": "The control \"Firmware Signature Verification\" MUST be verified by test."
+                  },
+                  {
+                    "id": "ver-firmware-signature_gdn",
+                    "name": "guidance",
+                    "prose": "Signature rejection verified in unit tests."
+                  },
+                  {
+                    "id": "ver-firmware-signature_obj",
+                    "links": [
+                      {
+                        "href": "#VER-FIRMWARE-SIGNATURE_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "VER-FIRMWARE-SIGNATURE"
+              }
+            ],
+            "id": "ctrl-firmware-signature",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#ctrl-firmware-signature",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-firmware-signature_smt",
+                "name": "statement",
+                "prose": "Verify firmware signatures before apply."
+              }
+            ],
+            "title": "Firmware Signature Verification"
+          }
+        ],
+        "id": "integrity",
+        "title": "Control category: integrity."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-09-19T00:00:00Z",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/v0.1.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model Go Examples",
+          "type": "person",
+          "uuid": "0ca35d12-a1ff-5afc-8ba1-394583a8d774"
+        }
+      ],
+      "published": "2026-09-19T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "0ca35d12-a1ff-5afc-8ba1-394583a8d774"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "OTA Update Agent Subsystem - Controls",
+      "version": "v0.1.0"
+    },
+    "uuid": "bf8d3c94-60d0-5447-aace-e7851dd0a8b3"
+  }
+}

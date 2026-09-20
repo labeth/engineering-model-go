@@ -1,0 +1,8 @@
+package engineering_model_go_lint
+
+type Requirement {
+  id         String
+  text       String
+  notes      optional String
+  applies_to String [0 .. *]
+}

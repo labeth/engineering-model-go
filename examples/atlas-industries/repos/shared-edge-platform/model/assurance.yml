@@ -1,0 +1,7 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-EDGE-SIGNED-WORKLOAD
+    name: Signed Workload Enforcement
+    category: integrity
+    description: Verifies workload signatures before execution.

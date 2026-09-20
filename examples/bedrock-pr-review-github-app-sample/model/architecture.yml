@@ -1,0 +1,163 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-PR-INTEGRATION
+    name: PR Integration
+    description: Ingress and context assembly for GitHub pull request events.
+    prose: 'PR Integration owns webhook trust boundaries and pull request context intake.
+
+      It converts incoming GitHub events into normalized review work with clear boundaries.
+
+      '
+  - id: FG-REVIEW-INTELLIGENCE
+    name: Review Intelligence
+    description: AI and deterministic review analysis with result publication.
+    prose: 'Review Intelligence owns generated findings, deterministic checks, and final publication behavior.
+
+      It combines Bedrock reasoning with predictable policy checks and emits auditable review outputs.
+
+      '
+  - id: FG-PLATFORM-OPERATIONS
+    name: Platform Operations
+    description: Lambda deployment lifecycle, runtime operations, and secrets/configuration.
+    prose: 'Platform Operations owns safe deployment, runtime controls, and secret/config lifecycle for the app.
+
+      It enables dependable review operation without owning business-level review policy semantics.
+
+      '
+  functionalUnits:
+  - id: FU-GITHUB-WEBHOOK-INGRESS
+    name: GitHub Webhook Ingress
+    group: FG-PR-INTEGRATION
+    prose: 'Verifies webhook signatures, validates event type, and starts review workflow routing.
+
+      '
+  - id: FU-PR-CONTEXT-ASSEMBLY
+    name: PR Context Assembly
+    group: FG-PR-INTEGRATION
+    prose: 'Fetches changed files and diff metadata and prepares bounded review context payloads.
+
+      '
+  - id: FU-REVIEW-ORCHESTRATION
+    name: Review Orchestration
+    group: FG-REVIEW-INTELLIGENCE
+    prose: 'Calls Bedrock models, merges AI and deterministic findings, and handles graceful degradation paths.
+
+      '
+  - id: FU-POLICY-CHECKS
+    name: Policy Checks
+    group: FG-REVIEW-INTELLIGENCE
+    prose: 'Runs deterministic checks for secrets, risky IaC changes, and repository policy constraints.
+
+      '
+  - id: FU-REVIEW-PUBLICATION
+    name: Review Publication
+    group: FG-REVIEW-INTELLIGENCE
+    prose: 'Publishes check-run summaries and inline comments back to GitHub pull requests.
+
+      '
+  - id: FU-LAMBDA-RUNTIME-OPERATIONS
+    name: Lambda Runtime Operations
+    group: FG-PLATFORM-OPERATIONS
+    prose: 'Manages Lambda packaging/deployment lifecycle and operational health guardrails.
+
+      '
+  - id: FU-SECRETS-CONFIGURATION
+    name: Secrets and Configuration
+    group: FG-PLATFORM-OPERATIONS
+    prose: 'Manages GitHub App credentials, Bedrock config, and redaction-safe runtime configuration.
+
+      '
+  actors:
+  - id: ACT-DEVELOPER
+    name: Developer
+    description: Opens pull requests and receives review feedback.
+  - id: ACT-SECURITY-ENGINEER
+    name: Security Engineer
+    description: Curates policy checks and triages security findings.
+  - id: ACT-PLATFORM-OPERATOR
+    name: Platform Operator
+    description: Operates Lambda deployment and runtime controls.
+  - id: ACT-REPOSITORY-MAINTAINER
+    name: Repository Maintainer
+    description: Owns merge decisions and repository-level quality gates.
+  referencedElements:
+  - id: REF-GITHUB-APP-API
+    kind: external_service_endpoint
+    layer: runtime
+    name: GitHub App API
+  - id: REF-AWS-BEDROCK-RUNTIME
+    kind: external_service_endpoint
+    layer: runtime
+    name: AWS Bedrock Runtime API
+  - id: REF-AWS-SECRETS-MANAGER
+    kind: platform_service
+    layer: runtime
+    name: AWS Secrets Manager
+  - id: REF-GITHUB-REST-SDK
+    kind: third_party_library
+    layer: code
+    name: GitHub REST SDK
+  - id: REF-AWS-SDK-GO
+    kind: third_party_library
+    layer: code
+    name: AWS SDK for Go
+  - id: REF-POLICY-RULESET
+    kind: policy_bundle
+    layer: code
+    name: Review Policy Ruleset
+  interfaces:
+  - id: IF-BEDROCK-WEBHOOK-API
+    name: Webhook Intake API
+    protocol: https
+    endpoint: /webhook/github
+    schemaRef: schemas/webhook-event.json
+    owner: FU-GITHUB-WEBHOOK-INGRESS
+  - id: IF-BEDROCK-REVIEW-PUBLISH-API
+    name: Review Publish API
+    protocol: https
+    endpoint: /github/check-runs
+    schemaRef: schemas/review-output.json
+    owner: FU-REVIEW-PUBLICATION
+  dataObjects:
+  - id: DO-BEDROCK-PR-CONTEXT
+    name: Pull Request Context
+    termRef: DATA-PR-CONTEXT
+    schemaRef: schemas/pr-context.json
+    sensitivity: internal
+    classification: source-intelligence
+    regulatoryTags:
+    - internal-code
+    retention: 90_days
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-BEDROCK-REVIEW-FINDINGS
+    name: Review Findings
+    termRef: DATA-REVIEW-FINDINGS
+    schemaRef: schemas/review-findings.json
+    sensitivity: internal
+    classification: security-analysis
+    regulatoryTags:
+    - internal-security
+    retention: 365_days
+    confidentiality: medium
+    integrity: high
+    availability: high
+  deploymentTargets:
+  - id: DEP-BEDROCK-LAMBDA-PRIMARY
+    name: Primary Lambda Runtime
+    environment: prod
+    region: us-east-1
+    account: app
+    cluster: lambda
+    namespace: review
+    trustZone: app
+  - id: DEP-BEDROCK-GITHUB-BOUNDARY
+    name: GitHub Integration Boundary
+    environment: external
+    region: global
+    account: github
+    cluster: external
+    namespace: app
+    trustZone: external

@@ -1,0 +1,12 @@
+schemaVersion: 2
+lintRun:
+  id: coffee-appliance-six-view-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-COFFEE-001
+  text: While appliance is ready, when brew request is received, the coffee appliance shall prepare the brew selection.
+  notes: Minimal observable brew-cycle requirement for the example.
+  appliesTo:
+  - CAP-BREW-BEVERAGE

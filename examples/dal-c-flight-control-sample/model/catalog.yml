@@ -1,0 +1,25 @@
+schemaVersion: 2
+catalog:
+  functionalGroups:
+    - id: FG-FLIGHT-CONTROL
+      name: flight control
+      definition: Functions that support controlled aircraft motion.
+  functionalUnits:
+    - id: FU-YAW-CONTROL
+      name: yaw damping software
+      definition: Software function that filters yaw rate and limits its command.
+  events:
+    - id: EVT-YAW-RATE-RECEIVED
+      name: yaw rate input is received
+      definition: A sampled yaw-rate value becomes available.
+  states:
+    - id: STATE-OPERATIONAL
+      name: operational
+      definition: The software is able to calculate commands.
+  dataTerms:
+    - id: TERM-RUDDER-COMMAND
+      name: bounded rudder command
+      definition: A command constrained to the allocated authority.
+    - id: TERM-YAW-RATE
+      name: yaw rate input
+      definition: Measured aircraft yaw angular rate.

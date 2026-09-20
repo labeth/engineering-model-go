@@ -1,0 +1,19 @@
+{
+  "profile": {
+    "uuid": "59f87d5f-c039-5142-98fb-9da258774157",
+    "metadata": {
+      "title": "Aegis Sentinel Product System Compliance Profile",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "../shared-compliance-baseline/profiles/iso-27001-atlas.json"
+      },
+      {
+        "href": "../shared-compliance-baseline/profiles/nist-800-53-atlas.json"
+      }
+    ]
+  }
+}

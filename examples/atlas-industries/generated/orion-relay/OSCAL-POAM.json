@@ -1,0 +1,152 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "a1ee85a5-ed2b-5967-a766-5811a5323f06",
+    "metadata": {
+      "title": "Orion Relay Product System POA\u0026M",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./OSCAL-SSP.json"
+    },
+    "poam-items": [
+      {
+        "uuid": "3f889134-8a9a-56ce-8acf-03e6705c6d40",
+        "title": "Add contractor learning-platform completion data to the common monthly report.",
+        "description": "Add contractor learning-platform completion data to the common monthly report.",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::POAM-COMP-002"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-11-30"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::ACT-COMP-OFFICER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "2785cd2e-4a78-5d39-b5c4-94268d84151b"
+          }
+        ],
+        "remarks": "Artifacts: evidence/compliance/contractor-training-plan.md"
+      },
+      {
+        "uuid": "e98897a1-1c6b-5d05-a677-59670b61a641",
+        "title": "Extend admission testing to simultaneous multi-band congestion.",
+        "description": "Extend admission testing to simultaneous multi-band congestion.",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "POAM-ORI-001"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2027-02-28"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "ACT-ORI-ENGINEER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "cb015e2c-a58b-5dc5-bfef-e3f6d491ccf0"
+          }
+        ],
+        "remarks": "Artifacts: evidence/orion/congestion-test-plan.md"
+      },
+      {
+        "uuid": "eca96b0a-92d4-505b-8bd1-033321d31909",
+        "title": "Add delegated reviewer escalation and overdue reporting.",
+        "description": "Add delegated reviewer escalation and overdue reporting.",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::POAM-COMP-001"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-12-15"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "in-progress"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::ACT-COMP-OFFICER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "33c84d2e-d891-5a43-8b27-f661514d113b"
+          }
+        ],
+        "remarks": "Artifacts: evidence/compliance/access-review-plan.md"
+      }
+    ],
+    "risks": [
+      {
+        "uuid": "2785cd2e-4a78-5d39-b5c4-94268d84151b",
+        "title": "Personnel miss security obligations",
+        "description": "Missing or overdue awareness education may increase human-centered security incidents.",
+        "status": "open",
+        "statement": "Employee reporting is established but contractor completion is not yet integrated."
+      },
+      {
+        "uuid": "32c18381-2055-5199-abe0-8829ebe26dfb",
+        "title": "Credential replay risk",
+        "description": "Captured credentials may permit unauthorized product access.",
+        "status": "mitigating",
+        "statement": "Short credential lifetime and replay detection reduce exposure."
+      },
+      {
+        "uuid": "33c84d2e-d891-5a43-8b27-f661514d113b",
+        "title": "Delayed privileged access review",
+        "description": "A delayed access review may leave obsolete privileges active.",
+        "status": "open",
+        "statement": "Automated reminders exist but reviewer delegation remains incomplete."
+      },
+      {
+        "uuid": "8ca44c24-7625-56dd-85de-60af19b7a8a3",
+        "title": "Former or transferred personnel retain access",
+        "description": "Delayed role-change or termination processing may leave inappropriate privileges active.",
+        "status": "mitigating",
+        "statement": "Manager and People Operations checkpoints govern access removal."
+      },
+      {
+        "uuid": "cb015e2c-a58b-5dc5-bfef-e3f6d491ccf0",
+        "title": "Relay link exhaustion",
+        "description": "Message flooding may prevent delivery of priority messages.",
+        "status": "mitigating",
+        "statement": "Admission control preserves priority capacity under tested loads."
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-TELEM-INTEGRITY
+    name: Telemetry Integrity
+    category: integrity
+    description: Sign telemetry records to protect integrity in transit.
+  controlVerifications:
+  - id: VER-TELEM-INTEGRITY
+    controlRef: CTRL-TELEM-INTEGRITY
+    method: test
+    status: pass
+    findings:
+    - Telemetry signature verified in unit tests.
