@@ -1,0 +1,52 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-PORT
+    name: Portfolio Governance
+    description: Company capability and assurance governance.
+  functionalUnits:
+  - id: FU-PORT-GOVERNANCE
+    name: Portfolio Governance Service
+    group: FG-PORT
+    prose: Consolidates product capability and assurance status.
+  actors:
+  - id: ACT-PORT-EXECUTIVE
+    name: Portfolio Executive
+    description: Owns company product outcomes.
+  dataObjects:
+  - id: DO-PORT-STATUS
+    name: Portfolio Status
+    termRef: DATA-PORT-STATUS
+    sensitivity: confidential
+    classification: business-operations
+    regulatoryTags:
+    - company-confidential
+    retention: 365_days
+    confidentiality: high
+    integrity: high
+    availability: medium
+  contract:
+    provides:
+    - id: CAP-ATLAS-PORTFOLIO
+      kind: capability
+      ref: REQ-PORT-001
+      note: Coordinated sensing and resilient communication portfolio.
+  composition:
+    subsystems:
+    - id: SUB-PORT-AEGIS
+      name: Aegis Sentinel
+      dependency: aegis
+      publication: public
+    - id: SUB-PORT-ORION
+      name: Orion Relay
+      dependency: orion
+      publication: public
+    allocations:
+    - requirement: REQ-PORT-002
+      to: SUB-PORT-AEGIS
+      target: aegis::CAP-AEGIS-MISSION
+      rationale: Aegis supplies the company perimeter-awareness capability.
+    - requirement: REQ-PORT-003
+      to: SUB-PORT-ORION
+      target: orion::CAP-ORION-MISSION
+      rationale: Orion supplies the company resilient-communications capability.

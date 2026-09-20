@@ -21,13 +21,13 @@ func main() {
 func run(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("engnaf", flag.ContinueOnError)
 	flags.SetOutput(stderr)
-	modelPath := flags.String("model", "", "path to architecture YAML")
+	modelPath := flags.String("model", "", "path to engmod.yml manifest")
 	outPath := flags.String("out", "", "optional output file path; defaults to stdout")
 	if err := flags.Parse(args); err != nil {
 		return 2
 	}
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(stderr, "usage: engnaf --model <path> [--out <file>]")
+		fmt.Fprintln(stderr, "usage: engnaf --model <engmod.yml> [--out <file>]")
 		return 2
 	}
 	result, err := engmodel.GenerateNAFV41FromFile(*modelPath)

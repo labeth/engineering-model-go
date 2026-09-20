@@ -1,0 +1,40 @@
+metadata:
+  id: atlas-industries-portfolio-ENFORCEMENT-LOG
+  type: EnforcementLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Remediation enforcement actions for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-EVALUATION-LOG
+    title: Evaluation Log
+    version: 1.1.0
+  - id: ENGMOD-POLICY
+    title: Policy
+    version: 1.1.0
+disposition: Enforced
+actions:
+- disposition: Enforced
+  method:
+    reference-id: ENGMOD-POLICY
+    entry-id: remediation
+  message: "Remediation for orion::RISK-ORI-LINK-EXHAUSTION (milestone: Extend admission testing to simultaneous multi-band congestion., due: 2027-02-28, status: planned)."
+  start: "2026-09-19T00:00:00Z"
+  steps:
+  - orion::ACT-ORI-ENGINEER
+  - evidence/orion/congestion-test-plan.md
+  justification:
+    assessments:
+    - result: Failed
+      log:
+        reference-id: ENGMOD-EVALUATION-LOG
+        entry-id: orion::RISK-ORI-LINK-EXHAUSTION
+target:
+  id: atlas-industries-portfolio
+  name: Atlas Industries Company Portfolio
+  type: Software
+  description: "System under governance: Atlas Industries Company Portfolio"

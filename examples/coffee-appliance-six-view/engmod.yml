@@ -1,0 +1,19 @@
+schemaVersion: 2
+module:
+  path: models.example/coffee-appliance-six-view@v0
+  version: v0.1.0
+  modelId: coffee-appliance-six-view
+  title: Countertop Coffee Appliance
+  introduction: An original compact model of a connected countertop coffee appliance, authored once and projected by concern.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications: []

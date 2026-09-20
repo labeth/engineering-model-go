@@ -12,9 +12,9 @@ import (
 // TRLC-LINKS: REQ-EMG-006
 func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 	paths := []string{
-		filepath.Join("examples", "payments-engineering-sample", "requirements.yml"),
-		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "requirements.yml"),
-		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "requirements.yml"),
+		filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml"),
+		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "model", "requirements.yml"),
+		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "model", "requirements.yml"),
 	}
 	for _, p := range paths {
 		p := p
@@ -42,7 +42,7 @@ func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-006
 func TestEngTRLC_CLIAndValidation(t *testing.T) {
-	reqPath := filepath.Join("examples", "payments-engineering-sample", "requirements.yml")
+	reqPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
 	outDir := filepath.Join(t.TempDir(), "trlc")
 
 	cmd := exec.Command("go", "run", "./cmd/engtrlc", "--requirements", reqPath, "--out-dir", outDir, "--package", "PaymentsReqs")

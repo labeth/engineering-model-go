@@ -1,0 +1,194 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "DATA-CASES",
+      "area": "lifecycle-data",
+      "state": "reviewed",
+      "summary": "Software Verification Cases and Procedures is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-CMR",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Configuration Management Records",
+      "blocking": true
+    },
+    {
+      "id": "DATA-DESIGN",
+      "area": "lifecycle-data",
+      "state": "reviewed",
+      "summary": "Design Description is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-ENV",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Life Cycle Environment Configuration Index",
+      "blocking": true
+    },
+    {
+      "id": "DATA-OBJECT",
+      "area": "lifecycle-data",
+      "state": "executed",
+      "summary": "Executable Object Code is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-PDIF",
+      "area": "lifecycle-data",
+      "state": "not-applicable",
+      "summary": "Missing source for Parameter Data Item File",
+      "blocking": true
+    },
+    {
+      "id": "DATA-PR",
+      "area": "lifecycle-data",
+      "state": "executed",
+      "summary": "Missing source for Problem Reports",
+      "blocking": true
+    },
+    {
+      "id": "DATA-PSAC",
+      "area": "lifecycle-data",
+      "state": "planned",
+      "summary": "Plan for Software Aspects of Certification is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-REQ",
+      "area": "lifecycle-data",
+      "state": "reviewed",
+      "summary": "Software Requirements Data is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-RESULTS",
+      "area": "lifecycle-data",
+      "state": "reviewed",
+      "summary": "Software Verification Results is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SAS",
+      "area": "lifecycle-data",
+      "state": "planned",
+      "summary": "Missing source for Software Accomplishment Summary",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SCI",
+      "area": "lifecycle-data",
+      "state": "planned",
+      "summary": "Missing source for Software Configuration Index",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SCMP",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Configuration Management Plan",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SCS",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Code Standards",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SDP",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Development Plan",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SDS",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Design Standards",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SOURCE",
+      "area": "lifecycle-data",
+      "state": "reviewed",
+      "summary": "Source Code is not accepted",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SQAP",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Quality Assurance Plan",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SQAR",
+      "area": "lifecycle-data",
+      "state": "executed",
+      "summary": "Missing source for Software Quality Assurance Records",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SRS",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Requirements Standards",
+      "blocking": true
+    },
+    {
+      "id": "DATA-SVP",
+      "area": "lifecycle-data",
+      "state": "declared",
+      "summary": "Missing source for Software Verification Plan",
+      "blocking": true
+    },
+    {
+      "id": "DATA-TRACE",
+      "area": "lifecycle-data",
+      "state": "executed",
+      "summary": "Missing source for Traceability Data",
+      "blocking": true
+    },
+    {
+      "id": "OBJ-CUSTOMER-001",
+      "area": "objective",
+      "state": "reviewed",
+      "summary": "Objective applicability or evidence remains open",
+      "blocking": true
+    },
+    {
+      "id": "PR-YD-001",
+      "area": "problem-report",
+      "state": "planned",
+      "summary": "Boundary test does not yet execute one defensive clamp statement.",
+      "blocking": true
+    },
+    {
+      "id": "SQA-YD-001",
+      "area": "sqa",
+      "state": "reviewed",
+      "summary": "Coverage gap remains open and environment index is incomplete.",
+      "blocking": true
+    },
+    {
+      "id": "GAP-COVERAGE-001",
+      "area": "structural-coverage",
+      "state": "planned",
+      "summary": "Defensive clamp statement needs a targeted boundary test.",
+      "blocking": true
+    }
+  ]
+}

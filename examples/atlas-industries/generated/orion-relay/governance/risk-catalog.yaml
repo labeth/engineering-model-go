@@ -1,0 +1,97 @@
+title: "Orion Relay Product System - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Risk register for Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-ORI-LINK-EXHAUSTION
+  title: Relay link exhaustion
+  description: Message flooding may prevent delivery of priority messages.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-ORI-ENGINEER
+    accountable:
+    - name: ACT-ORI-ENGINEER
+    informed:
+    - name: ACT-ORI-ENGINEER
+  impact: Admission control preserves priority capacity under tested loads.
+- id: compliance::RISK-COMP-ACCESS-REVIEW-GAP
+  title: Delayed privileged access review
+  description: A delayed access review may leave obsolete privileges active.
+  group: operational-risk
+  severity: Low
+  rank: 5
+  owner:
+    responsible:
+    - name: compliance::ACT-COMP-OFFICER
+    accountable:
+    - name: compliance::ACT-COMP-OFFICER
+    informed:
+    - name: compliance::ACT-COMP-OFFICER
+  impact: Automated reminders exist but reviewer delegation remains incomplete.
+- id: compliance::RISK-COMP-RETAINED-ACCESS
+  title: Former or transferred personnel retain access
+  description: Delayed role-change or termination processing may leave inappropriate privileges active.
+  group: operational-risk
+  severity: Medium
+  rank: 4
+  owner:
+    responsible:
+    - name: compliance::ACT-PEOPLE-OPERATIONS
+    accountable:
+    - name: compliance::ACT-PEOPLE-OPERATIONS
+    informed:
+    - name: compliance::ACT-PEOPLE-OPERATIONS
+  impact: Manager and People Operations checkpoints govern access removal.
+- id: compliance::RISK-COMP-UNTRAINED-PERSONNEL
+  title: Personnel miss security obligations
+  description: Missing or overdue awareness education may increase human-centered security incidents.
+  group: operational-risk
+  severity: High
+  rank: 2
+  owner:
+    responsible:
+    - name: compliance::ACT-COMP-OFFICER
+    accountable:
+    - name: compliance::ACT-COMP-OFFICER
+    informed:
+    - name: compliance::ACT-COMP-OFFICER
+  impact: Employee reporting is established but contractor completion is not yet integrated.
+- id: security::RISK-SEC-CREDENTIAL-REPLAY
+  title: Credential replay risk
+  description: Captured credentials may permit unauthorized product access.
+  group: operational-risk
+  severity: High
+  rank: 3
+  owner:
+    responsible:
+    - name: security::ACT-SEC-ANALYST
+    accountable:
+    - name: security::ACT-SEC-ANALYST
+    informed:
+    - name: security::ACT-SEC-ANALYST
+  impact: Short credential lifetime and replay detection reduce exposure.
+  threats:
+  - entries:
+    - reference-id: security::TS-SEC-CREDENTIAL-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG

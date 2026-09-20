@@ -3,7 +3,6 @@ package engmodel
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -38,14 +37,101 @@ type SysMLRendererEvidence struct {
 // GenerateSysMLV2FromFile loads the canonical YAML input and generates a SysML
 // v2 textual projection.
 //
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-047, REQ-EMG-050
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL, REF-SYSML-V2-TOOLCHAIN
 func GenerateSysMLV2FromFile(architecturePath string) (SysMLExportResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
 	if err != nil {
 		return SysMLExportResult{}, err
 	}
-	return GenerateSysMLV2(bundle)
+	var compositionDiagnostics []model.SemanticDiagnostic
+	var projection CompositionProjection
+	if HasComposition(bundle) {
+		composition, err := GenerateCompositionFromFile(bundle.ManifestPath)
+		if err != nil {
+			return SysMLExportResult{}, err
+		}
+		for _, diagnostic := range composition.Diagnostics {
+			compositionDiagnostics = append(compositionDiagnostics, model.SemanticDiagnostic{
+				Code: diagnostic.Code, Severity: model.SemanticSeverity(diagnostic.Severity),
+				Message: diagnostic.Message, Path: diagnostic.Path,
+			})
+		}
+		if semanticDiagnosticsHaveErrors(compositionDiagnostics) {
+			return SysMLExportResult{Diagnostics: sortSemanticDiagnostics(compositionDiagnostics)}, fmt.Errorf("composition validation failed")
+		}
+		projection = BuildCompositionProjection(composition)
+	}
+	result, err := GenerateSysMLV2(bundle)
+	if err == nil {
+		result.Text = enrichSysMLWithPublications(result.Text, projection)
+	}
+	result.Diagnostics = sortSemanticDiagnostics(append(result.Diagnostics, compositionDiagnostics...))
+	return result, err
+}
+
+// enrichSysMLWithPublications emits only concepts with a direct native SysML
+// representation. The dependency alias is a package, making each declaration's
+// semantic identity alias::ID without embedding payloads or property bags.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func enrichSysMLWithPublications(text string, projection CompositionProjection) string {
+	if len(projection.Publications) == 0 {
+		return text
+	}
+	var out strings.Builder
+	for _, publication := range projection.Publications {
+		var declarations []string
+		for _, entity := range publication.Entities {
+			keyword := publishedSysMLKeyword(entity)
+			if keyword == "" || strings.Contains(text, sysmlName(entity.QualifiedID)) {
+				continue
+			}
+			declarations = append(declarations, fmt.Sprintf("        %s %s;", keyword, sysmlName(entity.SourceID)))
+		}
+		if len(declarations) == 0 {
+			continue
+		}
+		fmt.Fprintf(&out, "\n    // Publication %s from %s@%s (%s).\n",
+			publication.Publication, publication.ModulePath, publication.Version, publication.SourceModel)
+		fmt.Fprintf(&out, "    package %s {\n", sysmlName(publication.Alias))
+		for _, declaration := range declarations {
+			out.WriteString(declaration)
+			out.WriteByte('\n')
+		}
+		fmt.Fprintln(&out, "    }")
+	}
+	if out.Len() == 0 {
+		return text
+	}
+	index := strings.LastIndex(text, "}")
+	if index < 0 {
+		return text
+	}
+	return text[:index] + out.String() + text[index:]
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func publishedSysMLKeyword(entity PublishedProjectionEntity) string {
+	switch entity.Domain {
+	case "requirements":
+		return "requirement def"
+	case "behavior":
+		switch entity.Value.(type) {
+		case model.State:
+			return "state def"
+		case model.Event, model.Flow:
+			return "action def"
+		}
+	case "architecture":
+		switch entity.Value.(type) {
+		case model.FunctionalGroup, model.FunctionalUnit, model.Actor, model.ReferencedElement,
+			model.DataObject, model.DeploymentTarget, model.HardwareItem, model.ContractEntry:
+			return "part def"
+		case model.Interface, model.HardwareInterface:
+			return "port def"
+		}
+	}
+	return ""
 }
 
 // GenerateSysMLV2 validates and projects a Bundle before rendering.
@@ -106,7 +192,6 @@ func GenerateSysMLV2Projection(semantic model.SemanticModel) (string, []model.Se
 	fmt.Fprintln(&out, "    private metadata def EngineeringElement {")
 	fmt.Fprintln(&out, "        attribute sourceId : String;")
 	fmt.Fprintln(&out, "        attribute conceptKind : String;")
-	fmt.Fprintln(&out, "        attribute payload : String;")
 	fmt.Fprintln(&out, "    }")
 	fmt.Fprintln(&out)
 	fmt.Fprintln(&out, "    private metadata def EngineeringRelationship :> EngineeringElement {")
@@ -119,7 +204,6 @@ func GenerateSysMLV2Projection(semantic model.SemanticModel) (string, []model.Se
 	fmt.Fprintln(&out, "    @EngineeringProject {")
 	fmt.Fprintf(&out, "        sourceId = %s;\n", sysmlString(semantic.ID))
 	fmt.Fprintln(&out, "        conceptKind = \"engineering_model\";")
-	fmt.Fprintf(&out, "        payload = %s;\n", sysmlString(semanticModelPayload(semantic)))
 	fmt.Fprintln(&out, "    }")
 	fmt.Fprintln(&out, "    attribute 'engineeringModelInterchange';")
 
@@ -135,7 +219,9 @@ func GenerateSysMLV2Projection(semantic model.SemanticModel) (string, []model.Se
 		}
 		children[namespace] = append(children[namespace], element)
 	}
+	externalEndpoints := compositionExternalEndpoints(semantic.Relationships, elementIDs)
 	writeNamespaceElements(&out, semantic.ID, "    ", children, semantic.Imports, elementIDs, &diagnostics)
+	writeCompositionExternalEndpoints(&out, externalEndpoints, elementIDs)
 
 	relationships := append([]model.SemanticRelationship(nil), semantic.Relationships...)
 	for _, relationship := range relationships {
@@ -165,12 +251,64 @@ func GenerateSysMLV2Projection(semantic model.SemanticModel) (string, []model.Se
 	return out.String(), sortSemanticDiagnostics(diagnostics)
 }
 
+type compositionExternalEndpoint struct {
+	ID          string
+	Requirement bool
+}
+
+// compositionExternalEndpoints materializes dependency contract endpoints that
+// intentionally live in separately versioned subsystem modules.
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-047, REQ-EMG-050
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, FU-SYSTEM-COMPOSITION
+func compositionExternalEndpoints(relationships []model.SemanticRelationship, elementIDs map[string]bool) []compositionExternalEndpoint {
+	byID := map[string]compositionExternalEndpoint{}
+	for _, relationship := range relationships {
+		switch relationship.Kind {
+		case model.RelationshipAllocation:
+			if !elementIDs[relationship.Source] {
+				byID[relationship.Source] = compositionExternalEndpoint{ID: relationship.Source}
+			}
+			if !elementIDs[relationship.Target] {
+				byID[relationship.Target] = compositionExternalEndpoint{ID: relationship.Target}
+			}
+		case model.RelationshipSatisfaction:
+			if !elementIDs[relationship.Source] {
+				byID[relationship.Source] = compositionExternalEndpoint{ID: relationship.Source}
+			}
+			if !elementIDs[relationship.Target] {
+				byID[relationship.Target] = compositionExternalEndpoint{ID: relationship.Target, Requirement: true}
+			}
+		}
+	}
+	out := make([]compositionExternalEndpoint, 0, len(byID))
+	for _, endpoint := range byID {
+		out = append(out, endpoint)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// writeCompositionExternalEndpoints emits typed placeholders for contract
+// endpoints owned by separately packaged subsystem models.
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-047, REQ-EMG-050
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, FU-SYSTEM-COMPOSITION
+func writeCompositionExternalEndpoints(out *bytes.Buffer, endpoints []compositionExternalEndpoint, elementIDs map[string]bool) {
+	for _, endpoint := range endpoints {
+		fmt.Fprintln(out)
+		if endpoint.Requirement {
+			fmt.Fprintf(out, "    requirement %s : EngineeringRequirement;\n", sysmlName(endpoint.ID))
+		} else {
+			fmt.Fprintf(out, "    part %s : EngineeringPart;\n", sysmlName(endpoint.ID))
+		}
+		elementIDs[endpoint.ID] = true
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-036
 func writeElementAnnotation(out *bytes.Buffer, element model.SemanticElement) {
 	fmt.Fprintln(out, "    @EngineeringElement {")
 	fmt.Fprintf(out, "        sourceId = %s;\n", sysmlString(element.ID))
 	fmt.Fprintf(out, "        conceptKind = %s;\n", sysmlString(string(element.Kind)))
-	fmt.Fprintf(out, "        payload = %s;\n", sysmlString(metadataJSON(element.Metadata)))
 	fmt.Fprintln(out, "    }")
 }
 
@@ -205,7 +343,8 @@ func writeElement(out *bytes.Buffer, element model.SemanticElement, indent strin
 		fmt.Fprintf(out, "%s}\n", indent)
 		return
 	}
-	fmt.Fprintf(out, "%s%s %s", indent, keyword, sysmlName(element.ID))
+	fmt.Fprintf(out, "%s%s ", indent, keyword)
+	fmt.Fprint(out, sysmlName(element.ID))
 	writeElementTyping(out, element)
 	hasChildren := len(children[element.ID]) > 0
 	hasBody := len(element.Features) > 0 || hasChildren || needsImpliedRelationshipEnds(element.Metaclass)
@@ -234,7 +373,6 @@ func writeElementAnnotationAt(out *bytes.Buffer, element model.SemanticElement, 
 	fmt.Fprintf(out, "%s@EngineeringElement {\n", indent)
 	fmt.Fprintf(out, "%s    sourceId = %s;\n", indent, sysmlString(element.ID))
 	fmt.Fprintf(out, "%s    conceptKind = %s;\n", indent, sysmlString(string(element.Kind)))
-	fmt.Fprintf(out, "%s    payload = %s;\n", indent, sysmlString(semanticElementPayload(element)))
 	fmt.Fprintf(out, "%s}\n", indent)
 }
 
@@ -267,14 +405,19 @@ func writeFeature(out *bytes.Buffer, feature model.SemanticFeature, indent strin
 	default:
 		fmt.Fprint(out, "attribute ")
 	}
-	if feature.Conjugated && feature.Kind == model.FeaturePort {
-		fmt.Fprint(out, "~")
-	}
 	fmt.Fprint(out, sysmlName(feature.Name))
 	if strings.TrimSpace(feature.Type) != "" && isNativeTypeReference(feature.Type) {
-		fmt.Fprintf(out, " : %s", sysmlName(feature.Type))
+		fmt.Fprint(out, " : ")
+		if feature.Conjugated && feature.Kind == model.FeaturePort {
+			fmt.Fprint(out, "~")
+		}
+		fmt.Fprint(out, sysmlName(feature.Type))
 	} else if feature.Kind == model.FeatureParameter || feature.Kind == model.FeaturePort {
-		fmt.Fprintf(out, " : %s", defaultFeatureType(feature.Kind))
+		fmt.Fprint(out, " : ")
+		if feature.Conjugated && feature.Kind == model.FeaturePort {
+			fmt.Fprint(out, "~")
+		}
+		fmt.Fprint(out, defaultFeatureType(feature.Kind))
 	}
 	writeMultiplicity(out, feature.Multiplicity, feature.Ordered, feature.Unique)
 	for _, specialized := range feature.Specializes {
@@ -361,7 +504,6 @@ func writeRelationshipAnnotation(out *bytes.Buffer, relationship model.SemanticR
 	fmt.Fprintf(out, "        sourceId = %s;\n", sysmlString(relationship.ID))
 	fmt.Fprintf(out, "        conceptKind = %s;\n", sysmlString(string(relationship.Kind)))
 	fmt.Fprintf(out, "        relationshipKind = %s;\n", sysmlString(relationship.SourceType))
-	fmt.Fprintf(out, "        payload = %s;\n", sysmlString(semanticRelationshipPayload(relationship)))
 	fmt.Fprintln(out, "    }")
 }
 
@@ -370,7 +512,11 @@ var nativeRelationshipWriters = map[model.SemanticRelationshipKind]func(*bytes.B
 		fmt.Fprintf(out, "%sdependency %s from %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
 	},
 	model.RelationshipConnection: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		fmt.Fprintf(out, "%sconnection %s connect %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
+		fmt.Fprintf(out, "%spart def %s {\n", indent, sysmlName(relationship.ID+"-context"))
+		fmt.Fprintf(out, "%s    part source : %s;\n", indent, sysmlName(relationship.Source))
+		fmt.Fprintf(out, "%s    part target : %s;\n", indent, sysmlName(relationship.Target))
+		fmt.Fprintf(out, "%s    connection %s connect source to target;\n", indent, sysmlName(relationship.ID))
+		fmt.Fprintf(out, "%s}\n", indent)
 	},
 	model.RelationshipBinding: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
 		fmt.Fprintf(out, "%sbinding %s bind %s = %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
@@ -387,6 +533,16 @@ var nativeRelationshipWriters = map[model.SemanticRelationshipKind]func(*bytes.B
 	},
 	model.RelationshipTransfer: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
 		fmt.Fprintf(out, "%spart def %s {\n", indent, sysmlName(relationship.ID+"-context"))
+		if relationship.Source == relationship.Target {
+			fmt.Fprintf(out, "%s    part participant : EngineeringPart { port pOut : EngineeringPort; port pIn : EngineeringPort; }\n", indent)
+			fmt.Fprintf(out, "%s    flow %s", indent, sysmlName(relationship.ID))
+			if relationship.ItemRef != "" {
+				fmt.Fprintf(out, " of %s", sysmlName(relationship.ItemRef))
+			}
+			fmt.Fprintln(out, " from participant.pOut to participant.pIn;")
+			fmt.Fprintf(out, "%s}\n", indent)
+			return
+		}
 		fmt.Fprintf(out, "%s    part %s : EngineeringPart { port pOut : EngineeringPort; }\n", indent, sysmlName(relationship.Source))
 		fmt.Fprintf(out, "%s    part %s : EngineeringPart { port pIn : EngineeringPort; }\n", indent, sysmlName(relationship.Target))
 		fmt.Fprintf(out, "%s    flow %s", indent, sysmlName(relationship.ID))
@@ -397,7 +553,10 @@ var nativeRelationshipWriters = map[model.SemanticRelationshipKind]func(*bytes.B
 		fmt.Fprintf(out, "%s}\n", indent)
 	},
 	model.RelationshipSatisfaction: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		fmt.Fprintf(out, "%ssatisfy requirement %s by %s;\n", indent, sysmlName(relationship.Target), sysmlName(relationship.Source))
+		fmt.Fprintf(out, "%srequirement def %s {\n", indent, sysmlName(relationship.ID+"-context"))
+		fmt.Fprintf(out, "%s    part satisfyingPart : EngineeringPart;\n", indent)
+		fmt.Fprintf(out, "%s    satisfy requirement targetRequirement : EngineeringRequirement by satisfyingPart;\n", indent)
+		fmt.Fprintf(out, "%s}\n", indent)
 	},
 	model.RelationshipVerification: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
 		fmt.Fprintf(out, "%sverification %s : EngineeringVerification {\n", indent, sysmlName(relationship.ID))
@@ -449,8 +608,8 @@ func writeTransitionRelationship(out *bytes.Buffer, relationship model.SemanticR
 	fmt.Fprintf(out, "%sstate %s : EngineeringState {\n", indent, sysmlName(relationship.ID+"-context"))
 	if strings.HasPrefix(middle, "accept") {
 		fmt.Fprintf(out, "%s    state %s : EngineeringState;\n", indent, sysmlName(relationship.Source))
-		fmt.Fprintf(out, "%s    action done : EngineeringAction;\n", indent)
-		fmt.Fprintf(out, "%s    transition %s first %s accept %s : EngineeringItem then done;\n",
+		fmt.Fprintf(out, "%s    action transitionEffect : EngineeringAction;\n", indent)
+		fmt.Fprintf(out, "%s    transition %s first %s accept %s : EngineeringItem then transitionEffect;\n",
 			indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
 		fmt.Fprintf(out, "%s}\n", indent)
 		return
@@ -621,9 +780,17 @@ func nativeElementKeyword(element model.SemanticElement) (string, bool) {
 // TRLC-LINKS: REQ-EMG-039
 func writeElementTyping(out *bytes.Buffer, element model.SemanticElement) {
 	if element.TypeRef != "" && element.Kind != model.ElementActionUsage && element.Kind != model.ElementControlNode {
-		fmt.Fprintf(out, " : %s", sysmlName(element.TypeRef))
+		fmt.Fprint(out, " : ")
+		if element.Conjugated && element.Kind == model.ElementPortUsage {
+			fmt.Fprint(out, "~")
+		}
+		fmt.Fprint(out, sysmlName(element.TypeRef))
 	} else if defaultType := defaultElementType(element.Kind); defaultType != "" {
-		fmt.Fprintf(out, " : %s", defaultType)
+		fmt.Fprint(out, " : ")
+		if element.Conjugated && element.Kind == model.ElementPortUsage {
+			fmt.Fprint(out, "~")
+		}
+		fmt.Fprint(out, defaultType)
 	}
 	writeMultiplicity(out, element.Multiplicity, element.Ordered, element.Unique)
 	for _, specialized := range element.Specializes {
@@ -653,6 +820,7 @@ func writeNativeSupportTypes(out *bytes.Buffer) {
 	fmt.Fprintln(out, "    private part def EngineeringPart;")
 	fmt.Fprintln(out, "    private port def EngineeringPort;")
 	fmt.Fprintln(out, "    private action def EngineeringAction;")
+	fmt.Fprintln(out, "    private action def EngineeringEvent;")
 	fmt.Fprintln(out, "    private state def EngineeringState;")
 	fmt.Fprintln(out, "    private requirement def EngineeringRequirement;")
 	fmt.Fprintln(out, "    private concern def EngineeringConcern;")
@@ -676,8 +844,8 @@ func defaultElementType(kind model.SemanticElementKind) string {
 		model.ElementActionUsage:           "EngineeringAction",
 		model.ElementControlNode:           "EngineeringAction",
 		model.ElementStateUsage:            "EngineeringState",
-		model.ElementEventDefinition:       "EngineeringOccurrence",
-		model.ElementEventUsage:            "EngineeringOccurrence",
+		model.ElementEventDefinition:       "EngineeringEvent",
+		model.ElementEventUsage:            "EngineeringEvent",
 		model.ElementRequirementUsage:      "EngineeringRequirement",
 		model.ElementConcernUsage:          "EngineeringConcern",
 		model.ElementConstraintUsage:       "EngineeringConstraint",
@@ -737,86 +905,6 @@ func sysmlName(value string) string {
 func sysmlString(value string) string {
 	replacer := strings.NewReplacer("\\", "\\\\", "\"", "\\\"", "\n", "\\n", "\r", "\\r", "\t", "\\t")
 	return "\"" + replacer.Replace(value) + "\""
-}
-
-// TRLC-LINKS: REQ-EMG-036
-func metadataJSON(metadata []model.SemanticMetadata) string {
-	data, err := json.Marshal(metadata)
-	if err != nil {
-		return "[]"
-	}
-	return string(data)
-}
-
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func semanticElementPayload(element model.SemanticElement) string {
-	payload := struct {
-		Namespace          string                   `json:"namespace,omitempty"`
-		Owner              string                   `json:"owner,omitempty"`
-		TypeRef            string                   `json:"typeRef,omitempty"`
-		Multiplicity       *model.Multiplicity      `json:"multiplicity,omitempty"`
-		Ordered            bool                     `json:"ordered,omitempty"`
-		Unique             *bool                    `json:"unique,omitempty"`
-		Conjugated         bool                     `json:"conjugated,omitempty"`
-		Specializes        []string                 `json:"specializes,omitempty"`
-		Subsets            []string                 `json:"subsets,omitempty"`
-		Redefines          []string                 `json:"redefines,omitempty"`
-		ControlKind        string                   `json:"controlKind,omitempty"`
-		OccurrenceID       string                   `json:"occurrenceId,omitempty"`
-		PortionOf          string                   `json:"portionOf,omitempty"`
-		Variation          bool                     `json:"variation,omitempty"`
-		Variants           []string                 `json:"variants,omitempty"`
-		References         []string                 `json:"references,omitempty"`
-		Features           []model.SemanticFeature  `json:"features,omitempty"`
-		Metadata           []model.SemanticMetadata `json:"metadata,omitempty"`
-		ExtensionNamespace string                   `json:"extensionNamespace,omitempty"`
-		Extension          string                   `json:"extension,omitempty"`
-		Targets            []string                 `json:"targets,omitempty"`
-	}{
-		Namespace: element.Namespace, Owner: element.Owner, TypeRef: element.TypeRef,
-		Multiplicity: element.Multiplicity, Ordered: element.Ordered, Unique: element.Unique,
-		Conjugated: element.Conjugated, Specializes: element.Specializes, Subsets: element.Subsets,
-		Redefines: element.Redefines, ControlKind: element.ControlKind,
-		OccurrenceID: element.OccurrenceID, PortionOf: element.PortionOf, Variation: element.Variation,
-		Variants: element.Variants, References: element.References, Features: element.Features,
-		Metadata: element.Metadata, ExtensionNamespace: element.ExtensionNamespace,
-		Extension: element.Extension, Targets: element.Targets,
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		return "{}"
-	}
-	return string(data)
-}
-
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func semanticRelationshipPayload(relationship model.SemanticRelationship) string {
-	payload := struct {
-		Owner    string                    `json:"owner,omitempty"`
-		ItemRef  string                    `json:"itemRef,omitempty"`
-		Triggers []string                  `json:"triggers,omitempty"`
-		Guard    *model.SemanticExpression `json:"guard,omitempty"`
-		Effect   *model.SemanticExpression `json:"effect,omitempty"`
-		Metadata []model.SemanticMetadata  `json:"metadata,omitempty"`
-	}{
-		Owner: relationship.Owner, ItemRef: relationship.ItemRef, Triggers: relationship.Triggers,
-		Guard: relationship.Guard, Effect: relationship.Effect, Metadata: relationship.Metadata,
-	}
-
-	data, err := json.Marshal(payload)
-	if err != nil {
-		return "{}"
-	}
-	return string(data)
-}
-
-// TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
-func semanticModelPayload(semantic model.SemanticModel) string {
-	data, err := json.Marshal(semantic)
-	if err != nil {
-		return "{}"
-	}
-	return string(data)
 }
 
 // TRLC-LINKS: REQ-EMG-036

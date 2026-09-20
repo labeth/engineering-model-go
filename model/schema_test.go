@@ -13,10 +13,9 @@ import (
 
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-043
 func TestCanonicalCUESchemaRejectsUnsupportedNAFVersion(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "architecture.yml")
-	source := `model:
-  id: test-model
-  baseCatalogRef: ./catalog.yml
+	path := filepath.Join(t.TempDir(), "views.yml")
+	source := `schemaVersion: 2
+views: []
 naf:
   framework: NAF
   version: "4.2"
@@ -28,7 +27,7 @@ naf:
 	if err := os.WriteFile(path, []byte(source), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	var document ArchitectureDocument
+	var document ViewsDocument
 	err := decodeYAMLFile(path, &document)
 	if err == nil {
 		t.Fatal("expected CUE validation to reject unsupported NAF version")
@@ -41,15 +40,13 @@ naf:
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
 func TestCanonicalCUESchemaRejectsUnsupportedDocumentSchemaVersion(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "architecture.yml")
-	source := `schemaVersion: 2
-model:
-  id: test-model
-  baseCatalogRef: ./catalog.yml
+	source := `schemaVersion: 1
+architecture: {}
 `
 	if err := os.WriteFile(path, []byte(source), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	var document ArchitectureDocument
+	var document ArchitectureInputDocument
 	err := decodeYAMLFile(path, &document)
 	if err == nil {
 		t.Fatal("expected CUE validation to reject unsupported schema version")
@@ -63,10 +60,10 @@ model:
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-CANONICAL-SEMANTIC-MODEL
 func TestCanonicalCUESchemaLoadsRootAndExamples(t *testing.T) {
 	architectures := []string{
-		filepath.Join("..", "architecture.yml"),
-		filepath.Join("..", "examples", "bedrock-pr-review-github-app-sample", "architecture.yml"),
-		filepath.Join("..", "examples", "coffee-fleet-ota-cloud-sample", "architecture.yml"),
-		filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml"),
+		filepath.Join("..", "engmod.yml"),
+		filepath.Join("..", "examples", "bedrock-pr-review-github-app-sample", "engmod.yml"),
+		filepath.Join("..", "examples", "coffee-fleet-ota-cloud-sample", "engmod.yml"),
+		filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml"),
 	}
 	for _, architecture := range architectures {
 		t.Run(architecture, func(t *testing.T) {
@@ -80,12 +77,12 @@ func TestCanonicalCUESchemaLoadsRootAndExamples(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-035
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-CANONICAL-SEMANTIC-MODEL
 func TestCanonicalCUESchemaRejectsUnknownFieldWithPath(t *testing.T) {
-	var document ArchitectureDocument
+	var document ArchitectureInputDocument
 	err := decodeYAMLFile("testdata/invalid-unknown-architecture.yml", &document)
 	if err == nil {
 		t.Fatal("expected CUE validation to reject an unknown field")
 	}
-	if !strings.Contains(err.Error(), "model.unexpectedField") {
+	if !strings.Contains(err.Error(), "field not allowed") {
 		t.Fatalf("expected path-aware error, got: %v", err)
 	}
 }
@@ -93,13 +90,38 @@ func TestCanonicalCUESchemaRejectsUnknownFieldWithPath(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-035
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-CANONICAL-SEMANTIC-MODEL
 func TestCanonicalCUESchemaRejectsInvalidMultiplicityBounds(t *testing.T) {
-	var document ArchitectureDocument
+	var document ArchitectureInputDocument
 	err := decodeYAMLFile("testdata/invalid-semantic-multiplicity.yml", &document)
 	if err == nil {
 		t.Fatal("expected CUE validation to reject upper multiplicity below lower")
 	}
-	if !strings.Contains(err.Error(), "semantics.elements.0.multiplicity.upper") {
-		t.Fatalf("expected path-aware multiplicity error, got: %v", err)
+
+	if !strings.Contains(err.Error(), "semantics") {
+		t.Fatalf("expected schema-v2 architecture ownership error, got: %v", err)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-046, REQ-EMG-052
+func TestCanonicalCUESchemaRejectsUnknownSemanticField(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "architecture.yml")
+	source := `schemaVersion: 2
+architecture:
+  semantics:
+    elements:
+    - id: PART-A
+      kind: part_definition
+      inventedField: rejected
+`
+	if err := os.WriteFile(path, []byte(source), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var document ArchitectureInputDocument
+	err := decodeYAMLFile(path, &document)
+	if err == nil {
+		t.Fatal("expected strict CUE validation to reject unknown semantic field")
+	}
+	if !strings.Contains(err.Error(), "inventedField") {
+		t.Fatalf("expected semantic field path, got: %v", err)
 	}
 }
 
@@ -107,11 +129,17 @@ func TestCanonicalCUESchemaRejectsInvalidMultiplicityBounds(t *testing.T) {
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-CANONICAL-SEMANTIC-MODEL
 func TestCanonicalCUESchemaMatchesGoRuntimeRepresentations(t *testing.T) {
 	documents := []any{
-		(*ArchitectureDocument)(nil),
+		(*ManifestDocument)(nil),
+		(*ArchitectureInputDocument)(nil),
+		(*BehaviorDocument)(nil),
+		(*AssuranceDocument)(nil),
+		(*ComplianceDocument)(nil),
+		(*ViewsDocument)(nil),
 		(*CatalogDocument)(nil),
 		(*DecisionsDocument)(nil),
 		(*RequirementsDocument)(nil),
 		(*DesignDocument)(nil),
+		(*WorkspaceDocument)(nil),
 	}
 	for _, document := range documents {
 		schema, err := cueSchemaForDocument(document)

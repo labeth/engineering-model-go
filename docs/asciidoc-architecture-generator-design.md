@@ -4,10 +4,13 @@
 
 Generate a deterministic architecture document (AsciiDoc/PDF) from:
 
-- authored architecture (`architecture.yml`)
-- requirements (`requirements.yml`)
-- view-scoped design narratives (`design.yml`)
-- catalog terms (`catalog.yml`, referenced by `architecture.yml`)
+- manifest and module metadata (`engmod.yml`)
+- authored structure and composition (`model/architecture.yml`)
+- authored behavior (`model/behavior.yml`)
+- assurance and compliance (`model/assurance.yml`, `model/compliance.yml`)
+- requirements (`model/requirements.yml`)
+- view-scoped design narratives (`model/views.yml`)
+- catalog terms (`model/catalog.yml`)
 - inferred runtime/code evidence from IaC and source trees
 
 The generated AsciiDoc/PDF is the maintained publication surface. Machine-oriented development context is exposed through the MCP server, not through generated machine-view files.
@@ -27,21 +30,29 @@ Verification ownership semantics:
 
 ## Inputs
 
-### `architecture.yml`
+### `engmod.yml`
 
-- model metadata and introduction
-- authored architecture entities and mappings
+- module metadata, explicit document paths, dependencies, and publications
 - inference hints (runtime/code roots and ownership resolution order)
+
+### `model/architecture.yml`
+
+- functional structure, interfaces, data, deployment, hardware, contracts, and composition
+
+### `model/behavior.yml`
+
+- states, events, flows, and typed relationships
+
+### `model/views.yml`
+
 - views (kinds and roots)
   - optional view publication metadata:
     - `authoredStatus`
     - `authoredStatusExplanation`
 
-### `requirements.yml`
+### `model/requirements.yml`
 
 - requirements used for alignment and coverage generation
-
-### `design.yml`
 
 - per-Functional Group and per-Functional Unit narratives for each view kind:
   - `architecture_intent`
@@ -94,13 +105,13 @@ The generated document includes:
 `cmd/engdoc`:
 
 ```bash
-engdoc --model architecture.yml --requirements requirements.yml --design design.yml [--view VIEW-ID ...] [--out architecture.adoc] [--decisions-out decisions.adoc]
+engdoc --model engmod.yml --requirements model/requirements.yml --design model/views.yml [--view VIEW-ID ...] [--out architecture.adoc] [--decisions-out decisions.adoc]
 ```
 
 With source evidence inference:
 
 ```bash
-engdoc --model architecture.yml --requirements requirements.yml --design design.yml --code-root ./src --out architecture.adoc --decisions-out decisions.adoc
+engdoc --model engmod.yml --requirements model/requirements.yml --design model/views.yml --code-root ./src --out architecture.adoc --decisions-out decisions.adoc
 ```
 
 Render PDF with `proven-docs`:

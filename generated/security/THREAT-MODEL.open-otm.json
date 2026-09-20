@@ -157,6 +157,15 @@
       "risk": {
         "trustRating": 50
       }
+    },
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
     }
   ],
   "components": [
@@ -219,6 +228,15 @@
       "name": "Local Workspace",
       "type": "deployment-target",
       "description": "dev local",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-AIRBORNE-ASSURANCE-EXPORTER",
+      "name": "Airborne Assurance Exporter",
+      "type": "service",
+      "description": "Validates aviation assurance evidence-readiness profiles and generates clearly marked draft lifecycle-data indexes, trace matrices, gap reports, and certification-support summaries without claiming compliance or authority acceptance.",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -380,7 +398,7 @@
       "id": "FU-SYSTEM-COMPOSITION",
       "name": "System Composition",
       "type": "service",
-      "description": "Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.",
+      "description": "Resolves downward subsystem references from local paths, external git repositories, or exact-version CUE modules fetched from OCI registries into the .engmod cache, and composes a federated system-of-systems model.",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -429,6 +447,15 @@
       "name": "View Projection",
       "type": "service",
       "description": "Builds projection graphs for architecture, traceability, security, and flow views.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-CLI-ENGAIR",
+      "name": "engair CLI",
+      "type": "interface",
+      "description": "cli cmd/engair",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }
@@ -551,6 +578,15 @@
       }
     },
     {
+      "id": "REF-CUE-OCI-MODULE-REGISTRY",
+      "name": "CUE OCI Module Registry",
+      "type": "external_service_endpoint",
+      "description": "runtime",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
       "id": "REF-GO-TOOLCHAIN",
       "name": "Go Toolchain",
       "type": "platform_service",
@@ -651,6 +687,17 @@
       "bidirectional": true,
       "source": "FU-NAF-EXPORTER",
       "destination": "REF-NAF-V4-1-SPECIFICATION",
+      "tags": [
+        "depends_on"
+      ]
+    },
+    {
+      "id": "1babb981-dc60-5842-9fc2-bbaf98907bb7",
+      "name": "Fetches exact-version reusable model modules using CUE registry configuration and credentials.",
+      "description": "Fetches exact-version reusable model modules using CUE registry configuration and credentials.",
+      "bidirectional": true,
+      "source": "FU-SYSTEM-COMPOSITION",
+      "destination": "REF-CUE-OCI-MODULE-REGISTRY",
       "tags": [
         "depends_on"
       ]

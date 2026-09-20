@@ -1,0 +1,41 @@
+schemaVersion: 2
+lintRun:
+  id: atlas-compliance-strict
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-COMP-001
+  text: The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.
+  appliesTo:
+  - FU-COMP-EVIDENCE
+- id: REQ-COMP-002
+  text: The atlas compliance baseline shall report control implementation status to the compliance officer.
+  appliesTo:
+  - FU-COMP-EVIDENCE
+- id: REQ-COMP-003
+  text: The people security and awareness shall record employee screening status in the personnel lifecycle record before
+    privileged access.
+  appliesTo:
+  - FU-COMP-PEOPLE
+- id: REQ-COMP-004
+  text: The people security and awareness shall record policy acknowledgment for every employee at onboarding.
+  appliesTo:
+  - FU-COMP-PEOPLE
+- id: REQ-COMP-005
+  text: The people security and awareness shall record annual employee completion in the security awareness training record.
+  appliesTo:
+  - FU-COMP-PEOPLE
+- id: REQ-COMP-006
+  text: The people security and awareness shall request a line manager access review following an employee role change.
+  appliesTo:
+  - FU-COMP-PEOPLE
+- id: REQ-COMP-007
+  text: The people security and awareness shall revoke employee access following employment termination.
+  appliesTo:
+  - FU-COMP-PEOPLE
+- id: REQ-COMP-008
+  text: The people security and awareness shall request people operations partner confirmation of company asset return following
+    employment termination.
+  appliesTo:
+  - FU-COMP-PEOPLE

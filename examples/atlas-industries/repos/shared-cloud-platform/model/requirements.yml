@@ -1,0 +1,15 @@
+schemaVersion: 2
+lintRun:
+  id: atlas-cloud-strict
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-CLOUD-001
+  text: The atlas cloud platform shall process each cloud event using the cloud runtime.
+  appliesTo:
+  - FU-CLOUD-RUNTIME
+- id: REQ-CLOUD-002
+  text: The atlas cloud platform shall authenticate the cloud runtime using workload identity.
+  appliesTo:
+  - FU-CLOUD-RUNTIME

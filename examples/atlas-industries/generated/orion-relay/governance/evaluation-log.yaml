@@ -1,0 +1,294 @@
+metadata:
+  id: atlas-orion-relay-EVALUATION-LOG
+  type: EvaluationLog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Control evaluation results for Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+result: Needs Review
+evaluations:
+- name: Priority Admission Control
+  result: Needs Review
+  message: 1 assessment(s) recorded for control CTRL-ORI-ADMISSION.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: CTRL-ORI-ADMISSION
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: CV-ORI-ADMISSION
+    description: Assessment of "Priority Admission Control" via test.
+    result: Needs Review
+    message: Single-band priority traffic remained available during flooding.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-09-11T00:00:00Z"
+    confidence-level: Medium
+    evidence:
+    - id: CV-ORI-ADMISSION-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/orion/admission-load-test.json
+      description: Current load test evidence.
+- name: Encrypted Backup
+  result: Needs Review
+  message: 1 assessment(s) recorded for control cloud::CTRL-CLOUD-BACKUP.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: cloud::CTRL-CLOUD-BACKUP
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: cloud::CTRL-CLOUD-BACKUP-AR-1
+    description: No authored verification for control Encrypted Backup; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+- name: Quarterly Access Review
+  result: Needs Review
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-ACCESS-REVIEW.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-ACCESS-REVIEW
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CV-COMP-ACCESS-REVIEW
+    description: Assessment of "Quarterly Access Review" via inspection.
+    result: Needs Review
+    message: Review completed; delegated reviewer escalation remains open.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-08-31T00:00:00Z"
+    confidence-level: Medium
+    evidence:
+    - id: compliance::CV-COMP-ACCESS-REVIEW-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/compliance/q3-access-review.csv
+      description: Quarterly review export.
+- name: Evidence Retention
+  result: Needs Review
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-EVIDENCE-RETENTION.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-EVIDENCE-RETENTION
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CTRL-COMP-EVIDENCE-RETENTION-AR-1
+    description: No authored verification for control Evidence Retention; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+- name: Personnel Offboarding
+  result: Passed
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-OFFBOARDING.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-OFFBOARDING
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CV-COMP-OFFBOARDING
+    description: Assessment of "Personnel Offboarding" via inspection.
+    result: Passed
+    message: "Status: pass"
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-08-31T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: compliance::CV-COMP-OFFBOARDING-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/compliance/offboarding-ticket-sample.json
+      description: Quarterly sample of timely access revocation and asset return.
+- name: Personnel Screening
+  result: Passed
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-PERSONNEL-SCREENING.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-PERSONNEL-SCREENING
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CV-COMP-PERSONNEL-SCREENING
+    description: Assessment of "Personnel Screening" via inspection.
+    result: Passed
+    message: "Status: pass"
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-08-31T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: compliance::CV-COMP-PERSONNEL-SCREENING-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/compliance/personnel-screening-attestation.json
+      description: Aggregate attestation that screening preceded privileged access.
+- name: Employment Security Responsibilities
+  result: Needs Review
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT-AR-1
+    description: No authored verification for control Employment Security Responsibilities; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+- name: Role Change Review
+  result: Passed
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-ROLE-CHANGE-REVIEW.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-ROLE-CHANGE-REVIEW
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CV-COMP-ROLE-CHANGE
+    description: Assessment of "Role Change Review" via inspection.
+    result: Passed
+    message: "Status: pass"
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-08-31T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: compliance::CV-COMP-ROLE-CHANGE-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/compliance/role-change-review-sample.json
+      description: Quarterly sample of completed role-change reviews.
+- name: Security Awareness Education
+  result: Needs Review
+  message: 1 assessment(s) recorded for control compliance::CTRL-COMP-SECURITY-AWARENESS.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: compliance::CTRL-COMP-SECURITY-AWARENESS
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: compliance::CV-COMP-AWARENESS
+    description: Assessment of "Security Awareness Education" via inspection.
+    result: Needs Review
+    message: Employee completion is reported; contractor integration is tracked in POAM-COMP-002.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-08-31T00:00:00Z"
+    confidence-level: Medium
+    evidence:
+    - id: compliance::CV-COMP-AWARENESS-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/compliance/security-awareness-completion.json
+      description: Monthly completion and overdue-personnel report.
+- name: Signed Workload Enforcement
+  result: Needs Review
+  message: 1 assessment(s) recorded for control edge::CTRL-EDGE-SIGNED-WORKLOAD.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: edge::CTRL-EDGE-SIGNED-WORKLOAD
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: edge::CTRL-EDGE-SIGNED-WORKLOAD-AR-1
+    description: No authored verification for control Signed Workload Enforcement; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+- name: Audit Integrity
+  result: Needs Review
+  message: 1 assessment(s) recorded for control security::CTRL-SEC-AUDIT-INTEGRITY.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: security::CTRL-SEC-AUDIT-INTEGRITY
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: security::CTRL-SEC-AUDIT-INTEGRITY-AR-1
+    description: No authored verification for control Audit Integrity; manual review required.
+    result: Needs Review
+    message: No control verification recorded.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+- name: Short-lived Identity
+  result: Passed
+  message: 1 assessment(s) recorded for control security::CTRL-SEC-SHORT-LIVED-IDENTITY.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: security::CTRL-SEC-SHORT-LIVED-IDENTITY
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: security::CV-SEC-TOKEN-REPLAY
+    description: Assessment of "Short-lived Identity" via test.
+    result: Passed
+    message: Expired and replayed credentials were rejected.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    end: "2026-09-01T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: security::CV-SEC-TOKEN-REPLAY-EV-1
+      type: ControlVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: evidence/security/token-replay-test.json
+      description: Automated negative authentication test.
+target:
+  id: atlas-orion-relay
+  name: Orion Relay Product System
+  type: Software
+  description: "Evaluation target: Orion Relay Product System"

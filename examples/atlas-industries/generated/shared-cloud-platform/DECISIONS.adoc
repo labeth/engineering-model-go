@@ -1,0 +1,22 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-CLOUD-001]]
+== ADR-CLOUD-001: Use a shared event-driven cloud foundation
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+Product services need consistent resilience and observability.
+
+=== Decision
+
+Publish event ingestion and managed runtime as a reusable module.
+
+=== Consequences
+
+- Products share operational controls while retaining separate data domains.

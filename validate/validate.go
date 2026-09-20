@@ -69,6 +69,11 @@ var allowedViewKinds = map[string]bool{
 	"traceability":        true,
 	"state-lifecycle":     true,
 	"interaction-flow":    true,
+	"use-case":            true,
+	"logical":             true,
+	"process":             true,
+	"physical":            true,
+	"implementation":      true,
 }
 
 var allowedMappingTypes = map[string]bool{
@@ -248,7 +253,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -266,6 +271,15 @@ func Bundle(b model.Bundle) []Diagnostic {
 	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
 		if _, err := model.ResolveDocumentReferences(b.Architecture.Model); err != nil {
 			diags = append(diags, Diagnostic{Code: "model.conflicting_document_reference", Severity: SeverityError, Message: err.Error(), Path: "model.documents.catalog"})
+		}
+	}
+	for i, subsystem := range b.Architecture.Composition.Subsystems {
+		path := fmt.Sprintf("composition.subsystems[%d]", i)
+		if strings.TrimSpace(subsystem.Dependency) == "" {
+			diags = append(diags, Diagnostic{Code: "composition.missing_dependency", Severity: SeverityError, Message: fmt.Sprintf("subsystem %q has no dependency alias", subsystem.ID), Path: path + ".dependency"})
+		}
+		if strings.TrimSpace(subsystem.Publication) == "" {
+			diags = append(diags, Diagnostic{Code: "composition.missing_publication", Severity: SeverityError, Message: fmt.Sprintf("subsystem %q has no publication", subsystem.ID), Path: path + ".publication"})
 		}
 	}
 
@@ -424,6 +438,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 	for i, x := range b.Architecture.Compliance.Mappings {
 		addID(x.ID, fmt.Sprintf("compliance.mappings[%d]", i))
 		kindByID[x.ID] = "compliance_mapping"
+	}
+	for i, x := range b.Architecture.Semantics.Elements {
+		addID(x.ID, fmt.Sprintf("semantics.elements[%d]", i))
+		kindByID[x.ID] = string(x.Kind)
 	}
 
 	validID := func(id string) bool {

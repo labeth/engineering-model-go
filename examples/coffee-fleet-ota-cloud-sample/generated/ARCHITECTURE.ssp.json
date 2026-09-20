@@ -1,0 +1,346 @@
+{
+  "system-security-plan": {
+    "uuid": "95b2b27e-7784-50d0-bd5b-8fe07b1e808a",
+    "metadata": {
+      "title": "Connected Coffee Fleet OTA + Cloud Architecture",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-profile": {
+      "href": "./ARCHITECTURE.profile.json"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "identifier-type": "https://engineering-model-go/system-id",
+          "id": "sample-coffee-fleet-ota-cloud-model"
+        }
+      ],
+      "system-name": "Connected Coffee Fleet OTA + Cloud Architecture",
+      "description": "This document models connected coffee machines that send telemetry to a central cloud site,\nreceive OTA firmware updates, and produce operational and audit logging evidence.\nAuthored functional architecture remains stable while runtime, code, and verification layers\nare inferred from infrastructure, source, and test artifacts.",
+      "security-sensitivity-level": "moderate",
+      "system-information": {
+        "information-types": [
+          {
+            "uuid": "f7ea9c85-7834-5700-a862-63ddcee28abe",
+            "title": "Operational Data",
+            "description": "Application and operational data managed by the engineered system.",
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "availability-impact": {
+              "base": "fips-199-moderate"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "moderate",
+        "security-objective-integrity": "moderate",
+        "security-objective-availability": "moderate"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "Authorization boundary aligns with authored architecture scope and allocated components."
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "228b9fce-79cb-5978-a6a0-93ebb56d9ac2",
+          "title": "Barista",
+          "description": "Operates coffee machines and observes local device status.",
+          "short-name": "barista"
+        },
+        {
+          "uuid": "80237bd2-8efd-5483-867c-f62788143eda",
+          "title": "Fleet Operator",
+          "description": "Manages OTA campaigns and fleet-wide operational decisions.",
+          "short-name": "fleet-operator"
+        },
+        {
+          "uuid": "90a2dd12-4ecd-5895-bb0f-d6192db7e1c4",
+          "title": "Platform Operator",
+          "description": "Operates cloud runtime, deployment, and reliability controls.",
+          "short-name": "platform-operator"
+        },
+        {
+          "uuid": "1003fe6a-64f5-58b9-b952-5ea7c8c4748c",
+          "title": "Security Analyst",
+          "description": "Reviews firmware integrity, identity controls, and audit logging.",
+          "short-name": "security-analyst"
+        }
+      ],
+      "components": [
+        {
+          "uuid": "93126568-378b-54a8-bcbf-e1246b5ddedd",
+          "type": "functional_unit",
+          "title": "Device Identity and Secrets",
+          "description": "Architecture component mapped from FU-DEVICE-IDENTITY-SECRETS.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-DEVICE-IDENTITY-SECRETS"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "70b49c50-ba0c-5b27-b491-931de817ed07",
+          "type": "functional_unit",
+          "title": "Fleet Ingestion API",
+          "description": "Architecture component mapped from FU-FLEET-INGESTION-API.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-FLEET-INGESTION-API"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "2fc783c1-2739-503e-b7ca-9c7606dc04d2",
+          "type": "functional_unit",
+          "title": "OTA Update Agent",
+          "description": "Architecture component mapped from FU-OTA-UPDATE-AGENT.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-OTA-UPDATE-AGENT"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "abf137b1-cc65-58af-98d0-5a94c39c0437",
+          "type": "functional_unit",
+          "title": "Update Campaign Orchestration",
+          "description": "Architecture component mapped from FU-UPDATE-CAMPAIGN-ORCHESTRATION.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "5b9065b4-c78a-5b41-99af-4e4994ee8e8d",
+          "type": "interface",
+          "title": "Telemetry Ingestion Interface",
+          "description": "Architecture component mapped from IF-COFFEE-TELEMETRY-INGEST.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "IF-COFFEE-TELEMETRY-INGEST"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "interface"
+            }
+          ]
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "Control implementation allocations derived from authored compliance mappings.",
+      "implemented-requirements": [
+        {
+          "uuid": "afd0ffdc-c9f5-5135-9413-d33af2c25c28",
+          "control-id": "ia-3",
+          "by-components": [
+            {
+              "uuid": "438015fe-10b2-5c89-bcbe-5e818f52297b",
+              "component-uuid": "5b9065b4-c78a-5b41-99af-4e4994ee8e8d",
+              "description": "Telemetry channels enforce device identity verification and reject unauthorized clients.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COFFEE-DEVICE-IDENTITY"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/telemetry_ingest.ts"
+            },
+            {
+              "uuid": "f68cc9cc-01de-5127-a45a-146475f9680c",
+              "component-uuid": "70b49c50-ba0c-5b27-b491-931de817ed07",
+              "description": "Telemetry channels enforce device identity verification and reject unauthorized clients.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COFFEE-DEVICE-IDENTITY"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/telemetry_ingest.ts"
+            },
+            {
+              "uuid": "afefa015-60c4-5f03-bca0-7af276ad0980",
+              "component-uuid": "93126568-378b-54a8-bcbf-e1246b5ddedd",
+              "description": "Telemetry channels enforce device identity verification and reject unauthorized clients.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COFFEE-DEVICE-IDENTITY"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/telemetry_ingest.ts"
+            }
+          ]
+        },
+        {
+          "uuid": "b4f27fd4-a7b6-5653-bfb5-18f525abd84e",
+          "control-id": "si-7",
+          "by-components": [
+            {
+              "uuid": "806847a1-cee5-57b4-8ad3-a05e693c8c3e",
+              "component-uuid": "2fc783c1-2739-503e-b7ca-9c7606dc04d2",
+              "description": "OTA workflows require signer verification before rollout and device application.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COFFEE-FIRMWARE-SIGNATURE"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/ota_agent.rs"
+            },
+            {
+              "uuid": "24e1e94c-0dc4-5f38-baf6-d60714b82062",
+              "component-uuid": "abf137b1-cc65-58af-98d0-5a94c39c0437",
+              "description": "OTA workflows require signer verification before rollout and device application.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-COFFEE-FIRMWARE-SIGNATURE"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/ota_agent.rs"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

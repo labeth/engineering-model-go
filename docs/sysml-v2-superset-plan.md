@@ -11,8 +11,8 @@ may be redesigned where that produces clearer or more complete semantics. All
 documentation, analysis, assurance, traceability, and interchange artifacts are
 projections from that model.
 
-The current YAML schema is not a compatibility constraint. During migration it
-is accepted through a compatibility adapter and may be replaced after equivalent
+The current YAML schema is not a migration constraint. During migration it
+is accepted through a migration adapter and may be replaced after equivalent
 output and validation behavior is proven. YAML remains the canonical authoring
 and persistence format after that migration; SysML textual syntax is an output,
 not the source of truth.
@@ -22,13 +22,13 @@ not the source of truth.
 1. A standard SysML or KerML concept has exactly one canonical representation.
 2. Format-specific exporters cannot introduce authored domain entities.
 3. The canonical YAML schema maps directly to the canonical semantic model.
-   Compatibility input adapters cannot retain a second independently mutable
+   Migration input adapters cannot retain a second independently mutable
    semantic graph.
 4. Engineering-specific concepts extend standard elements through typed
    metadata or explicit external relationships.
 5. A concept that cannot be mapped without loss produces a diagnostic; it is
    never silently flattened into prose or a generic edge.
-6. Legacy syntax is removed only after all compatibility fixtures pass against
+6. Previous syntax is removed only after all migration fixtures pass against
    the canonical model.
 
 ## Canonical ownership
@@ -47,7 +47,7 @@ not the source of truth.
 | Control, threat, risk, POA&M, compliance | Typed engineering metadata/domain library | Extend SysML rather than redefining requirements or cases |
 | ADR, source ownership, code/test evidence | Typed engineering metadata and external relationships | Keep repository evidence addressable by stable IDs |
 
-## Compatibility contract
+## Migration contract
 
 Migration must preserve the observable behavior of:
 
@@ -74,7 +74,7 @@ Intentional output changes require a model decision and updated fixture.
 2. **Semantic kernel:** introduce identity, namespace, ownership,
    definition/usage, typed feature, relationship, expression, multiplicity,
    metadata, and extension primitives.
-3. **YAML schema and legacy adapter:** define the canonical YAML serialization
+3. **YAML schema and previous adapter:** define the canonical YAML serialization
    of the semantic kernel in CUE, validate YAML before strict Go decoding,
    continuously check the Go runtime representation for schema drift, translate
    the current YAML schema into the semantic model, and reject duplicate or
@@ -92,7 +92,7 @@ Intentional output changes require a model decision and updated fixture.
 8. **Interchange and conformance:** add textual and project interchange,
    official-tool validation, round-trip reconstruction, and an executable
    normative coverage manifest.
-9. **Cutover:** remove the legacy YAML schema only after all outputs,
+9. **Cutover:** remove the previous YAML schema only after all outputs,
    validations, and conformance evidence pass from the canonical YAML model.
 
 ## Claim policy
@@ -126,8 +126,8 @@ Tasks 2.1–2.3 add an official-qualified metaclass and typed property container
 to the single canonical graph. Existing YAML requirements, actors, control
 verifications, views, design narratives, threats, controls, compliance, risks,
 POA&M, ADRs, composition, ownership policy, and evidence normalize into those
-official instances or stable `Engineering::` extension metaclasses. Legacy
-fields remain input/export compatibility fields, not a second canonical graph.
+official instances or stable `Engineering::` extension metaclasses. Previous
+fields remain input/export migration fields, not a second canonical graph.
 
 The bounded prerequisite before exporter migration is complete: the modular
 schemas under `model/schema/` cover all five authored YAML document types,
@@ -142,7 +142,7 @@ project and KPAR, not as a custom ZIP. Generated source embeds the canonical
 semantic model in typed `EngineeringProject` metadata so reopening the KPAR can
 reconstruct and compare identity, ownership, relationships, expressions,
 library/project references, and typed extensions. Deterministic unit tests cover
-the payload import and comparison; `scripts/validate-sysml.sh` installs no tools
+the native source comparison; `scripts/validate-sysml.sh` installs no tools
 implicitly, but uses the pinned external tools to build/reopen the KPAR and run
 the official parser.
 
@@ -158,13 +158,12 @@ latter are created implicitly by parsing native ownership, membership, typing,
 expression, and relationship productions and cannot be authored as standalone
 textual elements.
 
-The typed `EngineeringProject` payload is the normative lossless interchange
-sidecar, not a substitute for valid SysML. It preserves official property values
-and Engineering extensions across KPAR packaging. Derived and implied
-properties may be absent from the text because the official importer derives
-them from the native syntax; round-trip comparison normalizes only those
-read-only values. Both the generated source and the reopened KPAR source must
-pass the pinned official parser before semantic equivalence is accepted.
+The KPAR contains only native SysML/KerML sources accepted by Sysand. Canonical
+Engineering Model data that has no native target concept is omitted rather than
+encoded in descriptions, metadata payloads, generic properties, or sidecar
+files. KPAR validation rebuilds the deterministic projection, reopens the
+archive through Sysand, compares the source byte-for-byte, and parses both the
+generated and reopened sources with the pinned official parser.
 
 The conformance baseline is SysML 2.0 / KerML 1.0 using the official Pilot
 Implementation release `2026-04`, artifact `0.59.0`, commit

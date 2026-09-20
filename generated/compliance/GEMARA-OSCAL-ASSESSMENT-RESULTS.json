@@ -6,18 +6,6 @@
           "citation": {
             "text": "*Control Catalog*. "
           },
-          "props": [
-            {
-              "name": "id",
-              "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
-              "value": "ENGMOD-CONTROL-CATALOG"
-            }
-          ],
-          "rlinks": [
-            {
-              "href": ""
-            }
-          ],
           "title": "Control Catalog",
           "uuid": "e7bdf901-8d2a-4527-9b6e-0ebd56d2a83a"
         }
@@ -36,6 +24,7 @@
           "uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b"
         }
       ],
+      "published": "2026-09-19T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [
@@ -65,7 +54,7 @@
                   "role-id": "assessor"
                 }
               ],
-              "start": "1970-01-01T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-MCP-PATH-BOUNDARY / VER-MCP-PATH-BOUNDARY",
               "uuid": "73e713e7-98da-4a8a-898e-c510c95da0b0"
             },
@@ -77,7 +66,7 @@
                   "role-id": "assessor"
                 }
               ],
-              "start": "1970-01-01T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-STRICT-MCP-INPUT-SCHEMA / CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1",
               "uuid": "e4c249b4-4b58-494d-b578-e60ff2a6de42"
             },
@@ -89,7 +78,7 @@
                   "role-id": "assessor"
                 }
               ],
-              "start": "1970-01-01T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-TRACEABILITY-COVERAGE / VER-TRACEABILITY-COVERAGE",
               "uuid": "746da347-89e7-4f4b-987b-5b15630a348d"
             },
@@ -101,7 +90,7 @@
                   "role-id": "assessor"
                 }
               ],
-              "start": "1970-01-01T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-TRACE-LINK-INTEGRITY / CTRL-TRACE-LINK-INTEGRITY-AR-1",
               "uuid": "7e052ad4-2ba1-42af-8e69-0e1506acd5d3"
             },
@@ -113,7 +102,7 @@
                   "role-id": "assessor"
                 }
               ],
-              "start": "1970-01-01T00:00:00Z",
+              "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-ARTIFACT-FRESHNESS-GATE / CTRL-ARTIFACT-FRESHNESS-GATE-AR-1",
               "uuid": "c1bdb0ec-23bd-44b8-867b-b8c89fdaa8cd"
             }
@@ -129,7 +118,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -143,7 +132,7 @@
               "status": {
                 "state": "satisfied"
               },
-              "target-id": "CTRL-MCP-PATH-BOUNDARY",
+              "target-id": "ctrl-mcp-path-boundary",
               "type": "objective-id"
             },
             "title": "MCP Path Boundary Enforcement",
@@ -157,7 +146,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -169,10 +158,10 @@
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-STRICT-MCP-INPUT-SCHEMA",
+              "target-id": "ctrl-strict-mcp-input-schema",
               "type": "objective-id"
             },
             "title": "Strict MCP Input Schemas",
@@ -186,7 +175,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -198,10 +187,10 @@
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-TRACEABILITY-COVERAGE",
+              "target-id": "ctrl-traceability-coverage",
               "type": "objective-id"
             },
             "title": "Requirement Traceability Coverage",
@@ -215,7 +204,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -227,10 +216,10 @@
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-TRACE-LINK-INTEGRITY",
+              "target-id": "ctrl-trace-link-integrity",
               "type": "objective-id"
             },
             "title": "Trace Link Integrity",
@@ -244,7 +233,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -256,10 +245,10 @@
             ],
             "target": {
               "status": {
-                "reason": "Needs Review",
+                "reason": "needs-review",
                 "state": "not-satisfied"
               },
-              "target-id": "CTRL-ARTIFACT-FRESHNESS-GATE",
+              "target-id": "ctrl-artifact-freshness-gate",
               "type": "objective-id"
             },
             "title": "Generated Artifact Freshness Gate",
@@ -288,7 +277,7 @@
         },
         "observations": [
           {
-            "collected": "1970-01-01T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"MCP Path Boundary Enforcement\" via test.",
             "methods": [
               "EXAMINE"
@@ -299,7 +288,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -324,7 +313,7 @@
             "uuid": "32236a00-8551-40a8-8d33-a13f5c676844"
           },
           {
-            "collected": "1970-01-01T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "No authored verification for control Strict MCP Input Schemas; manual review required.",
             "methods": [
               "EXAMINE"
@@ -335,7 +324,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -360,7 +349,7 @@
             "uuid": "161cd14e-2ab9-4f80-aae9-7b9693007d3c"
           },
           {
-            "collected": "1970-01-01T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "Assessment of \"Requirement Traceability Coverage\" via analysis.",
             "methods": [
               "EXAMINE"
@@ -371,7 +360,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -396,7 +385,7 @@
             "uuid": "d910168c-34fa-4db2-8090-ca304f7537f8"
           },
           {
-            "collected": "1970-01-01T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "No authored verification for control Trace Link Integrity; manual review required.",
             "methods": [
               "EXAMINE"
@@ -407,7 +396,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -432,7 +421,7 @@
             "uuid": "0f00f143-b213-4045-abe9-4f09d41abeb5"
           },
           {
-            "collected": "1970-01-01T00:00:00Z",
+            "collected": "2026-09-19T00:00:00Z",
             "description": "No authored verification for control Generated Artifact Freshness Gate; manual review required.",
             "methods": [
               "EXAMINE"
@@ -443,7 +432,7 @@
                   {
                     "actor-uuid": "d9d983e7-ed99-45f4-8ec8-288ca00cb74b",
                     "role-id": "assessor",
-                    "type": "person"
+                    "type": "party"
                   }
                 ]
               }
@@ -480,25 +469,25 @@
             {
               "include-controls": [
                 {
-                  "control-id": "CTRL-MCP-PATH-BOUNDARY"
+                  "control-id": "ctrl-mcp-path-boundary"
                 },
                 {
-                  "control-id": "CTRL-STRICT-MCP-INPUT-SCHEMA"
+                  "control-id": "ctrl-strict-mcp-input-schema"
                 },
                 {
-                  "control-id": "CTRL-TRACEABILITY-COVERAGE"
+                  "control-id": "ctrl-traceability-coverage"
                 },
                 {
-                  "control-id": "CTRL-TRACE-LINK-INTEGRITY"
+                  "control-id": "ctrl-trace-link-integrity"
                 },
                 {
-                  "control-id": "CTRL-ARTIFACT-FRESHNESS-GATE"
+                  "control-id": "ctrl-artifact-freshness-gate"
                 }
               ]
             }
           ]
         },
-        "start": "1970-01-01T00:00:00Z",
+        "start": "2026-09-19T00:00:00Z",
         "title": "Evaluation: engineering-model-go-EVALUATION-LOG",
         "uuid": "c3b4436e-6001-4ce0-ad17-70c0a8ea919b"
       }

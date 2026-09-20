@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/validate"
@@ -15,9 +16,9 @@ import (
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExport_EndToEnd(t *testing.T) {
 	examples := []string{
-		filepath.Join("examples", "payments-engineering-sample", "architecture.yml"),
-		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "architecture.yml"),
-		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "architecture.yml"),
+		filepath.Join("examples", "payments-engineering-sample", "engmod.yml"),
+		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "engmod.yml"),
+		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "engmod.yml"),
 	}
 	formats := []ThreatModelFormat{ThreatModelFormatThreatDragonV2, ThreatModelFormatOpenOTM}
 
@@ -36,6 +37,10 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 				if len(res.JSON) == 0 {
 					t.Fatalf("expected non-empty json output")
 				}
+				if string(format) == string(ThreatModelFormatThreatDragonV2) &&
+					strings.Contains(res.JSON, "See mapped control mitigations and verification evidence.") {
+					t.Fatalf("threat model contains a generic mitigation claim")
+				}
 				var parsed any
 				if err := json.Unmarshal([]byte(res.JSON), &parsed); err != nil {
 					t.Fatalf("output is not valid json: %v", err)
@@ -45,7 +50,7 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011, REQ-EMG-012
 func TestThreatModelExport_SchemaValidation(t *testing.T) {
 	tdSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "threat-dragon-v2.schema.json")
 	otmSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "open-threat-model.schema.json")
@@ -56,7 +61,7 @@ func TestThreatModelExport_SchemaValidation(t *testing.T) {
 		t.Skipf("schema missing: %s", otmSchemaPath)
 	}
 
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 
 	t.Run("threat-dragon-v2", func(t *testing.T) {
 		res, err := GenerateThreatModelExportFromFile(modelPath, ThreatModelExportOptions{Format: ThreatModelFormatThreatDragonV2})
@@ -72,12 +77,25 @@ func TestThreatModelExport_SchemaValidation(t *testing.T) {
 			t.Fatalf("export failed: %v", err)
 		}
 		validateJSONWithSchema(t, res.JSON, otmSchemaPath)
+		var doc otmDocument
+		if err := json.Unmarshal([]byte(res.JSON), &doc); err != nil {
+			t.Fatalf("decode open otm: %v", err)
+		}
+		zones := map[string]bool{}
+		for _, zone := range doc.TrustZones {
+			zones[zone.ID] = true
+		}
+		for _, component := range doc.Components {
+			if !zones[component.Parent.TrustZone] {
+				t.Errorf("component %s references missing trust zone %s", component.ID, component.Parent.TrustZone)
+			}
+		}
 	})
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExportCLI_EndToEnd(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	for _, format := range []string{"threat-dragon-v2", "open-otm"} {
 		format := format
 		t.Run(format, func(t *testing.T) {

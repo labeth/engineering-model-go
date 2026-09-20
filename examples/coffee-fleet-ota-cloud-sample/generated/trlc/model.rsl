@@ -1,4 +1,4 @@
-package CoffeeFleetRequirements
+package requirements
 
 type Requirement {
   id         String

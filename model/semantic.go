@@ -555,7 +555,7 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 	}
 	for i, x := range a.HardwareInterfaces {
 		path := indexPath("authoredArchitecture.hardwareInterfaces", i)
-		addElement(path, ElementConnectionUsage, "engineering.hardware_interface", x.ID, x.Name, "", "", x,
+		addElement(path, ElementConnectionDefinition, "engineering.hardware_interface", x.ID, x.Name, "", "", x,
 			attributeFeature("busType", x.BusType), attributeFeature("direction", x.Direction))
 		addRelationship(path, RelationshipConnection, "hardware_interface", x.From, x.To, x.ID, x)
 	}
@@ -695,12 +695,12 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 		}
 	}
 	for i, x := range bundle.Architecture.Contract.Provides {
-		addElement(indexPath("contract.provides", i), ElementPortUsage, "engineering.contract_provides", x.ID, x.ID, out.ID, x.Ref, x,
-			referenceFeature("provided", FeaturePort, "out", x.Ref))
+		addElement(indexPath("contract.provides", i), ElementPortUsage, "engineering.contract_provides", x.ID, x.ID, out.ID, "EngineeringPort", x,
+			referenceFeature("provided", FeaturePort, "out", "EngineeringPort"))
 	}
 	for i, x := range bundle.Architecture.Contract.Requires {
-		addElement(indexPath("contract.requires", i), ElementPortUsage, "engineering.contract_requires", x.ID, x.ID, out.ID, x.Ref, x,
-			referenceFeature("required", FeaturePort, "in", x.Ref))
+		addElement(indexPath("contract.requires", i), ElementPortUsage, "engineering.contract_requires", x.ID, x.ID, out.ID, "EngineeringPort", x,
+			referenceFeature("required", FeaturePort, "in", "EngineeringPort"))
 		if index, ok := elementIndex[strings.TrimSpace(x.ID)]; ok {
 			out.Elements[index].Conjugated = true
 		}
@@ -716,7 +716,7 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 		addRelationship(indexPath("composition.allocations", i), RelationshipAllocation, "allocation", x.Requirement, target, out.ID, x)
 	}
 	for i, x := range bundle.Architecture.Composition.Satisfactions {
-		addRelationship(indexPath("composition.satisfactions", i), RelationshipSatisfaction, "satisfaction", x.Need, x.By, out.ID, x)
+		addRelationship(indexPath("composition.satisfactions", i), RelationshipSatisfaction, "satisfaction", x.By, x.Need, out.ID, x)
 	}
 	for i, x := range bundle.Architecture.Views {
 		addElement(indexPath("views", i), ElementViewUsage, "engineering.view", x.ID, x.ID, out.ID, "", x)
@@ -1131,6 +1131,9 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 		}
 		for endpoint, id := range map[string]string{"source": relationship.Source, "target": relationship.Target} {
 			id = strings.TrimSpace(id)
+			if strings.Contains(id, "::") {
+				continue
+			}
 			if _, exists := elements[id]; exists {
 				continue
 			}
@@ -1141,7 +1144,11 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 			})
 		}
 		for j, trigger := range relationship.Triggers {
-			if _, exists := elements[strings.TrimSpace(trigger)]; !exists {
+			trigger = strings.TrimSpace(trigger)
+			if strings.Contains(trigger, "::") {
+				continue
+			}
+			if _, exists := elements[trigger]; !exists {
 				diagnostics = append(diagnostics, SemanticDiagnostic{
 					Code: "semantic.dangling_relationship", Severity: SemanticSeverityError,
 					Message: fmt.Sprintf("semantic transition %q trigger %q does not exist", relationship.ID, trigger),
@@ -1150,6 +1157,9 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 			}
 		}
 		if itemRef := strings.TrimSpace(relationship.ItemRef); itemRef != "" {
+			if strings.Contains(itemRef, "::") {
+				continue
+			}
 			if _, exists := elements[itemRef]; !exists {
 				diagnostics = append(diagnostics, SemanticDiagnostic{
 					Code: "semantic.dangling_relationship", Severity: SemanticSeverityError,
@@ -1166,7 +1176,11 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 			validateMetadata(metadata, element.ID, indexPath(path+".metadata", j), identities, &diagnostics)
 		}
 		for j, target := range element.Targets {
-			if _, exists := identities[strings.TrimSpace(target)]; !exists {
+			target = strings.TrimSpace(target)
+			if strings.Contains(target, "::") {
+				continue
+			}
+			if _, exists := identities[target]; !exists {
 				diagnostics = append(diagnostics, SemanticDiagnostic{
 					Code: "semantic.invalid_extension_target", Severity: SemanticSeverityError,
 					Message: fmt.Sprintf("engineering extension %q target %q does not exist", element.ID, target),

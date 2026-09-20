@@ -1,0 +1,10 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-PAY-001,implemented,FU-CHECKOUT FU-PAYMENT-AUTHORIZATION,payment_engine.rs:15 domain/events.rs:12 payment_engine.rs:31 checkout_api.go:20 checkout_api.go:32,VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597,,
+REQ-PAY-002,implemented,FU-RISK-SCORING,risk_scorer.ts:10 risk_scorer.ts:24,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD,,
+REQ-PAY-003,implemented,FU-CHECKOUT,checkout_api.go:44 checkout_api.go:50,VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93,,
+REQ-PAY-004,implemented,FU-PAYMENT-AUTHORIZATION FU-SUPPORT-REVIEW,risk_scorer.ts:58 risk_scorer.ts:33 payment_engine.rs:60 payment_engine.rs:51,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD,,
+REQ-PAY-005,implemented,FU-RISK-SCORING,support/audit_envelope.ts:11 risk_scorer.ts:43 risk_scorer.ts:52 payment_engine.rs:69,VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2,,
+REQ-PAY-006,implemented,FU-CHECKOUT FU-PAYMENT-AUTHORIZATION,payment_engine.rs:40 checkout_api.go:38 checkout_api.go:56,VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE,,
+REQ-PAY-007,orphan,FU-CHECKOUT FU-PAYMENT-AUTHORIZATION,,,,
+REQ-PAY-008,verified,FU-CHECKOUT,,VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93,,
+REQ-PAY-009,orphan,FU-PAYMENT-AUTHORIZATION FU-SUPPORT-REVIEW,,,,

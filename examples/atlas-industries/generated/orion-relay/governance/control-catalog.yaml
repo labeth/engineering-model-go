@@ -1,0 +1,261 @@
+title: "Orion Relay Product System - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-ORI-LINK
+    title: Link Scheduler Software
+    description: Selects available radio links and transmission windows.
+  - id: FU-ORI-ROUTER
+    title: Message Router Software
+    description: Stores, prioritizes, and forwards operational messages.
+  - id: cloud::FU-CLOUD-RUNTIME
+    title: Cloud Runtime
+    description: Hosts product APIs and durable event processing.
+  - id: compliance::FU-COMP-EVIDENCE
+    title: Compliance Evidence Service
+    description: Collects, retains, and reports control assessment evidence.
+  - id: compliance::FU-COMP-PEOPLE
+    title: People Security and Awareness
+    description: Governs screening, employment responsibilities, awareness training, role changes, and offboarding.
+  - id: edge::FU-EDGE-RUNTIME
+    title: Edge Runtime
+    description: Hosts signed product workloads and normalizes device observations.
+  - id: security::FU-SEC-IDENTITY
+    title: Identity Service
+    description: Issues short-lived device and workload credentials.
+  - id: security::FU-SEC-MONITORING
+    title: Security Monitoring
+    description: Correlates authentication and audit events.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: CTRL-ORI-ADMISSION
+  title: Priority Admission Control
+  objective: Reserves capacity for authenticated priority messages.
+  group: availability
+  assessment-requirements:
+  - id: CV-ORI-ADMISSION
+    text: The control "Priority Admission Control" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Single-band priority traffic remained available during flooding.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-availability
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: cloud::CTRL-CLOUD-BACKUP
+  title: Encrypted Backup
+  objective: Encrypts and regularly restores cloud backups.
+  group: resilience
+  assessment-requirements:
+  - id: cloud::CTRL-CLOUD-BACKUP-AR-1
+    text: "The system MUST implement the control \"Encrypted Backup\": Encrypts and regularly restores cloud backups."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-resilience
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-ACCESS-REVIEW
+  title: Quarterly Access Review
+  objective: Reviews privileged access quarterly.
+  group: access-control
+  assessment-requirements:
+  - id: compliance::CV-COMP-ACCESS-REVIEW
+    text: The control "Quarterly Access Review" MUST be verified by inspection.
+    applicability:
+    - compliance::FU-COMP-EVIDENCE
+    recommendation: Review completed; delegated reviewer escalation remains open.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-EVIDENCE-RETENTION
+  title: Evidence Retention
+  objective: Retains signed assessment evidence for seven years.
+  group: audit
+  assessment-requirements:
+  - id: compliance::CTRL-COMP-EVIDENCE-RETENTION-AR-1
+    text: "The system MUST implement the control \"Evidence Retention\": Retains signed assessment evidence for seven years."
+    applicability:
+    - compliance::FU-COMP-EVIDENCE
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-audit
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-OFFBOARDING
+  title: Personnel Offboarding
+  objective: Coordinates access revocation, responsibility transfer, and company asset return.
+  group: personnel-security
+  assessment-requirements:
+  - id: compliance::CV-COMP-OFFBOARDING
+    text: The control "Personnel Offboarding" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-PERSONNEL-SCREENING
+  title: Personnel Screening
+  objective: Applies risk-appropriate screening before privileged access is authorized.
+  group: personnel-security
+  assessment-requirements:
+  - id: compliance::CV-COMP-PERSONNEL-SCREENING
+    text: The control "Personnel Screening" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT
+  title: Employment Security Responsibilities
+  objective: Records acceptance of security and acceptable-use responsibilities.
+  group: personnel-security
+  assessment-requirements:
+  - id: compliance::CTRL-COMP-POLICY-ACKNOWLEDGMENT-AR-1
+    text: "The system MUST implement the control \"Employment Security Responsibilities\": Records acceptance of security and acceptable-use responsibilities."
+    applicability:
+    - compliance::FU-COMP-PEOPLE
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-personnel-security
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-ROLE-CHANGE-REVIEW
+  title: Role Change Review
+  objective: Reassesses access and responsibilities when an employee changes role.
+  group: access-control
+  assessment-requirements:
+  - id: compliance::CV-COMP-ROLE-CHANGE
+    text: The control "Role Change Review" MUST be verified by inspection.
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-access-control
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: compliance::CTRL-COMP-SECURITY-AWARENESS
+  title: Security Awareness Education
+  objective: Provides initial and annual awareness education with completion tracking.
+  group: awareness-and-training
+  assessment-requirements:
+  - id: compliance::CV-COMP-AWARENESS
+    text: The control "Security Awareness Education" MUST be verified by inspection.
+    applicability:
+    - compliance::FU-COMP-PEOPLE
+    recommendation: Employee completion is reported; contractor integration is tracked in POAM-COMP-002.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-awareness-and-training
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: edge::CTRL-EDGE-SIGNED-WORKLOAD
+  title: Signed Workload Enforcement
+  objective: Verifies workload signatures before execution.
+  group: integrity
+  assessment-requirements:
+  - id: edge::CTRL-EDGE-SIGNED-WORKLOAD-AR-1
+    text: "The system MUST implement the control \"Signed Workload Enforcement\": Verifies workload signatures before execution."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: security::CTRL-SEC-AUDIT-INTEGRITY
+  title: Audit Integrity
+  objective: Signs and immutably stores security audit events.
+  group: audit
+  assessment-requirements:
+  - id: security::CTRL-SEC-AUDIT-INTEGRITY-AR-1
+    text: "The system MUST implement the control \"Audit Integrity\": Signs and immutably stores security audit events."
+    applicability:
+    - all-systems
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-audit
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+- id: security::CTRL-SEC-SHORT-LIVED-IDENTITY
+  title: Short-lived Identity
+  objective: Issues scoped credentials with bounded lifetime.
+  group: identity-access
+  assessment-requirements:
+  - id: security::CV-SEC-TOKEN-REPLAY
+    text: The control "Short-lived Identity" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Expired and replayed credentials were rejected.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-identity-access
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: security::TS-SEC-CREDENTIAL-REPLAY
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+groups:
+- id: availability
+  title: availability
+  description: "Control category: availability."
+- id: resilience
+  title: resilience
+  description: "Control category: resilience."
+- id: access-control
+  title: access-control
+  description: "Control category: access-control."
+- id: audit
+  title: audit
+  description: "Control category: audit."
+- id: personnel-security
+  title: personnel-security
+  description: "Control category: personnel-security."
+- id: awareness-and-training
+  title: awareness-and-training
+  description: "Control category: awareness-and-training."
+- id: integrity
+  title: integrity
+  description: "Control category: integrity."
+- id: identity-access
+  title: identity-access
+  description: "Control category: identity-access."

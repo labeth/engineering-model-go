@@ -1,0 +1,32 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-AEG
+    name: aegis sentinel system
+    definition: Autonomous perimeter sensing and incident response product.
+  functionalGroups:
+  - id: FG-AEG
+    name: sentinel mission
+    definition: Product-specific sensing and mission coordination.
+  functionalUnits:
+  - id: FU-AEG-SENSOR-FUSION
+    name: sensor fusion software
+    definition: Correlates radar and optical observations.
+  - id: FU-AEG-MISSION
+    name: mission coordination software
+    definition: Produces reviewed perimeter incident tracks.
+  actors:
+  - id: ACT-AEG-OPERATOR
+    name: security operator
+    definition: Reviews and responds to perimeter incidents.
+  - id: ACT-AEG-ENGINEER
+    name: product security engineer
+    definition: Owns Aegis security controls and risk.
+  attackVectors:
+  - id: AV-AEG-SENSOR-SPOOF
+    name: sensor spoofing
+    definition: Crafted observations attempt to create false tracks.
+  dataTerms:
+  - id: DATA-AEG-TRACK
+    name: perimeter track
+    definition: Correlated position and confidence record for a detected object.

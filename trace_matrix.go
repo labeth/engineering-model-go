@@ -4,7 +4,7 @@ package engmodel
 // Trace integrity and the machine-readable traceability matrix. Code trace markers
 // (TRLC-LINKS to a requirement, ENGMODEL-LINKS to a model element) are existence-checked
 // against the model — not only shape-checked — and code is attributed to the model whose
-// architecture.yml is its nearest enclosing root, so a parent model never validates or
+// engmod.yml is its nearest enclosing root, so a parent model never validates or
 // counts a child model's links. The consolidated trace is also emitted as a matrix.
 
 import (
@@ -40,7 +40,20 @@ type TraceRow struct {
 	Code          []TraceCodeRef   `json:"code,omitempty"`
 	Verifications []string         `json:"verifications,omitempty"`
 	DelegatedTo   *TraceDelegation `json:"delegatedTo,omitempty"`
+	Provenance    *TraceProvenance `json:"provenance,omitempty"`
 	Status        string           `json:"status"`
+}
+
+// TraceProvenance identifies the selected dependency publication that supplied
+// an imported requirement.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+type TraceProvenance struct {
+	Alias       string `json:"alias"`
+	ModulePath  string `json:"modulePath"`
+	Version     string `json:"version"`
+	SourceModel string `json:"sourceModel"`
+	Publication string `json:"publication"`
+	SourceID    string `json:"sourceId"`
 }
 
 // TraceCodeRef is a code symbol that implements a requirement.
@@ -191,7 +204,7 @@ func knownModelIDs(bundle model.Bundle, requirements model.RequirementsDocument)
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-MODEL-LOADER
 func effectiveCodeRoots(bundle model.Bundle, codeRootOption string) []string {
-	baseDir := filepath.Dir(bundle.ArchitecturePath)
+	baseDir := modelRootDir(bundle)
 	roots := make([]string, 0, len(bundle.Architecture.InferenceHints.CodeSources)+1)
 	if strings.TrimSpace(codeRootOption) != "" {
 		roots = append(roots, codeRootOption)
@@ -203,7 +216,7 @@ func effectiveCodeRoots(bundle model.Bundle, codeRootOption string) []string {
 }
 
 // scopeCodeToModel keeps only code that belongs to the model rooted at modelDir: a file
-// belongs to the model whose architecture.yml is its nearest enclosing directory. This
+// belongs to the model whose engmod.yml is its nearest enclosing directory. This
 // stops a parent model (scanned with a broad code root) from claiming a nested model's code.
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
@@ -228,7 +241,7 @@ func scopeCodeToModel(items []inferredCodeItem, roots []string, modelDir string)
 				}
 				return nil
 			}
-			if d.Name() == "architecture.yml" {
+			if d.Name() == "engmod.yml" {
 				modelRoots[filepath.Dir(p)] = true
 			}
 			return nil
@@ -425,7 +438,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
 // model, validates trace integrity, and returns the matrix together with diagnostics.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
 func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (TraceMatrix, []validate.Diagnostic, error) {
 	bundle, err := model.LoadBundle(modelPath)
@@ -453,8 +466,12 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 	diags = append(diags, verDiags...)
 
 	delegationsByReq := map[string][]MaterializedAllocation{}
+	var compositionProjection CompositionProjection
+	var compositionResult CompositionResult
 	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
+		if res, derr := GenerateCompositionFromFile(bundle.ManifestPath); derr == nil {
+			compositionResult = res
+			compositionProjection = BuildCompositionProjection(res)
 			for _, m := range res.Allocations {
 				rid := strings.TrimSpace(m.Requirement)
 				delegationsByReq[rid] = append(delegationsByReq[rid], m)
@@ -467,10 +484,70 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 			})
 		}
 	}
-	scoped := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, resolvedRoot), filepath.Dir(bundle.ArchitecturePath))
+	scoped := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, resolvedRoot), modelRootDir(bundle))
 	diags = append(diags, validateTraceIntegrity(bundle, requirements, scoped, inferredVerification, delegationsByReq)...)
 	matrix := buildTraceMatrix(bundle, requirements, scoped, inferredVerification, delegationsByReq)
+	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
 	return matrix, validate.SortDiagnostics(diags), nil
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection CompositionProjection, composition CompositionResult) {
+	for _, entity := range projection.Domain("requirements") {
+		requirement, ok := entity.Value.(model.Requirement)
+		if !ok {
+			continue
+		}
+		row := TraceRow{
+			ID: entity.QualifiedID, Text: strings.TrimSpace(requirement.Text),
+			Units: entity.qualifyList(requirement.AppliesTo),
+			Provenance: &TraceProvenance{
+				Alias: entity.Provenance.Alias, ModulePath: entity.Provenance.ModulePath,
+				Version: entity.Provenance.Version, SourceModel: entity.Provenance.SourceModel,
+				Publication: entity.Provenance.Publication, SourceID: entity.SourceID,
+			},
+		}
+		for _, allocation := range composition.Allocations {
+			alias, _, err := model.ParseQualifiedReference(allocation.Target)
+			if err == nil && alias == entity.Provenance.Alias && allocation.TargetRef == entity.SourceID {
+				row.DelegatedTo = &TraceDelegation{
+					Subsystem: allocation.Subsystem, Target: allocation.Target,
+					TargetRequirement: entity.QualifiedID,
+				}
+				break
+			}
+		}
+		appliesTo := map[string]bool{}
+		for _, ref := range requirement.AppliesTo {
+			appliesTo[ref] = true
+		}
+		for _, candidate := range projection.Domain("assurance") {
+			verification, ok := candidate.Value.(model.ControlVerification)
+			if ok && appliesTo[verification.ControlRef] && candidate.Provenance.Alias == entity.Provenance.Alias {
+				row.Verifications = append(row.Verifications, candidate.QualifiedID)
+			}
+		}
+		row.Verifications = uniqueSorted(row.Verifications)
+		switch {
+		case len(row.Verifications) > 0:
+			row.Status = "verified"
+		case row.DelegatedTo != nil:
+			row.Status = "allocated"
+		default:
+			row.Status = "published"
+		}
+		matrix.Requirements = append(matrix.Requirements, row)
+		matrix.Summary.Requirements++
+		if len(row.Verifications) > 0 {
+			matrix.Summary.Verified++
+		}
+		if row.DelegatedTo != nil {
+			matrix.Summary.Delegated++
+		}
+	}
+	sort.SliceStable(matrix.Requirements, func(i, j int) bool {
+		return matrix.Requirements[i].ID < matrix.Requirements[j].ID
+	})
 }
 
 // CSV renders the matrix as one row per requirement for spreadsheet/diff consumption.
@@ -479,7 +556,7 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 func (m TraceMatrix) CSV() []byte {
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
-	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo"})
+	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo", "provenance"})
 	for _, r := range m.Requirements {
 		code := make([]string, 0, len(r.Code))
 		for _, c := range r.Code {
@@ -493,9 +570,13 @@ func (m TraceMatrix) CSV() []byte {
 		if r.DelegatedTo != nil {
 			delegated = r.DelegatedTo.Subsystem + "/" + r.DelegatedTo.TargetRequirement
 		}
+		provenance := ""
+		if r.Provenance != nil {
+			provenance = r.Provenance.Alias + ":" + r.Provenance.Publication + "@" + r.Provenance.Version
+		}
 		_ = w.Write([]string{
 			r.ID, r.Status, strings.Join(r.Units, " "), strings.Join(code, " "),
-			strings.Join(r.Verifications, " "), delegated,
+			strings.Join(r.Verifications, " "), delegated, provenance,
 		})
 	}
 	w.Flush()

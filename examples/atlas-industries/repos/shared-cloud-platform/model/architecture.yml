@@ -1,0 +1,51 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-CLOUD
+    name: Cloud Platform
+    description: Shared resilient cloud capabilities.
+  functionalUnits:
+  - id: FU-CLOUD-RUNTIME
+    name: Cloud Runtime
+    group: FG-CLOUD
+    prose: Hosts product APIs and durable event processing.
+  actors:
+  - id: ACT-CLOUD-OPERATOR
+    name: Cloud Operator
+    description: Owns cloud availability and recovery.
+  interfaces:
+  - id: IF-CLOUD-EVENTS
+    name: Cloud Event Ingestion
+    protocol: https
+    endpoint: https://events.atlas.example/v1
+    owner: FU-CLOUD-RUNTIME
+  dataObjects:
+  - id: DO-CLOUD-EVENT
+    name: Cloud Event
+    termRef: DATA-CLOUD-EVENT
+    sensitivity: confidential
+    classification: product-operations
+    regulatoryTags:
+    - company-confidential
+    retention: 365_days
+    confidentiality: high
+    integrity: high
+    availability: high
+  hardwareItems:
+  - id: HW-CLOUD-REGION
+    name: Cloud Region
+    kind: cloud
+    hosts:
+    - FU-CLOUD-RUNTIME
+    description: Logically isolated multi-zone cloud environment.
+  contract:
+    provides:
+    - id: CAP-CLOUD-OPERATIONS
+      kind: capability
+      ref: REQ-CLOUD-001
+      note: Resilient event processing and service hosting.
+    requires:
+    - id: NEED-CLOUD-IDENTITY
+      kind: capability
+      ref: REQ-CLOUD-002
+      note: Workload identity must be supplied by the composing product.

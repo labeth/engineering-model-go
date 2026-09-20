@@ -1,25 +1,25 @@
 flowchart LR
 %% view: VIEW-DEPLOYMENT (deployment)
-N_DEP_BEDROCK_GITHUB_BOUNDARY["GitHub Integration Boundary"]:::deployment_target
-N_DEP_BEDROCK_LAMBDA_PRIMARY["Primary Lambda Runtime"]:::deployment_target
-N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
-N_FG_PR_INTEGRATION["PR Integration"]:::functional_group
-N_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::functional_group
-N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
-N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
-N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
-N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
-N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
-N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
-N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
-N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
-N_IF_BEDROCK_WEBHOOK_API[/"Webhook Intake API"/]:::interface
-N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
-N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
-N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
-N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
-N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
-N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
+N_DEP_BEDROCK_GITHUB_BOUNDARY[["GitHub Integration Boundary"]]:::deployment_target
+N_DEP_BEDROCK_LAMBDA_PRIMARY[["Primary Lambda Runtime"]]:::deployment_target
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::unknown
+N_FG_PR_INTEGRATION["PR Integration"]:::unknown
+N_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::unknown
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::unknown
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::unknown
+N_FU_POLICY_CHECKS["Policy Checks"]:::unknown
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::unknown
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::unknown
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::unknown
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::unknown
+N_IF_BEDROCK_REVIEW_PUBLISH_API["Review Publish API"]:::interface
+N_IF_BEDROCK_WEBHOOK_API["Webhook Intake API"]:::interface
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::unknown
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::unknown
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::unknown
+N_REF_GITHUB_APP_API["GitHub App API"]:::unknown
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::unknown
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::unknown
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_LAMBDA_RUNTIME_OPERATIONS
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_SECRETS_CONFIGURATION
 N_FG_PR_INTEGRATION -->|contains| N_FU_GITHUB_WEBHOOK_INGRESS
@@ -27,25 +27,25 @@ N_FG_PR_INTEGRATION -->|contains| N_FU_PR_CONTEXT_ASSEMBLY
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_POLICY_CHECKS
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_ORCHESTRATION
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_PUBLICATION
-N_FU_GITHUB_WEBHOOK_INGRESS --> N_DEP_BEDROCK_LAMBDA_PRIMARY
-N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|deployed_to: Webhook ingress executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on: Forwards authenticated PR events for context assembly.| N_FU_PR_CONTEXT_ASSEMBLY
 N_FU_GITHUB_WEBHOOK_INGRESS -->|contains| N_IF_BEDROCK_WEBHOOK_API
-N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
-N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
-N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
-N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
-N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
-N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
-N_FU_REVIEW_ORCHESTRATION --> N_DEP_BEDROCK_LAMBDA_PRIMARY
-N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
-N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
-N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
-N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
-N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Requires secure runtime configuration and credential access.| N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Uses managed secret store for runtime credentials.| N_REF_AWS_SECRETS_MANAGER
+N_FU_POLICY_CHECKS -->|depends_on: Evaluates repository policy and risk rules.| N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Sends normalized review context.| N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Fetches pull request files and metadata.| N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Uses the GitHub REST SDK to fetch pull request files and metadata.| N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION -->|deployed_to: Orchestration executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Merges deterministic policy findings with model output.| N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Submits final findings for publication.| N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Retrieves model configuration and safety settings.| N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Requests model analysis for code review findings.| N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION -->|depends_on: Retrieves app credentials and redaction rules.| N_FU_SECRETS_CONFIGURATION
 N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
-N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
-N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
-N_IF_BEDROCK_REVIEW_PUBLISH_API --> N_DEP_BEDROCK_GITHUB_BOUNDARY
+N_FU_REVIEW_PUBLICATION -->|depends_on: Publishes check runs and inline review comments.| N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION -->|depends_on: Uses AWS SDK for Go clients to load managed secret configuration.| N_REF_AWS_SDK_GO
+N_IF_BEDROCK_REVIEW_PUBLISH_API -->|deployed_to: Publication API crosses GitHub integration boundary.| N_DEP_BEDROCK_GITHUB_BOUNDARY
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;

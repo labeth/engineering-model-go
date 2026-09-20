@@ -1,0 +1,95 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "access-control",
+            "controls": [
+              {
+                "id": "ver-ingest-auth",
+                "parts": [
+                  {
+                    "id": "ver-ingest-auth_smt",
+                    "name": "statement",
+                    "prose": "The control \"Ingest Authentication\" MUST be verified by test."
+                  },
+                  {
+                    "id": "ver-ingest-auth_gdn",
+                    "name": "guidance",
+                    "prose": "Unauthenticated ingest rejected in tests."
+                  },
+                  {
+                    "id": "ver-ingest-auth_obj",
+                    "links": [
+                      {
+                        "href": "#VER-INGEST-AUTH_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "VER-INGEST-AUTH"
+              }
+            ],
+            "id": "ctrl-ingest-auth",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#ctrl-ingest-auth",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-ingest-auth_smt",
+                "name": "statement",
+                "prose": "Authenticate machines before accepting telemetry."
+              }
+            ],
+            "title": "Ingest Authentication"
+          }
+        ],
+        "id": "access-control",
+        "title": "Control category: access-control."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-09-19T00:00:00Z",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/v0.1.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model Go Examples",
+          "type": "person",
+          "uuid": "2db47a63-d6f6-50b5-996d-20d2f4582190"
+        }
+      ],
+      "published": "2026-09-19T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "2db47a63-d6f6-50b5-996d-20d2f4582190"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Cloud API Subsystem - Controls",
+      "version": "v0.1.0"
+    },
+    "uuid": "e8feeaf7-e159-5924-bd7c-a0b168a294ed"
+  }
+}

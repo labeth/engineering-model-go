@@ -1,0 +1,153 @@
+schemaVersion: 2
+module:
+  path: models.example/coffee-fleet/system@v0
+  version: v0.1.0
+  modelId: sample-coffee-fleet-ota-cloud-model
+  title: Connected Coffee Fleet OTA + Cloud Architecture
+  introduction: 'This document models connected coffee machines that send telemetry to a central cloud site,
+
+    receive OTA firmware updates, and produce operational and audit logging evidence.
+
+    Authored functional architecture remains stable while runtime, code, and verification layers
+
+    are inferred from infrastructure, source, and test artifacts.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies:
+- alias: telemetry
+  path: models.example/coffee-fleet/telemetry@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: ota-agent
+  path: models.example/coffee-fleet/ota-agent@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: cloud-api
+  path: models.example/coffee-fleet/cloud-api@v0
+  version: v0.1.0
+  publications:
+  - public
+publications:
+- id: public
+  architecture:
+  - FG-MACHINE-EDGE
+  - FG-CLOUD-CONTROL
+  - FG-PLATFORM-OPERATIONS
+  - FU-MACHINE-TELEMETRY-COLLECTION
+  - FU-OTA-UPDATE-AGENT
+  - FU-FLEET-INGESTION-API
+  - FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  - FU-FLEET-OBSERVABILITY-REPORTING
+  - FU-CLOUD-RUNTIME-OPERATIONS
+  - FU-DEVICE-IDENTITY-SECRETS
+  - ACT-BARISTA
+  - ACT-FLEET-OPERATOR
+  - ACT-PLATFORM-OPERATOR
+  - ACT-SECURITY-ANALYST
+  - REF-IOT-INGEST-ENDPOINT
+  - REF-FIRMWARE-BUNDLE-STORE
+  - REF-CLOUD-LOGGING-SERVICE
+  - REF-FIRMWARE-SIGNER-SERVICE
+  - REF-MQTT-DEVICE-SDK
+  - REF-CLOUD-RUNTIME-SDK
+  - IF-COFFEE-TELEMETRY-INGEST
+  - IF-COFFEE-OTA-COMMAND
+  - DO-COFFEE-TELEMETRY-EVENT
+  - DO-COFFEE-OTA-PLAN
+  - DEP-COFFEE-CLOUD-PROD
+  - DEP-COFFEE-EDGE-FLEET
+  - HW-FLOW-SENSOR
+  - HW-COFFEE-MACHINE
+  - HW-EDGE-GATEWAY
+  - HW-CLOUD
+  - HWIF-CAN
+  - HWIF-CELLULAR
+  - HWIF-INTERNET
+  behavior:
+  - STATE-COFFEE-OTA-SCHEDULED
+  - STATE-COFFEE-OTA-APPLIED
+  - EVT-COFFEE-OTA-REQUESTED
+  - EVT-COFFEE-OTA-COMPLETED
+  - FLOW-COFFEE-OTA-ROLLOUT
+  - FLOW-COFFEE-TELEMETRY-INGEST
+  assurance:
+  - AV-MALICIOUS-FIRMWARE-BUNDLE
+  - AV-SPOOFED-DEVICE-IDENTITY
+  - AV-TELEMETRY-REPLAY-ABUSE
+  - AV-LOG-TAMPERING
+  - CTRL-COFFEE-DEVICE-IDENTITY
+  - CTRL-COFFEE-FIRMWARE-SIGNATURE
+  - RISK-COFFEE-DEVICE-SPOOFING
+  - RISK-COFFEE-MALICIOUS-OTA
+  - RISK-COFFEE-TELEMETRY-REPLAY
+  - RISK-COFFEE-LOG-TAMPERING
+  - POAM-COFFEE-REPLAY-WINDOW-HARDENING
+  - TB-COFFEE-EDGE-DEVICE
+  - TB-COFFEE-CLOUD-CONTROL
+  - TS-COFFEE-MALICIOUS-OTA-BUNDLE
+  - TS-COFFEE-OTA-COMMAND-SPOOF
+  - TS-COFFEE-TELEMETRY-REPLAY
+  - TS-COFFEE-LOG-TAMPERING
+  - ASM-COFFEE-DEVICE-ROOT-OF-TRUST
+  - OOS-COFFEE-HARDWARE-PHYSICAL-TAMPER
+  - MIT-COFFEE-FW-SIGNATURE-VERIFY
+  - MIT-COFFEE-DEVICE-IDENTITY-ENFORCEMENT
+  - MIT-COFFEE-TELEMETRY-REPLAY-WINDOW
+  - MIT-COFFEE-AUDIT-IMMUTABILITY
+  - CV-COFFEE-FW-SIGNATURE-TEST
+  - CV-COFFEE-DEVICE-IDENTITY-TEST
+  - CV-COFFEE-TELEMETRY-REPLAY
+  - CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS
+  compliance:
+  - PROF-NIST-800-53-MODERATE
+  - MAP-COFFEE-DEVICE-IDENTITY
+  - MAP-COFFEE-FIRMWARE-SIGNATURE
+  requirements:
+  - REQ-COF-001
+  - REQ-COF-002
+  - REQ-COF-003
+  - REQ-COF-004
+  - REQ-COF-005
+  - REQ-COF-006
+  - REQ-COF-007
+  - REQ-COF-008
+  - REQ-COF-009
+  - REQ-COF-010
+  - REQ-COF-011
+  - REQ-COF-012
+  views:
+  - VIEW-ARCHITECTURE-INTENT
+  - VIEW-COMMUNICATION
+  - VIEW-DEPLOYMENT
+  - VIEW-SECURITY
+  - VIEW-TRACEABILITY
+  - VIEW-INTERACTION-FLOW
+  - VIEW-STATE-LIFECYCLE
+inferenceHints:
+  runtimeSources:
+  - ./infra/terraform
+  codeSources:
+  - ./src
+  expectedRuntimeKinds:
+  - lambda_function
+  - eventbridge_rule
+  - eventbridge_target
+  - topic
+  - queue
+  - terraform_resource
+  ownershipResolutionOrder:
+  - explicit_annotation
+  - path_convention
+  - unresolved_warning

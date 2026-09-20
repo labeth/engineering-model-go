@@ -1,0 +1,41 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/portfolio/atlas-industries@v0
+  version: v0.1.0
+  modelId: atlas-industries-portfolio
+  title: Atlas Industries Company Portfolio
+  introduction: Company-level composition of Aegis Sentinel and Orion Relay.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies:
+- alias: aegis
+  path: models.atlas.example/products/aegis-sentinel@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: orion
+  path: models.atlas.example/products/orion-relay@v0
+  version: v0.1.0
+  publications:
+  - public
+publications:
+- id: public
+  architecture:
+  - FG-PORT
+  - FU-PORT-GOVERNANCE
+  - ACT-PORT-EXECUTIVE
+  - DO-PORT-STATUS
+  - CAP-ATLAS-PORTFOLIO
+  requirements:
+  - REQ-PORT-001
+  - REQ-PORT-002
+  - REQ-PORT-003
+inferenceHints: {}

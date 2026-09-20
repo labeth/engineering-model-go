@@ -287,8 +287,8 @@ func resolveOSCALPath(bundle model.Bundle, href, baseDir string) (string, bool) 
 	if baseDir != "" {
 		return filepath.Clean(filepath.Join(baseDir, href)), true
 	}
-	if bundle.ArchitecturePath != "" {
-		return filepath.Clean(filepath.Join(filepath.Dir(bundle.ArchitecturePath), href)), true
+	if bundle.ManifestPath != "" || bundle.ArchitecturePath != "" {
+		return filepath.Clean(filepath.Join(modelRootDir(bundle), href)), true
 	}
 	return filepath.Clean(href), true
 }

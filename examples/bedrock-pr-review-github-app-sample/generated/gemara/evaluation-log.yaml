@@ -2,12 +2,12 @@ metadata:
   id: sample-bedrock-pr-review-model-EVALUATION-LOG
   type: EvaluationLog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Control evaluation results for Bedrock Lambda GitHub PR Review App Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -32,13 +32,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-11T00:00:00Z"
     confidence-level: High
     evidence:
     - id: CV-BEDROCK-WEBHOOK-SIGNATURE-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/webhook_ingress.go
       description: Signature gate implementation.
   - requirement:
       reference-id: ENGMOD-CONTROL-CATALOG
@@ -50,13 +51,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-19T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/review_orchestration.go
       description: Policy merge and AI output handling logic.
 - name: Secret Rotation Enforcement
   result: Needs Review
@@ -75,13 +77,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-21T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: CV-BEDROCK-REDACTION-CHECK-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/review_publication.go
       description: Redaction and output formatting pipeline.
 target:
   id: sample-bedrock-pr-review-model

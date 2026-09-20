@@ -10,16 +10,16 @@ package model
 
 #SemanticQuantity: {
 	value: number
-	unit:  string & !=""
+	unit:  #MetamodelString & !=""
 }
 
 #SemanticValue: {
-	kind:       string
-	string?:    string
-	integer?:   int
-	real?:      number
-	boolean?:   bool
-	reference?: string
+	kind:       #MetamodelString
+	string?:    #MetamodelString
+	integer?:   #MetamodelInteger
+	real?:      #MetamodelReal
+	boolean?:   #MetamodelBoolean
+	reference?: #MetamodelString
 	quantity?:  #SemanticQuantity
 	if kind == "quantity" {
 		quantity: #SemanticQuantity
@@ -27,19 +27,19 @@ package model
 }
 
 #SemanticExpression: {
-	kind?:       string
-	language?:   string
-	operator?:   string
-	value?:      string
+	kind?:       #MetamodelString
+	language?:   #MetamodelString
+	operator?:   #MetamodelString
+	value?:      #MetamodelString
 	typedValue?: #SemanticValue
 	operands?: [...#SemanticExpression]
 }
 
 #SemanticFeature: {
-	name:          string
+	name:          #MetamodelString
 	kind?:         "attribute" | "port" | "parameter"
-	type?:         string
-	direction?:    string
+	type?:         #MetamodelString
+	direction?:    #MetamodelString
 	multiplicity?: #Multiplicity
 	ordered?:      bool
 	unique?:       bool
@@ -52,21 +52,21 @@ package model
 }
 
 #SemanticMetadata: {
-	namespace: string
-	type:      string
-	target:    string
+	namespace: #MetamodelString
+	type:      #MetamodelString
+	target:    #MetamodelString
 	properties?: [string]: #MetamodelValue
 }
 
 #SemanticElementBase: {
-	id:            string & !=""
-	name?:         string
-	kind:          string & !=""
-	metaclass?:    string & !=""
+	id:            #MetamodelString & !=""
+	name?:         #MetamodelString
+	kind:          #MetamodelString & !=""
+	metaclass?:    #MetamodelString & !=""
 	properties?:   #ExtensionProperties
-	namespace?:    string
-	owner?:        string
-	typeRef?:      string
+	namespace?:    #MetamodelString
+	owner?:        #MetamodelString
+	typeRef?:      #MetamodelString
 	multiplicity?: #Multiplicity
 	ordered?:      bool
 	unique?:       bool
@@ -74,36 +74,36 @@ package model
 	specializes?:  #StringList
 	subsets?:      #StringList
 	redefines?:    #StringList
-	controlKind?:  string
-	occurrenceId?: string
-	portionOf?:    string
+	controlKind?:  #MetamodelString
+	occurrenceId?: #MetamodelString
+	portionOf?:    #MetamodelString
 	variation?:    bool
 	variants?:     #StringList
 	references?:   #StringList
 	features?: [...#SemanticFeature]
 	metadata?: [...#SemanticMetadata]
-	extensionNamespace?: string
-	extension?:          string
+	extensionNamespace?: #MetamodelString
+	extension?:          #MetamodelString
 	targets?:            #StringList
 	if kind == "engineering_extension" {
-		extensionNamespace: string & !=""
-		extension:          string & !=""
-		targets: [string, ...string]
+		extensionNamespace: #MetamodelString & !=""
+		extension:          #MetamodelString & !=""
+		targets: [#MetamodelString, ...#MetamodelString]
 	}
 }
 
 #SemanticElement: #SemanticElementBase & #OfficialMetamodelBinding
 
 #SemanticRelationshipBase: {
-	id:          string & !=""
-	kind:        string & !=""
-	metaclass?:  string & !=""
+	id:          #MetamodelString & !=""
+	kind:        #MetamodelString & !=""
+	metaclass?:  #MetamodelString & !=""
 	properties?: #ExtensionProperties
-	source:      string & !=""
-	target:      string & !=""
-	owner?:      string
-	sourceType?: string
-	itemRef?:    string
+	source:      #MetamodelString & !=""
+	target:      #MetamodelString & !=""
+	owner?:      #MetamodelString
+	sourceType?: #MetamodelString
+	itemRef?:    #MetamodelString
 	triggers?:   #StringList
 	guard?:      #SemanticExpression
 	effect?:     #SemanticExpression
@@ -113,9 +113,9 @@ package model
 #SemanticRelationship: #SemanticRelationshipBase & #OfficialMetamodelBinding
 
 #SemanticImport: {
-	namespace:   string
-	imported:    string
-	visibility?: string
+	namespace:   #MetamodelString
+	imported:    #MetamodelString
+	visibility?: #MetamodelString
 	recursive?:  bool
 }
 

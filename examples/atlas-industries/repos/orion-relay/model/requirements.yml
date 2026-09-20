@@ -1,0 +1,28 @@
+schemaVersion: 2
+lintRun:
+  id: orion-strict
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-ORI-001
+  text: The orion relay system shall deliver each relay message according to network controller priority.
+  appliesTo:
+  - FU-ORI-ROUTER
+- id: REQ-ORI-002
+  text: The orion relay system shall execute the link scheduler software on managed edge compute.
+  appliesTo:
+  - FU-ORI-LINK
+- id: REQ-ORI-003
+  text: The orion relay system shall retain relay configuration using managed cloud operations.
+  appliesTo:
+  - FU-ORI-ROUTER
+- id: REQ-ORI-004
+  text: The orion relay system shall authenticate product services using shared security services.
+  appliesTo:
+  - FU-ORI-LINK
+  - FU-ORI-ROUTER
+- id: REQ-ORI-005
+  text: The orion relay system shall retain compliance evidence using the company control baseline.
+  appliesTo:
+  - FU-ORI-ROUTER

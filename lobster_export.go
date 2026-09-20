@@ -3,6 +3,7 @@ package engmodel
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -24,6 +25,8 @@ type LobsterActivityExportOptions struct {
 type LobsterActivityExportResult struct {
 	JSON string
 }
+
+var ErrNoLobsterActivities = errors.New("LOBSTER activity trace requires at least one TRLC-linked source artifact")
 
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type lobsterSourceRef struct {
@@ -92,7 +95,7 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 			return nil
 		}
 		content := string(contentBytes)
-		reqs := extractTRLCMarkerReqs(content)
+		reqs, markerLine, markerColumn := extractTRLCMarkerRefs(content)
 		if len(reqs) == 0 {
 			return nil
 		}
@@ -108,7 +111,7 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 		}
 		items = append(items, lobsterActivityItem{
 			Tag:            "act " + namespace + "." + tagID,
-			Location:       lobsterSourceRef{Kind: "file", File: path, Line: 1, Column: 1},
+			Location:       lobsterSourceRef{Kind: "file", File: relPath, Line: markerLine, Column: markerColumn},
 			Name:           filepath.Base(path),
 			Refs:           refs,
 			JustUp:         []string{},
@@ -123,6 +126,9 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 	})
 	if err != nil {
 		return LobsterActivityExportResult{}, fmt.Errorf("walk tests dir: %w", err)
+	}
+	if len(items) == 0 {
+		return LobsterActivityExportResult{}, ErrNoLobsterActivities
 	}
 
 	sort.SliceStable(items, func(i, j int) bool { return items[i].Tag < items[j].Tag })
@@ -167,13 +173,21 @@ func GenerateLobsterActivityTraceFromDir(testsDir string, options LobsterActivit
 
 // TRLC-LINKS: REQ-EMG-006
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
-func extractTRLCMarkerReqs(content string) []string {
+func extractTRLCMarkerRefs(content string) ([]string, int, int) {
 	reqs := []string{}
 	seen := map[string]bool{}
-	for _, line := range strings.Split(content, "\n") {
+	markerLine := 0
+	markerColumn := 0
+	for lineIndex, line := range strings.Split(content, "\n") {
 		m := lobsterTRLCMarkerRe.FindStringSubmatch(line)
 		if len(m) < 2 {
 			continue
+		}
+		if markerLine == 0 {
+			markerLine = lineIndex + 1
+			if location := lobsterTRLCMarkerRe.FindStringIndex(line); location != nil {
+				markerColumn = location[0] + 1
+			}
 		}
 		for _, req := range lobsterReqIDRe.FindAllString(m[1], -1) {
 			req = strings.TrimSpace(req)
@@ -185,5 +199,5 @@ func extractTRLCMarkerReqs(content string) []string {
 		}
 	}
 	sort.Strings(reqs)
-	return reqs
+	return reqs, markerLine, markerColumn
 }

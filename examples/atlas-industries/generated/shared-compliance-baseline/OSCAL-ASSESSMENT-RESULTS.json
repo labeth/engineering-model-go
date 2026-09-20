@@ -1,0 +1,85 @@
+{
+  "assessment-results": {
+    "uuid": "e08d5b6e-a0df-533b-b5ad-0c8ba9678033",
+    "metadata": {
+      "title": "Atlas Shared Compliance Baseline Assessment Results",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./OSCAL-ASSESSMENT-PLAN.json"
+    },
+    "results": [
+      {
+        "uuid": "cac09343-50a5-52e6-a4fe-0f5523210a32",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
+              "include-controls": [
+                {
+                  "control-id": "a-5.15"
+                },
+                {
+                  "control-id": "a-5.18"
+                },
+                {
+                  "control-id": "a-6.1"
+                },
+                {
+                  "control-id": "a-6.2"
+                },
+                {
+                  "control-id": "a-6.3"
+                },
+                {
+                  "control-id": "a-6.5"
+                },
+                {
+                  "control-id": "ac-2"
+                },
+                {
+                  "control-id": "at-2"
+                },
+                {
+                  "control-id": "ps-3"
+                },
+                {
+                  "control-id": "ps-4"
+                }
+              ]
+            }
+          ]
+        },
+        "risks": [
+          {
+            "uuid": "3119210c-586a-5fb3-afc2-6a51462552c6",
+            "title": "Delayed privileged access review",
+            "description": "A delayed access review may leave obsolete privileges active.",
+            "status": "open",
+            "statement": "Automated reminders exist but reviewer delegation remains incomplete."
+          },
+          {
+            "uuid": "3be0385c-b4a7-5e67-8e3e-4deabecd2e9f",
+            "title": "Former or transferred personnel retain access",
+            "description": "Delayed role-change or termination processing may leave inappropriate privileges active.",
+            "status": "mitigating",
+            "statement": "Manager and People Operations checkpoints govern access removal."
+          },
+          {
+            "uuid": "d6b494d8-1cce-510b-9055-09fbffdfd022",
+            "title": "Personnel miss security obligations",
+            "description": "Missing or overdue awareness education may increase human-centered security incidents.",
+            "status": "open",
+            "statement": "Employee reporting is established but contractor completion is not yet integrated."
+          }
+        ]
+      }
+    ]
+  }
+}

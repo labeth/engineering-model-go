@@ -27,7 +27,7 @@ var (
 // validateCanonicalYAML validates authored YAML against the CUE contract before
 // the runtime API representation is populated by strict Go decoding.
 //
-// TRLC-LINKS: REQ-EMG-035
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-053, REQ-EMG-054
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-CANONICAL-SEMANTIC-MODEL
 func validateCanonicalYAML(path string, source []byte, out any) error {
 	schema, err := cueSchemaForDocument(out)
@@ -75,6 +75,18 @@ func cueSchemaName(out any) (string, error) {
 	switch out.(type) {
 	case *ArchitectureDocument:
 		return "ArchitectureDocument", nil
+	case *ManifestDocument:
+		return "ManifestDocument", nil
+	case *ArchitectureInputDocument:
+		return "ArchitectureInputDocument", nil
+	case *BehaviorDocument:
+		return "BehaviorDocument", nil
+	case *AssuranceDocument:
+		return "AssuranceDocument", nil
+	case *ComplianceDocument:
+		return "ComplianceDocument", nil
+	case *ViewsDocument:
+		return "ViewsDocument", nil
 	case *CatalogDocument:
 		return "CatalogDocument", nil
 	case *DecisionsDocument:
@@ -83,6 +95,10 @@ func cueSchemaName(out any) (string, error) {
 		return "RequirementsDocument", nil
 	case *DesignDocument:
 		return "DesignDocument", nil
+	case *WorkspaceDocument:
+		return "WorkspaceDocument", nil
+	case *AviationDocument:
+		return "AviationDocument", nil
 	default:
 		return "", fmt.Errorf("no canonical CUE schema registered for %T", out)
 	}

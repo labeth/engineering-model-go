@@ -10,7 +10,7 @@ import (
 
 // TRLC-LINKS: REQ-EMG-046
 func TestBundleValidationRejectsUnsupportedSchemaVersion(t *testing.T) {
-	diagnostics := Bundle(model.Bundle{Architecture: model.ArchitectureDocument{SchemaVersion: 2}})
+	diagnostics := Bundle(schemaV2TestBundle(model.Bundle{Architecture: model.ArchitectureDocument{SchemaVersion: 1}}))
 	for _, diagnostic := range diagnostics {
 		if diagnostic.Code == "model.unsupported_schema_version" && diagnostic.Path == "schemaVersion" {
 			return
@@ -21,12 +21,12 @@ func TestBundleValidationRejectsUnsupportedSchemaVersion(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidationNoErrors(t *testing.T) {
-	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
+	p := filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml")
 	b, err := model.LoadBundle(p)
 	if err != nil {
 		t.Fatalf("load bundle failed: %v", err)
 	}
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if HasErrors(diags) {
 		t.Fatalf("expected no validation errors, got: %+v", diags)
 	}
@@ -102,7 +102,7 @@ func TestBundleValidationIncludesCanonicalSemanticDiagnostics(t *testing.T) {
 				},
 			}}
 			tt.edit(&bundle)
-			diagnostics := Bundle(bundle)
+			diagnostics := Bundle(schemaV2TestBundle(bundle))
 			found := false
 			for _, diagnostic := range diagnostics {
 				if diagnostic.Code == tt.code {
@@ -119,7 +119,7 @@ func TestBundleValidationIncludesCanonicalSemanticDiagnostics(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
-	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
+	p := filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml")
 	b, err := model.LoadBundle(p)
 	if err != nil {
 		t.Fatalf("load bundle failed: %v", err)
@@ -131,14 +131,14 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	// Free-form IDs should be accepted as long as kind is supported.
 	b.Architecture.Views[0].ID = "run"
 	b.Architecture.Views[0].Kind = "communication"
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if HasErrors(diags) {
 		t.Fatalf("expected no errors for free-form view id with valid kind, got: %+v", diags)
 	}
 
 	// Unsupported kind should fail validation regardless of ID.
 	b.Architecture.Views[0].Kind = "run"
-	diags = Bundle(b)
+	diags = Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected errors for unsupported view kind")
 	}
@@ -173,14 +173,14 @@ func TestBundleValidation_Decisions(t *testing.T) {
 		Views: []model.View{{ID: "V", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
 	}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid decision to pass, got: %+v", diags)
 	}
 
 	b.Architecture.Decisions[0].Date = ""
 	b.Architecture.Decisions[0].Status = "done"
 	b.Architecture.Decisions[0].Consequences = nil
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid decision to fail")
 	}
@@ -228,12 +228,12 @@ func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 		},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected expanded mapping set to validate, got: %+v", diags)
 	}
 
 	b.Architecture.AuthoredArchitecture.Mappings = append(b.Architecture.AuthoredArchitecture.Mappings, model.Mapping{Type: "writes", From: "ACT-A", To: "DATA-A"})
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid mapping pair to fail")
 	}
@@ -265,13 +265,13 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 		MaxDepth:        2,
 	}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid view spec fields, got: %+v", diags)
 	}
 
 	b.Architecture.Views[0].IncludeKinds = []string{"invalid-kind"}
 	b.Architecture.Views[0].MaxDepth = -1
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid view spec to fail")
 	}
@@ -311,7 +311,7 @@ func TestBundleValidation_InteractionFlowValid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT-SELECTION"}, IncludeMappings: []string{"flow_next", "flow_ref"}}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid interaction flow model, got: %+v", diags)
 	}
 }
@@ -332,7 +332,7 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-BROKEN"}}}}}
 
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid flow model to fail")
 	}
@@ -370,14 +370,14 @@ func TestBundleValidation_ComplianceMappings(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid compliance mapping, got: %+v", diags)
 	}
 
 	b.Architecture.Compliance.Mappings[0].ControlIDs = []string{"bad id"}
 	b.Architecture.Compliance.Mappings[0].ResponsibleRoles = []string{"MISSING"}
 	b.Architecture.Compliance.Mappings[0].ModelControlRef = "CTRL-MISSING"
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid compliance mapping diagnostics")
 	}
@@ -426,13 +426,13 @@ func TestBundleValidation_RisksAndPOAM(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid risk/poam model, got: %+v", diags)
 	}
 
 	b.Architecture.AuthoredArchitecture.Risks[0].Owner = "MISSING"
 	b.Architecture.AuthoredArchitecture.POAMItems[0].RiskRef = "RISK-MISSING"
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid risk/poam diagnostics")
 	}
@@ -546,7 +546,7 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(b); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
 		t.Fatalf("expected valid threat scenario and flow metadata model, got: %+v", diags)
 	}
 }
@@ -650,7 +650,7 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
 
-	diags := Bundle(b)
+	diags := Bundle(schemaV2TestBundle(b))
 	if !HasErrors(diags) {
 		t.Fatalf("expected invalid threat scenario and flow metadata diagnostics")
 	}
@@ -720,4 +720,36 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
 		}
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-046
+func schemaV2TestBundle(bundle model.Bundle) model.Bundle {
+	if bundle.Architecture.SchemaVersion == 0 {
+		bundle.Architecture.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Catalog.SchemaVersion == 0 {
+		bundle.Catalog.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Requirements.SchemaVersion == 0 {
+		bundle.Requirements.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Decisions.SchemaVersion == 0 {
+		bundle.Decisions.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Design.SchemaVersion == 0 {
+		bundle.Design.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Behavior.SchemaVersion == 0 {
+		bundle.Behavior.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Assurance.SchemaVersion == 0 {
+		bundle.Assurance.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Compliance.SchemaVersion == 0 {
+		bundle.Compliance.SchemaVersion = model.CurrentSchemaVersion
+	}
+	if bundle.Views.SchemaVersion == 0 {
+		bundle.Views.SchemaVersion = model.CurrentSchemaVersion
+	}
+	return bundle
 }

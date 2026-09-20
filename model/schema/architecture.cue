@@ -4,12 +4,6 @@ package model
 	id:             string & !=""
 	title?:         string
 	introduction?:  string
-	documents?: {
-		catalog?:      string & !=""
-		requirements?: string & !=""
-		design?:       string & !=""
-		decisions?:    string & !=""
-	}
 	baseCatalogRef?: string & !=""
 }
 
@@ -407,11 +401,36 @@ package model
 #Subsystem: {
 	id?:          string
 	name?:        string
+	dependency?:  string
+	publication?: string
+	source?:      #SubsystemSource
 	ref?:         string
 	git?:         string
 	rev?:         string
 	path?:        string
 	description?: string
+}
+
+#SubsystemSource: {
+	local?:  #LocalSubsystemSource
+	git?:    #GitSubsystemSource
+	module?: #ModuleSubsystemSource
+}
+
+#LocalSubsystemSource: {
+	path: string & !=""
+}
+
+#GitSubsystemSource: {
+	url:       string & !=""
+	revision?: string
+	path?:     string
+}
+
+#ModuleSubsystemSource: {
+	path:       string & !=""
+	version:    string & !=""
+	directory?: string
 }
 
 #Allocation: {

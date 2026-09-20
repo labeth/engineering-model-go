@@ -4,18 +4,23 @@ package view
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type Node struct {
-	ID    string
-	Label string
-	Kind  string
+	ID       string
+	Label    string
+	Kind     string
+	TypeRef  string
+	Features []string
 }
 
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type Edge struct {
-	From  string
-	To    string
-	Type  string
-	Label string
+	ID       string
+	From     string
+	To       string
+	Type     string
+	Label    string
+	ItemRef  string
+	Sequence int
 }
 
 // TRLC-LINKS: REQ-EMG-003

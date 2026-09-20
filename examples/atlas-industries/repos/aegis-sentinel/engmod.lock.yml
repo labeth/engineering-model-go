@@ -1,0 +1,26 @@
+schemaVersion: 1
+dependencies:
+    - alias: cloud
+      path: models.atlas.example/shared/cloud-platform@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:165a6a231d2f1c1d834f6fb7c2ed0b73148117c449b39fdf0ea686f23137ebb8
+    - alias: compliance
+      path: models.atlas.example/shared/compliance-baseline@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:72c0574b437aeba06d0b58f2aa398cacb23b31ef7a5149e4c3051d18caad1117
+    - alias: edge
+      path: models.atlas.example/shared/edge-platform@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:24ef80ddf71e5728aaa1bea5ecb242991e4e97be865e61b1344874b824c4ebd0
+    - alias: security
+      path: models.atlas.example/shared/security-services@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:ab5e501a5d372bd6978057a7fd0ddfaf61c625533cab296f551a28548f6ef719

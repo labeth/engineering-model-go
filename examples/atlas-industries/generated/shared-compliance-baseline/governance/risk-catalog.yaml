@@ -1,0 +1,61 @@
+title: "Atlas Shared Compliance Baseline - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Risk register for Atlas Shared Compliance Baseline
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+groups:
+- appetite: Low
+  id: operational-risk
+  max-severity: High
+  title: Operational Risk
+  description: Risks to the operation, security, and compliance of the system.
+risks:
+- id: RISK-COMP-ACCESS-REVIEW-GAP
+  title: Delayed privileged access review
+  description: A delayed access review may leave obsolete privileges active.
+  group: operational-risk
+  severity: Low
+  rank: 3
+  owner:
+    responsible:
+    - name: ACT-COMP-OFFICER
+    accountable:
+    - name: ACT-COMP-OFFICER
+    informed:
+    - name: ACT-COMP-OFFICER
+  impact: Automated reminders exist but reviewer delegation remains incomplete.
+- id: RISK-COMP-UNTRAINED-PERSONNEL
+  title: Personnel miss security obligations
+  description: Missing or overdue awareness education may increase human-centered security incidents.
+  group: operational-risk
+  severity: High
+  rank: 1
+  owner:
+    responsible:
+    - name: ACT-COMP-OFFICER
+    accountable:
+    - name: ACT-COMP-OFFICER
+    informed:
+    - name: ACT-COMP-OFFICER
+  impact: Employee reporting is established but contractor completion is not yet integrated.
+- id: RISK-COMP-RETAINED-ACCESS
+  title: Former or transferred personnel retain access
+  description: Delayed role-change or termination processing may leave inappropriate privileges active.
+  group: operational-risk
+  severity: Medium
+  rank: 2
+  owner:
+    responsible:
+    - name: ACT-PEOPLE-OPERATIONS
+    accountable:
+    - name: ACT-PEOPLE-OPERATIONS
+    informed:
+    - name: ACT-PEOPLE-OPERATIONS
+  impact: Manager and People Operations checkpoints govern access removal.

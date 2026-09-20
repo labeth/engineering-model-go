@@ -1,0 +1,14 @@
+schemaVersion: 1
+dependencies:
+    - alias: aegis
+      path: models.atlas.example/products/aegis-sentinel@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:641c82ef44ffe1a2682599f398f988f8cafdc3206faca4df2db4033e8a691d51
+    - alias: orion
+      path: models.atlas.example/products/orion-relay@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:1b7819ddeb70695ba47df835a28621d13a3dd00446fa6771f2c3650a67bd0a2a

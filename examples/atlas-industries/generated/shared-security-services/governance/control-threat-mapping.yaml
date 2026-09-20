@@ -1,0 +1,33 @@
+title: "Atlas Shared Security Services - Control to Threat Mapping"
+metadata:
+  id: atlas-shared-security-services-CONTROL-THREAT-MAPPING
+  type: MappingDocument
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: How controls relate to threats for Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+source-reference:
+  entry-type: Control
+  reference-id: ENGMOD-CONTROL-CATALOG
+target-reference:
+  entry-type: Threat
+  reference-id: ENGMOD-THREAT-CATALOG
+mappings:
+- id: MAP-CTRL-SEC-SHORT-LIVED-IDENTITY
+  source: CTRL-SEC-SHORT-LIVED-IDENTITY
+  targets:
+  - entry-id: TS-SEC-CREDENTIAL-REPLAY
+    strength: 7
+    rationale: Control CTRL-SEC-SHORT-LIVED-IDENTITY mitigates threat TS-SEC-CREDENTIAL-REPLAY.
+  relationship: relates-to

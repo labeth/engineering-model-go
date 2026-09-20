@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-CLOUD-001
+  title: Use a shared event-driven cloud foundation
+  status: accepted
+  date: 2026-09-19
+  context: Product services need consistent resilience and observability.
+  decision: Publish event ingestion and managed runtime as a reusable module.
+  consequences:
+  - Products share operational controls while retaining separate data domains.

@@ -11,160 +11,214 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
-func TestLoadBundle(t *testing.T) {
-	p := filepath.Join("..", "examples", "payments-engineering-sample", "architecture.yml")
-	b, err := LoadBundle(p)
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-	if b.Architecture.Model.ID != "sample-payments-layered-model" {
-		t.Fatalf("unexpected model id: %q", b.Architecture.Model.ID)
-	}
-	if len(b.Architecture.Views) != 7 {
-		t.Fatalf("expected 7 views, got %d", len(b.Architecture.Views))
-	}
-	if b.Architecture.SchemaVersion != CurrentSchemaVersion ||
-		b.Catalog.SchemaVersion != CurrentSchemaVersion ||
-		b.Requirements.SchemaVersion != CurrentSchemaVersion ||
-		b.Design.SchemaVersion != CurrentSchemaVersion ||
-		b.Decisions.SchemaVersion != CurrentSchemaVersion {
-		t.Fatalf("legacy documents were not normalized to schema version %d", CurrentSchemaVersion)
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-001
-func TestLoadBundle_Decisions(t *testing.T) {
-	p := filepath.Join("..", "architecture.yml")
-	b, err := LoadBundle(p)
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-
-	if len(b.Architecture.Decisions) == 0 {
-		t.Fatalf("expected root model decisions")
-	}
-	if filepath.Base(b.DecisionsPath) != "decisions.yml" {
-		t.Fatalf("unexpected decisions path: %q", b.DecisionsPath)
-	}
-	if len(b.Decisions.Decisions) != len(b.Architecture.Decisions) {
-		t.Fatalf("expected decisions document and architecture decisions to match")
-	}
-	d := b.Architecture.Decisions[0]
-	if d.ID != "ADR-EMG-001" {
-		t.Fatalf("unexpected decision id: %q", d.ID)
-	}
-	if d.Status != "accepted" {
-		t.Fatalf("unexpected decision status: %q", d.Status)
-	}
-	if len(d.Consequences) == 0 {
-		t.Fatalf("expected decision consequences")
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
-func TestLoadBundleUsesExplicitDocumentReferences(t *testing.T) {
-	bundle, err := LoadBundle(filepath.Join("..", "architecture.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if bundle.Architecture.Model.BaseCatalogRef != "" {
-		t.Fatalf("root model should use explicit document references, got legacy ref %q", bundle.Architecture.Model.BaseCatalogRef)
-	}
-	refs := bundle.Architecture.Model.Documents
-	if refs.Catalog != "./catalog.yml" || refs.Requirements != "./requirements.yml" || refs.Design != "./design.yml" || refs.Decisions != "./decisions.yml" {
-		t.Fatalf("unexpected explicit references: %+v", refs)
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
-func TestResolveDocumentReferencesRejectsConflictingCatalogAliases(t *testing.T) {
-	_, err := ResolveDocumentReferences(ModelMeta{
-		BaseCatalogRef: "./legacy-catalog.yml",
-		Documents:      DocumentReferences{Catalog: "./catalog.yml"},
-	})
-	if err == nil || !strings.Contains(err.Error(), "conflicts") {
-		t.Fatalf("expected conflicting catalog reference error, got %v", err)
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
-func TestLoadBundleRejectsMissingExplicitCompanionDocument(t *testing.T) {
-	dir := t.TempDir()
-	architecture := `schemaVersion: 1
-model:
-  id: TEST-MODEL
-  documents:
-    catalog: ./catalog.yml
-    requirements: ./missing-requirements.yml
+const validManifest = `schemaVersion: 2
+module:
+  path: example.com/test@v1
+  version: v1.0.0
+  modelId: TEST-MODEL
+  title: Test model
+  introduction: Test introduction
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications: []
+inferenceHints: {}
 `
-	catalog := "schemaVersion: 1\ncatalog: {}\n"
-	if err := os.WriteFile(filepath.Join(dir, "architecture.yml"), []byte(architecture), 0o644); err != nil {
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-051
+func TestLoadBundleAggregatesSchemaV2Domains(t *testing.T) {
+	dir := writeV2Fixture(t, validManifest)
+	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "catalog.yml"), []byte(catalog), 0o644); err != nil {
-		t.Fatal(err)
+	if bundle.Architecture.Model.ID != "TEST-MODEL" ||
+		len(bundle.Architecture.AuthoredArchitecture.FunctionalUnits) != 1 ||
+		len(bundle.Architecture.AuthoredArchitecture.States) != 1 ||
+		len(bundle.Architecture.AuthoredArchitecture.Controls) != 1 ||
+		len(bundle.Architecture.Compliance.Profiles) != 1 {
+		t.Fatalf("domain documents were not aggregated: %+v", bundle.Architecture)
 	}
-	_, err := LoadBundle(filepath.Join(dir, "architecture.yml"))
-	if err == nil || !strings.Contains(err.Error(), "explicit requirements document") {
-		t.Fatalf("expected missing explicit companion error, got %v", err)
+	if got := bundle.Architecture.AuthoredArchitecture.Mappings; len(got) != 1 || got[0].Type != "writes" {
+		t.Fatalf("relationships were not aggregated as mappings: %+v", got)
+	}
+	if got := bundle.Design.Design.FunctionalUnits; len(got) != 1 || got[0].Views["intent"].Narrative != "Narrative" {
+		t.Fatalf("view narratives were not aggregated into design: %+v", got)
+	}
+	if _, err := LoadCanonicalBundle(filepath.Join(dir, "engmod.yml")); err != nil {
+		t.Fatalf("load canonical bundle from manifest: %v", err)
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-044
-func TestLoadBundleUsesCustomCompanionPaths(t *testing.T) {
-	dir := t.TempDir()
-	files := map[string]string{
-		"architecture.yml": `schemaVersion: 1
-model:
-  id: TEST-MODEL
-  documents:
-    catalog: ./vocabulary.yml
-    requirements: ./needs.yml
-    design: ./solution.yml
-    decisions: ./adrs.yml
-`,
-		"vocabulary.yml": "schemaVersion: 1\ncatalog: {}\n",
-		"needs.yml":      "schemaVersion: 1\nlintRun: {}\nrequirements: []\n",
-		"solution.yml":   "schemaVersion: 1\ndesign:\n  id: TEST-DESIGN\n  title: Test\n",
-		"adrs.yml":       "schemaVersion: 1\ndecisions: []\n",
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func TestLoadBundleRejectsArchitectureEntryPoint(t *testing.T) {
+	dir := writeV2Fixture(t, validManifest)
+	_, err := LoadBundle(filepath.Join(dir, "model", "architecture.yml"))
+	if err == nil || !strings.Contains(err.Error(), "engmod.yml") {
+		t.Fatalf("expected manifest-only entry rejection, got %v", err)
 	}
-	for name, content := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
-			t.Fatal(err)
-		}
+	_, err = LoadCanonicalBundle(filepath.Join(dir, "model", "architecture.yml"))
+	if err == nil || !strings.Contains(err.Error(), "engmod.yml") {
+		t.Fatalf("expected canonical manifest-only entry rejection, got %v", err)
 	}
-	bundle, err := LoadBundle(filepath.Join(dir, "architecture.yml"))
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func TestSchemaV2RejectsMissingSchemaVersion(t *testing.T) {
+	dir := writeV2Fixture(t, strings.TrimPrefix(validManifest, "schemaVersion: 2\n"))
+	_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err == nil || !strings.Contains(err.Error(), "schemaVersion") {
+		t.Fatalf("expected required schemaVersion error, got %v", err)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func TestManifestRequiresEveryExplicitDomainDocument(t *testing.T) {
+	fields := []string{"catalog", "requirements", "architecture", "behavior", "assurance", "compliance", "views", "decisions"}
+	for _, field := range fields {
+		t.Run(field, func(t *testing.T) {
+			line := "  " + field + ": model/" + field + ".yml\n"
+			dir := writeV2Fixture(t, strings.Replace(validManifest, line, "", 1))
+			_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+			if err == nil || !strings.Contains(err.Error(), "documents."+field) {
+				t.Fatalf("expected missing %s path error, got %v", field, err)
+			}
+		})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func TestLoadBundleUsesOnlyExplicitDocumentPaths(t *testing.T) {
+	manifest := strings.Replace(validManifest, "catalog: model/catalog.yml", "catalog: model/vocabulary.yml", 1)
+	dir := writeV2Fixture(t, manifest)
+	if err := os.Rename(filepath.Join(dir, "model", "catalog.yml"), filepath.Join(dir, "model", "vocabulary.yml")); err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {
-		t.Fatalf("load explicit document set: %v", err)
+		t.Fatal(err)
 	}
-	if filepath.Base(bundle.CatalogPath) != "vocabulary.yml" ||
-		filepath.Base(bundle.RequirementsPath) != "needs.yml" ||
-		filepath.Base(bundle.DesignPath) != "solution.yml" ||
-		filepath.Base(bundle.DecisionsPath) != "adrs.yml" {
-		t.Fatalf("explicit paths were not resolved: %+v", bundle)
+	if filepath.Base(bundle.CatalogPath) != "vocabulary.yml" {
+		t.Fatalf("explicit catalog path was not used: %s", bundle.CatalogPath)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-046
+func TestSchemaV2RejectsUnknownFieldsAndRelationshipKinds(t *testing.T) {
+	t.Run("unknown field", func(t *testing.T) {
+		dir := writeV2Fixture(t, validManifest)
+		path := filepath.Join(dir, "model", "behavior.yml")
+		source := readTestFile(t, path) + "unexpected: true\n"
+		writeTestFile(t, path, source)
+		_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+		if err == nil || !strings.Contains(err.Error(), "unexpected") {
+			t.Fatalf("expected strict unknown-field error, got %v", err)
+		}
+	})
+	t.Run("unsupported relationship", func(t *testing.T) {
+		dir := writeV2Fixture(t, validManifest)
+		path := filepath.Join(dir, "model", "behavior.yml")
+		source := strings.Replace(readTestFile(t, path), "type: writes", "type: arbitrary", 1)
+		writeTestFile(t, path, source)
+		_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+		if err == nil || !strings.Contains(err.Error(), "relationships.0.type") {
+			t.Fatalf("expected typed relationship error, got %v", err)
+		}
+	})
 }
 
 // TRLC-LINKS: REQ-EMG-045
 // ENGMODEL-LINKS: DO-MODEL-AUTHORING-CONTRACT
-func TestBuildAuthoringContractDescribesCanonicalDocuments(t *testing.T) {
-	bundle, err := LoadBundle(filepath.Join("..", "architecture.yml"))
+func TestBuildAuthoringContractDescribesSchemaV2(t *testing.T) {
+	dir := writeV2Fixture(t, validManifest)
+	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	contract := BuildAuthoringContract(bundle)
-	if contract.ContractVersion != AuthoringContractVersion || contract.CanonicalFormat != "YAML" || contract.SchemaAuthority != "CUE" {
-		t.Fatalf("unexpected contract header: %+v", contract)
+	if contract.ContractVersion != AuthoringContractVersion || len(contract.Documents) != 9 || len(contract.Compatibility) != 0 {
+		t.Fatalf("unexpected schema-v2 authoring contract: %+v", contract)
 	}
-	if len(contract.Documents) != 5 {
-		t.Fatalf("expected five canonical documents, got %d", len(contract.Documents))
-	}
+
 	for _, document := range contract.Documents {
-		if document.SchemaVersion != CurrentSchemaVersion || document.Path == "" || document.SchemaPath == "" || len(document.TopLevelFields) == 0 {
+		if !document.Required || document.SchemaVersion != 2 || document.Path == "" || document.SchemaPath == "" {
 			t.Fatalf("incomplete document contract: %+v", document)
 		}
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-053, REQ-EMG-056
+func TestLoadBundleIncludesOptionalAviationDocument(t *testing.T) {
+	bundle, err := LoadBundle(filepath.Join("..", "examples", "dal-c-flight-control-sample", "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bundle.Aviation == nil || bundle.Aviation.Aviation.Profile.SoftwareLevel != "C" {
+		t.Fatalf("aviation document was not loaded: %+v", bundle.Aviation)
+	}
+	contract := BuildAuthoringContract(bundle)
+	if len(contract.Documents) != 10 {
+		t.Fatalf("expected optional aviation authoring document, got %+v", contract.Documents)
+	}
+	last := contract.Documents[len(contract.Documents)-1]
+	if last.Kind != "aviation" || last.Required || last.SchemaPath != "model/schema/aviation.cue" {
+		t.Fatalf("unexpected aviation authoring contract: %+v", last)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-051
+func writeV2Fixture(t *testing.T, manifest string) string {
+	t.Helper()
+	dir, err := os.MkdirTemp(".", ".loader-test-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	files := map[string]string{
+		"engmod.yml":             manifest,
+		"model/catalog.yml":      "schemaVersion: 2\ncatalog: {}\n",
+		"model/requirements.yml": "schemaVersion: 2\nlintRun: {}\nrequirements: []\n",
+		"model/architecture.yml": "schemaVersion: 2\narchitecture:\n  functionalUnits:\n    - id: FU-A\n      name: A\n  dataObjects:\n    - id: DO-A\n      name: A\n",
+		"model/behavior.yml":     "schemaVersion: 2\nbehavior:\n  states:\n    - id: STATE-A\n      name: A\n  relationships:\n    - type: writes\n      from: FU-A\n      to: DO-A\n",
+		"model/assurance.yml":    "schemaVersion: 2\nassurance:\n  controls:\n    - id: CTRL-A\n      name: A\n",
+		"model/compliance.yml":   "schemaVersion: 2\ncompliance:\n  profiles:\n    - id: PROFILE-A\n      href: profile.json\n",
+		"model/views.yml":        "schemaVersion: 2\nviews: []\nnaf:\n  framework: NAF\n  version: \"4.1\"\n  architectureDescription: Test\n  stakeholders: []\n  concerns: []\n  products: []\ndesign:\n  id: DESIGN-A\n  title: Test\n  functionalUnits:\n    - id: FU-A\n      views:\n        intent:\n          narrative: Narrative\n",
+		"model/decisions.yml":    "schemaVersion: 2\ndecisions: []\n",
+	}
+	for name, content := range files {
+		writeTestFile(t, filepath.Join(dir, name), content)
+	}
+	return dir
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func writeTestFile(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func readTestFile(t *testing.T, path string) string {
+	t.Helper()
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(content)
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
@@ -289,6 +343,7 @@ semantics:
 	if err := decoder.Decode(&document); err != nil {
 		t.Fatalf("decode advanced semantics: %v", err)
 	}
+
 	if got := document.Semantics.Elements[2].Features[0].Value.TypedValue.Quantity.Unit; got != "UNIT-M" {
 		t.Fatalf("unexpected quantity unit %q", got)
 	}
@@ -298,5 +353,22 @@ semantics:
 	decoder.KnownFields(true)
 	if err := decoder.Decode(&document); err == nil {
 		t.Fatal("strict decoding accepted an unknown typed quantity field")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-052
+func TestLoadBundleAggregatesSchemaV2ArchitectureSemantics(t *testing.T) {
+	bundle, err := LoadBundle(filepath.Join("..", "examples", "coffee-appliance-six-view", "engmod.yml"))
+	if err != nil {
+		t.Fatalf("load semantic schema-v2 example: %v", err)
+	}
+	if len(bundle.Architecture.Semantics.Elements) < 20 {
+		t.Fatalf("expected canonical semantic elements in aggregate architecture, got %d", len(bundle.Architecture.Semantics.Elements))
+	}
+	if len(bundle.Architecture.Semantics.Relationships) < 10 {
+		t.Fatalf("expected canonical semantic relationships in aggregate architecture, got %d", len(bundle.Architecture.Semantics.Relationships))
+	}
+	if bundle.Architecture.Semantics.Relationships[4].ItemRef != "ITEM-BREW-SELECTION" {
+		t.Fatalf("typed message was not preserved: %+v", bundle.Architecture.Semantics.Relationships[4])
 	}
 }

@@ -95,6 +95,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGTRACE` |interface |engtrace CLI
 |`IF-CLI-ENGTRLC` |interface |engtrlc CLI
 |`IF-CLI-ENGVIEW` |interface |engview CLI
+|`REF-CUE-OCI-MODULE-REGISTRY` |referenced_element |CUE OCI Module Registry
 |`REF-GO-TOOLCHAIN` |referenced_element |Go Toolchain
 |`REF-LOBSTER-TOOLCHAIN` |referenced_element |LOBSTER Toolchain
 |`REF-NAF-V4-1-SPECIFICATION` |referenced_element |NATO Architecture Framework v4.1
@@ -175,6 +176,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-SYSML-EXPORTER` |contains |`IF-CLI-ENGSYSML` |contains
 |`FU-SYSML-EXPORTER` |depends_on |`REF-SYSML-V2-TOOLCHAIN` |depends_on
 |`FU-SYSML-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-SYSTEM-COMPOSITION` |depends_on |`REF-CUE-OCI-MODULE-REGISTRY` |depends_on: Fetches exact-version reusable model modules using CUE registry configuration and credentials.
 |`FU-THREAT-EXPORTER` |writes |`DO-THREAT-DRAGON-JSON` |writes
 |`FU-THREAT-EXPORTER` |contains |`IF-CLI-ENGDRAGON` |contains
 |`FU-THREAT-EXPORTER` |depends_on |`REF-OPEN-OTM-SCHEMA` |depends_on

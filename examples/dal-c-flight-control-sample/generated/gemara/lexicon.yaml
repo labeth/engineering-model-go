@@ -1,0 +1,31 @@
+title: "DAL C Yaw Damping Readiness Sample - Lexicon"
+metadata:
+  id: dal-c-flight-control-sample-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for DAL C Yaw Damping Readiness Sample
+  author:
+    id: engineering-model-go
+    name: Engineering Model Go Examples
+    type: Human
+terms:
+- id: FG-FLIGHT-CONTROL
+  title: flight control
+  definition: Functions that support controlled aircraft motion.
+- id: FU-YAW-CONTROL
+  title: yaw damping software
+  definition: Software function that filters yaw rate and limits its command.
+- id: EVT-YAW-RATE-RECEIVED
+  title: yaw rate input is received
+  definition: A sampled yaw-rate value becomes available.
+- id: STATE-OPERATIONAL
+  title: operational
+  definition: The software is able to calculate commands.
+- id: TERM-RUDDER-COMMAND
+  title: bounded rudder command
+  definition: A command constrained to the allocated authority.
+- id: TERM-YAW-RATE
+  title: yaw rate input
+  definition: Measured aircraft yaw angular rate.

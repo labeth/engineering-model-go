@@ -1,0 +1,24 @@
+schemaVersion: 2
+views: []
+design:
+  id: atlas-security-design
+  title: Atlas Shared Security Services Design
+  functionalGroups:
+  - id: FG-SEC
+    views:
+      security:
+        title: Zero-trust security
+        narrative: Identity issuance and audit monitoring operate in a privileged control plane.
+  functionalUnits:
+  - id: FU-SEC-IDENTITY
+    group: FG-SEC
+    views:
+      security:
+        title: Identity lifecycle
+        narrative: Credentials are scoped, short-lived, rotated, and validated at every boundary.
+  - id: FU-SEC-MONITORING
+    group: FG-SEC
+    views:
+      security:
+        title: Detection lifecycle
+        narrative: Signed audit events feed replay and anomaly detection.

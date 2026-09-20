@@ -2,12 +2,12 @@ metadata:
   id: sample-coffee-fleet-ota-cloud-model-ENFORCEMENT-LOG
   type: EnforcementLog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Remediation enforcement actions for Connected Coffee Fleet OTA + Cloud Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-EVALUATION-LOG
@@ -23,7 +23,7 @@ actions:
     reference-id: ENGMOD-POLICY
     entry-id: remediation
   message: "Remediation for RISK-COFFEE-DEVICE-SPOOFING (milestone: Enforce tighter telemetry replay window constraints, due: 2026-08-01, status: planned)."
-  start: "2026-06-27T00:00:00Z"
+  start: "2026-09-19T00:00:00Z"
   steps:
   - ACT-SECURITY-ANALYST
   - tickets/SEC-3301.md

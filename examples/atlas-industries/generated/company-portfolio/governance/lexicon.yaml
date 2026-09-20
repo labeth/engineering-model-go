@@ -1,0 +1,28 @@
+title: "Atlas Industries Company Portfolio - Lexicon"
+metadata:
+  id: atlas-industries-portfolio-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-PORT
+  title: atlas industries portfolio
+  definition: Company portfolio of interoperable Atlas product systems.
+- id: FG-PORT
+  title: portfolio governance
+  definition: Company capability and assurance governance.
+- id: FU-PORT-GOVERNANCE
+  title: portfolio governance service
+  definition: Coordinates product capability and assurance objectives.
+- id: ACT-PORT-EXECUTIVE
+  title: portfolio executive
+  definition: Owns company product capability outcomes.
+- id: DATA-PORT-STATUS
+  title: portfolio status
+  definition: Consolidated product capability and assurance status.

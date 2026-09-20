@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-SEC-001
+  title: Centralize identity policy but federate enforcement
+  status: accepted
+  date: 2026-09-19
+  context: Products need consistent identity semantics without a shared failure domain.
+  decision: Centralize credential policy and require local enforcement at product boundaries.
+  consequences:
+  - Products consume one identity contract and retain local authorization.

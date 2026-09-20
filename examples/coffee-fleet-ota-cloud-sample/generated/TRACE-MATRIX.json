@@ -25,7 +25,7 @@
       ],
       "delegatedTo": {
         "subsystem": "SUB-TELEMETRY",
-        "target": "CAP-TELEM-REPORT",
+        "target": "telemetry::CAP-TELEM-REPORT",
         "targetRequirement": "REQ-TELEM-001"
       },
       "status": "implemented"
@@ -54,7 +54,7 @@
       ],
       "delegatedTo": {
         "subsystem": "SUB-CLOUD-API",
-        "target": "CAP-CLOUD-INGEST",
+        "target": "cloud-api::CAP-CLOUD-INGEST",
         "targetRequirement": "REQ-CLOUD-001"
       },
       "status": "implemented"
@@ -84,7 +84,7 @@
       ],
       "delegatedTo": {
         "subsystem": "SUB-OTA-AGENT",
-        "target": "CAP-OTA-APPLY",
+        "target": "ota-agent::CAP-OTA-APPLY",
         "targetRequirement": "REQ-OTA-001"
       },
       "status": "implemented"
@@ -242,6 +242,149 @@
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
       "status": "orphan"
+    },
+    {
+      "id": "cloud-api::REQ-CLOUD-001",
+      "text": "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.",
+      "units": [
+        "cloud-api::FU-CLOUD-INGEST"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-CLOUD-API",
+        "target": "cloud-api::CAP-CLOUD-INGEST",
+        "targetRequirement": "cloud-api::REQ-CLOUD-001"
+      },
+      "provenance": {
+        "alias": "cloud-api",
+        "modulePath": "models.example/coffee-fleet/cloud-api@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-CLOUD-API",
+        "publication": "public",
+        "sourceId": "REQ-CLOUD-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "cloud-api::REQ-CLOUD-002",
+      "text": "Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.",
+      "units": [
+        "cloud-api::FU-CLOUD-INGEST"
+      ],
+      "provenance": {
+        "alias": "cloud-api",
+        "modulePath": "models.example/coffee-fleet/cloud-api@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-CLOUD-API",
+        "publication": "public",
+        "sourceId": "REQ-CLOUD-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "ota-agent::REQ-OTA-001",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.",
+      "units": [
+        "ota-agent::FU-OTA-APPLY"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-OTA-AGENT",
+        "target": "ota-agent::CAP-OTA-APPLY",
+        "targetRequirement": "ota-agent::REQ-OTA-001"
+      },
+      "provenance": {
+        "alias": "ota-agent",
+        "modulePath": "models.example/coffee-fleet/ota-agent@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-OTA-AGENT",
+        "publication": "public",
+        "sourceId": "REQ-OTA-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "ota-agent::REQ-OTA-002",
+      "text": "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.",
+      "units": [
+        "ota-agent::FU-OTA-VERIFY"
+      ],
+      "provenance": {
+        "alias": "ota-agent",
+        "modulePath": "models.example/coffee-fleet/ota-agent@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-OTA-AGENT",
+        "publication": "public",
+        "sourceId": "REQ-OTA-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "ota-agent::REQ-OTA-003",
+      "text": "When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.",
+      "units": [
+        "ota-agent::FU-OTA-APPLY"
+      ],
+      "provenance": {
+        "alias": "ota-agent",
+        "modulePath": "models.example/coffee-fleet/ota-agent@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-OTA-AGENT",
+        "publication": "public",
+        "sourceId": "REQ-OTA-003"
+      },
+      "status": "published"
+    },
+    {
+      "id": "telemetry::REQ-TELEM-001",
+      "text": "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet.",
+      "units": [
+        "telemetry::FU-TELEM-REPORT"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-TELEMETRY",
+        "target": "telemetry::CAP-TELEM-REPORT",
+        "targetRequirement": "telemetry::REQ-TELEM-001"
+      },
+      "provenance": {
+        "alias": "telemetry",
+        "modulePath": "models.example/coffee-fleet/telemetry@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-TELEMETRY",
+        "publication": "public",
+        "sourceId": "REQ-TELEM-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "telemetry::REQ-TELEM-002",
+      "text": "Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.",
+      "units": [
+        "telemetry::FU-TELEM-SAMPLE"
+      ],
+      "provenance": {
+        "alias": "telemetry",
+        "modulePath": "models.example/coffee-fleet/telemetry@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-TELEMETRY",
+        "publication": "public",
+        "sourceId": "REQ-TELEM-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "telemetry::REQ-TELEM-003",
+      "text": "Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.",
+      "units": [
+        "telemetry::FU-TELEM-REPORT"
+      ],
+      "provenance": {
+        "alias": "telemetry",
+        "modulePath": "models.example/coffee-fleet/telemetry@v0",
+        "version": "v0.1.0",
+        "sourceModel": "COF-TELEMETRY",
+        "publication": "public",
+        "sourceId": "REQ-TELEM-003"
+      },
+      "status": "published"
     }
   ],
   "danglingLinks": null,
@@ -252,10 +395,10 @@
     "REQ-COF-012"
   ],
   "summary": {
-    "requirements": 12,
+    "requirements": 20,
     "implemented": 8,
     "verified": 6,
-    "delegated": 3,
+    "delegated": 6,
     "orphan": 4,
     "danglingLinks": 0
   }

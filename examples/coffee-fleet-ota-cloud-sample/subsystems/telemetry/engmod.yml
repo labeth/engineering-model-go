@@ -1,0 +1,44 @@
+schemaVersion: 2
+module:
+  path: models.example/coffee-fleet/telemetry@v0
+  version: v0.1.0
+  modelId: COF-TELEMETRY
+  title: Machine Telemetry Subsystem
+  introduction: 'The machine telemetry subsystem samples coffee machine sensors and reports signed
+
+    telemetry to the fleet. It is a leaf system of the connected coffee fleet, hosted on
+
+    the coffee machine controller.
+
+    '
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-TELEMETRY
+  - FU-TELEM-SAMPLE
+  - FU-TELEM-REPORT
+  - IF-TELEM-REPORT
+  - DO-TELEM-RECORD
+  - CAP-TELEM-REPORT
+  - NEED-CAN-BUS
+  assurance:
+  - CTRL-TELEM-INTEGRITY
+  - VER-TELEM-INTEGRITY
+  requirements:
+  - REQ-TELEM-001
+  - REQ-TELEM-002
+  - REQ-TELEM-003
+inferenceHints:
+  codeSources:
+  - ./src

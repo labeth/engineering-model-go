@@ -195,7 +195,7 @@ func TestCanonicalMetamodelPreservesOwnershipNamespacesImportsAndRelationships(t
 
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
 func TestEngineeringModelCompatibilityDTOsNormalizeToMetaclasses(t *testing.T) {
-	bundle, err := LoadBundle("../architecture.yml")
+	bundle, err := LoadBundle("../engmod.yml")
 	if err != nil {
 		t.Fatal(err)
 	}

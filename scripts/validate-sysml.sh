@@ -34,7 +34,7 @@ fi
 rm -rf "$work"
 mkdir -p "$work"
 
-go run ./cmd/engsysml --model architecture.yml --out "$work/ARCHITECTURE.sysml" 2>"$work/diagnostics.log"
+go run ./cmd/engsysml --model engmod.yml --out "$work/ARCHITECTURE.sysml" 2>"$work/diagnostics.log"
 if grep -E '(lossy|unsupported|unknown)' "$work/diagnostics.log"; then
   echo "blocking SysML projection diagnostic detected" >&2
   exit 1
@@ -46,17 +46,24 @@ cmp "$work/SYSML-COVERAGE.json" generated/SYSML-COVERAGE.json
 
 run_validator "$work/ARCHITECTURE.sysml" "$work/generated-validator.log"
 
-go run ./cmd/engsysml --model architecture.yml \
+go run ./cmd/engsysml --model engmod.yml \
   --project-out "$work/project" \
   --kpar-out "$work/engineering-model.kpar" \
   --sysand "$sysand"
 run_validator "$work/project/model.sysml" "$work/project-validator.log"
 
-go run ./cmd/engsysml --model architecture.yml \
+go run ./cmd/engsysml --model engmod.yml \
   --verify-kpar "$work/engineering-model.kpar" \
   --reopen-out "$work/reopened" \
   --sysand "$sysand"
 run_validator "$work/reopened/model.sysml" "$work/reopened-validator.log"
 
 cmp "$work/project/model.sysml" "$work/reopened/model.sysml"
-echo "PASS SysML official-parser, freshness, normative KPAR, reopen, and semantic round-trip validation"
+
+index=0
+while IFS= read -r source; do
+  run_validator "$source" "$work/example-$index.log"
+  index=$((index + 1))
+done < <(find examples -path '*/generated/*' -type f -name '*.sysml' | sort)
+
+echo "PASS SysML official-parser, all-example syntax, freshness, normative KPAR, reopen, and native source round-trip validation"

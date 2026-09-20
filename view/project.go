@@ -54,7 +54,6 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 		return ProjectedView{}, validate.SortDiagnostics(diags)
 	}
 	b = canonical.Documents()
-	idx := buildIndex(b)
 	v, ok := findView(b.Architecture.Views, viewID)
 	if !ok {
 		return ProjectedView{}, []validate.Diagnostic{{
@@ -64,6 +63,10 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 			Path:     "views",
 		}}
 	}
+	if isSemanticConcernView(v.Kind) && hasAuthoredSemanticRoot(v, b.Architecture.Semantics) {
+		return buildSemanticConcernView(v, canonical.Semantic()), nil
+	}
+	idx := buildIndex(b)
 
 	includeKinds, excludeKinds, includeMappings, excludeMappings := resolveViewSemantics(v)
 	maxDepth := v.MaxDepth

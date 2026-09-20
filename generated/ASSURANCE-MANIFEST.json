@@ -90,19 +90,22 @@
       "path": "compliance/OSCAL-ASSESSMENT-RESULTS.json",
       "domain": "compliance",
       "format": "json",
-      "status": "generated"
+      "status": "not-applicable",
+      "reason": "The canonical model does not contain the source elements required by this optional exporter."
     },
     {
       "path": "compliance/OSCAL-POAM.json",
       "domain": "compliance",
       "format": "json",
-      "status": "generated"
+      "status": "not-applicable",
+      "reason": "The canonical model does not contain the source elements required by this optional exporter."
     },
     {
       "path": "compliance/OSCAL-SSP.json",
       "domain": "compliance",
       "format": "json",
-      "status": "generated"
+      "status": "not-applicable",
+      "reason": "The canonical model does not contain the source elements required by this optional exporter."
     },
     {
       "path": "governance/gemara/audit-log.yaml",
@@ -217,14 +220,14 @@
     {
       "domain": "architecture-decisions",
       "status": "covered",
-      "count": 19,
+      "count": 20,
       "required": 1,
       "nextAction": "Record material architectural and governance trade-offs as decisions."
     },
     {
       "domain": "architecture-structure",
       "status": "covered",
-      "count": 38,
+      "count": 40,
       "required": 1,
       "nextAction": "Model functional boundaries, interfaces, and important flows."
     },
@@ -300,15 +303,15 @@
     },
     {
       "domain": "implementation-traceability",
-      "status": "covered",
-      "count": 45,
-      "required": 45,
+      "status": "missing-model",
+      "count": 54,
+      "required": 55,
       "nextAction": "Add TRLC-LINKS implementation evidence for each non-delegated requirement."
     },
     {
       "domain": "requirements-engineering",
       "status": "covered",
-      "count": 45,
+      "count": 55,
       "required": 1,
       "nextAction": "Author at least one durable requirement with implementation and verification traceability."
     },
@@ -329,16 +332,16 @@
     {
       "domain": "verification-traceability",
       "status": "missing-model",
-      "count": 38,
-      "required": 45,
+      "count": 43,
+      "required": 55,
       "nextAction": "Add observable verification evidence for each non-delegated requirement."
     }
   ],
   "summary": {
-    "generated": 35,
-    "notApplicable": 0,
+    "generated": 32,
+    "notApplicable": 3,
     "blocked": 0,
-    "covered": 12,
-    "missingModel": 5
+    "covered": 11,
+    "missingModel": 6
   }
 }

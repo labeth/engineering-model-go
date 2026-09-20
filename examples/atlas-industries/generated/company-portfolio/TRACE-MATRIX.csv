@@ -1,0 +1,14 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-PORT-001,orphan,FU-PORT-GOVERNANCE,,,,
+REQ-PORT-002,delegated,FU-PORT-GOVERNANCE,,,SUB-PORT-AEGIS/REQ-AEG-001,
+REQ-PORT-003,delegated,FU-PORT-GOVERNANCE,,,SUB-PORT-ORION/REQ-ORI-001,
+aegis::REQ-AEG-001,allocated,aegis::FU-AEG-MISSION,,,SUB-PORT-AEGIS/aegis::REQ-AEG-001,aegis:public@v0.1.0
+aegis::REQ-AEG-002,published,aegis::FU-AEG-SENSOR-FUSION,,,,aegis:public@v0.1.0
+aegis::REQ-AEG-003,published,aegis::FU-AEG-MISSION,,,,aegis:public@v0.1.0
+aegis::REQ-AEG-004,published,aegis::FU-AEG-SENSOR-FUSION aegis::FU-AEG-MISSION,,,,aegis:public@v0.1.0
+aegis::REQ-AEG-005,published,aegis::FU-AEG-MISSION,,,,aegis:public@v0.1.0
+orion::REQ-ORI-001,allocated,orion::FU-ORI-ROUTER,,,SUB-PORT-ORION/orion::REQ-ORI-001,orion:public@v0.1.0
+orion::REQ-ORI-002,published,orion::FU-ORI-LINK,,,,orion:public@v0.1.0
+orion::REQ-ORI-003,published,orion::FU-ORI-ROUTER,,,,orion:public@v0.1.0
+orion::REQ-ORI-004,published,orion::FU-ORI-LINK orion::FU-ORI-ROUTER,,,,orion:public@v0.1.0
+orion::REQ-ORI-005,published,orion::FU-ORI-ROUTER,,,,orion:public@v0.1.0

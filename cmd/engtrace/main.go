@@ -15,7 +15,7 @@ import (
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func main() {
-	modelPath := flag.String("model", "", "path to architecture YAML")
+	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	requirementsPath := flag.String("requirements", "", "path to requirements YAML")
 	codeRoot := flag.String("code-root", "", "code root to scan for trace links")
 	out := flag.String("out", "", "output file (default stdout)")
@@ -23,7 +23,7 @@ func main() {
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*requirementsPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engtrace --model <architecture.yml> --requirements <requirements.yml> [--code-root <dir>] [--format json|csv] [--out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engtrace --model <engmod.yml> --requirements <model/requirements.yml> [--code-root <dir>] [--format json|csv] [--out <file>]")
 		os.Exit(2)
 	}
 

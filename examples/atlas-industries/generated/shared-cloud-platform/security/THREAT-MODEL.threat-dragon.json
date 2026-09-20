@@ -1,0 +1,189 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Atlas Shared Cloud Platform",
+    "owner": "engineering-model-go",
+    "description": "Reusable multi-region application runtime and event services.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Atlas Shared Cloud Platform Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "b5f1fba2-b06a-5cab-8a9c-50d699fbe3e0",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Operator"
+              }
+            },
+            "data": {
+              "description": "Owns cloud availability and recovery.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "601871d4-f2d4-5e49-aadc-06626cfbb621",
+            "shape": "store",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Event"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Event",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "e892959f-1d18-5d34-ab3d-c9216aaf90ba",
+            "shape": "process",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Runtime"
+              }
+            },
+            "data": {
+              "description": "Hosts product APIs and durable event processing.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Runtime",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "0da6c5c1-8379-5758-8817-5539d18205a9",
+            "shape": "process",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Event Ingestion"
+              }
+            },
+            "data": {
+              "description": "https https://events.atlas.example/v1",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Event Ingestion",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 0
+  }
+}

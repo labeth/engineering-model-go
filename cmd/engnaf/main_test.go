@@ -12,7 +12,7 @@ import (
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, IF-CLI-ENGNAF, DO-NAF-V4-ARCHITECTURE
 func TestRunGeneratesNAFDocument(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	modelPath := filepath.Join("..", "..", "architecture.yml")
+	modelPath := filepath.Join("..", "..", "engmod.yml")
 	if code := run([]string{"--model", modelPath}, &stdout, &stderr); code != 0 {
 		t.Fatalf("run returned %d: %s", code, stderr.String())
 	}

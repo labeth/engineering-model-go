@@ -1,0 +1,1258 @@
+{
+  "version": "2.0",
+  "summary": {
+    "title": "Aegis Sentinel Product System",
+    "owner": "engineering-model-go",
+    "description": "Product model for autonomous perimeter sensing and reviewed response.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "engineering-model-go"
+      }
+    ],
+    "diagrams": [
+      {
+        "description": "Architecture-derived threat model diagram.",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "placeholder": "Generated from authored architecture.",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "title": "Aegis Sentinel Product System Threat Model",
+        "version": "2.0",
+        "cells": [
+          {
+            "id": "b97685d0-d327-5b75-9c10-4d9a2785ef89",
+            "shape": "actor",
+            "zIndex": 1,
+            "position": {
+              "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Product Security Engineer"
+              }
+            },
+            "data": {
+              "description": "Owns product threats and controls.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Product Security Engineer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "129ec739-b44d-5fc4-95d2-b5638cf4dc01",
+            "shape": "actor",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Operator"
+              }
+            },
+            "data": {
+              "description": "Reviews tracks and authorizes response.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "6694465b-d030-5712-a84d-5db8130bfab9",
+            "shape": "store",
+            "zIndex": 3,
+            "position": {
+              "x": 580,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Perimeter Track"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Perimeter Track",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "190f6cf9-d5cf-594b-ba78-b8cb62482bdf",
+            "shape": "process",
+            "zIndex": 4,
+            "position": {
+              "x": 840,
+              "y": 60
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Mission Coordination Software"
+              }
+            },
+            "data": {
+              "description": "Presents incidents for operator review and dispatch.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Mission Coordination Software",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "ff547db7-9024-5e8c-9aa8-b0b958e7b633",
+            "shape": "process",
+            "zIndex": 5,
+            "position": {
+              "x": 60,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Sensor Fusion Software"
+              }
+            },
+            "data": {
+              "description": "Correlates observations and assigns confidence.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Sensor Fusion Software",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "An adversary injects mutually consistent false observations.",
+                  "mitigation": "Mitigation MIT-AEG-TRACK-CONFIDENCE; applies control CTRL-AEG-TRACK-CONFIDENCE; status implemented; effectiveness medium.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "9b884918-683d-57f5-baf1-f7fddc876081",
+                  "title": "Crafted observations create a false track",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "beb815f2-6bf0-57e6-81b5-91d13119d0f5",
+            "shape": "process",
+            "zIndex": 6,
+            "position": {
+              "x": 320,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Perimeter Track Interface"
+              }
+            },
+            "data": {
+              "description": "protobuf grpc://mission/tracks",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Perimeter Track Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "An adversary injects mutually consistent false observations.",
+                  "mitigation": "Mitigation MIT-AEG-TRACK-CONFIDENCE; applies control CTRL-AEG-TRACK-CONFIDENCE; status implemented; effectiveness medium.",
+                  "modelType": "STRIDE",
+                  "number": 0,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "9b884918-683d-57f5-baf1-f7fddc876081",
+                  "title": "Crafted observations create a false track",
+                  "type": "tampering"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "4f150019-f579-59b3-a21e-d208439bcbd2",
+            "shape": "actor",
+            "zIndex": 7,
+            "position": {
+              "x": 580,
+              "y": 230
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Operator"
+              }
+            },
+            "data": {
+              "description": "Owns cloud availability and recovery.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "8a2b9bc7-6c7a-532e-a093-73d7d2f21be9",
+            "shape": "store",
+            "zIndex": 8,
+            "position": {
+              "x": 840,
+              "y": 230
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Event"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Event",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "f9227b30-476e-5163-8931-9179fb35fc1c",
+            "shape": "process",
+            "zIndex": 9,
+            "position": {
+              "x": 60,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Runtime"
+              }
+            },
+            "data": {
+              "description": "Hosts product APIs and durable event processing.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Runtime",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "11328d9b-fe8d-5092-85d2-9b4dfb314b1b",
+            "shape": "process",
+            "zIndex": 10,
+            "position": {
+              "x": 320,
+              "y": 400
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Cloud Event Ingestion"
+              }
+            },
+            "data": {
+              "description": "https https://events.atlas.example/v1",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Cloud Event Ingestion",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "cb3581b8-f36a-5c7b-9033-2a8ca5524ef4",
+            "shape": "actor",
+            "zIndex": 11,
+            "position": {
+              "x": 580,
+              "y": 400
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Compliance Officer"
+              }
+            },
+            "data": {
+              "description": "Approves controls and remediation plans.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Compliance Officer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "4413a629-40bd-5532-be57-2f613cb8e815",
+            "shape": "actor",
+            "zIndex": 12,
+            "position": {
+              "x": 840,
+              "y": 400
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Employee"
+              }
+            },
+            "data": {
+              "description": "Completes policy acknowledgment and security awareness obligations.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Employee",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "790492bd-45f9-5a56-8362-1fde064fd30d",
+            "shape": "actor",
+            "zIndex": 13,
+            "position": {
+              "x": 60,
+              "y": 570
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Line Manager"
+              }
+            },
+            "data": {
+              "description": "Initiates and confirms role-change access reviews.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Line Manager",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "edc0910c-c2ea-53b4-90f6-308ace2ee48d",
+            "shape": "actor",
+            "zIndex": 14,
+            "position": {
+              "x": 320,
+              "y": 570
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "People Operations Partner"
+              }
+            },
+            "data": {
+              "description": "Coordinates personnel screening, employment records, and offboarding.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "People Operations Partner",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "3112ba7a-e169-59dc-aa0f-1967855fc7a6",
+            "shape": "store",
+            "zIndex": 15,
+            "position": {
+              "x": 580,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Compliance Evidence Package"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Compliance Evidence Package",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "84f8571c-8e01-5363-b95c-0ca7ed7be177",
+            "shape": "store",
+            "zIndex": 16,
+            "position": {
+              "x": 840,
+              "y": 570
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Personnel Lifecycle Record"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Personnel Lifecycle Record",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "9862570f-238d-5ba2-867b-901e327d3986",
+            "shape": "store",
+            "zIndex": 17,
+            "position": {
+              "x": 60,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Awareness Training Record"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Awareness Training Record",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "797697ec-7b87-576b-9095-a335fa44fc4a",
+            "shape": "process",
+            "zIndex": 18,
+            "position": {
+              "x": 320,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Compliance Evidence Service"
+              }
+            },
+            "data": {
+              "description": "Collects, retains, and reports control assessment evidence.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Compliance Evidence Service",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "44bedd1e-c029-5a8b-bc31-9e4048b3935d",
+            "shape": "process",
+            "zIndex": 19,
+            "position": {
+              "x": 580,
+              "y": 740
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "People Security and Awareness"
+              }
+            },
+            "data": {
+              "description": "Governs screening, employment responsibilities, awareness training, role changes, and offboarding.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "People Security and Awareness",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "8f786192-95a0-5035-9b58-6967a8f6fb12",
+            "shape": "actor",
+            "zIndex": 20,
+            "position": {
+              "x": 840,
+              "y": 740
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Edge Operator"
+              }
+            },
+            "data": {
+              "description": "Maintains deployed edge nodes.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Edge Operator",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "1e456c9c-ccd3-52f3-b9b8-c8979176e2d6",
+            "shape": "store",
+            "zIndex": 21,
+            "position": {
+              "x": 60,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Edge Telemetry Record"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Edge Telemetry Record",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "3a01dd1b-46a4-5ff9-93b1-ca8aa8cc6923",
+            "shape": "process",
+            "zIndex": 22,
+            "position": {
+              "x": 320,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Edge Runtime"
+              }
+            },
+            "data": {
+              "description": "Hosts signed product workloads and normalizes device observations.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Edge Runtime",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "2c801c2f-cd5c-5b9f-9416-c166996e34e4",
+            "shape": "process",
+            "zIndex": 23,
+            "position": {
+              "x": 580,
+              "y": 910
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Edge Telemetry Interface"
+              }
+            },
+            "data": {
+              "description": "mqtt mqtt://edge/telemetry",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Edge Telemetry Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "77e3234d-b489-5ca2-8aca-3cd3bb39b478",
+            "shape": "actor",
+            "zIndex": 24,
+            "position": {
+              "x": 840,
+              "y": 910
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Analyst"
+              }
+            },
+            "data": {
+              "description": "Owns threat monitoring and response.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Analyst",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "3cbfae51-10be-5ebc-8922-03117530c8a9",
+            "shape": "store",
+            "zIndex": 25,
+            "position": {
+              "x": 60,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "bottomLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Audit Event"
+              },
+              "topLine": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              }
+            },
+            "data": {
+              "description": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Audit Event",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Store"
+            }
+          },
+          {
+            "id": "bcd86eb5-c29c-5047-b8da-81cd2fa9a3e6",
+            "shape": "process",
+            "zIndex": 26,
+            "position": {
+              "x": 320,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Identity Service"
+              }
+            },
+            "data": {
+              "description": "Issues short-lived device and workload credentials.",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Identity Service",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "An adversary reuses a captured identity token.",
+                  "mitigation": "Mitigation security::MIT-SEC-TOKEN-REPLAY; applies control security::CTRL-SEC-SHORT-LIVED-IDENTITY; status implemented; effectiveness high.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "77edd200-202c-5d38-a35a-d3199181215b",
+                  "title": "Captured token is replayed",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "1d56bcbf-58e7-5fd7-9e8f-85524ac28b29",
+            "shape": "process",
+            "zIndex": 27,
+            "position": {
+              "x": 580,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Monitoring"
+              }
+            },
+            "data": {
+              "description": "Correlates authentication and audit events.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Security Monitoring",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "3fa502af-9bfd-570f-8360-730626f56f27",
+            "shape": "process",
+            "zIndex": 28,
+            "position": {
+              "x": 840,
+              "y": 1080
+            },
+            "size": {
+              "height": 90,
+              "width": 180
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Identity Token Interface"
+              }
+            },
+            "data": {
+              "description": "https https://identity.atlas.example/token",
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Identity Token Interface",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": [
+                {
+                  "description": "An adversary reuses a captured identity token.",
+                  "mitigation": "Mitigation security::MIT-SEC-TOKEN-REPLAY; applies control security::CTRL-SEC-SHORT-LIVED-IDENTITY; status implemented; effectiveness high.",
+                  "modelType": "STRIDE",
+                  "number": 1,
+                  "score": "high",
+                  "severity": "High",
+                  "status": "Open",
+                  "threatId": "77edd200-202c-5d38-a35a-d3199181215b",
+                  "title": "Captured token is replayed",
+                  "type": "spoofing"
+                }
+              ],
+              "type": "tm.Process"
+            }
+          },
+          {
+            "id": "2ba2e86e-829f-505d-97ff-d72b244fdefe",
+            "shape": "trust-boundary-box",
+            "zIndex": 29,
+            "position": {
+              "x": 630,
+              "y": 2010
+            },
+            "size": {
+              "height": 180,
+              "width": 260
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#999999",
+                "strokeDasharray": "3 3",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Security Control Plane"
+              }
+            },
+            "data": {
+              "description": "Separates privileged identity operations from product workloads.",
+              "hasOpenThreats": false,
+              "isTrustBoundary": true,
+              "name": "Security Control Plane",
+              "type": "tm.Boundary"
+            }
+          },
+          {
+            "id": "d9996f44-dd60-5a81-9125-7c0c1c57cc7a",
+            "shape": "flow",
+            "zIndex": 39,
+            "attrs": {
+              "line": {
+                "stroke": "#555555",
+                "strokeDasharray": "",
+                "strokeWidth": 1,
+                "targetMarker": {
+                  "name": "block"
+                }
+              }
+            },
+            "data": {
+              "description": "Company workflow from pre-employment screening through onboarding, role changes, and offboarding.",
+              "hasOpenThreats": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "isTrustBoundary": false,
+              "name": "Employee Security Lifecycle",
+              "outOfScope": false,
+              "protocol": "",
+              "reasonOutOfScope": "",
+              "threats": null,
+              "type": "tm.Flow"
+            },
+            "source": {
+              "cell": "edc0910c-c2ea-53b4-90f6-308ace2ee48d"
+            },
+            "target": {
+              "cell": "44bedd1e-c029-5a8b-bc31-9e4048b3935d"
+            },
+            "labels": [
+              {
+                "attrs": {
+                  "label": {
+                    "text": "Employee Security Lifecycle"
+                  }
+                },
+                "position": 0.5
+              }
+            ],
+            "connector": "smooth"
+          }
+        ]
+      }
+    ],
+    "diagramTop": 1,
+    "reviewer": "engineering-model-go",
+    "threatTop": 2
+  }
+}

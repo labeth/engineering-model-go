@@ -55,6 +55,7 @@ N_IF_CLI_ENGSYSML[/"engsysml CLI"/]:::interface
 N_IF_CLI_ENGTRACE[/"engtrace CLI"/]:::interface
 N_IF_CLI_ENGTRLC[/"engtrlc CLI"/]:::interface
 N_IF_CLI_ENGVIEW[/"engview CLI"/]:::interface
+N_REF_CUE_OCI_MODULE_REGISTRY["CUE OCI Module Registry"]:::referenced_element
 N_REF_GO_TOOLCHAIN["Go Toolchain"]:::referenced_element
 N_REF_LOBSTER_TOOLCHAIN["LOBSTER Toolchain"]:::referenced_element
 N_REF_NAF_V4_1_SPECIFICATION["NATO Architecture Framework v4.1"]:::referenced_element
@@ -128,6 +129,7 @@ N_FU_SYSML_EXPORTER -->|writes| N_DO_SYSML_V2_MODEL
 N_FU_SYSML_EXPORTER -->|contains| N_IF_CLI_ENGSYSML
 N_FU_SYSML_EXPORTER --> N_REF_SYSML_V2_TOOLCHAIN
 N_FU_SYSML_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
+N_FU_SYSTEM_COMPOSITION --> N_REF_CUE_OCI_MODULE_REGISTRY
 N_FU_THREAT_EXPORTER -->|writes| N_DO_THREAT_DRAGON_JSON
 N_FU_THREAT_EXPORTER -->|contains| N_IF_CLI_ENGDRAGON
 N_FU_THREAT_EXPORTER --> N_REF_OPEN_OTM_SCHEMA

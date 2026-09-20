@@ -7,6 +7,8 @@ package engmodel
 
 import (
 	"fmt"
+	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/model"
@@ -14,7 +16,7 @@ import (
 )
 
 // renderCompositionAsciiDocChapter renders hardware and composition content when present.
-// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 	a := bundle.Architecture.AuthoredArchitecture
@@ -28,7 +30,7 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 	b.WriteString("\n<<<\n== System Composition & Hardware\n\n")
 	b.WriteString("This chapter shows the system architecture across hardware and software: hardware items and their ")
 	b.WriteString("interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. ")
-	b.WriteString("Subsystem references are downward-only and resolved from local subdirectories.\n\n")
+	b.WriteString("Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.\n\n")
 
 	if len(a.HardwareItems) > 0 {
 		b.WriteString("=== Hardware Items\n\n[cols=\"2,3,1,3,1\",options=\"header\"]\n|===\n|ID |Name |Kind |Hosts |Safety\n")
@@ -60,7 +62,7 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 		return b.String()
 	}
 
-	res, err := GenerateCompositionFromFile(bundle.ArchitecturePath)
+	res, err := GenerateCompositionFromFile(bundle.ManifestPath)
 	if err != nil {
 		b.WriteString("NOTE: composition could not be resolved: " + escapeTableCell(err.Error()) + "\n\n")
 		return b.String()
@@ -68,9 +70,12 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 
 	b.WriteString("=== Subsystems\n\n[cols=\"2,3,3\",options=\"header\"]\n|===\n|ID |Name |Reference\n")
 	for _, sub := range bundle.Architecture.Composition.Subsystems {
-		b.WriteString(fmt.Sprintf("|%s\n|%s\n|`%s`\n", escapeTableCell(sub.ID), escapeTableCell(fallback(sub.Name, sub.ID)), escapeTableCell(sub.Ref)))
+		reference := sub.Dependency + "::" + sub.Publication
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|`%s`\n", escapeTableCell(sub.ID), escapeTableCell(fallback(sub.Name, sub.ID)), escapeTableCell(reference)))
 	}
 	b.WriteString("|===\n\n")
+
+	renderPublishedProjectionTables(&b, BuildCompositionProjection(res))
 
 	if len(res.Allocations) > 0 {
 		b.WriteString("=== Requirement Allocation Matrix\n\n[cols=\"2,2,2,1\",options=\"header\"]\n|===\n|Requirement |Subsystem |Target |Resolved\n")
@@ -79,6 +84,7 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 			if !m.Resolved {
 				mark = "NO — " + m.Note
 			}
+
 			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n",
 				escapeTableCell(m.Requirement), escapeTableCell(m.Subsystem), escapeTableCell(m.Target), escapeTableCell(mark)))
 		}
@@ -110,6 +116,66 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 	}
 
 	return b.String()
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func renderPublishedProjectionTables(b *strings.Builder, projection CompositionProjection) {
+	if len(projection.Publications) == 0 {
+		return
+	}
+	b.WriteString("=== Selected Dependency Publications\n\n")
+	b.WriteString("[cols=\"2,2,3,2,2\",options=\"header\"]\n|===\n|Alias |Publication |Module |Version |Source model\n")
+	for _, publication := range projection.Publications {
+		b.WriteString(fmt.Sprintf("|`%s`\n|`%s`\n|`%s`\n|`%s`\n|`%s`\n",
+			escapeTableCell(publication.Alias), escapeTableCell(publication.Publication),
+			escapeTableCell(publication.ModulePath), escapeTableCell(publication.Version),
+			escapeTableCell(publication.SourceModel)))
+	}
+	b.WriteString("|===\n\n")
+
+	headings := []struct {
+		domain  string
+		heading string
+	}{
+		{"architecture", "Published Architecture"},
+		{"requirements", "Published Requirements"},
+		{"assurance", "Published Assurance"},
+		{"compliance", "Published Compliance"},
+		{"views", "Published Views"},
+	}
+	for _, section := range headings {
+		entities := projection.Domain(section.domain)
+		if len(entities) == 0 {
+			continue
+		}
+		sort.Slice(entities, func(i, j int) bool { return entities[i].QualifiedID < entities[j].QualifiedID })
+		b.WriteString("==== " + section.heading + "\n\n")
+		b.WriteString("[cols=\"3,3,2,2\",options=\"header\"]\n|===\n|Qualified ID |Name |Publication |Source\n")
+		for _, entity := range entities {
+			b.WriteString(fmt.Sprintf("|`%s`\n|%s\n|`%s`\n|`%s@%s`\n",
+				escapeTableCell(entity.QualifiedID), escapeTableCell(projectionEntityLabel(entity.Value)),
+				escapeTableCell(entity.Provenance.Publication), escapeTableCell(entity.Provenance.ModulePath),
+				escapeTableCell(entity.Provenance.Version)))
+		}
+		b.WriteString("|===\n\n")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func projectionEntityLabel(value any) string {
+	reflected := reflect.ValueOf(value)
+	if reflected.Kind() == reflect.Pointer {
+		reflected = reflected.Elem()
+	}
+	if reflected.IsValid() && reflected.Kind() == reflect.Struct {
+		for _, fieldName := range []string{"Name", "Title", "Text", "Kind"} {
+			field := reflected.FieldByName(fieldName)
+			if field.IsValid() && field.Kind() == reflect.String && strings.TrimSpace(field.String()) != "" {
+				return strings.TrimSpace(field.String())
+			}
+		}
+	}
+	return "-"
 }
 
 // compositionHardwareMermaid renders hardware items as nodes and hardware interfaces as edges.

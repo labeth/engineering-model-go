@@ -15,10 +15,12 @@ require (
 	github.com/tree-sitter/tree-sitter-go v0.25.0
 	github.com/tree-sitter/tree-sitter-rust v0.24.2
 	github.com/tree-sitter/tree-sitter-typescript v0.23.2
+	golang.org/x/mod v0.37.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.3 // indirect
@@ -26,14 +28,17 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20260420112717-c39628bde8b5 // indirect
+	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/tree-sitter/tree-sitter-javascript v0.25.0 // indirect
 	github.com/zclconf/go-cty v1.18.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect

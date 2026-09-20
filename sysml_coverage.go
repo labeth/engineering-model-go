@@ -167,7 +167,7 @@ func SysMLV2Coverage() SysMLCoverageManifest {
 			{ID: "normative-statuses", Status: "passed", Evidence: []string{"ValidateSysMLV2Coverage", "sysml_coverage_test.go"}},
 			{ID: "artifact-freshness", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "cmd/engsysml/main_test.go"}},
 			{ID: "official-parser", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "pinned validate-sysml wrapper"}},
-			{ID: "semantic-round-trip", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "sysml_interchange_test.go"}},
+			{ID: "native-kpar-round-trip", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "sysml_interchange_test.go"}},
 		},
 	}
 
@@ -258,7 +258,7 @@ func ValidateSysMLV2Coverage(manifest SysMLCoverageManifest) error {
 	requiredChecks := map[string]bool{
 		"inventory-hash": false, "metaclass-renderer": false, "property-accounting": false,
 		"relationship-classification": false, "normative-statuses": false, "artifact-freshness": false,
-		"official-parser": false, "semantic-round-trip": false,
+		"official-parser": false, "native-kpar-round-trip": false,
 	}
 	for _, check := range manifest.Checks {
 		if _, ok := requiredChecks[check.ID]; ok && check.Status == "passed" && len(check.Evidence) > 0 {

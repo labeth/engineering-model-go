@@ -4,63 +4,29 @@ workspace "OTA Update Agent Subsystem" "The OTA update agent subsystem verifies 
       group "OTA" {
         fu_fu_ota_apply = container "OTA Apply" "Applies verified firmware and rolls back on failure." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-OTA"
-            "sourceId" "FU-OTA-APPLY"
-          }
         }
         fu_fu_ota_verify = container "OTA Verification" "Verifies firmware signature and update eligibility." "Functional Unit" {
           tags "FunctionalUnit"
-          properties {
-            "functionalGroup" "FG-OTA"
-            "sourceId" "FU-OTA-VERIFY"
-          }
         }
       }
     }
     group_fg_ota = softwareSystem "OTA" "On-machine OTA update verification and application." {
       tags "FunctionalGroup"
-      properties {
-        "sourceId" "FG-OTA"
-      }
     }
     if_if_ota_apply = softwareSystem "OTA Apply Interface" "internal /ota/apply" {
       tags "Interface"
-      properties {
-        "endpoint" "/ota/apply"
-        "owner" "FU-OTA-APPLY"
-        "protocol" "internal"
-        "sourceId" "IF-OTA-APPLY"
-      }
     }
     data_do_firmware_bundle = softwareSystem "Firmware Bundle" "" {
       tags "DataObject"
-      properties {
-        "classification" "confidential"
-        "sourceId" "DO-FIRMWARE-BUNDLE"
-      }
     }
     ctrl_ctrl_firmware_signature = softwareSystem "Firmware Signature Verification" "Verify firmware signatures before apply." {
       tags "Control,integrity"
-      properties {
-        "sourceId" "CTRL-FIRMWARE-SIGNATURE"
-      }
     }
-    group_fg_ota -> fu_fu_ota_apply "contains" {
+    group_fg_ota -> fu_fu_ota_apply "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-OTA"
-        "mappingType" "contains"
-        "toId" "FU-OTA-APPLY"
-      }
     }
-    group_fg_ota -> fu_fu_ota_verify "contains" {
+    group_fg_ota -> fu_fu_ota_verify "contains" "Model relationship: contains" {
       tags "Mapping,contains"
-      properties {
-        "fromId" "FG-OTA"
-        "mappingType" "contains"
-        "toId" "FU-OTA-VERIFY"
-      }
     }
   }
 
@@ -105,6 +71,10 @@ workspace "OTA Update Agent Subsystem" "The OTA update agent subsystem verifies 
       container "Functional Unit"
       relationship "Mapping"
     }
+  }
+
+  configuration {
+    scope softwaresystem
   }
 
 }

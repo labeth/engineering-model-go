@@ -1,0 +1,65 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/products/orion-relay@v0
+  version: v0.1.0
+  modelId: atlas-orion-relay
+  title: Orion Relay Product System
+  introduction: Product model for resilient remote store-and-forward communications.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies:
+- alias: edge
+  path: models.atlas.example/shared/edge-platform@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: cloud
+  path: models.atlas.example/shared/cloud-platform@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: security
+  path: models.atlas.example/shared/security-services@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: compliance
+  path: models.atlas.example/shared/compliance-baseline@v0
+  version: v0.1.0
+  publications:
+  - public
+publications:
+- id: public
+  architecture:
+  - FG-ORI
+  - FU-ORI-LINK
+  - FU-ORI-ROUTER
+  - ACT-ORI-CONTROLLER
+  - ACT-ORI-ENGINEER
+  - IF-ORI-MESSAGE
+  - DO-ORI-MESSAGE
+  - HW-ORI-RADIO
+  - HW-ORI-ANTENNA
+  - HWIF-ORI-RF-CONTROL
+  - CAP-ORION-MISSION
+  assurance:
+  - AV-ORI-MESSAGE-FLOOD
+  - CTRL-ORI-ADMISSION
+  - RISK-ORI-LINK-EXHAUSTION
+  - POAM-ORI-001
+  - CV-ORI-ADMISSION
+  requirements:
+  - REQ-ORI-001
+  - REQ-ORI-002
+  - REQ-ORI-003
+  - REQ-ORI-004
+  - REQ-ORI-005
+inferenceHints: {}

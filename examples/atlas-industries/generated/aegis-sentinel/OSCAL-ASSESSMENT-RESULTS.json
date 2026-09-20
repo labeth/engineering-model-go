@@ -1,0 +1,99 @@
+{
+  "assessment-results": {
+    "uuid": "88f9b171-5262-5ba6-b31c-c1991210c825",
+    "metadata": {
+      "title": "Aegis Sentinel Product System Assessment Results",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./OSCAL-ASSESSMENT-PLAN.json"
+    },
+    "results": [
+      {
+        "uuid": "8fc93a35-44ae-5dd9-90b8-18009ed61cae",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
+              "include-controls": [
+                {
+                  "control-id": "a-5.15"
+                },
+                {
+                  "control-id": "a-5.18"
+                },
+                {
+                  "control-id": "a-6.1"
+                },
+                {
+                  "control-id": "a-6.2"
+                },
+                {
+                  "control-id": "a-6.3"
+                },
+                {
+                  "control-id": "a-6.5"
+                },
+                {
+                  "control-id": "ac-2"
+                },
+                {
+                  "control-id": "at-2"
+                },
+                {
+                  "control-id": "ps-3"
+                },
+                {
+                  "control-id": "ps-4"
+                }
+              ]
+            }
+          ]
+        },
+        "risks": [
+          {
+            "uuid": "1618317b-3539-5d5f-b104-181a135300b6",
+            "title": "False perimeter track",
+            "description": "Spoofed observations may cause an incorrect perimeter incident.",
+            "status": "mitigating",
+            "statement": "Multi-sensor correlation reduces but does not eliminate sophisticated spoofing."
+          },
+          {
+            "uuid": "21680c6c-892e-5791-bdee-42feb5d2aa28",
+            "title": "Former or transferred personnel retain access",
+            "description": "Delayed role-change or termination processing may leave inappropriate privileges active.",
+            "status": "mitigating",
+            "statement": "Manager and People Operations checkpoints govern access removal."
+          },
+          {
+            "uuid": "723cdb23-bd1c-55cf-b0bd-c97ade037c6b",
+            "title": "Personnel miss security obligations",
+            "description": "Missing or overdue awareness education may increase human-centered security incidents.",
+            "status": "open",
+            "statement": "Employee reporting is established but contractor completion is not yet integrated."
+          },
+          {
+            "uuid": "b28f7ad5-414f-51a8-9956-44e2ee4e4ae1",
+            "title": "Delayed privileged access review",
+            "description": "A delayed access review may leave obsolete privileges active.",
+            "status": "open",
+            "statement": "Automated reminders exist but reviewer delegation remains incomplete."
+          },
+          {
+            "uuid": "e28075b8-f6b2-56ca-856a-f41fc2bc3be1",
+            "title": "Credential replay risk",
+            "description": "Captured credentials may permit unauthorized product access.",
+            "status": "mitigating",
+            "statement": "Short credential lifetime and replay detection reduce exposure."
+          }
+        ]
+      }
+    ]
+  }
+}

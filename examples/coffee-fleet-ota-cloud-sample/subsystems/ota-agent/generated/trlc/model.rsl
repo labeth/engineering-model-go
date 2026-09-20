@@ -1,4 +1,4 @@
-package OtaAgentRequirements
+package requirements
 
 type Requirement {
   id         String

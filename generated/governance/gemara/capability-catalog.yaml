@@ -3,6 +3,7 @@ metadata:
   id: ENGMOD-CAPABILITY-CATALOG
   type: CapabilityCatalog
   gemara-version: 1.1.0
+  date: "2026-09-19T00:00:00Z"
   description: System capabilities of Engineering Model Go Repository Architecture
   author:
     id: engmod
@@ -65,9 +66,13 @@ capabilities:
   title: Gemara Exporter
   description: Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK.
   group: FG-TRACEABILITY-COMPLIANCE
+- id: FU-AIRBORNE-ASSURANCE-EXPORTER
+  title: Airborne Assurance Exporter
+  description: Validates aviation assurance evidence-readiness profiles and generates clearly marked draft lifecycle-data indexes, trace matrices, gap reports, and certification-support summaries without claiming compliance or authority acceptance.
+  group: FG-TRACEABILITY-COMPLIANCE
 - id: FU-SYSTEM-COMPOSITION
   title: System Composition
-  description: Resolves downward subsystem references from local subdirectories or external git repositories cloned into the .engmod/subsystems cache, and composes a federated system-of-systems model.
+  description: Resolves downward subsystem references from local paths, external git repositories, or exact-version CUE modules fetched from OCI registries into the .engmod cache, and composes a federated system-of-systems model.
   group: FG-MODEL-AUTHORING
 - id: FU-ALLOCATION-TRACE
   title: Allocation Trace

@@ -1,4 +1,3 @@
-model:
-  id: MODEL-INVALID
-  baseCatalogRef: ./catalog.yml
+schemaVersion: 2
+architecture:
   unexpectedField: true

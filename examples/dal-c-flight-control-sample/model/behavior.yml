@@ -1,0 +1,13 @@
+schemaVersion: 2
+behavior:
+  states:
+    - id: STATE-OPERATIONAL
+      name: Operational
+  events:
+    - id: EVT-YAW-RATE-RECEIVED
+      name: Yaw rate received
+  relationships:
+    - type: contains
+      from: FG-FLIGHT-CONTROL
+      to: FU-YAW-CONTROL
+      description: The flight-control group contains yaw damping.

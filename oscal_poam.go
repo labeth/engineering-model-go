@@ -3,10 +3,10 @@ package engmodel
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
@@ -14,8 +14,11 @@ import (
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALPOAMOptions struct {
-	SSPHref string
+	SSPHref      string
+	LastModified string
 }
+
+var ErrNoPOAMItems = errors.New("OSCAL POA&M requires at least one authored POA&M item")
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type OSCALPOAMResult struct {
@@ -75,6 +78,10 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 	if err != nil {
 		return OSCALPOAMResult{}, err
 	}
+	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	if err != nil {
+		return OSCALPOAMResult{}, err
+	}
 	return GenerateOSCALPOAM(bundle, options)
 }
 
@@ -103,14 +110,12 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 		if state == "" {
 			state = "open"
 		}
-		props := []oscalProperty{}
 		risks = append(risks, oscalPOAMRisk{
 			UUID:        riskUUID,
 			Title:       nonEmpty(strings.TrimSpace(r.Title), strings.TrimSpace(r.ID)),
 			Description: nonEmpty(strings.TrimSpace(r.Statement), "Authored risk statement."),
 			Status:      state,
 			Statement:   nonEmpty(strings.TrimSpace(r.Rationale), strings.TrimSpace(r.Statement)),
-			Props:       props,
 		})
 	}
 	sort.SliceStable(risks, func(i, j int) bool { return risks[i].UUID < risks[j].UUID })
@@ -122,15 +127,15 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 		if riskUUID := riskUUIDByID[riskID]; riskUUID != "" {
 			related = append(related, oscalRelatedRiskRef{RiskUUID: riskUUID})
 		}
-		props := []oscalProperty{}
+		props := []oscalProperty{engineeringModelOSCALProperty("model-poam-id", strings.TrimSpace(p.ID))}
 		if due := strings.TrimSpace(p.DueDate); due != "" {
-			props = append(props, oscalProperty{Name: "due-date", Value: due})
+			props = append(props, engineeringModelOSCALProperty("due-date", due))
 		}
 		if st := strings.TrimSpace(p.Status); st != "" {
-			props = append(props, oscalProperty{Name: "status", Value: st})
+			props = append(props, engineeringModelOSCALProperty("status", st))
 		}
 		if role := strings.TrimSpace(p.ResponsibleRole); role != "" {
-			props = append(props, oscalProperty{Name: "responsible-role", Value: role})
+			props = append(props, engineeringModelOSCALProperty("responsible-role", role))
 		}
 		artifacts := []string{}
 		for _, a := range p.Artifacts {
@@ -152,8 +157,14 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 		})
 	}
 	sort.SliceStable(items, func(i, j int) bool { return items[i].UUID < items[j].UUID })
+	if len(items) == 0 {
+		return OSCALPOAMResult{Diagnostics: validate.SortDiagnostics(diags)}, ErrNoPOAMItems
+	}
 
-	now := time.Now().UTC().Format(time.RFC3339)
+	now, err := resolveOSCALTimestamp(bundle, options.LastModified)
+	if err != nil {
+		return OSCALPOAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
 	doc := OSCALPOAMDocument{PlanOfActionAndMilestones: oscalPOAMRoot{
 		UUID: deterministicUUID("poam|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{

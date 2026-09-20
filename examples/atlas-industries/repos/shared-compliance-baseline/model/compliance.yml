@@ -1,0 +1,93 @@
+schemaVersion: 2
+compliance:
+  profiles:
+  - id: PROF-NIST-ATLAS
+    href: profiles/nist-800-53-atlas.json
+    catalogHref: profiles/nist-800-53-catalog.json
+  - id: PROF-ISO-ATLAS
+    href: profiles/iso-27001-atlas.json
+    catalogHref: profiles/iso-27001-catalog.json
+  mappings:
+  - id: IMPL-COMP-AC2
+    profileRef: PROF-NIST-ATLAS
+    controlIds:
+    - AC-2
+    modelControlRef: CTRL-COMP-ACCESS-REVIEW
+    appliesTo:
+    - FU-COMP-EVIDENCE
+    implementationType: procedural
+    implementationStatus: partial
+    status: in-review
+    narrative: Atlas performs quarterly privileged access reviews.
+    rationale: Central evidence collection enables consistent assessment.
+    responsibleRoles:
+    - ACT-COMP-OFFICER
+    evidence:
+    - path: evidence/compliance/q3-access-review.csv
+      description: Current access review result.
+  - id: IMPL-COMP-A5
+    profileRef: PROF-ISO-ATLAS
+    controlIds:
+    - A-5.15
+    modelControlRef: CTRL-COMP-EVIDENCE-RETENTION
+    appliesTo:
+    - FU-COMP-EVIDENCE
+    implementationType: procedural
+    implementationStatus: implemented
+    status: approved
+    narrative: Signed evidence is retained under the company records policy.
+    responsibleRoles:
+    - ACT-COMP-OFFICER
+    evidence:
+    - path: evidence/compliance/retention-policy.pdf
+      description: Approved retention policy.
+  - id: IMPL-COMP-NIST-PEOPLE
+    profileRef: PROF-NIST-ATLAS
+    controlIds:
+    - PS-3
+    - PS-4
+    - AT-2
+    - AC-2
+    modelControlRef: CTRL-COMP-SECURITY-AWARENESS
+    appliesTo:
+    - FU-COMP-PEOPLE
+    implementationType: procedural
+    implementationStatus: partial
+    status: in-review
+    narrative: Atlas governs screening, awareness, role changes, account lifecycle, and termination as one employee lifecycle.
+    rationale: Shared People Operations evidence supports every product without duplicating company controls.
+    responsibleRoles:
+    - ACT-PEOPLE-OPERATIONS
+    - ACT-COMP-OFFICER
+    - ACT-LINE-MANAGER
+    evidence:
+    - path: evidence/compliance/security-awareness-completion.json
+      description: Monthly awareness completion report.
+    - path: evidence/compliance/offboarding-ticket-sample.json
+      description: Quarterly offboarding sample.
+  - id: IMPL-COMP-ISO-PEOPLE
+    profileRef: PROF-ISO-ATLAS
+    controlIds:
+    - A-6.1
+    - A-6.2
+    - A-6.3
+    - A-6.5
+    - A-5.18
+    modelControlRef: CTRL-COMP-POLICY-ACKNOWLEDGMENT
+    appliesTo:
+    - FU-COMP-PEOPLE
+    implementationType: procedural
+    implementationStatus: partial
+    status: in-review
+    narrative: Employment terms, awareness, role changes, access rights, and post-employment responsibilities are centrally
+      governed.
+    rationale: One reusable organizational baseline gives both products consistent people-control evidence.
+    responsibleRoles:
+    - ACT-PEOPLE-OPERATIONS
+    - ACT-COMP-OFFICER
+    - ACT-LINE-MANAGER
+    evidence:
+    - path: evidence/compliance/policy-acknowledgments.json
+      description: Policy acknowledgment report.
+    - path: evidence/compliance/role-change-review-sample.json
+      description: Quarterly role-change sample.

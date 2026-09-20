@@ -1,0 +1,37 @@
+title: "Orion Relay Product System - Lexicon"
+metadata:
+  id: atlas-orion-relay-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-ORI
+  title: orion relay system
+  definition: Resilient remote communications and store-and-forward product.
+- id: FG-ORI
+  title: relay mission
+  definition: Product-specific link scheduling and message delivery.
+- id: FU-ORI-LINK
+  title: link scheduler software
+  definition: Selects available radio links and transmission windows.
+- id: FU-ORI-ROUTER
+  title: message router software
+  definition: Stores, prioritizes, and forwards operational messages.
+- id: ACT-ORI-CONTROLLER
+  title: network controller
+  definition: Configures relay priorities and monitors delivery.
+- id: ACT-ORI-ENGINEER
+  title: relay security engineer
+  definition: Owns Orion security controls and risk.
+- id: AV-ORI-MESSAGE-FLOOD
+  title: message flooding
+  definition: Excess messages attempt to exhaust constrained link capacity.
+- id: DATA-ORI-MESSAGE
+  title: relay message
+  definition: Prioritized payload awaiting delivery across a remote link.

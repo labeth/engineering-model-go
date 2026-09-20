@@ -16,6 +16,6 @@ package model
 }
 
 #CatalogDocument: {
-	schemaVersion?: #SchemaVersion
+	schemaVersion: #SchemaVersion
 	catalog: #CatalogGroups
 }

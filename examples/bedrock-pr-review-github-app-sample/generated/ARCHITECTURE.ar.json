@@ -1,0 +1,111 @@
+{
+  "assessment-results": {
+    "uuid": "2fc0804a-2ac8-5b0f-a8db-635e3a455b8b",
+    "metadata": {
+      "title": "Bedrock Lambda GitHub PR Review App Architecture Assessment Results",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ap": {
+      "href": "./ARCHITECTURE.ap.json"
+    },
+    "results": [
+      {
+        "uuid": "026cc1a0-3f8a-556d-8510-dc2fa41b8f41",
+        "title": "Automated architecture assessment",
+        "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
+        "reviewed-controls": {
+          "control-selections": [
+            {
+              "description": "Controls reviewed through architecture-derived compliance mappings.",
+              "include-controls": [
+                {
+                  "control-id": "ia-5"
+                },
+                {
+                  "control-id": "si-10"
+                }
+              ]
+            }
+          ]
+        },
+        "findings": [
+          {
+            "uuid": "401450c7-59b0-5403-ad91-058e98aa9b3f",
+            "title": "Audit Redaction Test",
+            "description": "checks audit evidence redaction for secrets and sensitive payload fields",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-007",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
+              },
+              {
+                "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "not-run"
+              }
+            ]
+          },
+          {
+            "uuid": "45aa8b96-c13a-5830-8e71-38ac7acfb390",
+            "title": "Github Check Run Contract Test",
+            "description": "validates GitHub check-run contract shape and required review result fields",
+            "target": {
+              "type": "objective-id",
+              "target-id": "REQ-PRR-005",
+              "status": {
+                "state": "not-satisfied"
+              }
+            },
+            "props": [
+              {
+                "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
+              },
+              {
+                "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                "value": "not-run"
+              }
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "uuid": "407b5da6-eb2e-597d-96e1-595753280575",
+            "title": "Prompt injection in PR context risk",
+            "description": "Prompt-like diff content can degrade policy-aligned review output quality.",
+            "status": "mitigating",
+            "statement": "Prompt hardening exists, but adversarial payload patterns evolve."
+          },
+          {
+            "uuid": "c58bc07e-cd21-5361-9bf1-9cead8512509",
+            "title": "Review output secret leakage risk",
+            "description": "Findings publication may expose sensitive content if redaction and credential controls drift.",
+            "status": "mitigating",
+            "statement": "Current controls reduce exposure but need ongoing tuning for new secret formats."
+          },
+          {
+            "uuid": "e7222537-0f0c-5613-adf0-f58239ec1f24",
+            "title": "Webhook spoofing risk",
+            "description": "Forged webhook requests could trigger unauthorized review actions.",
+            "status": "mitigating",
+            "statement": "Signature verification is implemented; replay defenses are periodically revalidated."
+          }
+        ]
+      }
+    ]
+  }
+}

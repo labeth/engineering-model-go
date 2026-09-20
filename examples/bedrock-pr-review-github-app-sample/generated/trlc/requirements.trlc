@@ -1,4 +1,4 @@
-package BedrockPRReviewRequirements
+package requirements
 Requirement REQ_PRR_001 {
   id         = "REQ-PRR-001"
   text       = "While normal mode is active, when pull request synchronize event is received and webhook signature is valid, the pr review system shall verify webhook signature before processing review workflow."

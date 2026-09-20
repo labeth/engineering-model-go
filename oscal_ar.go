@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
@@ -20,6 +19,7 @@ type OSCALAROptions struct {
 	CodeRoot           string
 	ProfileHref        string
 	CatalogHref        string
+	LastModified       string
 }
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -114,7 +114,13 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 		if err != nil {
 			return OSCALARResult{}, err
 		}
+		bundle.Requirements = req
 	}
+	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	if err != nil {
+		return OSCALARResult{}, err
+	}
+	req = bundle.Requirements
 	if strings.TrimSpace(options.CodeRoot) != "" && !filepath.IsAbs(options.CodeRoot) {
 		baseDir := filepath.Dir(architecturePath)
 		options.CodeRoot = filepath.Join(baseDir, options.CodeRoot)
@@ -151,8 +157,14 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 	if validate.HasErrors(diags) {
 		return OSCALARResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
+	if len(compliance.Mappings) == 0 {
+		return OSCALARResult{Diagnostics: validate.SortDiagnostics(diags)}, ErrNoOSCALCompliance
+	}
 
-	now := time.Now().UTC().Format(time.RFC3339)
+	now, err := resolveOSCALTimestamp(bundle, options.LastModified)
+	if err != nil {
+		return OSCALARResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
 	controlSet := map[string]bool{}
 	for _, a := range compliance.Mappings {
 		for _, cid := range a.ControlIDs {
@@ -186,7 +198,10 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 			Title:       nonEmpty(strings.TrimSpace(v.Name), strings.TrimSpace(v.ID)),
 			Description: nonEmpty(strings.TrimSpace(v.Description), fmt.Sprintf("Verification status %s.", nonEmpty(status, "unknown"))),
 			Target:      oscalFindingTarget{Type: "objective-id", TargetID: target, Status: oscalOperationalStatus{State: "not-satisfied"}},
-			Props:       []oscalProperty{{Name: "verification-id", Value: strings.TrimSpace(v.ID)}, {Name: "verification-status", Value: nonEmpty(status, "unknown")}},
+			Props: []oscalProperty{
+				engineeringModelOSCALProperty("verification-id", strings.TrimSpace(v.ID)),
+				engineeringModelOSCALProperty("verification-status", nonEmpty(status, "unknown")),
+			},
 		})
 	}
 	sort.SliceStable(findings, func(i, j int) bool { return findings[i].UUID < findings[j].UUID })

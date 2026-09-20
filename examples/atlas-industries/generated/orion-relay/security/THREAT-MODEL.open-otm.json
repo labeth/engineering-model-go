@@ -1,0 +1,373 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Orion Relay Product System",
+    "id": "atlas-orion-relay",
+    "description": "Product model for resilient remote store-and-forward communications.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Relay Message",
+      "id": "DO-ORI-MESSAGE",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    },
+    {
+      "name": "Cloud Event",
+      "id": "cloud::DO-CLOUD-EVENT",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    },
+    {
+      "name": "Compliance Evidence Package",
+      "id": "compliance::DO-COMP-EVIDENCE",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    },
+    {
+      "name": "Personnel Lifecycle Record",
+      "id": "compliance::DO-COMP-PERSONNEL-RECORD",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    },
+    {
+      "name": "Security Awareness Training Record",
+      "id": "compliance::DO-COMP-TRAINING-RECORD",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    },
+    {
+      "name": "Edge Telemetry Record",
+      "id": "edge::DO-EDGE-TELEMETRY",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 8,
+        "comment": "company-confidential"
+      }
+    },
+    {
+      "name": "Security Audit Event",
+      "id": "security::DO-SEC-AUDIT-EVENT",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "security::TB-SEC-CONTROL-PLANE",
+      "name": "Security Control Plane",
+      "type": "control-plane",
+      "description": "Separates privileged identity operations from product workloads.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-ORI-CONTROLLER",
+      "name": "Network Controller",
+      "type": "actor",
+      "description": "Sets delivery priorities and monitors link state.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-ORI-ENGINEER",
+      "name": "Relay Security Engineer",
+      "type": "actor",
+      "description": "Owns product security risk.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-ORI-LINK",
+      "name": "Link Scheduler Software",
+      "type": "service",
+      "description": "Selects available radio links and transmission windows.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-ORI-ROUTER",
+      "name": "Message Router Software",
+      "type": "service",
+      "description": "Stores, prioritizes, and forwards operational messages.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-ORI-MESSAGE",
+      "name": "Relay Message Interface",
+      "type": "interface",
+      "description": "quic quic://relay/messages",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud::ACT-CLOUD-OPERATOR",
+      "name": "Cloud Operator",
+      "type": "actor",
+      "description": "Owns cloud availability and recovery.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud::FU-CLOUD-RUNTIME",
+      "name": "Cloud Runtime",
+      "type": "service",
+      "description": "Hosts product APIs and durable event processing.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud::IF-CLOUD-EVENTS",
+      "name": "Cloud Event Ingestion",
+      "type": "interface",
+      "description": "https https://events.atlas.example/v1",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::ACT-COMP-OFFICER",
+      "name": "Compliance Officer",
+      "type": "actor",
+      "description": "Approves controls and remediation plans.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::ACT-EMPLOYEE",
+      "name": "Employee",
+      "type": "actor",
+      "description": "Completes policy acknowledgment and security awareness obligations.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::ACT-LINE-MANAGER",
+      "name": "Line Manager",
+      "type": "actor",
+      "description": "Initiates and confirms role-change access reviews.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::ACT-PEOPLE-OPERATIONS",
+      "name": "People Operations Partner",
+      "type": "actor",
+      "description": "Coordinates personnel screening, employment records, and offboarding.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::FU-COMP-EVIDENCE",
+      "name": "Compliance Evidence Service",
+      "type": "service",
+      "description": "Collects, retains, and reports control assessment evidence.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "compliance::FU-COMP-PEOPLE",
+      "name": "People Security and Awareness",
+      "type": "service",
+      "description": "Governs screening, employment responsibilities, awareness training, role changes, and offboarding.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "edge::ACT-EDGE-OPERATOR",
+      "name": "Edge Operator",
+      "type": "actor",
+      "description": "Maintains deployed edge nodes.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "edge::FU-EDGE-RUNTIME",
+      "name": "Edge Runtime",
+      "type": "service",
+      "description": "Hosts signed product workloads and normalizes device observations.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "edge::IF-EDGE-TELEMETRY",
+      "name": "Edge Telemetry Interface",
+      "type": "interface",
+      "description": "mqtt mqtt://edge/telemetry",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "security::ACT-SEC-ANALYST",
+      "name": "Security Analyst",
+      "type": "actor",
+      "description": "Owns threat monitoring and response.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "security::FU-SEC-IDENTITY",
+      "name": "Identity Service",
+      "type": "service",
+      "description": "Issues short-lived device and workload credentials.",
+      "parent": {
+        "trustZone": "security::TB-SEC-CONTROL-PLANE"
+      },
+      "threats": [
+        {
+          "threat": "security::TS-SEC-CREDENTIAL-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "security::MIT-SEC-TOKEN-REPLAY",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security::FU-SEC-MONITORING",
+      "name": "Security Monitoring",
+      "type": "service",
+      "description": "Correlates authentication and audit events.",
+      "parent": {
+        "trustZone": "security::TB-SEC-CONTROL-PLANE"
+      }
+    },
+    {
+      "id": "security::IF-SEC-TOKEN",
+      "name": "Identity Token Interface",
+      "type": "interface",
+      "description": "https https://identity.atlas.example/token",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      },
+      "threats": [
+        {
+          "threat": "security::TS-SEC-CREDENTIAL-REPLAY",
+          "state": "open",
+          "mitigations": [
+            {
+              "mitigation": "security::MIT-SEC-TOKEN-REPLAY",
+              "state": "mitigated"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "compliance::FLOW-COMP-EMPLOYEE-LIFECYCLE",
+      "name": "Employee Security Lifecycle",
+      "description": "Company workflow from pre-employment screening through onboarding, role changes, and offboarding.",
+      "source": "compliance::ACT-PEOPLE-OPERATIONS",
+      "destination": "compliance::FU-COMP-PEOPLE",
+      "assets": [
+        "compliance::DO-COMP-PERSONNEL-RECORD",
+        "compliance::DO-COMP-TRAINING-RECORD"
+      ],
+      "tags": [
+        "business"
+      ]
+    }
+  ],
+  "threats": [
+    {
+      "id": "security::TS-SEC-CREDENTIAL-REPLAY",
+      "name": "Captured token is replayed",
+      "description": "An adversary reuses a captured identity token.",
+      "categories": [
+        "authentication"
+      ],
+      "cwes": [
+        "CWE-294"
+      ],
+      "risk": {
+        "likelihood": 5,
+        "likelihoodComment": "mitigating",
+        "impact": 8,
+        "impactComment": "high"
+      },
+      "tags": [
+        "spoofing"
+      ]
+    }
+  ],
+  "mitigations": [
+    {
+      "id": "security::MIT-SEC-TOKEN-REPLAY",
+      "name": "security::CTRL-SEC-SHORT-LIVED-IDENTITY",
+      "description": "security::CTRL-SEC-SHORT-LIVED-IDENTITY",
+      "riskReduction": 8
+    }
+  ]
+}

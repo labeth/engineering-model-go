@@ -52,8 +52,8 @@ The Low mapping currently exports:
 
 ```bash
 go run ./cmd/engoscal \
-  --model examples/payments-engineering-sample/architecture.yml \
-  --requirements examples/payments-engineering-sample/requirements.yml \
+  --model examples/payments-engineering-sample/engmod.yml \
+  --requirements examples/payments-engineering-sample/model/requirements.yml \
   --code-root examples/payments-engineering-sample/src \
   --profile examples/payments-engineering-sample/oscal/profile-nist-800-53-low.json \
   --catalog examples/payments-engineering-sample/oscal/catalog-nist-800-53-rev5-subset.json \

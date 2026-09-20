@@ -1,0 +1,12 @@
+title: "Atlas Shared Cloud Platform - Attack Vectors"
+metadata:
+  id: ENGMOD-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Attack vectors relevant to Atlas Shared Cloud Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human

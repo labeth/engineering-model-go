@@ -1,0 +1,108 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-ORI
+    name: Relay Mission
+    description: Product-specific link scheduling and delivery.
+  functionalUnits:
+  - id: FU-ORI-LINK
+    name: Link Scheduler Software
+    group: FG-ORI
+    prose: Selects available radio links and transmission windows.
+  - id: FU-ORI-ROUTER
+    name: Message Router Software
+    group: FG-ORI
+    prose: Stores, prioritizes, and forwards operational messages.
+  actors:
+  - id: ACT-ORI-CONTROLLER
+    name: Network Controller
+    description: Sets delivery priorities and monitors link state.
+  - id: ACT-ORI-ENGINEER
+    name: Relay Security Engineer
+    description: Owns product security risk.
+  interfaces:
+  - id: IF-ORI-MESSAGE
+    name: Relay Message Interface
+    protocol: quic
+    endpoint: quic://relay/messages
+    owner: FU-ORI-ROUTER
+  dataObjects:
+  - id: DO-ORI-MESSAGE
+    name: Relay Message
+    termRef: DATA-ORI-MESSAGE
+    sensitivity: restricted
+    classification: operational-message
+    regulatoryTags:
+    - company-confidential
+    retention: 30_days
+    confidentiality: high
+    integrity: high
+    availability: high
+  hardwareItems:
+  - id: HW-ORI-RADIO
+    name: Adaptive Radio
+    kind: lru
+    partNumber: OR-R80
+    supplier: Atlas Industries
+    description: Product-specific multi-band remote communications radio.
+  - id: HW-ORI-ANTENNA
+    name: Steerable Antenna
+    kind: actuator
+    partNumber: OR-A15
+    supplier: Atlas Industries
+    description: Product-specific directional antenna assembly.
+  hardwareInterfaces:
+  - id: HWIF-ORI-RF-CONTROL
+    name: Radio Antenna Control
+    busType: ethernet
+    from: HW-ORI-RADIO
+    to: HW-ORI-ANTENNA
+    direction: bidirectional
+    softwareInterfaceRef: IF-ORI-MESSAGE
+    description: Link state and pointing control channel.
+  contract:
+    provides:
+    - id: CAP-ORION-MISSION
+      kind: capability
+      ref: REQ-ORI-001
+      note: Resilient prioritized remote message delivery.
+  composition:
+    subsystems:
+    - id: SUB-ORI-EDGE
+      name: Shared Edge Platform
+      dependency: edge
+      publication: public
+    - id: SUB-ORI-CLOUD
+      name: Shared Cloud Platform
+      dependency: cloud
+      publication: public
+    - id: SUB-ORI-SECURITY
+      name: Shared Security Services
+      dependency: security
+      publication: public
+    - id: SUB-ORI-COMPLIANCE
+      name: Shared Compliance Baseline
+      dependency: compliance
+      publication: public
+    allocations:
+    - requirement: REQ-ORI-002
+      to: SUB-ORI-EDGE
+      target: edge::CAP-EDGE-COMPUTE
+      rationale: Link scheduling requires rugged signed compute.
+    - requirement: REQ-ORI-003
+      to: SUB-ORI-CLOUD
+      target: cloud::CAP-CLOUD-OPERATIONS
+      rationale: Fleet configuration requires resilient cloud operations.
+    - requirement: REQ-ORI-004
+      to: SUB-ORI-SECURITY
+      target: security::CAP-ZERO-TRUST
+      rationale: Relay access requires shared identity and audit controls.
+    - requirement: REQ-ORI-005
+      to: SUB-ORI-COMPLIANCE
+      target: compliance::CAP-CONTROL-BASELINE
+      rationale: Product assurance inherits the company baseline.
+    satisfactions:
+    - need: edge::NEED-EDGE-IDENTITY
+      by: security::CAP-DEVICE-IDENTITY
+    - need: cloud::NEED-CLOUD-IDENTITY
+      by: security::CAP-DEVICE-IDENTITY

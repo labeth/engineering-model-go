@@ -2,6 +2,7 @@ metadata:
   id: engineering-model-go-EVALUATION-LOG
   type: EvaluationLog
   gemara-version: 1.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Control evaluation results for Engineering Model Go Repository Architecture
   author:
     id: engmod
@@ -30,12 +31,12 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "1970-01-01T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     confidence-level: High
     evidence:
     - id: VER-MCP-PATH-BOUNDARY-EV-1
       type: ControlVerification
-      collected-at: "1970-01-01T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
       payload: mcp/server_test.go
       description: Traversal rejection tests for MCP path arguments.
 - name: Strict MCP Input Schemas
@@ -55,7 +56,7 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "1970-01-01T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
 - name: Requirement Traceability Coverage
   result: Needs Review
   message: 1 assessment(s) recorded for control CTRL-TRACEABILITY-COVERAGE.
@@ -73,12 +74,12 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "1970-01-01T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: VER-TRACEABILITY-COVERAGE-EV-1
       type: ControlVerification
-      collected-at: "1970-01-01T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
       payload: inferred_verification_test.go
       description: Verification inference and trace marker coverage tests.
 - name: Trace Link Integrity
@@ -98,7 +99,7 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "1970-01-01T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
 - name: Generated Artifact Freshness Gate
   result: Needs Review
   message: 1 assessment(s) recorded for control CTRL-ARTIFACT-FRESHNESS-GATE.
@@ -116,7 +117,7 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "1970-01-01T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
 target:
   id: engineering-model-go
   name: Engineering Model Go Repository Architecture

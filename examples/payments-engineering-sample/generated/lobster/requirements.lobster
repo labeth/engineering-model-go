@@ -1,14 +1,14 @@
 {
   "data": [
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_001",
+      "tag": "req requirements.REQ_PAY_001",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 2,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_001",
+      "name": "requirements.REQ_PAY_001",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -19,14 +19,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_002",
+      "tag": "req requirements.REQ_PAY_002",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 8,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_002",
+      "name": "requirements.REQ_PAY_002",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -37,14 +37,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_003",
+      "tag": "req requirements.REQ_PAY_003",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 14,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_003",
+      "name": "requirements.REQ_PAY_003",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -55,14 +55,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_004",
+      "tag": "req requirements.REQ_PAY_004",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 20,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_004",
+      "name": "requirements.REQ_PAY_004",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -73,14 +73,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_005",
+      "tag": "req requirements.REQ_PAY_005",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 26,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_005",
+      "name": "requirements.REQ_PAY_005",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -91,14 +91,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_006",
+      "tag": "req requirements.REQ_PAY_006",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 32,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_006",
+      "name": "requirements.REQ_PAY_006",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -109,14 +109,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_007",
+      "tag": "req requirements.REQ_PAY_007",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 38,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_007",
+      "name": "requirements.REQ_PAY_007",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -127,14 +127,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_008",
+      "tag": "req requirements.REQ_PAY_008",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 44,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_008",
+      "name": "requirements.REQ_PAY_008",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -145,14 +145,14 @@
       "status": null
     },
     {
-      "tag": "req PaymentsRequirements.REQ_PAY_009",
+      "tag": "req requirements.REQ_PAY_009",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/payments-engineering-sample/generated/trlc/requirements.trlc",
+        "file": "examples/payments-engineering-sample/generated/trlc/requirements.trlc",
         "line": 50,
         "column": 13
       },
-      "name": "PaymentsRequirements.REQ_PAY_009",
+      "name": "requirements.REQ_PAY_009",
       "messages": [],
       "just_up": [],
       "just_down": [],

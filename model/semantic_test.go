@@ -9,7 +9,7 @@ import (
 // TRLC-LINKS: REQ-EMG-035
 // ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
 func TestProjectSemanticModelStableUniqueElements(t *testing.T) {
-	bundle, err := LoadBundle(filepath.Join("..", "architecture.yml"))
+	bundle, err := LoadBundle(filepath.Join("..", "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load bundle: %v", err)
 	}
@@ -263,7 +263,7 @@ func TestValidateSemanticModelStructuralAndBehavioralInvariants(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
 func TestProjectSemanticModelMapsRequirementsCasesViewsAndExtensions(t *testing.T) {
-	bundle, err := LoadBundle(filepath.Join("..", "architecture.yml"))
+	bundle, err := LoadBundle(filepath.Join("..", "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load bundle: %v", err)
 	}

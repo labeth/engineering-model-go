@@ -9,13 +9,6 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
 {{- if .Tags }}
           tags {{ printf "%q" (joinCSV .Tags) }}
 {{- end }}
-{{- if .Properties }}
-          properties {
-{{- range .Properties }}
-            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-          }
-{{- end }}
         }
 {{- end }}
       }
@@ -26,13 +19,6 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
 {{- if .Tags }}
         tags {{ printf "%q" (joinCSV .Tags) }}
 {{- end }}
-{{- if .Properties }}
-        properties {
-{{- range .Properties }}
-          {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-        }
-{{- end }}
       }
 {{- end }}
 {{- end }}
@@ -42,27 +28,13 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
 {{- if .Tags }}
       tags {{ printf "%q" (joinCSV .Tags) }}
 {{- end }}
-{{- if .Properties }}
-      properties {
-{{- range .Properties }}
-        {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-      }
-{{- end }}
     }
 {{- end }}
 
 {{- range .Relationships }}
-    {{ .From }} -> {{ .To }} {{ printf "%q" .Label }} {
+    {{ .From }} -> {{ .To }} {{ printf "%q" .Label }} {{ printf "%q" .Technology }} {
 {{- if .Tags }}
       tags {{ printf "%q" (joinCSV .Tags) }}
-{{- end }}
-{{- if .Properties }}
-      properties {
-{{- range .Properties }}
-        {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-      }
 {{- end }}
     }
 {{- end }}
@@ -74,24 +46,10 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
 {{- if .Tags }}
         tags {{ printf "%q" (joinCSV .Tags) }}
 {{- end }}
-{{- if .Properties }}
-        properties {
-{{- range .Properties }}
-          {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-        }
-{{- end }}
 {{- range .ContainerInstances }}
         containerInstance {{ .Identifier }} {
 {{- if .Tags }}
           tags {{ printf "%q" (joinCSV .Tags) }}
-{{- end }}
-{{- if .Properties }}
-          properties {
-{{- range .Properties }}
-            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-          }
 {{- end }}
         }
 {{- end }}
@@ -99,13 +57,6 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
         softwareSystemInstance {{ .Identifier }} {
 {{- if .Tags }}
           tags {{ printf "%q" (joinCSV .Tags) }}
-{{- end }}
-{{- if .Properties }}
-          properties {
-{{- range .Properties }}
-            {{ printf "%q" .Name }} {{ printf "%q" .Value }}
-{{- end }}
-          }
 {{- end }}
         }
 {{- end }}
@@ -134,7 +85,7 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
 {{- range .DynamicViews }}
     dynamic {{ .Scope }} {{ printf "%q" .Key }} {{ printf "%q" .Description }} {
 {{- range .Steps }}
-      {{ .From }} -> {{ .To }} {{ printf "%q" .Label }}
+      {{ .From }} -> {{ .To }} {{ printf "%q" .Label }} {{ printf "%q" .Technology }}
 {{- end }}
       autolayout lr
     }
@@ -173,6 +124,10 @@ workspace {{ printf "%q" .Title }} {{ printf "%q" .Description }} {
       container "Functional Unit"
       relationship "Mapping"
     }
+  }
+
+  configuration {
+    scope softwaresystem
   }
 
 }

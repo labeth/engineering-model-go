@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "uuid": "ef92aa31-2a81-4827-8040-5e517d19e2c4",
+    "metadata": {
+      "title": "Atlas ISO/IEC 27001 Baseline",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "./iso-27001-catalog.json",
+        "include-controls": [
+          {
+            "with-ids": ["a-5.15", "a-5.18", "a-6.1", "a-6.2", "a-6.3", "a-6.5"]
+          }
+        ]
+      }
+    ]
+  }
+}

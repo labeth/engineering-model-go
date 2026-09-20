@@ -9,23 +9,26 @@
 #     github.com/gemaraproj/gemara (the directory containing *.cue). If unset and
 #     ~/ws/gemara exists it is used; otherwise the repo is cloned to a temp dir.
 #
-# Usage: scripts/validate-gemara.sh [example-dir ...]
-#   Defaults to all examples/*-sample directories.
+# Usage: scripts/validate-gemara.sh
+#   Validates every maintained generated Gemara directory.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
+export PATH="$(go env GOPATH)/bin:$PATH"
 if ! command -v cue >/dev/null 2>&1; then
   echo "ERROR: cue not found on PATH. Install: go install cuelang.org/go/cmd/cue@v0.15.4 (then add \$(go env GOPATH)/bin to PATH)" >&2
   exit 1
 fi
 
-schema_dir="${GEMARA_SCHEMA_DIR:-$HOME/ws/gemara}"
+schema_ref="${GEMARA_SCHEMA_REF:-v1.5.0}"
+schema_dir="${GEMARA_SCHEMA_DIR:-$repo_root/.engmod/tooling/gemara-$schema_ref}"
 if [ ! -f "$schema_dir/controlcatalog.cue" ]; then
-  schema_dir="$(mktemp -d)/gemara"
-  echo ">  cloning gemara schemas to $schema_dir"
-  git clone --depth 1 https://github.com/gemaraproj/gemara.git "$schema_dir" >/dev/null 2>&1
+  rm -rf "$schema_dir"
+  mkdir -p "$(dirname "$schema_dir")"
+  echo ">  cloning gemara schemas $schema_ref to $schema_dir"
+  git clone --depth 1 --branch "$schema_ref" https://github.com/gemaraproj/gemara.git "$schema_dir" >/dev/null 2>&1
 fi
 echo ">  using schemas: $schema_dir"
 
@@ -46,26 +49,14 @@ declare -A DEFS=(
   [enforcement-log.yaml]='#EnforcementLog'
 )
 
-examples=("$@")
-if [ ${#examples[@]} -eq 0 ]; then
-  examples=(examples/*-sample)
-fi
-
 fail=0
-for ex in "${examples[@]}"; do
-  model="$ex/architecture.yml"
-  [ -f "$model" ] || continue
-  reqs="$ex/requirements.yml"
-  out="$(mktemp -d)"
-  echo ">  generating Gemara for $ex"
-  args=(--model "$model" --out-dir "$out" --version 1.0.0 --date 2026-06-26T00:00:00Z)
-  [ -f "$reqs" ] && args+=(--requirements "$reqs")
-  go run ./cmd/enggemara "${args[@]}" >/dev/null
-
+while IFS= read -r out; do
+  echo ">  validating Gemara in $out"
   for file in "${!DEFS[@]}"; do
     [ -f "$out/$file" ] || continue
+    artifact="$repo_root/$out/$file"
     # cue requires the schema referenced as a package from its own dir (relative '.').
-    if ( cd "$schema_dir" && cue vet -d "${DEFS[$file]}" . "$out/$file" ) 2>/tmp/cue-err; then
+    if ( cd "$schema_dir" && cue vet -d "${DEFS[$file]}" . "$artifact" ) 2>/tmp/cue-err; then
       echo "   PASS  ${DEFS[$file]}  $file"
     else
       echo "   FAIL  ${DEFS[$file]}  $file"
@@ -73,7 +64,7 @@ for ex in "${examples[@]}"; do
       fail=1
     fi
   done
-done
+done < <(find generated examples -type f -name control-catalog.yaml -printf '%h\n' | sort -u)
 
 if [ $fail -eq 0 ]; then
   echo ">  ALL GEMARA ARTIFACTS VALID"

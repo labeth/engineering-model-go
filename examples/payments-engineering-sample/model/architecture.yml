@@ -1,0 +1,207 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-PAYMENTS
+    name: Payments
+    description: Core payment checkout and authorization domain.
+    prose: 'The payments group defines the product-facing payment journey from user intent to final payment outcome.
+
+      It owns the consistency of customer messaging and transaction decisions when a payment is attempted,
+
+      declined, retried, or temporarily unavailable. The group keeps customer flow stable while depending on
+
+      fraud and external bank capabilities.
+
+      '
+  - id: FG-FRAUD
+    name: Fraud Evaluation
+    description: Risk scoring and fraud audit domain.
+    prose: 'The fraud evaluation group exists to reduce unsafe approvals while preserving throughput for legitimate payments.
+
+      It combines automated risk scoring with manual support review so uncertain transactions move through a controlled
+
+      escalation path. The group ensures risk decisions are explainable, auditable, and operationally actionable.
+
+      '
+  - id: FG-PLATFORM
+    name: Platform
+    description: Cluster provisioning and GitOps operations domain.
+    prose: 'The platform group provides the runtime and deployment foundation used by all product capabilities.
+
+      It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
+
+      The group enables safe delivery and reliable operations without owning payment business logic.
+
+      '
+  functionalUnits:
+  - id: FU-CHECKOUT
+    name: Checkout Handling
+    group: FG-PAYMENTS
+    prose: 'Checkout handling is the user-facing entrypoint where payment requests are initiated and normalized.
+
+      It validates request shape, preserves transaction context, and returns clear customer feedback for each outcome.
+
+      It delegates decision logic to payment authorization while protecting the user experience boundary.
+
+      '
+  - id: FU-PAYMENT-AUTHORIZATION
+    name: Payment Authorization
+    group: FG-PAYMENTS
+    prose: 'Payment authorization orchestrates the final transaction decision path.
+
+      It coordinates fraud scoring, external bank interactions, and escalation to support review when needed.
+
+      The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
+
+      '
+  - id: FU-RISK-SCORING
+    name: Risk Scoring
+    group: FG-FRAUD
+    prose: 'Risk scoring computes and classifies transaction risk before approval decisions are finalized.
+
+      It provides a stable scoring contract to authorization and supports audit context for later analysis.
+
+      The unit is focused on decision quality, consistency, and policy-driven classification behavior.
+
+      '
+  - id: FU-SUPPORT-REVIEW
+    name: Support Review
+    group: FG-FRAUD
+    prose: 'Support review handles manual decisions for escalated or ambiguous payment cases.
+
+      It gives support operators context to approve, reject, or request additional verification in a controlled flow.
+
+      The unit ensures manual intervention remains auditable, policy-constrained, and operationally reliable.
+
+      '
+  - id: FU-CLUSTER-PROVISIONING
+    name: Cluster Provisioning
+    group: FG-PLATFORM
+    tags:
+    - day1
+    prose: 'Cluster provisioning creates the runtime substrate used by all application workloads.
+
+      It establishes cluster and namespace structure, baseline controls, and environment-level readiness.
+
+      This unit is responsible for predictable, repeatable infrastructure foundations.
+
+      '
+  - id: FU-GITOPS-OPERATIONS
+    name: GitOps Operations
+    group: FG-PLATFORM
+    tags:
+    - day2
+    prose: 'GitOps operations continuously reconciles intended release state with actual runtime state.
+
+      It governs rollout flow, drift correction, and operational delivery confidence across payment and fraud workloads.
+
+      The unit provides safe and observable release behavior as an ongoing operational capability.
+
+      '
+  actors:
+  - id: ACT-CUSTOMER
+    name: Customer
+    description: Starts checkout and confirms payment.
+  - id: ACT-SUPPORT
+    name: Support Agent
+    description: Reviews high-risk and declined-payment cases.
+  - id: ACT-PLATFORM-OPERATOR
+    name: Platform Operator
+    description: Operates GitOps and platform lifecycle.
+  referencedElements:
+  - id: REF-BANK-GATEWAY-ENDPOINT
+    kind: external_service_endpoint
+    layer: runtime
+    name: Bank Gateway Endpoint
+  - id: REF-POSTGRES-DRIVER
+    kind: third_party_library
+    layer: code
+    name: PostgreSQL Client Driver
+  - id: REF-HELM-PLATFORM
+    kind: platform_service
+    layer: runtime
+    name: Helm Runtime Platform
+  interfaces:
+  - id: IF-PAYMENTS-CHECKOUT-API
+    name: Checkout API Interface
+    protocol: https
+    endpoint: /api/checkout
+    schemaRef: schemas/checkout-request.json
+    owner: FU-CHECKOUT
+  - id: IF-PAYMENTS-BANK-AUTH
+    name: Bank Authorization Interface
+    protocol: https
+    endpoint: /bank/authorize
+    schemaRef: schemas/bank-auth.json
+    owner: FU-PAYMENT-AUTHORIZATION
+  - id: IF-PAYMENTS-RISK-SCORE-API
+    name: Risk Score Interface
+    protocol: https
+    endpoint: /risk/score
+    schemaRef: schemas/risk-score.json
+    owner: FU-RISK-SCORING
+  dataObjects:
+  - id: DO-PAYMENTS-AUTH-REQUEST
+    name: Authorization Request
+    termRef: DATA-PAYMENT-REQUEST
+    schemaRef: schemas/auth-request.json
+    sensitivity: confidential
+    classification: pci
+    regulatoryTags:
+    - pci-dss
+    retention: 400_days
+    confidentiality: high
+    integrity: high
+    availability: medium
+  - id: DO-PAYMENTS-AUTH-DECISION
+    name: Authorization Decision
+    termRef: DATA-AUTH-DECISION
+    schemaRef: schemas/auth-decision.json
+    sensitivity: internal
+    classification: regulated-internal
+    regulatoryTags:
+    - pci-dss
+    retention: 400_days
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-PAYMENTS-RISK-SIGNAL
+    name: Risk Signal
+    schemaRef: schemas/risk-signal.json
+    sensitivity: internal
+    classification: fraud-analytics
+    regulatoryTags:
+    - fraud-monitoring
+    retention: 365_days
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-PAYMENTS-REVIEW-TICKET
+    name: Manual Review Ticket
+    schemaRef: schemas/review-ticket.json
+    sensitivity: confidential
+    classification: pii
+    regulatoryTags:
+    - pci-dss
+    - internal-audit
+    retention: 730_days
+    confidentiality: high
+    integrity: high
+    availability: medium
+  deploymentTargets:
+  - id: DEP-PAYMENTS-CLUSTER-PROD
+    name: Payments Cluster Production
+    environment: prod
+    region: us-east-1
+    account: shared-platform
+    cluster: payments-prod
+    namespace: payments
+    trustZone: app
+  - id: DEP-PAYMENTS-BANK-EDGE
+    name: Bank Edge Integration Zone
+    environment: prod
+    region: us-east-1
+    account: external
+    cluster: bank-edge
+    namespace: partner
+    trustZone: external

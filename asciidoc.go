@@ -138,14 +138,14 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 
 	delegationsByReq := map[string][]MaterializedAllocation{}
 	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ArchitecturePath); derr == nil {
+		if res, derr := GenerateCompositionFromFile(bundle.ManifestPath); derr == nil {
 			for _, m := range res.Allocations {
 				rid := strings.TrimSpace(m.Requirement)
 				delegationsByReq[rid] = append(delegationsByReq[rid], m)
 			}
 		}
 	}
-	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), filepath.Dir(bundle.ArchitecturePath))
+	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), modelRootDir(bundle))
 	diags = append(diags, validateTraceIntegrity(bundle, requirements, scopedCode, inferredVerification, delegationsByReq)...)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))

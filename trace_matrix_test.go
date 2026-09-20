@@ -106,16 +106,16 @@ func TestBuildTraceMatrixStatusAndDelegation(t *testing.T) {
 }
 
 // TestScopeCodeExcludesNestedModel verifies code under a nested model root (its own
-// architecture.yml) is not attributed to the parent model.
+// engmod.yml) is not attributed to the parent model.
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func TestScopeCodeExcludesNestedModel(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, filepath.Join(dir, "architecture.yml"), "model:\n  id: TOP\n")
+	writeFile(t, filepath.Join(dir, "engmod.yml"), "model:\n  id: TOP\n")
 	if err := os.MkdirAll(filepath.Join(dir, "child"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	writeFile(t, filepath.Join(dir, "child", "architecture.yml"), "model:\n  id: CHILD\n")
+	writeFile(t, filepath.Join(dir, "child", "engmod.yml"), "model:\n  id: CHILD\n")
 	writeFile(t, filepath.Join(dir, "parent.go"), "package x\n")
 	writeFile(t, filepath.Join(dir, "child", "kid.go"), "package y\n")
 	items := []inferredCodeItem{

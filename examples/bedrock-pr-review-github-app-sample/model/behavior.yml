@@ -1,0 +1,387 @@
+schemaVersion: 2
+behavior:
+  states:
+  - id: STATE-BEDROCK-PR-RECEIVED
+    name: PR Received
+    description: PR webhook accepted and queued for analysis.
+  - id: STATE-BEDROCK-REVIEW-PUBLISHED
+    name: Review Published
+    description: Findings published to GitHub check run output.
+  events:
+  - id: EVT-BEDROCK-REVIEW-REQUESTED
+    name: Review Requested
+    description: Trigger for analysis orchestration.
+  - id: EVT-BEDROCK-REVIEW-COMPLETED
+    name: Review Completed
+    description: Trigger indicating publication complete.
+  flows:
+  - id: FLOW-BEDROCK-PR-REVIEW
+    title: PR Review Interaction Flow
+    kind: security
+    methodology: owasp-tm
+    direction: inbound
+    frequency: realtime
+    sourceRef: IF-BEDROCK-WEBHOOK-API
+    destinationRef: FU-REVIEW-PUBLICATION
+    protocol: https
+    channel: webhook
+    authentication: hmac-signature
+    encryptionInTransit: tls1.3
+    integrityProtection: signed-payload
+    dataRefs:
+    - DO-BEDROCK-PR-CONTEXT
+    - DO-BEDROCK-REVIEW-FINDINGS
+    description: Webhook-driven PR review path from ingress through context assembly, analysis, and publication.
+    entry:
+    - receive-webhook
+    exits:
+    - publish-review
+    threats:
+    - TS-BEDROCK-WEBHOOK-SPOOF
+    - TS-BEDROCK-PROMPT-INJECTION
+    steps:
+    - id: receive-webhook
+      kind: user_action
+      flowType: interaction
+      direction: inbound
+      frequency: realtime
+      sourceRef: ACT-DEVELOPER
+      destinationRef: FU-GITHUB-WEBHOOK-INGRESS
+      ref: ACT-DEVELOPER
+      action: Developer pushes PR updates that trigger webhook processing
+      next:
+      - assemble-context
+    - id: assemble-context
+      kind: system_action
+      flowType: data
+      direction: internal
+      frequency: realtime
+      sourceRef: FU-PR-CONTEXT-ASSEMBLY
+      destinationRef: DO-BEDROCK-PR-CONTEXT
+      ref: FU-PR-CONTEXT-ASSEMBLY
+      action: Build bounded review context
+      dataOut:
+      - pr_context
+      dataRefs:
+      - DO-BEDROCK-PR-CONTEXT
+      next:
+      - orchestrate-review
+    - id: orchestrate-review
+      kind: system_action
+      flowType: security
+      direction: outbound
+      frequency: realtime
+      sourceRef: FU-REVIEW-ORCHESTRATION
+      destinationRef: REF-AWS-BEDROCK-RUNTIME
+      ref: FU-REVIEW-ORCHESTRATION
+      action: Run AI + policy checks and prepare findings
+      dataIn:
+      - pr_context
+      dataOut:
+      - review_findings
+      dataRefs:
+      - DO-BEDROCK-PR-CONTEXT
+      - DO-BEDROCK-REVIEW-FINDINGS
+      trustBoundaryRef: TB-BEDROCK-AWS-CONTROL
+      boundaryCrossing: true
+      authentication: iam-role
+      encryptionInTransit: tls1.3
+      integrityProtection: model-request-hash
+      async: true
+      onError:
+      - publish-review
+      next:
+      - publish-review
+    - id: publish-review
+      kind: system_action
+      flowType: security
+      direction: outbound
+      frequency: realtime
+      sourceRef: FU-REVIEW-PUBLICATION
+      destinationRef: REF-GITHUB-APP-API
+      ref: FU-REVIEW-PUBLICATION
+      action: Publish findings to GitHub check run
+      dataIn:
+      - review_findings
+      dataRefs:
+      - DO-BEDROCK-REVIEW-FINDINGS
+      interfaceRef: IF-BEDROCK-REVIEW-PUBLISH-API
+      trustBoundaryRef: TB-BEDROCK-GITHUB-EXTERNAL
+      boundaryCrossing: true
+      authentication: github-app-jwt
+      encryptionInTransit: tls1.3
+      integrityProtection: request-signature
+  - id: FLOW-BEDROCK-POLICY-TUNING
+    title: Security Policy Tuning Flow
+    kind: control
+    methodology: owasp-tm
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-SECURITY-ENGINEER
+    destinationRef: FU-REVIEW-PUBLICATION
+    protocol: internal-api
+    channel: policy-validation
+    authentication: workforce-sso
+    encryptionInTransit: tls1.3
+    integrityProtection: signed-policy-bundle
+    dataRefs:
+    - DO-BEDROCK-PR-CONTEXT
+    - DO-BEDROCK-REVIEW-FINDINGS
+    description: Policy rule update and dry-run validation path before policy promotion.
+    entry:
+    - update-policy-rules
+    exits:
+    - publish-policy-validation
+    threats:
+    - TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    steps:
+    - id: update-policy-rules
+      kind: user_action
+      flowType: control
+      direction: inbound
+      frequency: on-demand
+      sourceRef: ACT-SECURITY-ENGINEER
+      destinationRef: FU-POLICY-CHECKS
+      ref: ACT-SECURITY-ENGINEER
+      action: Security engineer updates review policy rules
+      next:
+      - run-policy-checks
+    - id: run-policy-checks
+      kind: system_action
+      flowType: control
+      direction: internal
+      frequency: on-demand
+      sourceRef: FU-POLICY-CHECKS
+      destinationRef: FU-REVIEW-ORCHESTRATION
+      ref: FU-POLICY-CHECKS
+      action: Execute deterministic policy checks on candidate rules
+      dataOut:
+      - policy_check_results
+      next:
+      - orchestrate-policy-validation
+    - id: orchestrate-policy-validation
+      kind: system_action
+      flowType: control
+      direction: internal
+      frequency: on-demand
+      sourceRef: FU-REVIEW-ORCHESTRATION
+      destinationRef: DO-BEDROCK-REVIEW-FINDINGS
+      ref: FU-REVIEW-ORCHESTRATION
+      action: Orchestrate dry-run review validation with policy outputs
+      dataIn:
+      - policy_check_results
+      dataOut:
+      - validation_findings
+      dataRefs:
+      - DO-BEDROCK-REVIEW-FINDINGS
+      next:
+      - publish-policy-validation
+    - id: publish-policy-validation
+      kind: system_action
+      flowType: interaction
+      direction: outbound
+      frequency: on-demand
+      sourceRef: FU-REVIEW-PUBLICATION
+      destinationRef: ACT-REPOSITORY-MAINTAINER
+      ref: FU-REVIEW-PUBLICATION
+      action: Publish policy validation findings to repository maintainers
+      dataIn:
+      - validation_findings
+      dataRefs:
+      - DO-BEDROCK-REVIEW-FINDINGS
+  relationships:
+  - type: contains
+    from: FG-PR-INTEGRATION
+    to: FU-GITHUB-WEBHOOK-INGRESS
+  - type: contains
+    from: FG-PR-INTEGRATION
+    to: FU-PR-CONTEXT-ASSEMBLY
+  - type: contains
+    from: FG-REVIEW-INTELLIGENCE
+    to: FU-REVIEW-ORCHESTRATION
+  - type: contains
+    from: FG-REVIEW-INTELLIGENCE
+    to: FU-POLICY-CHECKS
+  - type: contains
+    from: FG-REVIEW-INTELLIGENCE
+    to: FU-REVIEW-PUBLICATION
+  - type: contains
+    from: FG-PLATFORM-OPERATIONS
+    to: FU-LAMBDA-RUNTIME-OPERATIONS
+  - type: contains
+    from: FG-PLATFORM-OPERATIONS
+    to: FU-SECRETS-CONFIGURATION
+  - type: interacts_with
+    from: ACT-DEVELOPER
+    to: FU-GITHUB-WEBHOOK-INGRESS
+    description: Developer push/update activity triggers pull request webhook events.
+  - type: interacts_with
+    from: ACT-SECURITY-ENGINEER
+    to: FU-POLICY-CHECKS
+    description: Maintains and evolves deterministic security checks.
+  - type: interacts_with
+    from: ACT-PLATFORM-OPERATOR
+    to: FU-LAMBDA-RUNTIME-OPERATIONS
+    description: Operates deployments, scaling controls, and runtime observability.
+  - type: interacts_with
+    from: ACT-PLATFORM-OPERATOR
+    to: FU-SECRETS-CONFIGURATION
+    description: Rotates credentials and manages secure configuration lifecycle.
+  - type: interacts_with
+    from: ACT-REPOSITORY-MAINTAINER
+    to: FU-REVIEW-PUBLICATION
+    description: Reviews findings and gate decisions before merge.
+  - type: depends_on
+    from: FU-GITHUB-WEBHOOK-INGRESS
+    to: FU-PR-CONTEXT-ASSEMBLY
+    description: Forwards authenticated PR events for context assembly.
+  - type: calls
+    from: FU-GITHUB-WEBHOOK-INGRESS
+    to: IF-BEDROCK-WEBHOOK-API
+    description: Receives webhook payload through signed API endpoint.
+  - type: depends_on
+    from: FU-PR-CONTEXT-ASSEMBLY
+    to: REF-GITHUB-APP-API
+    description: Fetches pull request files and metadata.
+  - type: depends_on
+    from: FU-PR-CONTEXT-ASSEMBLY
+    to: REF-GITHUB-REST-SDK
+    description: Uses the GitHub REST SDK to fetch pull request files and metadata.
+  - type: depends_on
+    from: FU-PR-CONTEXT-ASSEMBLY
+    to: FU-REVIEW-ORCHESTRATION
+    description: Sends normalized review context.
+  - type: writes
+    from: FU-PR-CONTEXT-ASSEMBLY
+    to: DO-BEDROCK-PR-CONTEXT
+    description: Persists normalized context payload.
+  - type: depends_on
+    from: FU-REVIEW-ORCHESTRATION
+    to: REF-AWS-BEDROCK-RUNTIME
+    description: Requests model analysis for code review findings.
+  - type: depends_on
+    from: FU-REVIEW-ORCHESTRATION
+    to: FU-POLICY-CHECKS
+    description: Merges deterministic policy findings with model output.
+  - type: depends_on
+    from: FU-REVIEW-ORCHESTRATION
+    to: FU-REVIEW-PUBLICATION
+    description: Submits final findings for publication.
+  - type: reads
+    from: FU-REVIEW-ORCHESTRATION
+    to: DO-BEDROCK-PR-CONTEXT
+    description: Reads normalized context before model call.
+  - type: writes
+    from: FU-REVIEW-ORCHESTRATION
+    to: DO-BEDROCK-REVIEW-FINDINGS
+    description: Persists merged deterministic and AI findings.
+  - type: depends_on
+    from: FU-POLICY-CHECKS
+    to: REF-POLICY-RULESET
+    description: Evaluates repository policy and risk rules.
+  - type: depends_on
+    from: FU-REVIEW-PUBLICATION
+    to: REF-GITHUB-APP-API
+    description: Publishes check runs and inline review comments.
+  - type: calls
+    from: FU-REVIEW-PUBLICATION
+    to: IF-BEDROCK-REVIEW-PUBLISH-API
+    description: Calls publication API for check-run output.
+  - type: reads
+    from: FU-REVIEW-PUBLICATION
+    to: DO-BEDROCK-REVIEW-FINDINGS
+    description: Reads final findings for publication.
+  - type: depends_on
+    from: FU-REVIEW-PUBLICATION
+    to: FU-SECRETS-CONFIGURATION
+    description: Retrieves app credentials and redaction rules.
+  - type: depends_on
+    from: FU-REVIEW-ORCHESTRATION
+    to: FU-SECRETS-CONFIGURATION
+    description: Retrieves model configuration and safety settings.
+  - type: depends_on
+    from: FU-LAMBDA-RUNTIME-OPERATIONS
+    to: FU-SECRETS-CONFIGURATION
+    description: Requires secure runtime configuration and credential access.
+  - type: depends_on
+    from: FU-LAMBDA-RUNTIME-OPERATIONS
+    to: REF-AWS-SECRETS-MANAGER
+    description: Uses managed secret store for runtime credentials.
+  - type: depends_on
+    from: FU-SECRETS-CONFIGURATION
+    to: REF-AWS-SDK-GO
+    description: Uses AWS SDK for Go clients to load managed secret configuration.
+  - type: deployed_to
+    from: FU-GITHUB-WEBHOOK-INGRESS
+    to: DEP-BEDROCK-LAMBDA-PRIMARY
+    description: Webhook ingress executes in primary lambda runtime.
+  - type: deployed_to
+    from: FU-REVIEW-ORCHESTRATION
+    to: DEP-BEDROCK-LAMBDA-PRIMARY
+    description: Orchestration executes in primary lambda runtime.
+  - type: deployed_to
+    from: IF-BEDROCK-REVIEW-PUBLISH-API
+    to: DEP-BEDROCK-GITHUB-BOUNDARY
+    description: Publication API crosses GitHub integration boundary.
+  - type: bounded_by
+    from: FU-GITHUB-WEBHOOK-INGRESS
+    to: TB-BEDROCK-GITHUB-EXTERNAL
+    description: External ingress trust boundary.
+  - type: bounded_by
+    from: FU-LAMBDA-RUNTIME-OPERATIONS
+    to: TB-BEDROCK-AWS-CONTROL
+    description: Runtime platform control boundary.
+  - type: targets
+    from: AV-SPOOFED-GITHUB-WEBHOOK
+    to: FU-GITHUB-WEBHOOK-INGRESS
+  - type: targets
+    from: AV-PROMPT-INJECTION-IN-DIFF
+    to: FU-PR-CONTEXT-ASSEMBLY
+  - type: targets
+    from: AV-PROMPT-INJECTION-IN-DIFF
+    to: FU-REVIEW-ORCHESTRATION
+  - type: targets
+    from: AV-SECRET-LEAKAGE-IN-REVIEW
+    to: FU-REVIEW-PUBLICATION
+  - type: targets
+    from: AV-SECRET-LEAKAGE-IN-REVIEW
+    to: FU-SECRETS-CONFIGURATION
+  - type: targets
+    from: AV-PR-SPAM-ABUSE
+    to: FU-GITHUB-WEBHOOK-INGRESS
+  - type: targets
+    from: AV-PR-SPAM-ABUSE
+    to: FU-REVIEW-ORCHESTRATION
+  - type: mitigated_by
+    from: AV-SPOOFED-GITHUB-WEBHOOK
+    to: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  - type: mitigated_by
+    from: AV-SECRET-LEAKAGE-IN-REVIEW
+    to: CTRL-BEDROCK-SECRETS-ROTATION
+  - type: contains
+    from: FU-GITHUB-WEBHOOK-INGRESS
+    to: IF-BEDROCK-WEBHOOK-API
+  - type: contains
+    from: FU-REVIEW-PUBLICATION
+    to: IF-BEDROCK-REVIEW-PUBLISH-API
+  - type: contains
+    from: FU-REVIEW-ORCHESTRATION
+    to: DO-BEDROCK-PR-CONTEXT
+  - type: contains
+    from: FU-REVIEW-PUBLICATION
+    to: DO-BEDROCK-REVIEW-FINDINGS
+  - type: transitions_to
+    from: STATE-BEDROCK-PR-RECEIVED
+    to: STATE-BEDROCK-REVIEW-PUBLISHED
+  - type: triggered_by
+    from: STATE-BEDROCK-PR-RECEIVED
+    to: EVT-BEDROCK-REVIEW-REQUESTED
+  - type: triggered_by
+    from: STATE-BEDROCK-REVIEW-PUBLISHED
+    to: EVT-BEDROCK-REVIEW-COMPLETED
+  - type: guarded_by
+    from: STATE-BEDROCK-REVIEW-PUBLISHED
+    to: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+  - type: guarded_by
+    from: STATE-BEDROCK-REVIEW-PUBLISHED
+    to: TB-BEDROCK-GITHUB-EXTERNAL

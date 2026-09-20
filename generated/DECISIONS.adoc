@@ -511,3 +511,33 @@ stable-ID conventions, and recommended authoring order through a model.authoring
 - New models can declare their entire input document set in one discoverable location.
 - AI agents can obtain a compact editing contract before reading broad YAML or Go implementation files.
 - Future incompatible input changes require a new explicit schema version rather than silent reinterpretation.
+
+[[ADR-EMG-020]]
+== ADR-EMG-020: Distribute reusable model systems as CUE modules in OCI registries
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+Company-scale engineering models span multiple repositories and products. Shared hardware,
+software platforms, security services, and compliance baselines must be reused without copying
+their concepts into each product model. Local paths help monorepositories and git references
+help source-based integration, but neither provides a standard immutable package distribution
+contract with existing registry authentication and caching conventions.
+
+=== Decision
+
+Treat each reusable Engineering Model directory as a CUE module containing cue.mod/module.cue
+plus the canonical YAML document set. A subsystem may select a module path and exact semantic
+version; the composition resolver uses CUE_REGISTRY and CUE's OCI module protocol to fetch and
+cache it. Keep local and git references as compatibility adapters. Add engmod.work.yml as a
+development-only replacement map from module identity to sibling repository paths, analogous
+to workspace replacement mechanisms in established module ecosystems.
+
+=== Consequences
+
+- Multiple product repositories can consume the same versioned hardware, software, security, and compliance models.
+- CI and released products resolve exact OCI module versions while local workspaces can use explicit sibling-repository replacements.
+- Published artifacts remain valid CUE modules and can use existing OCI registry authentication and mirroring.
+- The resolver must reject ambiguous source declarations, invalid versions, path escapes, and replacement module identity mismatches.

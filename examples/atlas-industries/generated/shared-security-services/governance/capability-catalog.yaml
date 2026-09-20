@@ -1,0 +1,32 @@
+title: "Atlas Shared Security Services - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Atlas Shared Security Services
+  description: "The system as a whole: Atlas Shared Security Services."
+  group: system
+- id: FU-SEC-IDENTITY
+  title: Identity Service
+  description: Issues short-lived device and workload credentials.
+  group: FG-SEC
+- id: FU-SEC-MONITORING
+  title: Security Monitoring
+  description: Correlates authentication and audit events.
+  group: FG-SEC
+groups:
+- id: FG-SEC
+  title: Security Services
+  description: Common zero-trust identity and monitoring.
+- id: system
+  title: System
+  description: Whole-system capability scope.

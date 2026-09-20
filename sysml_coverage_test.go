@@ -23,7 +23,7 @@ func TestValidateSysMLV2CoverageRejectsEveryZeroGapFailureMode(t *testing.T) {
 		{"source hash drift", func(m *SysMLCoverageManifest) { m.Authority.SourceManifestSHA256 = strings.Repeat("0", 64) }, "source manifest hash drift"},
 		{"parser failure", func(m *SysMLCoverageManifest) { setCoverageCheck(m, "official-parser", "failed") }, "official-parser"},
 		{"stale artifact", func(m *SysMLCoverageManifest) { setCoverageCheck(m, "artifact-freshness", "failed") }, "artifact-freshness"},
-		{"semantic round-trip difference", func(m *SysMLCoverageManifest) { setCoverageCheck(m, "semantic-round-trip", "failed") }, "semantic-round-trip"},
+		{"native KPAR round-trip difference", func(m *SysMLCoverageManifest) { setCoverageCheck(m, "native-kpar-round-trip", "failed") }, "native-kpar-round-trip"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

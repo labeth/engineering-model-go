@@ -1,0 +1,35 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/shared/edge-platform@v0
+  version: v0.1.0
+  modelId: atlas-shared-edge-platform
+  title: Atlas Shared Edge Platform
+  introduction: Reusable rugged hardware and signed edge runtime.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-EDGE
+  - FU-EDGE-RUNTIME
+  - ACT-EDGE-OPERATOR
+  - IF-EDGE-TELEMETRY
+  - DO-EDGE-TELEMETRY
+  - HW-EDGE-COMPUTE
+  - CAP-EDGE-COMPUTE
+  - NEED-EDGE-IDENTITY
+  assurance:
+  - CTRL-EDGE-SIGNED-WORKLOAD
+  requirements:
+  - REQ-EDGE-001
+  - REQ-EDGE-002
+inferenceHints: {}

@@ -47,7 +47,7 @@ var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-ru
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
-	baseDir := filepath.Dir(bundle.ArchitecturePath)
+	baseDir := modelRootDir(bundle)
 	reqOwners := requirementOwners(requirements.Requirements)
 
 	testRoots := uniqueExistingDirs(append(

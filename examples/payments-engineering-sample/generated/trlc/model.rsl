@@ -1,4 +1,4 @@
-package PaymentsRequirements
+package requirements
 
 type Requirement {
   id         String

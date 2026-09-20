@@ -20,7 +20,7 @@ import (
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
-	baseDir := filepath.Dir(bundle.ArchitecturePath)
+	baseDir := modelRootDir(bundle)
 	roots := make([]string, 0, len(bundle.Architecture.InferenceHints.CodeSources)+1)
 	if strings.TrimSpace(codeRootOption) != "" {
 		roots = append(roots, codeRootOption)

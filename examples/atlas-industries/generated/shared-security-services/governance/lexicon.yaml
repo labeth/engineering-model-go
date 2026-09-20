@@ -1,0 +1,37 @@
+title: "Atlas Shared Security Services - Lexicon"
+metadata:
+  id: atlas-shared-security-services-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Atlas Shared Security Services
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-SEC
+  title: atlas security services
+  definition: Shared identity, key management, and security monitoring services.
+- id: FG-SEC
+  title: security services
+  definition: Shared preventive and detective security capabilities.
+- id: FU-SEC-IDENTITY
+  title: identity service
+  definition: Issues and validates device and workload identities.
+- id: FU-SEC-MONITORING
+  title: security monitoring
+  definition: Detects suspicious authentication and audit activity.
+- id: ACT-SEC-ANALYST
+  title: security analyst
+  definition: Investigates threats and owns security risk treatment.
+- id: AV-CREDENTIAL-REPLAY
+  title: credential replay
+  definition: Reuse of captured credentials to impersonate a trusted workload.
+- id: EVT-CREDENTIAL-REPLAY-DETECTED
+  title: credential replay is detected
+  definition: Detection event raised when a credential is reused outside its permitted context.
+- id: DATA-AUDIT-EVENT
+  title: audit event
+  definition: Security-relevant immutable activity record.

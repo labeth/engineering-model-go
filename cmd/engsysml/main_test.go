@@ -53,7 +53,7 @@ func TestRunValidateCoverageRejectsStaleArtifact(t *testing.T) {
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-SYSML-V2-MODEL
 func TestRunGeneratesProjectionAndDiagnostic(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	modelPath := filepath.Join("..", "..", "architecture.yml")
+	modelPath := filepath.Join("..", "..", "engmod.yml")
 	if code := run([]string{"--model", modelPath}, &stdout, &stderr); code != 0 {
 		t.Fatalf("run returned %d: %s", code, stderr.String())
 	}

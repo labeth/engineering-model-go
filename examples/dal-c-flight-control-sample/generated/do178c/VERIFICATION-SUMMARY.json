@@ -1,0 +1,80 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": {
+    "cases": [
+      {
+        "id": "CASE-YD-NORMAL",
+        "method": "test",
+        "intent": "normal",
+        "requirementRefs": [
+          "REQ-YD-HLR-001"
+        ],
+        "expectedResult": "Filtered command matches the approved reference values.",
+        "procedureRef": "PROC-YD-001",
+        "independenceRequired": true,
+        "state": "reviewed"
+      },
+      {
+        "id": "CASE-YD-ROBUST",
+        "method": "test",
+        "intent": "robustness",
+        "requirementRefs": [
+          "REQ-YD-LLR-001"
+        ],
+        "expectedResult": "Command remains bounded for out-of-range inputs.",
+        "procedureRef": "PROC-YD-001",
+        "independenceRequired": true,
+        "state": "reviewed"
+      }
+    ],
+    "executions": [
+      {
+        "id": "EXEC-YD-001",
+        "procedureRef": "PROC-YD-001",
+        "caseRefs": [
+          "CASE-YD-NORMAL",
+          "CASE-YD-ROBUST"
+        ],
+        "baseline": "BASELINE-YD-001",
+        "build": "BUILD-YD-001",
+        "environment": "HOST-TEST-RIG-1",
+        "target": "HW-FLIGHT-CONTROL-COMPUTER",
+        "producer": "Verification Engineer A",
+        "verifier": "Verification Reviewer B",
+        "status": "reviewed",
+        "result": "Normal case passed; robustness case exposed one uncovered defensive statement.",
+        "evidence": [
+          "DATA-RESULTS"
+        ],
+        "approvalRefs": [
+          "APPROVAL-YD-001"
+        ]
+      }
+    ],
+    "procedures": [
+      {
+        "id": "PROC-YD-001",
+        "caseRefs": [
+          "CASE-YD-NORMAL",
+          "CASE-YD-ROBUST"
+        ],
+        "steps": [
+          "Load the controlled build",
+          "inject normal and boundary inputs",
+          "compare recorded results with expected results"
+        ],
+        "environment": "HOST-TEST-RIG-1",
+        "target": "HW-FLIGHT-CONTROL-COMPUTER",
+        "baseline": "BASELINE-YD-001",
+        "state": "reviewed"
+      }
+    ]
+  }
+}

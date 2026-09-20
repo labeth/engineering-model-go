@@ -1,0 +1,223 @@
+{
+  "model": "atlas-industries-portfolio",
+  "requirements": [
+    {
+      "id": "REQ-PORT-001",
+      "text": "The atlas industries portfolio shall report portfolio status to the portfolio executive.",
+      "units": [
+        "FU-PORT-GOVERNANCE"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-PORT-002",
+      "text": "The atlas industries portfolio shall provide perimeter awareness using the Aegis Sentinel product capability.",
+      "units": [
+        "FU-PORT-GOVERNANCE"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-PORT-AEGIS",
+        "target": "aegis::CAP-AEGIS-MISSION",
+        "targetRequirement": "REQ-AEG-001"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "REQ-PORT-003",
+      "text": "The atlas industries portfolio shall provide resilient communications using the Orion Relay product capability.",
+      "units": [
+        "FU-PORT-GOVERNANCE"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-PORT-ORION",
+        "target": "orion::CAP-ORION-MISSION",
+        "targetRequirement": "REQ-ORI-001"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "aegis::REQ-AEG-001",
+      "text": "The aegis sentinel system shall present each perimeter track to the security operator.",
+      "units": [
+        "aegis::FU-AEG-MISSION"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-PORT-AEGIS",
+        "target": "aegis::CAP-AEGIS-MISSION",
+        "targetRequirement": "aegis::REQ-AEG-001"
+      },
+      "provenance": {
+        "alias": "aegis",
+        "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-aegis-sentinel",
+        "publication": "public",
+        "sourceId": "REQ-AEG-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "aegis::REQ-AEG-002",
+      "text": "The aegis sentinel system shall execute the sensor fusion software on managed edge compute.",
+      "units": [
+        "aegis::FU-AEG-SENSOR-FUSION"
+      ],
+      "provenance": {
+        "alias": "aegis",
+        "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-aegis-sentinel",
+        "publication": "public",
+        "sourceId": "REQ-AEG-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "aegis::REQ-AEG-003",
+      "text": "The aegis sentinel system shall retain each perimeter track using managed cloud operations.",
+      "units": [
+        "aegis::FU-AEG-MISSION"
+      ],
+      "provenance": {
+        "alias": "aegis",
+        "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-aegis-sentinel",
+        "publication": "public",
+        "sourceId": "REQ-AEG-003"
+      },
+      "status": "published"
+    },
+    {
+      "id": "aegis::REQ-AEG-004",
+      "text": "The aegis sentinel system shall authenticate product services using shared security services.",
+      "units": [
+        "aegis::FU-AEG-SENSOR-FUSION",
+        "aegis::FU-AEG-MISSION"
+      ],
+      "provenance": {
+        "alias": "aegis",
+        "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-aegis-sentinel",
+        "publication": "public",
+        "sourceId": "REQ-AEG-004"
+      },
+      "status": "published"
+    },
+    {
+      "id": "aegis::REQ-AEG-005",
+      "text": "The aegis sentinel system shall retain compliance evidence using the company control baseline.",
+      "units": [
+        "aegis::FU-AEG-MISSION"
+      ],
+      "provenance": {
+        "alias": "aegis",
+        "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-aegis-sentinel",
+        "publication": "public",
+        "sourceId": "REQ-AEG-005"
+      },
+      "status": "published"
+    },
+    {
+      "id": "orion::REQ-ORI-001",
+      "text": "The orion relay system shall deliver each relay message according to network controller priority.",
+      "units": [
+        "orion::FU-ORI-ROUTER"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-PORT-ORION",
+        "target": "orion::CAP-ORION-MISSION",
+        "targetRequirement": "orion::REQ-ORI-001"
+      },
+      "provenance": {
+        "alias": "orion",
+        "modulePath": "models.atlas.example/products/orion-relay@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-orion-relay",
+        "publication": "public",
+        "sourceId": "REQ-ORI-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "orion::REQ-ORI-002",
+      "text": "The orion relay system shall execute the link scheduler software on managed edge compute.",
+      "units": [
+        "orion::FU-ORI-LINK"
+      ],
+      "provenance": {
+        "alias": "orion",
+        "modulePath": "models.atlas.example/products/orion-relay@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-orion-relay",
+        "publication": "public",
+        "sourceId": "REQ-ORI-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "orion::REQ-ORI-003",
+      "text": "The orion relay system shall retain relay configuration using managed cloud operations.",
+      "units": [
+        "orion::FU-ORI-ROUTER"
+      ],
+      "provenance": {
+        "alias": "orion",
+        "modulePath": "models.atlas.example/products/orion-relay@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-orion-relay",
+        "publication": "public",
+        "sourceId": "REQ-ORI-003"
+      },
+      "status": "published"
+    },
+    {
+      "id": "orion::REQ-ORI-004",
+      "text": "The orion relay system shall authenticate product services using shared security services.",
+      "units": [
+        "orion::FU-ORI-LINK",
+        "orion::FU-ORI-ROUTER"
+      ],
+      "provenance": {
+        "alias": "orion",
+        "modulePath": "models.atlas.example/products/orion-relay@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-orion-relay",
+        "publication": "public",
+        "sourceId": "REQ-ORI-004"
+      },
+      "status": "published"
+    },
+    {
+      "id": "orion::REQ-ORI-005",
+      "text": "The orion relay system shall retain compliance evidence using the company control baseline.",
+      "units": [
+        "orion::FU-ORI-ROUTER"
+      ],
+      "provenance": {
+        "alias": "orion",
+        "modulePath": "models.atlas.example/products/orion-relay@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-orion-relay",
+        "publication": "public",
+        "sourceId": "REQ-ORI-005"
+      },
+      "status": "published"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-PORT-001"
+  ],
+  "summary": {
+    "requirements": 13,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 4,
+    "orphan": 1,
+    "danglingLinks": 0
+  }
+}

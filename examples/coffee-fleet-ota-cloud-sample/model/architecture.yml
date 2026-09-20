@@ -1,0 +1,249 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-MACHINE-EDGE
+    name: Machine Edge
+    description: Device-local telemetry and OTA execution responsibilities.
+    prose: 'Machine Edge owns behavior that executes directly on coffee machines.
+
+      It gathers telemetry, applies OTA updates, and reports local status to cloud boundaries.
+
+      '
+  - id: FG-CLOUD-CONTROL
+    name: Cloud Control
+    description: Central cloud ingestion, campaign control, and fleet reporting.
+    prose: 'Cloud Control owns central APIs and coordination logic for fleet telemetry and OTA rollouts.
+
+      It provides global fleet visibility and deterministic rollout decisions.
+
+      '
+  - id: FG-PLATFORM-OPERATIONS
+    name: Platform Operations
+    description: Cloud runtime operations plus identity and secret-management controls.
+    prose: 'Platform Operations owns deployability, runtime guardrails, and secure identity/config lifecycle.
+
+      It ensures cloud and device trust boundaries remain enforceable over time.
+
+      '
+  functionalUnits:
+  - id: FU-MACHINE-TELEMETRY-COLLECTION
+    name: Machine Telemetry Collection
+    group: FG-MACHINE-EDGE
+    prose: 'Collects brew/device telemetry and transmits cloud-bound telemetry payloads.
+
+      '
+  - id: FU-OTA-UPDATE-AGENT
+    name: OTA Update Agent
+    group: FG-MACHINE-EDGE
+    prose: 'Downloads signed firmware bundles, validates integrity, applies updates, and reports status.
+
+      '
+  - id: FU-FLEET-INGESTION-API
+    name: Fleet Ingestion API
+    group: FG-CLOUD-CONTROL
+    prose: 'Receives telemetry and machine status, applies validation, and emits ingestion events.
+
+      '
+  - id: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    name: Update Campaign Orchestration
+    group: FG-CLOUD-CONTROL
+    prose: 'Plans OTA rollout cohorts, drives update commands, and handles rollback flow decisions.
+
+      '
+  - id: FU-FLEET-OBSERVABILITY-REPORTING
+    name: Fleet Observability Reporting
+    group: FG-CLOUD-CONTROL
+    prose: 'Aggregates telemetry and OTA outcomes into dashboards, alerts, and audit records.
+
+      '
+  - id: FU-CLOUD-RUNTIME-OPERATIONS
+    name: Cloud Runtime Operations
+    group: FG-PLATFORM-OPERATIONS
+    prose: 'Owns runtime deployment lifecycle, scaling controls, and runtime operational safety.
+
+      '
+  - id: FU-DEVICE-IDENTITY-SECRETS
+    name: Device Identity and Secrets
+    group: FG-PLATFORM-OPERATIONS
+    prose: 'Manages device credentials, cloud tokens, and secure configuration used by edge/cloud units.
+
+      '
+  actors:
+  - id: ACT-BARISTA
+    name: Barista
+    description: Operates coffee machines and observes local device status.
+  - id: ACT-FLEET-OPERATOR
+    name: Fleet Operator
+    description: Manages OTA campaigns and fleet-wide operational decisions.
+  - id: ACT-PLATFORM-OPERATOR
+    name: Platform Operator
+    description: Operates cloud runtime, deployment, and reliability controls.
+  - id: ACT-SECURITY-ANALYST
+    name: Security Analyst
+    description: Reviews firmware integrity, identity controls, and audit logging.
+  referencedElements:
+  - id: REF-IOT-INGEST-ENDPOINT
+    kind: external_service_endpoint
+    layer: runtime
+    name: IoT Ingest Endpoint
+  - id: REF-FIRMWARE-BUNDLE-STORE
+    kind: object_store
+    layer: runtime
+    name: Firmware Bundle Store
+  - id: REF-CLOUD-LOGGING-SERVICE
+    kind: platform_service
+    layer: runtime
+    name: Cloud Logging Service
+  - id: REF-FIRMWARE-SIGNER-SERVICE
+    kind: signing_service
+    layer: runtime
+    name: Firmware Signer Service
+  - id: REF-MQTT-DEVICE-SDK
+    kind: third_party_library
+    layer: code
+    name: MQTT Device SDK
+  - id: REF-CLOUD-RUNTIME-SDK
+    kind: third_party_library
+    layer: code
+    name: Cloud Runtime SDK
+  interfaces:
+  - id: IF-COFFEE-TELEMETRY-INGEST
+    name: Telemetry Ingestion Interface
+    protocol: mqtt
+    endpoint: mqtt://ingest/topics/telemetry
+    schemaRef: schemas/telemetry.json
+    owner: FU-FLEET-INGESTION-API
+  - id: IF-COFFEE-OTA-COMMAND
+    name: OTA Command Interface
+    protocol: mqtt
+    endpoint: mqtt://devices/ota/commands
+    schemaRef: schemas/ota-command.json
+    owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+  dataObjects:
+  - id: DO-COFFEE-TELEMETRY-EVENT
+    name: Telemetry Event
+    termRef: DATA-TELEMETRY-EVENT
+    schemaRef: schemas/telemetry-event.json
+    sensitivity: internal
+    classification: operational-metrics
+    regulatoryTags:
+    - internal-operations
+    retention: 180_days
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-COFFEE-OTA-PLAN
+    name: OTA Rollout Plan
+    termRef: DATA-OTA-PLAN
+    schemaRef: schemas/ota-plan.json
+    sensitivity: internal
+    classification: deployment-control
+    regulatoryTags:
+    - safety-control
+    retention: 365_days
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  deploymentTargets:
+  - id: DEP-COFFEE-CLOUD-PROD
+    name: Coffee Cloud Production
+    environment: prod
+    region: us-east-1
+    account: cloud
+    cluster: coffee-cloud
+    namespace: coffee
+    trustZone: app
+  - id: DEP-COFFEE-EDGE-FLEET
+    name: Coffee Edge Fleet
+    environment: edge
+    region: global
+    account: device
+    cluster: edge-fleet
+    namespace: devices
+    trustZone: edge
+  hardwareItems:
+  - id: HW-FLOW-SENSOR
+    name: Flow Sensor
+    kind: sensor
+    description: Measures brew water flow on the machine.
+  - id: HW-COFFEE-MACHINE
+    name: Coffee Machine Controller
+    kind: lru
+    partNumber: CM-700
+    supplier: BrewCo
+    hosts:
+    - SUB-TELEMETRY
+    description: On-machine controller hosting the telemetry subsystem.
+  - id: HW-EDGE-GATEWAY
+    name: Fleet Edge Gateway
+    kind: gateway
+    hosts:
+    - SUB-OTA-AGENT
+    description: Site gateway bridging machines to the cloud and hosting the OTA agent.
+  - id: HW-CLOUD
+    name: Cloud Platform
+    kind: cloud
+    hosts:
+    - SUB-CLOUD-API
+    description: Cloud platform hosting ingestion and campaign control.
+  hardwareInterfaces:
+  - id: HWIF-CAN
+    name: Sensor CAN bus
+    busType: CAN
+    from: HW-FLOW-SENSOR
+    to: HW-COFFEE-MACHINE
+    direction: in
+    description: Flow sensor readings to the machine controller.
+  - id: HWIF-CELLULAR
+    name: Machine cellular uplink
+    busType: cellular
+    from: HW-COFFEE-MACHINE
+    to: HW-EDGE-GATEWAY
+    direction: out
+    description: Machine to gateway telemetry and OTA channel.
+  - id: HWIF-INTERNET
+    name: Gateway internet link
+    busType: ethernet
+    from: HW-EDGE-GATEWAY
+    to: HW-CLOUD
+    direction: bidirectional
+    description: Gateway to cloud ingestion and campaign control.
+  composition:
+    subsystems:
+    - id: SUB-TELEMETRY
+      name: Machine Telemetry Subsystem
+      dependency: telemetry
+      publication: public
+      description: Collects and reports machine telemetry.
+    - id: SUB-OTA-AGENT
+      name: OTA Update Agent Subsystem
+      dependency: ota-agent
+      publication: public
+      description: Verifies and applies signed OTA updates on the machine.
+    - id: SUB-CLOUD-API
+      name: Cloud API Subsystem
+      dependency: cloud-api
+      publication: public
+      description: Ingests telemetry and drives OTA campaigns.
+    allocations:
+    - requirement: REQ-COF-001
+      to: SUB-TELEMETRY
+      target: telemetry::CAP-TELEM-REPORT
+      rationale: Machine telemetry reporting is realized by the telemetry subsystem.
+    - requirement: REQ-COF-003
+      to: SUB-OTA-AGENT
+      target: ota-agent::CAP-OTA-APPLY
+      rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
+    - requirement: REQ-COF-002
+      to: SUB-CLOUD-API
+      target: cloud-api::CAP-CLOUD-INGEST
+      rationale: Telemetry persistence is realized by the cloud API subsystem.
+    satisfactions:
+    - need: ota-agent::NEED-TELEMETRY-FEED
+      by: telemetry::CAP-TELEM-REPORT
+    - need: ota-agent::NEED-CELLULAR-LINK
+      by: HW-EDGE-GATEWAY
+    - need: telemetry::NEED-CAN-BUS
+      by: HW-COFFEE-MACHINE
+    - need: cloud-api::NEED-INTERNET
+      by: HW-CLOUD

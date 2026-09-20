@@ -3,16 +3,16 @@
 This file is generated from the canonical Engineering Model. Empty generated documents are not proof of coverage; use the status table below.
 
 - Model: `engineering-model-go`
-- Generated artifacts: 35
-- Covered assurance areas: 12
-- Missing model areas: 5
-- Optional outputs not applicable: 0
+- Generated artifacts: 32
+- Covered assurance areas: 11
+- Missing model areas: 6
+- Optional outputs not applicable: 3
 - Blocked optional outputs: 0
 
 | Assurance area | Status | Evidence count | Required | Next action |
 |---|---:|---:|---:|---|
-| architecture-decisions | covered | 19 | 1 | Record material architectural and governance trade-offs as decisions. |
-| architecture-structure | covered | 38 | 1 | Model functional boundaries, interfaces, and important flows. |
+| architecture-decisions | covered | 20 | 1 | Record material architectural and governance trade-offs as decisions. |
+| architecture-structure | covered | 40 | 1 | Model functional boundaries, interfaces, and important flows. |
 | architecture-view/architecture-intent | covered | 1 | 1 | Author the architecture-intent view with relevant roots, scope, audience, and design narrative. |
 | architecture-view/communication | missing-model | 0 | 1 | Author the communication view with relevant roots, scope, audience, and design narrative. |
 | architecture-view/deployment | missing-model | 0 | 1 | Author the deployment view with relevant roots, scope, audience, and design narrative. |
@@ -23,11 +23,11 @@ This file is generated from the canonical Engineering Model. Empty generated doc
 | compliance | missing-model | 0 | 1 | Select applicable compliance profiles and map implemented controls, or record a reviewed non-applicability decision. |
 | data-classification | missing-model | 0 | 12 | Model every data object with sensitivity, classification, CIA impact, retention, and explicit regulatory tags. |
 | governance-controls | covered | 7 | 1 | Model controls with responsible verification evidence. |
-| implementation-traceability | covered | 45 | 45 | Add TRLC-LINKS implementation evidence for each non-delegated requirement. |
-| requirements-engineering | covered | 45 | 1 | Author at least one durable requirement with implementation and verification traceability. |
+| implementation-traceability | missing-model | 54 | 55 | Add TRLC-LINKS implementation evidence for each non-delegated requirement. |
+| requirements-engineering | covered | 55 | 1 | Author at least one durable requirement with implementation and verification traceability. |
 | risk-and-poam | covered | 5 | 1 | Model identified risks and add POA&M items for accepted remediation work. |
 | security-threat-model | covered | 8 | 1 | Model trust boundaries, attack vectors, and threat scenarios or record why they are not applicable. |
-| verification-traceability | missing-model | 38 | 45 | Add observable verification evidence for each non-delegated requirement. |
+| verification-traceability | missing-model | 43 | 55 | Add observable verification evidence for each non-delegated requirement. |
 
 ## Generated artifacts
 
@@ -47,9 +47,9 @@ This file is generated from the canonical Engineering Model. Empty generated doc
 | `VIEW-TRACEABILITY.mmd` | architecture | mmd | generated |
 | `compliance/GEMARA-OSCAL-ASSESSMENT-RESULTS.json` | compliance | json | generated |
 | `compliance/GEMARA-OSCAL-CATALOG.json` | compliance | json | generated |
-| `compliance/OSCAL-ASSESSMENT-RESULTS.json` | compliance | json | generated |
-| `compliance/OSCAL-POAM.json` | compliance | json | generated |
-| `compliance/OSCAL-SSP.json` | compliance | json | generated |
+| `compliance/OSCAL-ASSESSMENT-RESULTS.json` | compliance | json | not-applicable |
+| `compliance/OSCAL-POAM.json` | compliance | json | not-applicable |
+| `compliance/OSCAL-SSP.json` | compliance | json | not-applicable |
 | `governance/gemara/audit-log.yaml` | governance | yaml | generated |
 | `governance/gemara/capability-catalog.yaml` | governance | yaml | generated |
 | `governance/gemara/control-catalog.yaml` | governance | yaml | generated |

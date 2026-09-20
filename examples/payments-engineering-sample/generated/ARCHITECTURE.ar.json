@@ -3,20 +3,20 @@
     "uuid": "feb3a254-f078-59e8-b66d-b7015be52e53",
     "metadata": {
       "title": "Sample Payments Layered Architecture Assessment Results",
-      "last-modified": "2026-06-01T18:17:41Z",
+      "last-modified": "2026-09-19T00:00:00Z",
       "version": "0.1.0",
       "oscal-version": "1.1.2"
     },
     "import-ap": {
-      "href": "./ASSESSMENT-PLAN.json"
+      "href": "./ARCHITECTURE.ap.json"
     },
     "results": [
       {
         "uuid": "5b5abe26-c8a5-5ef4-a195-d9f9cc21839e",
         "title": "Automated architecture assessment",
         "description": "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
-        "start": "2026-06-01T18:17:41Z",
-        "end": "2026-06-01T18:17:41Z",
+        "start": "2026-09-19T00:00:00Z",
+        "end": "2026-09-19T00:00:00Z",
         "reviewed-controls": {
           "control-selections": [
             {
@@ -53,10 +53,12 @@
             "props": [
               {
                 "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
               },
               {
                 "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "not-run"
               }
             ]
@@ -75,10 +77,12 @@
             "props": [
               {
                 "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
               },
               {
                 "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "not-run"
               }
             ]
@@ -97,10 +101,12 @@
             "props": [
               {
                 "name": "verification-id",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
               },
               {
                 "name": "verification-status",
+                "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
                 "value": "not-run"
               }
             ]

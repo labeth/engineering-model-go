@@ -1,0 +1,53 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-EDGE
+    name: Edge Platform
+    description: Common edge compute and device integration.
+  functionalUnits:
+  - id: FU-EDGE-RUNTIME
+    name: Edge Runtime
+    group: FG-EDGE
+    prose: Hosts signed product workloads and normalizes device observations.
+  actors:
+  - id: ACT-EDGE-OPERATOR
+    name: Edge Operator
+    description: Maintains deployed edge nodes.
+  interfaces:
+  - id: IF-EDGE-TELEMETRY
+    name: Edge Telemetry Interface
+    protocol: mqtt
+    endpoint: mqtt://edge/telemetry
+    owner: FU-EDGE-RUNTIME
+  dataObjects:
+  - id: DO-EDGE-TELEMETRY
+    name: Edge Telemetry Record
+    termRef: DATA-EDGE-TELEMETRY
+    sensitivity: internal
+    classification: operational
+    regulatoryTags:
+    - company-confidential
+    retention: 30_days
+    confidentiality: medium
+    integrity: high
+    availability: high
+  hardwareItems:
+  - id: HW-EDGE-COMPUTE
+    name: Rugged Edge Compute Unit
+    kind: lru
+    partNumber: AT-E100
+    supplier: Atlas Industries
+    hosts:
+    - FU-EDGE-RUNTIME
+    description: TPM-backed compute unit with redundant network interfaces.
+  contract:
+    provides:
+    - id: CAP-EDGE-COMPUTE
+      kind: capability
+      ref: REQ-EDGE-001
+      note: Rugged compute with signed workload execution.
+    requires:
+    - id: NEED-EDGE-IDENTITY
+      kind: capability
+      ref: REQ-EDGE-002
+      note: Device identity must be supplied by the composing product.

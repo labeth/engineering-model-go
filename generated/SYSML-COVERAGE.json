@@ -7726,7 +7726,7 @@
       ]
     },
     {
-      "id": "semantic-round-trip",
+      "id": "native-kpar-round-trip",
       "status": "passed",
       "evidence": [
         "scripts/validate-sysml.sh",

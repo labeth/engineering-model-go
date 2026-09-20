@@ -1,0 +1,119 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "a6bb09ec-c303-5ce8-9557-466c46297a13",
+    "metadata": {
+      "title": "Aegis Sentinel Product System POA\u0026M",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./OSCAL-SSP.json"
+    },
+    "poam-items": [
+      {
+        "uuid": "94071653-06d2-51f9-81d4-17c63c565e04",
+        "title": "Add contractor learning-platform completion data to the common monthly report.",
+        "description": "Add contractor learning-platform completion data to the common monthly report.",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::POAM-COMP-002"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-11-30"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::ACT-COMP-OFFICER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "589b945b-29dd-5a58-bf28-d23d2986b8f2"
+          }
+        ],
+        "remarks": "Artifacts: evidence/compliance/contractor-training-plan.md"
+      },
+      {
+        "uuid": "aaf4db8c-fc79-52ce-8b06-229b71e17212",
+        "title": "Add delegated reviewer escalation and overdue reporting.",
+        "description": "Add delegated reviewer escalation and overdue reporting.",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::POAM-COMP-001"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-12-15"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "in-progress"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "compliance::ACT-COMP-OFFICER"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "d6030e1c-122a-5486-9309-fd4eb965204a"
+          }
+        ],
+        "remarks": "Artifacts: evidence/compliance/access-review-plan.md"
+      }
+    ],
+    "risks": [
+      {
+        "uuid": "2b11353a-2fc1-5cd8-900b-2d1d5f93acf7",
+        "title": "Former or transferred personnel retain access",
+        "description": "Delayed role-change or termination processing may leave inappropriate privileges active.",
+        "status": "mitigating",
+        "statement": "Manager and People Operations checkpoints govern access removal."
+      },
+      {
+        "uuid": "589b945b-29dd-5a58-bf28-d23d2986b8f2",
+        "title": "Personnel miss security obligations",
+        "description": "Missing or overdue awareness education may increase human-centered security incidents.",
+        "status": "open",
+        "statement": "Employee reporting is established but contractor completion is not yet integrated."
+      },
+      {
+        "uuid": "5d761810-6cd7-5492-b932-90c5cbdca3c5",
+        "title": "False perimeter track",
+        "description": "Spoofed observations may cause an incorrect perimeter incident.",
+        "status": "mitigating",
+        "statement": "Multi-sensor correlation reduces but does not eliminate sophisticated spoofing."
+      },
+      {
+        "uuid": "5d94ac63-9bc1-51af-8bea-aca4682ffd7c",
+        "title": "Credential replay risk",
+        "description": "Captured credentials may permit unauthorized product access.",
+        "status": "mitigating",
+        "statement": "Short credential lifetime and replay detection reduce exposure."
+      },
+      {
+        "uuid": "d6030e1c-122a-5486-9309-fd4eb965204a",
+        "title": "Delayed privileged access review",
+        "description": "A delayed access review may leave obsolete privileges active.",
+        "status": "open",
+        "statement": "Automated reminders exist but reviewer delegation remains incomplete."
+      }
+    ]
+  }
+}

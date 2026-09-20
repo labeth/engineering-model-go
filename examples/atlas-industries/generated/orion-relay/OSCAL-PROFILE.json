@@ -1,0 +1,19 @@
+{
+  "profile": {
+    "uuid": "fc25bde5-956f-5460-a68a-8aadb55ab459",
+    "metadata": {
+      "title": "Orion Relay Product System Compliance Profile",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "../shared-compliance-baseline/profiles/iso-27001-atlas.json"
+      },
+      {
+        "href": "../shared-compliance-baseline/profiles/nist-800-53-atlas.json"
+      }
+    ]
+  }
+}

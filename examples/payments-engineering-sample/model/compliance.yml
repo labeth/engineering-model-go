@@ -1,0 +1,51 @@
+schemaVersion: 2
+compliance:
+  profiles:
+  - id: PROF-NIST-800-53-LOW
+    href: ./oscal/profile-nist-800-53-low.json
+    catalogHref: ./oscal/catalog-nist-800-53-rev5-subset.json
+  mappings:
+  - id: MAP-PAYMENTS-SSO-MFA
+    profileRef: PROF-NIST-800-53-LOW
+    modelControlRef: CTRL-PAYMENTS-SSO-MFA
+    controlIds:
+    - ac-2
+    - ia-2
+    - ia-2.1
+    appliesTo:
+    - FU-SUPPORT-REVIEW
+    - FU-GITOPS-OPERATIONS
+    implementationType: technical
+    implementationStatus: implemented
+    narrative: 'Workforce access is mediated by centralized SSO with MFA and conditional access policy.
+
+      Elevated operational actions require successful strong authentication before authorization.
+
+      '
+    evidence:
+    - path: infra/identity/sso-policy.yaml
+      description: SSO policy with MFA and conditional access requirements.
+    responsibleRoles:
+    - ACT-PLATFORM-OPERATOR
+  - id: MAP-PAYMENTS-IMAGE-DIGEST
+    profileRef: PROF-NIST-800-53-LOW
+    modelControlRef: CTRL-PAYMENTS-IMAGE-DIGEST
+    controlIds:
+    - cm-6
+    appliesTo:
+    - FU-GITOPS-OPERATIONS
+    - FU-CLUSTER-PROVISIONING
+    implementationType: hybrid
+    implementationStatus: implemented
+    narrative: 'Delivery pipelines and deployment manifests require immutable image digest pinning.
+
+      Release automation rejects mutable tags in production deployment paths.
+
+      '
+    evidence:
+    - path: infra/flux/kustomization.yaml
+      description: Flux deployment baseline references immutable release artifacts.
+    - path: infra/helm/values-prod.yaml
+      description: Production chart values pin immutable digest references.
+    responsibleRoles:
+    - ACT-PLATFORM-OPERATOR

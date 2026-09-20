@@ -1,0 +1,69 @@
+schemaVersion: 2
+module:
+  path: models.atlas.example/shared/compliance-baseline@v0
+  version: v0.1.0
+  modelId: atlas-shared-compliance-baseline
+  title: Atlas Shared Compliance Baseline
+  introduction: NIST and ISO aligned company control baseline with verification evidence.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-COMP
+  - FU-COMP-EVIDENCE
+  - FU-COMP-PEOPLE
+  - ACT-EMPLOYEE
+  - ACT-LINE-MANAGER
+  - ACT-PEOPLE-OPERATIONS
+  - ACT-COMP-OFFICER
+  - DO-COMP-EVIDENCE
+  - DO-COMP-PERSONNEL-RECORD
+  - DO-COMP-TRAINING-RECORD
+  - CAP-CONTROL-BASELINE
+  behavior:
+  - FLOW-COMP-EMPLOYEE-LIFECYCLE
+  assurance:
+  - CTRL-COMP-ACCESS-REVIEW
+  - CTRL-COMP-EVIDENCE-RETENTION
+  - CTRL-COMP-PERSONNEL-SCREENING
+  - CTRL-COMP-POLICY-ACKNOWLEDGMENT
+  - CTRL-COMP-SECURITY-AWARENESS
+  - CTRL-COMP-ROLE-CHANGE-REVIEW
+  - CTRL-COMP-OFFBOARDING
+  - RISK-COMP-ACCESS-REVIEW-GAP
+  - RISK-COMP-UNTRAINED-PERSONNEL
+  - RISK-COMP-RETAINED-ACCESS
+  - POAM-COMP-001
+  - POAM-COMP-002
+  - CV-COMP-ACCESS-REVIEW
+  - CV-COMP-PERSONNEL-SCREENING
+  - CV-COMP-AWARENESS
+  - CV-COMP-ROLE-CHANGE
+  - CV-COMP-OFFBOARDING
+  compliance:
+  - PROF-NIST-ATLAS
+  - PROF-ISO-ATLAS
+  - IMPL-COMP-AC2
+  - IMPL-COMP-A5
+  - IMPL-COMP-NIST-PEOPLE
+  - IMPL-COMP-ISO-PEOPLE
+  requirements:
+  - REQ-COMP-001
+  - REQ-COMP-002
+  - REQ-COMP-003
+  - REQ-COMP-004
+  - REQ-COMP-005
+  - REQ-COMP-006
+  - REQ-COMP-007
+  - REQ-COMP-008
+inferenceHints: {}

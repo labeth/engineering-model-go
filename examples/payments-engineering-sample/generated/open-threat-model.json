@@ -81,6 +81,15 @@
       "risk": {
         "trustRating": 50
       }
+    },
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
     }
   ],
   "components": [

@@ -1,0 +1,158 @@
+schemaVersion: 2
+assurance:
+  controls:
+  - id: CTRL-COMP-ACCESS-REVIEW
+    name: Quarterly Access Review
+    category: access-control
+    description: Reviews privileged access quarterly.
+  - id: CTRL-COMP-EVIDENCE-RETENTION
+    name: Evidence Retention
+    category: audit
+    description: Retains signed assessment evidence for seven years.
+  - id: CTRL-COMP-PERSONNEL-SCREENING
+    name: Personnel Screening
+    category: personnel-security
+    description: Applies risk-appropriate screening before privileged access is authorized.
+  - id: CTRL-COMP-POLICY-ACKNOWLEDGMENT
+    name: Employment Security Responsibilities
+    category: personnel-security
+    description: Records acceptance of security and acceptable-use responsibilities.
+  - id: CTRL-COMP-SECURITY-AWARENESS
+    name: Security Awareness Education
+    category: awareness-and-training
+    description: Provides initial and annual awareness education with completion tracking.
+  - id: CTRL-COMP-ROLE-CHANGE-REVIEW
+    name: Role Change Review
+    category: access-control
+    description: Reassesses access and responsibilities when an employee changes role.
+  - id: CTRL-COMP-OFFBOARDING
+    name: Personnel Offboarding
+    category: personnel-security
+    description: Coordinates access revocation, responsibility transfer, and company asset return.
+  risks:
+  - id: RISK-COMP-ACCESS-REVIEW-GAP
+    title: Delayed privileged access review
+    statement: A delayed access review may leave obsolete privileges active.
+    status: open
+    likelihood: low
+    impact: medium
+    response: mitigate
+    owner: ACT-COMP-OFFICER
+    appliesTo:
+    - FU-COMP-EVIDENCE
+    relatedControls:
+    - CTRL-COMP-ACCESS-REVIEW
+    residualRisk: low
+    rationale: Automated reminders exist but reviewer delegation remains incomplete.
+  - id: RISK-COMP-UNTRAINED-PERSONNEL
+    title: Personnel miss security obligations
+    statement: Missing or overdue awareness education may increase human-centered security incidents.
+    status: open
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-COMP-OFFICER
+    appliesTo:
+    - FU-COMP-PEOPLE
+    relatedControls:
+    - CTRL-COMP-POLICY-ACKNOWLEDGMENT
+    - CTRL-COMP-SECURITY-AWARENESS
+    residualRisk: medium
+    rationale: Employee reporting is established but contractor completion is not yet integrated.
+  - id: RISK-COMP-RETAINED-ACCESS
+    title: Former or transferred personnel retain access
+    statement: Delayed role-change or termination processing may leave inappropriate privileges active.
+    status: mitigating
+    likelihood: low
+    impact: high
+    response: mitigate
+    owner: ACT-PEOPLE-OPERATIONS
+    appliesTo:
+    - FU-COMP-PEOPLE
+    relatedControls:
+    - CTRL-COMP-ROLE-CHANGE-REVIEW
+    - CTRL-COMP-OFFBOARDING
+    residualRisk: low
+    rationale: Manager and People Operations checkpoints govern access removal.
+  poamItems:
+  - id: POAM-COMP-001
+    riskRef: RISK-COMP-ACCESS-REVIEW-GAP
+    milestone: Add delegated reviewer escalation and overdue reporting.
+    dueDate: 2026-12-15
+    status: in-progress
+    responsibleRole: ACT-COMP-OFFICER
+    artifacts:
+    - path: evidence/compliance/access-review-plan.md
+      description: Approved remediation plan.
+  - id: POAM-COMP-002
+    riskRef: RISK-COMP-UNTRAINED-PERSONNEL
+    milestone: Add contractor learning-platform completion data to the common monthly report.
+    dueDate: 2026-11-30
+    status: planned
+    responsibleRole: ACT-COMP-OFFICER
+    artifacts:
+    - path: evidence/compliance/contractor-training-plan.md
+      description: Approved contractor reporting integration plan.
+  controlVerifications:
+  - id: CV-COMP-ACCESS-REVIEW
+    controlRef: CTRL-COMP-ACCESS-REVIEW
+    riskRefs:
+    - RISK-COMP-ACCESS-REVIEW-GAP
+    method: inspection
+    status: partial
+    owner: ACT-COMP-OFFICER
+    lastTested: 2026-08-31
+    findings:
+    - Review completed; delegated reviewer escalation remains open.
+    evidence:
+    - path: evidence/compliance/q3-access-review.csv
+      description: Quarterly review export.
+  - id: CV-COMP-PERSONNEL-SCREENING
+    controlRef: CTRL-COMP-PERSONNEL-SCREENING
+    riskRefs:
+    - RISK-COMP-RETAINED-ACCESS
+    method: inspection
+    status: pass
+    owner: ACT-PEOPLE-OPERATIONS
+    lastTested: 2026-08-31
+    findings: []
+    evidence:
+    - path: evidence/compliance/personnel-screening-attestation.json
+      description: Aggregate attestation that screening preceded privileged access.
+  - id: CV-COMP-AWARENESS
+    controlRef: CTRL-COMP-SECURITY-AWARENESS
+    riskRefs:
+    - RISK-COMP-UNTRAINED-PERSONNEL
+    method: inspection
+    status: partial
+    owner: ACT-COMP-OFFICER
+    lastTested: 2026-08-31
+    findings:
+    - Employee completion is reported; contractor integration is tracked in POAM-COMP-002.
+    evidence:
+    - path: evidence/compliance/security-awareness-completion.json
+      description: Monthly completion and overdue-personnel report.
+  - id: CV-COMP-ROLE-CHANGE
+    controlRef: CTRL-COMP-ROLE-CHANGE-REVIEW
+    riskRefs:
+    - RISK-COMP-RETAINED-ACCESS
+    method: inspection
+    status: pass
+    owner: ACT-LINE-MANAGER
+    lastTested: 2026-08-31
+    findings: []
+    evidence:
+    - path: evidence/compliance/role-change-review-sample.json
+      description: Quarterly sample of completed role-change reviews.
+  - id: CV-COMP-OFFBOARDING
+    controlRef: CTRL-COMP-OFFBOARDING
+    riskRefs:
+    - RISK-COMP-RETAINED-ACCESS
+    method: inspection
+    status: pass
+    owner: ACT-PEOPLE-OPERATIONS
+    lastTested: 2026-08-31
+    findings: []
+    evidence:
+    - path: evidence/compliance/offboarding-ticket-sample.json
+      description: Quarterly sample of timely access revocation and asset return.

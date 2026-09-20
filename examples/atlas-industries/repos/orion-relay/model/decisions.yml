@@ -1,0 +1,10 @@
+schemaVersion: 2
+decisions:
+- id: ADR-ORI-001
+  title: Keep adaptive radio scheduling product-specific
+  status: accepted
+  date: 2026-09-19
+  context: Orion radio behavior and constrained-link scheduling define product differentiation.
+  decision: Reuse company platforms while retaining link scheduling and routing locally.
+  consequences:
+  - Shared controls evolve independently from radio algorithms.

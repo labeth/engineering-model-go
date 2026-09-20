@@ -1,0 +1,108 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-AEG
+    name: Sentinel Mission
+    description: Product-specific sensing and incident coordination.
+  functionalUnits:
+  - id: FU-AEG-SENSOR-FUSION
+    name: Sensor Fusion Software
+    group: FG-AEG
+    prose: Correlates observations and assigns confidence.
+  - id: FU-AEG-MISSION
+    name: Mission Coordination Software
+    group: FG-AEG
+    prose: Presents incidents for operator review and dispatch.
+  actors:
+  - id: ACT-AEG-OPERATOR
+    name: Security Operator
+    description: Reviews tracks and authorizes response.
+  - id: ACT-AEG-ENGINEER
+    name: Product Security Engineer
+    description: Owns product threats and controls.
+  interfaces:
+  - id: IF-AEG-TRACK
+    name: Perimeter Track Interface
+    protocol: protobuf
+    endpoint: grpc://mission/tracks
+    owner: FU-AEG-SENSOR-FUSION
+  dataObjects:
+  - id: DO-AEG-TRACK
+    name: Perimeter Track
+    termRef: DATA-AEG-TRACK
+    sensitivity: confidential
+    classification: mission
+    regulatoryTags:
+    - company-confidential
+    retention: 90_days
+    confidentiality: high
+    integrity: high
+    availability: high
+  hardwareItems:
+  - id: HW-AEG-RADAR
+    name: Compact Surveillance Radar
+    kind: sensor
+    partNumber: AS-R40
+    supplier: Atlas Industries
+    description: Product-specific radar producing range and velocity observations.
+  - id: HW-AEG-OPTICAL
+    name: Stabilized Optical Sensor
+    kind: sensor
+    partNumber: AS-O20
+    supplier: Atlas Industries
+    description: Product-specific optical confirmation sensor.
+  hardwareInterfaces:
+  - id: HWIF-AEG-SENSOR-BUS
+    name: Sentinel Sensor Ethernet
+    busType: ethernet
+    from: HW-AEG-RADAR
+    to: HW-AEG-OPTICAL
+    direction: bidirectional
+    softwareInterfaceRef: IF-AEG-TRACK
+    description: Time-synchronized observation transport.
+  contract:
+    provides:
+    - id: CAP-AEGIS-MISSION
+      kind: capability
+      ref: REQ-AEG-001
+      note: Reviewed perimeter incident detection.
+  composition:
+    subsystems:
+    - id: SUB-AEG-EDGE
+      name: Shared Edge Platform
+      dependency: edge
+      publication: public
+    - id: SUB-AEG-CLOUD
+      name: Shared Cloud Platform
+      dependency: cloud
+      publication: public
+    - id: SUB-AEG-SECURITY
+      name: Shared Security Services
+      dependency: security
+      publication: public
+    - id: SUB-AEG-COMPLIANCE
+      name: Shared Compliance Baseline
+      dependency: compliance
+      publication: public
+    allocations:
+    - requirement: REQ-AEG-002
+      to: SUB-AEG-EDGE
+      target: edge::CAP-EDGE-COMPUTE
+      rationale: Sensor fusion requires rugged signed compute.
+    - requirement: REQ-AEG-003
+      to: SUB-AEG-CLOUD
+      target: cloud::CAP-CLOUD-OPERATIONS
+      rationale: Incident history requires resilient cloud processing.
+    - requirement: REQ-AEG-004
+      to: SUB-AEG-SECURITY
+      target: security::CAP-ZERO-TRUST
+      rationale: Mission boundaries require shared identity and monitoring.
+    - requirement: REQ-AEG-005
+      to: SUB-AEG-COMPLIANCE
+      target: compliance::CAP-CONTROL-BASELINE
+      rationale: Product assurance inherits the company baseline.
+    satisfactions:
+    - need: edge::NEED-EDGE-IDENTITY
+      by: security::CAP-DEVICE-IDENTITY
+    - need: cloud::NEED-CLOUD-IDENTITY
+      by: security::CAP-DEVICE-IDENTITY

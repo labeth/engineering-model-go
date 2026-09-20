@@ -1,0 +1,297 @@
+{
+  "system-security-plan": {
+    "uuid": "87a2e9c9-4b7e-5b7e-ade5-d5de913d0406",
+    "metadata": {
+      "title": "Bedrock Lambda GitHub PR Review App Architecture",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-profile": {
+      "href": "./ARCHITECTURE.profile.json"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "identifier-type": "https://engineering-model-go/system-id",
+          "id": "sample-bedrock-pr-review-model"
+        }
+      ],
+      "system-name": "Bedrock Lambda GitHub PR Review App Architecture",
+      "description": "This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.\nThe authored functional architecture remains stable while deployment/runtime/code evidence is inferred\nfrom infrastructure manifests, source files, and verification artifacts.",
+      "security-sensitivity-level": "moderate",
+      "system-information": {
+        "information-types": [
+          {
+            "uuid": "1b3a727f-e1f4-53b8-9bdf-a7ebf64e85db",
+            "title": "Operational Data",
+            "description": "Application and operational data managed by the engineered system.",
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "availability-impact": {
+              "base": "fips-199-moderate"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "moderate",
+        "security-objective-integrity": "moderate",
+        "security-objective-availability": "moderate"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "Authorization boundary aligns with authored architecture scope and allocated components."
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "901df629-4772-599f-9e24-c01af879006f",
+          "title": "Developer",
+          "description": "Opens pull requests and receives review feedback.",
+          "short-name": "developer"
+        },
+        {
+          "uuid": "e47fc40f-935f-5476-98af-02bcc49be02c",
+          "title": "Platform Operator",
+          "description": "Operates Lambda deployment and runtime controls.",
+          "short-name": "platform-operator"
+        },
+        {
+          "uuid": "f97efbf6-8d41-5c7e-9274-177d0cca9624",
+          "title": "Repository Maintainer",
+          "description": "Owns merge decisions and repository-level quality gates.",
+          "short-name": "repository-maintainer"
+        },
+        {
+          "uuid": "e5ffa11c-f105-5a65-bdf8-71314317776f",
+          "title": "Security Engineer",
+          "description": "Curates policy checks and triages security findings.",
+          "short-name": "security-engineer"
+        }
+      ],
+      "components": [
+        {
+          "uuid": "60bc3a3d-ead8-5034-ba9e-a318af363d0c",
+          "type": "functional_unit",
+          "title": "GitHub Webhook Ingress",
+          "description": "Architecture component mapped from FU-GITHUB-WEBHOOK-INGRESS.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-GITHUB-WEBHOOK-INGRESS"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "a5faafe9-b153-5152-9bbb-d0ca7cff56ea",
+          "type": "functional_unit",
+          "title": "Lambda Runtime Operations",
+          "description": "Architecture component mapped from FU-LAMBDA-RUNTIME-OPERATIONS.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-LAMBDA-RUNTIME-OPERATIONS"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "c94c68a4-f919-5a40-8e14-2a9371bc4377",
+          "type": "functional_unit",
+          "title": "Secrets and Configuration",
+          "description": "Architecture component mapped from FU-SECRETS-CONFIGURATION.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "FU-SECRETS-CONFIGURATION"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "functional_unit"
+            }
+          ]
+        },
+        {
+          "uuid": "f99fc2f5-12d7-566c-8980-9d8a9e2a54b8",
+          "type": "interface",
+          "title": "Webhook Intake API",
+          "description": "Architecture component mapped from IF-BEDROCK-WEBHOOK-API.",
+          "status": {
+            "state": "operational"
+          },
+          "props": [
+            {
+              "name": "architecture-id",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "IF-BEDROCK-WEBHOOK-API"
+            },
+            {
+              "name": "architecture-kind",
+              "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+              "value": "interface"
+            }
+          ]
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "Control implementation allocations derived from authored compliance mappings.",
+      "implemented-requirements": [
+        {
+          "uuid": "cd4d0af7-05b3-5b98-a00d-f3bf4209afbc",
+          "control-id": "ia-5",
+          "by-components": [
+            {
+              "uuid": "11a03824-41b4-5cea-81e6-cb3fc6b8e359",
+              "component-uuid": "a5faafe9-b153-5152-9bbb-d0ca7cff56ea",
+              "description": "Rotate secrets and enforce managed credential lifecycle for app runtime.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-BEDROCK-SECRETS-ROTATION"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: infra/terraform/main.tf"
+            },
+            {
+              "uuid": "a82b5e32-92d2-5f58-babb-a3470620bdaa",
+              "component-uuid": "c94c68a4-f919-5a40-8e14-2a9371bc4377",
+              "description": "Rotate secrets and enforce managed credential lifecycle for app runtime.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "hybrid"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-BEDROCK-SECRETS-ROTATION"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: infra/terraform/main.tf"
+            }
+          ]
+        },
+        {
+          "uuid": "41de5200-14a6-59d9-b049-011a8e52734d",
+          "control-id": "si-10",
+          "by-components": [
+            {
+              "uuid": "677f6b2b-5a1c-5454-9a0c-34f7d9469c09",
+              "component-uuid": "60bc3a3d-ead8-5034-ba9e-a318af363d0c",
+              "description": "Validate webhook signatures and reject invalid payloads before processing.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-BEDROCK-WEBHOOK-SIGNATURE"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/webhook_ingress.go"
+            },
+            {
+              "uuid": "d1f0f7d3-be0c-507c-a752-bd74f9626515",
+              "component-uuid": "f99fc2f5-12d7-566c-8980-9d8a9e2a54b8",
+              "description": "Validate webhook signatures and reject invalid payloads before processing.",
+              "props": [
+                {
+                  "name": "implementation-status",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "implemented"
+                },
+                {
+                  "name": "implementation-type",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "technical"
+                },
+                {
+                  "name": "model-control-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "CTRL-BEDROCK-WEBHOOK-SIGNATURE"
+                },
+                {
+                  "name": "profile-ref",
+                  "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+                  "value": "PROF-NIST-800-53-MODERATE"
+                }
+              ],
+              "remarks": "Evidence: src/webhook_ingress.go"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

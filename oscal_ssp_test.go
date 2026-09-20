@@ -3,6 +3,7 @@ package engmodel
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,8 +12,9 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
-// TRLC-LINKS: REQ-EMG-013
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-050
 func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
+	const lastModified = "2026-09-19T00:00:00Z"
 	b := model.Bundle{Architecture: model.ArchitectureDocument{Model: model.ModelMeta{ID: "sample-system", Title: "Sample System", Introduction: "Sample introduction."}, AuthoredArchitecture: model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},
 		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit"}},
@@ -34,10 +36,11 @@ func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 		}},
 	}}}
 
-	res, err := GenerateOSCALSSP(b, OSCALSSPOptions{})
+	res, err := GenerateOSCALSSP(schemaV2TestBundle(b), OSCALSSPOptions{LastModified: lastModified})
 	if err != nil {
 		t.Fatalf("generate oscal ssp failed: %v", err)
 	}
+
 	if strings.TrimSpace(res.JSON) == "" {
 		t.Fatalf("expected non-empty ssp json")
 	}
@@ -50,6 +53,9 @@ func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	if !strings.Contains(res.JSON, "\"component-uuid\"") {
 		t.Fatalf("expected component references in ssp json")
 	}
+	if !strings.Contains(res.JSON, "\"last-modified\": \""+lastModified+"\"") {
+		t.Fatalf("expected deterministic last-modified timestamp")
+	}
 
 	var decoded OSCALSSPDocument
 	if err := json.Unmarshal([]byte(res.JSON), &decoded); err != nil {
@@ -60,9 +66,21 @@ func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013
+func TestGenerateOSCALSSP_RejectsMissingComplianceMapping(t *testing.T) {
+	bundle, err := model.LoadBundle(filepath.Join("examples", "atlas-industries", "repos", "aegis-sentinel", "engmod.yml"))
+	if err != nil {
+		t.Fatalf("load bundle: %v", err)
+	}
+	_, err = GenerateOSCALSSP(bundle, OSCALSSPOptions{LastModified: "2026-09-19T00:00:00Z"})
+	if !errors.Is(err, ErrNoOSCALCompliance) {
+		t.Fatalf("expected ErrNoOSCALCompliance, got %v", err)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-013
 func TestGenerateOSCALSSPFromFile_PaymentsSample(t *testing.T) {
-	path := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	path := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	res, err := GenerateOSCALSSPFromFile(path, OSCALSSPOptions{})
 	if err != nil {
 		t.Fatalf("generate oscal ssp from file failed: %v", err)
@@ -86,7 +104,7 @@ func TestGenerateOSCALSSP_UsesComplianceProfileMappings(t *testing.T) {
 	writeOSCALFixtures(t, tmp)
 	b := complianceFixtureBundle(tmp, []string{"ac-2"})
 
-	res, err := GenerateOSCALSSP(b, OSCALSSPOptions{})
+	res, err := GenerateOSCALSSP(schemaV2TestBundle(b), OSCALSSPOptions{LastModified: "2026-01-01T00:00:00Z"})
 	if err != nil {
 		t.Fatalf("generate oscal ssp failed: %v\n%+v", err, res.Diagnostics)
 	}
@@ -107,7 +125,7 @@ func TestGenerateOSCALSSP_RejectsComplianceMappingOutsideProfile(t *testing.T) {
 	writeOSCALFixtures(t, tmp)
 	b := complianceFixtureBundle(tmp, []string{"ia-2.1"})
 
-	res, err := GenerateOSCALSSP(b, OSCALSSPOptions{})
+	res, err := GenerateOSCALSSP(schemaV2TestBundle(b), OSCALSSPOptions{})
 	if err == nil {
 		t.Fatalf("expected profile validation failure")
 	}
@@ -160,7 +178,7 @@ func writeOSCALFixtures(t *testing.T, dir string) {
 
 // TRLC-LINKS: REQ-EMG-013
 func complianceFixtureBundle(dir string, controlIDs []string) model.Bundle {
-	return model.Bundle{ArchitecturePath: filepath.Join(dir, "architecture.yml"), Architecture: model.ArchitectureDocument{
+	return model.Bundle{ArchitecturePath: filepath.Join(dir, "engmod.yml"), Architecture: model.ArchitectureDocument{
 		Model: model.ModelMeta{ID: "sample-system", Title: "Sample System", Introduction: "Sample introduction."},
 		AuthoredArchitecture: model.AuthoredArchitecture{
 			FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group"}},

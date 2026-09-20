@@ -1,0 +1,20 @@
+schemaVersion: 2
+lintRun:
+  id: DAL-C-FLIGHT-CONTROL-REQUIREMENTS
+  mode: strict
+  commaAsAnd: false
+  catalogRef: model/catalog.yml
+requirements:
+  - id: REQ-YD-SYS-001
+    text: When yaw rate input is received, the yaw damping software shall compute a bounded rudder command.
+    notes: System-allocated behavior.
+    appliesTo: [FU-YAW-CONTROL]
+  - id: REQ-YD-HLR-001
+    text: When yaw rate input is received, the yaw damping software shall filter the yaw rate input.
+    notes: High-level software requirement.
+    appliesTo: [FU-YAW-CONTROL]
+  - id: REQ-YD-LLR-001
+    text: When yaw rate input is received, the yaw damping software shall limit the bounded rudder command.
+    notes: Derived low-level limit requiring safety feedback.
+    appliesTo: [FU-YAW-CONTROL]
+expected: []

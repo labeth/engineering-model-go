@@ -2,12 +2,12 @@ metadata:
   id: sample-payments-layered-model-EVALUATION-LOG
   type: EvaluationLog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Control evaluation results for Sample Payments Layered Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -32,13 +32,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-10T00:00:00Z"
     confidence-level: High
     evidence:
     - id: CV-PAYMENTS-CHECKOUT-SCHEMA-TEST-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: tests/contract/checkout_decline_response_test.go
       description: Payload validation regression test.
   - requirement:
       reference-id: ENGMOD-CONTROL-CATALOG
@@ -50,13 +51,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-20T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: CV-PAYMENTS-MANUAL-REVIEW-TRACE-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: docs/security/manual-review-control-notes.md
       description: Manual review trail analysis.
 - name: Immutable Image Digests
   result: Needs Review
@@ -75,7 +77,7 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
 - name: Callback Nonce and Idempotency Guard
   result: Passed
   message: 1 assessment(s) recorded for control CTRL-PAYMENTS-CALLBACK-NONCE.
@@ -93,13 +95,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-15T00:00:00Z"
     confidence-level: High
     evidence:
     - id: CV-PAYMENTS-CALLBACK-REPLAY-TEST-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: tests/contract/checkout_decline_response_test.go
       description: Replay and idempotency assertions for callback path.
 target:
   id: sample-payments-layered-model

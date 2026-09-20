@@ -1,0 +1,21 @@
+schemaVersion: 2
+module:
+  path: example.com/dal-c-flight-control@v1
+  version: v1.0.0
+  modelId: DAL-C-FLIGHT-CONTROL-SAMPLE
+  title: DAL C Yaw Damping Readiness Sample
+  introduction: Bounded readiness-only example for a non-autonomous yaw damping software item.
+  kind: software
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+  aviation: model/aviation.yml
+dependencies: []
+publications: []
+inferenceHints: {}

@@ -1,0 +1,11 @@
+package requirements
+Requirement REQ_EDGE_001 {
+  id         = "REQ-EDGE-001"
+  text       = "The atlas edge platform shall execute signed workloads on the edge runtime."
+  applies_to = ["FU-EDGE-RUNTIME"]
+}
+Requirement REQ_EDGE_002 {
+  id         = "REQ-EDGE-002"
+  text       = "The atlas edge platform shall authenticate the edge runtime using device identity."
+  applies_to = ["FU-EDGE-RUNTIME"]
+}

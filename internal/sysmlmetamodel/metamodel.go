@@ -595,7 +595,7 @@ func GenerateCUE(inventory Inventory, coverage Coverage) ([]byte, error) {
 		fmt.Fprintf(&out, "%q", class.ID)
 	}
 	out.WriteString("\n\n#OfficialMetamodelBinding: {\n")
-	out.WriteString("\tmetaclass?: #OfficialMetaclassName | (#MetamodelString & =~\"^Engineering::\")\n")
+	out.WriteString("\tmetaclass: *\"Engineering::Element\" | #OfficialMetaclassName | (#MetamodelString & =~\"^Engineering::\")\n")
 	for _, class := range inventory.Metaclasses {
 		fmt.Fprintf(&out, "\tif metaclass == %q {\n\t\tproperties?: close({\n", class.ID)
 		for _, property := range effectiveProperties(class, propertyByID) {

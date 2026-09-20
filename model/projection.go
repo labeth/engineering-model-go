@@ -22,9 +22,9 @@ type CanonicalBundle struct {
 // LoadCanonicalBundle validates YAML, decodes it, and constructs the canonical
 // semantic projection before returning exporter input.
 //
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func LoadCanonicalBundle(architecturePath string) (CanonicalBundle, error) {
-	bundle, err := LoadBundle(architecturePath)
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-044, REQ-EMG-046
+func LoadCanonicalBundle(manifestPath string) (CanonicalBundle, error) {
+	bundle, err := LoadBundle(manifestPath)
 	if err != nil {
 		return CanonicalBundle{}, err
 	}

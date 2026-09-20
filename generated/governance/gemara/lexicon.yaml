@@ -3,6 +3,7 @@ metadata:
   id: engineering-model-go-LEXICON
   type: Lexicon
   gemara-version: 1.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Controlled vocabulary for Engineering Model Go Repository Architecture
   author:
     id: engmod
@@ -108,9 +109,10 @@ terms:
   - enggemara
 - id: FU-SYSTEM-COMPOSITION
   title: system composition
-  definition: Resolves downward subsystem references from local subdirectories or external git repositories and composes a federated system-of-systems model.
+  definition: Resolves downward subsystem references from local paths, external git repositories, or versioned CUE modules in OCI registries and composes a federated system-of-systems model.
   synonyms:
   - composition
+  - model dependencies
 - id: FU-ALLOCATION-TRACE
   title: allocation trace
   definition: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems.
@@ -212,6 +214,11 @@ terms:
   definition: Event indicating a validated requirements change should replace the canonical document.
   synonyms:
   - requirements apply requested
+- id: EVT-EXAMPLE-VALIDATION-REQUESTED
+  title: example validation is requested
+  definition: Event indicating maintained reference workspaces must be loaded, composed, generated, and checked.
+  synonyms:
+  - example check
 - id: STATE-MODEL-VALID
   title: model is valid
   definition: State where authored model passes validation checks.
@@ -269,14 +276,29 @@ terms:
   - gemara generation
 - id: FEAT-SYSTEM-COMPOSITION
   title: system composition is enabled
-  definition: Feature enabling recursive composition of subsystem models (local or external git) into a system-of-systems.
+  definition: Feature enabling recursive composition of subsystem models from local paths, external git repositories, or CUE modules in OCI registries.
   synonyms:
   - system of systems
+- id: FEAT-MODEL-WORKSPACE-REPLACEMENT
+  title: a model workspace replacement is declared
+  definition: Feature enabling a CUE module identity to resolve from an explicit sibling repository path during local development.
+  synonyms:
+  - workspace replacement
 - id: FEAT-HARDWARE-INTERFACES
   title: hardware interfaces are authored
   definition: Feature enabling hardware items and hardware/software interface modeling.
   synonyms:
   - hw interfaces
+- id: FEAT-SIX-VIEW-OUTPUT
+  title: six-view example output is enabled
+  definition: Feature enabling use-case, logical, process, physical, implementation, and deployment view generation from one model bundle.
+  synonyms:
+  - six-view output
+- id: FEAT-DO178C-DAL-C-READINESS
+  title: do-178c dal c readiness output is enabled
+  definition: Feature enabling evidence-readiness validation and draft lifecycle-data outputs for a DO-178C or ED-12C DAL C project profile.
+  synonyms:
+  - dal c readiness
 - id: FEAT-ARCHITECTURE-DECISION-RECORDS
   title: architecture decision records are authored
   definition: Feature indicating the architecture model includes first-class ADR entries.

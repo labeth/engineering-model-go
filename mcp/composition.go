@@ -27,7 +27,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			"note":           "this model declares no subsystems (composition.subsystems is empty)",
 		}, nil
 	}
-	res, err := engmodel.GenerateCompositionFromFile(s.bundle.ArchitecturePath)
+	res, err := engmodel.GenerateCompositionFromFile(s.bundle.ManifestPath)
 	if err != nil {
 		return nil, err
 	}
@@ -43,10 +43,15 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 				requires = append(requires, r.ID)
 			}
 			subsystems = append(subsystems, map[string]any{
-				"id":       c.SubsystemID,
-				"model":    c.Bundle.Architecture.Model.ID,
-				"provides": provides,
-				"requires": requires,
+				"id":                c.SubsystemID,
+				"model":             c.Bundle.Architecture.Model.ID,
+				"dependency":        c.Dependency,
+				"publication":       c.Publication,
+				"modulePath":        c.ModulePath,
+				"version":           c.Version,
+				"resolvedDirectory": c.Dir,
+				"provides":          provides,
+				"requires":          requires,
 			})
 		}
 	}
@@ -70,6 +75,8 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"root":           rootID,
 		"subsystems":     subsystems,
 		"allocations":    allocations,
+		"provenance":     res.Provenance,
+		"lock":           res.Lock,
 		"diagnostics":    diagRows(res.Diagnostics),
 	}, nil
 }

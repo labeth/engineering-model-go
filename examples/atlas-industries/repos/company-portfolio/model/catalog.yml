@@ -1,0 +1,22 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-PORT
+    name: atlas industries portfolio
+    definition: Company portfolio of interoperable Atlas product systems.
+  functionalGroups:
+  - id: FG-PORT
+    name: portfolio governance
+    definition: Company capability and assurance governance.
+  functionalUnits:
+  - id: FU-PORT-GOVERNANCE
+    name: portfolio governance service
+    definition: Coordinates product capability and assurance objectives.
+  actors:
+  - id: ACT-PORT-EXECUTIVE
+    name: portfolio executive
+    definition: Owns company product capability outcomes.
+  dataTerms:
+  - id: DATA-PORT-STATUS
+    name: portfolio status
+    definition: Consolidated product capability and assurance status.

@@ -1,0 +1,145 @@
+schemaVersion: 2
+aviation:
+  profile:
+    id: AVIATION-YD-DAL-C
+    standard: DO-178C
+    edition: "2011"
+    softwareLevel: C
+    softwareItem: Yaw Damping Software
+    applicant: Example Airframer
+    authority: Example Certification Authority
+    certificationBasis: CUSTOMER-CERT-BASIS-REF-001
+    safetyAllocationReference: CUSTOMER-SAFETY-ALLOC-REF-001
+    supplements: [DO-330]
+    claimsDisclaimer: DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION; readiness-only sample with intentionally open gaps.
+  lifecycleData:
+    - {id: DATA-PSAC, categoryCode: PLAN-SOFTWARE-ASPECTS-CERTIFICATION, categoryName: Plan for Software Aspects of Certification, source: {id: EVID-PSAC, path: generated/do178c/PSAC-OUTLINE-DRAFT.md, version: draft-1, hash: sha256:placeholder-psac}, baseline: BASELINE-YD-001, owner: Certification Lead, state: planned, objectiveRefs: [OBJ-CUSTOMER-001]}
+    - {id: DATA-SDP, categoryCode: SOFTWARE-DEVELOPMENT-PLAN, categoryName: Software Development Plan, owner: Software Lead, state: declared}
+    - {id: DATA-SVP, categoryCode: SOFTWARE-VERIFICATION-PLAN, categoryName: Software Verification Plan, owner: Verification Lead, state: declared}
+    - {id: DATA-SCMP, categoryCode: SOFTWARE-CONFIGURATION-MANAGEMENT-PLAN, categoryName: Software Configuration Management Plan, owner: CM Lead, state: declared}
+    - {id: DATA-SQAP, categoryCode: SOFTWARE-QUALITY-ASSURANCE-PLAN, categoryName: Software Quality Assurance Plan, owner: SQA Lead, state: declared}
+    - {id: DATA-SRS, categoryCode: SOFTWARE-REQUIREMENTS-STANDARDS, categoryName: Software Requirements Standards, owner: Requirements Lead, state: declared}
+    - {id: DATA-SDS, categoryCode: SOFTWARE-DESIGN-STANDARDS, categoryName: Software Design Standards, owner: Design Lead, state: declared}
+    - {id: DATA-SCS, categoryCode: SOFTWARE-CODE-STANDARDS, categoryName: Software Code Standards, owner: Software Lead, state: declared}
+    - {id: DATA-REQ, categoryCode: SOFTWARE-REQUIREMENTS-DATA, categoryName: Software Requirements Data, source: {id: EVID-REQ, path: model/requirements.yml, version: v1, hash: sha256:placeholder-req}, baseline: BASELINE-YD-001, owner: Requirements Lead, state: reviewed}
+    - {id: DATA-DESIGN, categoryCode: DESIGN-DESCRIPTION, categoryName: Design Description, source: {id: EVID-DESIGN, path: model/architecture.yml, version: v1, hash: sha256:placeholder-design}, baseline: BASELINE-YD-001, owner: Design Lead, state: reviewed}
+    - {id: DATA-SOURCE, categoryCode: SOURCE-CODE, categoryName: Source Code, source: {id: EVID-SOURCE, path: evidence/src/yaw_damper.c, version: v1, hash: sha256:placeholder-source}, baseline: BASELINE-YD-001, owner: Software Lead, state: reviewed}
+    - {id: DATA-OBJECT, categoryCode: EXECUTABLE-OBJECT-CODE, categoryName: Executable Object Code, source: {id: EVID-OBJECT, path: evidence/build/yaw-damper.bin, version: build-1, hash: sha256:placeholder-object}, baseline: BASELINE-YD-001, owner: CM Lead, state: executed}
+    - {id: DATA-CASES, categoryCode: SOFTWARE-VERIFICATION-CASES-PROCEDURES, categoryName: Software Verification Cases and Procedures, source: {id: EVID-CASES, path: evidence/tests/yaw_damper_test.txt, version: v1, hash: sha256:placeholder-cases}, baseline: BASELINE-YD-001, owner: Verification Lead, state: reviewed}
+    - {id: DATA-RESULTS, categoryCode: SOFTWARE-VERIFICATION-RESULTS, categoryName: Software Verification Results, source: {id: EVID-RESULTS, path: evidence/tests/yaw_damper_test.txt, version: run-1, hash: sha256:placeholder-results}, baseline: BASELINE-YD-001, owner: Verification Lead, state: reviewed}
+    - {id: DATA-ENV, categoryCode: SOFTWARE-LIFE-CYCLE-ENVIRONMENT-CONFIGURATION-INDEX, categoryName: Software Life Cycle Environment Configuration Index, owner: CM Lead, state: declared}
+    - {id: DATA-SCI, categoryCode: SOFTWARE-CONFIGURATION-INDEX, categoryName: Software Configuration Index, owner: CM Lead, state: planned}
+    - {id: DATA-PR, categoryCode: PROBLEM-REPORTS, categoryName: Problem Reports, owner: Software Lead, state: executed}
+    - {id: DATA-CMR, categoryCode: SOFTWARE-CONFIGURATION-MANAGEMENT-RECORDS, categoryName: Software Configuration Management Records, owner: CM Lead, state: declared}
+    - {id: DATA-SQAR, categoryCode: SOFTWARE-QUALITY-ASSURANCE-RECORDS, categoryName: Software Quality Assurance Records, owner: SQA Lead, state: executed}
+    - {id: DATA-SAS, categoryCode: SOFTWARE-ACCOMPLISHMENT-SUMMARY, categoryName: Software Accomplishment Summary, owner: Certification Lead, state: planned}
+    - {id: DATA-PDIF, categoryCode: PARAMETER-DATA-ITEM-FILE, categoryName: Parameter Data Item File, owner: Software Lead, state: not-applicable}
+    - {id: DATA-TRACE, categoryCode: TRACEABILITY-DATA, categoryName: Traceability Data, owner: Requirements Lead, state: executed}
+  objectives:
+    - id: OBJ-CUSTOMER-001
+      sourceReference: CUSTOMER-OBJECTIVE-REF-C-001
+      applicability: applicable
+      independenceRequired: true
+      rationale: Customer-supplied applicability for the DAL C software item.
+      evidenceRefs: [EXEC-YD-001, REVIEW-YD-001]
+      state: reviewed
+  requirementAssurance:
+    - {requirementId: REQ-YD-SYS-001, level: system-allocated, derived: false, architectureRefs: [FU-YAW-CONTROL], verificationCriteria: A bounded command is produced for representative yaw rates., baseline: BASELINE-YD-001, state: reviewed}
+    - {requirementId: REQ-YD-HLR-001, level: HLR, derived: false, parentRefs: [REQ-YD-SYS-001], architectureRefs: [FU-YAW-CONTROL], codeRefs: [evidence/src/yaw_damper.c], verificationCriteria: Filtering behavior matches the reviewed expected values., baseline: BASELINE-YD-001, state: reviewed}
+    - {requirementId: REQ-YD-LLR-001, level: LLR, derived: true, derivedRationale: The command limiter protects allocated downstream authority., parentRefs: [REQ-YD-HLR-001], architectureRefs: [FU-YAW-CONTROL], codeRefs: [evidence/src/yaw_damper.c], verificationCriteria: Commands are limited to plus or minus five units., safetyFeedbackRecipient: System Safety, safetyFeedbackStatus: reviewed, safetyFeedbackEvidence: [REVIEW-YD-001], baseline: BASELINE-YD-001, state: reviewed}
+  verificationCases:
+    - {id: CASE-YD-NORMAL, method: test, intent: normal, requirementRefs: [REQ-YD-HLR-001], expectedResult: Filtered command matches the approved reference values., procedureRef: PROC-YD-001, independenceRequired: true, state: reviewed}
+    - {id: CASE-YD-ROBUST, method: test, intent: robustness, requirementRefs: [REQ-YD-LLR-001], expectedResult: Command remains bounded for out-of-range inputs., procedureRef: PROC-YD-001, independenceRequired: true, state: reviewed}
+  procedures:
+    - id: PROC-YD-001
+      caseRefs: [CASE-YD-NORMAL, CASE-YD-ROBUST]
+      steps: [Load the controlled build, inject normal and boundary inputs, compare recorded results with expected results]
+      environment: HOST-TEST-RIG-1
+      target: HW-FLIGHT-CONTROL-COMPUTER
+      baseline: BASELINE-YD-001
+      state: reviewed
+  executions:
+    - id: EXEC-YD-001
+      procedureRef: PROC-YD-001
+      caseRefs: [CASE-YD-NORMAL, CASE-YD-ROBUST]
+      baseline: BASELINE-YD-001
+      build: BUILD-YD-001
+      environment: HOST-TEST-RIG-1
+      target: HW-FLIGHT-CONTROL-COMPUTER
+      producer: Verification Engineer A
+      verifier: Verification Reviewer B
+      status: reviewed
+      result: Normal case passed; robustness case exposed one uncovered defensive statement.
+      evidence: [DATA-RESULTS]
+      approvalRefs: [APPROVAL-YD-001]
+  baselines:
+    - id: BASELINE-YD-001
+      version: "1.0"
+      hash: sha256:placeholder-baseline
+      artifacts:
+        - {path: model/requirements.yml, hash: sha256:placeholder-req}
+        - {path: evidence/src/yaw_damper.c, hash: sha256:placeholder-source}
+      state: reviewed
+  builds:
+    - id: BUILD-YD-001
+      baseline: BASELINE-YD-001
+      hash: sha256:placeholder-build
+      artifacts: [{path: evidence/build/yaw-damper.bin, hash: sha256:placeholder-object}]
+      compiler: Example C Compiler 1.0
+      compilerOptions: [-O1, -Wall]
+      target: HW-FLIGHT-CONTROL-COMPUTER
+      environment: BUILD-ENV-1
+      reproducibility: Planned independent rebuild has not yet been completed.
+      status: executed
+  coverage:
+    - id: COVERAGE-YD-001
+      metric: statement
+      baseline: BASELINE-YD-001
+      build: BUILD-YD-001
+      toolRefs: [TOOL-COVERAGE-001]
+      total: 12
+      covered: 11
+      uncovered: 1
+      dispositions:
+        - {id: GAP-COVERAGE-001, disposition: open, count: 1, rationale: Defensive clamp statement needs a targeted boundary test., reviewer: Coverage Reviewer, status: planned}
+      evidence: [DATA-RESULTS]
+      reviewer: Coverage Reviewer
+      status: reviewed
+  tools:
+    - id: TOOL-COMPILER-001
+      name: Example C Compiler
+      version: "1.0"
+      intendedUse: Produce target object code; outputs are verified without certification credit.
+      creditClaimed: false
+      environment: BUILD-ENV-1
+      baseline: BASELINE-YD-001
+      status: declared
+    - id: TOOL-COVERAGE-001
+      name: Example Coverage Analyzer
+      version: "2.0"
+      intendedUse: Measure statement coverage with claimed verification credit.
+      creditClaimed: true
+      assessment:
+        criterion: CUSTOMER-TOOL-CRITERION-REF-001
+        tql: TQL-5
+        operationalRequirements: [Record statement execution for the exact instrumented build.]
+        evidence: [REVIEW-YD-001]
+      environment: HOST-TEST-RIG-1
+      baseline: BASELINE-YD-001
+      status: reviewed
+  reviews:
+    - {id: REVIEW-YD-001, subjectRefs: [REQ-YD-HLR-001, REQ-YD-LLR-001, EXEC-YD-001], reviewer: Verification Reviewer B, result: Reviewed with the coverage gap remaining open., evidence: [DATA-RESULTS], state: reviewed}
+  approvals:
+    - {id: APPROVAL-YD-001, subjectRefs: [EXEC-YD-001], approver: Verification Manager, evidence: [REVIEW-YD-001], state: accepted}
+  independence:
+    - {id: INDEP-YD-001, subjectRef: EXEC-YD-001, producer: Verification Engineer A, verifier: Verification Reviewer B, approvalRef: APPROVAL-YD-001, evidence: [REVIEW-YD-001], state: reviewed}
+  problemReports:
+    - {id: PR-YD-001, summary: Boundary test does not yet execute one defensive clamp statement., affectedRefs: [COVERAGE-YD-001], disposition: Add a targeted robustness case before readiness closure., correctiveAction: Extend PROC-YD-001 and rerun the exact controlled build., evidence: [DATA-RESULTS], state: planned}
+  sqaAudits:
+    - {id: SQA-YD-001, scope: Baseline and verification evidence sampling, auditor: Independent SQA Auditor, findings: [Coverage gap remains open and environment index is incomplete.], correctiveActions: [Close PR-YD-001 and complete DATA-ENV.], evidence: [REVIEW-YD-001], state: reviewed}
+  liaison:
+    - id: LIAISON-YD-001
+      milestone: Initial planning familiarization
+      submissionRefs: [DATA-PSAC]
+      findings: [No authority acceptance has been recorded.]
+      authorityState: declared

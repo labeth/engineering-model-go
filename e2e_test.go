@@ -12,7 +12,7 @@ import (
 
 // TRLC-LINKS: REQ-EMG-001
 func TestGenerateFromFile_EndToEnd(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	views := []string{"VIEW-ARCHITECTURE-INTENT", "VIEW-COMMUNICATION", "VIEW-DEPLOYMENT", "VIEW-SECURITY", "VIEW-TRACEABILITY"}
 
 	for _, v := range views {
@@ -37,7 +37,7 @@ func TestGenerateFromFile_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-001
 func TestCLI_EndToEnd(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "architecture.yml")
+	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	cmd := exec.Command("go", "run", "./cmd/engview", "--model", modelPath, "--view", "VIEW-ARCHITECTURE-INTENT")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

@@ -61,7 +61,7 @@ Marker shape:
 
 Rules:
 
-- Model links must point to authored model entity IDs: `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, `FU-*`, `DEP-*`, `TS-*`, `RISK-*`, and similar IDs from `architecture.yml`.
+- Model links must point to authored model entity IDs: `IF-*`, `FLOW-*`, `DO-*`, `CTRL-*`, `FU-*`, `DEP-*`, `TS-*`, `RISK-*`, and similar IDs from `engmod.yml`.
 - Use concrete model links for interfaces, APIs, schemas, DTOs, events, adapters, runtime entrypoints, controls, trust-boundary code, and model contract types.
 - Do not use generic catalog terms in `ENGMODEL-LINKS`. If framework code has no narrower interface or data-object ID, link it to the owning `FU-*` and the closest concrete flow, control, deployment target, or artifact ID.
 - Use requirement links for why behavior exists; use model links for where the code sits in the architecture.

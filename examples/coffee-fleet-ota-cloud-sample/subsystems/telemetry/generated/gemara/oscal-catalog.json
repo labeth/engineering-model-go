@@ -1,0 +1,95 @@
+{
+  "catalog": {
+    "groups": [
+      {
+        "class": "family",
+        "controls": [
+          {
+            "class": "integrity",
+            "controls": [
+              {
+                "id": "ver-telem-integrity",
+                "parts": [
+                  {
+                    "id": "ver-telem-integrity_smt",
+                    "name": "statement",
+                    "prose": "The control \"Telemetry Integrity\" MUST be verified by test."
+                  },
+                  {
+                    "id": "ver-telem-integrity_gdn",
+                    "name": "guidance",
+                    "prose": "Telemetry signature verified in unit tests."
+                  },
+                  {
+                    "id": "ver-telem-integrity_obj",
+                    "links": [
+                      {
+                        "href": "#VER-TELEM-INTEGRITY_smt",
+                        "rel": "assessment-for"
+                      }
+                    ],
+                    "name": "assessment-objective"
+                  }
+                ],
+                "title": "VER-TELEM-INTEGRITY"
+              }
+            ],
+            "id": "ctrl-telem-integrity",
+            "links": [
+              {
+                "href": "https://gemara.local/controls/v0.1.0#ctrl-telem-integrity",
+                "rel": "canonical"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-telem-integrity_smt",
+                "name": "statement",
+                "prose": "Sign telemetry records to protect integrity in transit."
+              }
+            ],
+            "title": "Telemetry Integrity"
+          }
+        ],
+        "id": "integrity",
+        "title": "Control category: integrity."
+      }
+    ],
+    "metadata": {
+      "last-modified": "2026-09-19T00:00:00Z",
+      "links": [
+        {
+          "href": "https://gemara.local/controls/v0.1.0#",
+          "rel": "canonical"
+        }
+      ],
+      "oscal-version": "1.1.3",
+      "parties": [
+        {
+          "name": "Engineering Model Go Examples",
+          "type": "person",
+          "uuid": "a2b8ca0e-879f-5287-bc01-8cc2c59f35e5"
+        }
+      ],
+      "published": "2026-09-19T00:00:00Z",
+      "responsible-parties": [
+        {
+          "party-uuids": [
+            "a2b8ca0e-879f-5287-bc01-8cc2c59f35e5"
+          ],
+          "role-id": "author"
+        }
+      ],
+      "roles": [
+        {
+          "description": "Author and owner of the document",
+          "id": "author",
+          "title": "Author"
+        }
+      ],
+      "title": "Machine Telemetry Subsystem - Controls",
+      "version": "v0.1.0"
+    },
+    "uuid": "7045eb80-3126-5696-ac75-e46b88f02e5f"
+  }
+}

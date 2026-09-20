@@ -1,0 +1,28 @@
+title: "Atlas Shared Edge Platform - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of Atlas Shared Edge Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Atlas Shared Edge Platform
+  description: "The system as a whole: Atlas Shared Edge Platform."
+  group: system
+- id: FU-EDGE-RUNTIME
+  title: Edge Runtime
+  description: Hosts signed product workloads and normalizes device observations.
+  group: FG-EDGE
+groups:
+- id: FG-EDGE
+  title: Edge Platform
+  description: Common edge compute and device integration.
+- id: system
+  title: System
+  description: Whole-system capability scope.

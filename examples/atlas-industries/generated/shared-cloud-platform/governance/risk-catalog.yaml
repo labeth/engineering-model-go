@@ -1,0 +1,12 @@
+title: "Atlas Shared Cloud Platform - Risks"
+metadata:
+  id: ENGMOD-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Risk register for Atlas Shared Cloud Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human

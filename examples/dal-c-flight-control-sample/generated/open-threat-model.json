@@ -1,0 +1,61 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "DAL C Yaw Damping Readiness Sample",
+    "id": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+    "description": "Bounded readiness-only example for a non-autonomous yaw damping software item.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "FU-YAW-CONTROL",
+      "name": "Yaw Damping Software",
+      "type": "service",
+      "description": "Filters yaw rate and produces a bounded command.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-RUDDER-COMMAND",
+      "name": "Rudder Command Output",
+      "type": "interface",
+      "description": "sampled-data output",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "IF-YAW-RATE",
+      "name": "Yaw Rate Input",
+      "type": "interface",
+      "description": "sampled-data input",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": []
+}

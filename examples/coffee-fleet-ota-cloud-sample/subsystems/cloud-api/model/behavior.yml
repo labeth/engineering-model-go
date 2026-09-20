@@ -1,0 +1,9 @@
+schemaVersion: 2
+behavior:
+  relationships:
+  - type: contains
+    from: FG-CLOUD
+    to: FU-CLOUD-INGEST
+  - type: contains
+    from: FG-CLOUD
+    to: FU-CLOUD-CAMPAIGN

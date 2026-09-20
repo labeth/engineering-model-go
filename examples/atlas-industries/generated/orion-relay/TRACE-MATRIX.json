@@ -1,0 +1,322 @@
+{
+  "model": "atlas-orion-relay",
+  "requirements": [
+    {
+      "id": "REQ-ORI-001",
+      "text": "The orion relay system shall deliver each relay message according to network controller priority.",
+      "units": [
+        "FU-ORI-ROUTER"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-ORI-002",
+      "text": "The orion relay system shall execute the link scheduler software on managed edge compute.",
+      "units": [
+        "FU-ORI-LINK"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-EDGE",
+        "target": "edge::CAP-EDGE-COMPUTE",
+        "targetRequirement": "REQ-EDGE-001"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "REQ-ORI-003",
+      "text": "The orion relay system shall retain relay configuration using managed cloud operations.",
+      "units": [
+        "FU-ORI-ROUTER"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-CLOUD",
+        "target": "cloud::CAP-CLOUD-OPERATIONS",
+        "targetRequirement": "REQ-CLOUD-001"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "REQ-ORI-004",
+      "text": "The orion relay system shall authenticate product services using shared security services.",
+      "units": [
+        "FU-ORI-LINK",
+        "FU-ORI-ROUTER"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-SECURITY",
+        "target": "security::CAP-ZERO-TRUST",
+        "targetRequirement": "REQ-SEC-002"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "REQ-ORI-005",
+      "text": "The orion relay system shall retain compliance evidence using the company control baseline.",
+      "units": [
+        "FU-ORI-ROUTER"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-COMPLIANCE",
+        "target": "compliance::CAP-CONTROL-BASELINE",
+        "targetRequirement": "REQ-COMP-001"
+      },
+      "status": "delegated"
+    },
+    {
+      "id": "cloud::REQ-CLOUD-001",
+      "text": "The atlas cloud platform shall process each cloud event using the cloud runtime.",
+      "units": [
+        "cloud::FU-CLOUD-RUNTIME"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-CLOUD",
+        "target": "cloud::CAP-CLOUD-OPERATIONS",
+        "targetRequirement": "cloud::REQ-CLOUD-001"
+      },
+      "provenance": {
+        "alias": "cloud",
+        "modulePath": "models.atlas.example/shared/cloud-platform@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-cloud-platform",
+        "publication": "public",
+        "sourceId": "REQ-CLOUD-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "cloud::REQ-CLOUD-002",
+      "text": "The atlas cloud platform shall authenticate the cloud runtime using workload identity.",
+      "units": [
+        "cloud::FU-CLOUD-RUNTIME"
+      ],
+      "provenance": {
+        "alias": "cloud",
+        "modulePath": "models.atlas.example/shared/cloud-platform@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-cloud-platform",
+        "publication": "public",
+        "sourceId": "REQ-CLOUD-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-001",
+      "text": "The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.",
+      "units": [
+        "compliance::FU-COMP-EVIDENCE"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-COMPLIANCE",
+        "target": "compliance::CAP-CONTROL-BASELINE",
+        "targetRequirement": "compliance::REQ-COMP-001"
+      },
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "compliance::REQ-COMP-002",
+      "text": "The atlas compliance baseline shall report control implementation status to the compliance officer.",
+      "units": [
+        "compliance::FU-COMP-EVIDENCE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-003",
+      "text": "The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-003"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-004",
+      "text": "The people security and awareness shall record policy acknowledgment for every employee at onboarding.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-004"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-005",
+      "text": "The people security and awareness shall record annual employee completion in the security awareness training record.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-005"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-006",
+      "text": "The people security and awareness shall request a line manager access review following an employee role change.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-006"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-007",
+      "text": "The people security and awareness shall revoke employee access following employment termination.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-007"
+      },
+      "status": "published"
+    },
+    {
+      "id": "compliance::REQ-COMP-008",
+      "text": "The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.",
+      "units": [
+        "compliance::FU-COMP-PEOPLE"
+      ],
+      "provenance": {
+        "alias": "compliance",
+        "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-compliance-baseline",
+        "publication": "public",
+        "sourceId": "REQ-COMP-008"
+      },
+      "status": "published"
+    },
+    {
+      "id": "edge::REQ-EDGE-001",
+      "text": "The atlas edge platform shall execute signed workloads on the edge runtime.",
+      "units": [
+        "edge::FU-EDGE-RUNTIME"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-EDGE",
+        "target": "edge::CAP-EDGE-COMPUTE",
+        "targetRequirement": "edge::REQ-EDGE-001"
+      },
+      "provenance": {
+        "alias": "edge",
+        "modulePath": "models.atlas.example/shared/edge-platform@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-edge-platform",
+        "publication": "public",
+        "sourceId": "REQ-EDGE-001"
+      },
+      "status": "allocated"
+    },
+    {
+      "id": "edge::REQ-EDGE-002",
+      "text": "The atlas edge platform shall authenticate the edge runtime using device identity.",
+      "units": [
+        "edge::FU-EDGE-RUNTIME"
+      ],
+      "provenance": {
+        "alias": "edge",
+        "modulePath": "models.atlas.example/shared/edge-platform@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-edge-platform",
+        "publication": "public",
+        "sourceId": "REQ-EDGE-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "security::REQ-SEC-001",
+      "text": "The atlas security services shall issue short-lived identity credentials using the identity service.",
+      "units": [
+        "security::FU-SEC-IDENTITY"
+      ],
+      "provenance": {
+        "alias": "security",
+        "modulePath": "models.atlas.example/shared/security-services@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-security-services",
+        "publication": "public",
+        "sourceId": "REQ-SEC-001"
+      },
+      "status": "published"
+    },
+    {
+      "id": "security::REQ-SEC-002",
+      "text": "When credential replay is detected, the atlas security services shall notify the security analyst.",
+      "units": [
+        "security::FU-SEC-MONITORING"
+      ],
+      "delegatedTo": {
+        "subsystem": "SUB-ORI-SECURITY",
+        "target": "security::CAP-ZERO-TRUST",
+        "targetRequirement": "security::REQ-SEC-002"
+      },
+      "provenance": {
+        "alias": "security",
+        "modulePath": "models.atlas.example/shared/security-services@v0",
+        "version": "v0.1.0",
+        "sourceModel": "atlas-shared-security-services",
+        "publication": "public",
+        "sourceId": "REQ-SEC-002"
+      },
+      "status": "allocated"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-ORI-001"
+  ],
+  "summary": {
+    "requirements": 19,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 8,
+    "orphan": 1,
+    "danglingLinks": 0
+  }
+}

@@ -1,0 +1,82 @@
+title: "Atlas Industries Company Portfolio - Controls"
+metadata:
+  id: ENGMOD-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security controls for Atlas Industries Company Portfolio
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-THREAT-CATALOG
+    title: Threat Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  applicability-groups:
+  - id: FU-PORT-GOVERNANCE
+    title: Portfolio Governance Service
+    description: Consolidates product capability and assurance status.
+  - id: aegis::FU-AEG-MISSION
+    title: Mission Coordination Software
+    description: Presents incidents for operator review and dispatch.
+  - id: aegis::FU-AEG-SENSOR-FUSION
+    title: Sensor Fusion Software
+    description: Correlates observations and assigns confidence.
+  - id: orion::FU-ORI-LINK
+    title: Link Scheduler Software
+    description: Selects available radio links and transmission windows.
+  - id: orion::FU-ORI-ROUTER
+    title: Message Router Software
+    description: Stores, prioritizes, and forwards operational messages.
+  - id: all-systems
+    title: All Systems
+    description: Applies across the whole system.
+controls:
+- id: aegis::CTRL-AEG-TRACK-CONFIDENCE
+  title: Track Confidence Gate
+  objective: Requires multi-sensor confidence before operator presentation.
+  group: mission-integrity
+  assessment-requirements:
+  - id: aegis::CV-AEG-TRACK-CONFIDENCE
+    text: The control "Track Confidence Gate" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Single-source false observations were rejected.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-mission-integrity
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  threats:
+  - entries:
+    - reference-id: aegis::TS-AEG-SENSOR-SPOOF
+    reference-id: ENGMOD-THREAT-CATALOG
+  state: Active
+- id: orion::CTRL-ORI-ADMISSION
+  title: Priority Admission Control
+  objective: Reserves capacity for authenticated priority messages.
+  group: availability
+  assessment-requirements:
+  - id: orion::CV-ORI-ADMISSION
+    text: The control "Priority Admission Control" MUST be verified by test.
+    applicability:
+    - all-systems
+    recommendation: Single-band priority traffic remained available during flooding.
+    state: Active
+  guidelines:
+  - entries:
+    - reference-id: GL-availability
+    reference-id: ENGMOD-GUIDANCE-CATALOG
+  state: Active
+groups:
+- id: mission-integrity
+  title: mission-integrity
+  description: "Control category: mission-integrity."
+- id: availability
+  title: availability
+  description: "Control category: availability."

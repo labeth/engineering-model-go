@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-STATE-LIFECYCLE-title" viewBox="0 0 602 420" data-source="examples/coffee-fleet-ota-cloud-sample/engmod.yml" data-view="VIEW-STATE-LIFECYCLE">
+  <title id="VIEW-STATE-LIFECYCLE-title">VIEW-STATE-LIFECYCLE — state-lifecycle view</title>
+  <metadata>source=examples/coffee-fleet-ota-cloud-sample/engmod.yml; view=VIEW-STATE-LIFECYCLE; kind=state-lifecycle</metadata>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-STATE-LIFECYCLE</text>
+  <line x1="456" y1="220" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="166" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
+  <line x1="456" y1="220" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="166" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
+  <line x1="456" y1="220" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
+  <line x1="146" y1="318" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
+  <line x1="146" y1="318" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">transitions_to</text>
+  <g id="CTRL-COFFEE-FIRMWARE-SIGNATURE"><rect x="36" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Firmware Signature Enforcement</text>
+    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">CTRL-COFFEE-FIRMWARE-SIGNATURE</text></g>
+  <g id="EVT-COFFEE-OTA-COMPLETED"><rect x="346" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Completed</text>
+    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">EVT-COFFEE-OTA-COMPLETED</text></g>
+  <g id="EVT-COFFEE-OTA-REQUESTED"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Requested</text>
+    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">EVT-COFFEE-OTA-REQUESTED</text></g>
+  <g id="STATE-COFFEE-OTA-APPLIED"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Applied</text>
+    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">STATE-COFFEE-OTA-APPLIED</text></g>
+  <g id="STATE-COFFEE-OTA-SCHEDULED"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Scheduled</text>
+    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">STATE-COFFEE-OTA-SCHEDULED</text></g>
+  <g id="TB-COFFEE-EDGE-DEVICE"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Edge Device Boundary</text>
+    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">TB-COFFEE-EDGE-DEVICE</text></g>
+</svg>

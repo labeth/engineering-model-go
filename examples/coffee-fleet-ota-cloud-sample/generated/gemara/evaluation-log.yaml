@@ -2,12 +2,12 @@ metadata:
   id: sample-coffee-fleet-ota-cloud-model-EVALUATION-LOG
   type: EvaluationLog
   gemara-version: 1.1.0
-  version: 1.0.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Control evaluation results for Connected Coffee Fleet OTA + Cloud Architecture
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -32,13 +32,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-13T00:00:00Z"
     confidence-level: High
     evidence:
     - id: CV-COFFEE-DEVICE-IDENTITY-TEST-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/telemetry_ingest.ts
       description: Identity enforcement checks in ingress path.
   - requirement:
       reference-id: ENGMOD-CONTROL-CATALOG
@@ -50,13 +51,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-18T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: CV-COFFEE-TELEMETRY-REPLAY-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/telemetry_ingest.ts
       description: Replay window logic and dedup analysis.
   - requirement:
       reference-id: ENGMOD-CONTROL-CATALOG
@@ -68,13 +70,14 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-20T00:00:00Z"
     confidence-level: Medium
     evidence:
     - id: CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: docs/security/log-integrity-review.md
       description: Inspection notes for audit integrity controls.
 - name: Firmware Signature Enforcement
   result: Passed
@@ -93,14 +96,72 @@ evaluations:
     - all-systems
     steps:
     - github.com/labeth/engineering-model-go.gemaraInferredStep
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     end: "2026-04-12T00:00:00Z"
     confidence-level: High
     evidence:
     - id: CV-COFFEE-FW-SIGNATURE-TEST-EV-1
       type: ControlVerification
-      collected-at: "2026-06-27T00:00:00Z"
+      collected-at: "2026-09-19T00:00:00Z"
+      payload: src/ota_agent.rs
       description: Signature verify and rejection path.
+- name: Ingest Authentication
+  result: Passed
+  message: 1 assessment(s) recorded for control cloud-api::CTRL-INGEST-AUTH.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: cloud-api::CTRL-INGEST-AUTH
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: cloud-api::VER-INGEST-AUTH
+    description: Assessment of "Ingest Authentication" via test.
+    result: Passed
+    message: Unauthenticated ingest rejected in tests.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+- name: Firmware Signature Verification
+  result: Passed
+  message: 1 assessment(s) recorded for control ota-agent::CTRL-FIRMWARE-SIGNATURE.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: ota-agent::CTRL-FIRMWARE-SIGNATURE
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: ota-agent::VER-FIRMWARE-SIGNATURE
+    description: Assessment of "Firmware Signature Verification" via test.
+    result: Passed
+    message: Signature rejection verified in unit tests.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+- name: Telemetry Integrity
+  result: Passed
+  message: 1 assessment(s) recorded for control telemetry::CTRL-TELEM-INTEGRITY.
+  control:
+    reference-id: ENGMOD-CONTROL-CATALOG
+    entry-id: telemetry::CTRL-TELEM-INTEGRITY
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-CONTROL-CATALOG
+      entry-id: telemetry::VER-TELEM-INTEGRITY
+    description: Assessment of "Telemetry Integrity" via test.
+    result: Passed
+    message: Telemetry signature verified in unit tests.
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
 target:
   id: sample-coffee-fleet-ota-cloud-model
   name: Connected Coffee Fleet OTA + Cloud Architecture

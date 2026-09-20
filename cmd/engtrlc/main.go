@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 
 	if strings.TrimSpace(*requirementsPath) == "" || strings.TrimSpace(*outDir) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engtrlc --requirements <requirements.yml> --out-dir <dir> [--package <Name>]")
+		fmt.Fprintln(os.Stderr, "usage: engtrlc --requirements <model/requirements.yml> --out-dir <dir> [--package <Name>]")
 		os.Exit(2)
 	}
 

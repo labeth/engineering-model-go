@@ -1,0 +1,4 @@
+disclaimer,requirement_id,level,derived,parent_refs,architecture_refs,code_refs,verification_cases,procedures,executions,results,baseline,state
+DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION,REQ-YD-SYS-001,system-allocated,false,,FU-YAW-CONTROL,,,,,,BASELINE-YD-001,reviewed
+DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION,REQ-YD-HLR-001,HLR,false,REQ-YD-SYS-001,FU-YAW-CONTROL,evidence/src/yaw_damper.c,CASE-YD-NORMAL,PROC-YD-001,EXEC-YD-001,Normal case passed; robustness case exposed one uncovered defensive statement.,BASELINE-YD-001,reviewed
+DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION,REQ-YD-LLR-001,LLR,true,REQ-YD-HLR-001,FU-YAW-CONTROL,evidence/src/yaw_damper.c,CASE-YD-ROBUST,PROC-YD-001,EXEC-YD-001,Normal case passed; robustness case exposed one uncovered defensive statement.,BASELINE-YD-001,reviewed

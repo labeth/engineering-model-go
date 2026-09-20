@@ -1,0 +1,19 @@
+package requirements
+Requirement REQ_YD_HLR_001 {
+  id         = "REQ-YD-HLR-001"
+  text       = "When yaw rate input is received, the yaw damping software shall filter the yaw rate input."
+  notes      = "High-level software requirement."
+  applies_to = ["FU-YAW-CONTROL"]
+}
+Requirement REQ_YD_LLR_001 {
+  id         = "REQ-YD-LLR-001"
+  text       = "When yaw rate input is received, the yaw damping software shall limit the bounded rudder command."
+  notes      = "Derived low-level limit requiring safety feedback."
+  applies_to = ["FU-YAW-CONTROL"]
+}
+Requirement REQ_YD_SYS_001 {
+  id         = "REQ-YD-SYS-001"
+  text       = "When yaw rate input is received, the yaw damping software shall compute a bounded rudder command."
+  notes      = "System-allocated behavior."
+  applies_to = ["FU-YAW-CONTROL"]
+}

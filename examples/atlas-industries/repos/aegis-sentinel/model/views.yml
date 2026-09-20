@@ -1,0 +1,24 @@
+schemaVersion: 2
+views: []
+design:
+  id: aegis-design
+  title: Aegis Sentinel Design
+  functionalGroups:
+  - id: FG-AEG
+    views:
+      architecture_intent:
+        title: Sentinel mission intent
+        narrative: Product-specific sensing is deployed over shared edge, cloud, identity, and compliance contracts.
+  functionalUnits:
+  - id: FU-AEG-SENSOR-FUSION
+    group: FG-AEG
+    views:
+      security:
+        title: Sensor integrity
+        narrative: Cross-sensor confidence gates protect track integrity.
+  - id: FU-AEG-MISSION
+    group: FG-AEG
+    views:
+      communication:
+        title: Operator review
+        narrative: Only confidence-gated tracks enter the operator workflow.

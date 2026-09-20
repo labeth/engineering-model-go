@@ -1,0 +1,54 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": {
+    "approvals": [
+      {
+        "id": "APPROVAL-YD-001",
+        "subjectRefs": [
+          "EXEC-YD-001"
+        ],
+        "approver": "Verification Manager",
+        "evidence": [
+          "REVIEW-YD-001"
+        ],
+        "state": "accepted"
+      }
+    ],
+    "records": [
+      {
+        "id": "INDEP-YD-001",
+        "subjectRef": "EXEC-YD-001",
+        "producer": "Verification Engineer A",
+        "verifier": "Verification Reviewer B",
+        "approvalRef": "APPROVAL-YD-001",
+        "evidence": [
+          "REVIEW-YD-001"
+        ],
+        "state": "reviewed"
+      }
+    ],
+    "reviews": [
+      {
+        "id": "REVIEW-YD-001",
+        "subjectRefs": [
+          "REQ-YD-HLR-001",
+          "REQ-YD-LLR-001",
+          "EXEC-YD-001"
+        ],
+        "reviewer": "Verification Reviewer B",
+        "result": "Reviewed with the coverage gap remaining open.",
+        "evidence": [
+          "DATA-RESULTS"
+        ],
+        "state": "reviewed"
+      }
+    ]
+  }
+}

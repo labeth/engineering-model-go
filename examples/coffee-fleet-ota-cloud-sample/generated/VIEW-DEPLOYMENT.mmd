@@ -1,25 +1,25 @@
 flowchart LR
 %% view: VIEW-DEPLOYMENT (deployment)
-N_DEP_COFFEE_CLOUD_PROD["Coffee Cloud Production"]:::deployment_target
-N_DEP_COFFEE_EDGE_FLEET["Coffee Edge Fleet"]:::deployment_target
-N_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
-N_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
-N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
-N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
-N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
-N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
-N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
-N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
-N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
-N_IF_COFFEE_OTA_COMMAND[/"OTA Command Interface"/]:::interface
-N_IF_COFFEE_TELEMETRY_INGEST[/"Telemetry Ingestion Interface"/]:::interface
-N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
-N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
-N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
-N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
-N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
-N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+N_DEP_COFFEE_CLOUD_PROD[["Coffee Cloud Production"]]:::deployment_target
+N_DEP_COFFEE_EDGE_FLEET[["Coffee Edge Fleet"]]:::deployment_target
+N_FG_CLOUD_CONTROL["Cloud Control"]:::unknown
+N_FG_MACHINE_EDGE["Machine Edge"]:::unknown
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::unknown
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::unknown
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::unknown
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::unknown
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::unknown
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::unknown
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::unknown
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::unknown
+N_IF_COFFEE_OTA_COMMAND["OTA Command Interface"]:::interface
+N_IF_COFFEE_TELEMETRY_INGEST["Telemetry Ingestion Interface"]:::interface
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::unknown
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::unknown
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::unknown
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::unknown
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::unknown
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::unknown
 N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_INGESTION_API
 N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_OBSERVABILITY_REPORTING
 N_FG_CLOUD_CONTROL -->|contains| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
@@ -27,28 +27,28 @@ N_FG_MACHINE_EDGE -->|contains| N_FU_MACHINE_TELEMETRY_COLLECTION
 N_FG_MACHINE_EDGE -->|contains| N_FU_OTA_UPDATE_AGENT
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_CLOUD_RUNTIME_OPERATIONS
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
-N_FU_FLEET_INGESTION_API --> N_DEP_COFFEE_CLOUD_PROD
-N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Requires runtime credentials and encrypted config.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Emits platform operation and deployment events.| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API -->|deployed_to: Ingestion API runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
+N_FU_FLEET_INGESTION_API -->|depends_on: Validates device identity and token claims.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API -->|depends_on: Forwards validated telemetry and machine status events.| N_FU_FLEET_OBSERVABILITY_REPORTING
 N_FU_FLEET_INGESTION_API -->|contains| N_IF_COFFEE_TELEMETRY_INGEST
-N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
-N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
-N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
-N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
-N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
-N_FU_OTA_UPDATE_AGENT --> N_DEP_COFFEE_EDGE_FLEET
-N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_DEP_COFFEE_CLOUD_PROD
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API -->|depends_on: Uses cloud SDK clients for ingest and routing operations.| N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Uses controlled credentials for audit-log writes.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Persists telemetry, OTA outcomes, and audit records.| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses machine identity material for authenticated publish.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Sends normalized telemetry records to ingestion API.| N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Publishes telemetry payloads to cloud ingestion.| N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses MQTT client for edge publish and command channels.| N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT -->|deployed_to: OTA agent executes on managed edge fleet.| N_DEP_COFFEE_EDGE_FLEET
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Uses trust anchors for firmware and endpoint authentication.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Receives OTA rollout commands and policy constraints.| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Downloads signed firmware bundle.| N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|deployed_to: Orchestration service runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Uses trusted control-plane credentials.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Emits OTA rollout and rollback events for fleet visibility.| N_FU_FLEET_OBSERVABILITY_REPORTING
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_IF_COFFEE_OTA_COMMAND
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Verifies firmware artifact signature metadata.| N_REF_FIRMWARE_SIGNER_SERVICE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;

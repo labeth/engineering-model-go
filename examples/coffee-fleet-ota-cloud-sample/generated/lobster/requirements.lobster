@@ -1,14 +1,14 @@
 {
   "data": [
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_001",
+      "tag": "req requirements.REQ_COF_001",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 2,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_001",
+      "name": "requirements.REQ_COF_001",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -19,14 +19,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_002",
+      "tag": "req requirements.REQ_COF_002",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 8,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_002",
+      "name": "requirements.REQ_COF_002",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -37,14 +37,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_003",
+      "tag": "req requirements.REQ_COF_003",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 14,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_003",
+      "name": "requirements.REQ_COF_003",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -55,14 +55,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_004",
+      "tag": "req requirements.REQ_COF_004",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 20,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_004",
+      "name": "requirements.REQ_COF_004",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -73,14 +73,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_005",
+      "tag": "req requirements.REQ_COF_005",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 26,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_005",
+      "name": "requirements.REQ_COF_005",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -91,14 +91,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_006",
+      "tag": "req requirements.REQ_COF_006",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 32,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_006",
+      "name": "requirements.REQ_COF_006",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -109,14 +109,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_007",
+      "tag": "req requirements.REQ_COF_007",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 38,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_007",
+      "name": "requirements.REQ_COF_007",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -127,14 +127,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_008",
+      "tag": "req requirements.REQ_COF_008",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 44,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_008",
+      "name": "requirements.REQ_COF_008",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -145,14 +145,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_009",
+      "tag": "req requirements.REQ_COF_009",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 50,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_009",
+      "name": "requirements.REQ_COF_009",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -163,14 +163,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_010",
+      "tag": "req requirements.REQ_COF_010",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 56,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_010",
+      "name": "requirements.REQ_COF_010",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -181,14 +181,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_011",
+      "tag": "req requirements.REQ_COF_011",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 62,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_011",
+      "name": "requirements.REQ_COF_011",
       "messages": [],
       "just_up": [],
       "just_down": [],
@@ -199,14 +199,14 @@
       "status": null
     },
     {
-      "tag": "req CoffeeFleetRequirements.REQ_COF_012",
+      "tag": "req requirements.REQ_COF_012",
       "location": {
         "kind": "file",
-        "file": "/home/labeth/ws/engineering-model-go/examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
+        "file": "examples/coffee-fleet-ota-cloud-sample/generated/trlc/requirements.trlc",
         "line": 68,
         "column": 13
       },
-      "name": "CoffeeFleetRequirements.REQ_COF_012",
+      "name": "requirements.REQ_COF_012",
       "messages": [],
       "just_up": [],
       "just_down": [],

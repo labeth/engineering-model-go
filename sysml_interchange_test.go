@@ -12,25 +12,20 @@ import (
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
-func TestSysMLProjectSourceReconstructsCanonicalSemantics(t *testing.T) {
-	result, err := GenerateSysMLV2FromFile("architecture.yml")
+func TestSysMLProjectSourceDoesNotEmbedCanonicalSemantics(t *testing.T) {
+	result, err := GenerateSysMLV2FromFile("engmod.yml")
 	if err != nil {
 		t.Fatalf("generate: %v", err)
+	}
+	if strings.Contains(result.Text, "payload =") {
+		t.Fatalf("published SysML should not embed the canonical graph as JSON payloads")
 	}
 	path := filepath.Join(t.TempDir(), "model.sysml")
 	if err := os.WriteFile(path, []byte(result.Text), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	reconstructed, err := ImportSysMLV2Project(path)
-	if err != nil {
-		t.Fatalf("import: %v", err)
-	}
-	canonical, err := model.LoadCanonicalBundle("architecture.yml")
-	if err != nil {
-		t.Fatalf("load canonical model: %v", err)
-	}
-	if differences := CompareSysMLV2RoundTrip(canonical.Semantic(), reconstructed); len(differences) != 0 {
-		t.Fatalf("round trip differences: %v", differences)
+	if _, err := ImportSysMLV2Project(path); err == nil || !strings.Contains(err.Error(), "no EngineeringProject interchange payload") {
+		t.Fatalf("native projection must not contain a hidden canonical payload, got %v", err)
 	}
 }
 
@@ -87,7 +82,7 @@ func TestCompareSysMLV2RoundTripNormalizesDerivedAndImpliedProperties(t *testing
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func TestExportSysMLV2ProjectRequiresSysand(t *testing.T) {
-	_, err := ExportSysMLV2Project("architecture.yml", filepath.Join(t.TempDir(), "project"), filepath.Join(t.TempDir(), "model.kpar"), filepath.Join(t.TempDir(), "missing-sysand"))
+	_, err := ExportSysMLV2Project("engmod.yml", filepath.Join(t.TempDir(), "project"), filepath.Join(t.TempDir(), "model.kpar"), filepath.Join(t.TempDir(), "missing-sysand"))
 	if err == nil || !strings.Contains(err.Error(), "sysand is unavailable") {
 		t.Fatalf("expected clear unavailable tool error, got %v", err)
 	}

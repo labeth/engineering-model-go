@@ -1,4 +1,4 @@
-package OtaAgentRequirements
+package requirements
 Requirement REQ_OTA_001 {
   id         = "REQ-OTA-001"
   text       = "Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine."

@@ -1,0 +1,9 @@
+schemaVersion: 2
+behavior:
+  relationships:
+  - type: contains
+    from: FG-TELEMETRY
+    to: FU-TELEM-SAMPLE
+  - type: contains
+    from: FG-TELEMETRY
+    to: FU-TELEM-REPORT

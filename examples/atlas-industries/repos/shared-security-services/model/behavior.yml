@@ -1,0 +1,6 @@
+schemaVersion: 2
+behavior:
+  events:
+  - id: EVT-CREDENTIAL-REPLAY-DETECTED
+    name: Credential Replay Detected
+    description: Security monitoring identifies reuse outside a credential's permitted context.

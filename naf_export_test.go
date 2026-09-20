@@ -12,11 +12,11 @@ import (
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-042
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, DO-NAF-V4-ARCHITECTURE, REF-NAF-V4-1-SPECIFICATION
 func TestGenerateNAFV41UsesCanonicalViews(t *testing.T) {
-	first, err := GenerateNAFV41FromFile("architecture.yml")
+	first, err := GenerateNAFV41FromFile("engmod.yml")
 	if err != nil {
 		t.Fatalf("generate NAF document: %v\n%+v", err, first.Diagnostics)
 	}
-	second, err := GenerateNAFV41FromFile("architecture.yml")
+	second, err := GenerateNAFV41FromFile("engmod.yml")
 	if err != nil {
 		t.Fatalf("regenerate NAF document: %v", err)
 	}
@@ -40,7 +40,7 @@ func TestGenerateNAFV41UsesCanonicalViews(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-041
 func TestNAFProfileIsCanonicalMetadata(t *testing.T) {
-	bundle, err := model.LoadBundle("architecture.yml")
+	bundle, err := model.LoadBundle("engmod.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestNAFValidationRejectsInvalidProfile(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			bundle, err := model.LoadBundle("architecture.yml")
+			bundle, err := model.LoadBundle("engmod.yml")
 			if err != nil {
 				t.Fatal(err)
 			}

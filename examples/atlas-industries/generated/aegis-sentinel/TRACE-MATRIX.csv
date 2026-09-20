@@ -1,0 +1,20 @@
+requirement,status,units,code,verifications,delegatedTo,provenance
+REQ-AEG-001,orphan,FU-AEG-MISSION,,,,
+REQ-AEG-002,delegated,FU-AEG-SENSOR-FUSION,,,SUB-AEG-EDGE/REQ-EDGE-001,
+REQ-AEG-003,delegated,FU-AEG-MISSION,,,SUB-AEG-CLOUD/REQ-CLOUD-001,
+REQ-AEG-004,delegated,FU-AEG-MISSION FU-AEG-SENSOR-FUSION,,,SUB-AEG-SECURITY/REQ-SEC-002,
+REQ-AEG-005,delegated,FU-AEG-MISSION,,,SUB-AEG-COMPLIANCE/REQ-COMP-001,
+cloud::REQ-CLOUD-001,allocated,cloud::FU-CLOUD-RUNTIME,,,SUB-AEG-CLOUD/cloud::REQ-CLOUD-001,cloud:public@v0.1.0
+cloud::REQ-CLOUD-002,published,cloud::FU-CLOUD-RUNTIME,,,,cloud:public@v0.1.0
+compliance::REQ-COMP-001,allocated,compliance::FU-COMP-EVIDENCE,,,SUB-AEG-COMPLIANCE/compliance::REQ-COMP-001,compliance:public@v0.1.0
+compliance::REQ-COMP-002,published,compliance::FU-COMP-EVIDENCE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-003,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-004,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-005,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-006,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-007,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+compliance::REQ-COMP-008,published,compliance::FU-COMP-PEOPLE,,,,compliance:public@v0.1.0
+edge::REQ-EDGE-001,allocated,edge::FU-EDGE-RUNTIME,,,SUB-AEG-EDGE/edge::REQ-EDGE-001,edge:public@v0.1.0
+edge::REQ-EDGE-002,published,edge::FU-EDGE-RUNTIME,,,,edge:public@v0.1.0
+security::REQ-SEC-001,published,security::FU-SEC-IDENTITY,,,,security:public@v0.1.0
+security::REQ-SEC-002,allocated,security::FU-SEC-MONITORING,,,SUB-AEG-SECURITY/security::REQ-SEC-002,security:public@v0.1.0

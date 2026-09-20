@@ -1,0 +1,22 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-CLOUD
+    name: atlas cloud platform
+    definition: Shared cloud application and operations platform.
+  functionalGroups:
+  - id: FG-CLOUD
+    name: cloud platform
+    definition: Shared cloud ingestion and operations capabilities.
+  functionalUnits:
+  - id: FU-CLOUD-RUNTIME
+    name: cloud runtime
+    definition: Hosts product services with resilient operations.
+  actors:
+  - id: ACT-CLOUD-OPERATOR
+    name: cloud operator
+    definition: Operates shared cloud services.
+  dataTerms:
+  - id: DATA-CLOUD-EVENT
+    name: cloud event
+    definition: Durable product event processed by cloud services.

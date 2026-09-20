@@ -1,6 +1,6 @@
 package model
 
-#SchemaVersion: 1
+#SchemaVersion: 2
 
 #StringList: [...string]
 

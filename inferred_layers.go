@@ -42,10 +42,18 @@ type inferredCodeItem struct {
 	ModelLinks  []string
 }
 
+// TRLC-LINKS: REQ-EMG-010
+func modelRootDir(bundle model.Bundle) string {
+	if bundle.ManifestPath != "" {
+		return filepath.Dir(bundle.ManifestPath)
+	}
+	return filepath.Dir(bundle.ArchitecturePath)
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.Diagnostic) {
-	baseDir := filepath.Dir(bundle.ArchitecturePath)
+	baseDir := modelRootDir(bundle)
 	items := []inferredRuntimeItem{}
 	diags := []validate.Diagnostic{}
 	seen := map[string]bool{}
@@ -57,6 +65,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 			if err != nil {
 				return err
 			}
+
 			if d.IsDir() {
 				return nil
 			}

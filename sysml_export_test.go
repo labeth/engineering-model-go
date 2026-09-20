@@ -2,20 +2,42 @@
 package engmodel
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/model"
 )
 
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-047, REQ-EMG-050
+func TestSysMLExportMaterializesPackagedSubsystemEndpoints(t *testing.T) {
+	result, err := GenerateSysMLV2FromFile(filepath.Join("examples", "atlas-industries", "repos", "aegis-sentinel", "engmod.yml"))
+	if err != nil {
+		t.Fatalf("generate composed SysML: %v\n%+v", err, result.Diagnostics)
+	}
+	for _, expected := range []string{"SUB-AEG-EDGE/edge::CAP-EDGE-COMPUTE", "edge::NEED-EDGE-IDENTITY"} {
+		if !strings.Contains(result.Text, sysmlName(expected)) {
+			t.Fatalf("expected packaged endpoint %q in SysML output", expected)
+		}
+	}
+	if !strings.Contains(result.Text, "satisfy requirement targetRequirement : EngineeringRequirement by satisfyingPart;") {
+		t.Fatalf("expected provider to satisfy the packaged subsystem need:\n%s", result.Text)
+	}
+	for _, diagnostic := range result.Diagnostics {
+		if diagnostic.Code == "sysml.external_relationship_endpoint" {
+			t.Fatalf("unexpected external endpoint diagnostic: %+v", diagnostic)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-036
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
 func TestGenerateSysMLV2DeterministicAndPreservesStableIDs(t *testing.T) {
-	first, err := GenerateSysMLV2FromFile("architecture.yml")
+	first, err := GenerateSysMLV2FromFile("engmod.yml")
 	if err != nil {
 		t.Fatalf("first export: %v (%+v)", err, first.Diagnostics)
 	}
-	second, err := GenerateSysMLV2FromFile("architecture.yml")
+	second, err := GenerateSysMLV2FromFile("engmod.yml")
 	if err != nil {
 		t.Fatalf("second export: %v (%+v)", err, second.Diagnostics)
 	}
@@ -87,13 +109,12 @@ func TestGenerateSysMLV2ProjectionEmitsStructuralAndBehavioralSemantics(t *testi
 	text, diagnostics := GenerateSysMLV2Projection(semantic)
 	for _, expected := range []string{
 		"private import 'Domain'::*;", "package 'PKG-A' {", "part def 'PART-DEF';",
-		"part 'PART-A' : 'PART-DEF' [1..2] ordered nonunique;", `\"typeRef\":\"PART-DEF\"`, `\"multiplicity\":{\"lower\":1,\"upper\":2}`,
-		`\"ordered\":true`, `\"unique\":false`, `\"conjugated\":true`,
-		`\"name\":\"request\"`, `\"direction\":\"out\"`,
-		"connection 'CONNECT-A' connect 'PORT-A' to 'PART-A';", `conceptKind = "connection"`,
-		"flow 'TRANSFER-A' of 'ITEM-A'", `\"itemRef\":\"ITEM-A\"`,
-		"transition 'TRANSITION-A'", `\"triggers\":[\"EVENT-A\"]`,
-		`\"guard\":{\"language\":\"expression\",\"value\":\"ready\"}`,
+		"part 'PART-A' : 'PART-DEF' [1..2] ordered nonunique;", "port 'PORT-A' : ~'ITEM-A';",
+		"in item 'request' : 'ITEM-A';", "out item 'response' : 'ITEM-A';",
+		"part def 'CONNECT-A-context' {", "part source : 'PORT-A';", "part target : 'PART-A';",
+		"connection 'CONNECT-A' connect source to target;", `conceptKind = "connection"`,
+		"flow 'TRANSFER-A' of 'ITEM-A'",
+		"transition 'TRANSITION-A'",
 		"allocation 'ALLOCATE-A'",
 	} {
 		if !strings.Contains(text, expected) {
@@ -140,10 +161,10 @@ func TestGenerateSysMLV2ProjectionEmitsRequirementsCasesValuesAndExtensions(t *t
 	text, diagnostics := GenerateSysMLV2Projection(semantic)
 	for _, expected := range []string{
 		"requirement def 'REQ-A';", "concern def 'CONCERN-A';", "item def 'STAKEHOLDER-A';",
-		"constraint def 'CONSTRAINT-A';", "calc def 'CALC-A'", `\"unit\":\"UNIT-S\"`,
+		"constraint def 'CONSTRAINT-A';", "calc def 'CALC-A'", "attribute 'duration' = 5 ['UNIT-S'];",
 		"case def 'CASE-A';", "analysis def 'ANALYSIS-A';", "verification 'VERIFY-A'",
 		"use case def 'USE-A';", "view 'VIEW-A'", "viewpoint def 'VIEWPOINT-A';",
-		"satisfy requirement 'STAKEHOLDER-A' by 'REQ-A';", `conceptKind = "satisfaction"`,
+		"requirement def 'SAT-A-context'", "satisfy requirement targetRequirement : EngineeringRequirement by satisfyingPart;", `conceptKind = "satisfaction"`,
 		"verification 'VER-A' : EngineeringVerification", `conceptKind = "verification"`,
 		"conceptKind = \"engineering_extension\";",
 	} {

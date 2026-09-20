@@ -1,0 +1,79 @@
+{
+  "plan-of-action-and-milestones": {
+    "uuid": "7f1bfb7e-3731-57bf-b703-0a3b217a2d84",
+    "metadata": {
+      "title": "Connected Coffee Fleet OTA + Cloud Architecture POA\u0026M",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./ARCHITECTURE.ssp.json"
+    },
+    "poam-items": [
+      {
+        "uuid": "476c673b-fd6c-5437-a3f4-be0d0b7f3e06",
+        "title": "Enforce tighter telemetry replay window constraints",
+        "description": "Enforce tighter telemetry replay window constraints",
+        "props": [
+          {
+            "name": "model-poam-id",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "POAM-COFFEE-REPLAY-WINDOW-HARDENING"
+          },
+          {
+            "name": "due-date",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "2026-08-01"
+          },
+          {
+            "name": "status",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "planned"
+          },
+          {
+            "name": "responsible-role",
+            "ns": "https://github.com/labeth/engineering-model-go/ns/oscal",
+            "value": "ACT-SECURITY-ANALYST"
+          }
+        ],
+        "related-risks": [
+          {
+            "risk-uuid": "93df65c1-f2a9-5193-8f0d-1ec38a330edb"
+          }
+        ],
+        "remarks": "Artifacts: tickets/SEC-3301.md"
+      }
+    ],
+    "risks": [
+      {
+        "uuid": "575027a1-7868-59d0-9b19-291b3938dceb",
+        "title": "Audit log tampering risk",
+        "description": "Log tampering could conceal OTA incident traces and delay response.",
+        "status": "open",
+        "statement": "Core logging exists; immutability hardening is incomplete."
+      },
+      {
+        "uuid": "8ac357f0-2079-59de-872c-893cb2814cf8",
+        "title": "Telemetry replay distortion risk",
+        "description": "Replayed telemetry can distort observability and trigger noisy operational decisions.",
+        "status": "mitigating",
+        "statement": "Replay controls are present but require aggressive tuning under burst traffic."
+      },
+      {
+        "uuid": "93df65c1-f2a9-5193-8f0d-1ec38a330edb",
+        "title": "Device identity spoofing risk",
+        "description": "Spoofed devices may inject telemetry and OTA requests without strong identity controls.",
+        "status": "mitigating",
+        "statement": "Identity validation is active; replay hardening remains under review."
+      },
+      {
+        "uuid": "c08d265e-a26f-5156-b365-bb24bc6b3b8b",
+        "title": "Malicious OTA payload execution risk",
+        "description": "Tampered firmware artifacts could execute on fleet devices if signature enforcement drifts.",
+        "status": "mitigating",
+        "statement": "Verification and signer controls are strong with regular regression checks."
+      }
+    ]
+  }
+}

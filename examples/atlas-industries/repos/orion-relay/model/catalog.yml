@@ -1,0 +1,32 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-ORI
+    name: orion relay system
+    definition: Resilient remote communications and store-and-forward product.
+  functionalGroups:
+  - id: FG-ORI
+    name: relay mission
+    definition: Product-specific link scheduling and message delivery.
+  functionalUnits:
+  - id: FU-ORI-LINK
+    name: link scheduler software
+    definition: Selects available radio links and transmission windows.
+  - id: FU-ORI-ROUTER
+    name: message router software
+    definition: Stores, prioritizes, and forwards operational messages.
+  actors:
+  - id: ACT-ORI-CONTROLLER
+    name: network controller
+    definition: Configures relay priorities and monitors delivery.
+  - id: ACT-ORI-ENGINEER
+    name: relay security engineer
+    definition: Owns Orion security controls and risk.
+  attackVectors:
+  - id: AV-ORI-MESSAGE-FLOOD
+    name: message flooding
+    definition: Excess messages attempt to exhaust constrained link capacity.
+  dataTerms:
+  - id: DATA-ORI-MESSAGE
+    name: relay message
+    definition: Prioritized payload awaiting delivery across a remote link.

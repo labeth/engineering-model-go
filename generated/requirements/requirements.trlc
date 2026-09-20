@@ -62,13 +62,13 @@ Requirement REQ_EMG_011 {
 Requirement REQ_EMG_012 {
   id         = "REQ-EMG-012"
   text       = "When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible."
-  notes      = "Generation uses stable ordering (sorted diagnostics, link targets, scan results) and excludes environment-specific inputs, so regenerated documents are bit-for-bit reproducible and the CI freshness gate can detect drift."
-  applies_to = ["FU-ALLOCATION-TRACE", "FU-ASCIIDOC-GENERATOR", "FU-CODEMAP-INFERENCE"]
+  notes      = "Generation uses stable ordering and controlled metadata so maintained artifacts are bit-for-bit reproducible. The validation gauntlet regenerates every maintained example and applies authoritative parsers or schemas where available plus semantic and idiomatic checks for each published format."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-ASCIIDOC-GENERATOR", "FU-CODEMAP-INFERENCE", "FU-GEMARA-EXPORTER", "FU-LOBSTER-EXPORTER", "FU-OSCAL-EXPORTER", "FU-STRUCTURIZR-EXPORTER", "FU-SYSML-EXPORTER", "FU-THREAT-EXPORTER", "FU-TRLC-EXPORTER", "FU-VALIDATION-ENGINE"]
 }
 Requirement REQ_EMG_013 {
   id         = "REQ-EMG-013"
-  text       = "Where traceability export is enabled, when generation run is requested, the engineering model go shall export OSCAL SSP plus assessment results plus POA&M artifacts."
-  notes      = "OSCAL export set for compliance workflows."
+  text       = "Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA&M artifacts when the corresponding compliance and remediation content is applicable."
+  notes      = "OSCAL documents use version 1.1.2 structures, deterministic metadata, resolvable sibling import links, aggregate every implemented compliance framework, and omit inapplicable documents rather than emitting schema-invalid empty artifacts."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-OSCAL-EXPORTER"]
 }
 Requirement REQ_EMG_014 {
@@ -206,7 +206,7 @@ Requirement REQ_EMG_035 {
 Requirement REQ_EMG_036 {
   id         = "REQ-EMG-036"
   text       = "Where sysml export is enabled, when generation run is requested, the engineering model go shall generate sysml v2 model artifact from canonical semantic model."
-  notes      = "The exporter preserves stable identifiers and maps standard concepts to SysML v2 or KerML semantics. Engineering-specific security, compliance, repository, decision, and code-trace concepts remain typed extensions rather than duplicate standard concepts."
+  notes      = "The exporter preserves stable identifiers and maps standard concepts to native SysML v2 or KerML semantics. Engineering-specific concepts may use explicit typed SysML metadata definitions, but canonical data without a native target representation must be omitted rather than encoded in descriptions, opaque payloads, generic property bags, or sidecar files."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSML-EXPORTER", "FU-VALIDATION-ENGINE"]
 }
 Requirement REQ_EMG_037 {
@@ -229,9 +229,9 @@ Requirement REQ_EMG_039 {
 }
 Requirement REQ_EMG_040 {
   id         = "REQ-EMG-040"
-  text       = "When generation run is requested, the engineering model go shall preserve canonical semantic model through sysml v2 model artifact project interchange round trip."
-  notes      = "Round-trip comparison includes stable identity, namespaces, ownership, definitions and usages, typed features, relationships, expressions, multiplicities, library references, and Engineering Model extensions."
-  applies_to = ["FU-SYSML-EXPORTER", "FU-VALIDATION-ENGINE"]
+  text       = "When generation run is requested, the engineering model go shall preserve the deterministic native sysml v2 source through project interchange round trip."
+  notes      = "Sysand owns normative KPAR packaging and reopening. Verification compares the reopened SysML source byte-for-byte with a fresh projection and validates both sources with the pinned official parser; it does not claim lossless reconstruction of canonical concepts omitted from SysML."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSML-EXPORTER", "FU-VALIDATION-ENGINE"]
 }
 Requirement REQ_EMG_041 {
   id         = "REQ-EMG-041"
@@ -253,19 +253,79 @@ Requirement REQ_EMG_043 {
 }
 Requirement REQ_EMG_044 {
   id         = "REQ-EMG-044"
-  text       = "When model updated event is received, the engineering model go shall load architecture model plus catalog document plus requirements document plus design document plus decisions document according to model authoring contract."
-  notes      = "Every canonical YAML document has an effective schema version. Explicit architecture.model.documents references are preferred, while legacy baseCatalogRef and established companion filenames remain supported as migration adapters."
+  text       = "When model updated event is received, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model."
+  notes      = "engmod.yml is the only model entry point and every document path is explicit. YAML is the authoring format and CUE is the schema authority. Design narratives are owned by views; architecture does not contain behavior, assurance, compliance, dependency source, NAF, or view declarations."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
 }
 Requirement REQ_EMG_045 {
   id         = "REQ-EMG-045"
-  text       = "While mcp server is enabled, when mcp tool call is received and catalog references resolve successfully, the engineering model go shall return model authoring contract."
-  notes      = "The contract is compact machine-readable context containing resolved paths, effective schema versions, authoritative CUE schema locations, top-level YAML fields, stable-ID conventions, and recommended authoring order."
+  text       = "While mcp server is enabled, when mcp tool call is received and catalog references resolve successfully, the engineering model go shall return schema version 2 model authoring contract."
+  notes      = "The contract contains the manifest document map, authoritative CUE schema for each domain document, stable-ID and typed-relationship conventions, dependency publication aliases, valid references, and recommended task-scoped authoring order."
   applies_to = ["FU-MCP-SERVER", "FU-MODEL-LOADER"]
 }
 Requirement REQ_EMG_046 {
   id         = "REQ-EMG-046"
-  text       = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject architecture model that violates model authoring contract before artifact generated event is raised."
-  notes      = "Violations include unsupported schema versions, conflicting legacy and explicit catalog references, empty explicit document references, and missing required companion documents."
+  text       = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject model input that violates the schema version 2 manifest or any referenced domain document contract before artifact generated event is raised."
+  notes      = "Missing documents, unsupported versions, unknown fields, duplicate concepts, generic relationship kinds, unresolved local or qualified references, dependency publication violations, and cross-domain ownership violations are blocking."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_047 {
+  id         = "REQ-EMG-047"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve each exact CUE module version from the OCI registry configured by CUE_REGISTRY."
+  notes      = "Dependencies are declared only in engmod.yml with an alias, major-qualified module path, exact semantic version, and selected publications. The resolved module contains engmod.yml, its domain documents, and cue.mod/module.cue."
+  applies_to = ["FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_048 {
+  id         = "REQ-EMG-048"
+  text       = "Where a model workspace replacement is declared, when generation run is requested, the engineering model go shall resolve the matching manifest dependency from the replacement repository without changing module identity or selected publications."
+  notes      = "engmod.work.yml maps module paths to local repositories for offline multi-repository development. A generated engmod.lock.yml records exact module versions and OCI digests but is not an authored semantic document."
+  applies_to = ["FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_049 {
+  id         = "REQ-EMG-049"
+  text       = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject invalid manifest dependency plus publication plus workspace replacement plus qualified reference declarations."
+  notes      = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSTEM-COMPOSITION", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_050 {
+  id         = "REQ-EMG-050"
+  text       = "When example validation is requested, the engineering model go shall validate a schema version 2 company portfolio composed from multiple product systems that reuse published hardware plus software plus security plus compliance facets across repository boundaries."
+  notes      = "The reference workspace demonstrates explicit domain documents, dependency publication selection, qualified imported references, requirement delegation, contract satisfaction, inherited company controls, technical security controls, employee lifecycle compliance, provenance, exact OCI coordinates, local workspace replacements, and complete native format projections."
+  applies_to = ["FU-ASCIIDOC-GENERATOR", "FU-GEMARA-EXPORTER", "FU-OSCAL-EXPORTER", "FU-SYSML-EXPORTER", "FU-SYSTEM-COMPOSITION", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_051 {
+  id         = "REQ-EMG-051"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall import only explicitly selected dependency publications with qualified identity plus source provenance."
+  notes      = "Each dependency publication exposes typed architecture, behavior, assurance, compliance, requirement, and view references. Imported entities retain module path, exact version, digest, source model, and publication identity; unexported dependency entities remain inaccessible."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_052 {
+  id         = "REQ-EMG-052"
+  text       = "Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts and native SysML from one schema version 2 YAML bundle."
+  notes      = "The acceptance example preserves viewpoint separation, hierarchical capabilities, ordered typed interactions, nested hardware and software structures, ports, connections, engineering values, and software-to-hardware allocations. Mermaid sources and SVG renderings are generated without depending on authored SysML source files."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-MODEL-LOADER", "FU-SYSML-EXPORTER", "FU-VIEW-PROJECTION"]
+}
+Requirement REQ_EMG_053 {
+  id         = "REQ-EMG-053"
+  text       = "Where do-178c dal c readiness output is enabled, when model updated event is received, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries."
+  notes      = "The model references DO-178C or ED-12C and customer-controlled licensed objective identifiers without reproducing normative objective text. It distinguishes declared, planned, executed, reviewed, accepted, not-applicable, and authority-accepted evidence states."
+  applies_to = ["FU-AIRBORNE-ASSURANCE-EXPORTER", "FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_054 {
+  id         = "REQ-EMG-054"
+  text       = "Where do-178c dal c readiness output is enabled, when generation run is requested, the engineering model go shall reject incomplete or inconsistent requirement classification plus derived requirement disposition plus verification chain plus independence plus baseline plus structural coverage plus tool assessment evidence."
+  notes      = "DAL assignment and objective applicability remain externally authorized inputs. Statement coverage is imported evidence tied to an exact build and environment; the tool does not perform safety assessment, coverage measurement, reviewer qualification, tool qualification, or certification approval."
+  applies_to = ["FU-AIRBORNE-ASSURANCE-EXPORTER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_055 {
+  id         = "REQ-EMG-055"
+  text       = "Where do-178c dal c readiness output is enabled, when generation run is requested, the engineering model go shall generate deterministic draft lifecycle data index plus objective evidence matrix plus requirements trace matrix plus verification summary plus structural coverage summary plus tool assessment register plus configuration index plus open gap report plus software accomplishment summary."
+  notes      = "Every output is visibly marked as draft evidence-readiness material, identifies its source baseline and unresolved gaps, and states that responsible human review plus configuration control plus certification authority acceptance remain required."
+  applies_to = ["FU-AIRBORNE-ASSURANCE-EXPORTER", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_056 {
+  id         = "REQ-EMG-056"
+  text       = "When example validation is requested, the engineering model go shall validate a schema version 2 DAL C flight control software example with placeholder planning plus requirements plus design plus code plus verification plus coverage plus configuration plus quality assurance plus certification liaison evidence."
+  notes      = "The example demonstrates realistic output shapes and intentionally open findings without claiming DO-178C compliance or certification."
+  applies_to = ["FU-AIRBORNE-ASSURANCE-EXPORTER", "FU-ASCIIDOC-GENERATOR", "FU-VALIDATION-ENGINE"]
 }

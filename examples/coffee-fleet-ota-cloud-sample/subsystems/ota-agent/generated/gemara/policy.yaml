@@ -3,11 +3,12 @@ metadata:
   id: cof-ota-agent-POLICY
   type: Policy
   gemara-version: 1.1.0
-  date: "2026-06-27T00:00:00Z"
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
   description: Security policy for OTA Update Agent Subsystem
   author:
-    id: engmod
-    name: Engineering Model
+    id: engineering-model-go
+    name: Engineering Model Go Examples
     type: Human
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
@@ -21,9 +22,9 @@ metadata:
     version: 1.1.0
 contacts:
   responsible:
-  - name: Engineering Model
+  - name: Engineering Model Go Examples
   accountable:
-  - name: Engineering Model
+  - name: Engineering Model Go Examples
 scope:
   in:
     technologies:
@@ -39,10 +40,10 @@ imports:
   - reference-id: ENGMOD-GUIDANCE-CATALOG
 implementation-plan:
   evaluation-timeline:
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     notes: Controls are evaluated continuously from inferred verification.
   enforcement-timeline:
-    start: "2026-06-27T00:00:00Z"
+    start: "2026-09-19T00:00:00Z"
     notes: Non-compliant changes are gated and remediated via POA&M.
 adherence:
   evaluation-methods:

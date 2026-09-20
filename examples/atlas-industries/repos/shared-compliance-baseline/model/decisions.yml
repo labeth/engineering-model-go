@@ -1,0 +1,20 @@
+schemaVersion: 2
+decisions:
+- id: ADR-COMP-001
+  title: Model the company baseline as a reusable module
+  status: accepted
+  date: 2026-09-19
+  context: Every product must demonstrate the same foundational controls.
+  decision: Publish control implementations, verification, evidence, risk, and POA&M together.
+  consequences:
+  - Products allocate assurance requirements to one stable contract.
+- id: ADR-COMP-002
+  title: Centralize employee lifecycle controls
+  status: accepted
+  date: 2026-09-19
+  context: Personnel screening, awareness training, role changes, and offboarding are company responsibilities shared by every
+    product.
+  decision: Model people-security controls once in the shared compliance module and inherit them through the company control-baseline
+    capability.
+  consequences:
+  - Products reuse consistent organizational controls and evidence without copying human-resources processes.

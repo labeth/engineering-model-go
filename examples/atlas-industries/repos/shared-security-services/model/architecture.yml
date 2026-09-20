@@ -1,0 +1,48 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-SEC
+    name: Security Services
+    description: Common zero-trust identity and monitoring.
+  functionalUnits:
+  - id: FU-SEC-IDENTITY
+    name: Identity Service
+    group: FG-SEC
+    prose: Issues short-lived device and workload credentials.
+  - id: FU-SEC-MONITORING
+    name: Security Monitoring
+    group: FG-SEC
+    prose: Correlates authentication and audit events.
+  actors:
+  - id: ACT-SEC-ANALYST
+    name: Security Analyst
+    description: Owns threat monitoring and response.
+  interfaces:
+  - id: IF-SEC-TOKEN
+    name: Identity Token Interface
+    protocol: https
+    endpoint: https://identity.atlas.example/token
+    owner: FU-SEC-IDENTITY
+  dataObjects:
+  - id: DO-SEC-AUDIT-EVENT
+    name: Security Audit Event
+    termRef: DATA-AUDIT-EVENT
+    sensitivity: restricted
+    classification: security-audit
+    regulatoryTags:
+    - nist-800-53
+    - iso-27001
+    retention: 2555_days
+    confidentiality: high
+    integrity: high
+    availability: medium
+  contract:
+    provides:
+    - id: CAP-DEVICE-IDENTITY
+      kind: capability
+      ref: REQ-SEC-001
+      note: Device and workload identity service.
+    - id: CAP-ZERO-TRUST
+      kind: capability
+      ref: REQ-SEC-002
+      note: Zero-trust access and immutable audit monitoring.

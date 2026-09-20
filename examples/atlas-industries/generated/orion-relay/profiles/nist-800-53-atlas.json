@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "uuid": "6f456338-988f-4b4e-9f62-6a1f08dff203",
+    "metadata": {
+      "title": "Atlas NIST SP 800-53 Baseline",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "imports": [
+      {
+        "href": "./nist-800-53-catalog.json",
+        "include-controls": [
+          {
+            "with-ids": ["ac-2", "at-2", "ps-3", "ps-4"]
+          }
+        ]
+      }
+    ]
+  }
+}

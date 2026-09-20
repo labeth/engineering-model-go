@@ -23,7 +23,7 @@ func main() {
 func run(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("engsysml", flag.ContinueOnError)
 	flags.SetOutput(stderr)
-	modelPath := flags.String("model", "", "path to architecture YAML")
+	modelPath := flags.String("model", "", "path to engmod.yml manifest")
 	outPath := flags.String("out", "", "optional output file path; defaults to stdout")
 	coverage := flags.Bool("coverage", false, "emit the SysML v2 coverage manifest as JSON")
 	validateCoverage := flags.String("validate-coverage", "", "validate a generated SysML v2 coverage manifest and its freshness")
@@ -81,7 +81,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(stderr, "usage: engsysml --model <path> [--out <file>] [--project-out <dir> --kpar-out <file>] | --model <path> --verify-kpar <file> --reopen-out <dir> | --coverage | --validate-coverage <file>")
+		fmt.Fprintln(stderr, "usage: engsysml --model <engmod.yml> [--out <file>] [--project-out <dir> --kpar-out <file>] | --model <engmod.yml> --verify-kpar <file> --reopen-out <dir> | --coverage | --validate-coverage <file>")
 		return 2
 	}
 
@@ -94,7 +94,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "error:", err)
 			return 1
 		}
-		fmt.Fprintln(stdout, "SysML KPAR semantic round trip verified")
+		fmt.Fprintln(stdout, "SysML KPAR native source round trip verified")
 		return 0
 	}
 

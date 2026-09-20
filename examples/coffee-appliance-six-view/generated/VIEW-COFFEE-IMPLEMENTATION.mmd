@@ -1,0 +1,9 @@
+classDiagram
+%% view: VIEW-COFFEE-IMPLEMENTATION (implementation)
+class N_SW_APPLIANCE_CONTROLLER["Appliance Controller"]
+N_SW_APPLIANCE_CONTROLLER : commandPort
+N_SW_APPLIANCE_CONTROLLER : statusPort
+class N_SW_BREW_COORDINATOR["Brew Coordinator"]
+class N_SW_TEMPERATURE_CONTROLLER["Temperature Controller"]
+N_SW_APPLIANCE_CONTROLLER --> N_SW_BREW_COORDINATOR : contains
+N_SW_APPLIANCE_CONTROLLER --> N_SW_TEMPERATURE_CONTROLLER : contains

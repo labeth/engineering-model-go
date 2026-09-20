@@ -1,0 +1,11 @@
+package requirements
+Requirement REQ_CLOUD_001 {
+  id         = "REQ-CLOUD-001"
+  text       = "The atlas cloud platform shall process each cloud event using the cloud runtime."
+  applies_to = ["FU-CLOUD-RUNTIME"]
+}
+Requirement REQ_CLOUD_002 {
+  id         = "REQ-CLOUD-002"
+  text       = "The atlas cloud platform shall authenticate the cloud runtime using workload identity."
+  applies_to = ["FU-CLOUD-RUNTIME"]
+}

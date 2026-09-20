@@ -1,0 +1,30 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "LIAISON-YD-001",
+      "milestone": "Initial planning familiarization",
+      "submissionRefs": [
+        "DATA-PSAC"
+      ],
+      "findings": [
+        "No authority acceptance has been recorded."
+      ],
+      "authorityState": "declared",
+      "authorityRecord": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      }
+    }
+  ]
+}

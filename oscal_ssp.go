@@ -5,10 +5,10 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
@@ -17,10 +17,14 @@ import (
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type OSCALSSPOptions struct {
 	ProfileHref       string
+	ImportProfileHref string
 	CatalogHref       string
 	SystemName        string
 	SystemDescription string
+	LastModified      string
 }
+
+var ErrNoOSCALCompliance = errors.New("OSCAL export requires at least one authored compliance mapping")
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type OSCALSSPResult struct {
@@ -50,6 +54,12 @@ type oscalMetadata struct {
 	LastModified string `json:"last-modified"`
 	Version      string `json:"version"`
 	OSCALVersion string `json:"oscal-version"`
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-050
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func resolveOSCALTimestamp(bundle model.Bundle, value string) (string, error) {
+	return resolveGeneratedTimestamp(bundle, value, "OSCAL last-modified")
 }
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
@@ -171,13 +181,25 @@ type oscalByComponent struct {
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type oscalProperty struct {
 	Name  string `json:"name"`
+	NS    string `json:"ns,omitempty"`
 	Value string `json:"value"`
+}
+
+const engineeringModelOSCALNamespace = "https://github.com/labeth/engineering-model-go/ns/oscal"
+
+// TRLC-LINKS: REQ-EMG-013
+func engineeringModelOSCALProperty(name, value string) oscalProperty {
+	return oscalProperty{Name: name, NS: engineeringModelOSCALNamespace, Value: value}
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) (OSCALSSPResult, error) {
 	bundle, err := model.LoadBundle(architecturePath)
+	if err != nil {
+		return OSCALSSPResult{}, err
+	}
+	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return OSCALSSPResult{}, err
 	}
@@ -197,7 +219,10 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
 
-	profile := strings.TrimSpace(options.ProfileHref)
+	profile := strings.TrimSpace(options.ImportProfileHref)
+	if profile == "" {
+		profile = strings.TrimSpace(options.ProfileHref)
+	}
 	if profile == "" {
 		if len(bundle.Architecture.Compliance.Profiles) > 0 {
 			profile = strings.TrimSpace(bundle.Architecture.Compliance.Profiles[0].Href)
@@ -221,6 +246,9 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 	diags = append(diags, complianceDiags...)
 	if validate.HasErrors(diags) {
 		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
+	}
+	if len(compliance.Mappings) == 0 {
+		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, ErrNoOSCALCompliance
 	}
 	componentByID := map[string]oscalComponent{}
 	requirementsByControl := map[string][]oscalByComponent{}
@@ -253,7 +281,10 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 					Title:       nonEmpty(labelByID[targetID], targetID),
 					Description: fmt.Sprintf("Architecture component mapped from %s.", targetID),
 					Status:      oscalOperationalStatus{State: "operational"},
-					Props:       []oscalProperty{{Name: "architecture-id", Value: targetID}, {Name: "architecture-kind", Value: nonEmpty(kindByID[targetID], "unknown")}},
+					Props: []oscalProperty{
+						engineeringModelOSCALProperty("architecture-id", targetID),
+						engineeringModelOSCALProperty("architecture-kind", nonEmpty(kindByID[targetID], "unknown")),
+					},
 				}
 			}
 		}
@@ -271,19 +302,19 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 				comp := componentByID[targetID]
 				props := []oscalProperty{}
 				if st := strings.TrimSpace(alloc.ImplementationStatus); st != "" {
-					props = append(props, oscalProperty{Name: "implementation-status", Value: st})
+					props = append(props, engineeringModelOSCALProperty("implementation-status", st))
 				}
 				if it := strings.TrimSpace(alloc.ImplementationType); it != "" {
-					props = append(props, oscalProperty{Name: "implementation-type", Value: it})
+					props = append(props, engineeringModelOSCALProperty("implementation-type", it))
 				}
 				if c := strings.TrimSpace(alloc.ModelControlRef); c != "" {
-					props = append(props, oscalProperty{Name: "model-control-ref", Value: c})
+					props = append(props, engineeringModelOSCALProperty("model-control-ref", c))
 				}
 				if p := strings.TrimSpace(alloc.ProfileRef); p != "" {
-					props = append(props, oscalProperty{Name: "profile-ref", Value: p})
+					props = append(props, engineeringModelOSCALProperty("profile-ref", p))
 				}
 				if r := strings.TrimSpace(alloc.Rationale); r != "" {
-					props = append(props, oscalProperty{Name: "mapping-rationale", Value: r})
+					props = append(props, engineeringModelOSCALProperty("mapping-rationale", r))
 				}
 				requirementsByControl[cid] = append(requirementsByControl[cid], oscalByComponent{
 					UUID:          deterministicUUID("by-component|" + bundle.Architecture.Model.ID + "|" + cid + "|" + targetID + "|" + strings.TrimSpace(alloc.ID)),
@@ -349,11 +380,15 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 		})
 	}
 
+	lastModified, err := resolveOSCALTimestamp(bundle, options.LastModified)
+	if err != nil {
+		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
 	doc := OSCALSSPDocument{SystemSecurityPlan: oscalSystemSecurityPlan{
 		UUID: deterministicUUID("ssp|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{
 			Title:        nonEmpty(systemName, "Engineering Model SSP"),
-			LastModified: time.Now().UTC().Format(time.RFC3339),
+			LastModified: lastModified,
 			Version:      "0.1.0",
 			OSCALVersion: "1.1.2",
 		},

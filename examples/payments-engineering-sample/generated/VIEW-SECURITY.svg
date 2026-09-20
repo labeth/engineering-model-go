@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-SECURITY-title" viewBox="0 0 602 910" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-SECURITY">
+  <title id="VIEW-SECURITY-title">VIEW-SECURITY — security view</title>
+  <metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-SECURITY; kind=security</metadata>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-SECURITY</text>
+  <line x1="146" y1="122" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">mitigated_by</text>
+  <line x1="146" y1="122" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="456" y1="122" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="456" y1="122" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="456" y1="122" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="146" y1="220" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">mitigated_by</text>
+  <line x1="146" y1="220" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="456" y1="220" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">targets</text>
+  <line x1="456" y1="514" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Delegates payment authorization.</text>
+  <line x1="146" y1="612" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requests fraud scoring before final authorization.</text>
+  <line x1="146" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="146" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Escalates high-risk payments for manual review.</text>
+  <line x1="146" y1="612" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Calls external bank authorization endpoint.</text>
+  <line x1="146" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">bounded_by: Authorization crosses external bank trust boundary.</text>
+  <line x1="456" y1="612" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
+  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses external library for audit persistence.</text>
+  <g id="AV-COMPROMISED-DEPENDENCY"><rect x="36" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Compromised Dependency</text>
+    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">AV-COMPROMISED-DEPENDENCY</text></g>
+  <g id="AV-FRAUDULENT-TRANSACTION-PATTERN"><rect x="346" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fraudulent Transaction Pattern</text>
+    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">AV-FRAUDULENT-TRANSACTION-PATTERN</text></g>
+  <g id="AV-MALICIOUS-API-REQUEST"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Malicious API Request</text>
+    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">AV-MALICIOUS-API-REQUEST</text></g>
+  <g id="AV-REPLAYED-AUTH-CALLBACK"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Replayed Authorization Callback</text>
+    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">AV-REPLAYED-AUTH-CALLBACK</text></g>
+  <g id="CTRL-PAYMENTS-IMAGE-DIGEST"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Immutable Image Digests</text>
+    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">CTRL-PAYMENTS-IMAGE-DIGEST</text></g>
+  <g id="CTRL-PAYMENTS-SSO-MFA"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">SSO MFA Enforcement</text>
+    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">CTRL-PAYMENTS-SSO-MFA</text></g>
+  <g id="FG-FRAUD"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fraud Evaluation</text>
+    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FG-FRAUD</text></g>
+  <g id="FG-PAYMENTS"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payments</text>
+    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FG-PAYMENTS</text></g>
+  <g id="FG-PLATFORM"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform</text>
+    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FG-PLATFORM</text></g>
+  <g id="FU-CHECKOUT"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Handling</text>
+    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FU-CHECKOUT</text></g>
+  <g id="FU-PAYMENT-AUTHORIZATION"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorization</text>
+    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FU-PAYMENT-AUTHORIZATION</text></g>
+  <g id="FU-RISK-SCORING"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Scoring</text>
+    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FU-RISK-SCORING</text></g>
+  <g id="FU-SUPPORT-REVIEW"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Review</text>
+    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FU-SUPPORT-REVIEW</text></g>
+  <g id="REF-BANK-GATEWAY-ENDPOINT"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Gateway Endpoint</text>
+    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">REF-BANK-GATEWAY-ENDPOINT</text></g>
+  <g id="REF-POSTGRES-DRIVER"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PostgreSQL Client Driver</text>
+    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">REF-POSTGRES-DRIVER</text></g>
+  <g id="TB-PAYMENTS-EXTERNAL-BANK"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">External Bank Boundary</text>
+    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">TB-PAYMENTS-EXTERNAL-BANK</text></g>
+</svg>

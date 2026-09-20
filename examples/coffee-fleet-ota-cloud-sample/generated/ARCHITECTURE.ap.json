@@ -1,0 +1,29 @@
+{
+  "assessment-plan": {
+    "uuid": "9b0f8a3a-5257-5288-8efc-3b5d3496eefa",
+    "metadata": {
+      "title": "Connected Coffee Fleet OTA + Cloud Architecture Assessment Plan",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./ARCHITECTURE.ssp.json"
+    },
+    "reviewed-controls": {
+      "control-selections": [
+        {
+          "description": "Controls selected from authored compliance mappings.",
+          "include-controls": [
+            {
+              "control-id": "ia-3"
+            },
+            {
+              "control-id": "si-7"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1321,7 +1321,7 @@ Deployment design favors fast rollback and compatibility checks with the current
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Inferred deployment evidence |runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
+|Inferred deployment evidence |runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
 |===
 
 
@@ -1347,7 +1347,7 @@ Releases should stage gradually, verify dependency health, and preserve in-fligh
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_009,REQ-PAY-009>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
-|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
 |===
 
 
@@ -1393,7 +1393,7 @@ Deployment design includes observation windows for score distribution and escala
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Inferred deployment evidence |runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
+|Inferred deployment evidence |runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -2037,7 +2037,7 @@ The design defends against replay, policy probing, and ambiguous error channels 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
 
 ===== Risk Scoring (FU-RISK-SCORING)
 
@@ -2054,7 +2054,7 @@ Design controls enforce strict input handling and <<REF_IDX-ENGMODEL_TERM_EVIDEN
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>> | code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
+runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
 
 ===== Support Review (FU-SUPPORT-REVIEW)
 
@@ -2139,7 +2139,7 @@ are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>> | code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
+runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
 
 
 
@@ -2210,7 +2210,7 @@ The design defends against replay, policy probing, and ambiguous error channels 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>> | code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
 
 
 

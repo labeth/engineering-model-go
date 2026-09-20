@@ -34,10 +34,15 @@ Story highlights:
 
 ## Files
 
-- `catalog.yml`
-- `requirements.yml`
-- `architecture.yml`
-- `design.yml`
+- `engmod.yml`
+- `model/catalog.yml`
+- `model/requirements.yml`
+- `model/architecture.yml`
+- `model/behavior.yml`
+- `model/assurance.yml`
+- `model/compliance.yml`
+- `model/views.yml`
+- `model/decisions.yml`
 - `infra/terraform/main.tf`
 - `infra/flux/...`
 - `infra/helm/...`

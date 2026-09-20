@@ -1,0 +1,172 @@
+title: "Orion Relay Product System - Security Policy"
+metadata:
+  id: atlas-orion-relay-POLICY
+  type: Policy
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Security policy for Orion Relay Product System
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+  mapping-references:
+  - id: ENGMOD-CONTROL-CATALOG
+    title: Control Catalog
+    version: 1.1.0
+  - id: ENGMOD-GUIDANCE-CATALOG
+    title: Guidance Catalog
+    version: 1.1.0
+  - id: ENGMOD-RISK-CATALOG
+    title: Risk Catalog
+    version: 1.1.0
+contacts:
+  responsible:
+  - name: Atlas Industries
+  accountable:
+  - name: Atlas Industries
+scope:
+  in:
+    technologies:
+    - quic
+    - https
+    - mqtt
+    sensitivity:
+    - operational-message
+    - product-operations
+    - assurance
+    - personal
+    - operational
+    - security-audit
+    users:
+    - Network Controller
+    - Relay Security Engineer
+    - Cloud Operator
+    - Compliance Officer
+    - Employee
+    - Line Manager
+    - People Operations Partner
+    - Edge Operator
+    - Security Analyst
+imports:
+  catalogs:
+  - reference-id: ENGMOD-CONTROL-CATALOG
+  guidance:
+  - reference-id: ENGMOD-GUIDANCE-CATALOG
+implementation-plan:
+  evaluation-timeline:
+    start: "2026-09-19T00:00:00Z"
+    notes: Controls are evaluated continuously from inferred verification.
+  enforcement-timeline:
+    start: "2026-09-19T00:00:00Z"
+    notes: Non-compliant changes are gated and remediated via POA&M.
+risks:
+  mitigated:
+  - id: MIT-RISK-ORI-LINK-EXHAUSTION
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: RISK-ORI-LINK-EXHAUSTION
+  - id: MIT-compliance::RISK-COMP-ACCESS-REVIEW-GAP
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: compliance::RISK-COMP-ACCESS-REVIEW-GAP
+  - id: MIT-compliance::RISK-COMP-RETAINED-ACCESS
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: compliance::RISK-COMP-RETAINED-ACCESS
+  - id: MIT-compliance::RISK-COMP-UNTRAINED-PERSONNEL
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: compliance::RISK-COMP-UNTRAINED-PERSONNEL
+  - id: MIT-security::RISK-SEC-CREDENTIAL-REPLAY
+    risk:
+      reference-id: ENGMOD-RISK-CATALOG
+      entry-id: security::RISK-SEC-CREDENTIAL-REPLAY
+adherence:
+  evaluation-methods:
+  - id: EM-INTENT
+    type: Intent
+    mode: Automated
+    required: true
+    description: Static analysis of code, configuration, and test evidence.
+  - id: EM-BEHAVIORAL
+    type: Behavioral
+    mode: Manual
+    required: false
+    description: Exercise and review of runtime behavior.
+  assessment-plans:
+  - id: AP-CV-ORI-ADMISSION
+    requirement-id: CV-ORI-ADMISSION
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-compliance::CV-COMP-ACCESS-REVIEW
+    requirement-id: compliance::CV-COMP-ACCESS-REVIEW
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-compliance::CV-COMP-AWARENESS
+    requirement-id: compliance::CV-COMP-AWARENESS
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-compliance::CV-COMP-OFFBOARDING
+    requirement-id: compliance::CV-COMP-OFFBOARDING
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-compliance::CV-COMP-PERSONNEL-SCREENING
+    requirement-id: compliance::CV-COMP-PERSONNEL-SCREENING
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-compliance::CV-COMP-ROLE-CHANGE
+    requirement-id: compliance::CV-COMP-ROLE-CHANGE
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  - id: AP-security::CV-SEC-TOKEN-REPLAY
+    requirement-id: security::CV-SEC-TOKEN-REPLAY
+    frequency: continuous
+    evaluation-methods:
+    - id: EM-INTENT
+      type: Intent
+      mode: Automated
+      required: true
+    evidence-requirements: Verification evidence linked to the control.
+  enforcement-methods:
+  - id: ENM-GATE
+    type: Gate
+    mode: Automated
+    required: true
+    description: Preventive change-control gate.
+  - id: ENM-REMEDIATION
+    type: Remediation
+    mode: Manual
+    required: false
+    description: Remediation tracked via POA&M.
+  non-compliance: Non-compliant findings are tracked as POA&M items with an owner and due date; unresolved high-severity findings block release.

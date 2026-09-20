@@ -39,6 +39,33 @@
         "comment": "internal-operations"
       },
       "description": "schemas/telemetry-event.json"
+    },
+    {
+      "name": "Fleet Metric",
+      "id": "cloud-api::DO-FLEET-METRIC",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
+    },
+    {
+      "name": "Firmware Bundle",
+      "id": "ota-agent::DO-FIRMWARE-BUNDLE",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
+    },
+    {
+      "name": "Telemetry Record",
+      "id": "telemetry::DO-TELEM-RECORD",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 5,
+        "availability": 5
+      }
     }
   ],
   "trustZones": [
@@ -56,6 +83,15 @@
       "name": "Edge Device Boundary",
       "type": "device-network",
       "description": "Boundary between managed edge devices and cloud control plane.",
+      "risk": {
+        "trustRating": 50
+      }
+    },
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
       "risk": {
         "trustRating": 50
       }
@@ -361,6 +397,87 @@
       "name": "MQTT Device SDK",
       "type": "third_party_library",
       "description": "code",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud-api::FU-CLOUD-CAMPAIGN",
+      "name": "Cloud Campaign",
+      "type": "service",
+      "description": "Plans and dispatches OTA campaigns.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud-api::FU-CLOUD-INGEST",
+      "name": "Cloud Ingest",
+      "type": "service",
+      "description": "Ingests and persists fleet telemetry.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "cloud-api::IF-CLOUD-INGEST",
+      "name": "Cloud Ingest Interface",
+      "type": "interface",
+      "description": "https /ingest",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ota-agent::FU-OTA-APPLY",
+      "name": "OTA Apply",
+      "type": "service",
+      "description": "Applies verified firmware and rolls back on failure.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ota-agent::FU-OTA-VERIFY",
+      "name": "OTA Verification",
+      "type": "service",
+      "description": "Verifies firmware signature and update eligibility.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ota-agent::IF-OTA-APPLY",
+      "name": "OTA Apply Interface",
+      "type": "interface",
+      "description": "internal /ota/apply",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "telemetry::FU-TELEM-REPORT",
+      "name": "Telemetry Reporting",
+      "type": "service",
+      "description": "Encodes, signs, and reports telemetry to the fleet ingestion endpoint.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "telemetry::FU-TELEM-SAMPLE",
+      "name": "Telemetry Sampling",
+      "type": "service",
+      "description": "Samples machine sensors at the configured cadence.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "telemetry::IF-TELEM-REPORT",
+      "name": "Telemetry Report Interface",
+      "type": "interface",
+      "description": "https /telemetry",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }

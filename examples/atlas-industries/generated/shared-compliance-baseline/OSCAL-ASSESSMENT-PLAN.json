@@ -1,0 +1,53 @@
+{
+  "assessment-plan": {
+    "uuid": "0446d650-5bb6-51bf-b623-04cbea8db1ed",
+    "metadata": {
+      "title": "Atlas Shared Compliance Baseline Assessment Plan",
+      "last-modified": "2026-09-19T00:00:00Z",
+      "version": "0.1.0",
+      "oscal-version": "1.1.2"
+    },
+    "import-ssp": {
+      "href": "./OSCAL-SSP.json"
+    },
+    "reviewed-controls": {
+      "control-selections": [
+        {
+          "description": "Controls selected from authored compliance mappings.",
+          "include-controls": [
+            {
+              "control-id": "a-5.15"
+            },
+            {
+              "control-id": "a-5.18"
+            },
+            {
+              "control-id": "a-6.1"
+            },
+            {
+              "control-id": "a-6.2"
+            },
+            {
+              "control-id": "a-6.3"
+            },
+            {
+              "control-id": "a-6.5"
+            },
+            {
+              "control-id": "ac-2"
+            },
+            {
+              "control-id": "at-2"
+            },
+            {
+              "control-id": "ps-3"
+            },
+            {
+              "control-id": "ps-4"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

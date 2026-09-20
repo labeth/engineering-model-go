@@ -8,20 +8,20 @@
             "class": "input-validation",
             "controls": [
               {
-                "id": "VER-MCP-PATH-BOUNDARY",
+                "id": "ver-mcp-path-boundary",
                 "parts": [
                   {
-                    "id": "VER-MCP-PATH-BOUNDARY_smt",
+                    "id": "ver-mcp-path-boundary_smt",
                     "name": "statement",
                     "prose": "The control \"MCP Path Boundary Enforcement\" MUST be verified by test."
                   },
                   {
-                    "id": "VER-MCP-PATH-BOUNDARY_gdn",
+                    "id": "ver-mcp-path-boundary_gdn",
                     "name": "guidance",
                     "prose": "Path traversal rejected and error payload returned in MCP tests."
                   },
                   {
-                    "id": "VER-MCP-PATH-BOUNDARY_obj",
+                    "id": "ver-mcp-path-boundary_obj",
                     "links": [
                       {
                         "href": "#VER-MCP-PATH-BOUNDARY_smt",
@@ -34,7 +34,7 @@
                 "title": "VER-MCP-PATH-BOUNDARY"
               }
             ],
-            "id": "CTRL-MCP-PATH-BOUNDARY",
+            "id": "ctrl-mcp-path-boundary",
             "links": [
               {
                 "href": "https://gemara.local/controls/#ctrl-mcp-path-boundary",
@@ -43,7 +43,7 @@
             ],
             "parts": [
               {
-                "id": "CTRL-MCP-PATH-BOUNDARY_smt",
+                "id": "ctrl-mcp-path-boundary_smt",
                 "name": "statement",
                 "prose": "Enforce repo-root path constraints and reject traversal paths in MCP tools."
               }
@@ -54,15 +54,15 @@
             "class": "input-validation",
             "controls": [
               {
-                "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1",
+                "id": "ctrl-strict-mcp-input-schema-ar-1",
                 "parts": [
                   {
-                    "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_smt",
+                    "id": "ctrl-strict-mcp-input-schema-ar-1_smt",
                     "name": "statement",
                     "prose": "The system MUST implement the control \"Strict MCP Input Schemas\": Enforce per-tool input schema and reject unknown arguments."
                   },
                   {
-                    "id": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_obj",
+                    "id": "ctrl-strict-mcp-input-schema-ar-1_obj",
                     "links": [
                       {
                         "href": "#CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1_smt",
@@ -75,7 +75,7 @@
                 "title": "CTRL-STRICT-MCP-INPUT-SCHEMA-AR-1"
               }
             ],
-            "id": "CTRL-STRICT-MCP-INPUT-SCHEMA",
+            "id": "ctrl-strict-mcp-input-schema",
             "links": [
               {
                 "href": "https://gemara.local/controls/#ctrl-strict-mcp-input-schema",
@@ -84,7 +84,7 @@
             ],
             "parts": [
               {
-                "id": "CTRL-STRICT-MCP-INPUT-SCHEMA_smt",
+                "id": "ctrl-strict-mcp-input-schema_smt",
                 "name": "statement",
                 "prose": "Enforce per-tool input schema and reject unknown arguments."
               }
@@ -102,20 +102,20 @@
             "class": "assurance",
             "controls": [
               {
-                "id": "VER-TRACEABILITY-COVERAGE",
+                "id": "ver-traceability-coverage",
                 "parts": [
                   {
-                    "id": "VER-TRACEABILITY-COVERAGE_smt",
+                    "id": "ver-traceability-coverage_smt",
                     "name": "statement",
                     "prose": "The control \"Requirement Traceability Coverage\" MUST be verified by analysis."
                   },
                   {
-                    "id": "VER-TRACEABILITY-COVERAGE_gdn",
+                    "id": "ver-traceability-coverage_gdn",
                     "name": "guidance",
                     "prose": "Coverage depends on TRLC-LINKS completeness in source and tests."
                   },
                   {
-                    "id": "VER-TRACEABILITY-COVERAGE_obj",
+                    "id": "ver-traceability-coverage_obj",
                     "links": [
                       {
                         "href": "#VER-TRACEABILITY-COVERAGE_smt",
@@ -128,7 +128,7 @@
                 "title": "VER-TRACEABILITY-COVERAGE"
               }
             ],
-            "id": "CTRL-TRACEABILITY-COVERAGE",
+            "id": "ctrl-traceability-coverage",
             "links": [
               {
                 "href": "https://gemara.local/controls/#ctrl-traceability-coverage",
@@ -137,7 +137,7 @@
             ],
             "parts": [
               {
-                "id": "CTRL-TRACEABILITY-COVERAGE_smt",
+                "id": "ctrl-traceability-coverage_smt",
                 "name": "statement",
                 "prose": "Require requirement-linked verification evidence for modeled behavior."
               }
@@ -148,15 +148,15 @@
             "class": "assurance",
             "controls": [
               {
-                "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1",
+                "id": "ctrl-trace-link-integrity-ar-1",
                 "parts": [
                   {
-                    "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1_smt",
+                    "id": "ctrl-trace-link-integrity-ar-1_smt",
                     "name": "statement",
                     "prose": "The system MUST implement the control \"Trace Link Integrity\": Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup."
                   },
                   {
-                    "id": "CTRL-TRACE-LINK-INTEGRITY-AR-1_obj",
+                    "id": "ctrl-trace-link-integrity-ar-1_obj",
                     "links": [
                       {
                         "href": "#CTRL-TRACE-LINK-INTEGRITY-AR-1_smt",
@@ -169,7 +169,7 @@
                 "title": "CTRL-TRACE-LINK-INTEGRITY-AR-1"
               }
             ],
-            "id": "CTRL-TRACE-LINK-INTEGRITY",
+            "id": "ctrl-trace-link-integrity",
             "links": [
               {
                 "href": "https://gemara.local/controls/#ctrl-trace-link-integrity",
@@ -178,7 +178,7 @@
             ],
             "parts": [
               {
-                "id": "CTRL-TRACE-LINK-INTEGRITY_smt",
+                "id": "ctrl-trace-link-integrity_smt",
                 "name": "statement",
                 "prose": "Reject code trace links (TRLC-LINKS, ENGMODEL-LINKS) that resolve to no requirement or model element, and export a consolidated traceability matrix with an implemented, verified, delegated, and orphan rollup."
               }
@@ -189,15 +189,15 @@
             "class": "assurance",
             "controls": [
               {
-                "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1",
+                "id": "ctrl-artifact-freshness-gate-ar-1",
                 "parts": [
                   {
-                    "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_smt",
+                    "id": "ctrl-artifact-freshness-gate-ar-1_smt",
                     "name": "statement",
                     "prose": "The system MUST implement the control \"Generated Artifact Freshness Gate\": Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts."
                   },
                   {
-                    "id": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_obj",
+                    "id": "ctrl-artifact-freshness-gate-ar-1_obj",
                     "links": [
                       {
                         "href": "#CTRL-ARTIFACT-FRESHNESS-GATE-AR-1_smt",
@@ -210,7 +210,7 @@
                 "title": "CTRL-ARTIFACT-FRESHNESS-GATE-AR-1"
               }
             ],
-            "id": "CTRL-ARTIFACT-FRESHNESS-GATE",
+            "id": "ctrl-artifact-freshness-gate",
             "links": [
               {
                 "href": "https://gemara.local/controls/#ctrl-artifact-freshness-gate",
@@ -219,7 +219,7 @@
             ],
             "parts": [
               {
-                "id": "CTRL-ARTIFACT-FRESHNESS-GATE_smt",
+                "id": "ctrl-artifact-freshness-gate_smt",
                 "name": "statement",
                 "prose": "Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts."
               }
@@ -247,6 +247,7 @@
           "uuid": "90ef592d-105e-4371-9587-4273e3ddbebb"
         }
       ],
+      "published": "2026-09-19T00:00:00Z",
       "responsible-parties": [
         {
           "party-uuids": [

@@ -23,14 +23,14 @@ const (
 	sysMLProjectVersion    = "1.0.0"
 )
 
-// SysMLRoundTripResult captures the normative KPAR path and the reconstructed
-// canonical model used for semantic comparison.
+// SysMLRoundTripResult captures the normative KPAR path and reopened native
+// SysML source used for source-integrity comparison.
 type SysMLRoundTripResult struct {
-	ProjectDir    string
-	KPARPath      string
-	ReopenedDir   string
-	SourcePath    string
-	Reconstructed model.SemanticModel
+	ProjectDir  string
+	KPARPath    string
+	ReopenedDir string
+	SourcePath  string
+	SourceText  string
 }
 
 // ExportSysMLV2Project creates a Sysand interchange project and builds its KPAR.
@@ -86,8 +86,8 @@ func ExportSysMLV2Project(architecturePath, projectDir, kparPath, sysandPath str
 	return result, nil
 }
 
-// ReopenSysMLV2Project clones a KPAR with Sysand, imports the canonical
-// extension payload, and returns the reconstructed semantic model.
+// ReopenSysMLV2Project clones a KPAR with Sysand and returns its native SysML
+// project source.
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func ReopenSysMLV2Project(kparPath, reopenedDir, sysandPath string) (SysMLRoundTripResult, error) {
@@ -113,24 +113,24 @@ func ReopenSysMLV2Project(kparPath, reopenedDir, sysandPath string) (SysMLRoundT
 		return SysMLRoundTripResult{}, err
 	}
 	sourcePath := filepath.Join(reopenedDir, sysMLProjectSourceName)
-	reconstructed, err := ImportSysMLV2Project(sourcePath)
+	source, err := os.ReadFile(sourcePath)
 	if err != nil {
-		return SysMLRoundTripResult{}, err
+		return SysMLRoundTripResult{}, fmt.Errorf("read reopened SysML project source: %w", err)
 	}
 	return SysMLRoundTripResult{
-		KPARPath:      kparPath,
-		ReopenedDir:   reopenedDir,
-		SourcePath:    sourcePath,
-		Reconstructed: reconstructed,
+		KPARPath:    kparPath,
+		ReopenedDir: reopenedDir,
+		SourcePath:  sourcePath,
+		SourceText:  string(source),
 	}, nil
 }
 
-// VerifySysMLV2RoundTrip compares the reopened KPAR model to the canonical
-// model derived from the authored Engineering Model.
+// VerifySysMLV2RoundTrip compares the reopened KPAR source to a fresh native
+// SysML projection of the authored Engineering Model.
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func VerifySysMLV2RoundTrip(architecturePath, kparPath, reopenedDir, sysandPath string) (SysMLRoundTripResult, error) {
-	canonical, err := model.LoadCanonicalBundle(architecturePath)
+	expected, err := GenerateSysMLV2FromFile(architecturePath)
 	if err != nil {
 		return SysMLRoundTripResult{}, err
 	}
@@ -138,14 +138,15 @@ func VerifySysMLV2RoundTrip(architecturePath, kparPath, reopenedDir, sysandPath 
 	if err != nil {
 		return result, err
 	}
-	if differences := CompareSysMLV2RoundTrip(canonical.Semantic(), result.Reconstructed); len(differences) > 0 {
-		return result, fmt.Errorf("SysML semantic round trip differs: %s", strings.Join(differences, "; "))
+	if result.SourceText != expected.Text {
+		return result, errors.New("SysML KPAR source round trip differs from the native projection")
 	}
 	return result, nil
 }
 
-// ImportSysMLV2Project reconstructs the canonical semantic model from the
-// EngineeringProject typed metadata payload embedded in generated SysML.
+// ImportSysMLV2Project reconstructs the canonical semantic model from legacy
+// projects that embedded an Engineering Model payload. Native projections do
+// not embed non-SysML canonical data.
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func ImportSysMLV2Project(sourcePath string) (model.SemanticModel, error) {

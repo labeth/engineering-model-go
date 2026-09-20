@@ -1,0 +1,49 @@
+title: "Atlas Shared Compliance Baseline - Lexicon"
+metadata:
+  id: atlas-shared-compliance-baseline-LEXICON
+  type: Lexicon
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: Controlled vocabulary for Atlas Shared Compliance Baseline
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+terms:
+- id: SYS-COMP
+  title: atlas compliance baseline
+  definition: Company control baseline and assurance evidence model.
+- id: FG-COMP
+  title: compliance assurance
+  definition: Shared control implementation and evidence management.
+- id: FU-COMP-EVIDENCE
+  title: compliance evidence service
+  definition: Collects control verification and audit evidence.
+- id: FU-COMP-PEOPLE
+  title: people security and awareness
+  definition: Manages personnel screening, policy acknowledgment, training, role changes, and offboarding assurance.
+- id: ACT-EMPLOYEE
+  title: employee
+  definition: Worker subject to company policies and personnel-security controls.
+- id: ACT-LINE-MANAGER
+  title: line manager
+  definition: Manager accountable for initiating and confirming employee lifecycle changes.
+- id: ACT-PEOPLE-OPERATIONS
+  title: people operations partner
+  definition: Human-resources representative responsible for personnel records and screening coordination.
+- id: ACT-COMP-OFFICER
+  title: compliance officer
+  definition: Owns company control implementation status.
+- id: DATA-COMP-EVIDENCE
+  title: compliance evidence
+  definition: Immutable evidence supporting control assessment.
+- id: DATA-PERSONNEL-RECORD
+  title: personnel lifecycle record
+  definition: Authorized record of screening, employment state, role changes, and termination actions.
+- id: DATA-TRAINING-RECORD
+  title: security awareness training record
+  definition: Evidence that an employee completed required information-security education.
+- id: DATA-POLICY-ACKNOWLEDGMENT
+  title: policy acknowledgment
+  definition: Recorded acceptance of employment and acceptable-use responsibilities.

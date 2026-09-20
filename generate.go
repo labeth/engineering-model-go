@@ -6,6 +6,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/model"
 	mermaidrenderer "github.com/labeth/engineering-model-go/render/mermaid"
+	svgrenderer "github.com/labeth/engineering-model-go/render/svg"
 	"github.com/labeth/engineering-model-go/validate"
 	"github.com/labeth/engineering-model-go/view"
 )
@@ -15,6 +16,7 @@ type Result struct {
 	Bundle      model.Bundle
 	View        view.ProjectedView
 	Mermaid     string
+	SVG         string
 	Diagnostics []validate.Diagnostic
 }
 
@@ -25,7 +27,11 @@ func GenerateFromFile(architecturePath, viewID string) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	return Generate(bundle, viewID)
+	result, err := Generate(bundle, viewID)
+	if err == nil {
+		result.SVG = svgrenderer.Render(result.View, architecturePath)
+	}
+	return result, err
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-035, REQ-EMG-036
@@ -46,5 +52,6 @@ func Generate(bundle model.Bundle, viewID string) (Result, error) {
 	}
 
 	mmd := mermaidrenderer.Render(pv)
-	return Result{Bundle: bundle, View: pv, Mermaid: mmd, Diagnostics: diags}, nil
+	svg := svgrenderer.Render(pv, bundle.Architecture.Model.ID)
+	return Result{Bundle: bundle, View: pv, Mermaid: mmd, SVG: svg, Diagnostics: diags}, nil
 }

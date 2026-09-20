@@ -1,0 +1,135 @@
+{
+  "otmVersion": "0.2.0",
+  "project": {
+    "name": "Atlas Shared Compliance Baseline",
+    "id": "atlas-shared-compliance-baseline",
+    "description": "NIST and ISO aligned company control baseline with verification evidence.",
+    "owner": "engineering-model-go",
+    "tags": [
+      "generated",
+      "engineering-model"
+    ]
+  },
+  "representations": [
+    {
+      "name": "Architecture Threat View",
+      "id": "rep-architecture",
+      "type": "dfd"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Compliance Evidence Package",
+      "id": "DO-COMP-EVIDENCE",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    },
+    {
+      "name": "Personnel Lifecycle Record",
+      "id": "DO-COMP-PERSONNEL-RECORD",
+      "risk": {
+        "confidentiality": 8,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    },
+    {
+      "name": "Security Awareness Training Record",
+      "id": "DO-COMP-TRAINING-RECORD",
+      "risk": {
+        "confidentiality": 5,
+        "integrity": 8,
+        "availability": 5,
+        "comment": "nist-800-53,iso-27001"
+      }
+    }
+  ],
+  "trustZones": [
+    {
+      "id": "TZ-SYSTEM",
+      "name": "System Boundary",
+      "type": "system",
+      "description": "Default trust zone for components without explicit boundary mapping.",
+      "risk": {
+        "trustRating": 50
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "ACT-COMP-OFFICER",
+      "name": "Compliance Officer",
+      "type": "actor",
+      "description": "Approves controls and remediation plans.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-EMPLOYEE",
+      "name": "Employee",
+      "type": "actor",
+      "description": "Completes policy acknowledgment and security awareness obligations.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-LINE-MANAGER",
+      "name": "Line Manager",
+      "type": "actor",
+      "description": "Initiates and confirms role-change access reviews.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "ACT-PEOPLE-OPERATIONS",
+      "name": "People Operations Partner",
+      "type": "actor",
+      "description": "Coordinates personnel screening, employment records, and offboarding.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-COMP-EVIDENCE",
+      "name": "Compliance Evidence Service",
+      "type": "service",
+      "description": "Collects, retains, and reports control assessment evidence.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "FU-COMP-PEOPLE",
+      "name": "People Security and Awareness",
+      "type": "service",
+      "description": "Governs screening, employment responsibilities, awareness training, role changes, and offboarding.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    }
+  ],
+  "dataflows": [
+    {
+      "id": "FLOW-COMP-EMPLOYEE-LIFECYCLE",
+      "name": "Employee Security Lifecycle",
+      "description": "Company workflow from pre-employment screening through onboarding, role changes, and offboarding.",
+      "source": "ACT-PEOPLE-OPERATIONS",
+      "destination": "FU-COMP-PEOPLE",
+      "assets": [
+        "DO-COMP-PERSONNEL-RECORD",
+        "DO-COMP-TRAINING-RECORD"
+      ],
+      "tags": [
+        "business"
+      ]
+    }
+  ]
+}

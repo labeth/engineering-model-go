@@ -16,8 +16,8 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
-// gemaraDefaultTimestamp is a deterministic placeholder used when no date is
-// supplied, keeping generated artifacts reproducible.
+// gemaraDefaultTimestamp is used only for empty documents that contain no
+// timeline-bearing authored content.
 const gemaraDefaultTimestamp = "1970-01-01T00:00:00Z"
 
 // GemaraEvaluationResult holds the L5 Evaluation Log and its serialization.
@@ -42,7 +42,13 @@ func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, co
 		if err != nil {
 			return GemaraEvaluationResult{}, err
 		}
+		bundle.Requirements = requirements
 	}
+	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	if err != nil {
+		return GemaraEvaluationResult{}, err
+	}
+	requirements = bundle.Requirements
 	return GenerateGemaraEvaluationLog(bundle, requirements, codeRoot, options)
 }
 
@@ -66,6 +72,10 @@ func GenerateGemaraEvaluationLog(bundle model.Bundle, requirements model.Require
 	}
 	bundle = canonical.Documents()
 	requirements = bundle.Requirements
+	options, err = resolveGemaraOptions(bundle, options)
+	if err != nil {
+		return GemaraEvaluationResult{}, err
+	}
 	cfg := newGemaraConfig(bundle, options)
 	a := bundle.Architecture.AuthoredArchitecture
 

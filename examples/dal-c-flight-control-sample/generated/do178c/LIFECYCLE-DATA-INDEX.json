@@ -1,0 +1,388 @@
+{
+  "disclaimer": "DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION",
+  "model": "DAL-C-FLIGHT-CONTROL-SAMPLE",
+  "version": "v0.1.0",
+  "date": "2026-09-19",
+  "baselines": [
+    "BASELINE-YD-001@1.0#sha256:placeholder-baseline"
+  ],
+  "openGaps": 26,
+  "data": [
+    {
+      "id": "DATA-PSAC",
+      "categoryCode": "PLAN-SOFTWARE-ASPECTS-CERTIFICATION",
+      "categoryName": "Plan for Software Aspects of Certification",
+      "source": {
+        "id": "EVID-PSAC",
+        "path": "generated/do178c/PSAC-OUTLINE-DRAFT.md",
+        "uri": "",
+        "version": "draft-1",
+        "hash": "sha256:placeholder-psac"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Certification Lead",
+      "state": "planned",
+      "approvals": null,
+      "objectiveRefs": [
+        "OBJ-CUSTOMER-001"
+      ]
+    },
+    {
+      "id": "DATA-SDP",
+      "categoryCode": "SOFTWARE-DEVELOPMENT-PLAN",
+      "categoryName": "Software Development Plan",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Software Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SVP",
+      "categoryCode": "SOFTWARE-VERIFICATION-PLAN",
+      "categoryName": "Software Verification Plan",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Verification Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SCMP",
+      "categoryCode": "SOFTWARE-CONFIGURATION-MANAGEMENT-PLAN",
+      "categoryName": "Software Configuration Management Plan",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "CM Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SQAP",
+      "categoryCode": "SOFTWARE-QUALITY-ASSURANCE-PLAN",
+      "categoryName": "Software Quality Assurance Plan",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "SQA Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SRS",
+      "categoryCode": "SOFTWARE-REQUIREMENTS-STANDARDS",
+      "categoryName": "Software Requirements Standards",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Requirements Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SDS",
+      "categoryCode": "SOFTWARE-DESIGN-STANDARDS",
+      "categoryName": "Software Design Standards",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Design Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SCS",
+      "categoryCode": "SOFTWARE-CODE-STANDARDS",
+      "categoryName": "Software Code Standards",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Software Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-REQ",
+      "categoryCode": "SOFTWARE-REQUIREMENTS-DATA",
+      "categoryName": "Software Requirements Data",
+      "source": {
+        "id": "EVID-REQ",
+        "path": "model/requirements.yml",
+        "uri": "",
+        "version": "v1",
+        "hash": "sha256:placeholder-req"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Requirements Lead",
+      "state": "reviewed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-DESIGN",
+      "categoryCode": "DESIGN-DESCRIPTION",
+      "categoryName": "Design Description",
+      "source": {
+        "id": "EVID-DESIGN",
+        "path": "model/architecture.yml",
+        "uri": "",
+        "version": "v1",
+        "hash": "sha256:placeholder-design"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Design Lead",
+      "state": "reviewed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SOURCE",
+      "categoryCode": "SOURCE-CODE",
+      "categoryName": "Source Code",
+      "source": {
+        "id": "EVID-SOURCE",
+        "path": "evidence/src/yaw_damper.c",
+        "uri": "",
+        "version": "v1",
+        "hash": "sha256:placeholder-source"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Software Lead",
+      "state": "reviewed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-OBJECT",
+      "categoryCode": "EXECUTABLE-OBJECT-CODE",
+      "categoryName": "Executable Object Code",
+      "source": {
+        "id": "EVID-OBJECT",
+        "path": "evidence/build/yaw-damper.bin",
+        "uri": "",
+        "version": "build-1",
+        "hash": "sha256:placeholder-object"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "CM Lead",
+      "state": "executed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-CASES",
+      "categoryCode": "SOFTWARE-VERIFICATION-CASES-PROCEDURES",
+      "categoryName": "Software Verification Cases and Procedures",
+      "source": {
+        "id": "EVID-CASES",
+        "path": "evidence/tests/yaw_damper_test.txt",
+        "uri": "",
+        "version": "v1",
+        "hash": "sha256:placeholder-cases"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Verification Lead",
+      "state": "reviewed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-RESULTS",
+      "categoryCode": "SOFTWARE-VERIFICATION-RESULTS",
+      "categoryName": "Software Verification Results",
+      "source": {
+        "id": "EVID-RESULTS",
+        "path": "evidence/tests/yaw_damper_test.txt",
+        "uri": "",
+        "version": "run-1",
+        "hash": "sha256:placeholder-results"
+      },
+      "baseline": "BASELINE-YD-001",
+      "owner": "Verification Lead",
+      "state": "reviewed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-ENV",
+      "categoryCode": "SOFTWARE-LIFE-CYCLE-ENVIRONMENT-CONFIGURATION-INDEX",
+      "categoryName": "Software Life Cycle Environment Configuration Index",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "CM Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SCI",
+      "categoryCode": "SOFTWARE-CONFIGURATION-INDEX",
+      "categoryName": "Software Configuration Index",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "CM Lead",
+      "state": "planned",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-PR",
+      "categoryCode": "PROBLEM-REPORTS",
+      "categoryName": "Problem Reports",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Software Lead",
+      "state": "executed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-CMR",
+      "categoryCode": "SOFTWARE-CONFIGURATION-MANAGEMENT-RECORDS",
+      "categoryName": "Software Configuration Management Records",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "CM Lead",
+      "state": "declared",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SQAR",
+      "categoryCode": "SOFTWARE-QUALITY-ASSURANCE-RECORDS",
+      "categoryName": "Software Quality Assurance Records",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "SQA Lead",
+      "state": "executed",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-SAS",
+      "categoryCode": "SOFTWARE-ACCOMPLISHMENT-SUMMARY",
+      "categoryName": "Software Accomplishment Summary",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Certification Lead",
+      "state": "planned",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-PDIF",
+      "categoryCode": "PARAMETER-DATA-ITEM-FILE",
+      "categoryName": "Parameter Data Item File",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Software Lead",
+      "state": "not-applicable",
+      "approvals": null,
+      "objectiveRefs": null
+    },
+    {
+      "id": "DATA-TRACE",
+      "categoryCode": "TRACEABILITY-DATA",
+      "categoryName": "Traceability Data",
+      "source": {
+        "id": "",
+        "path": "",
+        "uri": "",
+        "version": "",
+        "hash": ""
+      },
+      "baseline": "",
+      "owner": "Requirements Lead",
+      "state": "executed",
+      "approvals": null,
+      "objectiveRefs": null
+    }
+  ]
+}

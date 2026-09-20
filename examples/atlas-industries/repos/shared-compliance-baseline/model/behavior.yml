@@ -1,0 +1,72 @@
+schemaVersion: 2
+behavior:
+  flows:
+  - id: FLOW-COMP-EMPLOYEE-LIFECYCLE
+    title: Employee Security Lifecycle
+    kind: business
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-PEOPLE-OPERATIONS
+    destinationRef: FU-COMP-PEOPLE
+    dataRefs:
+    - DO-COMP-PERSONNEL-RECORD
+    - DO-COMP-TRAINING-RECORD
+    description: Company workflow from pre-employment screening through onboarding, role changes, and offboarding.
+    entry:
+    - screen-personnel
+    exits:
+    - confirm-offboarding
+    steps:
+    - id: screen-personnel
+      kind: user_action
+      flowType: control
+      sourceRef: ACT-PEOPLE-OPERATIONS
+      destinationRef: FU-COMP-PEOPLE
+      ref: ACT-PEOPLE-OPERATIONS
+      action: Complete risk-appropriate screening before access approval
+      dataRefs:
+      - DO-COMP-PERSONNEL-RECORD
+      next:
+      - acknowledge-policy
+    - id: acknowledge-policy
+      kind: user_action
+      flowType: control
+      sourceRef: ACT-EMPLOYEE
+      destinationRef: FU-COMP-PEOPLE
+      ref: ACT-EMPLOYEE
+      action: Accept employment security and acceptable-use responsibilities
+      dataRefs:
+      - DO-COMP-PERSONNEL-RECORD
+      next:
+      - complete-awareness-training
+    - id: complete-awareness-training
+      kind: user_action
+      flowType: control
+      sourceRef: ACT-EMPLOYEE
+      destinationRef: FU-COMP-PEOPLE
+      ref: ACT-EMPLOYEE
+      action: Complete initial and annual security awareness training
+      dataRefs:
+      - DO-COMP-TRAINING-RECORD
+      next:
+      - review-role-change
+    - id: review-role-change
+      kind: user_action
+      flowType: control
+      sourceRef: ACT-LINE-MANAGER
+      destinationRef: FU-COMP-PEOPLE
+      ref: ACT-LINE-MANAGER
+      action: Review responsibilities and access when a role changes
+      dataRefs:
+      - DO-COMP-PERSONNEL-RECORD
+      next:
+      - confirm-offboarding
+    - id: confirm-offboarding
+      kind: user_action
+      flowType: control
+      sourceRef: ACT-PEOPLE-OPERATIONS
+      destinationRef: FU-COMP-PEOPLE
+      ref: ACT-PEOPLE-OPERATIONS
+      action: Confirm timely access revocation and asset return at termination
+      dataRefs:
+      - DO-COMP-PERSONNEL-RECORD

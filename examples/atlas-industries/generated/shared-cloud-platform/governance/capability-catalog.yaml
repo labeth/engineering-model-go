@@ -1,0 +1,28 @@
+title: "Atlas Shared Cloud Platform - Capabilities"
+metadata:
+  id: ENGMOD-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: 1.1.0
+  version: v0.1.0
+  date: "2026-09-19T00:00:00Z"
+  description: System capabilities of Atlas Shared Cloud Platform
+  author:
+    id: atlas-industries
+    name: Atlas Industries
+    type: Human
+capabilities:
+- id: CAP-SYSTEM
+  title: Atlas Shared Cloud Platform
+  description: "The system as a whole: Atlas Shared Cloud Platform."
+  group: system
+- id: FU-CLOUD-RUNTIME
+  title: Cloud Runtime
+  description: Hosts product APIs and durable event processing.
+  group: FG-CLOUD
+groups:
+- id: FG-CLOUD
+  title: Cloud Platform
+  description: Shared resilient cloud capabilities.
+- id: system
+  title: System
+  description: Whole-system capability scope.

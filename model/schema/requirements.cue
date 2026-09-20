@@ -20,7 +20,7 @@ package model
 }
 
 #RequirementsDocument: {
-	schemaVersion?: #SchemaVersion
+	schemaVersion: #SchemaVersion
 	lintRun: #LintRun
 	requirements: [...#Requirement]
 	expected?: [...#Expected]

@@ -1,6 +1,6 @@
 package model
 
 #DecisionsDocument: {
-	schemaVersion?: #SchemaVersion
+	schemaVersion: #SchemaVersion
 	decisions: [...#Decision]
 }

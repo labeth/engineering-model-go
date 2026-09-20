@@ -7,59 +7,31 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-const CurrentSchemaVersion = 1
+const CurrentSchemaVersion = 2
 
-// ResolvedDocumentReferences is the effective companion-document set after
-// applying explicit references and legacy defaults.
-type ResolvedDocumentReferences struct {
-	Catalog      string
-	Requirements string
-	Design       string
-	Decisions    string
-}
-
-// ResolveDocumentReferences resolves the self-describing document contract.
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-MODEL-AUTHORING-CONTRACT
-func ResolveDocumentReferences(meta ModelMeta) (ResolvedDocumentReferences, error) {
-	explicitCatalog := strings.TrimSpace(meta.Documents.Catalog)
-	legacyCatalog := strings.TrimSpace(meta.BaseCatalogRef)
-	if explicitCatalog != "" && legacyCatalog != "" && filepath.Clean(explicitCatalog) != filepath.Clean(legacyCatalog) {
-		return ResolvedDocumentReferences{}, fmt.Errorf("model.documents.catalog %q conflicts with legacy model.baseCatalogRef %q", explicitCatalog, legacyCatalog)
+// ResolveDocumentReferences validates the explicit schema-v2 document map.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-053
+func ResolveDocumentReferences(meta ModelMeta) (DocumentReferences, error) {
+	refs := meta.Documents
+	for kind, path := range map[string]string{
+		"catalog": refs.Catalog, "requirements": refs.Requirements,
+		"architecture": refs.Architecture, "behavior": refs.Behavior,
+		"assurance": refs.Assurance, "compliance": refs.Compliance,
+		"views": refs.Views, "decisions": refs.Decisions,
+	} {
+		if path == "" {
+			return DocumentReferences{}, fmt.Errorf("model.documents.%s is required", kind)
+		}
 	}
-	catalog := explicitCatalog
-	if catalog == "" {
-		catalog = legacyCatalog
-	}
-	if catalog == "" {
-		return ResolvedDocumentReferences{}, fmt.Errorf("model.documents.catalog or legacy model.baseCatalogRef is required")
-	}
-	return ResolvedDocumentReferences{
-		Catalog:      catalog,
-		Requirements: nonEmptyDocumentRef(meta.Documents.Requirements, "requirements.yml"),
-		Design:       nonEmptyDocumentRef(meta.Documents.Design, "design.yml"),
-		Decisions:    nonEmptyDocumentRef(meta.Documents.Decisions, "decisions.yml"),
-	}, nil
-}
-
-// TRLC-LINKS: REQ-EMG-044
-func nonEmptyDocumentRef(value, fallback string) string {
-	if value = strings.TrimSpace(value); value != "" {
-		return value
-	}
-	return fallback
+	return refs, nil
 }
 
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
 func EffectiveSchemaVersion(version int) (int, error) {
-	if version == 0 {
-		return CurrentSchemaVersion, nil
-	}
 	if version != CurrentSchemaVersion {
 		return 0, fmt.Errorf("unsupported schemaVersion %d; supported version is %d", version, CurrentSchemaVersion)
 	}
@@ -67,99 +39,171 @@ func EffectiveSchemaVersion(version int) (int, error) {
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046
-func LoadBundle(architecturePath string) (Bundle, error) {
-	archPath, err := filepath.Abs(architecturePath)
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054
+func LoadBundle(manifestPath string) (Bundle, error) {
+	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
+		return Bundle{}, fmt.Errorf("engmod.yml is the only supported model entry point")
+	}
+	manifestPath, err := filepath.Abs(manifestPath)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("resolve architecture path: %w", err)
+		return Bundle{}, fmt.Errorf("resolve manifest path: %w", err)
 	}
 
-	var arch ArchitectureDocument
-	if err := decodeYAMLFile(archPath, &arch); err != nil {
-		return Bundle{}, fmt.Errorf("decode architecture file: %w", err)
+	var manifest ManifestDocument
+	if err := decodeYAMLFile(manifestPath, &manifest); err != nil {
+		return Bundle{}, fmt.Errorf("decode manifest file: %w", err)
 	}
-	arch.SchemaVersion, err = EffectiveSchemaVersion(arch.SchemaVersion)
+	manifest.SchemaVersion, err = EffectiveSchemaVersion(manifest.SchemaVersion)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("architecture schema: %w", err)
+		return Bundle{}, fmt.Errorf("manifest schema: %w", err)
 	}
 
-	baseDir := filepath.Dir(archPath)
-	refs, err := ResolveDocumentReferences(arch.Model)
-	if err != nil {
-		return Bundle{}, fmt.Errorf("resolve model documents: %w", err)
-	}
+	baseDir := filepath.Dir(manifestPath)
+	refs := manifest.Documents
 	catalogPath := filepath.Join(baseDir, refs.Catalog)
-
 	var catalog CatalogDocument
 	if err := decodeYAMLFile(catalogPath, &catalog); err != nil {
 		return Bundle{}, fmt.Errorf("decode catalog file: %w", err)
 	}
-	catalog.SchemaVersion, err = EffectiveSchemaVersion(catalog.SchemaVersion)
-	if err != nil {
-		return Bundle{}, fmt.Errorf("catalog schema: %w", err)
-	}
 
 	decisionsPath := filepath.Join(baseDir, refs.Decisions)
 	var decisions DecisionsDocument
-	if _, err := os.Stat(decisionsPath); err == nil {
-		if err := decodeYAMLFile(decisionsPath, &decisions); err != nil {
-			return Bundle{}, fmt.Errorf("decode decisions file: %w", err)
-		}
-		decisions.SchemaVersion, err = EffectiveSchemaVersion(decisions.SchemaVersion)
-		if err != nil {
-			return Bundle{}, fmt.Errorf("decisions schema: %w", err)
-		}
-		arch.Decisions = decisions.Decisions
-	} else if !os.IsNotExist(err) {
-		return Bundle{}, fmt.Errorf("stat decisions file: %w", err)
-	} else if strings.TrimSpace(arch.Model.Documents.Decisions) != "" {
-		return Bundle{}, fmt.Errorf("explicit decisions document %s does not exist", decisionsPath)
+	if err := decodeYAMLFile(decisionsPath, &decisions); err != nil {
+		return Bundle{}, fmt.Errorf("decode decisions file: %w", err)
 	}
 
 	requirementsPath := filepath.Join(baseDir, refs.Requirements)
 	var requirements RequirementsDocument
-	if _, err := os.Stat(requirementsPath); err == nil {
-		if err := decodeYAMLFile(requirementsPath, &requirements); err != nil {
-			return Bundle{}, fmt.Errorf("decode requirements file: %w", err)
-		}
-		requirements.SchemaVersion, err = EffectiveSchemaVersion(requirements.SchemaVersion)
-		if err != nil {
-			return Bundle{}, fmt.Errorf("requirements schema: %w", err)
-		}
-	} else if !os.IsNotExist(err) {
-		return Bundle{}, fmt.Errorf("stat requirements file: %w", err)
-	} else if strings.TrimSpace(arch.Model.Documents.Requirements) != "" {
-		return Bundle{}, fmt.Errorf("explicit requirements document %s does not exist", requirementsPath)
+	if err := decodeYAMLFile(requirementsPath, &requirements); err != nil {
+		return Bundle{}, fmt.Errorf("decode requirements file: %w", err)
 	}
 
-	designPath := filepath.Join(baseDir, refs.Design)
-	var design DesignDocument
-	if _, err := os.Stat(designPath); err == nil {
-		if err := decodeYAMLFile(designPath, &design); err != nil {
-			return Bundle{}, fmt.Errorf("decode design file: %w", err)
-		}
-		design.SchemaVersion, err = EffectiveSchemaVersion(design.SchemaVersion)
-		if err != nil {
-			return Bundle{}, fmt.Errorf("design schema: %w", err)
-		}
-	} else if !os.IsNotExist(err) {
-		return Bundle{}, fmt.Errorf("stat design file: %w", err)
-	} else if strings.TrimSpace(arch.Model.Documents.Design) != "" {
-		return Bundle{}, fmt.Errorf("explicit design document %s does not exist", designPath)
+	architecturePath := filepath.Join(baseDir, refs.Architecture)
+	var architectureInput ArchitectureInputDocument
+	if err := decodeYAMLFile(architecturePath, &architectureInput); err != nil {
+		return Bundle{}, fmt.Errorf("decode architecture file: %w", err)
 	}
+
+	behaviorPath := filepath.Join(baseDir, refs.Behavior)
+	var behavior BehaviorDocument
+	if err := decodeYAMLFile(behaviorPath, &behavior); err != nil {
+		return Bundle{}, fmt.Errorf("decode behavior file: %w", err)
+	}
+
+	assurancePath := filepath.Join(baseDir, refs.Assurance)
+	var assurance AssuranceDocument
+	if err := decodeYAMLFile(assurancePath, &assurance); err != nil {
+		return Bundle{}, fmt.Errorf("decode assurance file: %w", err)
+	}
+
+	compliancePath := filepath.Join(baseDir, refs.Compliance)
+	var compliance ComplianceDocument
+	if err := decodeYAMLFile(compliancePath, &compliance); err != nil {
+		return Bundle{}, fmt.Errorf("decode compliance file: %w", err)
+	}
+
+	viewsPath := filepath.Join(baseDir, refs.Views)
+	var views ViewsDocument
+	if err := decodeYAMLFile(viewsPath, &views); err != nil {
+		return Bundle{}, fmt.Errorf("decode views file: %w", err)
+	}
+
+	var aviation *AviationDocument
+	aviationPath := ""
+	if refs.Aviation != "" {
+		aviationPath = filepath.Join(baseDir, refs.Aviation)
+		var document AviationDocument
+		if err := decodeYAMLFile(aviationPath, &document); err != nil {
+			return Bundle{}, fmt.Errorf("decode aviation file: %w", err)
+		}
+		if _, err := EffectiveSchemaVersion(document.SchemaVersion); err != nil {
+			return Bundle{}, fmt.Errorf("aviation schema: %w", err)
+		}
+		if diagnostics := ValidateAviation(document, requirements, architectureInput); len(diagnostics) > 0 {
+			return Bundle{}, &AviationValidationError{Diagnostics: diagnostics}
+		}
+		aviation = &document
+	}
+
+	for kind, version := range map[string]int{
+		"catalog": catalog.SchemaVersion, "requirements": requirements.SchemaVersion,
+		"architecture": architectureInput.SchemaVersion, "behavior": behavior.SchemaVersion,
+		"assurance": assurance.SchemaVersion, "compliance": compliance.SchemaVersion,
+		"views": views.SchemaVersion, "decisions": decisions.SchemaVersion,
+	} {
+		if _, err := EffectiveSchemaVersion(version); err != nil {
+			return Bundle{}, fmt.Errorf("%s schema: %w", kind, err)
+		}
+	}
+
+	input := architectureInput.Architecture
+	authored := AuthoredArchitecture{
+		FunctionalGroups: input.FunctionalGroups, FunctionalUnits: input.FunctionalUnits,
+		Actors: input.Actors, ReferencedElements: input.ReferencedElements,
+		Interfaces: input.Interfaces, DataObjects: input.DataObjects,
+		DeploymentTargets: input.DeploymentTargets, HardwareItems: input.HardwareItems,
+		HardwareInterfaces: input.HardwareInterfaces,
+		States:             behavior.Behavior.States, Events: behavior.Behavior.Events,
+		Flows: behavior.Behavior.Flows, Mappings: behavior.Behavior.Relationships,
+		AttackVectors: assurance.Assurance.AttackVectors, Controls: assurance.Assurance.Controls,
+		Risks: assurance.Assurance.Risks, POAMItems: assurance.Assurance.POAMItems,
+		TrustBoundaries:      assurance.Assurance.TrustBoundaries,
+		ThreatScenarios:      assurance.Assurance.ThreatScenarios,
+		ThreatAssumptions:    assurance.Assurance.ThreatAssumptions,
+		ThreatOutOfScope:     assurance.Assurance.ThreatOutOfScope,
+		ThreatMitigations:    assurance.Assurance.ThreatMitigations,
+		ControlVerifications: assurance.Assurance.ControlVerifications,
+	}
+	arch := ArchitectureDocument{
+		SchemaVersion: CurrentSchemaVersion,
+		Model: ModelMeta{
+			ID: manifest.Module.ModelID, Title: manifest.Module.Title,
+			Introduction: manifest.Module.Introduction, Documents: manifest.Documents,
+		},
+		Decisions: decisions.Decisions, AuthoredArchitecture: authored,
+		Semantics:  input.Semantics,
+		Compliance: compliance.Compliance, Contract: input.Contract,
+		Composition: aggregateComposition(input.Composition), InferenceHints: manifest.InferenceHints,
+		NAF: views.NAF, Views: views.Views,
+	}
+	design := DesignDocument{SchemaVersion: CurrentSchemaVersion, Design: views.Design}
 
 	return Bundle{
-		ArchitecturePath: archPath,
+		ManifestPath:     manifestPath,
+		ArchitecturePath: architecturePath,
+		BehaviorPath:     behaviorPath,
+		AssurancePath:    assurancePath,
+		CompliancePath:   compliancePath,
+		ViewsPath:        viewsPath,
 		CatalogPath:      catalogPath,
 		DecisionsPath:    decisionsPath,
 		RequirementsPath: requirementsPath,
-		DesignPath:       designPath,
+		DesignPath:       viewsPath,
+		AviationPath:     aviationPath,
+		Manifest:         manifest,
 		Architecture:     arch,
+		Behavior:         behavior,
+		Assurance:        assurance,
+		Compliance:       compliance,
+		Views:            views,
 		Catalog:          catalog,
 		Decisions:        decisions,
 		Requirements:     requirements,
 		Design:           design,
+		Aviation:         aviation,
 	}, nil
+}
+
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
+func aggregateComposition(input InputComposition) CompositionModel {
+	out := CompositionModel{Allocations: input.Allocations, Satisfactions: input.Satisfactions}
+	for _, subsystem := range input.Subsystems {
+		out.Subsystems = append(out.Subsystems, Subsystem{
+			ID: subsystem.ID, Name: subsystem.Name, Dependency: subsystem.Dependency,
+			Publication: subsystem.Publication, Description: subsystem.Description,
+		})
+	}
+	return out
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -187,15 +231,15 @@ func LoadDesign(path string) (DesignDocument, error) {
 	if err != nil {
 		return DesignDocument{}, fmt.Errorf("resolve design path: %w", err)
 	}
-	var design DesignDocument
-	if err := decodeYAMLFile(absPath, &design); err != nil {
-		return DesignDocument{}, fmt.Errorf("decode design file: %w", err)
+	var views ViewsDocument
+	if err := decodeYAMLFile(absPath, &views); err != nil {
+		return DesignDocument{}, fmt.Errorf("decode views file: %w", err)
 	}
-	design.SchemaVersion, err = EffectiveSchemaVersion(design.SchemaVersion)
+	views.SchemaVersion, err = EffectiveSchemaVersion(views.SchemaVersion)
 	if err != nil {
-		return DesignDocument{}, fmt.Errorf("design schema: %w", err)
+		return DesignDocument{}, fmt.Errorf("views schema: %w", err)
 	}
-	return design, nil
+	return DesignDocument{SchemaVersion: views.SchemaVersion, Design: views.Design}, nil
 }
 
 // TRLC-LINKS: REQ-EMG-001

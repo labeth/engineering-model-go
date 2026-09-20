@@ -14,12 +14,12 @@ import (
 // TRLC-LINKS: REQ-EMG-005
 // ENGMODEL-LINKS: IF-CLI-ENGSTRUCT, DO-STRUCTURIZR-DSL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-STRUCTURIZR-EXPORTER, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func main() {
-	modelPath := flag.String("model", "", "path to architecture YAML")
+	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	outPath := flag.String("out", "", "optional output file path; defaults to stdout")
 	flag.Parse()
 
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engstruct --model <path> [--out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engstruct --model <engmod.yml> [--out <file>]")
 		os.Exit(2)
 	}
 

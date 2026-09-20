@@ -1,0 +1,347 @@
+schemaVersion: 2
+assurance:
+  attackVectors:
+  - id: AV-SPOOFED-GITHUB-WEBHOOK
+    name: Spoofed GitHub Webhook
+    description: Forged webhook payload attempting unauthorized review execution.
+  - id: AV-PROMPT-INJECTION-IN-DIFF
+    name: Prompt Injection in Diff
+    description: Malicious prompt-like content embedded in pull request diffs.
+  - id: AV-SECRET-LEAKAGE-IN-REVIEW
+    name: Secret Leakage in Review Output
+    description: Generated findings accidentally exposing secrets/tokens in comments.
+  - id: AV-PR-SPAM-ABUSE
+    name: Pull Request Spam Abuse
+    description: High-rate PR event flooding that can exhaust review capacity.
+  controls:
+  - id: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    name: Webhook Signature Verification
+    category: input-integrity
+    description: Enforce signature verification for all GitHub webhook events.
+  - id: CTRL-BEDROCK-SECRETS-ROTATION
+    name: Secret Rotation Enforcement
+    category: credential-management
+    description: Rotate app and model credentials according to policy.
+  risks:
+  - id: RISK-BEDROCK-WEBHOOK-SPOOFING
+    title: Webhook spoofing risk
+    statement: Forged webhook requests could trigger unauthorized review actions.
+    status: mitigating
+    likelihood: medium
+    impact: high
+    response: mitigate
+    owner: ACT-SECURITY-ENGINEER
+    appliesTo:
+    - FU-GITHUB-WEBHOOK-INGRESS
+    - IF-BEDROCK-WEBHOOK-API
+    relatedControls:
+    - CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    attackVectors:
+    - AV-SPOOFED-GITHUB-WEBHOOK
+    threatScenarios:
+    - TS-BEDROCK-WEBHOOK-SPOOF
+    evidence:
+    - path: src/webhook_ingress.go
+    residualRisk: medium
+    rationale: Signature verification is implemented; replay defenses are periodically revalidated.
+  - id: RISK-BEDROCK-PROMPT-INJECTION
+    title: Prompt injection in PR context risk
+    statement: Prompt-like diff content can degrade policy-aligned review output quality.
+    status: mitigating
+    likelihood: medium
+    impact: medium
+    response: mitigate
+    owner: ACT-SECURITY-ENGINEER
+    appliesTo:
+    - FU-PR-CONTEXT-ASSEMBLY
+    - FU-REVIEW-ORCHESTRATION
+    relatedControls:
+    - CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    attackVectors:
+    - AV-PROMPT-INJECTION-IN-DIFF
+    threatScenarios:
+    - TS-BEDROCK-PROMPT-INJECTION
+    evidence:
+    - path: src/review_orchestration.go
+      description: Prompt hardening and policy merge behavior.
+    residualRisk: medium
+    rationale: Prompt hardening exists, but adversarial payload patterns evolve.
+  - id: RISK-BEDROCK-SECRET-LEAKAGE
+    title: Review output secret leakage risk
+    statement: Findings publication may expose sensitive content if redaction and credential controls drift.
+    status: mitigating
+    likelihood: low
+    impact: high
+    response: mitigate
+    owner: ACT-SECURITY-ENGINEER
+    appliesTo:
+    - FU-REVIEW-PUBLICATION
+    - FU-SECRETS-CONFIGURATION
+    relatedControls:
+    - CTRL-BEDROCK-SECRETS-ROTATION
+    attackVectors:
+    - AV-SECRET-LEAKAGE-IN-REVIEW
+    threatScenarios:
+    - TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    evidence:
+    - path: src/review_publication.go
+      description: Publication redaction path.
+    residualRisk: medium
+    rationale: Current controls reduce exposure but need ongoing tuning for new secret formats.
+  poamItems:
+  - id: POAM-BEDROCK-REPLAY-HARDENING
+    riskRef: RISK-BEDROCK-WEBHOOK-SPOOFING
+    milestone: Add nonce and timestamp replay window hardening
+    dueDate: 2026-07-15
+    status: planned
+    responsibleRole: ACT-SECURITY-ENGINEER
+    artifacts:
+    - path: tickets/SEC-2045.md
+  trustBoundaries:
+  - id: TB-BEDROCK-GITHUB-EXTERNAL
+    name: GitHub External Boundary
+    description: Boundary between external GitHub traffic and internal review processing.
+    boundaryType: network
+    members:
+    - FU-GITHUB-WEBHOOK-INGRESS
+    - IF-BEDROCK-WEBHOOK-API
+    - DEP-BEDROCK-GITHUB-BOUNDARY
+  - id: TB-BEDROCK-AWS-CONTROL
+    name: AWS Control Boundary
+    description: Boundary between app workloads and privileged platform controls.
+    boundaryType: control-plane
+    members:
+    - FU-LAMBDA-RUNTIME-OPERATIONS
+    - FU-SECRETS-CONFIGURATION
+    - DEP-BEDROCK-LAMBDA-PRIMARY
+  threatScenarios:
+  - id: TS-BEDROCK-WEBHOOK-SPOOF
+    title: Spoofed webhook bypasses ingress verification
+    summary: Forged pull request webhook attempts to trigger unauthorized review execution.
+    category: ingress-abuse
+    stride: spoofing
+    cwe:
+    - CWE-345
+    attackVectorRef: AV-SPOOFED-GITHUB-WEBHOOK
+    appliesTo:
+    - FU-GITHUB-WEBHOOK-INGRESS
+    - IF-BEDROCK-WEBHOOK-API
+    flowRefs:
+    - FLOW-BEDROCK-PR-REVIEW
+    entryPoint: IF-BEDROCK-WEBHOOK-API
+    preconditions:
+    - signature-check-bypass
+    - stale-secret
+    exploitPath:
+    - receive-webhook
+    - assemble-context
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-SECURITY-ENGINEER
+    riskRef: RISK-BEDROCK-WEBHOOK-SPOOFING
+    relatedControls:
+    - CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    assumptionRefs:
+    - ASM-BEDROCK-GITHUB-SIGNATURE-TRUST
+    outOfScopeRefs:
+    - OOS-BEDROCK-GITHUB-CLOUD-PLATFORM
+    mitigationRefs:
+    - MIT-BEDROCK-WEBHOOK-HMAC
+    verificationRefs:
+    - CV-BEDROCK-WEBHOOK-SIGNATURE
+    detection:
+    - signature-fail-rate-spike
+    - webhook-source-anomaly
+    evidence:
+    - path: src/webhook_ingress.go
+      description: Signature verification gate.
+  - id: TS-BEDROCK-PROMPT-INJECTION
+    title: Prompt injection in diff influences review output integrity
+    summary: Malicious prompts in diff content attempt to coerce model output away from policy intent.
+    category: model-abuse
+    stride: tampering
+    cwe:
+    - CWE-20
+    attackVectorRef: AV-PROMPT-INJECTION-IN-DIFF
+    appliesTo:
+    - FU-PR-CONTEXT-ASSEMBLY
+    - FU-REVIEW-ORCHESTRATION
+    - DO-BEDROCK-PR-CONTEXT
+    flowRefs:
+    - FLOW-BEDROCK-PR-REVIEW
+    entryPoint: FU-PR-CONTEXT-ASSEMBLY
+    preconditions:
+    - insufficient-context-sanitization
+    exploitPath:
+    - assemble-context
+    - orchestrate-review
+    - publish-review
+    likelihood: medium
+    impact: medium
+    severity: medium
+    status: mitigating
+    owner: ACT-SECURITY-ENGINEER
+    riskRef: RISK-BEDROCK-PROMPT-INJECTION
+    relatedControls:
+    - CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    mitigationRefs:
+    - MIT-BEDROCK-CONTEXT-SANITIZATION
+    verificationRefs:
+    - CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+    detection:
+    - model-output-policy-violation
+    - prompt-pattern-alert
+    evidence:
+    - path: src/review_orchestration.go
+      description: Context filtering and policy merge logic.
+  - id: TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    title: Sensitive tokens leak via review publication payload
+    summary: Review output includes sensitive content due to incomplete redaction before publication.
+    category: data-exposure
+    stride: information-disclosure
+    cwe:
+    - CWE-200
+    attackVectorRef: AV-SECRET-LEAKAGE-IN-REVIEW
+    appliesTo:
+    - FU-REVIEW-PUBLICATION
+    - FU-SECRETS-CONFIGURATION
+    - DO-BEDROCK-REVIEW-FINDINGS
+    flowRefs:
+    - FLOW-BEDROCK-PR-REVIEW
+    - FLOW-BEDROCK-POLICY-TUNING
+    entryPoint: FU-REVIEW-PUBLICATION
+    preconditions:
+    - redaction-rules-gap
+    exploitPath:
+    - orchestrate-review
+    - publish-review
+    likelihood: low
+    impact: high
+    severity: medium
+    status: mitigating
+    owner: ACT-SECURITY-ENGINEER
+    riskRef: RISK-BEDROCK-SECRET-LEAKAGE
+    relatedControls:
+    - CTRL-BEDROCK-SECRETS-ROTATION
+    mitigationRefs:
+    - MIT-BEDROCK-OUTPUT-REDACTION
+    verificationRefs:
+    - CV-BEDROCK-REDACTION-CHECK
+    detection:
+    - secret-scan-on-output
+    - publication-redaction-alert
+    evidence:
+    - path: tests/unit/rate_limit_deferral_test.go
+      description: Output controls and edge behavior checks.
+  threatAssumptions:
+  - id: ASM-BEDROCK-GITHUB-SIGNATURE-TRUST
+    title: GitHub webhook signature secret remains uncompromised
+    statement: GitHub app webhook secret is rotated and protected by managed secret controls.
+    status: accepted
+    owner: ACT-SECURITY-ENGINEER
+    appliesTo:
+    - IF-BEDROCK-WEBHOOK-API
+    - FU-GITHUB-WEBHOOK-INGRESS
+    - REF-AWS-SECRETS-MANAGER
+    rationale: Secret rotation and access controls are centrally governed by platform policy.
+    evidence:
+    - path: infra/terraform/main.tf
+      description: Secret lifecycle and policy enforcement.
+  threatOutOfScope:
+  - id: OOS-BEDROCK-GITHUB-CLOUD-PLATFORM
+    title: GitHub SaaS internal tenant isolation controls
+    reason: Internal platform isolation and abuse controls for GitHub SaaS are external to this system boundary.
+    status: approved
+    owner: ACT-SECURITY-ENGINEER
+    appliesTo:
+    - REF-GITHUB-APP-API
+    - DEP-BEDROCK-GITHUB-BOUNDARY
+    expiresOn: 2027-12-31
+    evidence:
+    - path: docs/security/external-saas-shared-responsibility.md
+      description: Shared-responsibility note for SaaS platform controls.
+  threatMitigations:
+  - id: MIT-BEDROCK-WEBHOOK-HMAC
+    threatScenarioRef: TS-BEDROCK-WEBHOOK-SPOOF
+    controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    status: verified
+    effectiveness: high
+    owner: ACT-SECURITY-ENGINEER
+    notes: HMAC signature checks and ingress rejection reduce spoofing attack viability.
+    verificationRefs:
+    - CV-BEDROCK-WEBHOOK-SIGNATURE
+    evidence:
+    - path: src/webhook_ingress.go
+      description: Signature verification implementation and failure handling.
+  - id: MIT-BEDROCK-CONTEXT-SANITIZATION
+    threatScenarioRef: TS-BEDROCK-PROMPT-INJECTION
+    controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    status: partial
+    effectiveness: medium
+    owner: ACT-SECURITY-ENGINEER
+    notes: Context sanitizer and deterministic policy checks reduce injection impact; coverage expansion continues.
+    verificationRefs:
+    - CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+    evidence:
+    - path: src/review_orchestration.go
+      description: Context assembly and policy merge guardrails.
+  - id: MIT-BEDROCK-OUTPUT-REDACTION
+    threatScenarioRef: TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    controlRef: CTRL-BEDROCK-SECRETS-ROTATION
+    status: partial
+    effectiveness: medium
+    owner: ACT-SECURITY-ENGINEER
+    notes: Publication redaction pipeline blocks common secret shapes and is being extended.
+    verificationRefs:
+    - CV-BEDROCK-REDACTION-CHECK
+    evidence:
+    - path: src/review_publication.go
+      description: Output redaction before publication.
+  controlVerifications:
+  - id: CV-BEDROCK-WEBHOOK-SIGNATURE
+    controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    threatScenarioRefs:
+    - TS-BEDROCK-WEBHOOK-SPOOF
+    riskRefs:
+    - RISK-BEDROCK-WEBHOOK-SPOOFING
+    method: test
+    status: pass
+    owner: ACT-SECURITY-ENGINEER
+    lastTested: 2026-04-11
+    findings:
+    - invalid webhook signatures rejected before context assembly
+    evidence:
+    - path: src/webhook_ingress.go
+      description: Signature gate implementation.
+  - id: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE
+    controlRef: CTRL-BEDROCK-WEBHOOK-SIGNATURE
+    threatScenarioRefs:
+    - TS-BEDROCK-PROMPT-INJECTION
+    riskRefs:
+    - RISK-BEDROCK-PROMPT-INJECTION
+    method: analysis
+    status: partial
+    owner: ACT-SECURITY-ENGINEER
+    lastTested: 2026-04-19
+    findings:
+    - deterministic policy merge blocks obvious prompt directives; edge cases remain under review
+    evidence:
+    - path: src/review_orchestration.go
+      description: Policy merge and AI output handling logic.
+  - id: CV-BEDROCK-REDACTION-CHECK
+    controlRef: CTRL-BEDROCK-SECRETS-ROTATION
+    threatScenarioRefs:
+    - TS-BEDROCK-SECRET-LEAK-IN-PUBLICATION
+    riskRefs:
+    - RISK-BEDROCK-SECRET-LEAKAGE
+    method: inspection
+    status: partial
+    owner: ACT-SECURITY-ENGINEER
+    lastTested: 2026-04-21
+    findings:
+    - redaction filters exist; custom token patterns are still being expanded
+    evidence:
+    - path: src/review_publication.go
+      description: Redaction and output formatting pipeline.

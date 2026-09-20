@@ -13,7 +13,7 @@ Use MCP tool responses as the machine contract for implementation planning, impa
 
 ## Required Inputs
 
-1. Architecture model files (`architecture.yml`, `requirements.yml`, `design.yml`)
+1. Architecture model files (`engmod.yml`, `model/requirements.yml`, `model/views.yml`)
 2. MCP tool responses for implementation, verification, policy, and generation context
 3. Source tree and tests
 
@@ -110,9 +110,9 @@ When useful for stable symbol-level mapping:
 
 ```bash
 go run ./cmd/engdoc \
-  --model <example>/architecture.yml \
-  --requirements <example>/requirements.yml \
-  --design <example>/design.yml \
+  --model <example>/engmod.yml \
+  --requirements <example>/model/requirements.yml \
+  --design <example>/model/views.yml \
   --code-root <absolute path to example>/src \
   --out <example>/generated/ARCHITECTURE.adoc \
   --decisions-out <example>/generated/DECISIONS.adoc

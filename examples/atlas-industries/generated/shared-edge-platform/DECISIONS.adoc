@@ -1,0 +1,22 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-EDGE-001]]
+== ADR-EDGE-001: Standardize the rugged edge compute boundary
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+Product teams require a common field-compute foundation.
+
+=== Decision
+
+Publish the hardware and signed runtime as one reusable model module.
+
+=== Consequences
+
+- Products inherit a consistent edge trust boundary.

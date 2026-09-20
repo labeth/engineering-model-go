@@ -348,6 +348,7 @@ func (s *Server) loadContext(params any) error {
 	s.designPath = nonEmptyString(init["designPath"], s.designPath)
 	s.repoRoot = nonEmptyString(init["repoRoot"], s.repoRoot)
 
+	loadedBundle := false
 	if s.modelPath != "" {
 		absModel, err := filepath.Abs(s.modelPath)
 		if err == nil {
@@ -360,6 +361,9 @@ func (s *Server) loadContext(params any) error {
 		b := canonical.Documents()
 		s.canonical = &canonical
 		s.bundle = &b
+		s.requirements = &b.Requirements
+		s.design = &b.Design
+		loadedBundle = true
 		if s.repoRoot == "" {
 			s.repoRoot = filepath.Dir(filepath.Dir(b.ArchitecturePath))
 		}
@@ -376,7 +380,7 @@ func (s *Server) loadContext(params any) error {
 			}
 		}
 	}
-	if s.requirementsPath != "" {
+	if s.requirementsPath != "" && !loadedBundle {
 		if absReq, err := filepath.Abs(s.requirementsPath); err == nil {
 			s.requirementsPath = absReq
 		}
@@ -386,7 +390,7 @@ func (s *Server) loadContext(params any) error {
 		}
 		s.requirements = &r
 	}
-	if s.designPath != "" {
+	if s.designPath != "" && !loadedBundle {
 		if absDesign, err := filepath.Abs(s.designPath); err == nil {
 			s.designPath = absDesign
 		}
