@@ -5,6 +5,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"strings"
 	"text/template"
 )
 
@@ -454,5 +455,11 @@ func renderAsciiDocTemplate(data asciidocTemplateData) (string, error) {
 	if err := asciidocTemplate.Execute(&b, data); err != nil {
 		return "", fmt.Errorf("execute asciidoc template: %w", err)
 	}
-	return b.String(), nil
+	lines := strings.Split(b.String(), "\n")
+	for i, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			lines[i] = ""
+		}
+	}
+	return strings.Join(lines, "\n"), nil
 }

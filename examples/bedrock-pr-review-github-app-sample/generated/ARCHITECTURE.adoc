@@ -622,13 +622,13 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 Ingress and <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>> for GitHub pull request <<REF_IDX-ENGMODEL_TERM_EVENT,events>>.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> and <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,pull request context>> intake.
 It converts incoming GitHub <<REF_IDX-ENGMODEL_TERM_EVENT,events>> into normalized review work with clear boundaries.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -687,9 +687,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -764,13 +764,13 @@ functional responsibility for <<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,pr contex
 
 AI and deterministic review analysis with result <<REF_IDX-CATALOG_PUBLICATION,publication>>.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> owns generated findings, <<REF_IDX-CATALOG_DETERMINISTIC_CHECKS,deterministic checks>>, and final <<REF_IDX-CATALOG_PUBLICATION,publication>> behavior.
 It combines Bedrock reasoning with predictable <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> and emits auditable review outputs.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -840,9 +840,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -943,13 +943,13 @@ functional responsibility for <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,review pub
 
 Lambda deployment lifecycle, <<REF_IDX-CATALOG_RUNTIME_OPERATIONS,runtime operations>>, and secrets/configuration.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns safe deployment, runtime controls, and secret/config lifecycle for the app.
 It enables dependable review operation without owning business-level review policy semantics.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1002,9 +1002,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1313,11 +1313,11 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ==== PR Integration (FG-PR-INTEGRATION)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> functions deploy independently to isolate <<REF_IDX-CATALOG_WEBHOOK_INGRESS,webhook ingress>> from context-fetch implementation changes.
 
@@ -1388,11 +1388,11 @@ Deployed separately to allow context shaping changes without ingress disruption.
 ==== Review Intelligence (FG-REVIEW-INTELLIGENCE)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> units roll independently to preserve availability and reduce blast radius during <<REF_IDX-ENGMODEL_TERM_MODEL,model>> or rule updates.
 
@@ -1486,11 +1486,11 @@ Release isolation protects <<REF_IDX-CATALOG_PUBLICATION,publication>> reliabili
 ==== Platform Operations (FG-PLATFORM-OPERATIONS)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> governs release <<REF_IDX-CATALOG_ORCHESTRATION,orchestration>> and runtime placement to keep review capacity stable.
 

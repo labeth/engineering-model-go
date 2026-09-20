@@ -9,6 +9,20 @@ architecture:
       name: Yaw Damping Software
       group: FG-FLIGHT-CONTROL
       prose: Filters yaw rate and produces a bounded command.
+  actors:
+    - id: ACT-SYSTEMS-ENGINEER
+      name: Systems Engineer
+      description: Owns the system and software specification baseline.
+  referencedElements:
+    - id: REF-SYSTEM-SAFETY-ASSESSMENT
+      name: System Safety Assessment
+      kind: source-document
+      layer: external
+      description: Allocates the yaw damping objective and associated safety constraints.
+      version: "1.0"
+      date: 2026-09-20
+      uri: urn:example:system-safety-assessment
+      publisher: Example Airframer
   interfaces:
     - id: IF-YAW-RATE
       name: Yaw Rate Input

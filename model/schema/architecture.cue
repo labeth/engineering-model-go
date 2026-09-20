@@ -32,10 +32,15 @@ package model
 #AttackVector: #Actor
 
 #ReferencedElement: {
-	id?:    string
-	kind?:  string
-	layer?: string
-	name?:  string
+	id?:          string
+	kind?:        string
+	layer?:       string
+	name?:        string
+	description?: string
+	version?:     string
+	date?:        string
+	uri?:         string
+	publisher?:   string
 }
 
 #Mapping: {

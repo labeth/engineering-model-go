@@ -53,6 +53,17 @@ func TestLoadBundleAggregatesSchemaV2Domains(t *testing.T) {
 	if got := bundle.Design.Design.FunctionalUnits; len(got) != 1 || got[0].Views["intent"].Narrative != "Narrative" {
 		t.Fatalf("view narratives were not aggregated into design: %+v", got)
 	}
+	if got := bundle.Requirements.Requirements; len(got) != 1 ||
+		got[0].Title != "Qualified requirement" ||
+		got[0].VerificationMethods[0] != "test" ||
+		!got[0].Derived {
+		t.Fatalf("requirement qualification metadata was not loaded: %+v", got)
+	}
+	if got := bundle.Views.Documents; len(got) != 1 ||
+		got[0].Control.Identifier != "DOC-001" ||
+		got[0].ContentRefs[0] != "REQ-A" {
+		t.Fatalf("document definitions were not loaded: %+v", got)
+	}
 	if _, err := LoadCanonicalBundle(filepath.Join(dir, "engmod.yml")); err != nil {
 		t.Fatalf("load canonical bundle from manifest: %v", err)
 	}
@@ -186,12 +197,12 @@ func writeV2Fixture(t *testing.T, manifest string) string {
 	files := map[string]string{
 		"engmod.yml":             manifest,
 		"model/catalog.yml":      "schemaVersion: 2\ncatalog: {}\n",
-		"model/requirements.yml": "schemaVersion: 2\nlintRun: {}\nrequirements: []\n",
-		"model/architecture.yml": "schemaVersion: 2\narchitecture:\n  functionalUnits:\n    - id: FU-A\n      name: A\n  dataObjects:\n    - id: DO-A\n      name: A\n",
+		"model/requirements.yml": "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-A\n    title: Qualified requirement\n    text: The system shall provide an outcome.\n    category: functional\n    rationale: The outcome is required.\n    sourceRefs: [REF-DOC]\n    verificationMethods: [test]\n    verificationCriteria: The observable outcome is produced.\n    priority: high\n    criticality: high\n    status: approved\n    derived: true\n    derivedRationale: The implementation allocation introduces this requirement.\n    tags: [baseline]\n    appliesTo: [FU-A]\n",
+		"model/architecture.yml": "schemaVersion: 2\narchitecture:\n  functionalUnits:\n    - id: FU-A\n      name: A\n  actors:\n    - id: ACT-A\n      name: Stakeholder A\n  referencedElements:\n    - id: REF-DOC\n      name: Source document\n      kind: document\n      layer: external\n      description: Source description\n      version: \"1.0\"\n      date: 2026-09-20\n      uri: https://example.com/source\n      publisher: Example publisher\n  dataObjects:\n    - id: DO-A\n      name: A\n",
 		"model/behavior.yml":     "schemaVersion: 2\nbehavior:\n  states:\n    - id: STATE-A\n      name: A\n  relationships:\n    - type: writes\n      from: FU-A\n      to: DO-A\n",
 		"model/assurance.yml":    "schemaVersion: 2\nassurance:\n  controls:\n    - id: CTRL-A\n      name: A\n",
 		"model/compliance.yml":   "schemaVersion: 2\ncompliance:\n  profiles:\n    - id: PROFILE-A\n      href: profile.json\n",
-		"model/views.yml":        "schemaVersion: 2\nviews: []\nnaf:\n  framework: NAF\n  version: \"4.1\"\n  architectureDescription: Test\n  stakeholders: []\n  concerns: []\n  products: []\ndesign:\n  id: DESIGN-A\n  title: Test\n  functionalUnits:\n    - id: FU-A\n      views:\n        intent:\n          narrative: Narrative\n",
+		"model/views.yml":        "schemaVersion: 2\nviews:\n  - id: VIEW-A\n    kind: architecture-intent\n    roots: [FU-A]\nnaf:\n  framework: NAF\n  version: \"4.1\"\n  architectureDescription: Test\n  stakeholders: []\n  concerns: []\n  products: []\ndesign:\n  id: DESIGN-A\n  title: Test\n  functionalUnits:\n    - id: FU-A\n      views:\n        intent:\n          narrative: Narrative\ndocuments:\n  - id: DOC-A\n    title: Formal document\n    kind: system-description\n    purpose: Describe the system.\n    audience: [engineering]\n    stakeholderRefs: [ACT-A]\n    referenceRefs: [REF-DOC]\n    contentRefs: [REQ-A, FU-A, VIEW-A]\n    sections:\n      - id: scope\n        title: Scope\n        narrative: Defines the document scope.\n        includeRefs: [FU-A]\n    control:\n      identifier: DOC-001\n      revision: \"1.0\"\n      status: draft\n      issuedBy: Example issuer\n      issueDate: 2026-09-20\n      language: en\n      documentType: specification\n      confidentiality: internal\n      securityClassification: unclassified\n      exportControlled: false\n      countryOfOrigin: Sweden\n      confidentialityStamp: false\n",
 		"model/decisions.yml":    "schemaVersion: 2\ndecisions: []\n",
 	}
 	for name, content := range files {

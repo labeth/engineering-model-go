@@ -1,4 +1,4 @@
-= DAL C Yaw Damping Readiness Sample
+= Yaw Damping Design
 :toc:
 :toclevels: 2
 :sectnums:
@@ -53,6 +53,14 @@ a[href^="#SEC_VIEW_"] {
 [cols="2,1,3,1,1,1,1,4",options="header"]
 |===
 |View |Authored Status |Authored Status Explanation |Units in Scope |Direct Evidence Coverage |Gap Count |Heuristic Confidence |Heuristic Basis
+|Architecture Intent View (`VIEW-YAW-CONTROL`)
+|unspecified
+|No authored status explanation provided.
+|1
+|1
+|0
+|high
+|Defaults authored units to covered; use authoredStatus as the primary publication signal.
 |===
 
 == Terms and Definitions
@@ -168,6 +176,10 @@ a[href^="#SEC_VIEW_"] {
 |An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
 |[[REF_ENGMODEL_TERM_STRUCTURIZR_DSL]]<<REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL,Structurizr DSL>> (TERM-STRUCTURIZR-DSL)
 |Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
+|[[REF_CATALOG_REF_SYSTEM_SAFETY_ASSESSMENT]]<<REF_IDX-CATALOG_REF_SYSTEM_SAFETY_ASSESSMENT,system safety assessment>> (REF-SYSTEM-SAFETY-ASSESSMENT)
+|External safety assessment that allocates the yaw damping objective.
+|[[REF_CATALOG_ACT_SYSTEMS_ENGINEER]]<<REF_IDX-CATALOG_ACT_SYSTEMS_ENGINEER,systems engineer>> (ACT-SYSTEMS-ENGINEER)
+|Engineering stakeholder responsible for the system and software specifications.
 |[[REF_ENGMODEL_TERM_THREAT_ASSUMPTION]]<<REF_IDX-ENGMODEL_TERM_THREAT_ASSUMPTION,threat assumption>> (TERM-THREAT-ASSUMPTION)
 |Authored security assumption that records scope, rationale, owner, status, and evidence.
 |[[REF_ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT]]<<REF_IDX-ENGMODEL_TERM_THREAT_DRAGON_DOCUMENT,Threat Dragon document>> (TERM-THREAT-DRAGON-DOCUMENT)
@@ -276,6 +288,179 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+[[SEC_VIEW_VIEW-YAW-CONTROL]]
+== Architecture Intent View
+
+Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
+
+=== What This View Answers
+
+
+- What are the main capability areas?
+
+- What are the stable units of responsibility and what does each unit own?
+
+- How are responsibilities intentionally split?
+
+=== System Boundary Diagram
+
+What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
+
+[source,mermaid]
+----
+flowchart LR
+  ACT_ACT_SYSTEMS_ENGINEER(("Systems Engineer")):::actor
+  REF_REF_SYSTEM_SAFETY_ASSESSMENT["System Safety Assessment"]:::referenced_element
+  subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
+    direction TB
+    subgraph FGCTX_FG_FLIGHT_CONTROL["Flight Control"]
+      direction TB
+      FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
+    end
+    style FGCTX_FG_FLIGHT_CONTROL fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
+  end
+  style SYSTEM_BOUNDARY fill:#f5f5f5,stroke:#424242,stroke-width:1px;
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+=== System Decomposition Diagram
+
+What this diagram shows: stable capability decomposition from functional groups into functional units.
+
+[source,mermaid]
+----
+flowchart TB
+  SYS["System"]:::system_boundary
+  FG_FG_FLIGHT_CONTROL["Flight Control"]:::functional_group
+  SYS -->|contains| FG_FG_FLIGHT_CONTROL
+  FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
+  FG_FG_FLIGHT_CONTROL -->|contains| FU_FU_YAW_CONTROL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+
+<<<
+=== Functional Group Manhattan Matrix
+
+What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
+
+++++
+<div style="background:#f5f5f5;padding:12px;">
+<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Yaw Damping Software</div></td>
+</tr>
+<tr>
+<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Flight Control</div></td>
+</tr>
+</table>
+</div>
+++++
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=== Functional Groups and Units (View Scoped)
+
+
+
+==== Flight Control (FG-FLIGHT-CONTROL)
+
+
+Bounded flight-control functions.
+
+
+
+
+
+
+
+
+
+
+
+
+===== Yaw Damping Software (FU-YAW-CONTROL)
+
+
+
+
+
+Filters yaw rate and produces a bounded command.
+
+[discrete]
+====== Owned Responsibility
+
+functional responsibility for <<REF_IDX-CATALOG_FU_YAW_CONTROL,yaw damping software>>
+
+[discrete]
+====== Key Collaborators
+
+none
+
+[discrete]
+====== Linked Requirements
+
+<<REF_IDX-REQ_REQ_YD_HLR_001,REQ-YD-HLR-001>>, <<REF_IDX-REQ_REQ_YD_LLR_001,REQ-YD-LLR-001>>, <<REF_IDX-REQ_REQ_YD_SYS_001,REQ-YD-SYS-001>>
+
+
+
+
+
+
+
 
 <<<
 == Traceability Appendix
@@ -445,7 +630,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |0
 |-
 |Lexicon
-|6
+|7
 |===
 
 
@@ -507,7 +692,7 @@ When yaw rate input is received, the yaw damping software shall filter the yaw r
 |Key |Value
 |Kind |Requirement
 |Name |REQ-YD-HLR-001
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-YAW-CONTROL,Architecture Intent View>>
 |===
 [[REF_IDX-REQ_REQ_YD_LLR_001]]
 [discrete]
@@ -520,7 +705,7 @@ When yaw rate input is received, the yaw damping software shall limit the bounde
 |Key |Value
 |Kind |Requirement
 |Name |REQ-YD-LLR-001
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-YAW-CONTROL,Architecture Intent View>>
 |===
 [[REF_IDX-REQ_REQ_YD_SYS_001]]
 [discrete]
@@ -533,10 +718,23 @@ When yaw rate input is received, the yaw damping software shall compute a bounde
 |Key |Value
 |Kind |Requirement
 |Name |REQ-YD-SYS-001
-|Mentioned In |n/a
+|Mentioned In |<<SEC_VIEW_VIEW-YAW-CONTROL,Architecture Intent View>>
 |===
 
 === Catalog References
+[[REF_IDX-CATALOG_ACT_SYSTEMS_ENGINEER]]
+[discrete]
+==== ACT-SYSTEMS-ENGINEER
+
+Engineering stakeholder responsible for the system and software specifications.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Actor
+|Name |systems engineer
+|Mentioned In |n/a
+|===
 [[REF_IDX-CATALOG_TERM_RUDDER_COMMAND]]
 [discrete]
 ==== TERM-RUDDER-COMMAND
@@ -600,7 +798,20 @@ Software function that filters yaw rate and limits its command.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |yaw damping software
-|Mentioned In |<<REF_REQ_REQ_YD_HLR_001,REQ-YD-HLR-001>>, <<REF_REQ_REQ_YD_LLR_001,REQ-YD-LLR-001>>, <<REF_REQ_REQ_YD_SYS_001,REQ-YD-SYS-001>>
+|Mentioned In |<<SEC_VIEW_VIEW-YAW-CONTROL,Architecture Intent View>>, <<REF_REQ_REQ_YD_HLR_001,REQ-YD-HLR-001>>, <<REF_REQ_REQ_YD_LLR_001,REQ-YD-LLR-001>>, <<REF_REQ_REQ_YD_SYS_001,REQ-YD-SYS-001>>
+|===
+[[REF_IDX-CATALOG_REF_SYSTEM_SAFETY_ASSESSMENT]]
+[discrete]
+==== REF-SYSTEM-SAFETY-ASSESSMENT
+
+External safety assessment that allocates the yaw damping objective.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Referenced Element
+|Name |system safety assessment
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_STATE_OPERATIONAL]]
 [discrete]

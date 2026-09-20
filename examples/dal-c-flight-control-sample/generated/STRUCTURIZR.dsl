@@ -7,8 +7,14 @@ workspace "DAL C Yaw Damping Readiness Sample" "Bounded readiness-only example f
         }
       }
     }
+    person_act_systems_engineer = person "Systems Engineer" "Owns the system and software specification baseline." {
+      tags "Actor"
+    }
     group_fg_flight_control = softwareSystem "Flight Control" "Bounded flight-control functions." {
       tags "FunctionalGroup"
+    }
+    ref_ref_system_safety_assessment = softwareSystem "System Safety Assessment" "external" {
+      tags "ReferencedElement,source_document"
     }
     if_if_rudder_command = softwareSystem "Rudder Command Output" "sampled-data output" {
       tags "Interface"

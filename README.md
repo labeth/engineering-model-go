@@ -73,6 +73,8 @@ It is not a runtime observability or incident/compliance runtime system.
 
 - CUE-backed, closed-schema YAML loading for architecture, catalog,
   requirements, decisions, and design documents, followed by strict Go decoding
+- format-neutral document definitions and document-control metadata for downstream
+  formal-document generators
 - model validation for IDs, references, relations, and viewpoint configuration
 - expanded mapping relation taxonomy for communication/deployment/security/traceability/lifecycle semantics
 - catalog-linked architecture relation labeling
@@ -161,6 +163,45 @@ Optional view projection controls in `model/views.yml`:
 - `includeMappings` / `excludeMappings`: relation type filtering
 - `maxDepth`: bounded traversal from roots (`0` means unlimited/default behavior)
 - `audience`, `abstraction`: optional publication metadata
+
+Formal-document consumers can select canonical model content without adding
+format-specific payloads:
+
+```yaml
+documents:
+  - id: DOC-SYSTEM-SPECIFICATION
+    title: System Specification
+    kind: system-requirements-specification
+    purpose: Define the system requirement baseline.
+    audience: [systems-engineering, verification]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SOURCE-SPECIFICATION]
+    contentRefs: [REQ-SYSTEM-001, FU-CONTROL, VIEW-LOGICAL]
+    sections:
+      - id: scope
+        title: Scope
+        narrative: Defines the system boundary and intended use.
+        includeRefs: [FU-CONTROL]
+    control:
+      identifier: SYS-SPEC-001
+      revision: "1.0"
+      status: draft
+      issuedBy: Example Organization
+      issueDate: 2026-09-20
+      language: en
+      documentType: specification
+      confidentiality: internal
+      securityClassification: unclassified
+      exportControlled: false
+      countryOfOrigin: Sweden
+      confidentialityStamp: false
+```
+
+Requirements may additionally declare `title`, `category`, `rationale`,
+`sourceRefs`, `verificationMethods`, `verificationCriteria`, `priority`,
+`criticality`, `status`, `derived`, `derivedRationale`, and `tags`. These fields
+remain generic model input; exporters use only fields that have a native
+representation in their target format.
 
 Authored architecture optionally supports additional first-class entities:
 

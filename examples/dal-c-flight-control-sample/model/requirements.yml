@@ -6,15 +6,49 @@ lintRun:
   catalogRef: model/catalog.yml
 requirements:
   - id: REQ-YD-SYS-001
+    title: Produce bounded rudder command
     text: When yaw rate input is received, the yaw damping software shall compute a bounded rudder command.
     notes: System-allocated behavior.
+    category: system-capability
+    rationale: The aircraft-level safety allocation requires bounded yaw damping authority.
+    sourceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    verificationMethods: [analysis, test]
+    verificationCriteria: Representative yaw-rate inputs produce commands within the allocated authority.
+    priority: high
+    criticality: safety-related
+    status: approved
+    derived: false
+    tags: [flight-control, yaw-damping]
     appliesTo: [FU-YAW-CONTROL]
   - id: REQ-YD-HLR-001
+    title: Filter yaw rate input
     text: When yaw rate input is received, the yaw damping software shall filter the yaw rate input.
     notes: High-level software requirement.
+    category: functional
+    rationale: Filtering provides the stable signal required by the control law.
+    sourceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    verificationMethods: [analysis, test]
+    verificationCriteria: Filter output matches the reviewed reference response for nominal and boundary inputs.
+    priority: high
+    criticality: safety-related
+    status: approved
+    derived: false
+    tags: [software, filtering]
     appliesTo: [FU-YAW-CONTROL]
   - id: REQ-YD-LLR-001
+    title: Limit rudder command
     text: When yaw rate input is received, the yaw damping software shall limit the bounded rudder command.
     notes: Derived low-level limit requiring safety feedback.
+    category: constraint
+    rationale: The command limiter protects downstream actuator authority.
+    sourceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    verificationMethods: [analysis, test]
+    verificationCriteria: Commands at and beyond the input boundaries remain limited to plus or minus five units.
+    priority: high
+    criticality: safety-related
+    status: approved
+    derived: true
+    derivedRationale: Detailed design introduces the limiter to preserve the allocated downstream authority.
+    tags: [software, limiter]
     appliesTo: [FU-YAW-CONTROL]
 expected: []

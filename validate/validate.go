@@ -61,6 +61,33 @@ var allowedDecisionStatus = map[string]bool{
 	"rejected":   true,
 }
 
+var allowedRequirementVerificationMethods = map[string]bool{
+	"analysis":      true,
+	"demonstration": true,
+	"inspection":    true,
+	"review":        true,
+	"test":          true,
+}
+
+var allowedRequirementStatus = map[string]bool{
+	"draft":       true,
+	"proposed":    true,
+	"approved":    true,
+	"implemented": true,
+	"verified":    true,
+	"rejected":    true,
+	"retired":     true,
+}
+
+var allowedDocumentStatus = map[string]bool{
+	"draft":      true,
+	"in-review":  true,
+	"approved":   true,
+	"released":   true,
+	"superseded": true,
+	"withdrawn":  true,
+}
+
 var allowedViewKinds = map[string]bool{
 	"architecture-intent": true,
 	"communication":       true,
@@ -314,11 +341,16 @@ func Bundle(b model.Bundle) []Diagnostic {
 	threatMitigations := map[string]bool{}
 	controlVerifications := map[string]bool{}
 	complianceProfiles := map[string]bool{}
+	documents := map[string]bool{}
 	kindByID := map[string]string{}
 
 	for i, d := range b.Architecture.Decisions {
 		addID(d.ID, fmt.Sprintf("decisions[%d]", i))
 		kindByID[d.ID] = "decision"
+	}
+	for i, requirement := range b.Requirements.Requirements {
+		addID(requirement.ID, fmt.Sprintf("requirements[%d]", i))
+		kindByID[requirement.ID] = "requirement"
 	}
 	for i, g := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		addID(g.ID, fmt.Sprintf("authoredArchitecture.functionalGroups[%d]", i))
@@ -443,10 +475,44 @@ func Bundle(b model.Bundle) []Diagnostic {
 		addID(x.ID, fmt.Sprintf("semantics.elements[%d]", i))
 		kindByID[x.ID] = string(x.Kind)
 	}
+	for i, view := range b.Architecture.Views {
+		addID(view.ID, fmt.Sprintf("views[%d]", i))
+		kindByID[view.ID] = "view"
+	}
+	for i, document := range b.Views.Documents {
+		addID(document.ID, fmt.Sprintf("documents[%d]", i))
+		documents[document.ID] = true
+		kindByID[document.ID] = "document"
+	}
 
 	validID := func(id string) bool {
 		_, ok := idOwner[id]
 		return ok
+	}
+
+	for i, requirement := range b.Requirements.Requirements {
+		path := fmt.Sprintf("requirements[%d]", i)
+		if requirement.Derived && strings.TrimSpace(requirement.DerivedRationale) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_derived_requirement_rationale", Severity: SeverityError, Message: fmt.Sprintf("derived requirement %q must include derivedRationale", requirement.ID), Path: path + ".derivedRationale"})
+		}
+		if status := strings.ToLower(strings.TrimSpace(requirement.Status)); status != "" && !allowedRequirementStatus[status] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_requirement_status", Severity: SeverityError, Message: fmt.Sprintf("unknown requirement status %q", requirement.Status), Path: path + ".status"})
+		}
+		for j, method := range requirement.VerificationMethods {
+			method = strings.ToLower(strings.TrimSpace(method))
+			if !allowedRequirementVerificationMethods[method] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_requirement_verification_method", Severity: SeverityError, Message: fmt.Sprintf("unknown verification method %q", requirement.VerificationMethods[j]), Path: fmt.Sprintf("%s.verificationMethods[%d]", path, j)})
+			}
+		}
+		if len(requirement.VerificationMethods) > 0 && strings.TrimSpace(requirement.VerificationCriteria) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_requirement_verification_criteria", Severity: SeverityError, Message: fmt.Sprintf("requirement %q with verification methods must include verificationCriteria", requirement.ID), Path: path + ".verificationCriteria"})
+		}
+		for j, sourceRef := range requirement.SourceRefs {
+			sourceRef = strings.TrimSpace(sourceRef)
+			if sourceRef == "" || !validID(sourceRef) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_requirement_source_ref", Severity: SeverityError, Message: fmt.Sprintf("requirement %q references unknown source %q", requirement.ID, sourceRef), Path: fmt.Sprintf("%s.sourceRefs[%d]", path, j)})
+			}
+		}
 	}
 
 	for i, d := range b.Architecture.Decisions {
@@ -1025,6 +1091,77 @@ func Bundle(b model.Bundle) []Diagnostic {
 		for _, rel := range v.ExcludeMappings {
 			if !allowedViewMappingTypes[strings.TrimSpace(rel)] {
 				diags = append(diags, Diagnostic{Code: "model.unknown_view_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown excludeMappings value %q", rel), Path: path})
+			}
+		}
+	}
+	for i, document := range b.Views.Documents {
+		path := fmt.Sprintf("documents[%d]", i)
+		control := document.Control
+		if strings.TrimSpace(document.Title) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_document_title", Severity: SeverityError, Message: "document title is required", Path: path + ".title"})
+		}
+		if strings.TrimSpace(document.Kind) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_document_kind", Severity: SeverityError, Message: "document kind is required", Path: path + ".kind"})
+		}
+		if strings.TrimSpace(document.Purpose) == "" {
+			diags = append(diags, Diagnostic{Code: "model.missing_document_purpose", Severity: SeverityError, Message: "document purpose is required", Path: path + ".purpose"})
+		}
+		if len(document.ContentRefs) == 0 && len(document.Sections) == 0 {
+			diags = append(diags, Diagnostic{Code: "model.empty_document_content", Severity: SeverityError, Message: fmt.Sprintf("document %q must select model content or define authored sections", document.ID), Path: path})
+		}
+		requiredControl := map[string]string{
+			"identifier": control.Identifier, "revision": control.Revision, "status": control.Status,
+			"issuedBy": control.IssuedBy, "issueDate": control.IssueDate, "language": control.Language,
+			"documentType": control.DocumentType, "confidentiality": control.Confidentiality,
+			"securityClassification": control.SecurityClassification, "countryOfOrigin": control.CountryOfOrigin,
+		}
+		for field, value := range requiredControl {
+			if strings.TrimSpace(value) == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_document_control_field", Severity: SeverityError, Message: fmt.Sprintf("document %q control field %s is required", document.ID, field), Path: path + ".control." + field})
+			}
+		}
+		if status := strings.ToLower(strings.TrimSpace(control.Status)); status != "" && !allowedDocumentStatus[status] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_document_status", Severity: SeverityError, Message: fmt.Sprintf("unknown document status %q", control.Status), Path: path + ".control.status"})
+		}
+		if date := strings.TrimSpace(control.IssueDate); date != "" && !isoDateRe.MatchString(date) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_document_issue_date", Severity: SeverityError, Message: fmt.Sprintf("invalid document issueDate %q, expected YYYY-MM-DD", control.IssueDate), Path: path + ".control.issueDate"})
+		}
+		for j, stakeholderRef := range document.StakeholderRefs {
+			stakeholderRef = strings.TrimSpace(stakeholderRef)
+			if stakeholderRef == "" || !actors[stakeholderRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_document_stakeholder_ref", Severity: SeverityError, Message: fmt.Sprintf("document %q references unknown stakeholder %q", document.ID, stakeholderRef), Path: fmt.Sprintf("%s.stakeholderRefs[%d]", path, j)})
+			}
+		}
+		for j, referenceRef := range document.ReferenceRefs {
+			referenceRef = strings.TrimSpace(referenceRef)
+			if referenceRef == "" || !references[referenceRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_document_reference_ref", Severity: SeverityError, Message: fmt.Sprintf("document %q references unknown external reference %q", document.ID, referenceRef), Path: fmt.Sprintf("%s.referenceRefs[%d]", path, j)})
+			}
+		}
+		for j, contentRef := range document.ContentRefs {
+			contentRef = strings.TrimSpace(contentRef)
+			if contentRef == "" || !validID(contentRef) || documents[contentRef] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_document_content_ref", Severity: SeverityError, Message: fmt.Sprintf("document %q selects unknown or invalid content %q", document.ID, contentRef), Path: fmt.Sprintf("%s.contentRefs[%d]", path, j)})
+			}
+		}
+		sectionIDs := map[string]bool{}
+		for j, section := range document.Sections {
+			sectionPath := fmt.Sprintf("%s.sections[%d]", path, j)
+			sectionID := strings.TrimSpace(section.ID)
+			if sectionID == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_document_section_id", Severity: SeverityError, Message: fmt.Sprintf("document %q has a section without an id", document.ID), Path: sectionPath + ".id"})
+			} else if sectionIDs[sectionID] {
+				diags = append(diags, Diagnostic{Code: "model.duplicate_document_section_id", Severity: SeverityError, Message: fmt.Sprintf("document %q repeats section id %q", document.ID, sectionID), Path: sectionPath + ".id"})
+			}
+			sectionIDs[sectionID] = true
+			if strings.TrimSpace(section.Title) == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_document_section_title", Severity: SeverityError, Message: fmt.Sprintf("document %q section %q has no title", document.ID, sectionID), Path: sectionPath + ".title"})
+			}
+			for k, includeRef := range section.IncludeRefs {
+				includeRef = strings.TrimSpace(includeRef)
+				if includeRef == "" || !validID(includeRef) || documents[includeRef] {
+					diags = append(diags, Diagnostic{Code: "model.invalid_document_section_ref", Severity: SeverityError, Message: fmt.Sprintf("document %q section %q selects unknown or invalid content %q", document.ID, sectionID, includeRef), Path: fmt.Sprintf("%s.includeRefs[%d]", sectionPath, k)})
+				}
 			}
 		}
 	}

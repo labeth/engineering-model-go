@@ -859,12 +859,12 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 Inputs and <<REF_IDX-ENGMODEL_TERM_MODEL,model>> loading responsibilities.
 
-	
+
 
 	Maintains authored architecture, <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>, design, and <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> handling.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -968,9 +968,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1119,12 +1119,12 @@ functional responsibility for <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,system com
 
 <<REF_IDX-ENGMODEL_TERM_VALIDATION,Validation>> and <<REF_IDX-CATALOG_INFERENCE,inference>> responsibilities.
 
-	
+
 
 	Performs consistency checks and derives runtime, code, and verification <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1187,9 +1187,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1286,12 +1286,12 @@ functional responsibility for <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,validation 
 
 Publication and exchange <<REF_IDX-CATALOG_FG_ARTIFACT_GENERATION,artifact generation>>.
 
-	
+
 
 	Produces AsciiDoc publication docs and external modeling outputs.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1410,9 +1410,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1613,12 +1613,12 @@ none
 
 Trace and <<REF_IDX-CATALOG_COMPLIANCE,compliance>> export responsibilities.
 
-	
+
 
 	Produces <<REF_IDX-CATALOG_TRLC,TRLC>>, <<REF_IDX-CATALOG_LOBSTER,LOBSTER>>, and OSCAL outputs from modeled content.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1718,9 +1718,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1895,12 +1895,12 @@ functional responsibility for <<REF_IDX-CATALOG_FU_TRLC_EXPORTER,trlc exporter>>
 
 AI-agent integration and runtime API responsibilities.
 
-	
+
 
 	Exposes model-aware tools over MCP with strict input and error contracts.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1959,9 +1959,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -4792,6 +4792,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_VALIDATE_TEST_498C59,VER-INF-TEST-VALIDATE_TEST-498C59>>
+|<<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_LOAD_TEST_A58EB3,VER-INF-TEST-LOAD_TEST-A58EB3>>
 |<<REF_IDX-REQ_REQ_EMG_045,REQ-EMG-045>>
 |not-run
@@ -5128,7 +5133,7 @@ flowchart LR
   CODE_LOAD_GO["load.go:18,34,43,198,211,229,246,266"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_LOAD_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_TYPES_GO
   FU_FU_OSCAL_EXPORTER["OSCAL Exporter"]:::functional_unit
@@ -5177,10 +5182,10 @@ flowchart LR
   CODE_EARS_PREFLIGHT_TEST_GO["ears_preflight_test.go:11,60,105"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_EARS_PREFLIGHT_TEST_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_EARS_PREFLIGHT_TEST_GO
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_001 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7["VER-INF-TEST-CATALOG_SYSTEMS_TEST-6807D7 (not-run)"]:::verification
@@ -5220,10 +5225,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 [[REF_REQ_REQ_EMG_003]]
 ==== REQ-EMG-003
 
-While <<REF_IDX-CATALOG_STATE_MODEL_VALID,model is valid>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall produce AsciiDoc architecture publication output.
+While <<REF_IDX-CATALOG_STATE_MODEL_VALID,model is valid>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall produce AsciiDoc architecture publication output without whitespace-only lines.
 
 
-NOTE: Human-readable architecture output remains required.
+NOTE: Human-readable architecture output remains required and shall be clean for version <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> and downstream processing.
 
 
 
@@ -5266,10 +5271,10 @@ flowchart LR
   CODE_ASCIIDOC_LINKING_UNITS_TEST_GO["asciidoc_linking_units_test.go:10,46,75,101,129,148,167,186"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_LINKING_UNITS_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_LINKING_UNITS_TEST_GO
-  CODE_ASCIIDOC_TEMPLATE_GO["asciidoc_template.go:452"]:::code_element
+  CODE_ASCIIDOC_TEMPLATE_GO["asciidoc_template.go:453"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEMPLATE_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_TEMPLATE_GO
-  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,309,367,512,526,541"]:::code_element
+  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,69,115,139,175,206,246,314,372,517,531,546"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_ASCIIDOC_TEST_GO
   CODE_ASCIIDOC_VIEWS_GO["asciidoc_views.go:14,29,44,59,75,99,109,118,141,178,200,251,282,311,434,460,484,493,502,522,538,582,655,689,724,753,783,825,839,849,859,878,887"]:::code_element
@@ -5307,7 +5312,7 @@ flowchart LR
   CODE_RENDER_TEST_GO["render_test.go:12"]:::code_element
   RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_RENDER_TEST_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_RENDER_TEST_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_VIEW_PROJECTION_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_TYPES_GO
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84["VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84 (not-run)"]:::verification
@@ -5715,10 +5720,10 @@ flowchart LR
   CODE_EARS_PREFLIGHT_TEST_GO["ears_preflight_test.go:11,60,105"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_EARS_PREFLIGHT_TEST_GO
   REQC_REQ_EMG_009 -->|code trace| CODE_EARS_PREFLIGHT_TEST_GO
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_009 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_009 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26["VER-INF-TEST-EARS_PREFLIGHT_TEST-1ABE26 (not-run)"]:::verification
@@ -5869,10 +5874,10 @@ flowchart LR
   CODE_DIAGNOSTIC_GO["diagnostic.go:24,57"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_DIAGNOSTIC_GO
   REQC_REQ_EMG_011 -->|code trace| CODE_DIAGNOSTIC_GO
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_011 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_011 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D["VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-721A8D (not-run)"]:::verification
@@ -6155,7 +6160,7 @@ flowchart LR
   CODE_ASCIIDOC_DECISIONS_GO["asciidoc_decisions.go:13,41"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_DECISIONS_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_ASCIIDOC_DECISIONS_GO
-  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,64,110,134,170,201,241,309,367,512,526,541"]:::code_element
+  CODE_ASCIIDOC_TEST_GO["asciidoc_test.go:16,69,115,139,175,206,246,314,372,517,531,546"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME -->|implemented_by| CODE_ASCIIDOC_TEST_GO
   REQC_REQ_EMG_014 -->|code trace| CODE_ASCIIDOC_TEST_GO
   FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
@@ -7045,7 +7050,7 @@ flowchart LR
   CODE_MAIN_GO["main.go:16,17,18,20,21,23,26,35,37,50,51,53,62,68,80,89,95,98,125,138,177,198"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_031 -->|code trace| CODE_MAIN_GO
-  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,564,573,584,609,633"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
   REQC_REQ_EMG_031 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
   CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,468,476"]:::code_element
@@ -7103,7 +7108,7 @@ flowchart LR
   CODE_MAIN_GO["main.go:16,17,18,20,21,23,26,35,37,50,51,53,62,68,80,89,95,98,125,138,177,198"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_032 -->|code trace| CODE_MAIN_GO
-  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,564,573,584,609,633"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
   REQC_REQ_EMG_032 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
   CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,468,476"]:::code_element
@@ -7163,7 +7168,7 @@ flowchart LR
   CODE_MAIN_GO["main.go:16,17,18,20,21,23,26,35,37,50,51,53,62,68,80,89,95,98,125,138,177,198"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_MAIN_GO
   REQC_REQ_EMG_033 -->|code trace| CODE_MAIN_GO
-  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,564,573,584,609,633"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
   REQC_REQ_EMG_033 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
   CODE_REQUIREMENTS_DELTA_TEST_GO["requirements_delta_test.go:15,80,97,112,135,155,179,200,222,263,281,314,353,369,468,476"]:::code_element
@@ -7220,7 +7225,7 @@ flowchart LR
   REQC_REQ_EMG_034 -->|applies_to| FU_FU_MODEL_CHANGE
   RTC_FU_MODEL_CHANGE_RUNTIME["Model Change runtime (inferred)"]:::runtime_element
   FU_FU_MODEL_CHANGE -->|runtime evidence| RTC_FU_MODEL_CHANGE_RUNTIME
-  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,552,561,572,597,621"]:::code_element
+  CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go:62,77,114,160,188,297,347,386,406,424,434,469,510,528,564,573,584,609,633"]:::code_element
   RTC_FU_MODEL_CHANGE_RUNTIME -->|implemented_by| CODE_REQUIREMENTS_DELTA_GO
   REQC_REQ_EMG_034 -->|code trace| CODE_REQUIREMENTS_DELTA_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -7267,7 +7272,7 @@ flowchart LR
   REQC_REQ_EMG_035 -->|applies_to| FU_FU_MODEL_LOADER
   RTC_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   FU_FU_MODEL_LOADER -->|runtime evidence| RTC_FU_MODEL_LOADER_RUNTIME
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_035 -->|code trace| CODE_LOAD_TEST_GO
   CODE_PROJECTION_GO["projection.go:16,26,39,64,79,86,93,100,115,127"]:::code_element
@@ -7282,7 +7287,7 @@ flowchart LR
   CODE_SCHEMA_TEST_GO["schema_test.go:15,41,61,79,92,105,130,154,163"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SCHEMA_TEST_GO
   REQC_REQ_EMG_035 -->|code trace| CODE_SCHEMA_TEST_GO
-  CODE_SEMANTIC_GO["semantic.go:154,169,200,323,836,1222,1242,1275,1321,1332,1342,1353,1370,1402,1415,1429,1438,1444,1489,1495,1500,1528,1542,1554,1565,1581,1613,1632,1641,1651,1661,1671"]:::code_element
+  CODE_SEMANTIC_GO["semantic.go:154,169,200,323,855,1241,1261,1294,1340,1351,1361,1372,1389,1421,1434,1448,1457,1463,1508,1514,1519,1547,1561,1573,1584,1600,1632,1651,1660,1670,1680,1690"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SEMANTIC_GO
   REQC_REQ_EMG_035 -->|code trace| CODE_SEMANTIC_GO
   CODE_SEMANTIC_TEST_GO["semantic_test.go:11,49,77,100,126,194,240,265,311,352,362"]:::code_element
@@ -7302,10 +7307,10 @@ flowchart LR
   REQC_REQ_EMG_035 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_035 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_035 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
@@ -7406,15 +7411,15 @@ flowchart LR
   REQC_REQ_EMG_036 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_036 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_036 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|verifies| REQC_REQ_EMG_036
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|implemented_by| CODE_LOAD_TEST_GO
   VERC_VER_INF_TEST_MAIN_TEST_AAEB3C["VER-INF-TEST-MAIN_TEST-AAEB3C (not-run)"]:::verification
   VERC_VER_INF_TEST_MAIN_TEST_AAEB3C -->|verifies| REQC_REQ_EMG_036
@@ -7510,10 +7515,10 @@ flowchart LR
   REQC_REQ_EMG_037 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_037 -->|code trace| CODE_VALIDATE_GO
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_037 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_MAIN_TEST_AAEB3C["VER-INF-TEST-MAIN_TEST-AAEB3C (not-run)"]:::verification
@@ -7586,7 +7591,7 @@ flowchart LR
   CODE_METAMODEL_INSTANCE_TEST_GO["metamodel_instance_test.go:15,40,74,113,148,197,223,262"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_METAMODEL_INSTANCE_TEST_GO
   REQC_REQ_EMG_038 -->|code trace| CODE_METAMODEL_INSTANCE_TEST_GO
-  CODE_SEMANTIC_GO["semantic.go:154,169,200,323,836,1222,1242,1275,1321,1332,1342,1353,1370,1402,1415,1429,1438,1444,1489,1495,1500,1528,1542,1554,1565,1581,1613,1632,1641,1651,1661,1671"]:::code_element
+  CODE_SEMANTIC_GO["semantic.go:154,169,200,323,855,1241,1261,1294,1340,1351,1361,1372,1389,1421,1434,1448,1457,1463,1508,1514,1519,1547,1561,1573,1584,1600,1632,1651,1660,1670,1680,1690"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SEMANTIC_GO
   REQC_REQ_EMG_038 -->|code trace| CODE_SEMANTIC_GO
   FU_FU_SYSML_EXPORTER["SysML Exporter"]:::functional_unit
@@ -7822,7 +7827,7 @@ flowchart LR
   CODE_SCHEMA_TEST_GO["schema_test.go:15,41,61,79,92,105,130,154,163"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SCHEMA_TEST_GO
   REQC_REQ_EMG_041 -->|code trace| CODE_SCHEMA_TEST_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_041 -->|code trace| CODE_TYPES_GO
   FU_FU_NAF_EXPORTER["NAF Exporter"]:::functional_unit
@@ -7839,7 +7844,7 @@ flowchart LR
   REQC_REQ_EMG_041 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_041 -->|code trace| CODE_VALIDATE_GO
   VERC_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4["VER-INF-TEST-NAF_EXPORT_TEST-26D0A4 (not-run)"]:::verification
@@ -7977,7 +7982,7 @@ flowchart LR
   REQC_REQ_EMG_043 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_043 -->|code trace| CODE_VALIDATE_GO
   VERC_VER_INF_TEST_MAIN_TEST_C71B6B["VER-INF-TEST-MAIN_TEST-C71B6B (not-run)"]:::verification
@@ -8019,7 +8024,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_MODEL_UPDATED,model updated event is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall load schema version 2 engmod manifest plus <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> plus <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> plus architecture plus behavior plus <<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,assurance>> plus <<REF_IDX-CATALOG_COMPLIANCE,compliance>> plus views plus <<REF_IDX-CATALOG_DECISIONS_DOCUMENT,decisions documents>> into one <<REF_IDX-DO_DO_CANONICAL_SEMANTIC_MODEL,canonical semantic model>>.
 
 
-NOTE: engmod.yml is the only <<REF_IDX-ENGMODEL_TERM_MODEL,model>> entry point and every document path is explicit. YAML is the <<REF_IDX-CATALOG_AUTHORING,authoring>> format and CUE is the schema authority. Design narratives are owned by views; architecture does not contain behavior, <<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,assurance>>, <<REF_IDX-CATALOG_COMPLIANCE,compliance>>, dependency source, NAF, or <<REF_IDX-ENGMODEL_TERM_VIEW,view>> declarations.
+NOTE: engmod.yml is the only <<REF_IDX-ENGMODEL_TERM_MODEL,model>> entry point and every document path is explicit. YAML is the <<REF_IDX-CATALOG_AUTHORING,authoring>> format and CUE is the schema authority. <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,Requirements>> may carry format-neutral qualification metadata such as title, category, rationale, source references, verification methods and criteria, priority, criticality, status, derived disposition, and tags. Views own design narratives plus generic document definitions, document-control metadata, content selections, authored sections, and external references; architecture does not contain behavior, <<REF_IDX-CATALOG_ACT_COMPLIANCE_ENGINEER,assurance>>, <<REF_IDX-CATALOG_COMPLIANCE,compliance>>, dependency source, NAF, or projection-specific declarations.
 
 
 
@@ -8043,7 +8048,7 @@ flowchart LR
   CODE_LOAD_GO["load.go:18,34,43,198,211,229,246,266"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_LOAD_GO
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_LOAD_TEST_GO
   CODE_PROJECTION_GO["projection.go:16,26,39,64,79,86,93,100,115,127"]:::code_element
@@ -8052,17 +8057,25 @@ flowchart LR
   CODE_SCHEMA_TEST_GO["schema_test.go:15,41,61,79,92,105,130,154,163"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SCHEMA_TEST_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_SCHEMA_TEST_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_TYPES_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_044 -->|applies_to| FU_FU_VALIDATION_ENGINE
+  RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
+  FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
+  RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
+  REQC_REQ_EMG_044 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|verifies| REQC_REQ_EMG_044
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|implemented_by| CODE_LOAD_TEST_GO
   VERC_VER_INF_TEST_SCHEMA_TEST_AB1606["VER-INF-TEST-SCHEMA_TEST-AB1606 (not-run)"]:::verification
   VERC_VER_INF_TEST_SCHEMA_TEST_AB1606 -->|verifies| REQC_REQ_EMG_044
   VERC_VER_INF_TEST_SCHEMA_TEST_AB1606 -->|implemented_by| CODE_SCHEMA_TEST_GO
+  VERC_VER_INF_TEST_VALIDATE_TEST_498C59["VER-INF-TEST-VALIDATE_TEST-498C59 (not-run)"]:::verification
+  VERC_VER_INF_TEST_VALIDATE_TEST_498C59 -->|verifies| REQC_REQ_EMG_044
+  VERC_VER_INF_TEST_VALIDATE_TEST_498C59 -->|implemented_by| CODE_VALIDATE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -8120,7 +8133,7 @@ flowchart LR
   CODE_AUTHORING_GO["authoring.go:52,114,119"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_AUTHORING_GO
   REQC_REQ_EMG_045 -->|code trace| CODE_AUTHORING_GO
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_045 -->|code trace| CODE_LOAD_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
@@ -8157,7 +8170,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_MODE_CI_VALIDATION,ci validation mode is active>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall reject <<REF_IDX-ENGMODEL_TERM_MODEL,model>> input that violates the schema version 2 manifest or any referenced domain document contract before <<REF_IDX-CATALOG_EVT_ARTIFACT_GENERATED,artifact generated event is raised>>.
 
 
-NOTE: Missing documents, unsupported versions, unknown fields, duplicate concepts, generic relationship kinds, unresolved local or qualified references, dependency publication violations, and cross-domain ownership violations are blocking.
+NOTE: Missing documents, unsupported versions, unknown fields, duplicate concepts, <<REF_IDX-CATALOG_INVALID,invalid>> document-control values, incomplete derived <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> rationale, unresolved document content selections, unresolved local or qualified references, dependency publication violations, and cross-domain ownership violations are blocking.
 
 
 
@@ -8178,7 +8191,7 @@ flowchart LR
   CODE_LOAD_GO["load.go:18,34,43,198,211,229,246,266"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_LOAD_GO
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_LOAD_TEST_GO
   CODE_PROJECTION_GO["projection.go:16,26,39,64,79,86,93,100,115,127"]:::code_element
@@ -8187,14 +8200,14 @@ flowchart LR
   CODE_SCHEMA_TEST_GO["schema_test.go:15,41,61,79,92,105,130,154,163"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SCHEMA_TEST_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_SCHEMA_TEST_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_TYPES_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_046 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726"]:::code_element
+  CODE_VALIDATE_TEST_GO["validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_TEST_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
@@ -8263,7 +8276,7 @@ flowchart LR
   CODE_SUBSYSTEM_GO["subsystem.go:16,32,47"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SUBSYSTEM_GO
   REQC_REQ_EMG_047 -->|code trace| CODE_SUBSYSTEM_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_047 -->|code trace| CODE_TYPES_GO
   CODE_WORKSPACE_GO["workspace.go:19,53,79,91"]:::code_element
@@ -8434,7 +8447,7 @@ flowchart LR
   REQC_REQ_EMG_049 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_VALIDATE_GO["validate.go:257,1055,1154,1254"]:::code_element
+  CODE_VALIDATE_GO["validate.go:284,1192,1291,1391"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME -->|implemented_by| CODE_VALIDATE_GO
   REQC_REQ_EMG_049 -->|code trace| CODE_VALIDATE_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
@@ -8597,13 +8610,13 @@ flowchart LR
   CODE_LOAD_GO["load.go:18,34,43,198,211,229,246,266"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_LOAD_GO
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_LOAD_TEST_GO
   CODE_SUBSYSTEM_GO["subsystem.go:16,32,47"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SUBSYSTEM_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_SUBSYSTEM_GO
-  CODE_TYPES_GO["types.go:6,16,28,106,120,131,140,152,600,615,636,643,650,685,696,703,710,719,797,824,835"]:::code_element
+  CODE_TYPES_GO["types.go:6,16,28,118,132,143,152,164,617,632,653,660,667,701,718,727,744,755,762,769,778,856,883,894"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_TYPES_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_TYPES_GO
   FU_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
@@ -8686,7 +8699,7 @@ flowchart LR
   REQC_REQ_EMG_052 -->|applies_to| FU_FU_MODEL_LOADER
   RTC_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   FU_FU_MODEL_LOADER -->|runtime evidence| RTC_FU_MODEL_LOADER_RUNTIME
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_052 -->|code trace| CODE_LOAD_TEST_GO
   CODE_SCHEMA_TEST_GO["schema_test.go:15,41,61,79,92,105,130,154,163"]:::code_element
@@ -8782,7 +8795,7 @@ flowchart LR
   CODE_LOAD_GO["load.go:18,34,43,198,211,229,246,266"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
   REQC_REQ_EMG_053 -->|code trace| CODE_LOAD_GO
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_TEST_GO
   REQC_REQ_EMG_053 -->|code trace| CODE_LOAD_TEST_GO
   CODE_SCHEMA_GO["schema.go:32,56,74,108"]:::code_element
@@ -8977,7 +8990,7 @@ flowchart LR
   VERC_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA -->|implemented_by| CODE_AIRBORNE_ASSURANCE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3["VER-INF-TEST-LOAD_TEST-A58EB3 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|verifies| REQC_REQ_EMG_056
-  CODE_LOAD_TEST_GO["load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360"]:::code_element
+  CODE_LOAD_TEST_GO["load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_A58EB3 -->|implemented_by| CODE_LOAD_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -9257,7 +9270,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>
-|Test Code Elements |asciidoc_test.go:16,64,110,134,170,201,241,309,367,512,526,541
+|Test Code Elements |asciidoc_test.go:16,69,115,139,175,206,246,314,372,517,531,546
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:2
 |Evidence |asciidoc_test.go
@@ -9637,7 +9650,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_IDX-REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_IDX-REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_IDX-REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_IDX-REQ_REQ_EMG_056,REQ-EMG-056>>
-|Test Code Elements |load_test.go:37,62,75,84,99,115,140,160,179,204,215,226,294,360
+|Test Code Elements |load_test.go:37,73,86,95,110,126,151,171,190,215,226,237,305,371
 |Derived Functional Owners |<<REF_IDX-FU_FU_AIRBORNE_ASSURANCE_EXPORTER,FU-AIRBORNE-ASSURANCE-EXPORTER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSML_EXPORTER,FU-SYSML-EXPORTER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
 |Result Summary |not-run:9
 |Evidence |<<REF_IDX-ENGMODEL_TERM_MODEL,model>>/load_test.go
@@ -10216,10 +10229,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_VALIDATE_TEST_498C59,VER-INF-TEST-VALIDATE_TEST-498C59>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_IDX-REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>
-|Test Code Elements |validate_test.go:12,23,37,121,158,205,253,294,320,351,396,451,555,726
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_IDX-REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>
+|Test Code Elements |validate_test.go:12,23,37,121,158,205,253,294,353,379,410,455,510,614,785
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_OSCAL_EXPORTER,FU-OSCAL-EXPORTER>>, <<REF_IDX-CATALOG_FU_STRUCTURIZR_EXPORTER,FU-STRUCTURIZR-EXPORTER>>, <<REF_IDX-CATALOG_FU_SYSML_EXPORTER,FU-SYSML-EXPORTER>>, <<REF_IDX-CATALOG_FU_THREAT_EXPORTER,FU-THREAT-EXPORTER>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
-|Result Summary |not-run:7
+|Result Summary |not-run:8
 |Evidence |validate/validate_test.go
 
 |Notes |Inferred from test source artifact.
@@ -11009,7 +11022,7 @@ While local development mode is active, when model updated event is received, th
 [discrete]
 ==== REQ-EMG-003
 
-While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output.
+While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output without whitespace-only lines.
 
 [cols="1,4",options="header"]
 |===
@@ -11549,7 +11562,7 @@ When model updated event is received, the engineering model go shall load schema
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-044
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_045]]
 [discrete]
@@ -12448,7 +12461,7 @@ State where validation diagnostics include one or more errors.
 |Key |Value
 |Kind |Catalog Alias
 |Name |invalid
-|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>
+|Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>
 |===
 [[REF_IDX-CATALOG_INVALID_MODEL]]
 [discrete]
@@ -14476,7 +14489,7 @@ An authored security, policy, or operational control used to constrain behavior 
 |Key |Value
 |Kind |Engineering Model Term
 |Name |control
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>
 |===
 [[REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION]]
 [discrete]
@@ -14892,7 +14905,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>
 |===
 [[REF_IDX-ENGMODEL_TERM_RISK]]
 [discrete]
@@ -15152,7 +15165,7 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 |Key |Value
 |Kind |Engineering Model Term
 |Name |view
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>
 |===
 
 === Inferred Runtime References

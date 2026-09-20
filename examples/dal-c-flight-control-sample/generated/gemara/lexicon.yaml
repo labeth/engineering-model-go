@@ -17,6 +17,9 @@ terms:
 - id: FU-YAW-CONTROL
   title: yaw damping software
   definition: Software function that filters yaw rate and limits its command.
+- id: ACT-SYSTEMS-ENGINEER
+  title: systems engineer
+  definition: Engineering stakeholder responsible for the system and software specifications.
 - id: EVT-YAW-RATE-RECEIVED
   title: yaw rate input is received
   definition: A sampled yaw-rate value becomes available.

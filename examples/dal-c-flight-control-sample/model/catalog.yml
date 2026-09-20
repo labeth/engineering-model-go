@@ -8,6 +8,14 @@ catalog:
     - id: FU-YAW-CONTROL
       name: yaw damping software
       definition: Software function that filters yaw rate and limits its command.
+  referencedElements:
+    - id: REF-SYSTEM-SAFETY-ASSESSMENT
+      name: system safety assessment
+      definition: External safety assessment that allocates the yaw damping objective.
+  actors:
+    - id: ACT-SYSTEMS-ENGINEER
+      name: systems engineer
+      definition: Engineering stakeholder responsible for the system and software specifications.
   events:
     - id: EVT-YAW-RATE-RECEIVED
       name: yaw rate input is received

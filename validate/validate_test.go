@@ -290,6 +290,65 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+func TestBundleValidation_FormalDocumentInputs(t *testing.T) {
+	b := model.Bundle{
+		Architecture: model.ArchitectureDocument{
+			AuthoredArchitecture: model.AuthoredArchitecture{
+				FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+				FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+				Actors:             []model.Actor{{ID: "ACT-A", Name: "Stakeholder A"}},
+				ReferencedElements: []model.ReferencedElement{{ID: "REF-A", Name: "Reference A"}},
+			},
+			Views: []model.View{{ID: "VIEW-A", Kind: "architecture-intent", Roots: []string{"FU-A"}}},
+		},
+		Requirements: model.RequirementsDocument{Requirements: []model.Requirement{{
+			ID: "REQ-A", Text: "The system shall provide an outcome.", Derived: true,
+			DerivedRationale: "The allocation introduces this requirement.",
+			SourceRefs:       []string{"REF-A"}, VerificationMethods: []string{"test"},
+			VerificationCriteria: "The observable outcome is produced.", AppliesTo: []string{"FU-A"},
+		}}},
+		Views: model.ViewsDocument{Documents: []model.DocumentDefinition{{
+			ID: "DOC-A", Title: "Formal document", Kind: "system-description",
+			Purpose: "Describe the system.", StakeholderRefs: []string{"ACT-A"},
+			ReferenceRefs: []string{"REF-A"}, ContentRefs: []string{"REQ-A", "FU-A", "VIEW-A"},
+			Sections: []model.DocumentSection{{ID: "scope", Title: "Scope", Narrative: "Defines the scope.", IncludeRefs: []string{"FU-A"}}},
+			Control: model.DocumentControl{
+				Identifier: "DOC-001", Revision: "1.0", Status: "draft", IssuedBy: "Example issuer",
+				IssueDate: "2026-09-20", Language: "en", DocumentType: "specification",
+				Confidentiality: "internal", SecurityClassification: "unclassified",
+				CountryOfOrigin: "Sweden",
+			},
+		}}},
+	}
+
+	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+		t.Fatalf("expected complete document inputs to validate, got: %+v", diags)
+	}
+
+	b.Requirements.Requirements[0].DerivedRationale = ""
+	b.Views.Documents[0].Control.IssueDate = "20-09-2026"
+	b.Views.Documents[0].ContentRefs = append(b.Views.Documents[0].ContentRefs, "MISSING")
+	b.Views.Documents[0].Sections = append(b.Views.Documents[0].Sections, model.DocumentSection{ID: "scope", Title: "Repeated"})
+	diags := Bundle(schemaV2TestBundle(b))
+	want := map[string]bool{
+		"model.missing_derived_requirement_rationale": false,
+		"model.invalid_document_issue_date":           false,
+		"model.invalid_document_content_ref":          false,
+		"model.duplicate_document_section_id":         false,
+	}
+	for _, diagnostic := range diags {
+		if _, ok := want[diagnostic.Code]; ok {
+			want[diagnostic.Code] = true
+		}
+	}
+	for code, found := range want {
+		if !found {
+			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_InteractionFlowValid(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{

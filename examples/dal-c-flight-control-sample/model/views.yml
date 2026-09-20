@@ -1,2 +1,97 @@
 schemaVersion: 2
-views: []
+views:
+  - id: VIEW-YAW-CONTROL
+    kind: architecture-intent
+    roots: [FG-FLIGHT-CONTROL]
+    audience: engineering
+    abstraction: system-and-software
+design:
+  id: DESIGN-YAW-CONTROL
+  title: Yaw Damping Design
+  functionalGroups:
+    - id: FG-FLIGHT-CONTROL
+      views:
+        intent:
+          title: Flight-control intent
+          narrative: The flight-control group contains the bounded yaw damping capability.
+  functionalUnits:
+    - id: FU-YAW-CONTROL
+      group: FG-FLIGHT-CONTROL
+      views:
+        intent:
+          title: Yaw damping intent
+          narrative: The software receives yaw rate, filters the signal, and emits a bounded rudder command.
+        communication:
+          title: Yaw damping interfaces
+          narrative: Sampled yaw-rate input is transformed into a sampled bounded rudder-command output.
+documents:
+  - id: DOC-STAKEHOLDER-REQUIREMENTS
+    title: Stakeholder Requirements Specification
+    kind: stakeholder-requirements-specification
+    purpose: Describe stakeholder needs and the system-level requirement baseline.
+    audience: [systems-engineering, verification]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    contentRefs: [REQ-YD-SYS-001, VIEW-YAW-CONTROL]
+    sections:
+      - id: scope
+        title: Scope
+        narrative: Defines the yaw damping software item and its allocated operational objective.
+        includeRefs: [FU-YAW-CONTROL]
+    control: &document-control
+      identifier: YD-STRS-001
+      revision: "1.0"
+      status: draft
+      issuedBy: Example Airframer
+      issueDate: 2026-09-20
+      language: en
+      documentType: specification
+      confidentiality: internal
+      securityClassification: unclassified
+      exportControlled: false
+      countryOfOrigin: Sweden
+      confidentialityStamp: false
+  - id: DOC-SYSTEM-REQUIREMENTS
+    title: System Requirements Specification
+    kind: system-requirements-specification
+    purpose: Specify the allocated system behavior and qualification basis.
+    audience: [systems-engineering, software-engineering, verification]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    contentRefs: [REQ-YD-SYS-001, FU-YAW-CONTROL, IF-YAW-RATE, IF-RUDDER-COMMAND]
+    control:
+      <<: *document-control
+      identifier: YD-SRS-001
+  - id: DOC-SYSTEM-DESIGN
+    title: System Design Description
+    kind: system-design-description
+    purpose: Describe the allocated architecture, interfaces, and execution concept.
+    audience: [systems-engineering, software-engineering]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    contentRefs: [FG-FLIGHT-CONTROL, FU-YAW-CONTROL, IF-YAW-RATE, IF-RUDDER-COMMAND, VIEW-YAW-CONTROL]
+    control:
+      <<: *document-control
+      identifier: YD-SSDD-001
+  - id: DOC-SOFTWARE-REQUIREMENTS
+    title: Software Requirements Specification
+    kind: software-requirements-specification
+    purpose: Specify the software behavior and objective verification criteria.
+    audience: [software-engineering, verification]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    contentRefs: [REQ-YD-HLR-001, REQ-YD-LLR-001, FU-YAW-CONTROL, IF-YAW-RATE, IF-RUDDER-COMMAND]
+    control:
+      <<: *document-control
+      identifier: YD-SWRS-001
+  - id: DOC-SOFTWARE-DESIGN
+    title: Software Design Description
+    kind: software-design-description
+    purpose: Describe the software design, interfaces, behavior, and requirement allocation.
+    audience: [software-engineering, verification]
+    stakeholderRefs: [ACT-SYSTEMS-ENGINEER]
+    referenceRefs: [REF-SYSTEM-SAFETY-ASSESSMENT]
+    contentRefs: [FU-YAW-CONTROL, IF-YAW-RATE, IF-RUDDER-COMMAND, VIEW-YAW-CONTROL]
+    control:
+      <<: *document-control
+      identifier: YD-SWDD-001
