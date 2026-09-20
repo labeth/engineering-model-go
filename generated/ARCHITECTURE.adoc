@@ -5680,7 +5680,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_MODE_CI_VALIDATION,ci validation mode is active>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall execute <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> plus tests before <<REF_IDX-CATALOG_EVT_ARTIFACT_GENERATED,artifact generated event is raised>>.
 
 
-NOTE: CI gate behavior for deterministic quality.
+NOTE: CI installs only the runtimes required by <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> and configures dependency caches only when their native project metadata exists, so setup does not fail before the <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> gauntlet runs.
 
 
 

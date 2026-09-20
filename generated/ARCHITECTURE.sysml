@@ -2072,7 +2072,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-009' {
         attribute 'text' : 'String' = "While ci validation mode is active, when generation run is requested, the engineering model go shall execute validation plus tests before artifact generated event is raised.";
-        attribute 'notes' : 'String' = "CI gate behavior for deterministic quality.";
+        attribute 'notes' : 'String' = "CI installs only the runtimes required by validation and configures dependency caches only when their native project metadata exists, so setup does not fail before the validation gauntlet runs.";
     }
 
     @EngineeringElement {
