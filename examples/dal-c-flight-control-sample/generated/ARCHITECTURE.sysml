@@ -38,6 +38,66 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
     attribute 'engineeringModelInterchange';
 
     @EngineeringElement {
+        sourceId = "ACT-SYSTEMS-ENGINEER";
+        conceptKind = "stakeholder_definition";
+    }
+    item def 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringElement {
+        sourceId = "CONCERN-2F87CC2FF83FAEB7";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-2F87CC2FF83FAEB7' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Sampled yaw-rate input is transformed into a sampled bounded rudder-command output.";
+    }
+
+    @EngineeringElement {
+        sourceId = "CONCERN-35FC0851EDF063DC";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-35FC0851EDF063DC' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "The software receives yaw rate, filters the signal, and emits a bounded rudder command.";
+    }
+
+    @EngineeringElement {
+        sourceId = "CONCERN-9A2910DA260B2C56";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-9A2910DA260B2C56' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "The flight-control group contains the bounded yaw damping capability.";
+    }
+
+    @EngineeringElement {
+        sourceId = "DOC-SOFTWARE-DESIGN";
+        conceptKind = "view_usage";
+    }
+    view 'DOC-SOFTWARE-DESIGN' : EngineeringView;
+
+    @EngineeringElement {
+        sourceId = "DOC-SOFTWARE-REQUIREMENTS";
+        conceptKind = "view_usage";
+    }
+    view 'DOC-SOFTWARE-REQUIREMENTS' : EngineeringView;
+
+    @EngineeringElement {
+        sourceId = "DOC-STAKEHOLDER-REQUIREMENTS";
+        conceptKind = "view_usage";
+    }
+    view 'DOC-STAKEHOLDER-REQUIREMENTS' : EngineeringView;
+
+    @EngineeringElement {
+        sourceId = "DOC-SYSTEM-DESIGN";
+        conceptKind = "view_usage";
+    }
+    view 'DOC-SYSTEM-DESIGN' : EngineeringView;
+
+    @EngineeringElement {
+        sourceId = "DOC-SYSTEM-REQUIREMENTS";
+        conceptKind = "view_usage";
+    }
+    view 'DOC-SYSTEM-REQUIREMENTS' : EngineeringView;
+
+    @EngineeringElement {
         sourceId = "EVT-YAW-RATE-RECEIVED";
         conceptKind = "event_definition";
     }
@@ -86,6 +146,12 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
     }
 
     @EngineeringElement {
+        sourceId = "REF-SYSTEM-SAFETY-ASSESSMENT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringElement {
         sourceId = "REQ-YD-HLR-001";
         conceptKind = "requirement_definition";
     }
@@ -129,4 +195,227 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
         conceptKind = "engineering_extension";
     }
     attribute 'TERM-YAW-RATE';
+
+    @EngineeringElement {
+        sourceId = "VIEW-YAW-CONTROL";
+        conceptKind = "view_usage";
+    }
+    view 'VIEW-YAW-CONTROL' : EngineeringView;
+
+    @EngineeringRelationship {
+        sourceId = "REL-06B41FB4A0C22A7B";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-06B41FB4A0C22A7B' from 'DOC-SOFTWARE-REQUIREMENTS' to 'REQ-YD-HLR-001';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0A9E2ECF973A0115";
+        conceptKind = "dependency";
+        relationshipKind = "document_reference";
+    }
+    dependency 'REL-0A9E2ECF973A0115' from 'DOC-SOFTWARE-DESIGN' to 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0D01D9B203149B62";
+        conceptKind = "dependency";
+        relationshipKind = "document_stakeholder";
+    }
+    dependency 'REL-0D01D9B203149B62' from 'DOC-SOFTWARE-DESIGN' to 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1510DA30330BF617";
+        conceptKind = "dependency";
+        relationshipKind = "document_reference";
+    }
+    dependency 'REL-1510DA30330BF617' from 'DOC-SOFTWARE-REQUIREMENTS' to 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-22123F6C0E9C43F4";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-22123F6C0E9C43F4' from 'DOC-SOFTWARE-REQUIREMENTS' to 'FU-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-2A16AAEDD203E378";
+        conceptKind = "dependency";
+        relationshipKind = "document_reference";
+    }
+    dependency 'REL-2A16AAEDD203E378' from 'DOC-SYSTEM-REQUIREMENTS' to 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-36EB07109AEFD2D2";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-36EB07109AEFD2D2' from 'DOC-SOFTWARE-DESIGN' to 'FU-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-438CC2198B1F85C4";
+        conceptKind = "dependency";
+        relationshipKind = "document_stakeholder";
+    }
+    dependency 'REL-438CC2198B1F85C4' from 'DOC-SOFTWARE-REQUIREMENTS' to 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-53428CFF8DBBCAB1";
+        conceptKind = "dependency";
+        relationshipKind = "document_stakeholder";
+    }
+    dependency 'REL-53428CFF8DBBCAB1' from 'DOC-SYSTEM-DESIGN' to 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-548CEBCF4964D4B8";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-548CEBCF4964D4B8' from 'DOC-SOFTWARE-REQUIREMENTS' to 'IF-RUDDER-COMMAND';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5EE2FD7F835AE6E1";
+        conceptKind = "dependency";
+        relationshipKind = "document_stakeholder";
+    }
+    dependency 'REL-5EE2FD7F835AE6E1' from 'DOC-STAKEHOLDER-REQUIREMENTS' to 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-60766B9154C03BD2";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-60766B9154C03BD2' from 'DOC-SYSTEM-REQUIREMENTS' to 'IF-RUDDER-COMMAND';
+
+    @EngineeringRelationship {
+        sourceId = "REL-62F395A90A90AE47";
+        conceptKind = "dependency";
+        relationshipKind = "document_section_content";
+    }
+    dependency 'REL-62F395A90A90AE47' from 'DOC-STAKEHOLDER-REQUIREMENTS' to 'FU-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-66F91EBAB7D5E58F";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-66F91EBAB7D5E58F' from 'DOC-SYSTEM-DESIGN' to 'FG-FLIGHT-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-6F8ECB1564135A98";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-6F8ECB1564135A98' from 'DOC-SYSTEM-DESIGN' to 'IF-YAW-RATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-87C4950730FEC156";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-87C4950730FEC156' from 'DOC-SYSTEM-REQUIREMENTS' to 'IF-YAW-RATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-90C3E39CF063C893";
+        conceptKind = "dependency";
+        relationshipKind = "document_stakeholder";
+    }
+    dependency 'REL-90C3E39CF063C893' from 'DOC-SYSTEM-REQUIREMENTS' to 'ACT-SYSTEMS-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9509200568C2C80E";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-9509200568C2C80E' from 'DOC-STAKEHOLDER-REQUIREMENTS' to 'REQ-YD-SYS-001';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9E828CB205B20D69";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-9E828CB205B20D69' from 'DOC-SOFTWARE-REQUIREMENTS' to 'IF-YAW-RATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A6B37280C7B41AFA";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-A6B37280C7B41AFA' from 'DOC-SYSTEM-REQUIREMENTS' to 'REQ-YD-SYS-001';
+
+    @EngineeringRelationship {
+        sourceId = "REL-AB6EAAFD96EE720C";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-AB6EAAFD96EE720C' from 'DOC-SYSTEM-DESIGN' to 'FU-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-AE94902E6FBF7266";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-AE94902E6FBF7266' from 'DOC-SOFTWARE-DESIGN' to 'VIEW-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B192A3256BFD2AC8";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-B192A3256BFD2AC8' from 'DOC-SYSTEM-DESIGN' to 'VIEW-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B650521AE28EE54E";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-B650521AE28EE54E' from 'DOC-SYSTEM-DESIGN' to 'IF-RUDDER-COMMAND';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B9C47DCFC207E184";
+        conceptKind = "dependency";
+        relationshipKind = "document_reference";
+    }
+    dependency 'REL-B9C47DCFC207E184' from 'DOC-STAKEHOLDER-REQUIREMENTS' to 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-BAC5F6F6AEB8A260";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-BAC5F6F6AEB8A260' from 'DOC-STAKEHOLDER-REQUIREMENTS' to 'VIEW-YAW-CONTROL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-CD4457B12C5056C2";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-CD4457B12C5056C2' from 'DOC-SOFTWARE-DESIGN' to 'IF-RUDDER-COMMAND';
+
+    @EngineeringRelationship {
+        sourceId = "REL-DCCB57C637468116";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-DCCB57C637468116' from 'DOC-SOFTWARE-DESIGN' to 'IF-YAW-RATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E588E0BB6EF6A961";
+        conceptKind = "dependency";
+        relationshipKind = "document_reference";
+    }
+    dependency 'REL-E588E0BB6EF6A961' from 'DOC-SYSTEM-DESIGN' to 'REF-SYSTEM-SAFETY-ASSESSMENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-EA31AFF8E3B4DCDE";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-EA31AFF8E3B4DCDE' from 'DOC-SOFTWARE-REQUIREMENTS' to 'REQ-YD-LLR-001';
+
+    @EngineeringRelationship {
+        sourceId = "REL-EC3599EA2BB95B82";
+        conceptKind = "dependency";
+        relationshipKind = "document_content";
+    }
+    dependency 'REL-EC3599EA2BB95B82' from 'DOC-SYSTEM-REQUIREMENTS' to 'FU-YAW-CONTROL';
 }

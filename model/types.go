@@ -42,10 +42,22 @@ type LintRun struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Requirement struct {
-	ID        string   `yaml:"id"`
-	Text      string   `yaml:"text"`
-	Notes     string   `yaml:"notes"`
-	AppliesTo []string `yaml:"appliesTo"`
+	ID                   string   `yaml:"id"`
+	Title                string   `yaml:"title,omitempty"`
+	Text                 string   `yaml:"text"`
+	Notes                string   `yaml:"notes"`
+	Category             string   `yaml:"category,omitempty"`
+	Rationale            string   `yaml:"rationale,omitempty"`
+	SourceRefs           []string `yaml:"sourceRefs,omitempty"`
+	VerificationMethods  []string `yaml:"verificationMethods,omitempty"`
+	VerificationCriteria string   `yaml:"verificationCriteria,omitempty"`
+	Priority             string   `yaml:"priority,omitempty"`
+	Criticality          string   `yaml:"criticality,omitempty"`
+	Status               string   `yaml:"status,omitempty"`
+	Derived              bool     `yaml:"derived,omitempty"`
+	DerivedRationale     string   `yaml:"derivedRationale,omitempty"`
+	Tags                 []string `yaml:"tags,omitempty"`
+	AppliesTo            []string `yaml:"appliesTo"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -212,10 +224,15 @@ type AttackVector struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ReferencedElement struct {
-	ID    string `yaml:"id"`
-	Kind  string `yaml:"kind"`
-	Layer string `yaml:"layer"`
-	Name  string `yaml:"name"`
+	ID          string `yaml:"id"`
+	Kind        string `yaml:"kind"`
+	Layer       string `yaml:"layer"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Version     string `yaml:"version"`
+	Date        string `yaml:"date"`
+	URI         string `yaml:"uri"`
+	Publisher   string `yaml:"publisher"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -648,10 +665,11 @@ type ComplianceDocument struct {
 // ViewsDocument owns projections, NAF metadata, and authored narratives.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
 type ViewsDocument struct {
-	SchemaVersion int         `yaml:"schemaVersion"`
-	Views         []View      `yaml:"views"`
-	NAF           NAFProfile  `yaml:"naf"`
-	Design        DesignModel `yaml:"design"`
+	SchemaVersion int                  `yaml:"schemaVersion"`
+	Views         []View               `yaml:"views"`
+	NAF           NAFProfile           `yaml:"naf"`
+	Design        DesignModel          `yaml:"design"`
+	Documents     []DocumentDefinition `yaml:"documents"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -676,6 +694,47 @@ type View struct {
 	MaxDepth                  int      `yaml:"maxDepth"`
 	Audience                  string   `yaml:"audience"`
 	Abstraction               string   `yaml:"abstraction"`
+}
+
+// DocumentControl captures format-neutral identity, lifecycle, and handling metadata.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type DocumentControl struct {
+	Identifier             string `yaml:"identifier"`
+	Revision               string `yaml:"revision"`
+	Status                 string `yaml:"status"`
+	IssuedBy               string `yaml:"issuedBy"`
+	IssueDate              string `yaml:"issueDate"`
+	Language               string `yaml:"language"`
+	DocumentType           string `yaml:"documentType"`
+	Confidentiality        string `yaml:"confidentiality"`
+	SecurityClassification string `yaml:"securityClassification"`
+	ExportControlled       bool   `yaml:"exportControlled"`
+	CountryOfOrigin        string `yaml:"countryOfOrigin"`
+	ConfidentialityStamp   bool   `yaml:"confidentialityStamp"`
+}
+
+// DocumentSection adds authored prose and optional model selections to a document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type DocumentSection struct {
+	ID          string   `yaml:"id"`
+	Title       string   `yaml:"title"`
+	Narrative   string   `yaml:"narrative"`
+	IncludeRefs []string `yaml:"includeRefs"`
+}
+
+// DocumentDefinition selects canonical model content for a formal document.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+type DocumentDefinition struct {
+	ID              string            `yaml:"id"`
+	Title           string            `yaml:"title"`
+	Kind            string            `yaml:"kind"`
+	Purpose         string            `yaml:"purpose"`
+	Audience        []string          `yaml:"audience"`
+	StakeholderRefs []string          `yaml:"stakeholderRefs"`
+	ReferenceRefs   []string          `yaml:"referenceRefs"`
+	ContentRefs     []string          `yaml:"contentRefs"`
+	Sections        []DocumentSection `yaml:"sections"`
+	Control         DocumentControl   `yaml:"control"`
 }
 
 // NAFProfile adds NATO Architecture Framework metadata to canonical model views.

@@ -23,11 +23,49 @@
         "version": "2.0",
         "cells": [
           {
-            "id": "f8eb48dc-3845-54cd-b557-7d2e4691656e",
-            "shape": "process",
+            "id": "e70d36e8-dc80-5d25-a4f9-c4cf0eeaf4d4",
+            "shape": "actor",
             "zIndex": 1,
             "position": {
               "x": 60,
+              "y": 60
+            },
+            "size": {
+              "height": 80,
+              "width": 160
+            },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeDasharray": "",
+                "strokeWidth": 1
+              },
+              "text": {
+                "text": "Systems Engineer"
+              }
+            },
+            "data": {
+              "description": "Owns the system and software specification baseline.",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "isTrustBoundary": false,
+              "name": "Systems Engineer",
+              "outOfScope": false,
+              "providesAuthentication": false,
+              "reasonOutOfScope": "",
+              "storesCredentials": false,
+              "threats": null,
+              "type": "tm.Actor"
+            }
+          },
+          {
+            "id": "f8eb48dc-3845-54cd-b557-7d2e4691656e",
+            "shape": "process",
+            "zIndex": 2,
+            "position": {
+              "x": 320,
               "y": 60
             },
             "size": {
@@ -63,9 +101,9 @@
           {
             "id": "a844f48b-b5e0-5b1c-aeeb-2b1d3cef5ff0",
             "shape": "process",
-            "zIndex": 2,
+            "zIndex": 3,
             "position": {
-              "x": 320,
+              "x": 580,
               "y": 60
             },
             "size": {
@@ -101,9 +139,9 @@
           {
             "id": "735c8bcd-7933-5fed-ac58-daba5dd9c5e7",
             "shape": "process",
-            "zIndex": 3,
+            "zIndex": 4,
             "position": {
-              "x": 580,
+              "x": 840,
               "y": 60
             },
             "size": {

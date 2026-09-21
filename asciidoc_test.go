@@ -58,6 +58,11 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if !strings.Contains(res.Document, "REQ-PAY-005") || !strings.Contains(res.Document, "partial") {
 		t.Fatalf("missing verification result rows")
 	}
+	for lineNumber, line := range strings.Split(res.Document, "\n") {
+		if line != "" && strings.TrimSpace(line) == "" {
+			t.Fatalf("line %d contains only whitespace", lineNumber+1)
+		}
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-014

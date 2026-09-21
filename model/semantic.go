@@ -721,6 +721,25 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 	for i, x := range bundle.Architecture.Views {
 		addElement(indexPath("views", i), ElementViewUsage, "engineering.view", x.ID, x.ID, out.ID, "", x)
 	}
+	for i, document := range bundle.Views.Documents {
+		path := indexPath("documents", i)
+		addElement(path, ElementViewUsage, "engineering.document_definition", document.ID, document.Title, out.ID, "", document)
+		for _, ref := range document.ContentRefs {
+			addRelationship(path+".contentRefs", RelationshipDependency, "document_content", document.ID, ref, document.ID, document)
+		}
+		for _, ref := range document.StakeholderRefs {
+			addRelationship(path+".stakeholderRefs", RelationshipDependency, "document_stakeholder", document.ID, ref, document.ID, document)
+		}
+		for _, ref := range document.ReferenceRefs {
+			addRelationship(path+".referenceRefs", RelationshipDependency, "document_reference", document.ID, ref, document.ID, document)
+		}
+		for j, section := range document.Sections {
+			appendMetadata(document.ID, "engineering.document_section."+section.ID, section)
+			for _, ref := range section.IncludeRefs {
+				addRelationship(indexPath(path+".sections", j)+".includeRefs", RelationshipDependency, "document_section_content", document.ID, ref, document.ID, section)
+			}
+		}
+	}
 	if bundle.Architecture.NAF.Enabled() {
 		appendMetadata(out.ID, "naf.profile.v4_1", bundle.Architecture.NAF)
 		for _, product := range bundle.Architecture.NAF.Products {

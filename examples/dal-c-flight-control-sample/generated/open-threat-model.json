@@ -30,6 +30,15 @@
   ],
   "components": [
     {
+      "id": "ACT-SYSTEMS-ENGINEER",
+      "name": "Systems Engineer",
+      "type": "actor",
+      "description": "Owns the system and software specification baseline.",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
       "id": "FU-YAW-CONTROL",
       "name": "Yaw Damping Software",
       "type": "service",
@@ -52,6 +61,15 @@
       "name": "Yaw Rate Input",
       "type": "interface",
       "description": "sampled-data input",
+      "parent": {
+        "trustZone": "TZ-SYSTEM"
+      }
+    },
+    {
+      "id": "REF-SYSTEM-SAFETY-ASSESSMENT",
+      "name": "System Safety Assessment",
+      "type": "source-document",
+      "description": "external",
       "parent": {
         "trustZone": "TZ-SYSTEM"
       }

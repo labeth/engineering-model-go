@@ -587,15 +587,15 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 Core payment <<REF_IDX-CATALOG_CHECKOUT,checkout>> and authorization domain.
 
-	
+
 
 	The <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
 It owns the consistency of <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> messaging and transaction decisions when a payment is attempted,
 declined, retried, or temporarily unavailable. The group keeps <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> stable while depending on
 fraud and external bank capabilities.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -661,9 +661,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -740,14 +740,14 @@ functional responsibility for <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment
 
 <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk scoring>> and fraud audit domain.
 
-	
+
 
 	The <<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
 It combines automated <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
 escalation path. The group ensures <<REF_IDX-ENGMODEL_TERM_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -798,9 +798,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -877,14 +877,14 @@ none
 
 <<REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING,Cluster provisioning>> and <<REF_IDX-CATALOG_FU_GITOPS_OPERATIONS,GitOps operations>> domain.
 
-	
+
 
 	The <<REF_IDX-CATALOG_FG_PLATFORM,platform>> group provides the runtime and deployment foundation used by all product capabilities.
 It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
 The group enables safe delivery and reliable operations without owning payment business logic.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -947,9 +947,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1284,11 +1284,11 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ==== Payments (FG-PAYMENTS)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> is deployed so <<REF_IDX-CATALOG_CHECKOUT,checkout>> and authorization can roll independently with minimal blast radius.
 Deployment design prioritizes safe promotion, fast rollback, and dependency readiness checks before
@@ -1361,11 +1361,11 @@ Releases should stage gradually, verify dependency health, and preserve in-fligh
 ==== Fraud Evaluation (FG-FRAUD)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> deployment is tuned for cautious rollout because scoring changes can alter approval rates.
 Deployment design favors staged promotions and rapid monitoring of scoring outcomes before wider exposure.
@@ -1437,11 +1437,11 @@ Deployment design must preserve active review sessions across upgrades and ensur
 ==== Platform (FG-PLATFORM)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_PLATFORM,platform>> deployment design governs how infrastructure intent is applied and kept in sync over time.
 It prioritizes deterministic sequencing, drift <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, and recoverable change paths before application

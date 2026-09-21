@@ -8,10 +8,22 @@ package model
 }
 
 #Requirement: {
-	id?:        string
-	text?:      string
-	notes?:     string
-	appliesTo?: #StringList
+	id?:                   string
+	title?:                string
+	text?:                 string
+	notes?:                string
+	category?:             string
+	rationale?:            string
+	sourceRefs?:           #StringList
+	verificationMethods?:  [...("analysis" | "demonstration" | "inspection" | "review" | "test")]
+	verificationCriteria?: string
+	priority?:             string
+	criticality?:          string
+	status?:               "draft" | "proposed" | "approved" | "implemented" | "verified" | "rejected" | "retired"
+	derived?:              bool
+	derivedRationale?:     string
+	tags?:                 #StringList
+	appliesTo?:            #StringList
 }
 
 #Expected: {

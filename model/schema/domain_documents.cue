@@ -87,4 +87,5 @@ package model
 	views:         [...#View]
 	naf?:          #NAFProfile
 	design?:       #DesignModel
+	documents?:    [...#DocumentDefinition]
 }

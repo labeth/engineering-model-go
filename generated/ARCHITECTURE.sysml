@@ -2017,8 +2017,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-003' {
-        attribute 'text' : 'String' = "While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output.";
-        attribute 'notes' : 'String' = "Human-readable architecture output remains required.";
+        attribute 'text' : 'String' = "While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output without whitespace-only lines.";
+        attribute 'notes' : 'String' = "Human-readable architecture output remains required and shall be clean for version control and downstream processing.";
     }
 
     @EngineeringElement {
@@ -2387,7 +2387,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-044' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.";
-        attribute 'notes' : 'String' = "engmod.yml is the only model entry point and every document path is explicit. YAML is the authoring format and CUE is the schema authority. Design narratives are owned by views; architecture does not contain behavior, assurance, compliance, dependency source, NAF, or view declarations.";
+        attribute 'notes' : 'String' = "engmod.yml is the only model entry point and every document path is explicit. YAML is the authoring format and CUE is the schema authority. Requirements may carry format-neutral qualification metadata such as title, category, rationale, source references, verification methods and criteria, priority, criticality, status, derived disposition, and tags. Views own design narratives plus generic document definitions, document-control metadata, content selections, authored sections, and external references; architecture does not contain behavior, assurance, compliance, dependency source, NAF, or projection-specific declarations.";
     }
 
     @EngineeringElement {
@@ -2405,7 +2405,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-046' {
         attribute 'text' : 'String' = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject model input that violates the schema version 2 manifest or any referenced domain document contract before artifact generated event is raised.";
-        attribute 'notes' : 'String' = "Missing documents, unsupported versions, unknown fields, duplicate concepts, generic relationship kinds, unresolved local or qualified references, dependency publication violations, and cross-domain ownership violations are blocking.";
+        attribute 'notes' : 'String' = "Missing documents, unsupported versions, unknown fields, duplicate concepts, invalid document-control values, incomplete derived requirement rationale, unresolved document content selections, unresolved local or qualified references, dependency publication violations, and cross-domain ownership violations are blocking.";
     }
 
     @EngineeringElement {

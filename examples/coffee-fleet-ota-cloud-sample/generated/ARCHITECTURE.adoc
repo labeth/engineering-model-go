@@ -620,13 +620,13 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 Device-local <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and OTA execution responsibilities.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_MACHINE_EDGE,Machine Edge>> owns behavior that executes directly on coffee machines.
 It gathers <<REF_IDX-CATALOG_TELEMETRY,telemetry>>, applies OTA updates, and reports local status to cloud boundaries.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -695,9 +695,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -772,13 +772,13 @@ functional responsibility for <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,ota update a
 
 Central cloud ingestion, campaign <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, and fleet reporting.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollouts>>.
 It provides global fleet visibility and deterministic rollout decisions.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -849,9 +849,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -952,13 +952,13 @@ functional responsibility for <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION
 
 <<REF_IDX-CATALOG_FU_CLOUD_RUNTIME_OPERATIONS,Cloud runtime operations>> plus identity and secret-management controls.
 
-	
+
 
 	<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns deployability, runtime guardrails, and secure identity/config lifecycle.
 It ensures cloud and device <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> remain enforceable over time.
-	
 
-	
+
+
 ===== Functional Unit Dependency Diagram
 
 What this diagram shows: dependencies involving functional units in this functional group. Units in this group are rendered inside the group container; connected external units and referenced elements are shown outside it.
@@ -1027,9 +1027,9 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
-	
 
-	
+
+
 
 
 
@@ -1352,11 +1352,11 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ==== Machine Edge (FG-MACHINE-EDGE)
 
 
-	
 
-	
 
-	
+
+
+
 
 Machine-edge software artifacts are rolled independently from <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>> to isolate device <<REF_IDX-ENGMODEL_TERM_RISK,risk>>.
 
@@ -1427,11 +1427,11 @@ Versioned and rolled independently from <<REF_IDX-CATALOG_TELEMETRY,telemetry>> 
 ==== Cloud Control (FG-CLOUD-CONTROL)
 
 
-	
 
-	
 
-	
+
+
+
 
 Cloud-control units deploy independently to reduce blast radius during campaign logic changes.
 
@@ -1525,11 +1525,11 @@ Isolated deployment supports safe OTA policy evolution.
 ==== Platform Operations (FG-PLATFORM-OPERATIONS)
 
 
-	
 
-	
 
-	
+
+
+
 
 <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform operations>> governs release sequencing, runtime placement, and operational guardrails.
 

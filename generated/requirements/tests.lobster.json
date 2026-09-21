@@ -292,7 +292,7 @@
         "column": 4,
         "file": "asciidoc_template.go",
         "kind": "file",
-        "line": 451
+        "line": 452
       },
       "name": "asciidoc_template.go",
       "refs": [
@@ -3341,7 +3341,7 @@
         "column": 4,
         "file": "validate/validate.go",
         "kind": "file",
-        "line": 256
+        "line": 283
       },
       "name": "validate.go",
       "refs": [
@@ -3378,6 +3378,7 @@
         "req engineering_model_go_lint.REQ_EMG_035",
         "req engineering_model_go_lint.REQ_EMG_036",
         "req engineering_model_go_lint.REQ_EMG_037",
+        "req engineering_model_go_lint.REQ_EMG_044",
         "req engineering_model_go_lint.REQ_EMG_046"
       ],
       "status": "ok",
