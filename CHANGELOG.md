@@ -4,7 +4,29 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 semantic versioning.
 
-## [Unreleased] — Schema-v2 domain documents
+## [Unreleased]
+
+### Added
+
+- JavaScript trace extraction for named functions, methods and directly bound
+  function expressions in JavaScript, ES modules and CommonJS sources.
+- Lexical Verilog module trace extraction, with diagnostics for unresolved macros
+  and malformed module boundaries; this does not perform HDL elaboration.
+- Individual-file inference roots and JavaScript/Verilog test-source discovery.
+- Hardware and hardware-interface view nodes, validated endpoint references,
+  allocation relationships and trust-boundary membership.
+
+### Fixed
+
+- Keep test-only requirement links separate from production implementation.
+- Preserve distinct source identities when separately scanned files share a name
+  and declaration location, while deduplicating overlapping scan roots.
+- Keep authored view scope and limitations in publications, distinguish repeated
+  view kinds, and preserve complete diagrams without splitting them into panels.
+- Improve hardware labels, SVG routing, evidence-table wrapping and requirement
+  coverage graphs for readable publications.
+
+## [0.2.0] — Schema-v2 domain documents
 
 This release introduces a breaking model input contract. `engmod.yml` is the
 only entry point and declares module identity, exact dependencies,

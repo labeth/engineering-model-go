@@ -1,4 +1,5 @@
 = Bedrock Lambda GitHub PR Review App Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -431,6 +432,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
 
+*Authored status:* stable
+
+*Authored scope and limitations:* Authored capability boundaries and ownership responsibilities are stable for this release.
+
 === What This View Answers
 
 
@@ -440,6 +445,115 @@ Show the stable authored architecture intent: capability areas, unit ownership b
 
 - How are responsibilities intentionally split?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-ARCHITECTURE-INTENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
+N_ACT_DEVELOPER(("Developer")):::actor
+N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+N_ACT_REPOSITORY_MAINTAINER(("Repository Maintainer")):::actor
+N_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
+N_CTRL_BEDROCK_WEBHOOK_SIGNATURE[["Webhook Signature Verification"]]:::control
+N_DO_BEDROCK_PR_CONTEXT[("Pull Request Context")]:::data_object
+N_DO_BEDROCK_REVIEW_FINDINGS[("Review Findings")]:::data_object
+N_DEP_BEDROCK_GITHUB_BOUNDARY["GitHub Integration Boundary"]:::deployment_target
+N_DEP_BEDROCK_LAMBDA_PRIMARY["Primary Lambda Runtime"]:::deployment_target
+N_EVT_BEDROCK_REVIEW_COMPLETED(("Review Completed")):::event
+N_EVT_BEDROCK_REVIEW_REQUESTED(("Review Requested")):::event
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
+N_FG_PR_INTEGRATION["PR Integration"]:::functional_group
+N_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::functional_group
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
+N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
+N_IF_BEDROCK_WEBHOOK_API[/"Webhook Intake API"/]:::interface
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
+N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
+N_STATE_BEDROCK_PR_RECEIVED(["PR Received"]):::state
+N_STATE_BEDROCK_REVIEW_PUBLISHED(["Review Published"]):::state
+N_TB_BEDROCK_AWS_CONTROL[/"AWS Control Boundary"\]:::trust_boundary
+N_TB_BEDROCK_GITHUB_EXTERNAL[/"GitHub External Boundary"\]:::trust_boundary
+N_ACT_DEVELOPER --> N_FU_GITHUB_WEBHOOK_INGRESS
+N_ACT_PLATFORM_OPERATOR --> N_FU_LAMBDA_RUNTIME_OPERATIONS
+N_ACT_PLATFORM_OPERATOR --> N_FU_SECRETS_CONFIGURATION
+N_ACT_REPOSITORY_MAINTAINER --> N_FU_REVIEW_PUBLICATION
+N_ACT_SECURITY_ENGINEER --> N_FU_POLICY_CHECKS
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_LAMBDA_RUNTIME_OPERATIONS
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_SECRETS_CONFIGURATION
+N_FG_PR_INTEGRATION -->|contains| N_FU_GITHUB_WEBHOOK_INGRESS
+N_FG_PR_INTEGRATION -->|contains| N_FU_PR_CONTEXT_ASSEMBLY
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_POLICY_CHECKS
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_ORCHESTRATION
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_PUBLICATION
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|calls| N_IF_BEDROCK_WEBHOOK_API
+N_FU_GITHUB_WEBHOOK_INGRESS -->|contains| N_IF_BEDROCK_WEBHOOK_API
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_TB_BEDROCK_GITHUB_EXTERNAL
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_TB_BEDROCK_AWS_CONTROL
+N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY -->|writes| N_DO_BEDROCK_PR_CONTEXT
+N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION --> N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_REVIEW_ORCHESTRATION -->|contains| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|reads| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|writes| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION -->|contains| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION -->|reads| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION -->|calls| N_IF_BEDROCK_REVIEW_PUBLISH_API
+N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
+N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
+N_IF_BEDROCK_REVIEW_PUBLISH_API --> N_DEP_BEDROCK_GITHUB_BOUNDARY
+N_STATE_BEDROCK_PR_RECEIVED --> N_EVT_BEDROCK_REVIEW_REQUESTED
+N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_PUBLISHED
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_CTRL_BEDROCK_WEBHOOK_SIGNATURE
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_EVT_BEDROCK_REVIEW_COMPLETED
+N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_TB_BEDROCK_GITHUB_EXTERNAL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
@@ -458,22 +572,22 @@ flowchart LR
   REF_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
   REF_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction TB
+    direction LR
     subgraph FGCTX_FG_PR_INTEGRATION["PR Integration"]
-      direction TB
+      direction LR
       FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
       FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
     end
     style FGCTX_FG_PR_INTEGRATION fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_REVIEW_INTELLIGENCE["Review Intelligence"]
-      direction TB
+      direction LR
       FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
       FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
       FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
     end
     style FGCTX_FG_REVIEW_INTELLIGENCE fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_PLATFORM_OPERATIONS["Platform Operations"]
-      direction TB
+      direction LR
       FU_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
       FU_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
     end
@@ -521,7 +635,7 @@ What this diagram shows: stable capability decomposition from functional groups 
 
 [source,mermaid]
 ----
-flowchart TB
+flowchart LR
   SYS["System"]:::system_boundary
   FG_FG_PR_INTEGRATION["PR Integration"]:::functional_group
   SYS -->|contains| FG_FG_PR_INTEGRATION
@@ -642,6 +756,7 @@ flowchart LR
     FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
     subgraph RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]
       direction TB
+      CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
       CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
     end
     style RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -649,6 +764,7 @@ flowchart LR
     subgraph RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_["PR Context Assembly runtime (inferred)"]
       direction TB
       CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts"]:::code_element
+      CODE_SRC_PR_CONTEXT_ASSEMBLY_TS["src/pr_context_assembly.ts"]:::code_element
     end
     style RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_PR_CONTEXT_ASSEMBLY -->|runtime evidence| RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_
@@ -786,18 +902,21 @@ flowchart LR
     subgraph RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_["Policy Checks runtime (inferred)"]
       direction TB
       CODE_POLICY_CHECKS_RS["policy_checks.rs"]:::code_element
+      CODE_SRC_POLICY_CHECKS_RS["src/policy_checks.rs"]:::code_element
     end
     style RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_POLICY_CHECKS -->|runtime evidence| RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_
     subgraph RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]
       direction TB
       CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
+      CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
     end
     style RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
     subgraph RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]
       direction TB
       CODE_REVIEW_PUBLICATION_TS["review_publication.ts"]:::code_element
+      CODE_SRC_REVIEW_PUBLICATION_TS["src/review_publication.ts"]:::code_element
     end
     style RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
@@ -964,12 +1083,14 @@ flowchart LR
     subgraph RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_["Lambda Runtime Operations runtime (inferred)"]
       direction TB
       CODE_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go"]:::code_element
+      CODE_SRC_LAMBDA_RUNTIME_OPS_GO["src/lambda_runtime_ops.go"]:::code_element
     end
     style RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|runtime evidence| RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_
     subgraph RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_["Secrets and Configuration runtime (inferred)"]
       direction TB
       CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts"]:::code_element
+      CODE_SRC_SECRETS_CONFIGURATION_TS["src/secrets_configuration.ts"]:::code_element
     end
     style RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_SECRETS_CONFIGURATION -->|runtime evidence| RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_
@@ -1083,6 +1204,10 @@ functional responsibility for <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,secrets
 
 Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> edges and dependency handoffs.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Communication sequencing is defined, while protocol-level metadata is still being expanded.
+
 === What This View Answers
 
 
@@ -1092,6 +1217,82 @@ Show who communicates with whom across key request paths, including <<REF_IDX-EN
 
 - Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-COMMUNICATION`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-COMMUNICATION (communication)
+N_ACT_DEVELOPER(("Developer")):::actor
+N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+N_ACT_REPOSITORY_MAINTAINER(("Repository Maintainer")):::actor
+N_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
+N_DO_BEDROCK_PR_CONTEXT[("Pull Request Context")]:::data_object
+N_DO_BEDROCK_REVIEW_FINDINGS[("Review Findings")]:::data_object
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
+N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+N_IF_BEDROCK_REVIEW_PUBLISH_API[/"Review Publish API"/]:::interface
+N_IF_BEDROCK_WEBHOOK_API[/"Webhook Intake API"/]:::interface
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
+N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
+N_ACT_DEVELOPER --> N_FU_GITHUB_WEBHOOK_INGRESS
+N_ACT_PLATFORM_OPERATOR --> N_FU_LAMBDA_RUNTIME_OPERATIONS
+N_ACT_PLATFORM_OPERATOR --> N_FU_SECRETS_CONFIGURATION
+N_ACT_REPOSITORY_MAINTAINER --> N_FU_REVIEW_PUBLICATION
+N_ACT_SECURITY_ENGINEER --> N_FU_POLICY_CHECKS
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|calls| N_IF_BEDROCK_WEBHOOK_API
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
+N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY -->|writes| N_DO_BEDROCK_PR_CONTEXT
+N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION -->|reads| N_DO_BEDROCK_PR_CONTEXT
+N_FU_REVIEW_ORCHESTRATION -->|writes| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION -->|reads| N_DO_BEDROCK_REVIEW_FINDINGS
+N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION -->|calls| N_IF_BEDROCK_REVIEW_PUBLISH_API
+N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1178,6 +1379,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show inferred deployment artifacts and ownership mapping to authored units. This <<REF_IDX-ENGMODEL_TERM_VIEW,view>> emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Deployment and runtime mapping are present; observability and ownership evidence are still evolving.
+
 === What This View Answers
 
 
@@ -1187,6 +1392,82 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 - Where are platform ownership boundaries and missing ownership signals?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-DEPLOYMENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_BEDROCK_GITHUB_BOUNDARY[["GitHub Integration Boundary"]]:::deployment_target
+N_DEP_BEDROCK_LAMBDA_PRIMARY[["Primary Lambda Runtime"]]:::deployment_target
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::unknown
+N_FG_PR_INTEGRATION["PR Integration"]:::unknown
+N_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::unknown
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::unknown
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::unknown
+N_FU_POLICY_CHECKS["Policy Checks"]:::unknown
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::unknown
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::unknown
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::unknown
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::unknown
+N_IF_BEDROCK_REVIEW_PUBLISH_API["Review Publish API"]:::interface
+N_IF_BEDROCK_WEBHOOK_API["Webhook Intake API"]:::interface
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::unknown
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::unknown
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::unknown
+N_REF_GITHUB_APP_API["GitHub App API"]:::unknown
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::unknown
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::unknown
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_LAMBDA_RUNTIME_OPERATIONS
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_SECRETS_CONFIGURATION
+N_FG_PR_INTEGRATION -->|contains| N_FU_GITHUB_WEBHOOK_INGRESS
+N_FG_PR_INTEGRATION -->|contains| N_FU_PR_CONTEXT_ASSEMBLY
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_POLICY_CHECKS
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_ORCHESTRATION
+N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_PUBLICATION
+N_FU_GITHUB_WEBHOOK_INGRESS -->|deployed_to: Webhook ingress executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on: Forwards authenticated PR events for context assembly.| N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS -->|contains| N_IF_BEDROCK_WEBHOOK_API
+N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Requires secure runtime configuration and credential access.| N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Uses managed secret store for runtime credentials.| N_REF_AWS_SECRETS_MANAGER
+N_FU_POLICY_CHECKS -->|depends_on: Evaluates repository policy and risk rules.| N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Sends normalized review context.| N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Fetches pull request files and metadata.| N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Uses the GitHub REST SDK to fetch pull request files and metadata.| N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION -->|deployed_to: Orchestration executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Merges deterministic policy findings with model output.| N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Submits final findings for publication.| N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Retrieves model configuration and safety settings.| N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION -->|depends_on: Requests model analysis for code review findings.| N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION -->|depends_on: Retrieves app credentials and redaction rules.| N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
+N_FU_REVIEW_PUBLICATION -->|depends_on: Publishes check runs and inline review comments.| N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION -->|depends_on: Uses AWS SDK for Go clients to load managed secret configuration.| N_REF_AWS_SDK_GO
+N_IF_BEDROCK_REVIEW_PUBLISH_API -->|deployed_to: Publication API crosses GitHub integration boundary.| N_DEP_BEDROCK_GITHUB_BOUNDARY
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1565,7 +1846,11 @@ Managed as a shared operational boundary with controlled rotation and rollout <<
 [[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
-Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
+Show the selected security relationships and boundary context. Interpret this projection within its authored scope; membership alone does not establish authentication, enforcement or complete threat coverage.
+
+*Authored status:* draft
+
+*Authored scope and limitations:* Core threats are modeled; control-depth and detection mappings are still being expanded.
 
 === What This View Answers
 
@@ -1576,6 +1861,85 @@ Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points
 
 - Where is the threat <<REF_IDX-ENGMODEL_TERM_MODEL,model>> incomplete?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-SECURITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-SECURITY (security)
+N_AV_PR_SPAM_ABUSE(("Pull Request Spam Abuse")):::attack_vector
+N_AV_PROMPT_INJECTION_IN_DIFF(("Prompt Injection in Diff")):::attack_vector
+N_AV_SECRET_LEAKAGE_IN_REVIEW(("Secret Leakage in Review Output")):::attack_vector
+N_AV_SPOOFED_GITHUB_WEBHOOK(("Spoofed GitHub Webhook")):::attack_vector
+N_CTRL_BEDROCK_SECRETS_ROTATION[["Secret Rotation Enforcement"]]:::control
+N_CTRL_BEDROCK_WEBHOOK_SIGNATURE[["Webhook Signature Verification"]]:::control
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
+N_FG_PR_INTEGRATION["PR Integration"]:::functional_group
+N_FG_REVIEW_INTELLIGENCE["Review Intelligence"]:::functional_group
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
+N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
+N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
+N_TB_BEDROCK_AWS_CONTROL[/"AWS Control Boundary"\]:::trust_boundary
+N_TB_BEDROCK_GITHUB_EXTERNAL[/"GitHub External Boundary"\]:::trust_boundary
+N_AV_PR_SPAM_ABUSE --> N_FU_GITHUB_WEBHOOK_INGRESS
+N_AV_PR_SPAM_ABUSE --> N_FU_REVIEW_ORCHESTRATION
+N_AV_PROMPT_INJECTION_IN_DIFF --> N_FU_PR_CONTEXT_ASSEMBLY
+N_AV_PROMPT_INJECTION_IN_DIFF --> N_FU_REVIEW_ORCHESTRATION
+N_AV_SECRET_LEAKAGE_IN_REVIEW --> N_CTRL_BEDROCK_SECRETS_ROTATION
+N_AV_SECRET_LEAKAGE_IN_REVIEW --> N_FU_REVIEW_PUBLICATION
+N_AV_SECRET_LEAKAGE_IN_REVIEW --> N_FU_SECRETS_CONFIGURATION
+N_AV_SPOOFED_GITHUB_WEBHOOK --> N_CTRL_BEDROCK_WEBHOOK_SIGNATURE
+N_AV_SPOOFED_GITHUB_WEBHOOK --> N_FU_GITHUB_WEBHOOK_INGRESS
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_TB_BEDROCK_GITHUB_EXTERNAL
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_TB_BEDROCK_AWS_CONTROL
+N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 5/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1997,6 +2361,8 @@ flowchart LR
   SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|runtime| SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
   CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts"]:::code_element
   SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_PR_CONTEXT_ASSEMBLY_TS
+  CODE_SRC_PR_CONTEXT_ASSEMBLY_TS["src/pr_context_assembly.ts"]:::code_element
+  SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_SRC_PR_CONTEXT_ASSEMBLY_TS
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   AV_AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
   SEC_DEP_AWS_BEDROCK_RUNTIME_API["AWS Bedrock Runtime API"]:::referenced_element
@@ -2011,6 +2377,8 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
+  CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_SRC_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2089,6 +2457,8 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_SRC_WEBHOOK_INGRESS_GO
   CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
@@ -2105,6 +2475,8 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
+  CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
+  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_SRC_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2187,6 +2559,8 @@ flowchart LR
   SEC_TGT_FU_REVIEW_PUBLICATION -->|runtime| SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   CODE_REVIEW_PUBLICATION_TS["review_publication.ts"]:::code_element
   SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
+  CODE_SRC_REVIEW_PUBLICATION_TS["src/review_publication.ts"]:::code_element
+  SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_SRC_REVIEW_PUBLICATION_TS
   SEC_TGT_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   AV_AV_SECRET_LEAKAGE_IN_REVIEW -->|targets| SEC_TGT_FU_SECRETS_CONFIGURATION
   SEC_DEP_AWS_SDK_FOR_GO["AWS SDK for Go"]:::referenced_element
@@ -2195,6 +2569,8 @@ flowchart LR
   SEC_TGT_FU_SECRETS_CONFIGURATION -->|runtime| SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME
   CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts"]:::code_element
   SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SECRETS_CONFIGURATION_TS
+  CODE_SRC_SECRETS_CONFIGURATION_TS["src/secrets_configuration.ts"]:::code_element
+  SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SRC_SECRETS_CONFIGURATION_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2273,6 +2649,8 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
+  CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
+  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_SRC_WEBHOOK_INGRESS_GO
   CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2326,6 +2704,10 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code module
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> gaps.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Requirement mappings exist; evidence completeness and consistency are still being hardened.
+
 === What This View Answers
 
 
@@ -2335,6 +2717,66 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 
 - Where are confidence or completeness gaps in trace coverage?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-TRACEABILITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-TRACEABILITY (traceability)
+N_DEP_BEDROCK_LAMBDA_PRIMARY["Primary Lambda Runtime"]:::deployment_target
+N_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
+N_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
+N_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
+N_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
+N_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
+N_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
+N_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
+N_REF_AWS_BEDROCK_RUNTIME["AWS Bedrock Runtime API"]:::referenced_element
+N_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
+N_REF_AWS_SECRETS_MANAGER["AWS Secrets Manager"]:::referenced_element
+N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
+N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
+N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_GITHUB_WEBHOOK_INGRESS --> N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --> N_REF_AWS_SECRETS_MANAGER
+N_FU_POLICY_CHECKS --> N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY --> N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --> N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION --> N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_REVIEW_ORCHESTRATION --> N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION --> N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION --> N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION --> N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2381,6 +2823,10 @@ Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 == State Lifecycle View
 
 Show workflow <<REF_IDX-ENGMODEL_TERM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* Review lifecycle states and guarded transitions are explicitly modeled.
 
 === What This View Answers
 
@@ -2473,6 +2919,10 @@ Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> 
 == Interaction Flow View
 
 Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* Interaction flow captures PR review causality from ingress through publication.
 
 === What This View Answers
 
@@ -2770,19 +3220,19 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_001["REQ-PRR-001"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_001 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:17,28"]:::code_element
-  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
-  REQC_REQ_PRR_001 -->|code trace| CODE_WEBHOOK_INGRESS_GO
+  CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO["webhook_ingress.go: 17"]:::code_element
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO
+  REQC_REQ_PRR_001 -->|code trace| CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_001
-  CODE_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| CODE_PR_OPENED_REVIEW_FLOW_YAML
+  VERCODE_REQ_PRR_001_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_001_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2821,26 +3271,26 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_002["REQ-PRR-002"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go:17,28"]:::code_element
-  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
-  REQC_REQ_PRR_002 -->|code trace| CODE_WEBHOOK_INGRESS_GO
+  CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO["webhook_ingress.go: 28"]:::code_element
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO
+  REQC_REQ_PRR_002 -->|code trace| CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO
   FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_PR_CONTEXT_ASSEMBLY
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
   FU_FU_PR_CONTEXT_ASSEMBLY -->|runtime evidence| RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
-  CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts:9,13,20"]:::code_element
-  RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_PR_CONTEXT_ASSEMBLY_TS
-  REQC_REQ_PRR_002 -->|code trace| CODE_PR_CONTEXT_ASSEMBLY_TS
+  CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts: 9, 13"]:::code_element
+  RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS
+  REQC_REQ_PRR_002 -->|code trace| CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_002
-  CODE_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| CODE_PR_OPENED_REVIEW_FLOW_YAML
+  VERCODE_REQ_PRR_002_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_002_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2879,19 +3329,19 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_003["REQ-PRR-003"]:::requirement
   FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   REQC_REQ_PRR_003 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:11,22"]:::code_element
-  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
-  REQC_REQ_PRR_003 -->|code trace| CODE_REVIEW_ORCHESTRATOR_RS
+  CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs: 11"]:::code_element
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS
+  REQC_REQ_PRR_003 -->|code trace| CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_003
-  CODE_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| CODE_PR_OPENED_REVIEW_FLOW_YAML
+  VERCODE_REQ_PRR_003_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_003_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2930,19 +3380,19 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_004["REQ-PRR-004"]:::requirement
   FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
   REQC_REQ_PRR_004 -->|applies_to| FU_FU_POLICY_CHECKS
   RTC_FU_POLICY_CHECKS_RUNTIME["Policy Checks runtime (inferred)"]:::runtime_element
   FU_FU_POLICY_CHECKS -->|runtime evidence| RTC_FU_POLICY_CHECKS_RUNTIME
-  CODE_POLICY_CHECKS_RS["policy_checks.rs:7,21"]:::code_element
-  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_POLICY_CHECKS_RS
-  REQC_REQ_PRR_004 -->|code trace| CODE_POLICY_CHECKS_RS
+  CODE_REQ_PRR_004_POLICY_CHECKS_RS["policy_checks.rs: 7"]:::code_element
+  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_REQ_PRR_004_POLICY_CHECKS_RS
+  REQC_REQ_PRR_004 -->|code trace| CODE_REQ_PRR_004_POLICY_CHECKS_RS
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_004
-  CODE_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs:5"]:::code_element
-  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| CODE_POLICY_ONLY_FALLBACK_TEST_RS
+  VERCODE_REQ_PRR_004_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs: 5"]:::code_element
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VERCODE_REQ_PRR_004_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2981,23 +3431,23 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_005["REQ-PRR-005"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_005 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
-  REQC_REQ_PRR_005 -->|code trace| CODE_REVIEW_PUBLICATION_TS
+  CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 13"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS
+  REQC_REQ_PRR_005 -->|code trace| CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_005
-  CODE_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| CODE_PR_OPENED_REVIEW_FLOW_YAML
+  VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6["VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6 (not-run)"]:::verification
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|verifies| REQC_REQ_PRR_005
-  CODE_GITHUB_CHECK_RUN_CONTRACT_TEST_GO["github_check_run_contract_test.go:8"]:::code_element
-  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|implemented_by| CODE_GITHUB_CHECK_RUN_CONTRACT_TEST_GO
+  VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO["github_check_run_contract_test.go: 8"]:::code_element
+  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3036,30 +3486,30 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_006["REQ-PRR-006"]:::requirement
   FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_POLICY_CHECKS
   RTC_FU_POLICY_CHECKS_RUNTIME["Policy Checks runtime (inferred)"]:::runtime_element
   FU_FU_POLICY_CHECKS -->|runtime evidence| RTC_FU_POLICY_CHECKS_RUNTIME
-  CODE_POLICY_CHECKS_RS["policy_checks.rs:7,21"]:::code_element
-  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_POLICY_CHECKS_RS
-  REQC_REQ_PRR_006 -->|code trace| CODE_POLICY_CHECKS_RS
+  CODE_REQ_PRR_006_POLICY_CHECKS_RS["policy_checks.rs: 21"]:::code_element
+  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_REQ_PRR_006_POLICY_CHECKS_RS
+  REQC_REQ_PRR_006 -->|code trace| CODE_REQ_PRR_006_POLICY_CHECKS_RS
   FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
-  CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs:11,22"]:::code_element
-  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
-  REQC_REQ_PRR_006 -->|code trace| CODE_REVIEW_ORCHESTRATOR_RS
+  CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs: 22"]:::code_element
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS
+  REQC_REQ_PRR_006 -->|code trace| CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_006
-  CODE_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs:5"]:::code_element
-  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| CODE_POLICY_ONLY_FALLBACK_TEST_RS
+  VERCODE_REQ_PRR_006_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs: 5"]:::code_element
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VERCODE_REQ_PRR_006_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3098,26 +3548,26 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_007["REQ-PRR-007"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
-  REQC_REQ_PRR_007 -->|code trace| CODE_REVIEW_PUBLICATION_TS
+  CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 27"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS
+  REQC_REQ_PRR_007 -->|code trace| CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS
   FU_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_SECRETS_CONFIGURATION
   RTC_FU_SECRETS_CONFIGURATION_RUNTIME["Secrets and Configuration runtime (inferred)"]:::runtime_element
   FU_FU_SECRETS_CONFIGURATION -->|runtime evidence| RTC_FU_SECRETS_CONFIGURATION_RUNTIME
-  CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts:7,10"]:::code_element
-  RTC_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SECRETS_CONFIGURATION_TS
-  REQC_REQ_PRR_007 -->|code trace| CODE_SECRETS_CONFIGURATION_TS
+  CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS["secrets_configuration.ts: 7, 10"]:::code_element
+  RTC_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS
+  REQC_REQ_PRR_007 -->|code trace| CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1["VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1 (not-run)"]:::verification
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|verifies| REQC_REQ_PRR_007
-  CODE_AUDIT_REDACTION_TEST_TS["audit_redaction_test.ts:3"]:::code_element
-  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|implemented_by| CODE_AUDIT_REDACTION_TEST_TS
+  VERCODE_REQ_PRR_007_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_AUDIT_REDACTION_TEST_TS["audit_redaction_test.ts: 3"]:::code_element
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|implemented_by| VERCODE_REQ_PRR_007_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_AUDIT_REDACTION_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3156,7 +3606,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_008["REQ-PRR-008"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
@@ -3166,13 +3616,13 @@ flowchart LR
   REQC_REQ_PRR_008 -->|applies_to| FU_FU_REVIEW_PUBLICATION
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
-  CODE_REVIEW_PUBLICATION_TS["review_publication.ts:9,13,27,33"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
-  REQC_REQ_PRR_008 -->|code trace| CODE_REVIEW_PUBLICATION_TS
+  CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 33"]:::code_element
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS
+  REQC_REQ_PRR_008 -->|code trace| CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS
   VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2["VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2 (pass)"]:::verification
   VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|verifies| REQC_REQ_PRR_008
-  CODE_RATE_LIMIT_DEFERRAL_TEST_GO["rate_limit_deferral_test.go:8"]:::code_element
-  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|implemented_by| CODE_RATE_LIMIT_DEFERRAL_TEST_GO
+  VERCODE_REQ_PRR_008_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_RATE_LIMIT_DEFERRAL_TEST_GO["rate_limit_deferral_test.go: 8"]:::code_element
+  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|implemented_by| VERCODE_REQ_PRR_008_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_RATE_LIMIT_DEFERRAL_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3211,7 +3661,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_009["REQ-PRR-009"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_009 -->|applies_to| FU_FU_REVIEW_PUBLICATION
@@ -3255,7 +3705,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_010["REQ-PRR-010"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
   REQC_REQ_PRR_010 -->|applies_to| FU_FU_GITHUB_WEBHOOK_INGRESS
@@ -3303,15 +3753,15 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PRR_011["REQ-PRR-011"]:::requirement
   FU_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
   REQC_REQ_PRR_011 -->|applies_to| FU_FU_LAMBDA_RUNTIME_OPERATIONS
   RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME["Lambda Runtime Operations runtime (inferred)"]:::runtime_element
   FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME
-  CODE_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go:10"]:::code_element
-  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CODE_LAMBDA_RUNTIME_OPS_GO
-  REQC_REQ_PRR_011 -->|code trace| CODE_LAMBDA_RUNTIME_OPS_GO
+  CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go: 10"]:::code_element
+  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO
+  REQC_REQ_PRR_011 -->|code trace| CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;

@@ -679,6 +679,9 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	codeRawByOwner := map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
+		if isVerificationCodeItem(c) {
+			continue
+		}
 		owner := strings.TrimSpace(c.Owner)
 		if owner == "" || owner == "unresolved" {
 			continue
@@ -1175,6 +1178,9 @@ func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferr
 	}
 
 	for _, c := range code {
+		if isVerificationCodeItem(c) {
+			continue
+		}
 		path := strings.ToLower(codeItemPath(c))
 		owner := c.Owner
 		if strings.Contains(path, "log") || strings.Contains(path, "audit") || strings.Contains(path, "trace") {

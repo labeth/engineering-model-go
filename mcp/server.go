@@ -1890,6 +1890,16 @@ func (s *Server) modelEntity(id string) (string, any, bool) {
 			return "deployment_target", x, true
 		}
 	}
+	for _, x := range a.HardwareItems {
+		if x.ID == id {
+			return "hardware_item", x, true
+		}
+	}
+	for _, x := range a.HardwareInterfaces {
+		if x.ID == id {
+			return "hardware_interface", x, true
+		}
+	}
 	for _, x := range a.Controls {
 		if x.ID == id {
 			return "control", x, true
@@ -2343,6 +2353,12 @@ func (s *Server) graphNodes(query string, max int) []map[string]any {
 	}
 	for _, x := range a.DeploymentTargets {
 		add("deployment_target", x.ID, x.Name)
+	}
+	for _, x := range a.HardwareItems {
+		add("hardware_item", x.ID, x.Name)
+	}
+	for _, x := range a.HardwareInterfaces {
+		add("hardware_interface", x.ID, x.Name)
 	}
 	for _, x := range a.Controls {
 		add("control", x.ID, x.Name)

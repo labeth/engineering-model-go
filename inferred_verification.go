@@ -56,7 +56,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		},
 		inferredSiblingDirs(baseDir, bundle, codeRootOption, "tests")...,
 	))
-	testRoots = uniqueExistingDirs(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
+	testRoots = uniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
 	resultRoots := uniqueExistingDirs(append(
 		[]string{
 			filepath.Join(baseDir, "test-results"),
@@ -101,7 +101,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				return nil
 			}
 			ext := strings.ToLower(filepath.Ext(path))
-			if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".py" && ext != ".js" && ext != ".java" && ext != ".yaml" && ext != ".yml" {
+			if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".py" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".java" && ext != ".yaml" && ext != ".yml" && ext != ".v" {
 				return nil
 			}
 			data, readErr := os.ReadFile(path)
@@ -116,6 +116,18 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			content := string(data)
 			reqs := extractTRLCLinkedRequirements(content)
+			if ext == ".v" {
+				reqs = nil
+				symbols, rtlDiags, scanErr := codemap.Scan(path)
+				if scanErr != nil {
+					return scanErr
+				}
+				diags = append(diags, rtlDiags...)
+				for _, symbol := range symbols {
+					reqs = append(reqs, symbol.Implements...)
+				}
+				reqs = uniqueStrings(reqs)
+			}
 			if len(reqs) == 0 {
 				return nil
 			}
@@ -506,7 +518,7 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[string][]string, []validate.Diagnostic) {
 	out := map[string][]string{}
 	diags := []validate.Diagnostic{}
-	for _, root := range uniqueExistingDirs(roots) {
+	for _, root := range uniqueExistingSources(roots) {
 		symbols, scanDiags, err := codemap.Scan(root)
 		if err != nil {
 			diags = append(diags, validate.Diagnostic{
@@ -519,7 +531,7 @@ func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[strin
 		}
 		diags = append(diags, scanDiags...)
 		for _, s := range symbols {
-			absPath := filepath.Join(root, filepath.FromSlash(s.Path))
+			absPath := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
 			rel, err := filepath.Rel(baseDir, absPath)
 			if err != nil {
 				rel = absPath
@@ -556,7 +568,7 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 	if isVerificationTestPath(p) {
 		ext := strings.ToLower(filepath.Ext(p))
 		switch ext {
-		case ".go", ".ts", ".tsx", ".rs", ".py", ".js", ".java", ".yaml", ".yml":
+		case ".go", ".ts", ".tsx", ".rs", ".py", ".js", ".mjs", ".cjs", ".java", ".yaml", ".yml", ".v":
 			return []string{p}
 		}
 	}
@@ -568,13 +580,18 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
 	base := filepath.Base(p)
-	return strings.HasPrefix(p, "tests/") ||
+	return (strings.HasSuffix(base, ".v") && (base == "tb.v" || strings.HasPrefix(base, "tb_") || strings.HasSuffix(base, "_tb.v"))) ||
+		strings.HasPrefix(p, "tests/") ||
 		strings.Contains(p, "/tests/") ||
 		strings.HasSuffix(base, "_test.go") ||
 		strings.HasSuffix(base, ".test.js") ||
+		strings.HasSuffix(base, ".test.mjs") ||
+		strings.HasSuffix(base, ".test.cjs") ||
 		strings.HasSuffix(base, ".test.ts") ||
 		strings.HasSuffix(base, ".test.tsx") ||
 		strings.HasSuffix(base, ".spec.js") ||
+		strings.HasSuffix(base, ".spec.mjs") ||
+		strings.HasSuffix(base, ".spec.cjs") ||
 		strings.HasSuffix(base, ".spec.ts") ||
 		strings.HasSuffix(base, ".spec.tsx")
 }

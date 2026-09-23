@@ -1,4 +1,5 @@
 = Coffee Fleet OTA + Cloud Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -430,6 +431,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
 
+*Authored status:* stable
+
+*Authored scope and limitations:* Stable authored capability boundaries and responsibility ownership.
+
 === What This View Answers
 
 
@@ -439,6 +444,116 @@ Show the stable authored architecture intent: capability areas, unit ownership b
 
 - How are responsibilities intentionally split?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-ARCHITECTURE-INTENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
+N_ACT_BARISTA(("Barista")):::actor
+N_ACT_FLEET_OPERATOR(("Fleet Operator")):::actor
+N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+N_ACT_SECURITY_ANALYST(("Security Analyst")):::actor
+N_CTRL_COFFEE_FIRMWARE_SIGNATURE[["Firmware Signature Enforcement"]]:::control
+N_DO_COFFEE_OTA_PLAN[("OTA Rollout Plan")]:::data_object
+N_DO_COFFEE_TELEMETRY_EVENT[("Telemetry Event")]:::data_object
+N_DEP_COFFEE_CLOUD_PROD["Coffee Cloud Production"]:::deployment_target
+N_DEP_COFFEE_EDGE_FLEET["Coffee Edge Fleet"]:::deployment_target
+N_EVT_COFFEE_OTA_COMPLETED(("OTA Completed")):::event
+N_EVT_COFFEE_OTA_REQUESTED(("OTA Requested")):::event
+N_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
+N_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+N_IF_COFFEE_OTA_COMMAND[/"OTA Command Interface"/]:::interface
+N_IF_COFFEE_TELEMETRY_INGEST[/"Telemetry Ingestion Interface"/]:::interface
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+N_STATE_COFFEE_OTA_APPLIED(["OTA Applied"]):::state
+N_STATE_COFFEE_OTA_SCHEDULED(["OTA Scheduled"]):::state
+N_TB_COFFEE_CLOUD_CONTROL[/"Cloud Control Boundary"\]:::trust_boundary
+N_TB_COFFEE_EDGE_DEVICE[/"Edge Device Boundary"\]:::trust_boundary
+N_ACT_BARISTA --> N_FU_MACHINE_TELEMETRY_COLLECTION
+N_ACT_FLEET_OPERATOR --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_ACT_PLATFORM_OPERATOR --> N_FU_CLOUD_RUNTIME_OPERATIONS
+N_ACT_SECURITY_ANALYST --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_INGESTION_API
+N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FG_CLOUD_CONTROL -->|contains| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FG_MACHINE_EDGE -->|contains| N_FU_MACHINE_TELEMETRY_COLLECTION
+N_FG_MACHINE_EDGE -->|contains| N_FU_OTA_UPDATE_AGENT
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_CLOUD_RUNTIME_OPERATIONS
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_TB_COFFEE_CLOUD_CONTROL
+N_FU_FLEET_INGESTION_API --> N_DEP_COFFEE_CLOUD_PROD
+N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API -->|contains| N_IF_COFFEE_TELEMETRY_INGEST
+N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|contains| N_DO_COFFEE_TELEMETRY_EVENT
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|writes| N_DO_COFFEE_TELEMETRY_EVENT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|calls| N_IF_COFFEE_TELEMETRY_INGEST
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT --> N_DEP_COFFEE_EDGE_FLEET
+N_FU_OTA_UPDATE_AGENT -->|reads| N_DO_COFFEE_OTA_PLAN
+N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_OTA_UPDATE_AGENT --> N_TB_COFFEE_EDGE_DEVICE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_DEP_COFFEE_CLOUD_PROD
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_DO_COFFEE_OTA_PLAN
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|writes| N_DO_COFFEE_OTA_PLAN
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|calls| N_IF_COFFEE_OTA_COMMAND
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_IF_COFFEE_OTA_COMMAND
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
+N_STATE_COFFEE_OTA_APPLIED --> N_CTRL_COFFEE_FIRMWARE_SIGNATURE
+N_STATE_COFFEE_OTA_APPLIED --> N_EVT_COFFEE_OTA_COMPLETED
+N_STATE_COFFEE_OTA_APPLIED --> N_TB_COFFEE_EDGE_DEVICE
+N_STATE_COFFEE_OTA_SCHEDULED --> N_EVT_COFFEE_OTA_REQUESTED
+N_STATE_COFFEE_OTA_SCHEDULED --> N_STATE_COFFEE_OTA_APPLIED
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
@@ -457,22 +572,22 @@ flowchart LR
   REF_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
   REF_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction TB
+    direction LR
     subgraph FGCTX_FG_MACHINE_EDGE["Machine Edge"]
-      direction TB
+      direction LR
       FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
       FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
     end
     style FGCTX_FG_MACHINE_EDGE fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_CLOUD_CONTROL["Cloud Control"]
-      direction TB
+      direction LR
       FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
       FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
       FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
     end
     style FGCTX_FG_CLOUD_CONTROL fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_PLATFORM_OPERATIONS["Platform Operations"]
-      direction TB
+      direction LR
       FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
       FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
     end
@@ -519,7 +634,7 @@ What this diagram shows: stable capability decomposition from functional groups 
 
 [source,mermaid]
 ----
-flowchart TB
+flowchart LR
   SYS["System"]:::system_boundary
   FG_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
   SYS -->|contains| FG_FG_MACHINE_EDGE
@@ -641,12 +756,14 @@ flowchart LR
     subgraph RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_["Machine Telemetry Collection runtime (inferred)"]
       direction TB
       CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs"]:::code_element
+      CODE_SRC_MACHINE_TELEMETRY_RS["src/machine_telemetry.rs"]:::code_element
     end
     style RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_
     subgraph RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_["OTA Update Agent runtime (inferred)"]
       direction TB
       CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs"]:::code_element
+      CODE_SRC_OTA_UPDATE_AGENT_RS["src/ota_update_agent.rs"]:::code_element
     end
     style RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_
@@ -794,17 +911,20 @@ flowchart LR
     subgraph RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]
       direction TB
       CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
+      CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
     end
     style RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_FLEET_INGESTION_API -->|runtime evidence| RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
     subgraph RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]
       direction TB
       CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
+      CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
     end
     style RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
     subgraph RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]
       direction TB
+      CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["src/update_campaign_orchestrator.ts"]:::code_element
       CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts"]:::code_element
     end
     style RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -973,6 +1093,7 @@ flowchart LR
     subgraph RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC["fleet_event_topic"]
       direction TB
       CODE_CLOUD_RUNTIME_OPS_GO["cloud_runtime_ops.go"]:::code_element
+      CODE_SRC_CLOUD_RUNTIME_OPS_GO["src/cloud_runtime_ops.go"]:::code_element
     end
     style RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC
@@ -997,6 +1118,7 @@ flowchart LR
     subgraph RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_["Device Identity and Secrets runtime (inferred)"]
       direction TB
       CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts"]:::code_element
+      CODE_SRC_DEVICE_IDENTITY_SECRETS_TS["src/device_identity_secrets.ts"]:::code_element
     end
     style RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_
@@ -1108,6 +1230,10 @@ none
 
 Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> edges and dependency handoffs.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Communication handoffs are mapped; protocol detail remains partially inferred.
+
 === What This View Answers
 
 
@@ -1117,6 +1243,83 @@ Show who communicates with whom across key request paths, including <<REF_IDX-EN
 
 - Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-COMMUNICATION`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-COMMUNICATION (communication)
+N_ACT_BARISTA(("Barista")):::actor
+N_ACT_FLEET_OPERATOR(("Fleet Operator")):::actor
+N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+N_ACT_SECURITY_ANALYST(("Security Analyst")):::actor
+N_DO_COFFEE_OTA_PLAN[("OTA Rollout Plan")]:::data_object
+N_DO_COFFEE_TELEMETRY_EVENT[("Telemetry Event")]:::data_object
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+N_IF_COFFEE_OTA_COMMAND[/"OTA Command Interface"/]:::interface
+N_IF_COFFEE_TELEMETRY_INGEST[/"Telemetry Ingestion Interface"/]:::interface
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+N_ACT_BARISTA --> N_FU_MACHINE_TELEMETRY_COLLECTION
+N_ACT_FLEET_OPERATOR --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_ACT_PLATFORM_OPERATOR --> N_FU_CLOUD_RUNTIME_OPERATIONS
+N_ACT_SECURITY_ANALYST --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|writes| N_DO_COFFEE_TELEMETRY_EVENT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|calls| N_IF_COFFEE_TELEMETRY_INGEST
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT -->|reads| N_DO_COFFEE_OTA_PLAN
+N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|writes| N_DO_COFFEE_OTA_PLAN
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|calls| N_IF_COFFEE_OTA_COMMAND
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 4/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1203,6 +1406,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show inferred deployment artifacts and ownership mapping to authored units. This <<REF_IDX-ENGMODEL_TERM_VIEW,view>> emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,platform operations>>.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Deployment/runtime mapping is present with evolving control-plane evidence depth.
+
 === What This View Answers
 
 
@@ -1212,6 +1419,85 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 - Where are platform ownership boundaries and missing ownership signals?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-DEPLOYMENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_COFFEE_CLOUD_PROD[["Coffee Cloud Production"]]:::deployment_target
+N_DEP_COFFEE_EDGE_FLEET[["Coffee Edge Fleet"]]:::deployment_target
+N_FG_CLOUD_CONTROL["Cloud Control"]:::unknown
+N_FG_MACHINE_EDGE["Machine Edge"]:::unknown
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::unknown
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::unknown
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::unknown
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::unknown
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::unknown
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::unknown
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::unknown
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::unknown
+N_IF_COFFEE_OTA_COMMAND["OTA Command Interface"]:::interface
+N_IF_COFFEE_TELEMETRY_INGEST["Telemetry Ingestion Interface"]:::interface
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::unknown
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::unknown
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::unknown
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::unknown
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::unknown
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::unknown
+N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_INGESTION_API
+N_FG_CLOUD_CONTROL -->|contains| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FG_CLOUD_CONTROL -->|contains| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FG_MACHINE_EDGE -->|contains| N_FU_MACHINE_TELEMETRY_COLLECTION
+N_FG_MACHINE_EDGE -->|contains| N_FU_OTA_UPDATE_AGENT
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_CLOUD_RUNTIME_OPERATIONS
+N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Requires runtime credentials and encrypted config.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Emits platform operation and deployment events.| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API -->|deployed_to: Ingestion API runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
+N_FU_FLEET_INGESTION_API -->|depends_on: Validates device identity and token claims.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API -->|depends_on: Forwards validated telemetry and machine status events.| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API -->|contains| N_IF_COFFEE_TELEMETRY_INGEST
+N_FU_FLEET_INGESTION_API -->|depends_on: Uses cloud SDK clients for ingest and routing operations.| N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Uses controlled credentials for audit-log writes.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Persists telemetry, OTA outcomes, and audit records.| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses machine identity material for authenticated publish.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Sends normalized telemetry records to ingestion API.| N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Publishes telemetry payloads to cloud ingestion.| N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses MQTT client for edge publish and command channels.| N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT -->|deployed_to: OTA agent executes on managed edge fleet.| N_DEP_COFFEE_EDGE_FLEET
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Uses trust anchors for firmware and endpoint authentication.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Receives OTA rollout commands and policy constraints.| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT -->|depends_on: Downloads signed firmware bundle.| N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|deployed_to: Orchestration service runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Uses trusted control-plane credentials.| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Emits OTA rollout and rollback events for fleet visibility.| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_IF_COFFEE_OTA_COMMAND
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Verifies firmware artifact signature metadata.| N_REF_FIRMWARE_SIGNER_SERVICE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 4/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1604,7 +1890,11 @@ Managed as shared control-plane boundary with controlled key rotation.
 [[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
-Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
+Show the selected security relationships and boundary context. Interpret this projection within its authored scope; membership alone does not establish authentication, enforcement or complete threat coverage.
+
+*Authored status:* draft
+
+*Authored scope and limitations:* Core threats are modeled while additional control evidence is being expanded.
 
 === What This View Answers
 
@@ -1615,6 +1905,89 @@ Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points
 
 - Where is the threat <<REF_IDX-ENGMODEL_TERM_MODEL,model>> incomplete?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-SECURITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-SECURITY (security)
+N_AV_LOG_TAMPERING(("Log Tampering")):::attack_vector
+N_AV_MALICIOUS_FIRMWARE_BUNDLE(("Malicious Firmware Bundle")):::attack_vector
+N_AV_SPOOFED_DEVICE_IDENTITY(("Spoofed Device Identity")):::attack_vector
+N_AV_TELEMETRY_REPLAY_ABUSE(("Telemetry Replay Abuse")):::attack_vector
+N_CTRL_COFFEE_DEVICE_IDENTITY[["Device Identity Validation"]]:::control
+N_CTRL_COFFEE_FIRMWARE_SIGNATURE[["Firmware Signature Enforcement"]]:::control
+N_FG_CLOUD_CONTROL["Cloud Control"]:::functional_group
+N_FG_MACHINE_EDGE["Machine Edge"]:::functional_group
+N_FG_PLATFORM_OPERATIONS["Platform Operations"]:::functional_group
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+N_TB_COFFEE_CLOUD_CONTROL[/"Cloud Control Boundary"\]:::trust_boundary
+N_TB_COFFEE_EDGE_DEVICE[/"Edge Device Boundary"\]:::trust_boundary
+N_AV_LOG_TAMPERING --> N_FU_DEVICE_IDENTITY_SECRETS
+N_AV_LOG_TAMPERING --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_AV_MALICIOUS_FIRMWARE_BUNDLE --> N_CTRL_COFFEE_FIRMWARE_SIGNATURE
+N_AV_MALICIOUS_FIRMWARE_BUNDLE --> N_FU_OTA_UPDATE_AGENT
+N_AV_MALICIOUS_FIRMWARE_BUNDLE --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_AV_SPOOFED_DEVICE_IDENTITY --> N_CTRL_COFFEE_DEVICE_IDENTITY
+N_AV_SPOOFED_DEVICE_IDENTITY --> N_FU_FLEET_INGESTION_API
+N_AV_SPOOFED_DEVICE_IDENTITY --> N_FU_MACHINE_TELEMETRY_COLLECTION
+N_AV_TELEMETRY_REPLAY_ABUSE --> N_FU_FLEET_INGESTION_API
+N_AV_TELEMETRY_REPLAY_ABUSE --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_TB_COFFEE_CLOUD_CONTROL
+N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_OTA_UPDATE_AGENT --> N_TB_COFFEE_EDGE_DEVICE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 6/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2085,6 +2458,8 @@ flowchart LR
   SEC_TGT_FU_DEVICE_IDENTITY_SECRETS -->|runtime| SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
   CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts"]:::code_element
   SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_DEVICE_IDENTITY_SECRETS_TS
+  CODE_SRC_DEVICE_IDENTITY_SECRETS_TS["src/device_identity_secrets.ts"]:::code_element
+  SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_SRC_DEVICE_IDENTITY_SECRETS_TS
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
   SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
@@ -2095,6 +2470,8 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2179,6 +2556,8 @@ flowchart LR
   SEC_TGT_FU_OTA_UPDATE_AGENT -->|runtime| SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME
   CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs"]:::code_element
   SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
+  CODE_SRC_OTA_UPDATE_AGENT_RS["src/ota_update_agent.rs"]:::code_element
+  SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_SRC_OTA_UPDATE_AGENT_RS
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   AV_AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
@@ -2188,6 +2567,8 @@ flowchart LR
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime| SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
+  CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["src/update_campaign_orchestrator.ts"]:::code_element
+  SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts"]:::code_element
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2274,6 +2655,8 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
+  CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_SRC_FLEET_INGESTION_API_GO
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   AV_AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
@@ -2287,6 +2670,8 @@ flowchart LR
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime| SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
   CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs"]:::code_element
   SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
+  CODE_SRC_MACHINE_TELEMETRY_RS["src/machine_telemetry.rs"]:::code_element
+  SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_SRC_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2371,6 +2756,8 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
+  CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
+  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_SRC_FLEET_INGESTION_API_GO
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
   SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
@@ -2380,6 +2767,8 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
+  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2447,6 +2836,10 @@ runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observabil
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> gaps.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Requirement mappings exist; verification and evidence coverage continue to be hardened.
+
 === What This View Answers
 
 
@@ -2456,6 +2849,71 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 
 - Where are confidence or completeness gaps in trace coverage?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-TRACEABILITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-TRACEABILITY (traceability)
+N_DEP_COFFEE_CLOUD_PROD["Coffee Cloud Production"]:::deployment_target
+N_DEP_COFFEE_EDGE_FLEET["Coffee Edge Fleet"]:::deployment_target
+N_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
+N_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
+N_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
+N_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
+N_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
+N_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
+N_REF_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
+N_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
+N_REF_FIRMWARE_BUNDLE_STORE["Firmware Bundle Store"]:::referenced_element
+N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
+N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
+N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API --> N_DEP_COFFEE_CLOUD_PROD
+N_FU_FLEET_INGESTION_API --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API --> N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING --> N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION --> N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT --> N_DEP_COFFEE_EDGE_FLEET
+N_FU_OTA_UPDATE_AGENT --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT --> N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT --> N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_DEP_COFFEE_CLOUD_PROD
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2500,6 +2958,10 @@ Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 == State Lifecycle View
 
 Show workflow <<REF_IDX-ENGMODEL_TERM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* OTA lifecycle transitions and guards are authored for deterministic operational progression.
 
 === What This View Answers
 
@@ -2592,6 +3054,10 @@ Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> 
 == Interaction Flow View
 
 Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* OTA rollout interaction sequence is explicitly modeled from operator intent to rollout reporting.
 
 === What This View Answers
 
@@ -2890,28 +3356,28 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_001["REQ-COF-001"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_001 -->|applies_to| FU_FU_FLEET_INGESTION_API
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
-  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go:13,19"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
-  REQC_REQ_COF_001 -->|code trace| CODE_FLEET_INGESTION_API_GO
+  CODE_REQ_COF_001_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 13"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_001_FLEET_INGESTION_API_GO
+  REQC_REQ_COF_001 -->|code trace| CODE_REQ_COF_001_FLEET_INGESTION_API_GO
   FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_001 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
   FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
-  CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs:12,18"]:::code_element
-  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
-  REQC_REQ_COF_001 -->|code trace| CODE_MACHINE_TELEMETRY_RS
+  CODE_REQ_COF_001_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 12"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
+  REQC_REQ_COF_001 -->|code trace| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
   SUBREQ_SUB_TELEMETRY_REQ_TELEM_001["REQ-TELEM-001 — SUB-TELEMETRY"]:::referenced_element
   REQC_REQ_COF_001 -->|delegates to| SUBREQ_SUB_TELEMETRY_REQ_TELEM_001
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794["VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794 (pass)"]:::verification
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|verifies| REQC_REQ_COF_001
-  CODE_TELEMETRY_INGEST_CONTRACT_TEST_GO["telemetry_ingest_contract_test.go:7"]:::code_element
-  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|implemented_by| CODE_TELEMETRY_INGEST_CONTRACT_TEST_GO
+  VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO["telemetry_ingest_contract_test.go: 7"]:::code_element
+  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|implemented_by| VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2950,28 +3416,28 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_002["REQ-COF-002"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_INGESTION_API
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
-  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go:13,19"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
-  REQC_REQ_COF_002 -->|code trace| CODE_FLEET_INGESTION_API_GO
+  CODE_REQ_COF_002_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 13"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_002_FLEET_INGESTION_API_GO
+  REQC_REQ_COF_002 -->|code trace| CODE_REQ_COF_002_FLEET_INGESTION_API_GO
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
-  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:6,12,18"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
-  REQC_REQ_COF_002 -->|code trace| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 6"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_002 -->|code trace| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
   SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-CLOUD-API"]:::referenced_element
   REQC_REQ_COF_002 -->|delegates to| SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_002
-  CODE_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts:4"]:::code_element
-  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| CODE_LOGGING_PIPELINE_TEST_TS
+  VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts: 4"]:::code_element
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3010,32 +3476,32 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_003["REQ-COF-003"]:::requirement
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_003 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
-  CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs:6,16"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
-  REQC_REQ_COF_003 -->|code trace| CODE_OTA_UPDATE_AGENT_RS
+  CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 6"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS
+  REQC_REQ_COF_003 -->|code trace| CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_003 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
-  CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts:6,12"]:::code_element
-  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
-  REQC_REQ_COF_003 -->|code trace| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts: 6"]:::code_element
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  REQC_REQ_COF_003 -->|code trace| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   SUBREQ_SUB_OTA_AGENT_REQ_OTA_001["REQ-OTA-001 — SUB-OTA-AGENT"]:::referenced_element
   REQC_REQ_COF_003 -->|delegates to| SUBREQ_SUB_OTA_AGENT_REQ_OTA_001
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
-  CODE_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| CODE_OTA_ROLLOUT_FLOW_YAML
+  VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_003
-  CODE_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go:8"]:::code_element
-  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| CODE_OTA_CAMPAIGN_TEST_GO
+  VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go: 8"]:::code_element
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3074,26 +3540,26 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_004["REQ-COF-004"]:::requirement
   FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
   REQC_REQ_COF_004 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
   RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
   FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
-  CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts:5,10"]:::code_element
-  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_DEVICE_IDENTITY_SECRETS_TS
-  REQC_REQ_COF_004 -->|code trace| CODE_DEVICE_IDENTITY_SECRETS_TS
+  CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts: 5"]:::code_element
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS
+  REQC_REQ_COF_004 -->|code trace| CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_004 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
-  CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs:6,16"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
-  REQC_REQ_COF_004 -->|code trace| CODE_OTA_UPDATE_AGENT_RS
+  CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 6"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS
+  REQC_REQ_COF_004 -->|code trace| CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_004
-  CODE_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go:8"]:::code_element
-  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| CODE_OTA_CAMPAIGN_TEST_GO
+  VERCODE_REQ_COF_004_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go: 8"]:::code_element
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VERCODE_REQ_COF_004_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3132,7 +3598,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_005["REQ-COF-005"]:::requirement
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
@@ -3142,20 +3608,20 @@ flowchart LR
   REQC_REQ_COF_005 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
-  CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs:6,16"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
-  REQC_REQ_COF_005 -->|code trace| CODE_OTA_UPDATE_AGENT_RS
+  CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 16"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS
+  REQC_REQ_COF_005 -->|code trace| CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
-  CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts:6,12"]:::code_element
-  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
-  REQC_REQ_COF_005 -->|code trace| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts: 12"]:::code_element
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  REQC_REQ_COF_005 -->|code trace| CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_005
-  CODE_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| CODE_OTA_ROLLOUT_FLOW_YAML
+  VERCODE_REQ_COF_005_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VERCODE_REQ_COF_005_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3194,7 +3660,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_006["REQ-COF-006"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_006 -->|applies_to| FU_FU_FLEET_INGESTION_API
@@ -3204,9 +3670,9 @@ flowchart LR
   REQC_REQ_COF_006 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
   FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
-  CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs:12,18"]:::code_element
-  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
-  REQC_REQ_COF_006 -->|code trace| CODE_MACHINE_TELEMETRY_RS
+  CODE_REQ_COF_006_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 18"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_REQ_COF_006_MACHINE_TELEMETRY_RS
+  REQC_REQ_COF_006 -->|code trace| CODE_REQ_COF_006_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3245,26 +3711,26 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_007["REQ-COF-007"]:::requirement
   FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
   REQC_REQ_COF_007 -->|applies_to| FU_FU_DEVICE_IDENTITY_SECRETS
   RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
   FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
-  CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts:5,10"]:::code_element
-  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_DEVICE_IDENTITY_SECRETS_TS
-  REQC_REQ_COF_007 -->|code trace| CODE_DEVICE_IDENTITY_SECRETS_TS
+  CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts: 10"]:::code_element
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS
+  REQC_REQ_COF_007 -->|code trace| CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_007 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
-  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:6,12,18"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
-  REQC_REQ_COF_007 -->|code trace| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 12"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_007 -->|code trace| CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_007
-  CODE_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts:4"]:::code_element
-  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| CODE_LOGGING_PIPELINE_TEST_TS
+  VERCODE_REQ_COF_007_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts: 4"]:::code_element
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VERCODE_REQ_COF_007_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3303,7 +3769,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_008["REQ-COF-008"]:::requirement
   FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_CLOUD_RUNTIME_OPERATIONS
@@ -3315,23 +3781,23 @@ flowchart LR
   FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_CLOUD_RUNTIME_OPERATIONS_OTA_CAMPAIGN_TARGET
   RTC_FU_CLOUD_RUNTIME_OPERATIONS_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
   FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_CLOUD_RUNTIME_OPERATIONS_TELEMETRY_RETRY_QUEUE
-  CODE_CLOUD_RUNTIME_OPS_GO["cloud_runtime_ops.go:6"]:::code_element
-  RTC_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC -->|implemented_by| CODE_CLOUD_RUNTIME_OPS_GO
-  REQC_REQ_COF_008 -->|code trace| CODE_CLOUD_RUNTIME_OPS_GO
+  CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO["cloud_runtime_ops.go: 6"]:::code_element
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC -->|implemented_by| CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO
+  REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_INGESTION_API
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
-  CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go:13,19"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
-  REQC_REQ_COF_008 -->|code trace| CODE_FLEET_INGESTION_API_GO
+  CODE_REQ_COF_008_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 19"]:::code_element
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_008_FLEET_INGESTION_API_GO
+  REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_FLEET_INGESTION_API_GO
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
-  CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts:6,12,18"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
-  REQC_REQ_COF_008 -->|code trace| CODE_FLEET_OBSERVABILITY_REPORTING_TS
+  CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 18"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3370,7 +3836,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_009["REQ-COF-009"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_009 -->|applies_to| FU_FU_FLEET_INGESTION_API
@@ -3418,7 +3884,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_010["REQ-COF-010"]:::requirement
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
@@ -3468,7 +3934,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_011["REQ-COF-011"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_011 -->|applies_to| FU_FU_FLEET_INGESTION_API
@@ -3514,7 +3980,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COF_012["REQ-COF-012"]:::requirement
   FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
   REQC_REQ_COF_012 -->|applies_to| FU_FU_CLOUD_RUNTIME_OPERATIONS
@@ -3799,13 +4265,15 @@ This chapter shows the system architecture across hardware and software: hardwar
 
 ==== Hardware/Software Interface View
 
+Hardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.
+
 [source,mermaid]
 ----
 flowchart LR
-  HW_FLOW_SENSOR["Flow Sensor"]
-  HW_COFFEE_MACHINE["Coffee Machine Controller (SUB-TELEMETRY)"]
-  HW_EDGE_GATEWAY["Fleet Edge Gateway (SUB-OTA-AGENT)"]
-  HW_CLOUD["Cloud Platform (SUB-CLOUD-API)"]
+  HW_FLOW_SENSOR["HW-FLOW-SENSOR: Flow Sensor"]
+  HW_COFFEE_MACHINE["HW-COFFEE-MACHINE: Coffee Machine Controller"]
+  HW_EDGE_GATEWAY["HW-EDGE-GATEWAY: Fleet Edge Gateway"]
+  HW_CLOUD["HW-CLOUD: Cloud Platform"]
   HW_FLOW_SENSOR -->|CAN| HW_COFFEE_MACHINE
   HW_COFFEE_MACHINE -->|cellular| HW_EDGE_GATEWAY
   HW_EDGE_GATEWAY -->|ethernet| HW_CLOUD
@@ -6704,7 +7172,7 @@ Authored risk record with likelihood, impact, response, scope, controls, and evi
 |Key |Value
 |Kind |Engineering Model Term
 |Name |risk
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
 |===
 [[REF_IDX-ENGMODEL_TERM_RUNTIME_ELEMENT]]
 [discrete]

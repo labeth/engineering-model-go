@@ -13,24 +13,26 @@ import (
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 type index struct {
-	groups        map[string]model.FunctionalGroup
-	units         map[string]model.FunctionalUnit
-	actors        map[string]model.Actor
-	vectors       map[string]model.AttackVector
-	references    map[string]model.ReferencedElement
-	interfaces    map[string]model.Interface
-	data          map[string]model.DataObject
-	targets       map[string]model.DeploymentTarget
-	controls      map[string]model.Control
-	boundaries    map[string]model.TrustBoundary
-	states        map[string]model.State
-	events        map[string]model.Event
-	flows         map[string]model.Flow
-	threats       map[string]model.ThreatScenario
-	assumptions   map[string]model.ThreatAssumption
-	outOfScope    map[string]model.ThreatOutOfScope
-	mitigations   map[string]model.ThreatMitigation
-	verifications map[string]model.ControlVerification
+	hardware           map[string]model.HardwareItem
+	hardwareInterfaces map[string]model.HardwareInterface
+	groups             map[string]model.FunctionalGroup
+	units              map[string]model.FunctionalUnit
+	actors             map[string]model.Actor
+	vectors            map[string]model.AttackVector
+	references         map[string]model.ReferencedElement
+	interfaces         map[string]model.Interface
+	data               map[string]model.DataObject
+	targets            map[string]model.DeploymentTarget
+	controls           map[string]model.Control
+	boundaries         map[string]model.TrustBoundary
+	states             map[string]model.State
+	events             map[string]model.Event
+	flows              map[string]model.Flow
+	threats            map[string]model.ThreatScenario
+	assumptions        map[string]model.ThreatAssumption
+	outOfScope         map[string]model.ThreatOutOfScope
+	mitigations        map[string]model.ThreatMitigation
+	verifications      map[string]model.ControlVerification
 }
 
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-035, REQ-EMG-036
@@ -155,24 +157,26 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func buildIndex(b model.Bundle) index {
 	idx := index{
-		groups:        map[string]model.FunctionalGroup{},
-		units:         map[string]model.FunctionalUnit{},
-		actors:        map[string]model.Actor{},
-		vectors:       map[string]model.AttackVector{},
-		references:    map[string]model.ReferencedElement{},
-		interfaces:    map[string]model.Interface{},
-		data:          map[string]model.DataObject{},
-		targets:       map[string]model.DeploymentTarget{},
-		controls:      map[string]model.Control{},
-		boundaries:    map[string]model.TrustBoundary{},
-		states:        map[string]model.State{},
-		events:        map[string]model.Event{},
-		flows:         map[string]model.Flow{},
-		threats:       map[string]model.ThreatScenario{},
-		assumptions:   map[string]model.ThreatAssumption{},
-		outOfScope:    map[string]model.ThreatOutOfScope{},
-		mitigations:   map[string]model.ThreatMitigation{},
-		verifications: map[string]model.ControlVerification{},
+		hardware:           map[string]model.HardwareItem{},
+		hardwareInterfaces: map[string]model.HardwareInterface{},
+		groups:             map[string]model.FunctionalGroup{},
+		units:              map[string]model.FunctionalUnit{},
+		actors:             map[string]model.Actor{},
+		vectors:            map[string]model.AttackVector{},
+		references:         map[string]model.ReferencedElement{},
+		interfaces:         map[string]model.Interface{},
+		data:               map[string]model.DataObject{},
+		targets:            map[string]model.DeploymentTarget{},
+		controls:           map[string]model.Control{},
+		boundaries:         map[string]model.TrustBoundary{},
+		states:             map[string]model.State{},
+		events:             map[string]model.Event{},
+		flows:              map[string]model.Flow{},
+		threats:            map[string]model.ThreatScenario{},
+		assumptions:        map[string]model.ThreatAssumption{},
+		outOfScope:         map[string]model.ThreatOutOfScope{},
+		mitigations:        map[string]model.ThreatMitigation{},
+		verifications:      map[string]model.ControlVerification{},
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.FunctionalGroups {
 		idx.groups[x.ID] = x
@@ -197,6 +201,12 @@ func buildIndex(b model.Bundle) index {
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.DeploymentTargets {
 		idx.targets[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.HardwareItems {
+		idx.hardware[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
+		idx.hardwareInterfaces[x.ID] = x
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.Controls {
 		idx.controls[x.ID] = x
@@ -245,6 +255,12 @@ func findView(views []model.View, id string) (model.View, bool) {
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func toNode(id string, idx index) Node {
+	if x, ok := idx.hardware[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "hardware_item"}
+	}
+	if x, ok := idx.hardwareInterfaces[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "hardware_interface"}
+	}
 	if g, ok := idx.groups[id]; ok {
 		return Node{ID: id, Label: nonEmpty(g.Name, id), Kind: "functional_group"}
 	}
@@ -359,7 +375,7 @@ func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[s
 			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "deployment_target", "interface", "referenced_element", "trust_boundary"})
 		case "security":
 			includeMappings = setFromSlice([]string{"targets", "mitigated_by", "bounded_by", "guarded_by", "depends_on"})
-			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "attack_vector", "control", "trust_boundary", "referenced_element", "interface", "deployment_target", "flow", "threat_scenario", "threat_assumption", "threat_out_of_scope", "threat_mitigation", "control_verification"})
+			includeKinds = setFromSlice([]string{"actor", "hardware_item", "data_object", "functional_group", "functional_unit", "attack_vector", "control", "trust_boundary", "referenced_element", "interface", "deployment_target", "flow", "threat_scenario", "threat_assumption", "threat_out_of_scope", "threat_mitigation", "control_verification"})
 		case "traceability":
 			includeMappings = setFromSlice([]string{"implements", "satisfies", "verified_by", "allocated_to", "deployed_to", "depends_on"})
 			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "interface", "data_object", "deployment_target", "control", "referenced_element"})

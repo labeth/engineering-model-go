@@ -5,16 +5,16 @@ dependencies:
       version: v0.1.0
       publications:
         - public
-      digest: sha256:ce3eba64b93991936fe904dbb3b61ee2be0cfd402fc03352e2982fb363265511
+      digest: sha256:1e706138167b6d58c6477ed193ead3aa0ad9df0b5a80db73363de119627d5b29
     - alias: ota-agent
       path: models.example/coffee-fleet/ota-agent@v0
       version: v0.1.0
       publications:
         - public
-      digest: sha256:76e61633dab9002db42630cf7c13563e7385786802f84485d060b0d76f5b2ef2
+      digest: sha256:4090b68d7dabaaf74d282507461a9df12bac3efea024239be9e4547c8c943bea
     - alias: telemetry
       path: models.example/coffee-fleet/telemetry@v0
       version: v0.1.0
       publications:
         - public
-      digest: sha256:d764ae8c8ea4790881727d60ffb751f9dedee640a0427d94ce065e220812f5c5
+      digest: sha256:7748e63a6b2dd458293178138884ae3495883cf219bd15332214c9941f23edc6

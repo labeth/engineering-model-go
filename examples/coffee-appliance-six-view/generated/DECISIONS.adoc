@@ -1,0 +1,23 @@
+= Architecture Decision Records
+:toc:
+:toclevels: 2
+:sectnums:
+
+[[ADR-COFFEE-001]]
+== ADR-COFFEE-001: Separate brew coordination from temperature regulation
+
+Status:: accepted
+Date:: 2026-09-19
+
+=== Context
+
+The appliance needs an understandable beverage workflow while the heater control loop remains independently testable.
+
+=== Decision
+
+Model brew coordination and temperature regulation as nested software components with typed interaction messages.
+
+=== Consequences
+
+- Process views show the operator-visible sequence without hiding the temperature self-message.
+- Implementation and deployment views retain separate software responsibilities.

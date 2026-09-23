@@ -223,3 +223,17 @@ func findCheckByEvidence(checks []inferredVerificationCheck, evidence string) (i
 	}
 	return inferredVerificationCheck{}, false
 }
+
+// TRLC-LINKS: REQ-EMG-010
+func TestVerilogTestbenchPathClassification(t *testing.T) {
+	for _, path := range []string{"fpga/sram_bench/sim/tb.v", "fpga/sim/tb_capture.v", "rtl/capture_tb.v"} {
+		if !isVerificationTestPath(path) {
+			t.Errorf("missing testbench: %s", path)
+		}
+	}
+	for _, path := range []string{"fpga/sram_bench/bench.v", "rtl/tb_controller.vh", "rtl/table.v"} {
+		if isVerificationTestPath(path) {
+			t.Errorf("production source classified as test: %s", path)
+		}
+	}
+}

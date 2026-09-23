@@ -1,122 +1,227 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COMMUNICATION-title" viewBox="0 0 602 1204" data-source="examples/coffee-fleet-ota-cloud-sample/engmod.yml" data-view="VIEW-COMMUNICATION">
-  <title id="VIEW-COMMUNICATION-title">VIEW-COMMUNICATION — communication view</title>
-  <metadata>source=examples/coffee-fleet-ota-cloud-sample/engmod.yml; view=VIEW-COMMUNICATION; kind=communication</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-COMMUNICATION</text>
-  <line x1="146" y1="122" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Daily machine operation produces brew and status telemetry.</text>
-  <line x1="456" y1="122" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Defines OTA target cohorts and rollout windows.</text>
-  <line x1="146" y1="220" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Operates deployment and runtime controls.</text>
-  <line x1="456" y1="220" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Audits identity trust and secret rotation controls.</text>
-  <line x1="146" y1="416" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requires runtime credentials and encrypted config.</text>
-  <line x1="146" y1="416" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Emits platform operation and deployment events.</text>
-  <line x1="146" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Validates device identity and token claims.</text>
-  <line x1="146" y1="514" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Forwards validated telemetry and machine status events.</text>
-  <line x1="146" y1="514" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses cloud SDK clients for ingest and routing operations.</text>
-  <line x1="456" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses controlled credentials for audit-log writes.</text>
-  <line x1="456" y1="514" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Persists telemetry, OTA outcomes, and audit records.</text>
-  <line x1="146" y1="612" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Writes normalized telemetry event payload.</text>
-  <line x1="146" y1="612" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses machine identity material for authenticated publish.</text>
-  <line x1="146" y1="612" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Sends normalized telemetry records to ingestion API.</text>
-  <line x1="146" y1="612" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Sends telemetry payloads via telemetry ingest interface.</text>
-  <line x1="146" y1="612" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Publishes telemetry payloads to cloud ingestion.</text>
-  <line x1="146" y1="612" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses MQTT client for edge publish and command channels.</text>
-  <line x1="456" y1="612" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads rollout plan before applying firmware.</text>
-  <line x1="456" y1="612" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses trust anchors for firmware and endpoint authentication.</text>
-  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Receives OTA rollout commands and policy constraints.</text>
-  <line x1="456" y1="612" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Downloads signed firmware bundle.</text>
-  <line x1="146" y1="710" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists rollout plan and cohort metadata.</text>
-  <line x1="146" y1="710" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses trusted control-plane credentials.</text>
-  <line x1="146" y1="710" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Emits OTA rollout and rollback events for fleet visibility.</text>
-  <line x1="146" y1="710" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Publishes OTA rollout commands to device fleet.</text>
-  <line x1="146" y1="710" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Verifies firmware artifact signature metadata.</text>
-  <g id="ACT-BARISTA"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Barista</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-BARISTA</text></g>
-  <g id="ACT-FLEET-OPERATOR"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Operator</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-FLEET-OPERATOR</text></g>
-  <g id="ACT-PLATFORM-OPERATOR"><rect x="36" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform Operator</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">ACT-PLATFORM-OPERATOR</text></g>
-  <g id="ACT-SECURITY-ANALYST"><rect x="346" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Analyst</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">ACT-SECURITY-ANALYST</text></g>
-  <g id="DO-COFFEE-OTA-PLAN"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Rollout Plan</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-COFFEE-OTA-PLAN</text></g>
-  <g id="DO-COFFEE-TELEMETRY-EVENT"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Telemetry Event</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-COFFEE-TELEMETRY-EVENT</text></g>
-  <g id="FU-CLOUD-RUNTIME-OPERATIONS"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Cloud Runtime Operations</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FU-CLOUD-RUNTIME-OPERATIONS</text></g>
-  <g id="FU-DEVICE-IDENTITY-SECRETS"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Device Identity and Secrets</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FU-DEVICE-IDENTITY-SECRETS</text></g>
-  <g id="FU-FLEET-INGESTION-API"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Ingestion API</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FU-FLEET-INGESTION-API</text></g>
-  <g id="FU-FLEET-OBSERVABILITY-REPORTING"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Observability Reporting</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FU-FLEET-OBSERVABILITY-REPORTING</text></g>
-  <g id="FU-MACHINE-TELEMETRY-COLLECTION"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Machine Telemetry Collection</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FU-MACHINE-TELEMETRY-COLLECTION</text></g>
-  <g id="FU-OTA-UPDATE-AGENT"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Update Agent</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FU-OTA-UPDATE-AGENT</text></g>
-  <g id="FU-UPDATE-CAMPAIGN-ORCHESTRATION"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Update Campaign Orchestration</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text></g>
-  <g id="IF-COFFEE-OTA-COMMAND"><rect x="346" y="678" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Command Interface</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">IF-COFFEE-OTA-COMMAND</text></g>
-  <g id="IF-COFFEE-TELEMETRY-INGEST"><rect x="36" y="776" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Telemetry Ingestion Interface</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">IF-COFFEE-TELEMETRY-INGEST</text></g>
-  <g id="REF-CLOUD-LOGGING-SERVICE"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Cloud Logging Service</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">REF-CLOUD-LOGGING-SERVICE</text></g>
-  <g id="REF-CLOUD-RUNTIME-SDK"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Cloud Runtime SDK</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">REF-CLOUD-RUNTIME-SDK</text></g>
-  <g id="REF-FIRMWARE-BUNDLE-STORE"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Firmware Bundle Store</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">REF-FIRMWARE-BUNDLE-STORE</text></g>
-  <g id="REF-FIRMWARE-SIGNER-SERVICE"><rect x="36" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Firmware Signer Service</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">REF-FIRMWARE-SIGNER-SERVICE</text></g>
-  <g id="REF-IOT-INGEST-ENDPOINT"><rect x="346" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">IoT Ingest Endpoint</text>
-    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">REF-IOT-INGEST-ENDPOINT</text></g>
-  <g id="REF-MQTT-DEVICE-SDK"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">MQTT Device SDK</text>
-    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">REF-MQTT-DEVICE-SDK</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COMMUNICATION-title" viewBox="0 0 1600 2408" data-source="examples/coffee-fleet-ota-cloud-sample/engmod.yml" data-view="VIEW-COMMUNICATION">
+<title id="VIEW-COMMUNICATION-title">VIEW-COMMUNICATION — communication view</title>
+<metadata>source=examples/coffee-fleet-ota-cloud-sample/engmod.yml; view=VIEW-COMMUNICATION; kind=communication</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-COMMUNICATION</text>
+<text x="934" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 118 H436 V1190 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="106" width="34" height="16" rx="3" fill="white"/><text x="387" y="118" font-family="monospace" font-size="11">1</text>
+<text x="934" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="934" y="118" font-family="monospace" font-size="12" font-weight="normal">ACT-BARISTA → FU-MACHINE-TELEMETRY-COLLECTION</text>
+<text x="934" y="136" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Daily machine operation produces brew and status</text>
+<text x="934" y="154" font-family="monospace" font-size="12" font-weight="normal">telemetry.</text>
+<path data-edge="" d="M376 208 H454 V1492 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="196" width="34" height="16" rx="3" fill="white"/><text x="387" y="208" font-family="monospace" font-size="11">2</text>
+<text x="934" y="184" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="934" y="202" font-family="monospace" font-size="12" font-weight="normal">ACT-FLEET-OPERATOR → FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+<text x="934" y="220" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Defines OTA target cohorts and rollout windows.</text>
+<path data-edge="" d="M376 298 H472 V658 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="286" width="34" height="16" rx="3" fill="white"/><text x="387" y="298" font-family="monospace" font-size="11">3</text>
+<text x="934" y="250" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="934" y="268" font-family="monospace" font-size="12" font-weight="normal">ACT-PLATFORM-OPERATOR → FU-CLOUD-RUNTIME-OPERATIONS</text>
+<text x="934" y="286" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Operates deployment and runtime controls.</text>
+<path data-edge="" d="M376 388 H490 V764 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="376" width="34" height="16" rx="3" fill="white"/><text x="387" y="388" font-family="monospace" font-size="11">4</text>
+<text x="934" y="316" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="934" y="334" font-family="monospace" font-size="12" font-weight="normal">ACT-SECURITY-ANALYST → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="352" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Audits identity trust and secret rotation controls.</text>
+<path data-edge="" d="M376 676 H508 V782 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="664" width="34" height="16" rx="3" fill="white"/><text x="387" y="676" font-family="monospace" font-size="11">5</text>
+<text x="934" y="382" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="934" y="400" font-family="monospace" font-size="12" font-weight="normal">FU-CLOUD-RUNTIME-OPERATIONS → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="418" font-family="monospace" font-size="12" font-weight="normal">depends_on: Requires runtime credentials and encrypted config.</text>
+<path data-edge="" d="M376 694 H526 V1850 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="682" width="34" height="16" rx="3" fill="white"/><text x="387" y="694" font-family="monospace" font-size="11">6</text>
+<text x="934" y="448" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="934" y="466" font-family="monospace" font-size="12" font-weight="normal">FU-CLOUD-RUNTIME-OPERATIONS → REF-CLOUD-LOGGING-SERVICE</text>
+<text x="934" y="484" font-family="monospace" font-size="12" font-weight="normal">depends_on: Emits platform operation and deployment events.</text>
+<path data-edge="" d="M376 942 H544 V800 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="930" width="34" height="16" rx="3" fill="white"/><text x="387" y="942" font-family="monospace" font-size="11">7</text>
+<text x="934" y="514" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="934" y="532" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-INGESTION-API → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="550" font-family="monospace" font-size="12" font-weight="normal">depends_on: Validates device identity and token claims.</text>
+<path data-edge="" d="M376 960 H562 V1066 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="948" width="34" height="16" rx="3" fill="white"/><text x="387" y="960" font-family="monospace" font-size="11">8</text>
+<text x="934" y="580" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="934" y="598" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-INGESTION-API → FU-FLEET-OBSERVABILITY-REPORTING</text>
+<text x="934" y="616" font-family="monospace" font-size="12" font-weight="normal">depends_on: Forwards validated telemetry and machine status events.</text>
+<path data-edge="" d="M376 978 H580 V1940 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="966" width="34" height="16" rx="3" fill="white"/><text x="387" y="978" font-family="monospace" font-size="11">9</text>
+<text x="934" y="646" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="934" y="664" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-INGESTION-API → REF-CLOUD-RUNTIME-SDK</text>
+<text x="934" y="682" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses cloud SDK clients for ingest and routing</text>
+<text x="934" y="700" font-family="monospace" font-size="12" font-weight="normal">operations.</text>
+<path data-edge="" d="M376 1084 H598 V818 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1072" width="34" height="16" rx="3" fill="white"/><text x="387" y="1084" font-family="monospace" font-size="11">10</text>
+<text x="934" y="730" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="934" y="748" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="766" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses controlled credentials for audit-log writes.</text>
+<path data-edge="" d="M376 1102 H616 V1868 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1090" width="34" height="16" rx="3" fill="white"/><text x="387" y="1102" font-family="monospace" font-size="11">11</text>
+<text x="934" y="796" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="934" y="814" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING → REF-CLOUD-LOGGING-SERVICE</text>
+<text x="934" y="832" font-family="monospace" font-size="12" font-weight="normal">depends_on: Persists telemetry, OTA outcomes, and audit records.</text>
+<path data-edge="" d="M376 1208 H634 V568 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1196" width="34" height="16" rx="3" fill="white"/><text x="387" y="1208" font-family="monospace" font-size="11">12</text>
+<text x="934" y="862" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="934" y="880" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → DO-COFFEE-TELEMETRY-EVENT</text>
+<text x="934" y="898" font-family="monospace" font-size="12" font-weight="normal">writes: Writes normalized telemetry event payload.</text>
+<path data-edge="" d="M376 1226 H652 V836 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1214" width="34" height="16" rx="3" fill="white"/><text x="387" y="1226" font-family="monospace" font-size="11">13</text>
+<text x="934" y="928" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="934" y="946" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="964" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses machine identity material for authenticated</text>
+<text x="934" y="982" font-family="monospace" font-size="12" font-weight="normal">publish.</text>
+<path data-edge="" d="M376 1244 H670 V996 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1232" width="34" height="16" rx="3" fill="white"/><text x="387" y="1244" font-family="monospace" font-size="11">14</text>
+<text x="934" y="1012" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="934" y="1030" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → FU-FLEET-INGESTION-API</text>
+<text x="934" y="1048" font-family="monospace" font-size="12" font-weight="normal">depends_on: Sends normalized telemetry records to ingestion API.</text>
+<path data-edge="" d="M376 1262 H688 V1760 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1250" width="34" height="16" rx="3" fill="white"/><text x="387" y="1262" font-family="monospace" font-size="11">15</text>
+<text x="934" y="1078" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="934" y="1096" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → IF-COFFEE-TELEMETRY-INGEST</text>
+<text x="934" y="1114" font-family="monospace" font-size="12" font-weight="normal">calls: Sends telemetry payloads via telemetry ingest interface.</text>
+<path data-edge="" d="M376 1280 H706 V2210 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1268" width="34" height="16" rx="3" fill="white"/><text x="387" y="1280" font-family="monospace" font-size="11">16</text>
+<text x="934" y="1144" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="934" y="1162" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → REF-IOT-INGEST-ENDPOINT</text>
+<text x="934" y="1180" font-family="monospace" font-size="12" font-weight="normal">depends_on: Publishes telemetry payloads to cloud ingestion.</text>
+<path data-edge="" d="M376 1298 H724 V2300 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1286" width="34" height="16" rx="3" fill="white"/><text x="387" y="1298" font-family="monospace" font-size="11">17</text>
+<text x="934" y="1210" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="934" y="1228" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → REF-MQTT-DEVICE-SDK</text>
+<text x="934" y="1246" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses MQTT client for edge publish and command channels.</text>
+<path data-edge="" d="M376 1368 H742 V478 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1356" width="34" height="16" rx="3" fill="white"/><text x="387" y="1368" font-family="monospace" font-size="11">18</text>
+<text x="934" y="1276" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="934" y="1294" font-family="monospace" font-size="12" font-weight="normal">FU-OTA-UPDATE-AGENT → DO-COFFEE-OTA-PLAN</text>
+<text x="934" y="1312" font-family="monospace" font-size="12" font-weight="normal">reads: Reads rollout plan before applying firmware.</text>
+<path data-edge="" d="M376 1386 H760 V854 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1374" width="34" height="16" rx="3" fill="white"/><text x="387" y="1386" font-family="monospace" font-size="11">19</text>
+<text x="934" y="1342" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="934" y="1360" font-family="monospace" font-size="12" font-weight="normal">FU-OTA-UPDATE-AGENT → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="1378" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses trust anchors for firmware and endpoint</text>
+<text x="934" y="1396" font-family="monospace" font-size="12" font-weight="normal">authentication.</text>
+<path data-edge="" d="M376 1404 H778 V1510 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1392" width="34" height="16" rx="3" fill="white"/><text x="387" y="1404" font-family="monospace" font-size="11">20</text>
+<text x="934" y="1426" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="934" y="1444" font-family="monospace" font-size="12" font-weight="normal">FU-OTA-UPDATE-AGENT → FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+<text x="934" y="1462" font-family="monospace" font-size="12" font-weight="normal">depends_on: Receives OTA rollout commands and policy constraints.</text>
+<path data-edge="" d="M376 1422 H796 V2030 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1410" width="34" height="16" rx="3" fill="white"/><text x="387" y="1422" font-family="monospace" font-size="11">21</text>
+<text x="934" y="1492" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="934" y="1510" font-family="monospace" font-size="12" font-weight="normal">FU-OTA-UPDATE-AGENT → REF-FIRMWARE-BUNDLE-STORE</text>
+<text x="934" y="1528" font-family="monospace" font-size="12" font-weight="normal">depends_on: Downloads signed firmware bundle.</text>
+<path data-edge="" d="M376 1528 H814 V496 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1516" width="34" height="16" rx="3" fill="white"/><text x="387" y="1528" font-family="monospace" font-size="11">22</text>
+<text x="934" y="1558" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="934" y="1576" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → DO-COFFEE-OTA-PLAN</text>
+<text x="934" y="1594" font-family="monospace" font-size="12" font-weight="normal">writes: Persists rollout plan and cohort metadata.</text>
+<path data-edge="" d="M376 1546 H832 V872 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1534" width="34" height="16" rx="3" fill="white"/><text x="387" y="1546" font-family="monospace" font-size="11">23</text>
+<text x="934" y="1624" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="934" y="1642" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → FU-DEVICE-IDENTITY-SECRETS</text>
+<text x="934" y="1660" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses trusted control-plane credentials.</text>
+<path data-edge="" d="M376 1564 H850 V1120 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1552" width="34" height="16" rx="3" fill="white"/><text x="387" y="1564" font-family="monospace" font-size="11">24</text>
+<text x="934" y="1690" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="934" y="1708" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → FU-FLEET-OBSERVABILITY-REPORTING</text>
+<text x="934" y="1726" font-family="monospace" font-size="12" font-weight="normal">depends_on: Emits OTA rollout and rollback events for fleet</text>
+<text x="934" y="1744" font-family="monospace" font-size="12" font-weight="normal">visibility.</text>
+<path data-edge="" d="M376 1582 H868 V1670 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1570" width="34" height="16" rx="3" fill="white"/><text x="387" y="1582" font-family="monospace" font-size="11">25</text>
+<text x="934" y="1774" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="934" y="1792" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → IF-COFFEE-OTA-COMMAND</text>
+<text x="934" y="1810" font-family="monospace" font-size="12" font-weight="normal">calls: Publishes OTA rollout commands to device fleet.</text>
+<path data-edge="" d="M376 1600 H886 V2120 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1588" width="34" height="16" rx="3" fill="white"/><text x="387" y="1600" font-family="monospace" font-size="11">26</text>
+<text x="934" y="1840" font-family="monospace" font-size="12" font-weight="normal">26.</text>
+<text x="934" y="1858" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → REF-FIRMWARE-SIGNER-SERVICE</text>
+<text x="934" y="1876" font-family="monospace" font-size="12" font-weight="normal">depends_on: Verifies firmware artifact signature metadata.</text>
+<g id="ACT-BARISTA"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Barista</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-BARISTA</text>
+</g>
+<g id="ACT-FLEET-OPERATOR"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Fleet Operator</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">ACT-FLEET-OPERATOR</text>
+</g>
+<g id="ACT-PLATFORM-OPERATOR"><rect x="36" y="280" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Platform Operator</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">ACT-PLATFORM-OPERATOR</text>
+</g>
+<g id="ACT-SECURITY-ANALYST"><rect x="36" y="370" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="394" font-family="monospace" font-size="13" font-weight="bold">Security Analyst</text>
+<text x="50" y="412" font-family="monospace" font-size="11" font-weight="normal">ACT-SECURITY-ANALYST</text>
+</g>
+<g id="DO-COFFEE-OTA-PLAN"><rect x="36" y="460" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="484" font-family="monospace" font-size="13" font-weight="bold">OTA Rollout Plan</text>
+<text x="50" y="502" font-family="monospace" font-size="11" font-weight="normal">DO-COFFEE-OTA-PLAN</text>
+</g>
+<g id="DO-COFFEE-TELEMETRY-EVENT"><rect x="36" y="550" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="574" font-family="monospace" font-size="13" font-weight="bold">Telemetry Event</text>
+<text x="50" y="592" font-family="monospace" font-size="11" font-weight="normal">DO-COFFEE-TELEMETRY-EVENT</text>
+</g>
+<g id="FU-CLOUD-RUNTIME-OPERATIONS"><rect x="36" y="640" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="664" font-family="monospace" font-size="13" font-weight="bold">Cloud Runtime Operations</text>
+<text x="50" y="682" font-family="monospace" font-size="11" font-weight="normal">FU-CLOUD-RUNTIME-OPERATIONS</text>
+</g>
+<g id="FU-DEVICE-IDENTITY-SECRETS"><rect x="36" y="746" width="340" height="154" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="770" font-family="monospace" font-size="13" font-weight="bold">Device Identity and Secrets</text>
+<text x="50" y="788" font-family="monospace" font-size="11" font-weight="normal">FU-DEVICE-IDENTITY-SECRETS</text>
+</g>
+<g id="FU-FLEET-INGESTION-API"><rect x="36" y="924" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="948" font-family="monospace" font-size="13" font-weight="bold">Fleet Ingestion API</text>
+<text x="50" y="966" font-family="monospace" font-size="11" font-weight="normal">FU-FLEET-INGESTION-API</text>
+</g>
+<g id="FU-FLEET-OBSERVABILITY-REPORTING"><rect x="36" y="1048" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1072" font-family="monospace" font-size="13" font-weight="bold">Fleet Observability Reporting</text>
+<text x="50" y="1090" font-family="monospace" font-size="11" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING</text>
+</g>
+<g id="FU-MACHINE-TELEMETRY-COLLECTION"><rect x="36" y="1172" width="340" height="154" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1196" font-family="monospace" font-size="13" font-weight="bold">Machine Telemetry Collection</text>
+<text x="50" y="1214" font-family="monospace" font-size="11" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION</text>
+</g>
+<g id="FU-OTA-UPDATE-AGENT"><rect x="36" y="1350" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1374" font-family="monospace" font-size="13" font-weight="bold">OTA Update Agent</text>
+<text x="50" y="1392" font-family="monospace" font-size="11" font-weight="normal">FU-OTA-UPDATE-AGENT</text>
+</g>
+<g id="FU-UPDATE-CAMPAIGN-ORCHESTRATION"><rect x="36" y="1474" width="340" height="154" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1498" font-family="monospace" font-size="13" font-weight="bold">Update Campaign Orchestration</text>
+<text x="50" y="1516" font-family="monospace" font-size="11" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+</g>
+<g id="IF-COFFEE-OTA-COMMAND"><rect x="36" y="1652" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="1676" font-family="monospace" font-size="13" font-weight="bold">OTA Command Interface</text>
+<text x="50" y="1694" font-family="monospace" font-size="11" font-weight="normal">IF-COFFEE-OTA-COMMAND</text>
+</g>
+<g id="IF-COFFEE-TELEMETRY-INGEST"><rect x="36" y="1742" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="1766" font-family="monospace" font-size="13" font-weight="bold">Telemetry Ingestion Interface</text>
+<text x="50" y="1784" font-family="monospace" font-size="11" font-weight="normal">IF-COFFEE-TELEMETRY-INGEST</text>
+</g>
+<g id="REF-CLOUD-LOGGING-SERVICE"><rect x="36" y="1832" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1856" font-family="monospace" font-size="13" font-weight="bold">Cloud Logging Service</text>
+<text x="50" y="1874" font-family="monospace" font-size="11" font-weight="normal">REF-CLOUD-LOGGING-SERVICE</text>
+</g>
+<g id="REF-CLOUD-RUNTIME-SDK"><rect x="36" y="1922" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1946" font-family="monospace" font-size="13" font-weight="bold">Cloud Runtime SDK</text>
+<text x="50" y="1964" font-family="monospace" font-size="11" font-weight="normal">REF-CLOUD-RUNTIME-SDK</text>
+</g>
+<g id="REF-FIRMWARE-BUNDLE-STORE"><rect x="36" y="2012" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2036" font-family="monospace" font-size="13" font-weight="bold">Firmware Bundle Store</text>
+<text x="50" y="2054" font-family="monospace" font-size="11" font-weight="normal">REF-FIRMWARE-BUNDLE-STORE</text>
+</g>
+<g id="REF-FIRMWARE-SIGNER-SERVICE"><rect x="36" y="2102" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2126" font-family="monospace" font-size="13" font-weight="bold">Firmware Signer Service</text>
+<text x="50" y="2144" font-family="monospace" font-size="11" font-weight="normal">REF-FIRMWARE-SIGNER-SERVICE</text>
+</g>
+<g id="REF-IOT-INGEST-ENDPOINT"><rect x="36" y="2192" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2216" font-family="monospace" font-size="13" font-weight="bold">IoT Ingest Endpoint</text>
+<text x="50" y="2234" font-family="monospace" font-size="11" font-weight="normal">REF-IOT-INGEST-ENDPOINT</text>
+</g>
+<g id="REF-MQTT-DEVICE-SDK"><rect x="36" y="2282" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2306" font-family="monospace" font-size="13" font-weight="bold">MQTT Device SDK</text>
+<text x="50" y="2324" font-family="monospace" font-size="11" font-weight="normal">REF-MQTT-DEVICE-SDK</text>
+</g>
 </svg>

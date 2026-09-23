@@ -1,4 +1,5 @@
 = Atlas Shared Cloud Platform Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -305,7 +306,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_CLOUD_001["REQ-CLOUD-001"]:::requirement
   FU_FU_CLOUD_RUNTIME["Cloud Runtime"]:::functional_unit
   REQC_REQ_CLOUD_001 -->|applies_to| FU_FU_CLOUD_RUNTIME
@@ -344,7 +345,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_CLOUD_002["REQ-CLOUD-002"]:::requirement
   FU_FU_CLOUD_RUNTIME["Cloud Runtime"]:::functional_unit
   REQC_REQ_CLOUD_002 -->|applies_to| FU_FU_CLOUD_RUNTIME

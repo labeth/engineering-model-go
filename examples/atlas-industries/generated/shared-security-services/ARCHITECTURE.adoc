@@ -1,4 +1,5 @@
 = Atlas Shared Security Services Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -311,7 +312,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_SEC_001["REQ-SEC-001"]:::requirement
   FU_FU_SEC_IDENTITY["Identity Service"]:::functional_unit
   REQC_REQ_SEC_001 -->|applies_to| FU_FU_SEC_IDENTITY
@@ -350,7 +351,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_SEC_002["REQ-SEC-002"]:::requirement
   FU_FU_SEC_MONITORING["Security Monitoring"]:::functional_unit
   REQC_REQ_SEC_002 -->|applies_to| FU_FU_SEC_MONITORING

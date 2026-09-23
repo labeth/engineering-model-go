@@ -1,4 +1,5 @@
 = {{ .Title }}
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -157,11 +158,27 @@ flowchart LR
 
 {{ $v.Inf }}
 
+*Authored status:* {{ $v.AuthoredStatus }}
+
+*Authored scope and limitations:* {{ $v.AuthoredStatusExplanation }}
+
 === What This View Answers
 
 {{ range $v.ViewQuestions }}
 - {{ . }}
 {{ end }}
+
+{{- if and (ne $v.Kind "state-lifecycle") (ne $v.Kind "interaction-flow") }}
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `{{ $v.ID }}`.
+
+[source,mermaid]
+----
+{{ $v.Mermaid }}
+----
+
+{{- end }}
 
 {{- if eq $v.Kind "state-lifecycle" }}
 === State Lifecycle Diagram
@@ -202,6 +219,7 @@ Coverage summary: {{ $v.CoverageSummary }}
 {{- end }}
 
 {{- if eq $v.Kind "architecture-intent" }}
+{{- if $v.FuncContextGraph }}
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
@@ -227,6 +245,7 @@ What this diagram shows: a table-like matrix where functional groups are the bot
 
 {{ $v.FuncMatrixTable }}
 
+{{- end }}
 {{- end }}
 
 {{- if and $v.InferredGraph (ne $v.Kind "traceability") }}

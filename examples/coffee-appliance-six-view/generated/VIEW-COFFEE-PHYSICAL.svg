@@ -1,52 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COFFEE-PHYSICAL-title" viewBox="0 0 602 616" data-source="examples/coffee-appliance-six-view/engmod.yml" data-view="VIEW-COFFEE-PHYSICAL">
-  <title id="VIEW-COFFEE-PHYSICAL-title">VIEW-COFFEE-PHYSICAL — physical view</title>
-  <metadata>source=examples/coffee-appliance-six-view/engmod.yml; view=VIEW-COFFEE-PHYSICAL; kind=physical</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-COFFEE-PHYSICAL</text>
-  <line x1="456" y1="122" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="220" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">temperature target</text>
-  <line x1="146" y1="220" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">owns port</text>
-  <line x1="146" y1="220" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">owns port</text>
-  <line x1="456" y1="416" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">carries water: ITEM-WATER</text>
-  <line x1="456" y1="220" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">owns port</text>
-  <line x1="146" y1="318" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="318" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="318" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <g id="CONN-PUMP-HEATER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Pump to Heater Line</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">CONN-PUMP-HEATER</text></g>
-  <g id="HW-APPLIANCE-CHASSIS"><rect x="346" y="90" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Appliance Chassis</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">HW-APPLIANCE-CHASSIS</text></g>
-  <g id="HW-HEATER"><rect x="36" y="188" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Thermoblock Heater</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">HW-HEATER</text></g>
-  <g id="HW-PUMP"><rect x="346" y="188" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Water Pump</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">HW-PUMP</text></g>
-  <g id="HW-WATER-SYSTEM"><rect x="36" y="286" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Water System</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">HW-WATER-SYSTEM</text></g>
-  <g id="PORT-HEATER-IN"><rect x="346" y="286" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Heater Water Inlet</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">PORT-HEATER-IN</text></g>
-  <g id="PORT-HEATER-OUT"><rect x="36" y="384" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Heater Water Outlet</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">PORT-HEATER-OUT</text></g>
-  <g id="PORT-PUMP-OUT"><rect x="346" y="384" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Pump Outlet</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">PORT-PUMP-OUT</text></g>
-  <g id="QTY-BREW-TEMPERATURE"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Brew Temperature</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">QTY-BREW-TEMPERATURE</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COFFEE-PHYSICAL-title" viewBox="0 0 1294 1014" data-source="examples/coffee-appliance-six-view/engmod.yml" data-view="VIEW-COFFEE-PHYSICAL">
+<title id="VIEW-COFFEE-PHYSICAL-title">VIEW-COFFEE-PHYSICAL — physical view</title>
+<metadata>source=examples/coffee-appliance-six-view/engmod.yml; view=VIEW-COFFEE-PHYSICAL; kind=physical</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-COFFEE-PHYSICAL</text>
+<text x="628" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="REL-CHASSIS-WATER" d="M376 208 H436 V512 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="196" width="34" height="16" rx="3" fill="white"/><text x="387" y="208" font-family="monospace" font-size="11">1</text>
+<text x="628" y="100" font-family="monospace" font-size="12" font-weight="normal">1. REL-CHASSIS-WATER</text>
+<text x="628" y="118" font-family="monospace" font-size="12" font-weight="normal">HW-APPLIANCE-CHASSIS → HW-WATER-SYSTEM</text>
+<text x="628" y="136" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="REL-HEAT-QUANTITY" d="M376 298 H454 V906 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="286" width="34" height="16" rx="3" fill="white"/><text x="387" y="298" font-family="monospace" font-size="11">2</text>
+<text x="628" y="166" font-family="monospace" font-size="12" font-weight="normal">2. REL-HEAT-QUANTITY</text>
+<text x="628" y="184" font-family="monospace" font-size="12" font-weight="normal">HW-HEATER → QTY-BREW-TEMPERATURE</text>
+<text x="628" y="202" font-family="monospace" font-size="12" font-weight="normal">temperature target</text>
+<path data-edge="REL-HEATER-IN" d="M376 316 H472 V636 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="304" width="34" height="16" rx="3" fill="white"/><text x="387" y="316" font-family="monospace" font-size="11">3</text>
+<text x="628" y="232" font-family="monospace" font-size="12" font-weight="normal">3. REL-HEATER-IN</text>
+<text x="628" y="250" font-family="monospace" font-size="12" font-weight="normal">HW-HEATER → PORT-HEATER-IN</text>
+<text x="628" y="268" font-family="monospace" font-size="12" font-weight="normal">owns port</text>
+<path data-edge="REL-HEATER-OUT" d="M376 334 H490 V726 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="322" width="34" height="16" rx="3" fill="white"/><text x="387" y="334" font-family="monospace" font-size="11">4</text>
+<text x="628" y="298" font-family="monospace" font-size="12" font-weight="normal">4. REL-HEATER-OUT</text>
+<text x="628" y="316" font-family="monospace" font-size="12" font-weight="normal">HW-HEATER → PORT-HEATER-OUT</text>
+<text x="628" y="334" font-family="monospace" font-size="12" font-weight="normal">owns port</text>
+<path data-edge="REL-PUMP-HEATER" d="M376 816 H508 V654 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="804" width="34" height="16" rx="3" fill="white"/><text x="387" y="816" font-family="monospace" font-size="11">5</text>
+<text x="628" y="364" font-family="monospace" font-size="12" font-weight="normal">5. REL-PUMP-HEATER</text>
+<text x="628" y="382" font-family="monospace" font-size="12" font-weight="normal">PORT-PUMP-OUT → PORT-HEATER-IN</text>
+<text x="628" y="400" font-family="monospace" font-size="12" font-weight="normal">carries water: ITEM-WATER</text>
+<path data-edge="REL-PUMP-OUT" d="M376 422 H526 V834 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="410" width="34" height="16" rx="3" fill="white"/><text x="387" y="422" font-family="monospace" font-size="11">6</text>
+<text x="628" y="430" font-family="monospace" font-size="12" font-weight="normal">6. REL-PUMP-OUT</text>
+<text x="628" y="448" font-family="monospace" font-size="12" font-weight="normal">HW-PUMP → PORT-PUMP-OUT</text>
+<text x="628" y="466" font-family="monospace" font-size="12" font-weight="normal">owns port</text>
+<path data-edge="REL-WATER-CONNECTOR" d="M376 530 H544 V118 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="518" width="34" height="16" rx="3" fill="white"/><text x="387" y="530" font-family="monospace" font-size="11">7</text>
+<text x="628" y="496" font-family="monospace" font-size="12" font-weight="normal">7. REL-WATER-CONNECTOR</text>
+<text x="628" y="514" font-family="monospace" font-size="12" font-weight="normal">HW-WATER-SYSTEM → CONN-PUMP-HEATER</text>
+<text x="628" y="532" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="REL-WATER-HEATER" d="M376 548 H562 V352 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="536" width="34" height="16" rx="3" fill="white"/><text x="387" y="548" font-family="monospace" font-size="11">8</text>
+<text x="628" y="562" font-family="monospace" font-size="12" font-weight="normal">8. REL-WATER-HEATER</text>
+<text x="628" y="580" font-family="monospace" font-size="12" font-weight="normal">HW-WATER-SYSTEM → HW-HEATER</text>
+<text x="628" y="598" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="REL-WATER-PUMP" d="M376 566 H580 V440 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="554" width="34" height="16" rx="3" fill="white"/><text x="387" y="566" font-family="monospace" font-size="11">9</text>
+<text x="628" y="628" font-family="monospace" font-size="12" font-weight="normal">9. REL-WATER-PUMP</text>
+<text x="628" y="646" font-family="monospace" font-size="12" font-weight="normal">HW-WATER-SYSTEM → HW-PUMP</text>
+<text x="628" y="664" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<g id="CONN-PUMP-HEATER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Pump to Heater Line</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">CONN-PUMP-HEATER</text>
+</g>
+<g id="HW-APPLIANCE-CHASSIS"><rect x="36" y="190" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Appliance Chassis</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">HW-APPLIANCE-CHASSIS</text>
+</g>
+<g id="HW-HEATER"><rect x="36" y="280" width="340" height="100" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Thermoblock Heater</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">HW-HEATER</text>
+</g>
+<g id="HW-PUMP"><rect x="36" y="404" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="428" font-family="monospace" font-size="13" font-weight="bold">Water Pump</text>
+<text x="50" y="446" font-family="monospace" font-size="11" font-weight="normal">HW-PUMP</text>
+</g>
+<g id="HW-WATER-SYSTEM"><rect x="36" y="494" width="340" height="100" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="518" font-family="monospace" font-size="13" font-weight="bold">Water System</text>
+<text x="50" y="536" font-family="monospace" font-size="11" font-weight="normal">HW-WATER-SYSTEM</text>
+</g>
+<g id="PORT-HEATER-IN"><rect x="36" y="618" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="642" font-family="monospace" font-size="13" font-weight="bold">Heater Water Inlet</text>
+<text x="50" y="660" font-family="monospace" font-size="11" font-weight="normal">PORT-HEATER-IN</text>
+</g>
+<g id="PORT-HEATER-OUT"><rect x="36" y="708" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="732" font-family="monospace" font-size="13" font-weight="bold">Heater Water Outlet</text>
+<text x="50" y="750" font-family="monospace" font-size="11" font-weight="normal">PORT-HEATER-OUT</text>
+</g>
+<g id="PORT-PUMP-OUT"><rect x="36" y="798" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="822" font-family="monospace" font-size="13" font-weight="bold">Pump Outlet</text>
+<text x="50" y="840" font-family="monospace" font-size="11" font-weight="normal">PORT-PUMP-OUT</text>
+</g>
+<g id="QTY-BREW-TEMPERATURE"><rect x="36" y="888" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="912" font-family="monospace" font-size="13" font-weight="bold">Brew Temperature</text>
+<text x="50" y="930" font-family="monospace" font-size="11" font-weight="normal">QTY-BREW-TEMPERATURE</text>
+</g>
 </svg>

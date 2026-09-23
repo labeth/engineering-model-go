@@ -725,6 +725,9 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 	}
 	codeSet := map[string]map[string]bool{}
 	for _, c := range code {
+		if isVerificationCodeItem(c) {
+			continue
+		}
 		owner := strings.TrimSpace(c.Owner)
 		if owner == "" || owner == "unresolved" {
 			continue

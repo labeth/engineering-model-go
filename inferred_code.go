@@ -28,7 +28,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
 		roots = append(roots, resolveSourcePath(baseDir, src))
 	}
-	roots = uniqueExistingDirs(roots)
+	roots = uniqueExistingSources(roots)
 	if len(roots) == 0 {
 		return nil, nil
 	}
@@ -42,6 +42,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		if !filepath.IsAbs(abs) {
 			abs, _ = filepath.Abs(root)
 		}
+		sourceBase := sourceRootDir(abs)
 		metadata := scanCodeMetadata(abs)
 		owners := map[string]string{}
 		descriptions := map[string]string{}
@@ -65,7 +66,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 
 		for rel, owner := range owners {
 			desc := strings.TrimSpace(descriptions[rel])
-			key := "source_file|" + rel + "|" + owner
+			key := "source_file|" + filepath.Join(sourceBase, rel) + "|" + owner
 			if seen[key] {
 				continue
 			}
@@ -73,15 +74,17 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 			items = append(items, inferredCodeItem{
 				Element:     rel,
 				Kind:        "source_file",
+				AbsPath:     filepath.Join(sourceBase, rel),
 				Owner:       owner,
 				Description: desc,
 				Source:      rel,
 			})
 
-			deps, depDiags := parseCodeDependencies(abs, rel, owner)
+			deps, depDiags := parseCodeDependencies(sourceBase, rel, owner)
 			diags = append(diags, depDiags...)
 			for _, dep := range deps {
-				key := dep.Kind + "|" + dep.Element + "|" + dep.Owner + "|" + dep.Source
+				dep.AbsPath = filepath.Join(sourceBase, rel)
+				key := dep.Kind + "|" + dep.Element + "|" + dep.Owner + "|" + filepath.Join(sourceBase, dep.Source)
 				if seen[key] {
 					continue
 				}
@@ -96,7 +99,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 			if strings.TrimSpace(label) == "" {
 				label = s.Signature
 			}
-			key := "symbol|" + label + "|" + s.Path + fmt.Sprintf("|%d", s.Line)
+			key := "symbol|" + label + "|" + filepath.Join(sourceBase, s.Path) + fmt.Sprintf("|%d", s.Line)
 			if seen[key] {
 				continue
 			}
@@ -106,10 +109,36 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				Kind:       "symbol",
 				Owner:      owner,
 				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
-				AbsPath:    filepath.Join(abs, s.Path),
+				AbsPath:    filepath.Join(sourceBase, s.Path),
 				Implements: uniqueSorted(s.Implements),
 				ModelLinks: uniqueSorted(s.ModelLinks),
 			})
+		}
+	}
+
+	// Preserve compact scan-relative display paths unless separate roots produce
+	// the same source label for different files. Publication and trace matrices
+	// also use Source as identity, so those collisions must be disambiguated.
+	pathsBySource := map[string]string{}
+	ambiguous := map[string]bool{}
+	for _, item := range items {
+		if previous, ok := pathsBySource[item.Source]; ok && previous != item.AbsPath {
+			ambiguous[item.Source] = true
+		}
+		pathsBySource[item.Source] = item.AbsPath
+	}
+	for i := range items {
+		if !ambiguous[items[i].Source] {
+			continue
+		}
+		_, line := splitSourceLine(items[i].Source)
+		path, err := filepath.Rel(baseDir, items[i].AbsPath)
+		if err != nil {
+			path = items[i].AbsPath
+		}
+		items[i].Source = filepath.ToSlash(path)
+		if line > 0 {
+			items[i].Source += fmt.Sprintf(":%d", line)
 		}
 	}
 
@@ -290,14 +319,14 @@ func scanCodeMetadata(root string) map[string]codeFileMetadata {
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" {
+		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" {
 			return nil
 		}
 		data, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
-		rel, relErr := filepath.Rel(root, path)
+		rel, relErr := filepath.Rel(sourceRootDir(root), path)
 		if relErr != nil {
 			rel = path
 		}
@@ -367,4 +396,38 @@ func ownerForPath(path string, owners map[string]string) string {
 		return best
 	}
 	return "unresolved"
+}
+
+// sourceRootDir resolves source paths consistently for directory and single-file roots.
+// TRLC-LINKS: REQ-EMG-010
+func sourceRootDir(root string) string {
+	if info, err := os.Stat(root); err == nil && !info.IsDir() {
+		return filepath.Dir(root)
+	}
+	return root
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func uniqueExistingSources(in []string) []string {
+	out := []string{}
+	seen := map[string]bool{}
+	for _, path := range in {
+		abs, err := filepath.Abs(path)
+		if err != nil || seen[abs] {
+			continue
+		}
+		info, err := os.Stat(abs)
+		if err != nil || (!info.IsDir() && !info.Mode().IsRegular()) {
+			continue
+		}
+		seen[abs] = true
+		out = append(out, abs)
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func isVerificationCodeItem(item inferredCodeItem) bool {
+	path, _ := splitSourceLine(item.Source)
+	return isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path)
 }

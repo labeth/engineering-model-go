@@ -1,144 +1,298 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 602 1204" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
-  <title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
-  <metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
-  <line x1="456" y1="318" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_async</text>
-  <line x1="146" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
-  <line x1="146" y1="416" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="416" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="416" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
-  <line x1="456" y1="416" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="514" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="514" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="612" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="710" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="710" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="710" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="710" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="146" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="146" y1="808" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="146" y1="808" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="808" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="456" y1="808" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="456" y1="808" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="456" y1="808" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="456" y1="808" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="808" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">publishes</text>
-  <line x1="146" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="146" y1="906" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="456" y1="906" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">subscribes</text>
-  <g id="ACT-CUSTOMER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-CUSTOMER</text></g>
-  <g id="DO-PAYMENTS-AUTH-DECISION"><rect x="346" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Decision</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-DECISION</text></g>
-  <g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Request</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-REQUEST</text></g>
-  <g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Manual Review Ticket</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-REVIEW-TICKET</text></g>
-  <g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Signal</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-RISK-SIGNAL</text></g>
-  <g id="FLOW-CUSTOMER-CHECKOUT"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer Checkout Authorization Flow</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT</text></g>
-  <g id="FLOW-CUSTOMER-CHECKOUT__authorize-payment"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Request fraud score and external authorization</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::authorize-payment</text></g>
-  <g id="FLOW-CUSTOMER-CHECKOUT__normalize-request"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Normalize and validate checkout payload</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::normalize-request</text></g>
-  <g id="FLOW-CUSTOMER-CHECKOUT__show-outcome"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Return approval or decline outcome to customer</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::show-outcome</text></g>
-  <g id="FLOW-CUSTOMER-CHECKOUT__submit-payment"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer submits checkout payment form</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-CUSTOMER-CHECKOUT::submit-payment</text></g>
-  <g id="FLOW-PAYMENTS-MANUAL-REVIEW"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">High-Risk Manual Review Flow</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW</text></g>
-  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__complete-review"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Complete authorization using manual review outcome</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::complete-review</text></g>
-  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__create-review-ticket"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Create manual review ticket for support operations</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket</text></g>
-  <g id="FLOW-PAYMENTS-MANUAL-REVIEW__detect-high-risk"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Detect high-risk signal and emit escalation trigger</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk</text></g>
-  <g id="FU-CHECKOUT"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Handling</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-CHECKOUT</text></g>
-  <g id="FU-PAYMENT-AUTHORIZATION"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorization</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-PAYMENT-AUTHORIZATION</text></g>
-  <g id="FU-RISK-SCORING"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Scoring</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-RISK-SCORING</text></g>
-  <g id="FU-SUPPORT-REVIEW"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Review</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-SUPPORT-REVIEW</text></g>
-  <g id="IF-PAYMENTS-BANK-AUTH"><rect x="36" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Authorization Interface</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-BANK-AUTH</text></g>
-  <g id="IF-PAYMENTS-CHECKOUT-API"><rect x="346" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout API Interface</text>
-    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-CHECKOUT-API</text></g>
-  <g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Score Interface</text>
-    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-RISK-SCORE-API</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 1798 2776" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
+<title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
+<metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
+<text x="1132" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 686 H436 V1148 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="674" width="34" height="16" rx="3" fill="white"/><text x="387" y="686" font-family="monospace" font-size="11">1</text>
+<text x="1132" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="1132" y="118" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT → FLOW-CUSTOMER-CHECKOUT::submit-payment</text>
+<text x="1132" y="136" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 776 H454 V1024 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="764" width="34" height="16" rx="3" fill="white"/><text x="387" y="776" font-family="monospace" font-size="11">2</text>
+<text x="1132" y="166" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="1132" y="184" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::authorize-payment →</text>
+<text x="1132" y="202" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::show-outcome</text>
+<text x="1132" y="220" font-family="monospace" font-size="12" font-weight="normal">flow_async</text>
+<path data-edge="" d="M376 794 H472 V1042 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="782" width="34" height="16" rx="3" fill="white"/><text x="387" y="794" font-family="monospace" font-size="11">3</text>
+<text x="1132" y="250" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="1132" y="268" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::authorize-payment →</text>
+<text x="1132" y="286" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::show-outcome</text>
+<text x="1132" y="304" font-family="monospace" font-size="12" font-weight="normal">flow_error</text>
+<path data-edge="" d="M376 812 H490 V1884 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="800" width="34" height="16" rx="3" fill="white"/><text x="387" y="812" font-family="monospace" font-size="11">4</text>
+<text x="1132" y="334" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="1132" y="352" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::authorize-payment →</text>
+<text x="1132" y="370" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION</text>
+<text x="1132" y="388" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 900 H508 V830 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="888" width="34" height="16" rx="3" fill="white"/><text x="387" y="900" font-family="monospace" font-size="11">5</text>
+<text x="1132" y="418" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="1132" y="436" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::normalize-request →</text>
+<text x="1132" y="454" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::authorize-payment</text>
+<text x="1132" y="472" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 918 H526 V1060 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="906" width="34" height="16" rx="3" fill="white"/><text x="387" y="918" font-family="monospace" font-size="11">6</text>
+<text x="1132" y="502" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="1132" y="520" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::normalize-request →</text>
+<text x="1132" y="538" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::show-outcome</text>
+<text x="1132" y="556" font-family="monospace" font-size="12" font-weight="normal">flow_error</text>
+<path data-edge="" d="M376 936 H544 V1724 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="924" width="34" height="16" rx="3" fill="white"/><text x="387" y="936" font-family="monospace" font-size="11">7</text>
+<text x="1132" y="586" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="1132" y="604" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::normalize-request → FU-CHECKOUT</text>
+<text x="1132" y="622" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1078 H562 V1742 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1066" width="34" height="16" rx="3" fill="white"/><text x="387" y="1078" font-family="monospace" font-size="11">8</text>
+<text x="1132" y="652" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="1132" y="670" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::show-outcome → FU-CHECKOUT</text>
+<text x="1132" y="688" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1166 H580 V118 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1154" width="34" height="16" rx="3" fill="white"/><text x="387" y="1166" font-family="monospace" font-size="11">9</text>
+<text x="1132" y="718" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="1132" y="736" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::submit-payment → ACT-CUSTOMER</text>
+<text x="1132" y="754" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1184 H598 V954 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1172" width="34" height="16" rx="3" fill="white"/><text x="387" y="1184" font-family="monospace" font-size="11">10</text>
+<text x="1132" y="784" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="1132" y="802" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::submit-payment →</text>
+<text x="1132" y="820" font-family="monospace" font-size="12" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::normalize-request</text>
+<text x="1132" y="838" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1256 H616 V1598 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1244" width="34" height="16" rx="3" fill="white"/><text x="387" y="1256" font-family="monospace" font-size="11">11</text>
+<text x="1132" y="868" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="1132" y="886" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW →</text>
+<text x="1132" y="904" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk</text>
+<text x="1132" y="922" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1346 H634 V1902 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1334" width="34" height="16" rx="3" fill="white"/><text x="387" y="1346" font-family="monospace" font-size="11">12</text>
+<text x="1132" y="952" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="1132" y="970" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::complete-review →</text>
+<text x="1132" y="988" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION</text>
+<text x="1132" y="1006" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1472 H652 V1364 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1460" width="34" height="16" rx="3" fill="white"/><text x="387" y="1472" font-family="monospace" font-size="11">13</text>
+<text x="1132" y="1036" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="1132" y="1054" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket →</text>
+<text x="1132" y="1072" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::complete-review</text>
+<text x="1132" y="1090" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1490 H670 V2294 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1478" width="34" height="16" rx="3" fill="white"/><text x="387" y="1490" font-family="monospace" font-size="11">14</text>
+<text x="1132" y="1120" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="1132" y="1138" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket →</text>
+<text x="1132" y="1156" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW</text>
+<text x="1132" y="1174" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1616 H688 V1508 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1604" width="34" height="16" rx="3" fill="white"/><text x="387" y="1616" font-family="monospace" font-size="11">15</text>
+<text x="1132" y="1204" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="1132" y="1222" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk →</text>
+<text x="1132" y="1240" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-ticket</text>
+<text x="1132" y="1258" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1634 H706 V2134 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1622" width="34" height="16" rx="3" fill="white"/><text x="387" y="1634" font-family="monospace" font-size="11">16</text>
+<text x="1132" y="1288" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="1132" y="1306" font-family="monospace" font-size="12" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-risk → FU-RISK-SCORING</text>
+<text x="1132" y="1324" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1760 H724 V208 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1748" width="34" height="16" rx="3" fill="white"/><text x="387" y="1760" font-family="monospace" font-size="11">17</text>
+<text x="1132" y="1354" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="1132" y="1372" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1132" y="1390" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 1778 H742 V314 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1766" width="34" height="16" rx="3" fill="white"/><text x="387" y="1778" font-family="monospace" font-size="11">18</text>
+<text x="1132" y="1420" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="1132" y="1438" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1132" y="1456" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 1796 H760 V2508 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1784" width="34" height="16" rx="3" fill="white"/><text x="387" y="1796" font-family="monospace" font-size="11">19</text>
+<text x="1132" y="1486" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="1132" y="1504" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → IF-PAYMENTS-CHECKOUT-API</text>
+<text x="1132" y="1522" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 1814 H778 V2526 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1802" width="34" height="16" rx="3" fill="white"/><text x="387" y="1814" font-family="monospace" font-size="11">20</text>
+<text x="1132" y="1552" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="1132" y="1570" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → IF-PAYMENTS-CHECKOUT-API</text>
+<text x="1132" y="1588" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1920 H796 V226 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1908" width="34" height="16" rx="3" fill="white"/><text x="387" y="1920" font-family="monospace" font-size="11">21</text>
+<text x="1132" y="1618" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="1132" y="1636" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1132" y="1654" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1938 H814 V244 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1926" width="34" height="16" rx="3" fill="white"/><text x="387" y="1938" font-family="monospace" font-size="11">22</text>
+<text x="1132" y="1684" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="1132" y="1702" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1132" y="1720" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 1956 H832 V332 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1944" width="34" height="16" rx="3" fill="white"/><text x="387" y="1956" font-family="monospace" font-size="11">23</text>
+<text x="1132" y="1750" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="1132" y="1768" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1132" y="1786" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1974 H850 V350 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1962" width="34" height="16" rx="3" fill="white"/><text x="387" y="1974" font-family="monospace" font-size="11">24</text>
+<text x="1132" y="1816" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="1132" y="1834" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1132" y="1852" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 1992 H868 V438 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1980" width="34" height="16" rx="3" fill="white"/><text x="387" y="1992" font-family="monospace" font-size="11">25</text>
+<text x="1132" y="1882" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="1132" y="1900" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1132" y="1918" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 2010 H886 V544 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1998" width="34" height="16" rx="3" fill="white"/><text x="387" y="2010" font-family="monospace" font-size="11">26</text>
+<text x="1132" y="1948" font-family="monospace" font-size="12" font-weight="normal">26.</text>
+<text x="1132" y="1966" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1132" y="1984" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 2028 H904 V2418 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2016" width="34" height="16" rx="3" fill="white"/><text x="387" y="2028" font-family="monospace" font-size="11">27</text>
+<text x="1132" y="2014" font-family="monospace" font-size="12" font-weight="normal">27.</text>
+<text x="1132" y="2032" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-BANK-AUTH</text>
+<text x="1132" y="2050" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 2046 H922 V2436 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2034" width="34" height="16" rx="3" fill="white"/><text x="387" y="2046" font-family="monospace" font-size="11">28</text>
+<text x="1132" y="2080" font-family="monospace" font-size="12" font-weight="normal">28.</text>
+<text x="1132" y="2098" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-BANK-AUTH</text>
+<text x="1132" y="2116" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2064 H940 V2598 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2052" width="34" height="16" rx="3" fill="white"/><text x="387" y="2064" font-family="monospace" font-size="11">29</text>
+<text x="1132" y="2146" font-family="monospace" font-size="12" font-weight="normal">29.</text>
+<text x="1132" y="2164" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-RISK-SCORE-API</text>
+<text x="1132" y="2182" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 2152 H958 V368 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2140" width="34" height="16" rx="3" fill="white"/><text x="387" y="2152" font-family="monospace" font-size="11">30</text>
+<text x="1132" y="2212" font-family="monospace" font-size="12" font-weight="normal">30.</text>
+<text x="1132" y="2230" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1132" y="2248" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 2170 H976 V562 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2158" width="34" height="16" rx="3" fill="white"/><text x="387" y="2170" font-family="monospace" font-size="11">31</text>
+<text x="1132" y="2278" font-family="monospace" font-size="12" font-weight="normal">31.</text>
+<text x="1132" y="2296" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1132" y="2314" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2188 H994 V580 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2176" width="34" height="16" rx="3" fill="white"/><text x="387" y="2188" font-family="monospace" font-size="11">32</text>
+<text x="1132" y="2344" font-family="monospace" font-size="12" font-weight="normal">32.</text>
+<text x="1132" y="2362" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1132" y="2380" font-family="monospace" font-size="12" font-weight="normal">publishes</text>
+<path data-edge="" d="M376 2206 H1012 V598 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2194" width="34" height="16" rx="3" fill="white"/><text x="387" y="2206" font-family="monospace" font-size="11">33</text>
+<text x="1132" y="2410" font-family="monospace" font-size="12" font-weight="normal">33.</text>
+<text x="1132" y="2428" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1132" y="2446" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 2224 H1030 V2616 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2212" width="34" height="16" rx="3" fill="white"/><text x="387" y="2224" font-family="monospace" font-size="11">34</text>
+<text x="1132" y="2476" font-family="monospace" font-size="12" font-weight="normal">34.</text>
+<text x="1132" y="2494" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → IF-PAYMENTS-RISK-SCORE-API</text>
+<text x="1132" y="2512" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2312 H1048 V456 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2300" width="34" height="16" rx="3" fill="white"/><text x="387" y="2312" font-family="monospace" font-size="11">35</text>
+<text x="1132" y="2542" font-family="monospace" font-size="12" font-weight="normal">35.</text>
+<text x="1132" y="2560" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1132" y="2578" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2330 H1066 V474 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2318" width="34" height="16" rx="3" fill="white"/><text x="387" y="2330" font-family="monospace" font-size="11">36</text>
+<text x="1132" y="2608" font-family="monospace" font-size="12" font-weight="normal">36.</text>
+<text x="1132" y="2626" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1132" y="2644" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 2348 H1084 V616 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2336" width="34" height="16" rx="3" fill="white"/><text x="387" y="2348" font-family="monospace" font-size="11">37</text>
+<text x="1132" y="2674" font-family="monospace" font-size="12" font-weight="normal">37.</text>
+<text x="1132" y="2692" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1132" y="2710" font-family="monospace" font-size="12" font-weight="normal">subscribes</text>
+<g id="ACT-CUSTOMER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Customer</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-CUSTOMER</text>
+</g>
+<g id="DO-PAYMENTS-AUTH-DECISION"><rect x="36" y="190" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Authorization Decision</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-AUTH-DECISION</text>
+</g>
+<g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="36" y="296" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="320" font-family="monospace" font-size="13" font-weight="bold">Authorization Request</text>
+<text x="50" y="338" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-AUTH-REQUEST</text>
+</g>
+<g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="36" y="420" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="444" font-family="monospace" font-size="13" font-weight="bold">Manual Review Ticket</text>
+<text x="50" y="462" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-REVIEW-TICKET</text>
+</g>
+<g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="36" y="526" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="550" font-family="monospace" font-size="13" font-weight="bold">Risk Signal</text>
+<text x="50" y="568" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-RISK-SIGNAL</text>
+</g>
+<g id="FLOW-CUSTOMER-CHECKOUT"><rect x="36" y="668" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="692" font-family="monospace" font-size="13" font-weight="bold">Customer Checkout Authorization Flow</text>
+<text x="50" y="710" font-family="monospace" font-size="11" font-weight="normal">FLOW-CUSTOMER-CHECKOUT</text>
+</g>
+<g id="FLOW-CUSTOMER-CHECKOUT__authorize-payment"><rect x="36" y="758" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="782" font-family="monospace" font-size="13" font-weight="bold">Request fraud score and external</text>
+<text x="50" y="800" font-family="monospace" font-size="13" font-weight="bold">authorization</text>
+<text x="50" y="818" font-family="monospace" font-size="11" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::authorize-payment</text>
+</g>
+<g id="FLOW-CUSTOMER-CHECKOUT__normalize-request"><rect x="36" y="882" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="906" font-family="monospace" font-size="13" font-weight="bold">Normalize and validate checkout</text>
+<text x="50" y="924" font-family="monospace" font-size="13" font-weight="bold">payload</text>
+<text x="50" y="942" font-family="monospace" font-size="11" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::normalize-request</text>
+</g>
+<g id="FLOW-CUSTOMER-CHECKOUT__show-outcome"><rect x="36" y="1006" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1030" font-family="monospace" font-size="13" font-weight="bold">Return approval or decline outcome</text>
+<text x="50" y="1048" font-family="monospace" font-size="13" font-weight="bold">to customer</text>
+<text x="50" y="1066" font-family="monospace" font-size="11" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::show-outcome</text>
+</g>
+<g id="FLOW-CUSTOMER-CHECKOUT__submit-payment"><rect x="36" y="1130" width="340" height="84" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1154" font-family="monospace" font-size="13" font-weight="bold">Customer submits checkout payment</text>
+<text x="50" y="1172" font-family="monospace" font-size="13" font-weight="bold">form</text>
+<text x="50" y="1190" font-family="monospace" font-size="11" font-weight="normal">FLOW-CUSTOMER-CHECKOUT::submit-payment</text>
+</g>
+<g id="FLOW-PAYMENTS-MANUAL-REVIEW"><rect x="36" y="1238" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1262" font-family="monospace" font-size="13" font-weight="bold">High-Risk Manual Review Flow</text>
+<text x="50" y="1280" font-family="monospace" font-size="11" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW</text>
+</g>
+<g id="FLOW-PAYMENTS-MANUAL-REVIEW__complete-review"><rect x="36" y="1328" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1352" font-family="monospace" font-size="13" font-weight="bold">Complete authorization using manual</text>
+<text x="50" y="1370" font-family="monospace" font-size="13" font-weight="bold">review outcome</text>
+<text x="50" y="1388" font-family="monospace" font-size="11" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::complete-revie</text>
+<text x="50" y="1406" font-family="monospace" font-size="11" font-weight="normal">w</text>
+</g>
+<g id="FLOW-PAYMENTS-MANUAL-REVIEW__create-review-ticket"><rect x="36" y="1454" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1478" font-family="monospace" font-size="13" font-weight="bold">Create manual review ticket for</text>
+<text x="50" y="1496" font-family="monospace" font-size="13" font-weight="bold">support operations</text>
+<text x="50" y="1514" font-family="monospace" font-size="11" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::create-review-</text>
+<text x="50" y="1532" font-family="monospace" font-size="11" font-weight="normal">ticket</text>
+</g>
+<g id="FLOW-PAYMENTS-MANUAL-REVIEW__detect-high-risk"><rect x="36" y="1580" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1604" font-family="monospace" font-size="13" font-weight="bold">Detect high-risk signal and emit</text>
+<text x="50" y="1622" font-family="monospace" font-size="13" font-weight="bold">escalation trigger</text>
+<text x="50" y="1640" font-family="monospace" font-size="11" font-weight="normal">FLOW-PAYMENTS-MANUAL-REVIEW::detect-high-ri</text>
+<text x="50" y="1658" font-family="monospace" font-size="11" font-weight="normal">sk</text>
+</g>
+<g id="FU-CHECKOUT"><rect x="36" y="1706" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1730" font-family="monospace" font-size="13" font-weight="bold">Checkout Handling</text>
+<text x="50" y="1748" font-family="monospace" font-size="11" font-weight="normal">FU-CHECKOUT</text>
+</g>
+<g id="FU-PAYMENT-AUTHORIZATION"><rect x="36" y="1866" width="340" height="226" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1890" font-family="monospace" font-size="13" font-weight="bold">Payment Authorization</text>
+<text x="50" y="1908" font-family="monospace" font-size="11" font-weight="normal">FU-PAYMENT-AUTHORIZATION</text>
+</g>
+<g id="FU-RISK-SCORING"><rect x="36" y="2116" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2140" font-family="monospace" font-size="13" font-weight="bold">Risk Scoring</text>
+<text x="50" y="2158" font-family="monospace" font-size="11" font-weight="normal">FU-RISK-SCORING</text>
+</g>
+<g id="FU-SUPPORT-REVIEW"><rect x="36" y="2276" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2300" font-family="monospace" font-size="13" font-weight="bold">Support Review</text>
+<text x="50" y="2318" font-family="monospace" font-size="11" font-weight="normal">FU-SUPPORT-REVIEW</text>
+</g>
+<g id="IF-PAYMENTS-BANK-AUTH"><rect x="36" y="2400" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2424" font-family="monospace" font-size="13" font-weight="bold">Bank Authorization Interface</text>
+<text x="50" y="2442" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-BANK-AUTH</text>
+</g>
+<g id="IF-PAYMENTS-CHECKOUT-API"><rect x="36" y="2490" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2514" font-family="monospace" font-size="13" font-weight="bold">Checkout API Interface</text>
+<text x="50" y="2532" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-CHECKOUT-API</text>
+</g>
+<g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="36" y="2580" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2604" font-family="monospace" font-size="13" font-weight="bold">Risk Score Interface</text>
+<text x="50" y="2622" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-RISK-SCORE-API</text>
+</g>
 </svg>

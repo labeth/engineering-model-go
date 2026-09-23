@@ -91,6 +91,11 @@ done
 
 coffee_six_view="examples/coffee-appliance-six-view"
 mkdir -p "$coffee_six_view/generated"
+go run ./cmd/engdoc --model "$coffee_six_view/engmod.yml" \
+  --requirements "$coffee_six_view/model/requirements.yml" --design "$coffee_six_view/model/views.yml" \
+  --out "$coffee_six_view/generated/ARCHITECTURE.adoc" --decisions-out "$coffee_six_view/generated/DECISIONS.adoc"
+go run ./cmd/engtrace --model "$coffee_six_view/engmod.yml" \
+  --requirements "$coffee_six_view/model/requirements.yml" --out "$coffee_six_view/generated/TRACE-MATRIX.json"
 go run ./cmd/engview --model "$coffee_six_view/engmod.yml" --out-dir "$coffee_six_view/generated"
 go run ./cmd/engsysml --model "$coffee_six_view/engmod.yml" --out "$coffee_six_view/generated/ARCHITECTURE.sysml"
 

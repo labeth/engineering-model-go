@@ -1,4 +1,5 @@
 = Yaw Damping Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -294,6 +295,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
 
+*Authored status:* unspecified
+
+*Authored scope and limitations:* No authored status explanation provided.
+
 === What This View Answers
 
 
@@ -303,6 +308,39 @@ Show the stable authored architecture intent: capability areas, unit ownership b
 
 - How are responsibilities intentionally split?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-YAW-CONTROL`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-YAW-CONTROL (architecture-intent)
+N_FG_FLIGHT_CONTROL["Flight Control"]:::functional_group
+N_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
+N_FG_FLIGHT_CONTROL -->|contains| N_FU_YAW_CONTROL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
@@ -310,12 +348,10 @@ What this diagram shows: explicit internal vs external scope. Functional units a
 [source,mermaid]
 ----
 flowchart LR
-  ACT_ACT_SYSTEMS_ENGINEER(("Systems Engineer")):::actor
-  REF_REF_SYSTEM_SAFETY_ASSESSMENT["System Safety Assessment"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction TB
+    direction LR
     subgraph FGCTX_FG_FLIGHT_CONTROL["Flight Control"]
-      direction TB
+      direction LR
       FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
     end
     style FGCTX_FG_FLIGHT_CONTROL fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
@@ -350,7 +386,7 @@ What this diagram shows: stable capability decomposition from functional groups 
 
 [source,mermaid]
 ----
-flowchart TB
+flowchart LR
   SYS["System"]:::system_boundary
   FG_FG_FLIGHT_CONTROL["Flight Control"]:::functional_group
   SYS -->|contains| FG_FG_FLIGHT_CONTROL
@@ -482,7 +518,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_YD_HLR_001["REQ-YD-HLR-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
   REQC_REQ_YD_HLR_001 -->|applies_to| FU_FU_YAW_CONTROL
@@ -524,7 +560,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_YD_LLR_001["REQ-YD-LLR-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
   REQC_REQ_YD_LLR_001 -->|applies_to| FU_FU_YAW_CONTROL
@@ -566,7 +602,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_YD_SYS_001["REQ-YD-SYS-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
   REQC_REQ_YD_SYS_001 -->|applies_to| FU_FU_YAW_CONTROL

@@ -1,0 +1,25 @@
+{
+  "model": "coffee-appliance-six-view",
+  "requirements": [
+    {
+      "id": "REQ-COFFEE-001",
+      "text": "While appliance is ready, when brew request is received, the coffee appliance shall prepare the brew selection.",
+      "units": [
+        "CAP-BREW-BEVERAGE"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-COFFEE-001"
+  ],
+  "summary": {
+    "requirements": 1,
+    "implemented": 0,
+    "verified": 0,
+    "delegated": 0,
+    "orphan": 1,
+    "danglingLinks": 0
+  }
+}

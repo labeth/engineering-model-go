@@ -12,7 +12,7 @@ It combines:
 - LOBSTER activity trace export
 - design + requirement narrative generation to AsciiDoc
 - EARS requirement preflight linting
-- code trace mapping (Go, TypeScript, Rust)
+- code trace mapping (Go, JavaScript, TypeScript, Rust, Verilog modules)
 
 YAML remains the canonical authored and persistence format, with CUE as the
 authoritative schema and cross-field constraint layer. The canonical YAML/CUE
@@ -96,7 +96,9 @@ It is not a runtime observability or incident/compliance runtime system.
 - Tree-sitter based code symbol extraction and trace mapping for:
   - Go
   - TypeScript/TSX
+  - JavaScript (`.js`, `.mjs`, `.cjs`): named functions/generators, methods, classes and directly bound function values. Anonymous callbacks and top-level statements are not independent declarations; this does not infer classic-script load order or runtime behavior. Syntax errors and multiple declarations on one line produce errors rather than ambiguous trace credit.
   - Rust
+- Lexical Verilog (`.v`) module trace extraction, with one requirement-link block per module. This does not validate HDL syntax, elaborate designs, or expand macros. Unresolved macro invocations that may affect module declarations and malformed module boundaries produce errors. Macros recognized in expression positions inside a module produce warnings requiring independent build evidence; conditional branches are all inspected. `inferenceHints.codeSources` accepts directories or individual source files. Linked `tb_*.v` and `*_tb.v` testbenches produce verification links with `not-run` status until result evidence is supplied. Test-source links do not count as production implementation in the trace matrix.
 
 ## Installation
 
@@ -252,6 +254,8 @@ Expanded mapping relation vocabulary includes:
 - Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
 - Flow projection (view-only): `flow_next`, `flow_error`, `flow_async`, `flow_ref`
 
+`bounded_by` links a functional unit, deployment target, interface, actor, hardware item or data object to a trust boundary. Default security views retain these member kinds. Membership describes the modeled boundary; it does not establish authentication or enforcement. Author an explicit relationship when it should appear in the projected view.
+
 Optional per-view publication metadata (in `model/views.yml`):
 - `authoredStatus` (for example `draft`, `in-review`, `stable`)
 - `authoredStatusExplanation` (short rationale shown in Document Health Snapshot)
@@ -348,6 +352,11 @@ go run ./cmd/engdoc \
 `--view` is repeatable to scope the document to specific viewpoint IDs (omit to include all
 configured views). When `--decisions-out` is set, `engdoc` emits the architecture decision
 records (from `model/decisions.yml`) as a separate `DECISIONS.adoc` document.
+
+Each authored view and each requirement coverage graph is published as one complete
+diagram. Large diagrams scale to fit the page instead of being split into repeated
+panels. Standalone Mermaid and SVG exports preserve the same complete graph and
+can be viewed at a larger scale.
 
 Generate the machine-readable traceability matrix:
 
@@ -537,7 +546,14 @@ Generate LOBSTER activity trace from tests:
 go run ./cmd/englobster --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
 ```
 
-Render PDF with proven-docs:
+Regenerate all maintained examples with `scripts/generate-examples.sh`.
+After generation, `scripts/render-publication-pdfs.sh` renders the self-model
+and every example architecture publication using the locally installed
+`proven-docs`. Review the rendered pages before release; a successful render
+does not establish visual quality. PDF rendering is separate from deterministic
+model-export validation.
+
+Render an individual PDF with proven-docs:
 
 ```bash
 proven-docs render \

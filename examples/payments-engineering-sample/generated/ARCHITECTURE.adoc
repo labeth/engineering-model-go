@@ -1,4 +1,5 @@
 = Sample Payments Layered Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -413,6 +414,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split.
 
+*Authored status:* stable
+
+*Authored scope and limitations:* Stable authored capability boundaries and ownership split; changes are intentional and infrequent.
+
 === What This View Answers
 
 
@@ -422,6 +427,115 @@ Show the stable authored architecture intent: capability areas, unit ownership b
 
 - How are responsibilities intentionally split?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-ARCHITECTURE-INTENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
+N_ACT_CUSTOMER(("Customer")):::actor
+N_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
+N_ACT_SUPPORT(("Support Agent")):::actor
+N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
+N_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+N_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+N_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+N_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+N_DEP_PAYMENTS_BANK_EDGE["Bank Edge Integration Zone"]:::deployment_target
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
+N_EVT_PAYMENTS_AUTH_COMPLETED(("Authorization Completed")):::event
+N_EVT_PAYMENTS_AUTH_REQUESTED(("Authorization Requested")):::event
+N_FG_FRAUD["Fraud Evaluation"]:::functional_group
+N_FG_PAYMENTS["Payments"]:::functional_group
+N_FG_PLATFORM["Platform"]:::functional_group
+N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
+N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
+N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_STATE_PAYMENTS_AUTHORIZED(["Payment Authorized"]):::state
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED(["Checkout Received"]):::state
+N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+N_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
+N_ACT_CUSTOMER --> N_FU_CHECKOUT
+N_ACT_PLATFORM_OPERATOR --> N_FU_CLUSTER_PROVISIONING
+N_ACT_PLATFORM_OPERATOR --> N_FU_GITOPS_OPERATIONS
+N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
+N_FG_FRAUD -->|contains| N_FU_RISK_SCORING
+N_FG_FRAUD -->|contains| N_FU_SUPPORT_REVIEW
+N_FG_PAYMENTS -->|contains| N_FU_CHECKOUT
+N_FG_PAYMENTS -->|contains| N_FU_PAYMENT_AUTHORIZATION
+N_FG_PLATFORM -->|contains| N_FU_CLUSTER_PROVISIONING
+N_FG_PLATFORM -->|contains| N_FU_GITOPS_OPERATIONS
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_CHECKOUT -->|reads| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_CHECKOUT -->|writes| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|calls| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
+N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_GITOPS_OPERATIONS --> N_TB_PAYMENTS_PLATFORM_CONTROL
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|writes| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_PAYMENT_AUTHORIZATION --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_FU_RISK_SCORING -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_RISK_SCORING -->|contains| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|publishes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|writes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
+N_FU_SUPPORT_REVIEW -->|contains| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
+N_IF_PAYMENTS_BANK_AUTH --> N_DEP_PAYMENTS_BANK_EDGE
+N_STATE_PAYMENTS_AUTHORIZED --> N_CTRL_PAYMENTS_SSO_MFA
+N_STATE_PAYMENTS_AUTHORIZED --> N_EVT_PAYMENTS_AUTH_COMPLETED
+N_STATE_PAYMENTS_AUTHORIZED --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_EVT_PAYMENTS_AUTH_REQUESTED
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZED
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
@@ -436,21 +550,21 @@ flowchart LR
   REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
   REF_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction TB
+    direction LR
     subgraph FGCTX_FG_PAYMENTS["Payments"]
-      direction TB
+      direction LR
       FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
       FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
     end
     style FGCTX_FG_PAYMENTS fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_FRAUD["Fraud Evaluation"]
-      direction TB
+      direction LR
       FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
       FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
     end
     style FGCTX_FG_FRAUD fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;
     subgraph FGCTX_FG_PLATFORM["Platform"]
-      direction TB
+      direction LR
       FU_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
       FU_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
     end
@@ -493,7 +607,7 @@ What this diagram shows: stable capability decomposition from functional groups 
 
 [source,mermaid]
 ----
-flowchart TB
+flowchart LR
   SYS["System"]:::system_boundary
   FG_FG_PAYMENTS["Payments"]:::functional_group
   SYS -->|contains| FG_FG_PAYMENTS
@@ -610,6 +724,7 @@ flowchart LR
     subgraph RT_FU_CHECKOUT_PAYMENTS["payments"]
       direction TB
       CODE_CHECKOUT_API_GO["checkout_api.go"]:::code_element
+      CODE_SRC_CHECKOUT_API_GO["src/checkout_api.go"]:::code_element
     end
     style RT_FU_CHECKOUT_PAYMENTS fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CHECKOUT -->|runtime evidence| RT_FU_CHECKOUT_PAYMENTS
@@ -621,8 +736,10 @@ flowchart LR
     FU_FU_CHECKOUT -->|runtime evidence| RT_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
     subgraph RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]
       direction TB
-      CODE_EVENTS_RS["events.rs"]:::code_element
+      CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
       CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
+      CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
+      CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
     end
     style RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
@@ -761,8 +878,10 @@ flowchart LR
     FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
     subgraph RT_FU_RISK_SCORING_RISK["risk"]
       direction TB
-      CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts"]:::code_element
       CODE_RISK_SCORER_TS["risk_scorer.ts"]:::code_element
+      CODE_SRC_RISK_SCORER_TS["src/risk_scorer.ts"]:::code_element
+      CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS["src/support/audit_envelope.ts"]:::code_element
+      CODE_SUPPORT_AUDIT_ENVELOPE_TS["support/audit_envelope.ts"]:::code_element
     end
     style RT_FU_RISK_SCORING_RISK fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_RISK_SCORING -->|runtime evidence| RT_FU_RISK_SCORING_RISK
@@ -1030,6 +1149,10 @@ no explicit authored <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> trigger
 
 Show who communicates with whom across key request paths, including <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> edges and dependency handoffs.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Communication semantics are partially inferred and still being refined with explicit protocol and interaction metadata.
+
 === What This View Answers
 
 
@@ -1039,6 +1162,72 @@ Show who communicates with whom across key request paths, including <<REF_IDX-EN
 
 - Which communication paths are critical to the main request <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-COMMUNICATION`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-COMMUNICATION (communication)
+N_ACT_CUSTOMER(("Customer")):::actor
+N_ACT_SUPPORT(("Support Agent")):::actor
+N_DO_PAYMENTS_AUTH_DECISION[("Authorization Decision")]:::data_object
+N_DO_PAYMENTS_AUTH_REQUEST[("Authorization Request")]:::data_object
+N_DO_PAYMENTS_REVIEW_TICKET[("Manual Review Ticket")]:::data_object
+N_DO_PAYMENTS_RISK_SIGNAL[("Risk Signal")]:::data_object
+N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_IF_PAYMENTS_BANK_AUTH[/"Bank Authorization Interface"/]:::interface
+N_IF_PAYMENTS_CHECKOUT_API[/"Checkout API Interface"/]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API[/"Risk Score Interface"/]:::interface
+N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_ACT_CUSTOMER --> N_FU_CHECKOUT
+N_ACT_SUPPORT --> N_FU_SUPPORT_REVIEW
+N_FU_CHECKOUT -->|reads| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_CHECKOUT -->|writes| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|calls| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_PAYMENT_AUTHORIZATION -->|writes| N_DO_PAYMENTS_AUTH_DECISION
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_PAYMENT_AUTHORIZATION -->|reads| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|calls| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_RISK_SCORING -->|reads| N_DO_PAYMENTS_AUTH_REQUEST
+N_FU_RISK_SCORING -->|publishes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING -->|writes| N_DO_PAYMENTS_RISK_SIGNAL
+N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
+N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
+N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 3/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1121,6 +1310,10 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 Show inferred deployment artifacts and ownership mapping to authored units. This <<REF_IDX-ENGMODEL_TERM_VIEW,view>> emphasizes deployment relationships and <<REF_IDX-CATALOG_FG_PLATFORM,platform>> operations.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Deployment chain and control-plane mapping are mostly present, but ownership evidence remains incomplete for some units.
+
 === What This View Answers
 
 
@@ -1130,6 +1323,72 @@ Show inferred deployment artifacts and ownership mapping to authored units. This
 
 - Where are <<REF_IDX-CATALOG_FG_PLATFORM,platform>> ownership boundaries and missing ownership signals?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-DEPLOYMENT`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-DEPLOYMENT (deployment)
+N_DEP_PAYMENTS_BANK_EDGE[["Bank Edge Integration Zone"]]:::deployment_target
+N_DEP_PAYMENTS_CLUSTER_PROD[["Payments Cluster Production"]]:::deployment_target
+N_FG_FRAUD["Fraud Evaluation"]:::unknown
+N_FG_PAYMENTS["Payments"]:::unknown
+N_FG_PLATFORM["Platform"]:::unknown
+N_FU_CHECKOUT["Checkout Handling"]:::unknown
+N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::unknown
+N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::unknown
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::unknown
+N_FU_RISK_SCORING["Risk Scoring"]:::unknown
+N_FU_SUPPORT_REVIEW["Support Review"]:::unknown
+N_IF_PAYMENTS_BANK_AUTH["Bank Authorization Interface"]:::interface
+N_IF_PAYMENTS_CHECKOUT_API["Checkout API Interface"]:::interface
+N_IF_PAYMENTS_RISK_SCORE_API["Risk Score Interface"]:::interface
+N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::unknown
+N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::unknown
+N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::unknown
+N_FG_FRAUD -->|contains| N_FU_RISK_SCORING
+N_FG_FRAUD -->|contains| N_FU_SUPPORT_REVIEW
+N_FG_PAYMENTS -->|contains| N_FU_CHECKOUT
+N_FG_PAYMENTS -->|contains| N_FU_PAYMENT_AUTHORIZATION
+N_FG_PLATFORM -->|contains| N_FU_CLUSTER_PROVISIONING
+N_FG_PLATFORM -->|contains| N_FU_GITOPS_OPERATIONS
+N_FU_CHECKOUT -->|deployed_to: Checkout workload deployment target.| N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_CHECKOUT -->|depends_on: Delegates payment authorization.| N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
+N_FU_GITOPS_OPERATIONS -->|depends_on: Relies on provisioned cluster and namespace baseline.| N_FU_CLUSTER_PROVISIONING
+N_FU_GITOPS_OPERATIONS -->|depends_on: Uses Helm runtime platform for release orchestration.| N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION -->|deployed_to: Authorization workload deployment target.| N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Requests fraud scoring before final authorization.| N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Escalates high-risk payments for manual review.| N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
+N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Calls external bank authorization endpoint.| N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
+N_FU_RISK_SCORING -->|depends_on: Uses external library for audit persistence.| N_REF_POSTGRES_DRIVER
+N_IF_PAYMENTS_BANK_AUTH -->|deployed_to: External authorization interface boundary target.| N_DEP_PAYMENTS_BANK_EDGE
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 5/6 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1518,7 +1777,11 @@ Deployment design prioritizes policy gates, controlled promotion, and resilient 
 [[SEC_VIEW_VIEW-SECURITY]]
 == Security View
 
-Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points aligned to unit boundaries, focused on attack paths and security <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
+Show the selected security relationships and boundary context. Interpret this projection within its authored scope; membership alone does not establish authentication, enforcement or complete threat coverage.
+
+*Authored status:* draft
+
+*Authored scope and limitations:* Threat mapping is present for key vectors, but control expectations and coverage breadth are still evolving.
 
 === What This View Answers
 
@@ -1529,6 +1792,66 @@ Show inferred exposure and dependency <<REF_IDX-ENGMODEL_TERM_RISK,risk>> points
 
 - Where is the threat <<REF_IDX-ENGMODEL_TERM_MODEL,model>> incomplete?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-SECURITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-SECURITY (security)
+N_AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
+N_AV_FRAUDULENT_TRANSACTION_PATTERN(("Fraudulent Transaction Pattern")):::attack_vector
+N_AV_MALICIOUS_API_REQUEST(("Malicious API Request")):::attack_vector
+N_AV_REPLAYED_AUTH_CALLBACK(("Replayed Authorization Callback")):::attack_vector
+N_CTRL_PAYMENTS_IMAGE_DIGEST[["Immutable Image Digests"]]:::control
+N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
+N_FG_FRAUD["Fraud Evaluation"]:::functional_group
+N_FG_PAYMENTS["Payments"]:::functional_group
+N_FG_PLATFORM["Platform"]:::functional_group
+N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
+N_AV_COMPROMISED_DEPENDENCY --> N_CTRL_PAYMENTS_IMAGE_DIGEST
+N_AV_COMPROMISED_DEPENDENCY --> N_REF_POSTGRES_DRIVER
+N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_PAYMENT_AUTHORIZATION
+N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_RISK_SCORING
+N_AV_FRAUDULENT_TRANSACTION_PATTERN --> N_FU_SUPPORT_REVIEW
+N_AV_MALICIOUS_API_REQUEST --> N_CTRL_PAYMENTS_SSO_MFA
+N_AV_MALICIOUS_API_REQUEST --> N_FU_CHECKOUT
+N_AV_REPLAYED_AUTH_CALLBACK --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_PAYMENT_AUTHORIZATION --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 4/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1980,10 +2303,14 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_EVENTS_RS["events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
+  CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_DOMAIN_EVENTS_RS
   CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
+  CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_DOMAIN_EVENTS_RS
+  CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_PAYMENT_ENGINE_RS
   SEC_TGT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_RISK_SCORING
   SEC_DEP_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::referenced_element
@@ -1992,10 +2319,14 @@ flowchart LR
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK
   SEC_RT_FU_RISK_SCORING_RISK_SCORER["risk-scorer"]:::runtime_element
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK_SCORER
-  CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts"]:::code_element
-  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_AUDIT_ENVELOPE_TS
   CODE_RISK_SCORER_TS["risk_scorer.ts"]:::code_element
   SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_RISK_SCORER_TS
+  CODE_SRC_RISK_SCORER_TS["src/risk_scorer.ts"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SRC_RISK_SCORER_TS
+  CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS["src/support/audit_envelope.ts"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS
+  CODE_SUPPORT_AUDIT_ENVELOPE_TS["support/audit_envelope.ts"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SUPPORT_AUDIT_ENVELOPE_TS
   SEC_TGT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_SUPPORT_REVIEW
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2099,6 +2430,8 @@ flowchart LR
   SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_PAYMENTS
   CODE_CHECKOUT_API_GO["checkout_api.go"]:::code_element
   SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| CODE_CHECKOUT_API_GO
+  CODE_SRC_CHECKOUT_API_GO["src/checkout_api.go"]:::code_element
+  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| CODE_SRC_CHECKOUT_API_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2167,10 +2500,14 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_EVENTS_RS["events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
+  CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_DOMAIN_EVENTS_RS
   CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
+  CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_DOMAIN_EVENTS_RS
+  CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_PAYMENT_ENGINE_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2223,6 +2560,10 @@ runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>;
 
 Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> gaps.
 
+*Authored status:* in-review
+
+*Authored scope and limitations:* Requirement-to-unit linkage is present; cross-layer ownership consistency still needs tightening.
+
 === What This View Answers
 
 
@@ -2232,6 +2573,55 @@ Show requirement-to-unit-to-evidence traceability, including coverage confidence
 
 - Where are confidence or completeness gaps in trace coverage?
 
+=== Authored View Diagram
+
+This diagram follows the selected roots, depth, kinds and relationships of `VIEW-TRACEABILITY`.
+
+[source,mermaid]
+----
+flowchart LR
+%% view: VIEW-TRACEABILITY (traceability)
+N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
+N_FU_CHECKOUT["Checkout Handling"]:::functional_unit
+N_FU_CLUSTER_PROVISIONING["Cluster Provisioning"]:::functional_unit
+N_FU_GITOPS_OPERATIONS["GitOps Operations"]:::functional_unit
+N_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
+N_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
+N_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
+N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
+N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
+N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
+N_FU_CHECKOUT --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_CHECKOUT --> N_FU_PAYMENT_AUTHORIZATION
+N_FU_GITOPS_OPERATIONS --> N_FU_CLUSTER_PROVISIONING
+N_FU_GITOPS_OPERATIONS --> N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION --> N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION --> N_FU_SUPPORT_REVIEW
+N_FU_PAYMENT_AUTHORIZATION --> N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_RISK_SCORING --> N_REF_POSTGRES_DRIVER
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
 === Coverage Gaps
 
 Coverage summary: 5/6 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2278,6 +2668,10 @@ Coverage summary: 5/6 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 == State Lifecycle View
 
 Show workflow <<REF_IDX-ENGMODEL_TERM_STATE,state>> transitions, ownership of transitions, and key exceptional paths.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* Lifecycle transitions and controls are explicitly modeled for payment decision progression.
 
 === What This View Answers
 
@@ -2370,6 +2764,10 @@ Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> 
 == Interaction Flow View
 
 Show user-intent-to-outcome causal <<REF_IDX-ENGMODEL_TERM_FLOW,flow>>, including ordered steps, data movement, and error/async branches.
+
+*Authored status:* in-review
+
+*Authored scope and limitations:* Flow is authored for core checkout path and used to align UX/data movement semantics with architecture behavior.
 
 === What This View Answers
 
@@ -2630,7 +3028,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_001["REQ-PAY-001"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_001 -->|applies_to| FU_FU_CHECKOUT
@@ -2638,23 +3036,23 @@ flowchart LR
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
-  CODE_CHECKOUT_API_GO["checkout_api.go:20,32,38,44,50,56"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_CHECKOUT_API_GO
-  REQC_REQ_PAY_001 -->|code trace| CODE_CHECKOUT_API_GO
+  CODE_REQ_PAY_001_CHECKOUT_API_GO["checkout_api.go: 20, 32"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_001_CHECKOUT_API_GO
+  REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_CHECKOUT_API_GO
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_001 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
-  CODE_EVENTS_RS["events.rs:12"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
-  REQC_REQ_PAY_001 -->|code trace| CODE_EVENTS_RS
-  CODE_PAYMENT_ENGINE_RS["payment_engine.rs:15,31,40,51,60,69"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
-  REQC_REQ_PAY_001 -->|code trace| CODE_PAYMENT_ENGINE_RS
+  CODE_REQ_PAY_001_EVENTS_RS["events.rs: 12"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_001_EVENTS_RS
+  REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_EVENTS_RS
+  CODE_REQ_PAY_001_PAYMENT_ENGINE_RS["payment_engine.rs: 15, 31"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_001_PAYMENT_ENGINE_RS
+  REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_PAYMENT_ENGINE_RS
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597["VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597 (not-run)"]:::verification
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|verifies| REQC_REQ_PAY_001
-  CODE_AUTHORIZED_CHECKOUT_FLOW_YAML["authorized_checkout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|implemented_by| CODE_AUTHORIZED_CHECKOUT_FLOW_YAML
+  VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML["authorized_checkout_flow.yaml"]:::code_element
+  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|implemented_by| VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2693,7 +3091,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_002["REQ-PAY-002"]:::requirement
   FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQC_REQ_PAY_002 -->|applies_to| FU_FU_RISK_SCORING
@@ -2701,13 +3099,13 @@ flowchart LR
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
   RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
-  CODE_RISK_SCORER_TS["risk_scorer.ts:10,24,33,43,52,58"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_RISK_SCORER_TS
-  REQC_REQ_PAY_002 -->|code trace| CODE_RISK_SCORER_TS
+  CODE_REQ_PAY_002_RISK_SCORER_TS["risk_scorer.ts: 10, 24"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_002_RISK_SCORER_TS
+  REQC_REQ_PAY_002 -->|code trace| CODE_REQ_PAY_002_RISK_SCORER_TS
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_002
-  CODE_FRAUD_GATE_TEST_RS["fraud_gate_test.rs:6"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| CODE_FRAUD_GATE_TEST_RS
+  VERCODE_REQ_PAY_002_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS["fraud_gate_test.rs: 6"]:::code_element
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VERCODE_REQ_PAY_002_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2746,7 +3144,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_003["REQ-PAY-003"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_003 -->|applies_to| FU_FU_CHECKOUT
@@ -2754,17 +3152,17 @@ flowchart LR
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
-  CODE_CHECKOUT_API_GO["checkout_api.go:20,32,38,44,50,56"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_CHECKOUT_API_GO
-  REQC_REQ_PAY_003 -->|code trace| CODE_CHECKOUT_API_GO
+  CODE_REQ_PAY_003_CHECKOUT_API_GO["checkout_api.go: 44, 50"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_003_CHECKOUT_API_GO
+  REQC_REQ_PAY_003 -->|code trace| CODE_REQ_PAY_003_CHECKOUT_API_GO
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE["VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE (pass)"]:::verification
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|verifies| REQC_REQ_PAY_003
-  CODE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go:7"]:::code_element
-  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| CODE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
+  VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go: 7"]:::code_element
+  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93["VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93 (not-run)"]:::verification
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|verifies| REQC_REQ_PAY_003
-  CODE_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go:7,15,20"]:::code_element
-  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| CODE_CHECKOUT_DECLINE_REASON_TEST_GO
+  VERCODE_REQ_PAY_003_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go: 7, 15, 20"]:::code_element
+  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2803,21 +3201,21 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_004["REQ-PAY-004"]:::requirement
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
-  CODE_PAYMENT_ENGINE_RS["payment_engine.rs:15,31,40,51,60,69"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
-  REQC_REQ_PAY_004 -->|code trace| CODE_PAYMENT_ENGINE_RS
+  CODE_REQ_PAY_004_PAYMENT_ENGINE_RS["payment_engine.rs: 51, 60"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_004_PAYMENT_ENGINE_RS
+  REQC_REQ_PAY_004 -->|code trace| CODE_REQ_PAY_004_PAYMENT_ENGINE_RS
   FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_SUPPORT_REVIEW
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_004
-  CODE_FRAUD_GATE_TEST_RS["fraud_gate_test.rs:6"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| CODE_FRAUD_GATE_TEST_RS
+  VERCODE_REQ_PAY_004_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS["fraud_gate_test.rs: 6"]:::code_element
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VERCODE_REQ_PAY_004_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2856,7 +3254,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_005["REQ-PAY-005"]:::requirement
   FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   REQC_REQ_PAY_005 -->|applies_to| FU_FU_RISK_SCORING
@@ -2864,16 +3262,16 @@ flowchart LR
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK
   RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
-  CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts:11"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_AUDIT_ENVELOPE_TS
-  REQC_REQ_PAY_005 -->|code trace| CODE_AUDIT_ENVELOPE_TS
-  CODE_RISK_SCORER_TS["risk_scorer.ts:10,24,33,43,52,58"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_RISK_SCORER_TS
-  REQC_REQ_PAY_005 -->|code trace| CODE_RISK_SCORER_TS
+  CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS["audit_envelope.ts: 11"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS
+  REQC_REQ_PAY_005 -->|code trace| CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS
+  CODE_REQ_PAY_005_RISK_SCORER_TS["risk_scorer.ts: 43, 52"]:::code_element
+  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_005_RISK_SCORER_TS
+  REQC_REQ_PAY_005 -->|code trace| CODE_REQ_PAY_005_RISK_SCORER_TS
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2["VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2 (not-run)"]:::verification
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|verifies| REQC_REQ_PAY_005
-  CODE_AUDIT_RECORD_PERSISTENCE_TEST_TS["audit_record_persistence_test.ts:5"]:::code_element
-  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| CODE_AUDIT_RECORD_PERSISTENCE_TEST_TS
+  VERCODE_REQ_PAY_005_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_AUDIT_RECORD_PERSISTENCE_TEST_TS["audit_record_persistence_test.ts: 5"]:::code_element
+  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| VERCODE_REQ_PAY_005_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_AUDIT_RECORD_PERSISTENCE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2912,7 +3310,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_006["REQ-PAY-006"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_006 -->|applies_to| FU_FU_CHECKOUT
@@ -2920,20 +3318,20 @@ flowchart LR
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
-  CODE_CHECKOUT_API_GO["checkout_api.go:20,32,38,44,50,56"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_CHECKOUT_API_GO
-  REQC_REQ_PAY_006 -->|code trace| CODE_CHECKOUT_API_GO
+  CODE_REQ_PAY_006_CHECKOUT_API_GO["checkout_api.go: 38, 56"]:::code_element
+  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_006_CHECKOUT_API_GO
+  REQC_REQ_PAY_006 -->|code trace| CODE_REQ_PAY_006_CHECKOUT_API_GO
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_006 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
-  CODE_PAYMENT_ENGINE_RS["payment_engine.rs:15,31,40,51,60,69"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
-  REQC_REQ_PAY_006 -->|code trace| CODE_PAYMENT_ENGINE_RS
+  CODE_REQ_PAY_006_PAYMENT_ENGINE_RS["payment_engine.rs: 40"]:::code_element
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_006_PAYMENT_ENGINE_RS
+  REQC_REQ_PAY_006 -->|code trace| CODE_REQ_PAY_006_PAYMENT_ENGINE_RS
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE["VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE (pass)"]:::verification
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|verifies| REQC_REQ_PAY_006
-  CODE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go:7"]:::code_element
-  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| CODE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
+  VERCODE_REQ_PAY_006_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go: 7"]:::code_element
+  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| VERCODE_REQ_PAY_006_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2972,7 +3370,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_007["REQ-PAY-007"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_007 -->|applies_to| FU_FU_CHECKOUT
@@ -3022,7 +3420,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_008["REQ-PAY-008"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
   REQC_REQ_PAY_008 -->|applies_to| FU_FU_CHECKOUT
@@ -3032,8 +3430,8 @@ flowchart LR
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93["VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93 (not-run)"]:::verification
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|verifies| REQC_REQ_PAY_008
-  CODE_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go:7,15,20"]:::code_element
-  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| CODE_CHECKOUT_DECLINE_REASON_TEST_GO
+  VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go: 7, 15, 20"]:::code_element
+  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3072,7 +3470,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PAY_009["REQ-PAY-009"]:::requirement
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_009 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
@@ -3198,7 +3596,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |unit
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
-|Test Code Elements |checkout_decline_reason_test.go:7,15,20
+|Test Code Elements |checkout_decline_reason_test.go:7, 15, 20
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>
 |Result Summary |not-run:2
 |Evidence |tests/unit/checkout_decline_reason_test.go

@@ -75,6 +75,10 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	for _, v := range bundle.Architecture.Views {
 		viewByID[v.ID] = v
 	}
+	viewKindCounts := map[string]int{}
+	for _, viewID := range viewIDs {
+		viewKindCounts[viewByID[viewID].Kind]++
+	}
 	for _, viewID := range viewIDs {
 		viewCfg := viewByID[viewID]
 		res, err := Generate(bundle, viewID)
@@ -110,7 +114,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		viewSections = append(viewSections, asciidocViewSection{
 			ID:                        viewID,
 			Kind:                      res.View.Kind,
-			Heading:                   viewHeading(res.View.Kind),
+			Heading:                   publicationViewHeading(res.View.Kind, viewID, viewKindCounts[res.View.Kind]),
 			AuthoredStatus:            normalizeAuthoredStatus(viewCfg.AuthoredStatus),
 			AuthoredStatusExplanation: normalizeAuthoredStatusExplanation(viewCfg.AuthoredStatusExplanation),
 			Mermaid:                   strings.TrimSpace(res.Mermaid),
@@ -272,11 +276,14 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		viewSections[i].NextActions = viewNextActions(v.Kind, viewSections[i].CoverageGaps)
 		switch v.Kind {
 		case "architecture-intent":
-			viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(bundle.Architecture.AuthoredArchitecture)
-			viewSections[i].FuncDecompGraph = buildFunctionalDecompositionMermaid(bundle.Architecture.AuthoredArchitecture)
-			viewSections[i].FuncMatrixTable = buildFunctionalManhattanTable(bundle.Architecture.AuthoredArchitecture)
+			scoped := functionalPublicationArchitecture(bundle.Architecture.AuthoredArchitecture, nodeSet)
+			if len(scoped.FunctionalUnits) > 0 || len(scoped.FunctionalGroups) > 0 {
+				viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(scoped)
+				viewSections[i].FuncDecompGraph = buildFunctionalDecompositionMermaid(scoped)
+				viewSections[i].FuncMatrixTable = buildFunctionalManhattanTable(scoped)
+			}
 			for j := range viewSections[i].Groups {
-				viewSections[i].Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(bundle.Architecture.AuthoredArchitecture, viewSections[i].Groups[j].ID, inferredRuntime, inferredCode)
+				viewSections[i].Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(scoped, viewSections[i].Groups[j].ID, inferredRuntime, inferredCode)
 			}
 		case "communication":
 			apiRows := buildRuntimeAPIRows(inferredRuntime, bundle.Architecture.AuthoredArchitecture.Mappings)
@@ -377,7 +384,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			Kind:          strings.TrimSpace(v.Kind),
 			Status:        strings.TrimSpace(v.Status),
 			Verifies:      joinList(v.Verifies),
-			TestCode:      joinList(v.CodeElements),
+			TestCode:      publicationTestCode(v.CodeElements),
 			DerivedOwners: joinList(v.DerivedOwners),
 			Evidence:      joinList(v.Evidence),
 			ResultSummary: summarizeResults(v.Results),

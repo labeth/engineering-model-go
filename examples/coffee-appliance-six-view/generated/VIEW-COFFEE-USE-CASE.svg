@@ -1,20 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COFFEE-USE-CASE-title" viewBox="0 0 602 322" data-source="examples/coffee-appliance-six-view/engmod.yml" data-view="VIEW-COFFEE-USE-CASE">
-  <title id="VIEW-COFFEE-USE-CASE-title">VIEW-COFFEE-USE-CASE — use-case view</title>
-  <metadata>source=examples/coffee-appliance-six-view/engmod.yml; view=VIEW-COFFEE-USE-CASE; kind=use-case</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-COFFEE-USE-CASE</text>
-  <line x1="146" y1="122" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="166" text-anchor="middle" font-family="sans-serif" font-size="11">participates</text>
-  <line x1="146" y1="220" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="166" text-anchor="middle" font-family="sans-serif" font-size="11">include</text>
-  <g id="ACT-COFFEE-DRINKER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Coffee Drinker</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-COFFEE-DRINKER</text></g>
-  <g id="UC-HEAT-WATER"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Heat Water</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">UC-HEAT-WATER</text></g>
-  <g id="UC-PREPARE-COFFEE"><rect x="36" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Prepare Coffee</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">UC-PREPARE-COFFEE</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-COFFEE-USE-CASE-title" viewBox="0 0 1168 406" data-source="examples/coffee-appliance-six-view/engmod.yml" data-view="VIEW-COFFEE-USE-CASE">
+<title id="VIEW-COFFEE-USE-CASE-title">VIEW-COFFEE-USE-CASE — use-case view</title>
+<metadata>source=examples/coffee-appliance-six-view/engmod.yml; view=VIEW-COFFEE-USE-CASE; kind=use-case</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-COFFEE-USE-CASE</text>
+<text x="502" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="REL-ACTOR-PREPARE" d="M376 118 H436 V298 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="106" width="34" height="16" rx="3" fill="white"/><text x="387" y="118" font-family="monospace" font-size="11">1</text>
+<text x="502" y="100" font-family="monospace" font-size="12" font-weight="normal">1. REL-ACTOR-PREPARE</text>
+<text x="502" y="118" font-family="monospace" font-size="12" font-weight="normal">ACT-COFFEE-DRINKER → UC-PREPARE-COFFEE</text>
+<text x="502" y="136" font-family="monospace" font-size="12" font-weight="normal">participates</text>
+<path data-edge="REL-PREPARE-INCLUDES-HEAT" d="M376 316 H454 V208 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="304" width="34" height="16" rx="3" fill="white"/><text x="387" y="316" font-family="monospace" font-size="11">2</text>
+<text x="502" y="166" font-family="monospace" font-size="12" font-weight="normal">2. REL-PREPARE-INCLUDES-HEAT</text>
+<text x="502" y="184" font-family="monospace" font-size="12" font-weight="normal">UC-PREPARE-COFFEE → UC-HEAT-WATER</text>
+<text x="502" y="202" font-family="monospace" font-size="12" font-weight="normal">include</text>
+<g id="ACT-COFFEE-DRINKER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Coffee Drinker</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-COFFEE-DRINKER</text>
+</g>
+<g id="UC-HEAT-WATER"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Heat Water</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">UC-HEAT-WATER</text>
+</g>
+<g id="UC-PREPARE-COFFEE"><rect x="36" y="280" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Prepare Coffee</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">UC-PREPARE-COFFEE</text>
+</g>
 </svg>

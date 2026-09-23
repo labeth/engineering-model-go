@@ -1,4 +1,5 @@
 = Atlas Shared Compliance Baseline Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -323,7 +324,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_001["REQ-COMP-001"]:::requirement
   FU_FU_COMP_EVIDENCE["Compliance Evidence Service"]:::functional_unit
   REQC_REQ_COMP_001 -->|applies_to| FU_FU_COMP_EVIDENCE
@@ -362,7 +363,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_002["REQ-COMP-002"]:::requirement
   FU_FU_COMP_EVIDENCE["Compliance Evidence Service"]:::functional_unit
   REQC_REQ_COMP_002 -->|applies_to| FU_FU_COMP_EVIDENCE
@@ -401,7 +402,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_003["REQ-COMP-003"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_003 -->|applies_to| FU_FU_COMP_PEOPLE
@@ -440,7 +441,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_004["REQ-COMP-004"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_004 -->|applies_to| FU_FU_COMP_PEOPLE
@@ -479,7 +480,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_005["REQ-COMP-005"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_005 -->|applies_to| FU_FU_COMP_PEOPLE
@@ -518,7 +519,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_006["REQ-COMP-006"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_006 -->|applies_to| FU_FU_COMP_PEOPLE
@@ -557,7 +558,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_007["REQ-COMP-007"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_007 -->|applies_to| FU_FU_COMP_PEOPLE
@@ -596,7 +597,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_COMP_008["REQ-COMP-008"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
   REQC_REQ_COMP_008 -->|applies_to| FU_FU_COMP_PEOPLE

@@ -1,4 +1,5 @@
 = Orion Relay Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -311,7 +312,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_ORI_001["REQ-ORI-001"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_001 -->|applies_to| FU_FU_ORI_ROUTER
@@ -350,7 +351,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_ORI_002["REQ-ORI-002"]:::requirement
   FU_FU_ORI_LINK["Link Scheduler Software"]:::functional_unit
   REQC_REQ_ORI_002 -->|applies_to| FU_FU_ORI_LINK
@@ -391,7 +392,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_ORI_003["REQ-ORI-003"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_003 -->|applies_to| FU_FU_ORI_ROUTER
@@ -432,7 +433,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_ORI_004["REQ-ORI-004"]:::requirement
   FU_FU_ORI_LINK["Link Scheduler Software"]:::functional_unit
   REQC_REQ_ORI_004 -->|applies_to| FU_FU_ORI_LINK
@@ -475,7 +476,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_ORI_005["REQ-ORI-005"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_005 -->|applies_to| FU_FU_ORI_ROUTER
@@ -611,11 +612,13 @@ This chapter shows the system architecture across hardware and software: hardwar
 
 ==== Hardware/Software Interface View
 
+Hardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.
+
 [source,mermaid]
 ----
 flowchart LR
-  HW_ORI_RADIO["Adaptive Radio"]
-  HW_ORI_ANTENNA["Steerable Antenna"]
+  HW_ORI_RADIO["HW-ORI-RADIO: Adaptive Radio"]
+  HW_ORI_ANTENNA["HW-ORI-ANTENNA: Steerable Antenna"]
   HW_ORI_RADIO -->|ethernet| HW_ORI_ANTENNA
 ----
 

@@ -27,3 +27,14 @@ func TestRender_IncludesFlowClassDefsAndNodeKinds(t *testing.T) {
 		}
 	}
 }
+
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-050
+func TestRenderHardwareUsesKnownStyles(t *testing.T) {
+	for _, kind := range []string{"architecture-intent", "deployment", "physical"} {
+		v := view.ProjectedView{ID: "VIEW-HW", Kind: kind, Nodes: []view.Node{{ID: "HW-A", Label: "ADC", Kind: "hardware_item"}, {ID: "HWIF-A", Label: "Samples", Kind: "hardware_interface"}}}
+		out := Render(v)
+		if strings.Contains(out, ":::unknown") || !strings.Contains(out, ":::deployment_element") || !strings.Contains(out, ":::interface") {
+			t.Fatalf("hardware style lost in %s: %s", kind, out)
+		}
+	}
+}

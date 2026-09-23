@@ -168,7 +168,7 @@ func renderPhysicalNode(node view.Node) string {
 // TRLC-LINKS: REQ-EMG-052
 func renderDeploymentNode(node view.Node) string {
 	shape := "[\"" + escapeLabel(node.Label) + "\"]"
-	if node.Kind == "deployment_target" || node.Kind == "hardware" {
+	if node.Kind == "deployment_target" || node.Kind == "hardware" || node.Kind == "hardware_item" {
 		shape = "[[\"" + escapeLabel(node.Label) + "\"]]"
 	}
 	return mermaidID(node.ID) + shape + ":::" + concernClass(node.Kind)
@@ -229,13 +229,13 @@ func concernClass(kind string) string {
 	switch kind {
 	case "capability", "logical_component":
 		return "functional_unit"
-	case "hardware":
+	case "hardware", "hardware_item":
 		return "deployment_element"
 	case "software_component":
 		return "code_element"
 	case "deployment_target":
 		return "deployment_target"
-	case "interface", "port":
+	case "interface", "port", "hardware_interface":
 		return "interface"
 	case "data", "quantity":
 		return "data_object"
@@ -248,6 +248,10 @@ func concernClass(kind string) string {
 func renderNode(n view.Node) string {
 	id, label := mermaidID(n.ID), escapeLabel(n.Label)
 	switch n.Kind {
+	case "hardware_item":
+		return fmt.Sprintf("%s[[\"%s\"]]:::deployment_element", id, label)
+	case "hardware_interface":
+		return fmt.Sprintf("%s[/\"%s\"/]:::interface", id, label)
 	case "functional_group":
 		return fmt.Sprintf("%s[\"%s\"]:::functional_group", id, label)
 	case "functional_unit":

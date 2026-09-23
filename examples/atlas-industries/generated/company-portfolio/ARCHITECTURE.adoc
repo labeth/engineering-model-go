@@ -1,4 +1,5 @@
 = Atlas Industries Portfolio Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -305,7 +306,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PORT_001["REQ-PORT-001"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_001 -->|applies_to| FU_FU_PORT_GOVERNANCE
@@ -344,7 +345,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PORT_002["REQ-PORT-002"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_002 -->|applies_to| FU_FU_PORT_GOVERNANCE
@@ -385,7 +386,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_PORT_003["REQ-PORT-003"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_003 -->|applies_to| FU_FU_PORT_GOVERNANCE

@@ -173,7 +173,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	}
 
 	lines = append(lines, "  subgraph SYSTEM_BOUNDARY[\"System Boundary (Internal)\"]")
-	lines = append(lines, "    direction TB")
+	lines = append(lines, "    direction LR")
 	groupLabelByID := map[string]string{}
 	groupOrder := make([]string, 0, len(a.FunctionalGroups))
 	for _, fg := range a.FunctionalGroups {
@@ -200,7 +200,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 			boxID = "FGCTX_UNASSIGNED"
 		}
 		lines = append(lines, fmt.Sprintf("    subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(groupLabelByID[gid])))
-		lines = append(lines, "      direction TB")
+		lines = append(lines, "      direction LR")
 		for _, fu := range units {
 			un := "FU_" + sanitizeNode(fu.ID)
 			lines = append(lines, fmt.Sprintf("      %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
@@ -273,7 +273,8 @@ func functionalContextInternalNodeID(id string) string {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
-	lines := []string{"flowchart TB"}
+	// Left-to-right ranks stack sibling units vertically rather than forming a wide strip.
+	lines := []string{"flowchart LR"}
 	lines = append(lines, "  SYS[\"System\"]:::system_boundary")
 	for _, fg := range a.FunctionalGroups {
 		gn := "FG_" + sanitizeNode(fg.ID)
@@ -549,6 +550,9 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 	codeRawByOwner := map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
+		if isVerificationCodeItem(c) {
+			continue
+		}
 		owner := strings.TrimSpace(c.Owner)
 		if !evidenceScopeUnits[owner] {
 			continue
@@ -661,7 +665,8 @@ func keysSortedStringSlices(m map[string][]string) []string {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
 func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
-	lines := []string{"flowchart LR"}
+	// Stack the evidence chain to fit portrait publication pages.
+	lines := []string{"flowchart TB"}
 	rtByOwner := map[string][]string{}
 	for _, r := range runtime {
 		owner := strings.TrimSpace(r.Owner)
@@ -673,6 +678,9 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	codeRawByOwnerReq := map[string]map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
+		if isVerificationCodeItem(c) {
+			continue
+		}
 		owner := strings.TrimSpace(c.Owner)
 		if owner == "" || owner == "unresolved" || strings.TrimSpace(c.Kind) != "symbol" {
 			continue
@@ -698,7 +706,19 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	for owner, byReq := range codeRawByOwnerReq {
 		codeByOwnerReq[owner] = map[string][]string{}
 		for reqID, items := range byReq {
-			codeByOwnerReq[owner][reqID] = groupedCodeElementEvidenceLabels(items, codeLabelLookup)
+			// Keep globally disambiguated filenames, but only this requirement's lines.
+			localLookup := codeElementEvidenceLabelLookup(items)
+			for key, label := range localLookup {
+				path, _, ok := splitCodeEvidencePathLines(codeLabelLookup[key])
+				_, lineNumbers, _ := splitCodeEvidencePathLines(label)
+				if ok {
+					localLookup[key] = path
+					if len(lineNumbers) > 0 {
+						localLookup[key] += ":" + joinEvidenceLineNumbers(lineNumbers)
+					}
+				}
+			}
+			codeByOwnerReq[owner][reqID] = groupedCodeElementEvidenceLabels(items, localLookup)
 		}
 	}
 	checksByReq := map[string][]inferredVerificationCheck{}
@@ -755,8 +775,8 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 				primaryRTNode = rtNodes[0]
 			}
 			for _, cm := range uniqueSorted(reqCode) {
-				cmNode := "CODE_" + sanitizeNode(codeElementEvidenceFileKey(cm))
-				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(cm)+"\"]:::code_element")
+				cmNode := "CODE_" + sanitizeNode(r.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(cm))
+				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(cm))+"\"]:::code_element")
 				if primaryRTNode != "" {
 					lines = append(lines, "  "+primaryRTNode+" -->|implemented_by| "+cmNode)
 				} else {
@@ -795,8 +815,8 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 			lines = append(lines, "  "+verNode+"[\""+escapeMermaidLabel(checkLabel)+"\"]:::verification")
 			lines = append(lines, "  "+verNode+" -->|verifies| "+reqNode)
 			for _, label := range groupedCodeElementEvidenceLabels(v.CodeElements, verificationCodeLabelLookup) {
-				ceNode := "CODE_" + sanitizeNode(codeElementEvidenceFileKey(label))
-				lines = append(lines, "  "+ceNode+"[\""+escapeMermaidLabel(label)+"\"]:::code_element")
+				ceNode := "VERCODE_" + sanitizeNode(r.ID+"_"+v.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(label))
+				lines = append(lines, "  "+ceNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(label))+"\"]:::code_element")
 				lines = append(lines, "  "+verNode+" -->|implemented_by| "+ceNode)
 			}
 		}
@@ -1046,7 +1066,15 @@ func codeItemEvidenceElement(c inferredCodeItem) string {
 	case "source_file":
 		return codeItemPath(c)
 	case "symbol":
-		return sanitizeSourcePath(c.Source)
+		if strings.TrimSpace(c.AbsPath) != "" {
+			_, lines, _ := splitCodeEvidencePathLines(c.Source)
+			path := filepath.ToSlash(filepath.Clean(c.AbsPath))
+			if len(lines) > 0 {
+				path += ":" + joinEvidenceLineNumbers(lines)
+			}
+			return path
+		}
+		return filepath.ToSlash(strings.TrimSpace(c.Source))
 	default:
 		return strings.TrimSpace(c.Element)
 	}
@@ -1136,17 +1164,19 @@ func codeElementEvidenceLabelLookup(elems []string) map[string]string {
 		lines map[int]bool
 	}
 	buckets := map[string]*bucket{}
+	baseCounts := map[string]int{}
 	for _, elem := range elems {
 		path, lines, ok := splitCodeEvidencePathLines(elem)
 		if !ok {
 			continue
 		}
 		base := filepath.Base(path)
-		key := strings.ToLower(base)
+		key := filepath.ToSlash(filepath.Clean(path))
 		b, ok := buckets[key]
 		if !ok {
 			b = &bucket{base: base, lines: map[int]bool{}}
 			buckets[key] = b
+			baseCounts[base]++
 		}
 		for _, line := range lines {
 			if line > 0 {
@@ -1156,20 +1186,39 @@ func codeElementEvidenceLabelLookup(elems []string) map[string]string {
 	}
 	out := map[string]string{}
 	for key, b := range buckets {
+		label := b.base
+		if baseCounts[b.base] > 1 {
+			label = key
+			parts := strings.Split(key, "/")
+			for n := 2; n <= len(parts); n++ {
+				candidate := strings.Join(parts[len(parts)-n:], "/")
+				unique := true
+				for other := range buckets {
+					if other != key && (other == candidate || strings.HasSuffix(other, "/"+candidate)) {
+						unique = false
+						break
+					}
+				}
+				if unique {
+					label = candidate
+					break
+				}
+			}
+		}
 		lines := make([]int, 0, len(b.lines))
 		for line := range b.lines {
 			lines = append(lines, line)
 		}
 		sort.Ints(lines)
 		if len(lines) == 0 {
-			out[key] = b.base
+			out[key] = label
 			continue
 		}
 		parts := make([]string, 0, len(lines))
 		for _, line := range lines {
 			parts = append(parts, fmt.Sprintf("%d", line))
 		}
-		out[key] = b.base + ":" + strings.Join(parts, ",")
+		out[key] = label + ":" + strings.Join(parts, ",")
 	}
 	return out
 }
@@ -1180,12 +1229,12 @@ func codeElementEvidenceFileKey(elem string) string {
 	if !ok {
 		return ""
 	}
-	return strings.ToLower(filepath.Base(path))
+	return filepath.ToSlash(filepath.Clean(path))
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func splitCodeEvidencePathLines(elem string) (string, []int, bool) {
-	elem = sanitizeSourcePath(elem)
+	elem = filepath.ToSlash(strings.TrimSpace(elem))
 	if elem == "" {
 		return "", nil, false
 	}
@@ -1274,6 +1323,8 @@ func moduleFromPath(p string) string {
 // TRLC-LINKS: REQ-EMG-003
 func languageFromPath(p string) string {
 	switch strings.ToLower(filepath.Ext(p)) {
+	case ".js", ".mjs", ".cjs":
+		return "javascript"
 	case ".go":
 		return "go"
 	case ".ts", ".tsx":

@@ -52,7 +52,7 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 		}
 		b.WriteString("|===\n\n")
 		if mmd := compositionHardwareMermaid(bundle); mmd != "" {
-			b.WriteString("==== Hardware/Software Interface View\n\n[source,mermaid]\n----\n")
+			b.WriteString("==== Hardware/Software Interface View\n\nHardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.\n\n[source,mermaid]\n----\n")
 			b.WriteString(mmd)
 			b.WriteString("\n----\n\n")
 		}
@@ -189,10 +189,11 @@ func compositionHardwareMermaid(bundle model.Bundle) string {
 	var b strings.Builder
 	b.WriteString("flowchart LR")
 	for _, h := range a.HardwareItems {
-		label := fallback(h.Name, h.ID)
-		if len(h.Hosts) > 0 {
-			label += " (" + strings.Join(h.Hosts, ", ") + ")"
+		label := h.ID
+		if name := strings.TrimSpace(h.Name); name != "" && name != h.ID {
+			label += ": " + name
 		}
+		// Complete hosted-unit allocations remain in the Hardware Items table.
 		b.WriteString(fmt.Sprintf("\n  %s[\"%s\"]", mermaidID(h.ID), mermaidLabel(label)))
 	}
 	for _, hi := range a.HardwareInterfaces {

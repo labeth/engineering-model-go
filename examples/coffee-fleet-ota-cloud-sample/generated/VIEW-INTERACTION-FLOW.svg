@@ -1,122 +1,251 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 602 1204" data-source="examples/coffee-fleet-ota-cloud-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
-  <title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
-  <metadata>source=examples/coffee-fleet-ota-cloud-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
-  <line x1="146" y1="318" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="318" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_async</text>
-  <line x1="456" y1="318" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
-  <line x1="456" y1="318" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="416" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="416" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="416" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="416" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="514" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="514" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="612" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="612" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="612" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="710" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="710" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="710" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="808" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="146" y1="906" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="456" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="146" y1="1004" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1004" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="146" y1="1004" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="146" y1="1004" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <g id="ACT-BARISTA"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Barista</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-BARISTA</text></g>
-  <g id="ACT-FLEET-OPERATOR"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Operator</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-FLEET-OPERATOR</text></g>
-  <g id="DO-COFFEE-OTA-PLAN"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Rollout Plan</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-COFFEE-OTA-PLAN</text></g>
-  <g id="DO-COFFEE-TELEMETRY-EVENT"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Telemetry Event</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-COFFEE-TELEMETRY-EVENT</text></g>
-  <g id="FLOW-COFFEE-OTA-ROLLOUT"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Rollout Interaction Flow</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-OTA-ROLLOUT</text></g>
-  <g id="FLOW-COFFEE-OTA-ROLLOUT__execute-update"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Execute signed OTA update on edge devices</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-OTA-ROLLOUT::execute-update</text></g>
-  <g id="FLOW-COFFEE-OTA-ROLLOUT__operator-schedules-rollout"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet operator schedules OTA campaign</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout</text></g>
-  <g id="FLOW-COFFEE-OTA-ROLLOUT__plan-campaign"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Build rollout cohorts and policy checks</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-OTA-ROLLOUT::plan-campaign</text></g>
-  <g id="FLOW-COFFEE-OTA-ROLLOUT__report-outcome"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Emit rollout status and observability summary</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-OTA-ROLLOUT::report-outcome</text></g>
-  <g id="FLOW-COFFEE-TELEMETRY-INGEST"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Telemetry Ingestion Interaction Flow</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-TELEMETRY-INGEST</text></g>
-  <g id="FLOW-COFFEE-TELEMETRY-INGEST__capture-machine-telemetry"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Barista machine activity produces telemetry events</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry</text></g>
-  <g id="FLOW-COFFEE-TELEMETRY-INGEST__collect-and-send-telemetry"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Collect and send telemetry payloads to cloud ingest</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry</text></g>
-  <g id="FLOW-COFFEE-TELEMETRY-INGEST__ingest-telemetry"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Validate and ingest telemetry records</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry</text></g>
-  <g id="FLOW-COFFEE-TELEMETRY-INGEST__publish-fleet-observability"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Publish fleet observability and audit summaries</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability</text></g>
-  <g id="FU-FLEET-INGESTION-API"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Ingestion API</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-FLEET-INGESTION-API</text></g>
-  <g id="FU-FLEET-OBSERVABILITY-REPORTING"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fleet Observability Reporting</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-FLEET-OBSERVABILITY-REPORTING</text></g>
-  <g id="FU-MACHINE-TELEMETRY-COLLECTION"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Machine Telemetry Collection</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-MACHINE-TELEMETRY-COLLECTION</text></g>
-  <g id="FU-OTA-UPDATE-AGENT"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Update Agent</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-OTA-UPDATE-AGENT</text></g>
-  <g id="FU-UPDATE-CAMPAIGN-ORCHESTRATION"><rect x="36" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Update Campaign Orchestration</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text></g>
-  <g id="IF-COFFEE-OTA-COMMAND"><rect x="346" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">OTA Command Interface</text>
-    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-COFFEE-OTA-COMMAND</text></g>
-  <g id="IF-COFFEE-TELEMETRY-INGEST"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Telemetry Ingestion Interface</text>
-    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">IF-COFFEE-TELEMETRY-INGEST</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 1600 2378" data-source="examples/coffee-fleet-ota-cloud-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
+<title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
+<metadata>source=examples/coffee-fleet-ota-cloud-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
+<text x="934" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 494 H436 V708 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="482" width="34" height="16" rx="3" fill="white"/><text x="387" y="494" font-family="monospace" font-size="11">1</text>
+<text x="934" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="934" y="118" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT →</text>
+<text x="934" y="136" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout</text>
+<text x="934" y="154" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 584 H454 V942 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="572" width="34" height="16" rx="3" fill="white"/><text x="387" y="584" font-family="monospace" font-size="11">2</text>
+<text x="934" y="184" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="934" y="202" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::execute-update →</text>
+<text x="934" y="220" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::report-outcome</text>
+<text x="934" y="238" font-family="monospace" font-size="12" font-weight="normal">flow_async</text>
+<path data-edge="" d="M376 602 H472 V960 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="590" width="34" height="16" rx="3" fill="white"/><text x="387" y="602" font-family="monospace" font-size="11">3</text>
+<text x="934" y="268" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="934" y="286" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::execute-update →</text>
+<text x="934" y="304" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::report-outcome</text>
+<text x="934" y="322" font-family="monospace" font-size="12" font-weight="normal">flow_error</text>
+<path data-edge="" d="M376 620 H490 V1948 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="608" width="34" height="16" rx="3" fill="white"/><text x="387" y="620" font-family="monospace" font-size="11">4</text>
+<text x="934" y="352" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="934" y="370" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::execute-update → FU-OTA-UPDATE-AGENT</text>
+<text x="934" y="388" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 726 H508 V208 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="714" width="34" height="16" rx="3" fill="white"/><text x="387" y="726" font-family="monospace" font-size="11">5</text>
+<text x="934" y="418" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="934" y="436" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout →</text>
+<text x="934" y="454" font-family="monospace" font-size="12" font-weight="normal">ACT-FLEET-OPERATOR</text>
+<text x="934" y="472" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 744 H526 V834 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="732" width="34" height="16" rx="3" fill="white"/><text x="387" y="744" font-family="monospace" font-size="11">6</text>
+<text x="934" y="502" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="934" y="520" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::operator-schedules-rollout →</text>
+<text x="934" y="538" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::plan-campaign</text>
+<text x="934" y="556" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 852 H544 V638 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="840" width="34" height="16" rx="3" fill="white"/><text x="387" y="852" font-family="monospace" font-size="11">7</text>
+<text x="934" y="586" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="934" y="604" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::plan-campaign →</text>
+<text x="934" y="622" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::execute-update</text>
+<text x="934" y="640" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 870 H562 V2038 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="858" width="34" height="16" rx="3" fill="white"/><text x="387" y="870" font-family="monospace" font-size="11">8</text>
+<text x="934" y="670" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="934" y="688" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::plan-campaign →</text>
+<text x="934" y="706" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+<text x="934" y="724" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 978 H580 V1734 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="966" width="34" height="16" rx="3" fill="white"/><text x="387" y="978" font-family="monospace" font-size="11">9</text>
+<text x="934" y="754" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="934" y="772" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::report-outcome →</text>
+<text x="934" y="790" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING</text>
+<text x="934" y="808" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1050 H598 V1140 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1038" width="34" height="16" rx="3" fill="white"/><text x="387" y="1050" font-family="monospace" font-size="11">10</text>
+<text x="934" y="838" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="934" y="856" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST →</text>
+<text x="934" y="874" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry</text>
+<text x="934" y="892" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1158 H616 V118 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1146" width="34" height="16" rx="3" fill="white"/><text x="387" y="1158" font-family="monospace" font-size="11">11</text>
+<text x="934" y="922" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="934" y="940" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry →</text>
+<text x="934" y="958" font-family="monospace" font-size="12" font-weight="normal">ACT-BARISTA</text>
+<text x="934" y="976" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1176 H634 V1266 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1164" width="34" height="16" rx="3" fill="white"/><text x="387" y="1176" font-family="monospace" font-size="11">12</text>
+<text x="934" y="1006" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="934" y="1024" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::capture-machine-telemetry →</text>
+<text x="934" y="1042" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry</text>
+<text x="934" y="1060" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1284 H652 V1392 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1272" width="34" height="16" rx="3" fill="white"/><text x="387" y="1284" font-family="monospace" font-size="11">13</text>
+<text x="934" y="1090" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="934" y="1108" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry →</text>
+<text x="934" y="1126" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry</text>
+<text x="934" y="1144" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1302 H670 V1824 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1290" width="34" height="16" rx="3" fill="white"/><text x="387" y="1302" font-family="monospace" font-size="11">14</text>
+<text x="934" y="1174" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="934" y="1192" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::collect-and-send-telemetry →</text>
+<text x="934" y="1210" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION</text>
+<text x="934" y="1228" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1410 H688 V1518 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1398" width="34" height="16" rx="3" fill="white"/><text x="387" y="1410" font-family="monospace" font-size="11">15</text>
+<text x="934" y="1258" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="934" y="1276" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry →</text>
+<text x="934" y="1294" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability</text>
+<text x="934" y="1312" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1428 H706 V1644 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1416" width="34" height="16" rx="3" fill="white"/><text x="387" y="1428" font-family="monospace" font-size="11">16</text>
+<text x="934" y="1342" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="934" y="1360" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::ingest-telemetry →</text>
+<text x="934" y="1378" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-INGESTION-API</text>
+<text x="934" y="1396" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1536 H724 V1752 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1524" width="34" height="16" rx="3" fill="white"/><text x="387" y="1536" font-family="monospace" font-size="11">17</text>
+<text x="934" y="1426" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="934" y="1444" font-family="monospace" font-size="12" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet-observability →</text>
+<text x="934" y="1462" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING</text>
+<text x="934" y="1480" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1662 H742 V2270 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1650" width="34" height="16" rx="3" fill="white"/><text x="387" y="1662" font-family="monospace" font-size="11">18</text>
+<text x="934" y="1510" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="934" y="1528" font-family="monospace" font-size="12" font-weight="normal">FU-FLEET-INGESTION-API → IF-COFFEE-TELEMETRY-INGEST</text>
+<text x="934" y="1546" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1842 H760 V404 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1830" width="34" height="16" rx="3" fill="white"/><text x="387" y="1842" font-family="monospace" font-size="11">19</text>
+<text x="934" y="1576" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="934" y="1594" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → DO-COFFEE-TELEMETRY-EVENT</text>
+<text x="934" y="1612" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1860 H778 V422 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1848" width="34" height="16" rx="3" fill="white"/><text x="387" y="1860" font-family="monospace" font-size="11">20</text>
+<text x="934" y="1642" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="934" y="1660" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → DO-COFFEE-TELEMETRY-EVENT</text>
+<text x="934" y="1678" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 1878 H796 V2288 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1866" width="34" height="16" rx="3" fill="white"/><text x="387" y="1878" font-family="monospace" font-size="11">21</text>
+<text x="934" y="1708" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="934" y="1726" font-family="monospace" font-size="12" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION → IF-COFFEE-TELEMETRY-INGEST</text>
+<text x="934" y="1744" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 1966 H814 V298 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1954" width="34" height="16" rx="3" fill="white"/><text x="387" y="1966" font-family="monospace" font-size="11">22</text>
+<text x="934" y="1774" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="934" y="1792" font-family="monospace" font-size="12" font-weight="normal">FU-OTA-UPDATE-AGENT → DO-COFFEE-OTA-PLAN</text>
+<text x="934" y="1810" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 2056 H832 V316 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2044" width="34" height="16" rx="3" fill="white"/><text x="387" y="2056" font-family="monospace" font-size="11">23</text>
+<text x="934" y="1840" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="934" y="1858" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → DO-COFFEE-OTA-PLAN</text>
+<text x="934" y="1876" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2074 H850 V334 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2062" width="34" height="16" rx="3" fill="white"/><text x="387" y="2074" font-family="monospace" font-size="11">24</text>
+<text x="934" y="1906" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="934" y="1924" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → DO-COFFEE-OTA-PLAN</text>
+<text x="934" y="1942" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 2092 H868 V2180 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2080" width="34" height="16" rx="3" fill="white"/><text x="387" y="2092" font-family="monospace" font-size="11">25</text>
+<text x="934" y="1972" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="934" y="1990" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → IF-COFFEE-OTA-COMMAND</text>
+<text x="934" y="2008" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 2110 H886 V2198 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2098" width="34" height="16" rx="3" fill="white"/><text x="387" y="2110" font-family="monospace" font-size="11">26</text>
+<text x="934" y="2038" font-family="monospace" font-size="12" font-weight="normal">26.</text>
+<text x="934" y="2056" font-family="monospace" font-size="12" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION → IF-COFFEE-OTA-COMMAND</text>
+<text x="934" y="2074" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<g id="ACT-BARISTA"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Barista</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-BARISTA</text>
+</g>
+<g id="ACT-FLEET-OPERATOR"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Fleet Operator</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">ACT-FLEET-OPERATOR</text>
+</g>
+<g id="DO-COFFEE-OTA-PLAN"><rect x="36" y="280" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">OTA Rollout Plan</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">DO-COFFEE-OTA-PLAN</text>
+</g>
+<g id="DO-COFFEE-TELEMETRY-EVENT"><rect x="36" y="386" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="410" font-family="monospace" font-size="13" font-weight="bold">Telemetry Event</text>
+<text x="50" y="428" font-family="monospace" font-size="11" font-weight="normal">DO-COFFEE-TELEMETRY-EVENT</text>
+</g>
+<g id="FLOW-COFFEE-OTA-ROLLOUT"><rect x="36" y="476" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="500" font-family="monospace" font-size="13" font-weight="bold">OTA Rollout Interaction Flow</text>
+<text x="50" y="518" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT</text>
+</g>
+<g id="FLOW-COFFEE-OTA-ROLLOUT__execute-update"><rect x="36" y="566" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="590" font-family="monospace" font-size="13" font-weight="bold">Execute signed OTA update on edge</text>
+<text x="50" y="608" font-family="monospace" font-size="13" font-weight="bold">devices</text>
+<text x="50" y="626" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::execute-update</text>
+</g>
+<g id="FLOW-COFFEE-OTA-ROLLOUT__operator-schedules-rollout"><rect x="36" y="690" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="714" font-family="monospace" font-size="13" font-weight="bold">Fleet operator schedules OTA</text>
+<text x="50" y="732" font-family="monospace" font-size="13" font-weight="bold">campaign</text>
+<text x="50" y="750" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::operator-schedules</text>
+<text x="50" y="768" font-family="monospace" font-size="11" font-weight="normal">-rollout</text>
+</g>
+<g id="FLOW-COFFEE-OTA-ROLLOUT__plan-campaign"><rect x="36" y="816" width="340" height="84" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="840" font-family="monospace" font-size="13" font-weight="bold">Build rollout cohorts and policy</text>
+<text x="50" y="858" font-family="monospace" font-size="13" font-weight="bold">checks</text>
+<text x="50" y="876" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::plan-campaign</text>
+</g>
+<g id="FLOW-COFFEE-OTA-ROLLOUT__report-outcome"><rect x="36" y="924" width="340" height="84" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="948" font-family="monospace" font-size="13" font-weight="bold">Emit rollout status and</text>
+<text x="50" y="966" font-family="monospace" font-size="13" font-weight="bold">observability summary</text>
+<text x="50" y="984" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-OTA-ROLLOUT::report-outcome</text>
+</g>
+<g id="FLOW-COFFEE-TELEMETRY-INGEST"><rect x="36" y="1032" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1056" font-family="monospace" font-size="13" font-weight="bold">Telemetry Ingestion Interaction Flow</text>
+<text x="50" y="1074" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST</text>
+</g>
+<g id="FLOW-COFFEE-TELEMETRY-INGEST__capture-machine-telemetry"><rect x="36" y="1122" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1146" font-family="monospace" font-size="13" font-weight="bold">Barista machine activity produces</text>
+<text x="50" y="1164" font-family="monospace" font-size="13" font-weight="bold">telemetry events</text>
+<text x="50" y="1182" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::capture-machi</text>
+<text x="50" y="1200" font-family="monospace" font-size="11" font-weight="normal">ne-telemetry</text>
+</g>
+<g id="FLOW-COFFEE-TELEMETRY-INGEST__collect-and-send-telemetry"><rect x="36" y="1248" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1272" font-family="monospace" font-size="13" font-weight="bold">Collect and send telemetry payloads</text>
+<text x="50" y="1290" font-family="monospace" font-size="13" font-weight="bold">to cloud ingest</text>
+<text x="50" y="1308" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::collect-and-s</text>
+<text x="50" y="1326" font-family="monospace" font-size="11" font-weight="normal">end-telemetry</text>
+</g>
+<g id="FLOW-COFFEE-TELEMETRY-INGEST__ingest-telemetry"><rect x="36" y="1374" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1398" font-family="monospace" font-size="13" font-weight="bold">Validate and ingest telemetry</text>
+<text x="50" y="1416" font-family="monospace" font-size="13" font-weight="bold">records</text>
+<text x="50" y="1434" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::ingest-teleme</text>
+<text x="50" y="1452" font-family="monospace" font-size="11" font-weight="normal">try</text>
+</g>
+<g id="FLOW-COFFEE-TELEMETRY-INGEST__publish-fleet-observability"><rect x="36" y="1500" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1524" font-family="monospace" font-size="13" font-weight="bold">Publish fleet observability and</text>
+<text x="50" y="1542" font-family="monospace" font-size="13" font-weight="bold">audit summaries</text>
+<text x="50" y="1560" font-family="monospace" font-size="11" font-weight="normal">FLOW-COFFEE-TELEMETRY-INGEST::publish-fleet</text>
+<text x="50" y="1578" font-family="monospace" font-size="11" font-weight="normal">-observability</text>
+</g>
+<g id="FU-FLEET-INGESTION-API"><rect x="36" y="1626" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1650" font-family="monospace" font-size="13" font-weight="bold">Fleet Ingestion API</text>
+<text x="50" y="1668" font-family="monospace" font-size="11" font-weight="normal">FU-FLEET-INGESTION-API</text>
+</g>
+<g id="FU-FLEET-OBSERVABILITY-REPORTING"><rect x="36" y="1716" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1740" font-family="monospace" font-size="13" font-weight="bold">Fleet Observability Reporting</text>
+<text x="50" y="1758" font-family="monospace" font-size="11" font-weight="normal">FU-FLEET-OBSERVABILITY-REPORTING</text>
+</g>
+<g id="FU-MACHINE-TELEMETRY-COLLECTION"><rect x="36" y="1806" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1830" font-family="monospace" font-size="13" font-weight="bold">Machine Telemetry Collection</text>
+<text x="50" y="1848" font-family="monospace" font-size="11" font-weight="normal">FU-MACHINE-TELEMETRY-COLLECTION</text>
+</g>
+<g id="FU-OTA-UPDATE-AGENT"><rect x="36" y="1930" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1954" font-family="monospace" font-size="13" font-weight="bold">OTA Update Agent</text>
+<text x="50" y="1972" font-family="monospace" font-size="11" font-weight="normal">FU-OTA-UPDATE-AGENT</text>
+</g>
+<g id="FU-UPDATE-CAMPAIGN-ORCHESTRATION"><rect x="36" y="2020" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2044" font-family="monospace" font-size="13" font-weight="bold">Update Campaign Orchestration</text>
+<text x="50" y="2062" font-family="monospace" font-size="11" font-weight="normal">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+</g>
+<g id="IF-COFFEE-OTA-COMMAND"><rect x="36" y="2162" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2186" font-family="monospace" font-size="13" font-weight="bold">OTA Command Interface</text>
+<text x="50" y="2204" font-family="monospace" font-size="11" font-weight="normal">IF-COFFEE-OTA-COMMAND</text>
+</g>
+<g id="IF-COFFEE-TELEMETRY-INGEST"><rect x="36" y="2252" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2276" font-family="monospace" font-size="13" font-weight="bold">Telemetry Ingestion Interface</text>
+<text x="50" y="2294" font-family="monospace" font-size="11" font-weight="normal">IF-COFFEE-TELEMETRY-INGEST</text>
+</g>
 </svg>

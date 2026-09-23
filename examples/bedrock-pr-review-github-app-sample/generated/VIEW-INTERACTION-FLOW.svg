@@ -1,114 +1,231 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 602 1106" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
-  <title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
-  <metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
-  <line x1="146" y1="318" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="318" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="318" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="416" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="416" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="362" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="416" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="514" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="514" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="514" x2="456" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="612" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="146" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_async</text>
-  <line x1="456" y1="612" x2="146" y2="710" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_error</text>
-  <line x1="456" y1="612" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="146" y1="710" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="710" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="411" text-anchor="middle" font-family="sans-serif" font-size="11">flow_ref</text>
-  <line x1="456" y1="710" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">flow_next</text>
-  <line x1="456" y1="808" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="906" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="146" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">writes</text>
-  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="906" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">reads</text>
-  <line x1="456" y1="906" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">calls</text>
-  <line x1="456" y1="906" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <g id="ACT-DEVELOPER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Developer</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-DEVELOPER</text></g>
-  <g id="ACT-SECURITY-ENGINEER"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Engineer</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-SECURITY-ENGINEER</text></g>
-  <g id="DO-BEDROCK-PR-CONTEXT"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Pull Request Context</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-PR-CONTEXT</text></g>
-  <g id="DO-BEDROCK-REVIEW-FINDINGS"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Findings</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-REVIEW-FINDINGS</text></g>
-  <g id="FLOW-BEDROCK-POLICY-TUNING"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Policy Tuning Flow</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING</text></g>
-  <g id="FLOW-BEDROCK-POLICY-TUNING__orchestrate-policy-validation"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Orchestrate dry-run review validation with policy outputs</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::orchestrate-policy-validation</text></g>
-  <g id="FLOW-BEDROCK-POLICY-TUNING__publish-policy-validation"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Publish policy validation findings to repository maintainers</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::publish-policy-validation</text></g>
-  <g id="FLOW-BEDROCK-POLICY-TUNING__run-policy-checks"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Execute deterministic policy checks on candidate rules</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::run-policy-checks</text></g>
-  <g id="FLOW-BEDROCK-POLICY-TUNING__update-policy-rules"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security engineer updates review policy rules</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-POLICY-TUNING::update-policy-rules</text></g>
-  <g id="FLOW-BEDROCK-PR-REVIEW"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Review Interaction Flow</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW</text></g>
-  <g id="FLOW-BEDROCK-PR-REVIEW__assemble-context"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Build bounded review context</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::assemble-context</text></g>
-  <g id="FLOW-BEDROCK-PR-REVIEW__orchestrate-review"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Run AI + policy checks and prepare findings</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::orchestrate-review</text></g>
-  <g id="FLOW-BEDROCK-PR-REVIEW__publish-review"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Publish findings to GitHub check run</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::publish-review</text></g>
-  <g id="FLOW-BEDROCK-PR-REVIEW__receive-webhook"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Developer pushes PR updates that trigger webhook processing</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FLOW-BEDROCK-PR-REVIEW::receive-webhook</text></g>
-  <g id="FU-POLICY-CHECKS"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Policy Checks</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-POLICY-CHECKS</text></g>
-  <g id="FU-PR-CONTEXT-ASSEMBLY"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Context Assembly</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-PR-CONTEXT-ASSEMBLY</text></g>
-  <g id="FU-REVIEW-ORCHESTRATION"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Orchestration</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-ORCHESTRATION</text></g>
-  <g id="FU-REVIEW-PUBLICATION"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publication</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-PUBLICATION</text></g>
-  <g id="IF-BEDROCK-REVIEW-PUBLISH-API"><rect x="36" y="972" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publish API</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">IF-BEDROCK-REVIEW-PUBLISH-API</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-INTERACTION-FLOW-title" viewBox="0 0 1582 2228" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-INTERACTION-FLOW">
+<title id="VIEW-INTERACTION-FLOW-title">VIEW-INTERACTION-FLOW — interaction-flow view</title>
+<metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-INTERACTION-FLOW; kind=interaction-flow</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-INTERACTION-FLOW</text>
+<text x="916" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 510 H436 V978 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="498" width="34" height="16" rx="3" fill="white"/><text x="387" y="510" font-family="monospace" font-size="11">1</text>
+<text x="916" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="916" y="118" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING →</text>
+<text x="916" y="136" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::update-policy-rules</text>
+<text x="916" y="154" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 600 H454 V726 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="588" width="34" height="16" rx="3" fill="white"/><text x="387" y="600" font-family="monospace" font-size="11">2</text>
+<text x="916" y="184" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="916" y="202" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::orchestrate-policy-validation →</text>
+<text x="916" y="220" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::publish-policy-validation</text>
+<text x="916" y="238" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 618 H472 V1818 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="606" width="34" height="16" rx="3" fill="white"/><text x="387" y="618" font-family="monospace" font-size="11">3</text>
+<text x="916" y="268" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="916" y="286" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::orchestrate-policy-validation →</text>
+<text x="916" y="304" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION</text>
+<text x="916" y="322" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 744 H490 V1960 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="732" width="34" height="16" rx="3" fill="white"/><text x="387" y="744" font-family="monospace" font-size="11">4</text>
+<text x="916" y="352" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="916" y="370" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::publish-policy-validation →</text>
+<text x="916" y="388" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION</text>
+<text x="916" y="406" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 852 H508 V636 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="840" width="34" height="16" rx="3" fill="white"/><text x="387" y="852" font-family="monospace" font-size="11">5</text>
+<text x="916" y="436" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="916" y="454" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::run-policy-checks →</text>
+<text x="916" y="472" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::orchestrate-policy-validation</text>
+<text x="916" y="490" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 870 H526 V1638 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="858" width="34" height="16" rx="3" fill="white"/><text x="387" y="870" font-family="monospace" font-size="11">6</text>
+<text x="916" y="520" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="916" y="538" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::run-policy-checks → FU-POLICY-CHECKS</text>
+<text x="916" y="556" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 996 H544 V208 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="984" width="34" height="16" rx="3" fill="white"/><text x="387" y="996" font-family="monospace" font-size="11">7</text>
+<text x="916" y="586" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="916" y="604" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::update-policy-rules →</text>
+<text x="916" y="622" font-family="monospace" font-size="12" font-weight="normal">ACT-SECURITY-ENGINEER</text>
+<text x="916" y="640" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1014 H562 V888 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1002" width="34" height="16" rx="3" fill="white"/><text x="387" y="1014" font-family="monospace" font-size="11">8</text>
+<text x="916" y="670" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="916" y="688" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::update-policy-rules →</text>
+<text x="916" y="706" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::run-policy-checks</text>
+<text x="916" y="724" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1104 H580 V1530 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1092" width="34" height="16" rx="3" fill="white"/><text x="387" y="1104" font-family="monospace" font-size="11">9</text>
+<text x="916" y="754" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="916" y="772" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW → FLOW-BEDROCK-PR-REVIEW::receive-webhook</text>
+<text x="916" y="790" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1194 H598 V1300 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1182" width="34" height="16" rx="3" fill="white"/><text x="387" y="1194" font-family="monospace" font-size="11">10</text>
+<text x="916" y="820" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="916" y="838" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::assemble-context →</text>
+<text x="916" y="856" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::orchestrate-review</text>
+<text x="916" y="874" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1212 H616 V1728 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1200" width="34" height="16" rx="3" fill="white"/><text x="387" y="1212" font-family="monospace" font-size="11">11</text>
+<text x="916" y="904" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="916" y="922" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::assemble-context → FU-PR-CONTEXT-ASSEMBLY</text>
+<text x="916" y="940" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1318 H634 V1424 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1306" width="34" height="16" rx="3" fill="white"/><text x="387" y="1318" font-family="monospace" font-size="11">12</text>
+<text x="916" y="970" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="916" y="988" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::orchestrate-review →</text>
+<text x="916" y="1006" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::publish-review</text>
+<text x="916" y="1024" font-family="monospace" font-size="12" font-weight="normal">flow_async</text>
+<path data-edge="" d="M376 1336 H652 V1442 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1324" width="34" height="16" rx="3" fill="white"/><text x="387" y="1336" font-family="monospace" font-size="11">13</text>
+<text x="916" y="1054" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="916" y="1072" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::orchestrate-review →</text>
+<text x="916" y="1090" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::publish-review</text>
+<text x="916" y="1108" font-family="monospace" font-size="12" font-weight="normal">flow_error</text>
+<path data-edge="" d="M376 1354 H670 V1836 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1342" width="34" height="16" rx="3" fill="white"/><text x="387" y="1354" font-family="monospace" font-size="11">14</text>
+<text x="916" y="1138" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="916" y="1156" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::orchestrate-review →</text>
+<text x="916" y="1174" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION</text>
+<text x="916" y="1192" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1460 H688 V1978 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1448" width="34" height="16" rx="3" fill="white"/><text x="387" y="1460" font-family="monospace" font-size="11">15</text>
+<text x="916" y="1222" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="916" y="1240" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::publish-review → FU-REVIEW-PUBLICATION</text>
+<text x="916" y="1258" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1548 H706 V118 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1536" width="34" height="16" rx="3" fill="white"/><text x="387" y="1548" font-family="monospace" font-size="11">16</text>
+<text x="916" y="1288" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="916" y="1306" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::receive-webhook → ACT-DEVELOPER</text>
+<text x="916" y="1324" font-family="monospace" font-size="12" font-weight="normal">flow_ref</text>
+<path data-edge="" d="M376 1566 H724 V1230 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1554" width="34" height="16" rx="3" fill="white"/><text x="387" y="1566" font-family="monospace" font-size="11">17</text>
+<text x="916" y="1354" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="916" y="1372" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::receive-webhook →</text>
+<text x="916" y="1390" font-family="monospace" font-size="12" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::assemble-context</text>
+<text x="916" y="1408" font-family="monospace" font-size="12" font-weight="normal">flow_next</text>
+<path data-edge="" d="M376 1746 H742 V298 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1734" width="34" height="16" rx="3" fill="white"/><text x="387" y="1746" font-family="monospace" font-size="11">18</text>
+<text x="916" y="1438" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="916" y="1456" font-family="monospace" font-size="12" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY → DO-BEDROCK-PR-CONTEXT</text>
+<text x="916" y="1474" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 1854 H760 V316 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1842" width="34" height="16" rx="3" fill="white"/><text x="387" y="1854" font-family="monospace" font-size="11">19</text>
+<text x="916" y="1504" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="916" y="1522" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-PR-CONTEXT</text>
+<text x="916" y="1540" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1872 H778 V334 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1860" width="34" height="16" rx="3" fill="white"/><text x="387" y="1872" font-family="monospace" font-size="11">20</text>
+<text x="916" y="1570" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="916" y="1588" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-PR-CONTEXT</text>
+<text x="916" y="1606" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 1890 H796 V404 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1878" width="34" height="16" rx="3" fill="white"/><text x="387" y="1890" font-family="monospace" font-size="11">21</text>
+<text x="916" y="1636" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="916" y="1654" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="916" y="1672" font-family="monospace" font-size="12" font-weight="normal">writes</text>
+<path data-edge="" d="M376 1996 H814 V422 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1984" width="34" height="16" rx="3" fill="white"/><text x="387" y="1996" font-family="monospace" font-size="11">22</text>
+<text x="916" y="1702" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="916" y="1720" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="916" y="1738" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2014 H832 V440 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2002" width="34" height="16" rx="3" fill="white"/><text x="387" y="2014" font-family="monospace" font-size="11">23</text>
+<text x="916" y="1768" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="916" y="1786" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="916" y="1804" font-family="monospace" font-size="12" font-weight="normal">reads</text>
+<path data-edge="" d="M376 2032 H850 V2120 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2020" width="34" height="16" rx="3" fill="white"/><text x="387" y="2032" font-family="monospace" font-size="11">24</text>
+<text x="916" y="1834" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="916" y="1852" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → IF-BEDROCK-REVIEW-PUBLISH-API</text>
+<text x="916" y="1870" font-family="monospace" font-size="12" font-weight="normal">calls</text>
+<path data-edge="" d="M376 2050 H868 V2138 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2038" width="34" height="16" rx="3" fill="white"/><text x="387" y="2050" font-family="monospace" font-size="11">25</text>
+<text x="916" y="1900" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="916" y="1918" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → IF-BEDROCK-REVIEW-PUBLISH-API</text>
+<text x="916" y="1936" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<g id="ACT-DEVELOPER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Developer</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-DEVELOPER</text>
+</g>
+<g id="ACT-SECURITY-ENGINEER"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Security Engineer</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">ACT-SECURITY-ENGINEER</text>
+</g>
+<g id="DO-BEDROCK-PR-CONTEXT"><rect x="36" y="280" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Pull Request Context</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">DO-BEDROCK-PR-CONTEXT</text>
+</g>
+<g id="DO-BEDROCK-REVIEW-FINDINGS"><rect x="36" y="386" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="410" font-family="monospace" font-size="13" font-weight="bold">Review Findings</text>
+<text x="50" y="428" font-family="monospace" font-size="11" font-weight="normal">DO-BEDROCK-REVIEW-FINDINGS</text>
+</g>
+<g id="FLOW-BEDROCK-POLICY-TUNING"><rect x="36" y="492" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="516" font-family="monospace" font-size="13" font-weight="bold">Security Policy Tuning Flow</text>
+<text x="50" y="534" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING</text>
+</g>
+<g id="FLOW-BEDROCK-POLICY-TUNING__orchestrate-policy-validation"><rect x="36" y="582" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="606" font-family="monospace" font-size="13" font-weight="bold">Orchestrate dry-run review</text>
+<text x="50" y="624" font-family="monospace" font-size="13" font-weight="bold">validation with policy outputs</text>
+<text x="50" y="642" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::orchestrate-pol</text>
+<text x="50" y="660" font-family="monospace" font-size="11" font-weight="normal">icy-validation</text>
+</g>
+<g id="FLOW-BEDROCK-POLICY-TUNING__publish-policy-validation"><rect x="36" y="708" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="732" font-family="monospace" font-size="13" font-weight="bold">Publish policy validation findings</text>
+<text x="50" y="750" font-family="monospace" font-size="13" font-weight="bold">to repository maintainers</text>
+<text x="50" y="768" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::publish-policy-</text>
+<text x="50" y="786" font-family="monospace" font-size="11" font-weight="normal">validation</text>
+</g>
+<g id="FLOW-BEDROCK-POLICY-TUNING__run-policy-checks"><rect x="36" y="834" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="858" font-family="monospace" font-size="13" font-weight="bold">Execute deterministic policy checks</text>
+<text x="50" y="876" font-family="monospace" font-size="13" font-weight="bold">on candidate rules</text>
+<text x="50" y="894" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::run-policy-chec</text>
+<text x="50" y="912" font-family="monospace" font-size="11" font-weight="normal">ks</text>
+</g>
+<g id="FLOW-BEDROCK-POLICY-TUNING__update-policy-rules"><rect x="36" y="960" width="340" height="102" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="984" font-family="monospace" font-size="13" font-weight="bold">Security engineer updates review</text>
+<text x="50" y="1002" font-family="monospace" font-size="13" font-weight="bold">policy rules</text>
+<text x="50" y="1020" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-POLICY-TUNING::update-policy-r</text>
+<text x="50" y="1038" font-family="monospace" font-size="11" font-weight="normal">ules</text>
+</g>
+<g id="FLOW-BEDROCK-PR-REVIEW"><rect x="36" y="1086" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1110" font-family="monospace" font-size="13" font-weight="bold">PR Review Interaction Flow</text>
+<text x="50" y="1128" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-PR-REVIEW</text>
+</g>
+<g id="FLOW-BEDROCK-PR-REVIEW__assemble-context"><rect x="36" y="1176" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1200" font-family="monospace" font-size="13" font-weight="bold">Build bounded review context</text>
+<text x="50" y="1218" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::assemble-context</text>
+</g>
+<g id="FLOW-BEDROCK-PR-REVIEW__orchestrate-review"><rect x="36" y="1282" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1306" font-family="monospace" font-size="13" font-weight="bold">Run AI + policy checks and prepare</text>
+<text x="50" y="1324" font-family="monospace" font-size="13" font-weight="bold">findings</text>
+<text x="50" y="1342" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::orchestrate-review</text>
+</g>
+<g id="FLOW-BEDROCK-PR-REVIEW__publish-review"><rect x="36" y="1406" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1430" font-family="monospace" font-size="13" font-weight="bold">Publish findings to GitHub check run</text>
+<text x="50" y="1448" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::publish-review</text>
+</g>
+<g id="FLOW-BEDROCK-PR-REVIEW__receive-webhook"><rect x="36" y="1512" width="340" height="84" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1536" font-family="monospace" font-size="13" font-weight="bold">Developer pushes PR updates that</text>
+<text x="50" y="1554" font-family="monospace" font-size="13" font-weight="bold">trigger webhook processing</text>
+<text x="50" y="1572" font-family="monospace" font-size="11" font-weight="normal">FLOW-BEDROCK-PR-REVIEW::receive-webhook</text>
+</g>
+<g id="FU-POLICY-CHECKS"><rect x="36" y="1620" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1644" font-family="monospace" font-size="13" font-weight="bold">Policy Checks</text>
+<text x="50" y="1662" font-family="monospace" font-size="11" font-weight="normal">FU-POLICY-CHECKS</text>
+</g>
+<g id="FU-PR-CONTEXT-ASSEMBLY"><rect x="36" y="1710" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1734" font-family="monospace" font-size="13" font-weight="bold">PR Context Assembly</text>
+<text x="50" y="1752" font-family="monospace" font-size="11" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY</text>
+</g>
+<g id="FU-REVIEW-ORCHESTRATION"><rect x="36" y="1800" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1824" font-family="monospace" font-size="13" font-weight="bold">Review Orchestration</text>
+<text x="50" y="1842" font-family="monospace" font-size="11" font-weight="normal">FU-REVIEW-ORCHESTRATION</text>
+</g>
+<g id="FU-REVIEW-PUBLICATION"><rect x="36" y="1942" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1966" font-family="monospace" font-size="13" font-weight="bold">Review Publication</text>
+<text x="50" y="1984" font-family="monospace" font-size="11" font-weight="normal">FU-REVIEW-PUBLICATION</text>
+</g>
+<g id="IF-BEDROCK-REVIEW-PUBLISH-API"><rect x="36" y="2102" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2126" font-family="monospace" font-size="13" font-weight="bold">Review Publish API</text>
+<text x="50" y="2144" font-family="monospace" font-size="11" font-weight="normal">IF-BEDROCK-REVIEW-PUBLISH-API</text>
+</g>
 </svg>

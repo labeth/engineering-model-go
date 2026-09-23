@@ -184,7 +184,7 @@ func inferredDescription(kind string) string {
 	case "deployment":
 		return "Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations."
 	case "security":
-		return "Show inferred exposure and dependency risk points aligned to unit boundaries, focused on attack paths and security evidence."
+		return "Show the selected security relationships and boundary context. Interpret this projection within its authored scope; membership alone does not establish authentication, enforcement or complete threat coverage."
 	case "traceability":
 		return "Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps."
 	case "state-lifecycle":
@@ -893,4 +893,57 @@ func labelOrID(id string, labels map[string]string) string {
 		return l
 	}
 	return id
+}
+
+// publicationViewHeading distinguishes multiple views of the same kind in a TOC.
+// TRLC-LINKS: REQ-EMG-003
+func publicationViewHeading(kind, id string, sameKindCount int) string {
+	heading := viewHeading(kind)
+	if sameKindCount > 1 {
+		heading += " (" + strings.TrimSpace(id) + ")"
+	}
+	return heading
+}
+
+// functionalPublicationArchitecture scopes supporting functional diagrams to the
+// selected projection. Parent groups are retained without expanding their sibling
+// units. The complete authored architecture remains in the reference appendix.
+// TRLC-LINKS: REQ-EMG-003
+func functionalPublicationArchitecture(a model.AuthoredArchitecture, selected map[string]bool) model.AuthoredArchitecture {
+	out := model.AuthoredArchitecture{}
+	include := map[string]bool{}
+	for id, chosen := range selected {
+		if chosen {
+			include[id] = true
+		}
+	}
+	for _, unit := range a.FunctionalUnits {
+		if selected[unit.ID] {
+			out.FunctionalUnits = append(out.FunctionalUnits, unit)
+			if unit.Group != "" {
+				include[unit.Group] = true
+			}
+		}
+	}
+	for _, group := range a.FunctionalGroups {
+		if include[group.ID] {
+			out.FunctionalGroups = append(out.FunctionalGroups, group)
+		}
+	}
+	for _, actor := range a.Actors {
+		if selected[actor.ID] {
+			out.Actors = append(out.Actors, actor)
+		}
+	}
+	for _, ref := range a.ReferencedElements {
+		if selected[ref.ID] {
+			out.ReferencedElements = append(out.ReferencedElements, ref)
+		}
+	}
+	for _, mapping := range a.Mappings {
+		if include[mapping.From] && include[mapping.To] {
+			out.Mappings = append(out.Mappings, mapping)
+		}
+	}
+	return out
 }

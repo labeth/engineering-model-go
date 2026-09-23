@@ -1,196 +1,374 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-ARCHITECTURE-INTENT-title" viewBox="0 0 602 1694" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-ARCHITECTURE-INTENT">
-  <title id="VIEW-ARCHITECTURE-INTENT-title">VIEW-ARCHITECTURE-INTENT — architecture-intent view</title>
-  <metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-ARCHITECTURE-INTENT; kind=architecture-intent</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-ARCHITECTURE-INTENT</text>
-  <line x1="146" y1="122" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Submits payment at checkout.</text>
-  <line x1="456" y1="122" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Maintains cluster baseline and environment setup.</text>
-  <line x1="456" y1="122" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="509" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Operates delivery and release workflows.</text>
-  <line x1="146" y1="220" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Performs manual payment reviews.</text>
-  <line x1="146" y1="710" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="710" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="710" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="710" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="808" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="808" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="808" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: Checkout workload deployment target.</text>
-  <line x1="456" y1="808" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads final authorization decision for user-facing response.</text>
-  <line x1="456" y1="808" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists normalized authorization request.</text>
-  <line x1="456" y1="808" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Delegates payment authorization.</text>
-  <line x1="456" y1="808" x2="146" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Receives and validates checkout request payload.</text>
-  <line x1="456" y1="808" x2="146" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="906" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="901" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Relies on provisioned cluster and namespace baseline.</text>
-  <line x1="456" y1="906" x2="456" y2="1298" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1097" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses Helm runtime platform for release orchestration.</text>
-  <line x1="456" y1="906" x2="146" y2="1592" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1244" text-anchor="middle" font-family="sans-serif" font-size="11">bounded_by: GitOps control-plane boundaries.</text>
-  <line x1="146" y1="1004" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: Authorization workload deployment target.</text>
-  <line x1="146" y1="1004" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1004" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists final authorization decision.</text>
-  <line x1="146" y1="1004" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1004" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads normalized request for authorization pipeline.</text>
-  <line x1="146" y1="1004" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads manual review outcome before returning decision.</text>
-  <line x1="146" y1="1004" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads risk signal before final authorization decision.</text>
-  <line x1="146" y1="1004" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requests fraud scoring before final authorization.</text>
-  <line x1="146" y1="1004" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Escalates high-risk payments for manual review.</text>
-  <line x1="146" y1="1004" x2="456" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Calls external bank authorization interface.</text>
-  <line x1="146" y1="1004" x2="456" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1004" x2="456" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1097" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Calls risk scoring interface for fraud decision support.</text>
-  <line x1="146" y1="1004" x2="146" y2="1298" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1146" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Calls external bank authorization endpoint.</text>
-  <line x1="146" y1="1004" x2="456" y2="1494" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1244" text-anchor="middle" font-family="sans-serif" font-size="11">bounded_by: Authorization crosses external bank trust boundary.</text>
-  <line x1="456" y1="1004" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads normalized request to compute risk signal.</text>
-  <line x1="456" y1="1004" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="1004" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">publishes: Publishes risk signal updates for downstream consumers.</text>
-  <line x1="456" y1="1004" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists computed risk signal.</text>
-  <line x1="456" y1="1004" x2="456" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1097" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="1004" x2="146" y2="1396" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1195" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses external library for audit persistence.</text>
-  <line x1="146" y1="1102" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1102" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists manual review ticket records.</text>
-  <line x1="146" y1="1102" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">subscribes: Subscribes to high-risk signal updates.</text>
-  <line x1="456" y1="1102" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: External authorization interface boundary target.</text>
-  <line x1="456" y1="1396" x2="456" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by: Authorized-state operations require strong access controls.</text>
-  <line x1="456" y1="1396" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by: Completion event for authorization flow.</text>
-  <line x1="456" y1="1396" x2="456" y2="1494" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1440" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by: Boundary guard for external bank interaction.</text>
-  <line x1="146" y1="1494" x2="456" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by: Authorization flow start trigger.</text>
-  <line x1="146" y1="1494" x2="456" y2="1396" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1440" text-anchor="middle" font-family="sans-serif" font-size="11">transitions_to: Checkout transitions to authorized state after policy and bank decision.</text>
-  <g id="ACT-CUSTOMER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Customer</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-CUSTOMER</text></g>
-  <g id="ACT-PLATFORM-OPERATOR"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform Operator</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-PLATFORM-OPERATOR</text></g>
-  <g id="ACT-SUPPORT"><rect x="36" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Agent</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">ACT-SUPPORT</text></g>
-  <g id="CTRL-PAYMENTS-SSO-MFA"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">SSO MFA Enforcement</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">CTRL-PAYMENTS-SSO-MFA</text></g>
-  <g id="DEP-PAYMENTS-BANK-EDGE"><rect x="36" y="286" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Edge Integration Zone</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">DEP-PAYMENTS-BANK-EDGE</text></g>
-  <g id="DEP-PAYMENTS-CLUSTER-PROD"><rect x="346" y="286" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payments Cluster Production</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">DEP-PAYMENTS-CLUSTER-PROD</text></g>
-  <g id="DO-PAYMENTS-AUTH-DECISION"><rect x="36" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Decision</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-DECISION</text></g>
-  <g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Request</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-AUTH-REQUEST</text></g>
-  <g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Manual Review Ticket</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-REVIEW-TICKET</text></g>
-  <g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Signal</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">DO-PAYMENTS-RISK-SIGNAL</text></g>
-  <g id="EVT-PAYMENTS-AUTH-COMPLETED"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Completed</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">EVT-PAYMENTS-AUTH-COMPLETED</text></g>
-  <g id="EVT-PAYMENTS-AUTH-REQUESTED"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Authorization Requested</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">EVT-PAYMENTS-AUTH-REQUESTED</text></g>
-  <g id="FG-FRAUD"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Fraud Evaluation</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FG-FRAUD</text></g>
-  <g id="FG-PAYMENTS"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payments</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FG-PAYMENTS</text></g>
-  <g id="FG-PLATFORM"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FG-PLATFORM</text></g>
-  <g id="FU-CHECKOUT"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Handling</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-CHECKOUT</text></g>
-  <g id="FU-CLUSTER-PROVISIONING"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Cluster Provisioning</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-CLUSTER-PROVISIONING</text></g>
-  <g id="FU-GITOPS-OPERATIONS"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitOps Operations</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-GITOPS-OPERATIONS</text></g>
-  <g id="FU-PAYMENT-AUTHORIZATION"><rect x="36" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorization</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">FU-PAYMENT-AUTHORIZATION</text></g>
-  <g id="FU-RISK-SCORING"><rect x="346" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Scoring</text>
-    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">FU-RISK-SCORING</text></g>
-  <g id="FU-SUPPORT-REVIEW"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Support Review</text>
-    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">FU-SUPPORT-REVIEW</text></g>
-  <g id="IF-PAYMENTS-BANK-AUTH"><rect x="346" y="1070" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Authorization Interface</text>
-    <text x="456" y="1117" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-BANK-AUTH</text></g>
-  <g id="IF-PAYMENTS-CHECKOUT-API"><rect x="36" y="1168" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1196" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout API Interface</text>
-    <text x="146" y="1215" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-CHECKOUT-API</text></g>
-  <g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="346" y="1168" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="1196" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Risk Score Interface</text>
-    <text x="456" y="1215" text-anchor="middle" font-family="monospace" font-size="10">IF-PAYMENTS-RISK-SCORE-API</text></g>
-  <g id="REF-BANK-GATEWAY-ENDPOINT"><rect x="36" y="1266" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1294" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Bank Gateway Endpoint</text>
-    <text x="146" y="1313" text-anchor="middle" font-family="monospace" font-size="10">REF-BANK-GATEWAY-ENDPOINT</text></g>
-  <g id="REF-HELM-PLATFORM"><rect x="346" y="1266" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1294" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Helm Runtime Platform</text>
-    <text x="456" y="1313" text-anchor="middle" font-family="monospace" font-size="10">REF-HELM-PLATFORM</text></g>
-  <g id="REF-POSTGRES-DRIVER"><rect x="36" y="1364" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1392" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PostgreSQL Client Driver</text>
-    <text x="146" y="1411" text-anchor="middle" font-family="monospace" font-size="10">REF-POSTGRES-DRIVER</text></g>
-  <g id="STATE-PAYMENTS-AUTHORIZED"><rect x="346" y="1364" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1392" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Payment Authorized</text>
-    <text x="456" y="1411" text-anchor="middle" font-family="monospace" font-size="10">STATE-PAYMENTS-AUTHORIZED</text></g>
-  <g id="STATE-PAYMENTS-CHECKOUT-RECEIVED"><rect x="36" y="1462" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1490" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Checkout Received</text>
-    <text x="146" y="1509" text-anchor="middle" font-family="monospace" font-size="10">STATE-PAYMENTS-CHECKOUT-RECEIVED</text></g>
-  <g id="TB-PAYMENTS-EXTERNAL-BANK"><rect x="346" y="1462" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1490" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">External Bank Boundary</text>
-    <text x="456" y="1509" text-anchor="middle" font-family="monospace" font-size="10">TB-PAYMENTS-EXTERNAL-BANK</text></g>
-  <g id="TB-PAYMENTS-PLATFORM-CONTROL"><rect x="36" y="1560" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1588" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform Control Boundary</text>
-    <text x="146" y="1607" text-anchor="middle" font-family="monospace" font-size="10">TB-PAYMENTS-PLATFORM-CONTROL</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-ARCHITECTURE-INTENT-title" viewBox="0 0 1996 3694" data-source="examples/payments-engineering-sample/engmod.yml" data-view="VIEW-ARCHITECTURE-INTENT">
+<title id="VIEW-ARCHITECTURE-INTENT-title">VIEW-ARCHITECTURE-INTENT — architecture-intent view</title>
+<metadata>source=examples/payments-engineering-sample/engmod.yml; view=VIEW-ARCHITECTURE-INTENT; kind=architecture-intent</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-ARCHITECTURE-INTENT</text>
+<text x="1330" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 118 H436 V1586 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="106" width="34" height="16" rx="3" fill="white"/><text x="387" y="118" font-family="monospace" font-size="11">1</text>
+<text x="1330" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="1330" y="118" font-family="monospace" font-size="12" font-weight="normal">ACT-CUSTOMER → FU-CHECKOUT</text>
+<text x="1330" y="136" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Submits payment at checkout.</text>
+<path data-edge="" d="M376 208 H454 V1782 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="196" width="34" height="16" rx="3" fill="white"/><text x="387" y="208" font-family="monospace" font-size="11">2</text>
+<text x="1330" y="166" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="1330" y="184" font-family="monospace" font-size="12" font-weight="normal">ACT-PLATFORM-OPERATOR → FU-CLUSTER-PROVISIONING</text>
+<text x="1330" y="202" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Maintains cluster baseline and environment setup.</text>
+<path data-edge="" d="M376 226 H472 V1888 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="214" width="34" height="16" rx="3" fill="white"/><text x="387" y="226" font-family="monospace" font-size="11">3</text>
+<text x="1330" y="232" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="1330" y="250" font-family="monospace" font-size="12" font-weight="normal">ACT-PLATFORM-OPERATOR → FU-GITOPS-OPERATIONS</text>
+<text x="1330" y="268" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Operates delivery and release workflows.</text>
+<path data-edge="" d="M376 298 H490 V2566 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="286" width="34" height="16" rx="3" fill="white"/><text x="387" y="298" font-family="monospace" font-size="11">4</text>
+<text x="1330" y="298" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="1330" y="316" font-family="monospace" font-size="12" font-weight="normal">ACT-SUPPORT → FU-SUPPORT-REVIEW</text>
+<text x="1330" y="334" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Performs manual payment reviews.</text>
+<path data-edge="" d="M376 1316 H508 V2370 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1304" width="34" height="16" rx="3" fill="white"/><text x="387" y="1316" font-family="monospace" font-size="11">5</text>
+<text x="1330" y="364" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="1330" y="382" font-family="monospace" font-size="12" font-weight="normal">FG-FRAUD → FU-RISK-SCORING</text>
+<text x="1330" y="400" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1334 H526 V2584 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1322" width="34" height="16" rx="3" fill="white"/><text x="387" y="1334" font-family="monospace" font-size="11">6</text>
+<text x="1330" y="430" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="1330" y="448" font-family="monospace" font-size="12" font-weight="normal">FG-FRAUD → FU-SUPPORT-REVIEW</text>
+<text x="1330" y="466" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1406 H544 V1604 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1394" width="34" height="16" rx="3" fill="white"/><text x="387" y="1406" font-family="monospace" font-size="11">7</text>
+<text x="1330" y="496" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="1330" y="514" font-family="monospace" font-size="12" font-weight="normal">FG-PAYMENTS → FU-CHECKOUT</text>
+<text x="1330" y="532" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1424 H562 V2030 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1412" width="34" height="16" rx="3" fill="white"/><text x="387" y="1424" font-family="monospace" font-size="11">8</text>
+<text x="1330" y="562" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="1330" y="580" font-family="monospace" font-size="12" font-weight="normal">FG-PAYMENTS → FU-PAYMENT-AUTHORIZATION</text>
+<text x="1330" y="598" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1496 H580 V1800 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1484" width="34" height="16" rx="3" fill="white"/><text x="387" y="1496" font-family="monospace" font-size="11">9</text>
+<text x="1330" y="628" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="1330" y="646" font-family="monospace" font-size="12" font-weight="normal">FG-PLATFORM → FU-CLUSTER-PROVISIONING</text>
+<text x="1330" y="664" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1514 H598 V1906 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1502" width="34" height="16" rx="3" fill="white"/><text x="387" y="1514" font-family="monospace" font-size="11">10</text>
+<text x="1330" y="694" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="1330" y="712" font-family="monospace" font-size="12" font-weight="normal">FG-PLATFORM → FU-GITOPS-OPERATIONS</text>
+<text x="1330" y="730" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1622 H616 V568 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1610" width="34" height="16" rx="3" fill="white"/><text x="387" y="1622" font-family="monospace" font-size="11">11</text>
+<text x="1330" y="760" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="1330" y="778" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → DEP-PAYMENTS-CLUSTER-PROD</text>
+<text x="1330" y="796" font-family="monospace" font-size="12" font-weight="normal">deployed_to: Checkout workload deployment target.</text>
+<path data-edge="" d="M376 1640 H634 V658 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1628" width="34" height="16" rx="3" fill="white"/><text x="387" y="1640" font-family="monospace" font-size="11">12</text>
+<text x="1330" y="826" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="1330" y="844" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1330" y="862" font-family="monospace" font-size="12" font-weight="normal">reads: Reads final authorization decision for user-facing response.</text>
+<path data-edge="" d="M376 1658 H652 V764 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1646" width="34" height="16" rx="3" fill="white"/><text x="387" y="1658" font-family="monospace" font-size="11">13</text>
+<text x="1330" y="892" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="1330" y="910" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1330" y="928" font-family="monospace" font-size="12" font-weight="normal">writes: Persists normalized authorization request.</text>
+<path data-edge="" d="M376 1676 H670 V2048 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1664" width="34" height="16" rx="3" fill="white"/><text x="387" y="1676" font-family="monospace" font-size="11">14</text>
+<text x="1330" y="958" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="1330" y="976" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → FU-PAYMENT-AUTHORIZATION</text>
+<text x="1330" y="994" font-family="monospace" font-size="12" font-weight="normal">depends_on: Delegates payment authorization.</text>
+<path data-edge="" d="M376 1694 H688 V2832 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1682" width="34" height="16" rx="3" fill="white"/><text x="387" y="1694" font-family="monospace" font-size="11">15</text>
+<text x="1330" y="1024" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="1330" y="1042" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → IF-PAYMENTS-CHECKOUT-API</text>
+<text x="1330" y="1060" font-family="monospace" font-size="12" font-weight="normal">calls: Receives and validates checkout request payload.</text>
+<path data-edge="" d="M376 1712 H706 V2850 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1700" width="34" height="16" rx="3" fill="white"/><text x="387" y="1712" font-family="monospace" font-size="11">16</text>
+<text x="1330" y="1090" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="1330" y="1108" font-family="monospace" font-size="12" font-weight="normal">FU-CHECKOUT → IF-PAYMENTS-CHECKOUT-API</text>
+<text x="1330" y="1126" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1924 H724 V1818 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1912" width="34" height="16" rx="3" fill="white"/><text x="387" y="1924" font-family="monospace" font-size="11">17</text>
+<text x="1330" y="1156" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="1330" y="1174" font-family="monospace" font-size="12" font-weight="normal">FU-GITOPS-OPERATIONS → FU-CLUSTER-PROVISIONING</text>
+<text x="1330" y="1192" font-family="monospace" font-size="12" font-weight="normal">depends_on: Relies on provisioned cluster and namespace baseline.</text>
+<path data-edge="" d="M376 1942 H742 V3102 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1930" width="34" height="16" rx="3" fill="white"/><text x="387" y="1942" font-family="monospace" font-size="11">18</text>
+<text x="1330" y="1222" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="1330" y="1240" font-family="monospace" font-size="12" font-weight="normal">FU-GITOPS-OPERATIONS → REF-HELM-PLATFORM</text>
+<text x="1330" y="1258" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses Helm runtime platform for release orchestration.</text>
+<path data-edge="" d="M376 1960 H760 V3586 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1948" width="34" height="16" rx="3" fill="white"/><text x="387" y="1960" font-family="monospace" font-size="11">19</text>
+<text x="1330" y="1288" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="1330" y="1306" font-family="monospace" font-size="12" font-weight="normal">FU-GITOPS-OPERATIONS → TB-PAYMENTS-PLATFORM-CONTROL</text>
+<text x="1330" y="1324" font-family="monospace" font-size="12" font-weight="normal">bounded_by: GitOps control-plane boundaries.</text>
+<path data-edge="" d="M376 2066 H778 V586 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2054" width="34" height="16" rx="3" fill="white"/><text x="387" y="2066" font-family="monospace" font-size="11">20</text>
+<text x="1330" y="1354" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="1330" y="1372" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DEP-PAYMENTS-CLUSTER-PROD</text>
+<text x="1330" y="1390" font-family="monospace" font-size="12" font-weight="normal">deployed_to: Authorization workload deployment target.</text>
+<path data-edge="" d="M376 2084 H796 V676 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2072" width="34" height="16" rx="3" fill="white"/><text x="387" y="2084" font-family="monospace" font-size="11">21</text>
+<text x="1330" y="1420" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="1330" y="1438" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1330" y="1456" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2102 H814 V694 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2090" width="34" height="16" rx="3" fill="white"/><text x="387" y="2102" font-family="monospace" font-size="11">22</text>
+<text x="1330" y="1486" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="1330" y="1504" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-DECISION</text>
+<text x="1330" y="1522" font-family="monospace" font-size="12" font-weight="normal">writes: Persists final authorization decision.</text>
+<path data-edge="" d="M376 2120 H832 V782 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2108" width="34" height="16" rx="3" fill="white"/><text x="387" y="2120" font-family="monospace" font-size="11">23</text>
+<text x="1330" y="1552" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="1330" y="1570" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1330" y="1588" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2138 H850 V800 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2126" width="34" height="16" rx="3" fill="white"/><text x="387" y="2138" font-family="monospace" font-size="11">24</text>
+<text x="1330" y="1618" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="1330" y="1636" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1330" y="1654" font-family="monospace" font-size="12" font-weight="normal">reads: Reads normalized request for authorization pipeline.</text>
+<path data-edge="" d="M376 2156 H868 V888 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2144" width="34" height="16" rx="3" fill="white"/><text x="387" y="2156" font-family="monospace" font-size="11">25</text>
+<text x="1330" y="1684" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="1330" y="1702" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1330" y="1720" font-family="monospace" font-size="12" font-weight="normal">reads: Reads manual review outcome before returning decision.</text>
+<path data-edge="" d="M376 2174 H886 V994 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2162" width="34" height="16" rx="3" fill="white"/><text x="387" y="2174" font-family="monospace" font-size="11">26</text>
+<text x="1330" y="1750" font-family="monospace" font-size="12" font-weight="normal">26.</text>
+<text x="1330" y="1768" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1330" y="1786" font-family="monospace" font-size="12" font-weight="normal">reads: Reads risk signal before final authorization decision.</text>
+<path data-edge="" d="M376 2192 H904 V2388 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2180" width="34" height="16" rx="3" fill="white"/><text x="387" y="2192" font-family="monospace" font-size="11">27</text>
+<text x="1330" y="1816" font-family="monospace" font-size="12" font-weight="normal">27.</text>
+<text x="1330" y="1834" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → FU-RISK-SCORING</text>
+<text x="1330" y="1852" font-family="monospace" font-size="12" font-weight="normal">depends_on: Requests fraud scoring before final authorization.</text>
+<path data-edge="" d="M376 2210 H922 V2602 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2198" width="34" height="16" rx="3" fill="white"/><text x="387" y="2210" font-family="monospace" font-size="11">28</text>
+<text x="1330" y="1882" font-family="monospace" font-size="12" font-weight="normal">28.</text>
+<text x="1330" y="1900" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → FU-SUPPORT-REVIEW</text>
+<text x="1330" y="1918" font-family="monospace" font-size="12" font-weight="normal">depends_on: Escalates high-risk payments for manual review.</text>
+<path data-edge="" d="M376 2228 H940 V2726 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2216" width="34" height="16" rx="3" fill="white"/><text x="387" y="2228" font-family="monospace" font-size="11">29</text>
+<text x="1330" y="1948" font-family="monospace" font-size="12" font-weight="normal">29.</text>
+<text x="1330" y="1966" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-BANK-AUTH</text>
+<text x="1330" y="1984" font-family="monospace" font-size="12" font-weight="normal">calls: Calls external bank authorization interface.</text>
+<path data-edge="" d="M376 2246 H958 V2744 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2234" width="34" height="16" rx="3" fill="white"/><text x="387" y="2246" font-family="monospace" font-size="11">30</text>
+<text x="1330" y="2014" font-family="monospace" font-size="12" font-weight="normal">30.</text>
+<text x="1330" y="2032" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-BANK-AUTH</text>
+<text x="1330" y="2050" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2264 H976 V2922 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2252" width="34" height="16" rx="3" fill="white"/><text x="387" y="2264" font-family="monospace" font-size="11">31</text>
+<text x="1330" y="2080" font-family="monospace" font-size="12" font-weight="normal">31.</text>
+<text x="1330" y="2098" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → IF-PAYMENTS-RISK-SCORE-API</text>
+<text x="1330" y="2116" font-family="monospace" font-size="12" font-weight="normal">calls: Calls risk scoring interface for fraud decision support.</text>
+<path data-edge="" d="M376 2282 H994 V3012 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2270" width="34" height="16" rx="3" fill="white"/><text x="387" y="2282" font-family="monospace" font-size="11">32</text>
+<text x="1330" y="2146" font-family="monospace" font-size="12" font-weight="normal">32.</text>
+<text x="1330" y="2164" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → REF-BANK-GATEWAY-ENDPOINT</text>
+<text x="1330" y="2182" font-family="monospace" font-size="12" font-weight="normal">depends_on: Calls external bank authorization endpoint.</text>
+<path data-edge="" d="M376 2300 H1012 V3496 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2288" width="34" height="16" rx="3" fill="white"/><text x="387" y="2300" font-family="monospace" font-size="11">33</text>
+<text x="1330" y="2212" font-family="monospace" font-size="12" font-weight="normal">33.</text>
+<text x="1330" y="2230" font-family="monospace" font-size="12" font-weight="normal">FU-PAYMENT-AUTHORIZATION → TB-PAYMENTS-EXTERNAL-BANK</text>
+<text x="1330" y="2248" font-family="monospace" font-size="12" font-weight="normal">bounded_by: Authorization crosses external bank trust boundary.</text>
+<path data-edge="" d="M376 2406 H1030 V818 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2394" width="34" height="16" rx="3" fill="white"/><text x="387" y="2406" font-family="monospace" font-size="11">34</text>
+<text x="1330" y="2278" font-family="monospace" font-size="12" font-weight="normal">34.</text>
+<text x="1330" y="2296" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-AUTH-REQUEST</text>
+<text x="1330" y="2314" font-family="monospace" font-size="12" font-weight="normal">reads: Reads normalized request to compute risk signal.</text>
+<path data-edge="" d="M376 2424 H1048 V1012 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2412" width="34" height="16" rx="3" fill="white"/><text x="387" y="2424" font-family="monospace" font-size="11">35</text>
+<text x="1330" y="2344" font-family="monospace" font-size="12" font-weight="normal">35.</text>
+<text x="1330" y="2362" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1330" y="2380" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2442 H1066 V1030 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2430" width="34" height="16" rx="3" fill="white"/><text x="387" y="2442" font-family="monospace" font-size="11">36</text>
+<text x="1330" y="2410" font-family="monospace" font-size="12" font-weight="normal">36.</text>
+<text x="1330" y="2428" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1330" y="2446" font-family="monospace" font-size="12" font-weight="normal">publishes: Publishes risk signal updates for downstream consumers.</text>
+<path data-edge="" d="M376 2460 H1084 V1048 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2448" width="34" height="16" rx="3" fill="white"/><text x="387" y="2460" font-family="monospace" font-size="11">37</text>
+<text x="1330" y="2476" font-family="monospace" font-size="12" font-weight="normal">37.</text>
+<text x="1330" y="2494" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1330" y="2512" font-family="monospace" font-size="12" font-weight="normal">writes: Persists computed risk signal.</text>
+<path data-edge="" d="M376 2478 H1102 V2940 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2466" width="34" height="16" rx="3" fill="white"/><text x="387" y="2478" font-family="monospace" font-size="11">38</text>
+<text x="1330" y="2542" font-family="monospace" font-size="12" font-weight="normal">38.</text>
+<text x="1330" y="2560" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → IF-PAYMENTS-RISK-SCORE-API</text>
+<text x="1330" y="2578" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2496 H1120 V3192 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2484" width="34" height="16" rx="3" fill="white"/><text x="387" y="2496" font-family="monospace" font-size="11">39</text>
+<text x="1330" y="2608" font-family="monospace" font-size="12" font-weight="normal">39.</text>
+<text x="1330" y="2626" font-family="monospace" font-size="12" font-weight="normal">FU-RISK-SCORING → REF-POSTGRES-DRIVER</text>
+<text x="1330" y="2644" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses external library for audit persistence.</text>
+<path data-edge="" d="M376 2620 H1138 V906 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2608" width="34" height="16" rx="3" fill="white"/><text x="387" y="2620" font-family="monospace" font-size="11">40</text>
+<text x="1330" y="2674" font-family="monospace" font-size="12" font-weight="normal">40.</text>
+<text x="1330" y="2692" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1330" y="2710" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2638 H1156 V924 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2626" width="34" height="16" rx="3" fill="white"/><text x="387" y="2638" font-family="monospace" font-size="11">41</text>
+<text x="1330" y="2740" font-family="monospace" font-size="12" font-weight="normal">41.</text>
+<text x="1330" y="2758" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-REVIEW-TICKET</text>
+<text x="1330" y="2776" font-family="monospace" font-size="12" font-weight="normal">writes: Persists manual review ticket records.</text>
+<path data-edge="" d="M376 2656 H1174 V1066 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2644" width="34" height="16" rx="3" fill="white"/><text x="387" y="2656" font-family="monospace" font-size="11">42</text>
+<text x="1330" y="2806" font-family="monospace" font-size="12" font-weight="normal">42.</text>
+<text x="1330" y="2824" font-family="monospace" font-size="12" font-weight="normal">FU-SUPPORT-REVIEW → DO-PAYMENTS-RISK-SIGNAL</text>
+<text x="1330" y="2842" font-family="monospace" font-size="12" font-weight="normal">subscribes: Subscribes to high-risk signal updates.</text>
+<path data-edge="" d="M376 2762 H1192 V478 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2750" width="34" height="16" rx="3" fill="white"/><text x="387" y="2762" font-family="monospace" font-size="11">43</text>
+<text x="1330" y="2872" font-family="monospace" font-size="12" font-weight="normal">43.</text>
+<text x="1330" y="2890" font-family="monospace" font-size="12" font-weight="normal">IF-PAYMENTS-BANK-AUTH → DEP-PAYMENTS-BANK-EDGE</text>
+<text x="1330" y="2908" font-family="monospace" font-size="12" font-weight="normal">deployed_to: External authorization interface boundary target.</text>
+<path data-edge="" d="M376 3282 H1210 V388 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3270" width="34" height="16" rx="3" fill="white"/><text x="387" y="3282" font-family="monospace" font-size="11">44</text>
+<text x="1330" y="2938" font-family="monospace" font-size="12" font-weight="normal">44.</text>
+<text x="1330" y="2956" font-family="monospace" font-size="12" font-weight="normal">STATE-PAYMENTS-AUTHORIZED → CTRL-PAYMENTS-SSO-MFA</text>
+<text x="1330" y="2974" font-family="monospace" font-size="12" font-weight="normal">guarded_by: Authorized-state operations require strong access</text>
+<text x="1330" y="2992" font-family="monospace" font-size="12" font-weight="normal">controls.</text>
+<path data-edge="" d="M376 3300 H1228 V1136 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3288" width="34" height="16" rx="3" fill="white"/><text x="387" y="3300" font-family="monospace" font-size="11">45</text>
+<text x="1330" y="3022" font-family="monospace" font-size="12" font-weight="normal">45.</text>
+<text x="1330" y="3040" font-family="monospace" font-size="12" font-weight="normal">STATE-PAYMENTS-AUTHORIZED → EVT-PAYMENTS-AUTH-COMPLETED</text>
+<text x="1330" y="3058" font-family="monospace" font-size="12" font-weight="normal">triggered_by: Completion event for authorization flow.</text>
+<path data-edge="" d="M376 3318 H1246 V3514 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3306" width="34" height="16" rx="3" fill="white"/><text x="387" y="3318" font-family="monospace" font-size="11">46</text>
+<text x="1330" y="3088" font-family="monospace" font-size="12" font-weight="normal">46.</text>
+<text x="1330" y="3106" font-family="monospace" font-size="12" font-weight="normal">STATE-PAYMENTS-AUTHORIZED → TB-PAYMENTS-EXTERNAL-BANK</text>
+<text x="1330" y="3124" font-family="monospace" font-size="12" font-weight="normal">guarded_by: Boundary guard for external bank interaction.</text>
+<path data-edge="" d="M376 3406 H1264 V1226 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3394" width="34" height="16" rx="3" fill="white"/><text x="387" y="3406" font-family="monospace" font-size="11">47</text>
+<text x="1330" y="3154" font-family="monospace" font-size="12" font-weight="normal">47.</text>
+<text x="1330" y="3172" font-family="monospace" font-size="12" font-weight="normal">STATE-PAYMENTS-CHECKOUT-RECEIVED → EVT-PAYMENTS-AUTH-REQUESTED</text>
+<text x="1330" y="3190" font-family="monospace" font-size="12" font-weight="normal">triggered_by: Authorization flow start trigger.</text>
+<path data-edge="" d="M376 3424 H1282 V3336 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3412" width="34" height="16" rx="3" fill="white"/><text x="387" y="3424" font-family="monospace" font-size="11">48</text>
+<text x="1330" y="3220" font-family="monospace" font-size="12" font-weight="normal">48.</text>
+<text x="1330" y="3238" font-family="monospace" font-size="12" font-weight="normal">STATE-PAYMENTS-CHECKOUT-RECEIVED → STATE-PAYMENTS-AUTHORIZED</text>
+<text x="1330" y="3256" font-family="monospace" font-size="12" font-weight="normal">transitions_to: Checkout transitions to authorized state after</text>
+<text x="1330" y="3274" font-family="monospace" font-size="12" font-weight="normal">policy and bank decision.</text>
+<g id="ACT-CUSTOMER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Customer</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-CUSTOMER</text>
+</g>
+<g id="ACT-PLATFORM-OPERATOR"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Platform Operator</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">ACT-PLATFORM-OPERATOR</text>
+</g>
+<g id="ACT-SUPPORT"><rect x="36" y="280" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Support Agent</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">ACT-SUPPORT</text>
+</g>
+<g id="CTRL-PAYMENTS-SSO-MFA"><rect x="36" y="370" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="394" font-family="monospace" font-size="13" font-weight="bold">SSO MFA Enforcement</text>
+<text x="50" y="412" font-family="monospace" font-size="11" font-weight="normal">CTRL-PAYMENTS-SSO-MFA</text>
+</g>
+<g id="DEP-PAYMENTS-BANK-EDGE"><rect x="36" y="460" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="484" font-family="monospace" font-size="13" font-weight="bold">Bank Edge Integration Zone</text>
+<text x="50" y="502" font-family="monospace" font-size="11" font-weight="normal">DEP-PAYMENTS-BANK-EDGE</text>
+</g>
+<g id="DEP-PAYMENTS-CLUSTER-PROD"><rect x="36" y="550" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="574" font-family="monospace" font-size="13" font-weight="bold">Payments Cluster Production</text>
+<text x="50" y="592" font-family="monospace" font-size="11" font-weight="normal">DEP-PAYMENTS-CLUSTER-PROD</text>
+</g>
+<g id="DO-PAYMENTS-AUTH-DECISION"><rect x="36" y="640" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="664" font-family="monospace" font-size="13" font-weight="bold">Authorization Decision</text>
+<text x="50" y="682" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-AUTH-DECISION</text>
+</g>
+<g id="DO-PAYMENTS-AUTH-REQUEST"><rect x="36" y="746" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="770" font-family="monospace" font-size="13" font-weight="bold">Authorization Request</text>
+<text x="50" y="788" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-AUTH-REQUEST</text>
+</g>
+<g id="DO-PAYMENTS-REVIEW-TICKET"><rect x="36" y="870" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="894" font-family="monospace" font-size="13" font-weight="bold">Manual Review Ticket</text>
+<text x="50" y="912" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-REVIEW-TICKET</text>
+</g>
+<g id="DO-PAYMENTS-RISK-SIGNAL"><rect x="36" y="976" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1000" font-family="monospace" font-size="13" font-weight="bold">Risk Signal</text>
+<text x="50" y="1018" font-family="monospace" font-size="11" font-weight="normal">DO-PAYMENTS-RISK-SIGNAL</text>
+</g>
+<g id="EVT-PAYMENTS-AUTH-COMPLETED"><rect x="36" y="1118" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1142" font-family="monospace" font-size="13" font-weight="bold">Authorization Completed</text>
+<text x="50" y="1160" font-family="monospace" font-size="11" font-weight="normal">EVT-PAYMENTS-AUTH-COMPLETED</text>
+</g>
+<g id="EVT-PAYMENTS-AUTH-REQUESTED"><rect x="36" y="1208" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1232" font-family="monospace" font-size="13" font-weight="bold">Authorization Requested</text>
+<text x="50" y="1250" font-family="monospace" font-size="11" font-weight="normal">EVT-PAYMENTS-AUTH-REQUESTED</text>
+</g>
+<g id="FG-FRAUD"><rect x="36" y="1298" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1322" font-family="monospace" font-size="13" font-weight="bold">Fraud Evaluation</text>
+<text x="50" y="1340" font-family="monospace" font-size="11" font-weight="normal">FG-FRAUD</text>
+</g>
+<g id="FG-PAYMENTS"><rect x="36" y="1388" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1412" font-family="monospace" font-size="13" font-weight="bold">Payments</text>
+<text x="50" y="1430" font-family="monospace" font-size="11" font-weight="normal">FG-PAYMENTS</text>
+</g>
+<g id="FG-PLATFORM"><rect x="36" y="1478" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1502" font-family="monospace" font-size="13" font-weight="bold">Platform</text>
+<text x="50" y="1520" font-family="monospace" font-size="11" font-weight="normal">FG-PLATFORM</text>
+</g>
+<g id="FU-CHECKOUT"><rect x="36" y="1568" width="340" height="172" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1592" font-family="monospace" font-size="13" font-weight="bold">Checkout Handling</text>
+<text x="50" y="1610" font-family="monospace" font-size="11" font-weight="normal">FU-CHECKOUT</text>
+</g>
+<g id="FU-CLUSTER-PROVISIONING"><rect x="36" y="1764" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1788" font-family="monospace" font-size="13" font-weight="bold">Cluster Provisioning</text>
+<text x="50" y="1806" font-family="monospace" font-size="11" font-weight="normal">FU-CLUSTER-PROVISIONING</text>
+</g>
+<g id="FU-GITOPS-OPERATIONS"><rect x="36" y="1870" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1894" font-family="monospace" font-size="13" font-weight="bold">GitOps Operations</text>
+<text x="50" y="1912" font-family="monospace" font-size="11" font-weight="normal">FU-GITOPS-OPERATIONS</text>
+</g>
+<g id="FU-PAYMENT-AUTHORIZATION"><rect x="36" y="2012" width="340" height="316" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2036" font-family="monospace" font-size="13" font-weight="bold">Payment Authorization</text>
+<text x="50" y="2054" font-family="monospace" font-size="11" font-weight="normal">FU-PAYMENT-AUTHORIZATION</text>
+</g>
+<g id="FU-RISK-SCORING"><rect x="36" y="2352" width="340" height="172" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2376" font-family="monospace" font-size="13" font-weight="bold">Risk Scoring</text>
+<text x="50" y="2394" font-family="monospace" font-size="11" font-weight="normal">FU-RISK-SCORING</text>
+</g>
+<g id="FU-SUPPORT-REVIEW"><rect x="36" y="2548" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2572" font-family="monospace" font-size="13" font-weight="bold">Support Review</text>
+<text x="50" y="2590" font-family="monospace" font-size="11" font-weight="normal">FU-SUPPORT-REVIEW</text>
+</g>
+<g id="IF-PAYMENTS-BANK-AUTH"><rect x="36" y="2708" width="340" height="82" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2732" font-family="monospace" font-size="13" font-weight="bold">Bank Authorization Interface</text>
+<text x="50" y="2750" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-BANK-AUTH</text>
+</g>
+<g id="IF-PAYMENTS-CHECKOUT-API"><rect x="36" y="2814" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2838" font-family="monospace" font-size="13" font-weight="bold">Checkout API Interface</text>
+<text x="50" y="2856" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-CHECKOUT-API</text>
+</g>
+<g id="IF-PAYMENTS-RISK-SCORE-API"><rect x="36" y="2904" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2928" font-family="monospace" font-size="13" font-weight="bold">Risk Score Interface</text>
+<text x="50" y="2946" font-family="monospace" font-size="11" font-weight="normal">IF-PAYMENTS-RISK-SCORE-API</text>
+</g>
+<g id="REF-BANK-GATEWAY-ENDPOINT"><rect x="36" y="2994" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3018" font-family="monospace" font-size="13" font-weight="bold">Bank Gateway Endpoint</text>
+<text x="50" y="3036" font-family="monospace" font-size="11" font-weight="normal">REF-BANK-GATEWAY-ENDPOINT</text>
+</g>
+<g id="REF-HELM-PLATFORM"><rect x="36" y="3084" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3108" font-family="monospace" font-size="13" font-weight="bold">Helm Runtime Platform</text>
+<text x="50" y="3126" font-family="monospace" font-size="11" font-weight="normal">REF-HELM-PLATFORM</text>
+</g>
+<g id="REF-POSTGRES-DRIVER"><rect x="36" y="3174" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3198" font-family="monospace" font-size="13" font-weight="bold">PostgreSQL Client Driver</text>
+<text x="50" y="3216" font-family="monospace" font-size="11" font-weight="normal">REF-POSTGRES-DRIVER</text>
+</g>
+<g id="STATE-PAYMENTS-AUTHORIZED"><rect x="36" y="3264" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3288" font-family="monospace" font-size="13" font-weight="bold">Payment Authorized</text>
+<text x="50" y="3306" font-family="monospace" font-size="11" font-weight="normal">STATE-PAYMENTS-AUTHORIZED</text>
+</g>
+<g id="STATE-PAYMENTS-CHECKOUT-RECEIVED"><rect x="36" y="3388" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3412" font-family="monospace" font-size="13" font-weight="bold">Checkout Received</text>
+<text x="50" y="3430" font-family="monospace" font-size="11" font-weight="normal">STATE-PAYMENTS-CHECKOUT-RECEIVED</text>
+</g>
+<g id="TB-PAYMENTS-EXTERNAL-BANK"><rect x="36" y="3478" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3502" font-family="monospace" font-size="13" font-weight="bold">External Bank Boundary</text>
+<text x="50" y="3520" font-family="monospace" font-size="11" font-weight="normal">TB-PAYMENTS-EXTERNAL-BANK</text>
+</g>
+<g id="TB-PAYMENTS-PLATFORM-CONTROL"><rect x="36" y="3568" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3592" font-family="monospace" font-size="13" font-weight="bold">Platform Control Boundary</text>
+<text x="50" y="3610" font-family="monospace" font-size="11" font-weight="normal">TB-PAYMENTS-PLATFORM-CONTROL</text>
+</g>
 </svg>

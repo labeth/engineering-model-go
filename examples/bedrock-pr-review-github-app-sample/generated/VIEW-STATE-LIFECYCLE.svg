@@ -1,35 +1,57 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-STATE-LIFECYCLE-title" viewBox="0 0 602 420" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-STATE-LIFECYCLE">
-  <title id="VIEW-STATE-LIFECYCLE-title">VIEW-STATE-LIFECYCLE — state-lifecycle view</title>
-  <metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-STATE-LIFECYCLE; kind=state-lifecycle</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-STATE-LIFECYCLE</text>
-  <line x1="456" y1="220" x2="146" y2="220" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
-  <line x1="456" y1="220" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="264" text-anchor="middle" font-family="sans-serif" font-size="11">transitions_to</text>
-  <line x1="146" y1="318" x2="146" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
-  <line x1="146" y1="318" x2="456" y2="122" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="215" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
-  <line x1="146" y1="318" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="313" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
-  <g id="CTRL-BEDROCK-WEBHOOK-SIGNATURE"><rect x="36" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Webhook Signature Verification</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">CTRL-BEDROCK-WEBHOOK-SIGNATURE</text></g>
-  <g id="EVT-BEDROCK-REVIEW-COMPLETED"><rect x="346" y="90" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Completed</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">EVT-BEDROCK-REVIEW-COMPLETED</text></g>
-  <g id="EVT-BEDROCK-REVIEW-REQUESTED"><rect x="36" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Requested</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">EVT-BEDROCK-REVIEW-REQUESTED</text></g>
-  <g id="STATE-BEDROCK-PR-RECEIVED"><rect x="346" y="188" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Received</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">STATE-BEDROCK-PR-RECEIVED</text></g>
-  <g id="STATE-BEDROCK-REVIEW-PUBLISHED"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Published</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">STATE-BEDROCK-REVIEW-PUBLISHED</text></g>
-  <g id="TB-BEDROCK-GITHUB-EXTERNAL"><rect x="346" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub External Boundary</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">TB-BEDROCK-GITHUB-EXTERNAL</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-STATE-LIFECYCLE-title" viewBox="0 0 1222 710" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-STATE-LIFECYCLE">
+<title id="VIEW-STATE-LIFECYCLE-title">VIEW-STATE-LIFECYCLE — state-lifecycle view</title>
+<metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-STATE-LIFECYCLE; kind=state-lifecycle</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-STATE-LIFECYCLE</text>
+<text x="556" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 388 H436 V298 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="376" width="34" height="16" rx="3" fill="white"/><text x="387" y="388" font-family="monospace" font-size="11">1</text>
+<text x="556" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="556" y="118" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-PR-RECEIVED → EVT-BEDROCK-REVIEW-REQUESTED</text>
+<text x="556" y="136" font-family="monospace" font-size="12" font-weight="normal">triggered_by</text>
+<path data-edge="" d="M376 406 H454 V478 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="394" width="34" height="16" rx="3" fill="white"/><text x="387" y="406" font-family="monospace" font-size="11">2</text>
+<text x="556" y="166" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="556" y="184" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-PR-RECEIVED → STATE-BEDROCK-REVIEW-PUBLISHED</text>
+<text x="556" y="202" font-family="monospace" font-size="12" font-weight="normal">transitions_to</text>
+<path data-edge="" d="M376 496 H472 V118 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="484" width="34" height="16" rx="3" fill="white"/><text x="387" y="496" font-family="monospace" font-size="11">3</text>
+<text x="556" y="232" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="556" y="250" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → CTRL-BEDROCK-WEBHOOK-SIGNATURE</text>
+<text x="556" y="268" font-family="monospace" font-size="12" font-weight="normal">guarded_by</text>
+<path data-edge="" d="M376 514 H490 V208 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="502" width="34" height="16" rx="3" fill="white"/><text x="387" y="514" font-family="monospace" font-size="11">4</text>
+<text x="556" y="298" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="556" y="316" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → EVT-BEDROCK-REVIEW-COMPLETED</text>
+<text x="556" y="334" font-family="monospace" font-size="12" font-weight="normal">triggered_by</text>
+<path data-edge="" d="M376 532 H508 V602 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="520" width="34" height="16" rx="3" fill="white"/><text x="387" y="532" font-family="monospace" font-size="11">5</text>
+<text x="556" y="364" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="556" y="382" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → TB-BEDROCK-GITHUB-EXTERNAL</text>
+<text x="556" y="400" font-family="monospace" font-size="12" font-weight="normal">guarded_by</text>
+<g id="CTRL-BEDROCK-WEBHOOK-SIGNATURE"><rect x="36" y="100" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Webhook Signature Verification</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">CTRL-BEDROCK-WEBHOOK-SIGNATURE</text>
+</g>
+<g id="EVT-BEDROCK-REVIEW-COMPLETED"><rect x="36" y="190" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Review Completed</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">EVT-BEDROCK-REVIEW-COMPLETED</text>
+</g>
+<g id="EVT-BEDROCK-REVIEW-REQUESTED"><rect x="36" y="280" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Review Requested</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">EVT-BEDROCK-REVIEW-REQUESTED</text>
+</g>
+<g id="STATE-BEDROCK-PR-RECEIVED"><rect x="36" y="370" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="394" font-family="monospace" font-size="13" font-weight="bold">PR Received</text>
+<text x="50" y="412" font-family="monospace" font-size="11" font-weight="normal">STATE-BEDROCK-PR-RECEIVED</text>
+</g>
+<g id="STATE-BEDROCK-REVIEW-PUBLISHED"><rect x="36" y="460" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="484" font-family="monospace" font-size="13" font-weight="bold">Review Published</text>
+<text x="50" y="502" font-family="monospace" font-size="11" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED</text>
+</g>
+<g id="TB-BEDROCK-GITHUB-EXTERNAL"><rect x="36" y="584" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="608" font-family="monospace" font-size="13" font-weight="bold">GitHub External Boundary</text>
+<text x="50" y="626" font-family="monospace" font-size="11" font-weight="normal">TB-BEDROCK-GITHUB-EXTERNAL</text>
+</g>
 </svg>

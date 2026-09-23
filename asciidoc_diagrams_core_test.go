@@ -306,13 +306,13 @@ func TestBuildRequirementCoverageMermaid_GroupsCodeNodesByFile(t *testing.T) {
 
 	out := buildRequirementCoverageMermaid(reqs, nil, code, verification, map[string]string{"FU-A": "Unit A"}, nil)
 
-	if got := strings.Count(out, `["payment_engine.rs:11,25"]:::code_element`); got != 1 {
+	if got := strings.Count(out, `["payment_engine.rs: 11, 25"]:::code_element`); got != 1 {
 		t.Fatalf("expected one implementation code box with comma-separated lines, got %d:\n%s", got, out)
 	}
-	if got := strings.Count(out, `["payment_engine_test.go:12,30"]:::code_element`); got != 1 {
+	if got := strings.Count(out, `["payment_engine_test.go: 12, 30"]:::code_element`); got != 1 {
 		t.Fatalf("expected one verification code box with comma-separated lines, got %d:\n%s", got, out)
 	}
-	if strings.Contains(out, `["payment_engine.rs:11"]`) || strings.Contains(out, `["payment_engine.rs:25"]`) {
+	if strings.Contains(out, `["payment_engine.rs: 11"]`) || strings.Contains(out, `["payment_engine.rs: 25"]`) {
 		t.Fatalf("did not expect separate implementation boxes per line:\n%s", out)
 	}
 	if strings.Contains(out, "ai_view_schema.go") {
@@ -404,5 +404,81 @@ func testRandomMatrixArchitecture(r *rand.Rand, fgCount, fuCount int) model.Auth
 	return model.AuthoredArchitecture{
 		FunctionalGroups: groups,
 		FunctionalUnits:  units,
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func TestCodeEvidenceLabelsKeepDistinctSourcePaths(t *testing.T) {
+	inputs := []string{"app/server.go:412", "ota/server.go:16", "ota/./server.go:20", "ota/Server.go:7"}
+	lookup := codeElementEvidenceLabelLookup(inputs)
+	for _, tc := range []struct{ source, want string }{
+		{"app/server.go:412", "app/server.go:412"},
+		{"ota/server.go:16", "ota/server.go:16,20"},
+		{"ota/Server.go:7", "Server.go:7"},
+	} {
+		got := groupedCodeElementEvidenceLabels([]string{tc.source}, lookup)
+		if len(got) != 1 || got[0] != tc.want {
+			t.Fatalf("source %q: got %v, want %q", tc.source, got, tc.want)
+		}
+	}
+	got := groupedCodeElementFileLabels(inputs, lookup)
+	if strings.Join(got, ",") != "Server.go,app/server.go,ota/server.go" {
+		t.Fatalf("distinct source files collapsed: %v", got)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func TestAbsoluteCodeItemEvidenceKeepsSourceIdentity(t *testing.T) {
+	items := []inferredCodeItem{
+		{Kind: "symbol", Source: "/workspace/app/server.go:412"},
+		{Kind: "symbol", Source: "/workspace/ota/server.go:16"},
+	}
+	elements := []string{codeItemEvidenceElement(items[0]), codeItemEvidenceElement(items[1])}
+	lookup := codeElementEvidenceLabelLookup(elements)
+	for i, item := range items {
+		got := groupedCodeElementEvidenceLabels(elements[i:i+1], lookup)
+		if len(got) != 1 || got[0] != strings.TrimPrefix(item.Source, "/workspace/") {
+			t.Fatalf("source %q: got %v", item.Source, got)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func TestCodeEvidenceAcrossIndependentSourceRoots(t *testing.T) {
+	code := []inferredCodeItem{
+		{Kind: "symbol", Owner: "FU-APP", Source: "server.go:412", AbsPath: "/workspace/app/server.go", Implements: []string{"REQ-APP"}},
+		{Kind: "symbol", Owner: "FU-BROKER", Source: "server.go:16", AbsPath: "/workspace/ota/server.go", Implements: []string{"REQ-BROKER"}},
+	}
+	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-BROKER", AppliesTo: []string{"FU-BROKER"}}}, nil, code, nil, nil, nil)
+	if !strings.Contains(diagram, "ota/server.go: 16") || strings.Contains(diagram, "412") {
+		t.Fatalf("independent source roots merged in requirement graph: %s", diagram)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func TestRequirementEvidenceExcludesOtherRequirementLines(t *testing.T) {
+	code := []inferredCodeItem{
+		{Kind: "symbol", Owner: "FU-AGENT", Source: "rpc.go:39", AbsPath: "/workspace/agent/rpc.go", Implements: []string{"REQ-RPC"}},
+		{Kind: "symbol", Owner: "FU-AGENT", Source: "rpc.go:95", AbsPath: "/workspace/agent/rpc.go", Implements: []string{"REQ-TAKEOVER"}},
+		{Kind: "symbol", Owner: "FU-OTHER", Source: "rpc.go:12", AbsPath: "/workspace/other/rpc.go", Implements: []string{"REQ-OTHER"}},
+	}
+	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-RPC", AppliesTo: []string{"FU-AGENT"}}}, nil, code, nil, nil, nil)
+	if !strings.Contains(diagram, "agent/rpc.go: 39") || strings.Contains(diagram, "95") || strings.Contains(diagram, "rpc.go: 12") {
+		t.Fatalf("requirement evidence contains unrelated lines: %s", diagram)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func TestRequirementAndVerificationSourceNodesDoNotOverwrite(t *testing.T) {
+	code := []inferredCodeItem{
+		{Kind: "symbol", Owner: "FU-A", Source: "rpc.go:39", Implements: []string{"REQ-A"}},
+		{Kind: "symbol", Owner: "FU-A", Source: "rpc.go:95", Implements: []string{"REQ-B"}},
+	}
+	checks := []inferredVerificationCheck{{ID: "VER-A", Verifies: []string{"REQ-A"}, CodeElements: []string{"rpc_test.go:39", "rpc_test.go:95"}}}
+	got := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}, {ID: "REQ-B", AppliesTo: []string{"FU-A"}}}, nil, code, checks, nil, nil)
+	for _, want := range []string{`CODE_REQ_A_RPC_GO["rpc.go: 39"]`, `CODE_REQ_B_RPC_GO["rpc.go: 95"]`, `VERCODE_REQ_A_VER_A_RPC_TEST_GO["rpc_test.go: 39, 95"]`} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("missing separate evidence node %s: %s", want, got)
+		}
 	}
 }

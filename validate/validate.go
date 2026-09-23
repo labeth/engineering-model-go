@@ -154,6 +154,8 @@ var allowedViewMappingTypes = map[string]bool{
 }
 
 var allowedViewEntityKinds = map[string]bool{
+	"hardware_item":        true,
+	"hardware_interface":   true,
 	"functional_group":     true,
 	"functional_unit":      true,
 	"actor":                true,
@@ -400,6 +402,14 @@ func Bundle(b model.Bundle) []Diagnostic {
 		deploymentTargets[x.ID] = true
 		kindByID[x.ID] = "deployment_target"
 	}
+	for i, x := range b.Architecture.AuthoredArchitecture.HardwareItems {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.hardwareItems[%d]", i))
+		kindByID[x.ID] = "hardware_item"
+	}
+	for i, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
+		addID(x.ID, fmt.Sprintf("authoredArchitecture.hardwareInterfaces[%d]", i))
+		kindByID[x.ID] = "hardware_interface"
+	}
 	for i, x := range b.Architecture.AuthoredArchitecture.Controls {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.controls[%d]", i))
 		controls[x.ID] = true
@@ -490,6 +500,17 @@ func Bundle(b model.Bundle) []Diagnostic {
 		return ok
 	}
 
+	for i, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
+		path := fmt.Sprintf("authoredArchitecture.hardwareInterfaces[%d]", i)
+		for field, endpoint := range map[string]string{"from": x.From, "to": x.To} {
+			if kindByID[endpoint] != "hardware_item" {
+				diags = append(diags, Diagnostic{Code: "model.invalid_hardware_endpoint", Severity: SeverityError, Message: fmt.Sprintf("hardware interface %q %s must reference a hardware item", x.ID, field), Path: path + "." + field})
+			}
+		}
+		if x.SoftwareInterfaceRef != "" && !interfaces[x.SoftwareInterfaceRef] {
+			diags = append(diags, Diagnostic{Code: "model.invalid_hardware_software_interface", Severity: SeverityError, Message: fmt.Sprintf("hardware interface %q references unknown software interface %q", x.ID, x.SoftwareInterfaceRef), Path: path + ".softwareInterfaceRef"})
+		}
+	}
 	for i, requirement := range b.Requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
 		if requirement.Derived && strings.TrimSpace(requirement.DerivedRationale) == "" {
@@ -576,8 +597,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if strings.HasPrefix(strings.TrimSpace(m.From), "RT-") || strings.HasPrefix(strings.TrimSpace(m.From), "CODE-") || strings.HasPrefix(strings.TrimSpace(m.To), "RT-") || strings.HasPrefix(strings.TrimSpace(m.To), "CODE-") {
 			diags = append(diags, Diagnostic{Code: "model.inferred_id_not_allowed", Severity: SeverityError, Message: "authored mappings must not reference inferred RT-* or CODE-* ids", Path: path})
 		}
-		if m.Type == "interacts_with" && !(actors[m.From] && units[m.To]) {
-			diags = append(diags, Diagnostic{Code: "model.invalid_interaction", Severity: SeverityError, Message: "interacts_with must be actor -> functional unit", Path: path})
+		if m.Type == "interacts_with" && !((actors[m.From] && units[m.To]) || (kindByID[m.From] == "hardware_item" && kindByID[m.To] == "hardware_item")) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_interaction", Severity: SeverityError, Message: "interacts_with must be actor -> functional unit or hardware item -> hardware item", Path: path})
 		}
 		if m.Type == "targets" && !vectors[m.From] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_target", Severity: SeverityError, Message: "targets must originate from an attack vector", Path: path})
@@ -1296,6 +1317,9 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 		return false
 	}
 	if t == "contains" {
+		if from == "hardware_item" && (to == "hardware_item" || to == "hardware_interface") {
+			return true
+		}
 		if from == "functional_group" && to == "functional_unit" {
 			return true
 		}
@@ -1312,7 +1336,8 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 			"functional_unit:deployment_target":  true,
 		},
 		"interacts_with": {
-			"actor:functional_unit": true,
+			"hardware_item:hardware_item": true,
+			"actor:functional_unit":       true,
 		},
 		"targets": {
 			"attack_vector:functional_unit":    true,
@@ -1351,6 +1376,8 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 			"functional_unit:control":            true,
 		},
 		"allocated_to": {
+			"deployment_target:hardware_item":   true,
+			"functional_unit:hardware_item":     true,
 			"functional_unit:deployment_target": true,
 			"interface:deployment_target":       true,
 		},
@@ -1377,6 +1404,9 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 			"attack_vector:control": true,
 		},
 		"bounded_by": {
+			"actor:trust_boundary":             true,
+			"hardware_item:trust_boundary":     true,
+			"data_object:trust_boundary":       true,
 			"functional_unit:trust_boundary":   true,
 			"deployment_target:trust_boundary": true,
 			"interface:trust_boundary":         true,

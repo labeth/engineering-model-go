@@ -1,198 +1,377 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-ARCHITECTURE-INTENT-title" viewBox="0 0 602 1792" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-ARCHITECTURE-INTENT">
-  <title id="VIEW-ARCHITECTURE-INTENT-title">VIEW-ARCHITECTURE-INTENT — architecture-intent view</title>
-  <metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-ARCHITECTURE-INTENT; kind=architecture-intent</metadata>
-  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
-  <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="36" y="30" font-family="sans-serif" font-size="18" font-weight="bold">VIEW-ARCHITECTURE-INTENT</text>
-  <line x1="146" y1="122" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Developer push/update activity triggers pull request webhook events.</text>
-  <line x1="456" y1="122" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="460" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Operates deployments, scaling controls, and runtime observability.</text>
-  <line x1="456" y1="122" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Rotates credentials and manages secure configuration lifecycle.</text>
-  <line x1="146" y1="220" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Reviews findings and gate decisions before merge.</text>
-  <line x1="456" y1="220" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="558" text-anchor="middle" font-family="sans-serif" font-size="11">interacts_with: Maintains and evolves deterministic security checks.</text>
-  <line x1="456" y1="612" x2="456" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="612" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="710" x2="146" y2="808" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="710" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="710" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="803" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="710" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="710" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="808" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="607" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: Webhook ingress executes in primary lambda runtime.</text>
-  <line x1="146" y1="808" x2="456" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="852" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Forwards authenticated PR events for context assembly.</text>
-  <line x1="146" y1="808" x2="146" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Receives webhook payload through signed API endpoint.</text>
-  <line x1="146" y1="808" x2="146" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="808" x2="146" y2="1690" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1244" text-anchor="middle" font-family="sans-serif" font-size="11">bounded_by: External ingress trust boundary.</text>
-  <line x1="456" y1="808" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requires secure runtime configuration and credential access.</text>
-  <line x1="456" y1="808" x2="456" y2="1298" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses managed secret store for runtime credentials.</text>
-  <line x1="456" y1="808" x2="456" y2="1592" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1195" text-anchor="middle" font-family="sans-serif" font-size="11">bounded_by: Runtime platform control boundary.</text>
-  <line x1="146" y1="906" x2="146" y2="1494" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1195" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Evaluates repository policy and risk rules.</text>
-  <line x1="456" y1="906" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="656" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists normalized context payload.</text>
-  <line x1="456" y1="906" x2="146" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Sends normalized review context.</text>
-  <line x1="456" y1="906" x2="146" y2="1396" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1146" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Fetches pull request files and metadata.</text>
-  <line x1="456" y1="906" x2="456" y2="1396" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1146" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses the GitHub REST SDK to fetch pull request files and metadata.</text>
-  <line x1="146" y1="1004" x2="146" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: Orchestration executes in primary lambda runtime.</text>
-  <line x1="146" y1="1004" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="146" y1="1004" x2="456" y2="416" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads normalized context before model call.</text>
-  <line x1="146" y1="1004" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">writes: Persists merged deterministic and AI findings.</text>
-  <line x1="146" y1="1004" x2="146" y2="906" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Merges deterministic policy findings with model output.</text>
-  <line x1="146" y1="1004" x2="456" y2="1004" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="999" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Submits final findings for publication.</text>
-  <line x1="146" y1="1004" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Retrieves model configuration and safety settings.</text>
-  <line x1="146" y1="1004" x2="456" y2="1200" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1097" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Requests model analysis for code review findings.</text>
-  <line x1="456" y1="1004" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="1004" x2="146" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="754" text-anchor="middle" font-family="sans-serif" font-size="11">reads: Reads final findings for publication.</text>
-  <line x1="456" y1="1004" x2="146" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Retrieves app credentials and redaction rules.</text>
-  <line x1="456" y1="1004" x2="456" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">calls: Calls publication API for check-run output.</text>
-  <line x1="456" y1="1004" x2="456" y2="1102" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">contains</text>
-  <line x1="456" y1="1004" x2="146" y2="1396" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1195" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Publishes check runs and inline review comments.</text>
-  <line x1="146" y1="1102" x2="146" y2="1298" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1195" text-anchor="middle" font-family="sans-serif" font-size="11">depends_on: Uses AWS SDK for Go clients to load managed secret configuration.</text>
-  <line x1="456" y1="1102" x2="456" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="456" y="705" text-anchor="middle" font-family="sans-serif" font-size="11">deployed_to: Publication API crosses GitHub integration boundary.</text>
-  <line x1="456" y1="1494" x2="146" y2="612" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
-  <line x1="456" y1="1494" x2="146" y2="1592" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1538" text-anchor="middle" font-family="sans-serif" font-size="11">transitions_to</text>
-  <line x1="146" y1="1592" x2="146" y2="318" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="950" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
-  <line x1="146" y1="1592" x2="456" y2="514" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="301" y="1048" text-anchor="middle" font-family="sans-serif" font-size="11">triggered_by</text>
-  <line x1="146" y1="1592" x2="146" y2="1690" stroke="#455a64" marker-end="url(#arrow)"/>
-  <text x="146" y="1636" text-anchor="middle" font-family="sans-serif" font-size="11">guarded_by</text>
-  <g id="ACT-DEVELOPER"><rect x="36" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Developer</text>
-    <text x="146" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-DEVELOPER</text></g>
-  <g id="ACT-PLATFORM-OPERATOR"><rect x="346" y="90" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="118" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform Operator</text>
-    <text x="456" y="137" text-anchor="middle" font-family="monospace" font-size="10">ACT-PLATFORM-OPERATOR</text></g>
-  <g id="ACT-REPOSITORY-MAINTAINER"><rect x="36" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="146" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Repository Maintainer</text>
-    <text x="146" y="235" text-anchor="middle" font-family="monospace" font-size="10">ACT-REPOSITORY-MAINTAINER</text></g>
-  <g id="ACT-SECURITY-ENGINEER"><rect x="346" y="188" width="220" height="64" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
-    <text x="456" y="216" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Security Engineer</text>
-    <text x="456" y="235" text-anchor="middle" font-family="monospace" font-size="10">ACT-SECURITY-ENGINEER</text></g>
-  <g id="CTRL-BEDROCK-WEBHOOK-SIGNATURE"><rect x="36" y="286" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Webhook Signature Verification</text>
-    <text x="146" y="333" text-anchor="middle" font-family="monospace" font-size="10">CTRL-BEDROCK-WEBHOOK-SIGNATURE</text></g>
-  <g id="DEP-BEDROCK-GITHUB-BOUNDARY"><rect x="346" y="286" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="456" y="314" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub Integration Boundary</text>
-    <text x="456" y="333" text-anchor="middle" font-family="monospace" font-size="10">DEP-BEDROCK-GITHUB-BOUNDARY</text></g>
-  <g id="DEP-BEDROCK-LAMBDA-PRIMARY"><rect x="36" y="384" width="220" height="64" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
-    <text x="146" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Primary Lambda Runtime</text>
-    <text x="146" y="431" text-anchor="middle" font-family="monospace" font-size="10">DEP-BEDROCK-LAMBDA-PRIMARY</text></g>
-  <g id="DO-BEDROCK-PR-CONTEXT"><rect x="346" y="384" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="412" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Pull Request Context</text>
-    <text x="456" y="431" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-PR-CONTEXT</text></g>
-  <g id="DO-BEDROCK-REVIEW-FINDINGS"><rect x="36" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Findings</text>
-    <text x="146" y="529" text-anchor="middle" font-family="monospace" font-size="10">DO-BEDROCK-REVIEW-FINDINGS</text></g>
-  <g id="EVT-BEDROCK-REVIEW-COMPLETED"><rect x="346" y="482" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="510" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Completed</text>
-    <text x="456" y="529" text-anchor="middle" font-family="monospace" font-size="10">EVT-BEDROCK-REVIEW-COMPLETED</text></g>
-  <g id="EVT-BEDROCK-REVIEW-REQUESTED"><rect x="36" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Requested</text>
-    <text x="146" y="627" text-anchor="middle" font-family="monospace" font-size="10">EVT-BEDROCK-REVIEW-REQUESTED</text></g>
-  <g id="FG-PLATFORM-OPERATIONS"><rect x="346" y="580" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="608" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Platform Operations</text>
-    <text x="456" y="627" text-anchor="middle" font-family="monospace" font-size="10">FG-PLATFORM-OPERATIONS</text></g>
-  <g id="FG-PR-INTEGRATION"><rect x="36" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Integration</text>
-    <text x="146" y="725" text-anchor="middle" font-family="monospace" font-size="10">FG-PR-INTEGRATION</text></g>
-  <g id="FG-REVIEW-INTELLIGENCE"><rect x="346" y="678" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="706" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Intelligence</text>
-    <text x="456" y="725" text-anchor="middle" font-family="monospace" font-size="10">FG-REVIEW-INTELLIGENCE</text></g>
-  <g id="FU-GITHUB-WEBHOOK-INGRESS"><rect x="36" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub Webhook Ingress</text>
-    <text x="146" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-GITHUB-WEBHOOK-INGRESS</text></g>
-  <g id="FU-LAMBDA-RUNTIME-OPERATIONS"><rect x="346" y="776" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="804" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Lambda Runtime Operations</text>
-    <text x="456" y="823" text-anchor="middle" font-family="monospace" font-size="10">FU-LAMBDA-RUNTIME-OPERATIONS</text></g>
-  <g id="FU-POLICY-CHECKS"><rect x="36" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Policy Checks</text>
-    <text x="146" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-POLICY-CHECKS</text></g>
-  <g id="FU-PR-CONTEXT-ASSEMBLY"><rect x="346" y="874" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="902" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Context Assembly</text>
-    <text x="456" y="921" text-anchor="middle" font-family="monospace" font-size="10">FU-PR-CONTEXT-ASSEMBLY</text></g>
-  <g id="FU-REVIEW-ORCHESTRATION"><rect x="36" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Orchestration</text>
-    <text x="146" y="1019" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-ORCHESTRATION</text></g>
-  <g id="FU-REVIEW-PUBLICATION"><rect x="346" y="972" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1000" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publication</text>
-    <text x="456" y="1019" text-anchor="middle" font-family="monospace" font-size="10">FU-REVIEW-PUBLICATION</text></g>
-  <g id="FU-SECRETS-CONFIGURATION"><rect x="36" y="1070" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Secrets and Configuration</text>
-    <text x="146" y="1117" text-anchor="middle" font-family="monospace" font-size="10">FU-SECRETS-CONFIGURATION</text></g>
-  <g id="IF-BEDROCK-REVIEW-PUBLISH-API"><rect x="346" y="1070" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="456" y="1098" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Publish API</text>
-    <text x="456" y="1117" text-anchor="middle" font-family="monospace" font-size="10">IF-BEDROCK-REVIEW-PUBLISH-API</text></g>
-  <g id="IF-BEDROCK-WEBHOOK-API"><rect x="36" y="1168" width="220" height="64" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
-    <text x="146" y="1196" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Webhook Intake API</text>
-    <text x="146" y="1215" text-anchor="middle" font-family="monospace" font-size="10">IF-BEDROCK-WEBHOOK-API</text></g>
-  <g id="REF-AWS-BEDROCK-RUNTIME"><rect x="346" y="1168" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1196" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">AWS Bedrock Runtime API</text>
-    <text x="456" y="1215" text-anchor="middle" font-family="monospace" font-size="10">REF-AWS-BEDROCK-RUNTIME</text></g>
-  <g id="REF-AWS-SDK-GO"><rect x="36" y="1266" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1294" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">AWS SDK for Go</text>
-    <text x="146" y="1313" text-anchor="middle" font-family="monospace" font-size="10">REF-AWS-SDK-GO</text></g>
-  <g id="REF-AWS-SECRETS-MANAGER"><rect x="346" y="1266" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1294" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">AWS Secrets Manager</text>
-    <text x="456" y="1313" text-anchor="middle" font-family="monospace" font-size="10">REF-AWS-SECRETS-MANAGER</text></g>
-  <g id="REF-GITHUB-APP-API"><rect x="36" y="1364" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1392" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub App API</text>
-    <text x="146" y="1411" text-anchor="middle" font-family="monospace" font-size="10">REF-GITHUB-APP-API</text></g>
-  <g id="REF-GITHUB-REST-SDK"><rect x="346" y="1364" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1392" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub REST SDK</text>
-    <text x="456" y="1411" text-anchor="middle" font-family="monospace" font-size="10">REF-GITHUB-REST-SDK</text></g>
-  <g id="REF-POLICY-RULESET"><rect x="36" y="1462" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1490" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Policy Ruleset</text>
-    <text x="146" y="1509" text-anchor="middle" font-family="monospace" font-size="10">REF-POLICY-RULESET</text></g>
-  <g id="STATE-BEDROCK-PR-RECEIVED"><rect x="346" y="1462" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1490" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">PR Received</text>
-    <text x="456" y="1509" text-anchor="middle" font-family="monospace" font-size="10">STATE-BEDROCK-PR-RECEIVED</text></g>
-  <g id="STATE-BEDROCK-REVIEW-PUBLISHED"><rect x="36" y="1560" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1588" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">Review Published</text>
-    <text x="146" y="1607" text-anchor="middle" font-family="monospace" font-size="10">STATE-BEDROCK-REVIEW-PUBLISHED</text></g>
-  <g id="TB-BEDROCK-AWS-CONTROL"><rect x="346" y="1560" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="456" y="1588" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">AWS Control Boundary</text>
-    <text x="456" y="1607" text-anchor="middle" font-family="monospace" font-size="10">TB-BEDROCK-AWS-CONTROL</text></g>
-  <g id="TB-BEDROCK-GITHUB-EXTERNAL"><rect x="36" y="1658" width="220" height="64" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
-    <text x="146" y="1686" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold">GitHub External Boundary</text>
-    <text x="146" y="1705" text-anchor="middle" font-family="monospace" font-size="10">TB-BEDROCK-GITHUB-EXTERNAL</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="VIEW-ARCHITECTURE-INTENT-title" viewBox="0 0 1960 3784" data-source="examples/bedrock-pr-review-github-app-sample/engmod.yml" data-view="VIEW-ARCHITECTURE-INTENT">
+<title id="VIEW-ARCHITECTURE-INTENT-title">VIEW-ARCHITECTURE-INTENT — architecture-intent view</title>
+<metadata>source=examples/bedrock-pr-review-github-app-sample/engmod.yml; view=VIEW-ARCHITECTURE-INTENT; kind=architecture-intent</metadata>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="36" y="30" font-family="monospace" font-size="18" font-weight="bold">VIEW-ARCHITECTURE-INTENT</text>
+<text x="1294" y="78" font-family="monospace" font-size="14" font-weight="bold">Relationships · numbered arrows point to the destination</text>
+<path data-edge="" d="M376 118 H436 V1426 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="106" width="34" height="16" rx="3" fill="white"/><text x="387" y="118" font-family="monospace" font-size="11">1</text>
+<text x="1294" y="100" font-family="monospace" font-size="12" font-weight="normal">1.</text>
+<text x="1294" y="118" font-family="monospace" font-size="12" font-weight="normal">ACT-DEVELOPER → FU-GITHUB-WEBHOOK-INGRESS</text>
+<text x="1294" y="136" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Developer push/update activity triggers pull</text>
+<text x="1294" y="154" font-family="monospace" font-size="12" font-weight="normal">request webhook events.</text>
+<path data-edge="" d="M376 208 H454 V1604 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="196" width="34" height="16" rx="3" fill="white"/><text x="387" y="208" font-family="monospace" font-size="11">2</text>
+<text x="1294" y="184" font-family="monospace" font-size="12" font-weight="normal">2.</text>
+<text x="1294" y="202" font-family="monospace" font-size="12" font-weight="normal">ACT-PLATFORM-OPERATOR → FU-LAMBDA-RUNTIME-OPERATIONS</text>
+<text x="1294" y="220" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Operates deployments, scaling controls, and runtime</text>
+<text x="1294" y="238" font-family="monospace" font-size="12" font-weight="normal">observability.</text>
+<path data-edge="" d="M376 226 H472 V2476 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="214" width="34" height="16" rx="3" fill="white"/><text x="387" y="226" font-family="monospace" font-size="11">3</text>
+<text x="1294" y="268" font-family="monospace" font-size="12" font-weight="normal">3.</text>
+<text x="1294" y="286" font-family="monospace" font-size="12" font-weight="normal">ACT-PLATFORM-OPERATOR → FU-SECRETS-CONFIGURATION</text>
+<text x="1294" y="304" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Rotates credentials and manages secure</text>
+<text x="1294" y="322" font-family="monospace" font-size="12" font-weight="normal">configuration lifecycle.</text>
+<path data-edge="" d="M376 298 H490 V2262 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="286" width="34" height="16" rx="3" fill="white"/><text x="387" y="298" font-family="monospace" font-size="11">4</text>
+<text x="1294" y="352" font-family="monospace" font-size="12" font-weight="normal">4.</text>
+<text x="1294" y="370" font-family="monospace" font-size="12" font-weight="normal">ACT-REPOSITORY-MAINTAINER → FU-REVIEW-PUBLICATION</text>
+<text x="1294" y="388" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Reviews findings and gate decisions before merge.</text>
+<path data-edge="" d="M376 388 H508 V1746 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="376" width="34" height="16" rx="3" fill="white"/><text x="387" y="388" font-family="monospace" font-size="11">5</text>
+<text x="1294" y="418" font-family="monospace" font-size="12" font-weight="normal">5.</text>
+<text x="1294" y="436" font-family="monospace" font-size="12" font-weight="normal">ACT-SECURITY-ENGINEER → FU-POLICY-CHECKS</text>
+<text x="1294" y="454" font-family="monospace" font-size="12" font-weight="normal">interacts_with: Maintains and evolves deterministic security</text>
+<text x="1294" y="472" font-family="monospace" font-size="12" font-weight="normal">checks.</text>
+<path data-edge="" d="M376 1140 H526 V1622 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1128" width="34" height="16" rx="3" fill="white"/><text x="387" y="1140" font-family="monospace" font-size="11">6</text>
+<text x="1294" y="502" font-family="monospace" font-size="12" font-weight="normal">6.</text>
+<text x="1294" y="520" font-family="monospace" font-size="12" font-weight="normal">FG-PLATFORM-OPERATIONS → FU-LAMBDA-RUNTIME-OPERATIONS</text>
+<text x="1294" y="538" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1158 H544 V2494 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1146" width="34" height="16" rx="3" fill="white"/><text x="387" y="1158" font-family="monospace" font-size="11">7</text>
+<text x="1294" y="568" font-family="monospace" font-size="12" font-weight="normal">7.</text>
+<text x="1294" y="586" font-family="monospace" font-size="12" font-weight="normal">FG-PLATFORM-OPERATIONS → FU-SECRETS-CONFIGURATION</text>
+<text x="1294" y="604" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1230 H562 V1444 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1218" width="34" height="16" rx="3" fill="white"/><text x="387" y="1230" font-family="monospace" font-size="11">8</text>
+<text x="1294" y="634" font-family="monospace" font-size="12" font-weight="normal">8.</text>
+<text x="1294" y="652" font-family="monospace" font-size="12" font-weight="normal">FG-PR-INTEGRATION → FU-GITHUB-WEBHOOK-INGRESS</text>
+<text x="1294" y="670" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1248 H580 V1870 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1236" width="34" height="16" rx="3" fill="white"/><text x="387" y="1248" font-family="monospace" font-size="11">9</text>
+<text x="1294" y="700" font-family="monospace" font-size="12" font-weight="normal">9.</text>
+<text x="1294" y="718" font-family="monospace" font-size="12" font-weight="normal">FG-PR-INTEGRATION → FU-PR-CONTEXT-ASSEMBLY</text>
+<text x="1294" y="736" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1320 H598 V1764 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1308" width="34" height="16" rx="3" fill="white"/><text x="387" y="1320" font-family="monospace" font-size="11">10</text>
+<text x="1294" y="766" font-family="monospace" font-size="12" font-weight="normal">10.</text>
+<text x="1294" y="784" font-family="monospace" font-size="12" font-weight="normal">FG-REVIEW-INTELLIGENCE → FU-POLICY-CHECKS</text>
+<text x="1294" y="802" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1338 H616 V2030 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1326" width="34" height="16" rx="3" fill="white"/><text x="387" y="1338" font-family="monospace" font-size="11">11</text>
+<text x="1294" y="832" font-family="monospace" font-size="12" font-weight="normal">11.</text>
+<text x="1294" y="850" font-family="monospace" font-size="12" font-weight="normal">FG-REVIEW-INTELLIGENCE → FU-REVIEW-ORCHESTRATION</text>
+<text x="1294" y="868" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1356 H634 V2280 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1344" width="34" height="16" rx="3" fill="white"/><text x="387" y="1356" font-family="monospace" font-size="11">12</text>
+<text x="1294" y="898" font-family="monospace" font-size="12" font-weight="normal">12.</text>
+<text x="1294" y="916" font-family="monospace" font-size="12" font-weight="normal">FG-REVIEW-INTELLIGENCE → FU-REVIEW-PUBLICATION</text>
+<text x="1294" y="934" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1462 H652 V658 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1450" width="34" height="16" rx="3" fill="white"/><text x="387" y="1462" font-family="monospace" font-size="11">13</text>
+<text x="1294" y="964" font-family="monospace" font-size="12" font-weight="normal">13.</text>
+<text x="1294" y="982" font-family="monospace" font-size="12" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS → DEP-BEDROCK-LAMBDA-PRIMARY</text>
+<text x="1294" y="1000" font-family="monospace" font-size="12" font-weight="normal">deployed_to: Webhook ingress executes in primary lambda runtime.</text>
+<path data-edge="" d="M376 1480 H670 V1888 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1468" width="34" height="16" rx="3" fill="white"/><text x="387" y="1480" font-family="monospace" font-size="11">14</text>
+<text x="1294" y="1030" font-family="monospace" font-size="12" font-weight="normal">14.</text>
+<text x="1294" y="1048" font-family="monospace" font-size="12" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS → FU-PR-CONTEXT-ASSEMBLY</text>
+<text x="1294" y="1066" font-family="monospace" font-size="12" font-weight="normal">depends_on: Forwards authenticated PR events for context assembly.</text>
+<path data-edge="" d="M376 1498 H688 V2742 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1486" width="34" height="16" rx="3" fill="white"/><text x="387" y="1498" font-family="monospace" font-size="11">15</text>
+<text x="1294" y="1096" font-family="monospace" font-size="12" font-weight="normal">15.</text>
+<text x="1294" y="1114" font-family="monospace" font-size="12" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS → IF-BEDROCK-WEBHOOK-API</text>
+<text x="1294" y="1132" font-family="monospace" font-size="12" font-weight="normal">calls: Receives webhook payload through signed API endpoint.</text>
+<path data-edge="" d="M376 1516 H706 V2760 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1504" width="34" height="16" rx="3" fill="white"/><text x="387" y="1516" font-family="monospace" font-size="11">16</text>
+<text x="1294" y="1162" font-family="monospace" font-size="12" font-weight="normal">16.</text>
+<text x="1294" y="1180" font-family="monospace" font-size="12" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS → IF-BEDROCK-WEBHOOK-API</text>
+<text x="1294" y="1198" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 1534 H724 V3676 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1522" width="34" height="16" rx="3" fill="white"/><text x="387" y="1534" font-family="monospace" font-size="11">17</text>
+<text x="1294" y="1228" font-family="monospace" font-size="12" font-weight="normal">17.</text>
+<text x="1294" y="1246" font-family="monospace" font-size="12" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS → TB-BEDROCK-GITHUB-EXTERNAL</text>
+<text x="1294" y="1264" font-family="monospace" font-size="12" font-weight="normal">bounded_by: External ingress trust boundary.</text>
+<path data-edge="" d="M376 1640 H742 V2512 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1628" width="34" height="16" rx="3" fill="white"/><text x="387" y="1640" font-family="monospace" font-size="11">18</text>
+<text x="1294" y="1294" font-family="monospace" font-size="12" font-weight="normal">18.</text>
+<text x="1294" y="1312" font-family="monospace" font-size="12" font-weight="normal">FU-LAMBDA-RUNTIME-OPERATIONS → FU-SECRETS-CONFIGURATION</text>
+<text x="1294" y="1330" font-family="monospace" font-size="12" font-weight="normal">depends_on: Requires secure runtime configuration and credential</text>
+<text x="1294" y="1348" font-family="monospace" font-size="12" font-weight="normal">access.</text>
+<path data-edge="" d="M376 1658 H760 V3012 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1646" width="34" height="16" rx="3" fill="white"/><text x="387" y="1658" font-family="monospace" font-size="11">19</text>
+<text x="1294" y="1378" font-family="monospace" font-size="12" font-weight="normal">19.</text>
+<text x="1294" y="1396" font-family="monospace" font-size="12" font-weight="normal">FU-LAMBDA-RUNTIME-OPERATIONS → REF-AWS-SECRETS-MANAGER</text>
+<text x="1294" y="1414" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses managed secret store for runtime credentials.</text>
+<path data-edge="" d="M376 1676 H778 V3586 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1664" width="34" height="16" rx="3" fill="white"/><text x="387" y="1676" font-family="monospace" font-size="11">20</text>
+<text x="1294" y="1444" font-family="monospace" font-size="12" font-weight="normal">20.</text>
+<text x="1294" y="1462" font-family="monospace" font-size="12" font-weight="normal">FU-LAMBDA-RUNTIME-OPERATIONS → TB-BEDROCK-AWS-CONTROL</text>
+<text x="1294" y="1480" font-family="monospace" font-size="12" font-weight="normal">bounded_by: Runtime platform control boundary.</text>
+<path data-edge="" d="M376 1782 H796 V3282 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1770" width="34" height="16" rx="3" fill="white"/><text x="387" y="1782" font-family="monospace" font-size="11">21</text>
+<text x="1294" y="1510" font-family="monospace" font-size="12" font-weight="normal">21.</text>
+<text x="1294" y="1528" font-family="monospace" font-size="12" font-weight="normal">FU-POLICY-CHECKS → REF-POLICY-RULESET</text>
+<text x="1294" y="1546" font-family="monospace" font-size="12" font-weight="normal">depends_on: Evaluates repository policy and risk rules.</text>
+<path data-edge="" d="M376 1906 H814 V748 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1894" width="34" height="16" rx="3" fill="white"/><text x="387" y="1906" font-family="monospace" font-size="11">22</text>
+<text x="1294" y="1576" font-family="monospace" font-size="12" font-weight="normal">22.</text>
+<text x="1294" y="1594" font-family="monospace" font-size="12" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY → DO-BEDROCK-PR-CONTEXT</text>
+<text x="1294" y="1612" font-family="monospace" font-size="12" font-weight="normal">writes: Persists normalized context payload.</text>
+<path data-edge="" d="M376 1924 H832 V2048 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1912" width="34" height="16" rx="3" fill="white"/><text x="387" y="1924" font-family="monospace" font-size="11">23</text>
+<text x="1294" y="1642" font-family="monospace" font-size="12" font-weight="normal">23.</text>
+<text x="1294" y="1660" font-family="monospace" font-size="12" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY → FU-REVIEW-ORCHESTRATION</text>
+<text x="1294" y="1678" font-family="monospace" font-size="12" font-weight="normal">depends_on: Sends normalized review context.</text>
+<path data-edge="" d="M376 1942 H850 V3102 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1930" width="34" height="16" rx="3" fill="white"/><text x="387" y="1942" font-family="monospace" font-size="11">24</text>
+<text x="1294" y="1708" font-family="monospace" font-size="12" font-weight="normal">24.</text>
+<text x="1294" y="1726" font-family="monospace" font-size="12" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY → REF-GITHUB-APP-API</text>
+<text x="1294" y="1744" font-family="monospace" font-size="12" font-weight="normal">depends_on: Fetches pull request files and metadata.</text>
+<path data-edge="" d="M376 1960 H868 V3192 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="1948" width="34" height="16" rx="3" fill="white"/><text x="387" y="1960" font-family="monospace" font-size="11">25</text>
+<text x="1294" y="1774" font-family="monospace" font-size="12" font-weight="normal">25.</text>
+<text x="1294" y="1792" font-family="monospace" font-size="12" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY → REF-GITHUB-REST-SDK</text>
+<text x="1294" y="1810" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses the GitHub REST SDK to fetch pull request files</text>
+<text x="1294" y="1828" font-family="monospace" font-size="12" font-weight="normal">and metadata.</text>
+<path data-edge="" d="M376 2066 H886 V676 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2054" width="34" height="16" rx="3" fill="white"/><text x="387" y="2066" font-family="monospace" font-size="11">26</text>
+<text x="1294" y="1858" font-family="monospace" font-size="12" font-weight="normal">26.</text>
+<text x="1294" y="1876" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DEP-BEDROCK-LAMBDA-PRIMARY</text>
+<text x="1294" y="1894" font-family="monospace" font-size="12" font-weight="normal">deployed_to: Orchestration executes in primary lambda runtime.</text>
+<path data-edge="" d="M376 2084 H904 V766 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2072" width="34" height="16" rx="3" fill="white"/><text x="387" y="2084" font-family="monospace" font-size="11">27</text>
+<text x="1294" y="1924" font-family="monospace" font-size="12" font-weight="normal">27.</text>
+<text x="1294" y="1942" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-PR-CONTEXT</text>
+<text x="1294" y="1960" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2102 H922 V784 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2090" width="34" height="16" rx="3" fill="white"/><text x="387" y="2102" font-family="monospace" font-size="11">28</text>
+<text x="1294" y="1990" font-family="monospace" font-size="12" font-weight="normal">28.</text>
+<text x="1294" y="2008" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-PR-CONTEXT</text>
+<text x="1294" y="2026" font-family="monospace" font-size="12" font-weight="normal">reads: Reads normalized context before model call.</text>
+<path data-edge="" d="M376 2120 H940 V854 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2108" width="34" height="16" rx="3" fill="white"/><text x="387" y="2120" font-family="monospace" font-size="11">29</text>
+<text x="1294" y="2056" font-family="monospace" font-size="12" font-weight="normal">29.</text>
+<text x="1294" y="2074" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="1294" y="2092" font-family="monospace" font-size="12" font-weight="normal">writes: Persists merged deterministic and AI findings.</text>
+<path data-edge="" d="M376 2138 H958 V1800 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2126" width="34" height="16" rx="3" fill="white"/><text x="387" y="2138" font-family="monospace" font-size="11">30</text>
+<text x="1294" y="2122" font-family="monospace" font-size="12" font-weight="normal">30.</text>
+<text x="1294" y="2140" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → FU-POLICY-CHECKS</text>
+<text x="1294" y="2158" font-family="monospace" font-size="12" font-weight="normal">depends_on: Merges deterministic policy findings with model output.</text>
+<path data-edge="" d="M376 2156 H976 V2298 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2144" width="34" height="16" rx="3" fill="white"/><text x="387" y="2156" font-family="monospace" font-size="11">31</text>
+<text x="1294" y="2188" font-family="monospace" font-size="12" font-weight="normal">31.</text>
+<text x="1294" y="2206" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → FU-REVIEW-PUBLICATION</text>
+<text x="1294" y="2224" font-family="monospace" font-size="12" font-weight="normal">depends_on: Submits final findings for publication.</text>
+<path data-edge="" d="M376 2174 H994 V2530 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2162" width="34" height="16" rx="3" fill="white"/><text x="387" y="2174" font-family="monospace" font-size="11">32</text>
+<text x="1294" y="2254" font-family="monospace" font-size="12" font-weight="normal">32.</text>
+<text x="1294" y="2272" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → FU-SECRETS-CONFIGURATION</text>
+<text x="1294" y="2290" font-family="monospace" font-size="12" font-weight="normal">depends_on: Retrieves model configuration and safety settings.</text>
+<path data-edge="" d="M376 2192 H1012 V2832 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2180" width="34" height="16" rx="3" fill="white"/><text x="387" y="2192" font-family="monospace" font-size="11">33</text>
+<text x="1294" y="2320" font-family="monospace" font-size="12" font-weight="normal">33.</text>
+<text x="1294" y="2338" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-ORCHESTRATION → REF-AWS-BEDROCK-RUNTIME</text>
+<text x="1294" y="2356" font-family="monospace" font-size="12" font-weight="normal">depends_on: Requests model analysis for code review findings.</text>
+<path data-edge="" d="M376 2316 H1030 V872 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2304" width="34" height="16" rx="3" fill="white"/><text x="387" y="2316" font-family="monospace" font-size="11">34</text>
+<text x="1294" y="2386" font-family="monospace" font-size="12" font-weight="normal">34.</text>
+<text x="1294" y="2404" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="1294" y="2422" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2334 H1048 V890 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2322" width="34" height="16" rx="3" fill="white"/><text x="387" y="2334" font-family="monospace" font-size="11">35</text>
+<text x="1294" y="2452" font-family="monospace" font-size="12" font-weight="normal">35.</text>
+<text x="1294" y="2470" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → DO-BEDROCK-REVIEW-FINDINGS</text>
+<text x="1294" y="2488" font-family="monospace" font-size="12" font-weight="normal">reads: Reads final findings for publication.</text>
+<path data-edge="" d="M376 2352 H1066 V2548 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2340" width="34" height="16" rx="3" fill="white"/><text x="387" y="2352" font-family="monospace" font-size="11">36</text>
+<text x="1294" y="2518" font-family="monospace" font-size="12" font-weight="normal">36.</text>
+<text x="1294" y="2536" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → FU-SECRETS-CONFIGURATION</text>
+<text x="1294" y="2554" font-family="monospace" font-size="12" font-weight="normal">depends_on: Retrieves app credentials and redaction rules.</text>
+<path data-edge="" d="M376 2370 H1084 V2636 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2358" width="34" height="16" rx="3" fill="white"/><text x="387" y="2370" font-family="monospace" font-size="11">37</text>
+<text x="1294" y="2584" font-family="monospace" font-size="12" font-weight="normal">37.</text>
+<text x="1294" y="2602" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → IF-BEDROCK-REVIEW-PUBLISH-API</text>
+<text x="1294" y="2620" font-family="monospace" font-size="12" font-weight="normal">calls: Calls publication API for check-run output.</text>
+<path data-edge="" d="M376 2388 H1102 V2654 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2376" width="34" height="16" rx="3" fill="white"/><text x="387" y="2388" font-family="monospace" font-size="11">38</text>
+<text x="1294" y="2650" font-family="monospace" font-size="12" font-weight="normal">38.</text>
+<text x="1294" y="2668" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → IF-BEDROCK-REVIEW-PUBLISH-API</text>
+<text x="1294" y="2686" font-family="monospace" font-size="12" font-weight="normal">contains</text>
+<path data-edge="" d="M376 2406 H1120 V3120 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2394" width="34" height="16" rx="3" fill="white"/><text x="387" y="2406" font-family="monospace" font-size="11">39</text>
+<text x="1294" y="2716" font-family="monospace" font-size="12" font-weight="normal">39.</text>
+<text x="1294" y="2734" font-family="monospace" font-size="12" font-weight="normal">FU-REVIEW-PUBLICATION → REF-GITHUB-APP-API</text>
+<text x="1294" y="2752" font-family="monospace" font-size="12" font-weight="normal">depends_on: Publishes check runs and inline review comments.</text>
+<path data-edge="" d="M376 2566 H1138 V2922 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2554" width="34" height="16" rx="3" fill="white"/><text x="387" y="2566" font-family="monospace" font-size="11">40</text>
+<text x="1294" y="2782" font-family="monospace" font-size="12" font-weight="normal">40.</text>
+<text x="1294" y="2800" font-family="monospace" font-size="12" font-weight="normal">FU-SECRETS-CONFIGURATION → REF-AWS-SDK-GO</text>
+<text x="1294" y="2818" font-family="monospace" font-size="12" font-weight="normal">depends_on: Uses AWS SDK for Go clients to load managed secret</text>
+<text x="1294" y="2836" font-family="monospace" font-size="12" font-weight="normal">configuration.</text>
+<path data-edge="" d="M376 2672 H1156 V568 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="2660" width="34" height="16" rx="3" fill="white"/><text x="387" y="2672" font-family="monospace" font-size="11">41</text>
+<text x="1294" y="2866" font-family="monospace" font-size="12" font-weight="normal">41.</text>
+<text x="1294" y="2884" font-family="monospace" font-size="12" font-weight="normal">IF-BEDROCK-REVIEW-PUBLISH-API → DEP-BEDROCK-GITHUB-BOUNDARY</text>
+<text x="1294" y="2902" font-family="monospace" font-size="12" font-weight="normal">deployed_to: Publication API crosses GitHub integration boundary.</text>
+<path data-edge="" d="M376 3372 H1174 V1050 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3360" width="34" height="16" rx="3" fill="white"/><text x="387" y="3372" font-family="monospace" font-size="11">42</text>
+<text x="1294" y="2932" font-family="monospace" font-size="12" font-weight="normal">42.</text>
+<text x="1294" y="2950" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-PR-RECEIVED → EVT-BEDROCK-REVIEW-REQUESTED</text>
+<text x="1294" y="2968" font-family="monospace" font-size="12" font-weight="normal">triggered_by</text>
+<path data-edge="" d="M376 3390 H1192 V3462 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3378" width="34" height="16" rx="3" fill="white"/><text x="387" y="3390" font-family="monospace" font-size="11">43</text>
+<text x="1294" y="2998" font-family="monospace" font-size="12" font-weight="normal">43.</text>
+<text x="1294" y="3016" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-PR-RECEIVED → STATE-BEDROCK-REVIEW-PUBLISHED</text>
+<text x="1294" y="3034" font-family="monospace" font-size="12" font-weight="normal">transitions_to</text>
+<path data-edge="" d="M376 3480 H1210 V478 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3468" width="34" height="16" rx="3" fill="white"/><text x="387" y="3480" font-family="monospace" font-size="11">44</text>
+<text x="1294" y="3064" font-family="monospace" font-size="12" font-weight="normal">44.</text>
+<text x="1294" y="3082" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → CTRL-BEDROCK-WEBHOOK-SIGNATURE</text>
+<text x="1294" y="3100" font-family="monospace" font-size="12" font-weight="normal">guarded_by</text>
+<path data-edge="" d="M376 3498 H1228 V960 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3486" width="34" height="16" rx="3" fill="white"/><text x="387" y="3498" font-family="monospace" font-size="11">45</text>
+<text x="1294" y="3130" font-family="monospace" font-size="12" font-weight="normal">45.</text>
+<text x="1294" y="3148" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → EVT-BEDROCK-REVIEW-COMPLETED</text>
+<text x="1294" y="3166" font-family="monospace" font-size="12" font-weight="normal">triggered_by</text>
+<path data-edge="" d="M376 3516 H1246 V3694 H376" fill="none" stroke="#78909c" marker-end="url(#arrow)"/>
+<rect x="384" y="3504" width="34" height="16" rx="3" fill="white"/><text x="387" y="3516" font-family="monospace" font-size="11">46</text>
+<text x="1294" y="3196" font-family="monospace" font-size="12" font-weight="normal">46.</text>
+<text x="1294" y="3214" font-family="monospace" font-size="12" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED → TB-BEDROCK-GITHUB-EXTERNAL</text>
+<text x="1294" y="3232" font-family="monospace" font-size="12" font-weight="normal">guarded_by</text>
+<g id="ACT-DEVELOPER"><rect x="36" y="100" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="124" font-family="monospace" font-size="13" font-weight="bold">Developer</text>
+<text x="50" y="142" font-family="monospace" font-size="11" font-weight="normal">ACT-DEVELOPER</text>
+</g>
+<g id="ACT-PLATFORM-OPERATOR"><rect x="36" y="190" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="214" font-family="monospace" font-size="13" font-weight="bold">Platform Operator</text>
+<text x="50" y="232" font-family="monospace" font-size="11" font-weight="normal">ACT-PLATFORM-OPERATOR</text>
+</g>
+<g id="ACT-REPOSITORY-MAINTAINER"><rect x="36" y="280" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="304" font-family="monospace" font-size="13" font-weight="bold">Repository Maintainer</text>
+<text x="50" y="322" font-family="monospace" font-size="11" font-weight="normal">ACT-REPOSITORY-MAINTAINER</text>
+</g>
+<g id="ACT-SECURITY-ENGINEER"><rect x="36" y="370" width="340" height="66" rx="10" fill="#fff8e1" stroke="#ef6c00" stroke-width="2"/>
+<text x="50" y="394" font-family="monospace" font-size="13" font-weight="bold">Security Engineer</text>
+<text x="50" y="412" font-family="monospace" font-size="11" font-weight="normal">ACT-SECURITY-ENGINEER</text>
+</g>
+<g id="CTRL-BEDROCK-WEBHOOK-SIGNATURE"><rect x="36" y="460" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="484" font-family="monospace" font-size="13" font-weight="bold">Webhook Signature Verification</text>
+<text x="50" y="502" font-family="monospace" font-size="11" font-weight="normal">CTRL-BEDROCK-WEBHOOK-SIGNATURE</text>
+</g>
+<g id="DEP-BEDROCK-GITHUB-BOUNDARY"><rect x="36" y="550" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="574" font-family="monospace" font-size="13" font-weight="bold">GitHub Integration Boundary</text>
+<text x="50" y="592" font-family="monospace" font-size="11" font-weight="normal">DEP-BEDROCK-GITHUB-BOUNDARY</text>
+</g>
+<g id="DEP-BEDROCK-LAMBDA-PRIMARY"><rect x="36" y="640" width="340" height="66" rx="10" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+<text x="50" y="664" font-family="monospace" font-size="13" font-weight="bold">Primary Lambda Runtime</text>
+<text x="50" y="682" font-family="monospace" font-size="11" font-weight="normal">DEP-BEDROCK-LAMBDA-PRIMARY</text>
+</g>
+<g id="DO-BEDROCK-PR-CONTEXT"><rect x="36" y="730" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="754" font-family="monospace" font-size="13" font-weight="bold">Pull Request Context</text>
+<text x="50" y="772" font-family="monospace" font-size="11" font-weight="normal">DO-BEDROCK-PR-CONTEXT</text>
+</g>
+<g id="DO-BEDROCK-REVIEW-FINDINGS"><rect x="36" y="836" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="860" font-family="monospace" font-size="13" font-weight="bold">Review Findings</text>
+<text x="50" y="878" font-family="monospace" font-size="11" font-weight="normal">DO-BEDROCK-REVIEW-FINDINGS</text>
+</g>
+<g id="EVT-BEDROCK-REVIEW-COMPLETED"><rect x="36" y="942" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="966" font-family="monospace" font-size="13" font-weight="bold">Review Completed</text>
+<text x="50" y="984" font-family="monospace" font-size="11" font-weight="normal">EVT-BEDROCK-REVIEW-COMPLETED</text>
+</g>
+<g id="EVT-BEDROCK-REVIEW-REQUESTED"><rect x="36" y="1032" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1056" font-family="monospace" font-size="13" font-weight="bold">Review Requested</text>
+<text x="50" y="1074" font-family="monospace" font-size="11" font-weight="normal">EVT-BEDROCK-REVIEW-REQUESTED</text>
+</g>
+<g id="FG-PLATFORM-OPERATIONS"><rect x="36" y="1122" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1146" font-family="monospace" font-size="13" font-weight="bold">Platform Operations</text>
+<text x="50" y="1164" font-family="monospace" font-size="11" font-weight="normal">FG-PLATFORM-OPERATIONS</text>
+</g>
+<g id="FG-PR-INTEGRATION"><rect x="36" y="1212" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1236" font-family="monospace" font-size="13" font-weight="bold">PR Integration</text>
+<text x="50" y="1254" font-family="monospace" font-size="11" font-weight="normal">FG-PR-INTEGRATION</text>
+</g>
+<g id="FG-REVIEW-INTELLIGENCE"><rect x="36" y="1302" width="340" height="82" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1326" font-family="monospace" font-size="13" font-weight="bold">Review Intelligence</text>
+<text x="50" y="1344" font-family="monospace" font-size="11" font-weight="normal">FG-REVIEW-INTELLIGENCE</text>
+</g>
+<g id="FU-GITHUB-WEBHOOK-INGRESS"><rect x="36" y="1408" width="340" height="154" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1432" font-family="monospace" font-size="13" font-weight="bold">GitHub Webhook Ingress</text>
+<text x="50" y="1450" font-family="monospace" font-size="11" font-weight="normal">FU-GITHUB-WEBHOOK-INGRESS</text>
+</g>
+<g id="FU-LAMBDA-RUNTIME-OPERATIONS"><rect x="36" y="1586" width="340" height="118" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1610" font-family="monospace" font-size="13" font-weight="bold">Lambda Runtime Operations</text>
+<text x="50" y="1628" font-family="monospace" font-size="11" font-weight="normal">FU-LAMBDA-RUNTIME-OPERATIONS</text>
+</g>
+<g id="FU-POLICY-CHECKS"><rect x="36" y="1728" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1752" font-family="monospace" font-size="13" font-weight="bold">Policy Checks</text>
+<text x="50" y="1770" font-family="monospace" font-size="11" font-weight="normal">FU-POLICY-CHECKS</text>
+</g>
+<g id="FU-PR-CONTEXT-ASSEMBLY"><rect x="36" y="1852" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="1876" font-family="monospace" font-size="13" font-weight="bold">PR Context Assembly</text>
+<text x="50" y="1894" font-family="monospace" font-size="11" font-weight="normal">FU-PR-CONTEXT-ASSEMBLY</text>
+</g>
+<g id="FU-REVIEW-ORCHESTRATION"><rect x="36" y="2012" width="340" height="208" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2036" font-family="monospace" font-size="13" font-weight="bold">Review Orchestration</text>
+<text x="50" y="2054" font-family="monospace" font-size="11" font-weight="normal">FU-REVIEW-ORCHESTRATION</text>
+</g>
+<g id="FU-REVIEW-PUBLICATION"><rect x="36" y="2244" width="340" height="190" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2268" font-family="monospace" font-size="13" font-weight="bold">Review Publication</text>
+<text x="50" y="2286" font-family="monospace" font-size="11" font-weight="normal">FU-REVIEW-PUBLICATION</text>
+</g>
+<g id="FU-SECRETS-CONFIGURATION"><rect x="36" y="2458" width="340" height="136" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2482" font-family="monospace" font-size="13" font-weight="bold">Secrets and Configuration</text>
+<text x="50" y="2500" font-family="monospace" font-size="11" font-weight="normal">FU-SECRETS-CONFIGURATION</text>
+</g>
+<g id="IF-BEDROCK-REVIEW-PUBLISH-API"><rect x="36" y="2618" width="340" height="82" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2642" font-family="monospace" font-size="13" font-weight="bold">Review Publish API</text>
+<text x="50" y="2660" font-family="monospace" font-size="11" font-weight="normal">IF-BEDROCK-REVIEW-PUBLISH-API</text>
+</g>
+<g id="IF-BEDROCK-WEBHOOK-API"><rect x="36" y="2724" width="340" height="66" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+<text x="50" y="2748" font-family="monospace" font-size="13" font-weight="bold">Webhook Intake API</text>
+<text x="50" y="2766" font-family="monospace" font-size="11" font-weight="normal">IF-BEDROCK-WEBHOOK-API</text>
+</g>
+<g id="REF-AWS-BEDROCK-RUNTIME"><rect x="36" y="2814" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2838" font-family="monospace" font-size="13" font-weight="bold">AWS Bedrock Runtime API</text>
+<text x="50" y="2856" font-family="monospace" font-size="11" font-weight="normal">REF-AWS-BEDROCK-RUNTIME</text>
+</g>
+<g id="REF-AWS-SDK-GO"><rect x="36" y="2904" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="2928" font-family="monospace" font-size="13" font-weight="bold">AWS SDK for Go</text>
+<text x="50" y="2946" font-family="monospace" font-size="11" font-weight="normal">REF-AWS-SDK-GO</text>
+</g>
+<g id="REF-AWS-SECRETS-MANAGER"><rect x="36" y="2994" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3018" font-family="monospace" font-size="13" font-weight="bold">AWS Secrets Manager</text>
+<text x="50" y="3036" font-family="monospace" font-size="11" font-weight="normal">REF-AWS-SECRETS-MANAGER</text>
+</g>
+<g id="REF-GITHUB-APP-API"><rect x="36" y="3084" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3108" font-family="monospace" font-size="13" font-weight="bold">GitHub App API</text>
+<text x="50" y="3126" font-family="monospace" font-size="11" font-weight="normal">REF-GITHUB-APP-API</text>
+</g>
+<g id="REF-GITHUB-REST-SDK"><rect x="36" y="3174" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3198" font-family="monospace" font-size="13" font-weight="bold">GitHub REST SDK</text>
+<text x="50" y="3216" font-family="monospace" font-size="11" font-weight="normal">REF-GITHUB-REST-SDK</text>
+</g>
+<g id="REF-POLICY-RULESET"><rect x="36" y="3264" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3288" font-family="monospace" font-size="13" font-weight="bold">Review Policy Ruleset</text>
+<text x="50" y="3306" font-family="monospace" font-size="11" font-weight="normal">REF-POLICY-RULESET</text>
+</g>
+<g id="STATE-BEDROCK-PR-RECEIVED"><rect x="36" y="3354" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3378" font-family="monospace" font-size="13" font-weight="bold">PR Received</text>
+<text x="50" y="3396" font-family="monospace" font-size="11" font-weight="normal">STATE-BEDROCK-PR-RECEIVED</text>
+</g>
+<g id="STATE-BEDROCK-REVIEW-PUBLISHED"><rect x="36" y="3444" width="340" height="100" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3468" font-family="monospace" font-size="13" font-weight="bold">Review Published</text>
+<text x="50" y="3486" font-family="monospace" font-size="11" font-weight="normal">STATE-BEDROCK-REVIEW-PUBLISHED</text>
+</g>
+<g id="TB-BEDROCK-AWS-CONTROL"><rect x="36" y="3568" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3592" font-family="monospace" font-size="13" font-weight="bold">AWS Control Boundary</text>
+<text x="50" y="3610" font-family="monospace" font-size="11" font-weight="normal">TB-BEDROCK-AWS-CONTROL</text>
+</g>
+<g id="TB-BEDROCK-GITHUB-EXTERNAL"><rect x="36" y="3658" width="340" height="66" rx="10" fill="#f5f5f5" stroke="#616161" stroke-width="2"/>
+<text x="50" y="3682" font-family="monospace" font-size="13" font-weight="bold">GitHub External Boundary</text>
+<text x="50" y="3700" font-family="monospace" font-size="11" font-weight="normal">TB-BEDROCK-GITHUB-EXTERNAL</text>
+</g>
 </svg>

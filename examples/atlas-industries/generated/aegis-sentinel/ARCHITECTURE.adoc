@@ -1,4 +1,5 @@
 = Aegis Sentinel Design
+:showtitle:
 :toc:
 :toclevels: 2
 :sectnums:
@@ -311,7 +312,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_AEG_001["REQ-AEG-001"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_001 -->|applies_to| FU_FU_AEG_MISSION
@@ -350,7 +351,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_AEG_002["REQ-AEG-002"]:::requirement
   FU_FU_AEG_SENSOR_FUSION["Sensor Fusion Software"]:::functional_unit
   REQC_REQ_AEG_002 -->|applies_to| FU_FU_AEG_SENSOR_FUSION
@@ -391,7 +392,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_AEG_003["REQ-AEG-003"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_003 -->|applies_to| FU_FU_AEG_MISSION
@@ -432,7 +433,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_AEG_004["REQ-AEG-004"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_004 -->|applies_to| FU_FU_AEG_MISSION
@@ -475,7 +476,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   REQC_REQ_AEG_005["REQ-AEG-005"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_005 -->|applies_to| FU_FU_AEG_MISSION
@@ -621,11 +622,13 @@ This chapter shows the system architecture across hardware and software: hardwar
 
 ==== Hardware/Software Interface View
 
+Hardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.
+
 [source,mermaid]
 ----
 flowchart LR
-  HW_AEG_RADAR["Compact Surveillance Radar"]
-  HW_AEG_OPTICAL["Stabilized Optical Sensor"]
+  HW_AEG_RADAR["HW-AEG-RADAR: Compact Surveillance Radar"]
+  HW_AEG_OPTICAL["HW-AEG-OPTICAL: Stabilized Optical Sensor"]
   HW_AEG_RADAR -->|ethernet| HW_AEG_OPTICAL
 ----
 

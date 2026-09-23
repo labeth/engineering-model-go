@@ -13,6 +13,7 @@ import (
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
 	tsgo "github.com/tree-sitter/tree-sitter-go/bindings/go"
+	tsjavascript "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
 	tsrust "github.com/tree-sitter/tree-sitter-rust/bindings/go"
 	tstypescript "github.com/tree-sitter/tree-sitter-typescript/bindings/go"
 
@@ -56,10 +57,14 @@ type languageSpec struct {
 }
 
 var supportedExt = map[string]bool{
+	".js":  true,
+	".mjs": true,
+	".cjs": true,
 	".go":  true,
 	".ts":  true,
 	".tsx": true,
 	".rs":  true,
+	".v":   true,
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -68,6 +73,11 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {
 		return nil, nil, fmt.Errorf("resolve code root: %w", err)
+	}
+
+	scanBase := absRoot
+	if info, err := os.Stat(absRoot); err == nil && !info.IsDir() {
+		scanBase = filepath.Dir(absRoot)
 	}
 
 	symbols := []Symbol{}
@@ -90,7 +100,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 		if !supportedExt[ext] {
 			return nil
 		}
-		fileSymbols, fileDiags, err := scanFile(absRoot, path)
+		fileSymbols, fileDiags, err := scanFile(scanBase, path)
 		if err != nil {
 			return err
 		}
@@ -246,10 +256,14 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 	sort.Ints(missingLines)
 	if len(missingLines) > 0 {
 		lineList := joinLineNumbers(missingLines)
+		label := "functions"
+		if strings.EqualFold(filepath.Ext(path), ".v") {
+			label = "modules"
+		}
 		diags = append(diags, validate.Diagnostic{
 			Code:     "code.missing_trlc_link",
 			Severity: validate.SeverityError,
-			Message:  fmt.Sprintf("functions missing TRLC-LINKS at lines %s", strings.ReplaceAll(lineList, ",", ", ")),
+			Message:  fmt.Sprintf("%s missing TRLC-LINKS at lines %s", label, strings.ReplaceAll(lineList, ",", ", ")),
 			Path:     fmt.Sprintf("%s:%s", relPath, lineList),
 		})
 	}
@@ -283,6 +297,9 @@ func symbolForDeclaration(d declaration, relPath string, lineNo int, line string
 // TRLC-LINKS: REQ-EMG-010
 func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, []validate.Diagnostic, error) {
 	ext := strings.ToLower(filepath.Ext(path))
+	if ext == ".v" {
+		return extractVerilogDeclarations(path, src)
+	}
 	spec, ok := treeSitterSpec(ext)
 	if !ok {
 		return nil, nil, nil, nil
@@ -319,7 +336,11 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 				commentLines[line] = true
 			}
 		}
-		if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
+		if isJavaScript(ext) {
+			if decl, ok := javascriptDeclaration(n, src); ok {
+				out = append(out, decl)
+			}
+		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
 			name := declarationName(n, src)
 			line := int(n.StartPosition().Row) + 1
 			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
@@ -347,6 +368,9 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 		}
 		return out[i].Name < out[j].Name
 	})
+	if isJavaScript(ext) {
+		return out, commentLines, javascriptDiagnostics(path, root, out), nil
+	}
 	return out, commentLines, nil, nil
 }
 
@@ -354,6 +378,8 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 // TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
 	switch ext {
+	case ".js", ".mjs", ".cjs":
+		return languageSpec{Language: sitter.NewLanguage(tsjavascript.Language())}, true
 	case ".go":
 		return languageSpec{
 			Language: sitter.NewLanguage(tsgo.Language()),

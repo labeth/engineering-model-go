@@ -12,6 +12,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -212,7 +213,7 @@ func effectiveCodeRoots(bundle model.Bundle, codeRootOption string) []string {
 	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
 		roots = append(roots, resolveSourcePath(baseDir, src))
 	}
-	return uniqueExistingDirs(roots)
+	return uniqueExistingSources(roots)
 }
 
 // scopeCodeToModel keeps only code that belongs to the model rooted at modelDir: a file
@@ -230,6 +231,17 @@ func scopeCodeToModel(items []inferredCodeItem, roots []string, modelDir string)
 		ra, err := filepath.Abs(r)
 		if err != nil {
 			continue
+		}
+		if info, err := os.Stat(ra); err == nil && !info.IsDir() {
+			for dir := filepath.Dir(ra); ; dir = filepath.Dir(dir) {
+				if info, err := os.Stat(filepath.Join(dir, "engmod.yml")); err == nil && !info.IsDir() {
+					modelRoots[dir] = true
+					break
+				}
+				if filepath.Dir(dir) == dir {
+					break
+				}
+			}
 		}
 		_ = filepath.WalkDir(ra, func(p string, d fs.DirEntry, werr error) error {
 			if werr != nil {
@@ -368,7 +380,9 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 				continue
 			}
 			if reqIDs[link] {
-				codeByReq[link] = append(codeByReq[link], TraceCodeRef{Symbol: it.Element, Path: path, Line: line})
+				if !isVerificationCodeItem(it) {
+					codeByReq[link] = append(codeByReq[link], TraceCodeRef{Symbol: it.Element, Path: path, Line: line})
+				}
 			} else {
 				dangling = append(dangling, DanglingLink{Kind: "requirement", Target: link, From: it.Source})
 			}
