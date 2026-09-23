@@ -140,7 +140,7 @@ func TestBuildFunctionalManhattanTable_SingleBand(t *testing.T) {
 	if strings.Contains(out, "*FG Columns ") {
 		t.Fatalf("single-band layout should not include band headings")
 	}
-	if got := strings.Count(out, `<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;`); got != 1 {
+	if got := strings.Count(out, `<svg `); got != 1 {
 		t.Fatalf("expected exactly one html table, got %d", got)
 	}
 	for i := 1; i <= 4; i++ {
@@ -158,22 +158,13 @@ func TestBuildFunctionalManhattanTable_SingleBand(t *testing.T) {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func TestBuildFunctionalManhattanTable_MultiBandIncludesAllColumnsAndUnits(t *testing.T) {
+func TestBuildFunctionalManhattanTable_CompleteOverviewIncludesAllColumnsAndUnits(t *testing.T) {
 	a := testMatrixArchitecture(19, 20)
 
 	out := buildFunctionalManhattanTable(a)
 
-	if !strings.Contains(out, "*FG Columns 1-8*") {
-		t.Fatalf("missing first multi-band heading")
-	}
-	if !strings.Contains(out, "*FG Columns 9-16*") {
-		t.Fatalf("missing second multi-band heading")
-	}
-	if !strings.Contains(out, "*FG Columns 17-19*") {
-		t.Fatalf("missing third multi-band heading")
-	}
-	if got := strings.Count(out, `<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;`); got != 3 {
-		t.Fatalf("expected three html band tables, got %d", got)
+	if strings.Contains(out, "*FG Columns") || strings.Count(out, "<svg ") != 1 {
+		t.Fatal("all groups must share one complete vector overview")
 	}
 
 	for i := 1; i <= 19; i++ {
@@ -324,7 +315,7 @@ func TestBuildRequirementCoverageMermaid_GroupsCodeNodesByFile(t *testing.T) {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func TestBuildRequirementAlignmentCompactTable_BandsFunctionalUnitColumns(t *testing.T) {
+func TestBuildRequirementAlignmentCompactTable_KeepsAllFunctionalUnitColumnsTogether(t *testing.T) {
 	reqs := []model.Requirement{
 		{ID: "REQ-A", AppliesTo: []string{"FU-01", "FU-02", "FU-03", "FU-04", "FU-05", "FU-06", "FU-07", "FU-08", "FU-09", "FU-10"}},
 		{ID: "REQ-B", AppliesTo: []string{"FU-02", "FU-09"}},
@@ -332,20 +323,15 @@ func TestBuildRequirementAlignmentCompactTable_BandsFunctionalUnitColumns(t *tes
 
 	out := buildRequirementAlignmentCompactTable(reqs)
 
-	if !strings.Contains(out, "*Functional Unit Columns 1-7*") {
-		t.Fatalf("missing first requirement mapping band heading:\n%s", out)
+	if strings.Contains(out, "*Functional Unit Columns") || strings.Count(out, "<svg ") != 1 {
+		t.Fatal("all mappings must share one complete vector overview")
 	}
-	if !strings.Contains(out, "*Functional Unit Columns 8-10*") {
-		t.Fatalf("missing second requirement mapping band heading:\n%s", out)
+	if strings.Count(out, ">X</text>") != 12 {
+		t.Fatal("mapping lost or duplicated")
 	}
-	if got := strings.Count(out, "[cols=\""); got != 2 {
-		t.Fatalf("expected two requirement mapping tables, got %d:\n%s", got, out)
-	}
-	if strings.Contains(out, "[cols=\"2,1,1,1,1,1,1,1,1") {
-		t.Fatalf("requirement mapping table exceeded 8 total columns:\n%s", out)
-	}
+
 	for _, label := range []string{"FU-01", "FU-07", "FU-08", "FU-10"} {
-		if !strings.Contains(out, "|"+label) {
+		if !strings.Contains(out, ">"+label+"</text>") {
 			t.Fatalf("missing functional unit %s in banded requirement table:\n%s", label, out)
 		}
 	}

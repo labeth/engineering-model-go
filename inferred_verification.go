@@ -116,7 +116,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			content := string(data)
 			reqs := extractTRLCLinkedRequirements(content)
-			if ext == ".v" {
+			if ext == ".v" || ext == ".py" {
 				reqs = nil
 				symbols, rtlDiags, scanErr := codemap.Scan(path)
 				if scanErr != nil {
@@ -580,7 +580,8 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
 	base := filepath.Base(p)
-	return (strings.HasSuffix(base, ".v") && (base == "tb.v" || strings.HasPrefix(base, "tb_") || strings.HasSuffix(base, "_tb.v"))) ||
+	return (strings.HasSuffix(base, ".py") && (strings.HasPrefix(base, "test_") || strings.HasSuffix(base, "_test.py"))) ||
+		(strings.HasSuffix(base, ".v") && (base == "tb.v" || strings.HasPrefix(base, "tb_") || strings.HasSuffix(base, "_tb.v"))) ||
 		strings.HasPrefix(p, "tests/") ||
 		strings.Contains(p, "/tests/") ||
 		strings.HasSuffix(base, "_test.go") ||

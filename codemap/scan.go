@@ -14,6 +14,7 @@ import (
 	sitter "github.com/tree-sitter/go-tree-sitter"
 	tsgo "github.com/tree-sitter/tree-sitter-go/bindings/go"
 	tsjavascript "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
+	tspython "github.com/tree-sitter/tree-sitter-python/bindings/go"
 	tsrust "github.com/tree-sitter/tree-sitter-rust/bindings/go"
 	tstypescript "github.com/tree-sitter/tree-sitter-typescript/bindings/go"
 
@@ -47,6 +48,7 @@ type declaration struct {
 	Line         int
 	Signature    string
 	RequiresTRLC bool
+	LeadingLine  int
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -65,6 +67,7 @@ var supportedExt = map[string]bool{
 	".tsx": true,
 	".rs":  true,
 	".v":   true,
+	".py":  true,
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -147,7 +150,11 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 
 	declByLine := map[int]declaration{}
 	traceRequiredByLine := map[int]declaration{}
+	leadingLines := map[int]bool{}
 	for _, d := range decls {
+		for line := d.LeadingLine; line > 0 && line < d.Line; line++ {
+			leadingLines[line] = true
+		}
 		if _, exists := declByLine[d.Line]; !exists {
 			declByLine[d.Line] = d
 		}
@@ -224,7 +231,7 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		}
 
 		// Allow blank lines, comments, and annotation/decorator lines between marker and declaration.
-		if trimmed == "" || isCommentLike(trimmed) || isAttributeLike(trimmed) {
+		if trimmed == "" || isCommentLike(trimmed) || isAttributeLike(trimmed) || leadingLines[lineNo] {
 			continue
 		}
 
@@ -329,7 +336,7 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 		if n == nil {
 			return
 		}
-		if n.IsNamed() && strings.Contains(n.Kind(), "comment") {
+		if n.IsNamed() && strings.Contains(n.Kind(), "comment") && (ext != ".py" || pythonStandaloneComment(n, src)) {
 			start := int(n.StartPosition().Row) + 1
 			end := int(n.EndPosition().Row) + 1
 			for line := start; line <= end; line++ {
@@ -338,6 +345,10 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 		}
 		if isJavaScript(ext) {
 			if decl, ok := javascriptDeclaration(n, src); ok {
+				out = append(out, decl)
+			}
+		} else if ext == ".py" {
+			if decl, ok := pythonDeclaration(n, src); ok {
 				out = append(out, decl)
 			}
 		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
@@ -371,12 +382,18 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 	if isJavaScript(ext) {
 		return out, commentLines, javascriptDiagnostics(path, root, out), nil
 	}
+	if ext == ".py" && root.HasError() {
+		return out, commentLines, []validate.Diagnostic{{Code: "code.parse_error", Severity: validate.SeverityError, Path: path, Message: "Python syntax tree contains errors; declaration coverage is incomplete"}}, nil
+	}
 	return out, commentLines, nil, nil
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
+	if ext == ".py" {
+		return languageSpec{Language: sitter.NewLanguage(tspython.Language())}, true
+	}
 	switch ext {
 	case ".js", ".mjs", ".cjs":
 		return languageSpec{Language: sitter.NewLanguage(tsjavascript.Language())}, true

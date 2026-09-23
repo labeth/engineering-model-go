@@ -111,13 +111,15 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 			return projectedMappings[i].To < projectedMappings[j].To
 		})
 
+		publicationGraph, edgeKey := publicationEdgeKey(res.View.Kind, strings.TrimSpace(res.Mermaid))
 		viewSections = append(viewSections, asciidocViewSection{
 			ID:                        viewID,
 			Kind:                      res.View.Kind,
 			Heading:                   publicationViewHeading(res.View.Kind, viewID, viewKindCounts[res.View.Kind]),
 			AuthoredStatus:            normalizeAuthoredStatus(viewCfg.AuthoredStatus),
 			AuthoredStatusExplanation: normalizeAuthoredStatusExplanation(viewCfg.AuthoredStatusExplanation),
-			Mermaid:                   strings.TrimSpace(res.Mermaid),
+			Mermaid:                   publicationGraph,
+			EdgeKey:                   edgeKey,
 			Inf:                       inferredDescription(res.View.Kind),
 			ViewQuestions:             viewQuestions(res.View.Kind),
 			ProjectedNodes:            projectedNodes,

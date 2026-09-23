@@ -319,7 +319,7 @@ func scanCodeMetadata(root string) map[string]codeFileMetadata {
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" {
+		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
 			return nil
 		}
 		data, readErr := os.ReadFile(path)
@@ -333,7 +333,14 @@ func scanCodeMetadata(root string) map[string]codeFileMetadata {
 		rel = filepath.ToSlash(rel)
 		owner := "unresolved"
 		description := ""
-		for _, line := range strings.Split(string(data), "\n") {
+		var pythonComments map[int]bool
+		if ext == ".py" {
+			pythonComments, _ = codemap.CommentLines(path, data)
+		}
+		for index, line := range strings.Split(string(data), "\n") {
+			if ext == ".py" && !pythonComments[index+1] {
+				continue
+			}
 			if v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:"); ok {
 				if x := strings.TrimSpace(v); x != "" {
 					owner = x

@@ -229,6 +229,7 @@ type asciidocViewSection struct {
 	CoverageGaps              []string
 	NextActions               []string
 	Mermaid                   string
+	EdgeKey                   []map[string]string
 	FuncContextGraph          string
 	FuncDecompGraph           string
 	FuncMatrixTable           string

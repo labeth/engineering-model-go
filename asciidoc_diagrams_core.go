@@ -3,7 +3,6 @@ package engmodel
 
 import (
 	"fmt"
-	"html"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -94,53 +93,20 @@ func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
 		return "No authored requirement-to-unit mappings were found."
 	}
 
-	const maxTableColumns = 8
-	const maxFUColumnsPerBand = maxTableColumns - 1
-
-	renderBand := func(band []string) string {
-		colSpec := make([]string, 0, len(band)+1)
-		colSpec = append(colSpec, "2")
-		for range band {
-			colSpec = append(colSpec, "1")
-		}
-		lines := []string{
-			"[cols=\"" + strings.Join(colSpec, ",") + "\",options=\"header\"]",
-			"|===",
-			"|Requirement",
-		}
-		for _, fu := range band {
-			lines = append(lines, "|"+escapeTableCell(fu))
-		}
-		for _, reqID := range reqIDs {
-			lines = append(lines, "|"+escapeTableCell(reqID))
-			for _, fu := range band {
-				mark := ""
-				if appliesByReq[reqID][fu] {
-					mark = "X"
-				}
-				lines = append(lines, "|"+mark)
+	rows := [][]string{append([]string{"Requirement"}, fuIDs...)}
+	for _, id := range reqIDs {
+		row := []string{id}
+		for _, fu := range fuIDs {
+			mark := ""
+			if appliesByReq[id][fu] {
+				mark = "X"
 			}
+			row = append(row, mark)
 		}
-		lines = append(lines, "|===")
-		return strings.Join(lines, "\n")
+		rows = append(rows, row)
 	}
+	return publicationMatrixSVG(rows, false)
 
-	if len(fuIDs) <= maxFUColumnsPerBand {
-		return renderBand(fuIDs)
-	}
-
-	sections := make([]string, 0, (len(fuIDs)+maxFUColumnsPerBand-1)/maxFUColumnsPerBand)
-	for start := 0; start < len(fuIDs); start += maxFUColumnsPerBand {
-		end := start + maxFUColumnsPerBand
-		if end > len(fuIDs) {
-			end = len(fuIDs)
-		}
-		sections = append(sections,
-			fmt.Sprintf("*Functional Unit Columns %d-%d*", start+1, end),
-			renderBand(fuIDs[start:end]),
-		)
-	}
-	return strings.Join(sections, "\n\n")
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -162,7 +128,7 @@ func escapeTableCell(s string) string {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
-	lines := []string{"flowchart LR"}
+	lines := []string{"flowchart TB"}
 	for _, act := range a.Actors {
 		an := "ACT_" + sanitizeNode(act.ID)
 		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(nonEmpty(act.Name, act.ID))))
@@ -173,7 +139,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	}
 
 	lines = append(lines, "  subgraph SYSTEM_BOUNDARY[\"System Boundary (Internal)\"]")
-	lines = append(lines, "    direction LR")
+	lines = append(lines, "    direction TB")
 	groupLabelByID := map[string]string{}
 	groupOrder := make([]string, 0, len(a.FunctionalGroups))
 	for _, fg := range a.FunctionalGroups {
@@ -330,66 +296,28 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 		})
 	}
 
-	cell := func(text, bg, border, fg string) string {
-		escaped := html.EscapeString(strings.TrimSpace(text))
-		if escaped == "" {
-			return `<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>`
+	maxRows := 0
+	for _, c := range cols {
+		if len(c.Units) > maxRows {
+			maxRows = len(c.Units)
 		}
-		return fmt.Sprintf(`<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:%s;border:1px solid %s;color:%s;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">%s</div></td>`, bg, border, fg, escaped)
 	}
-
-	renderBand := func(band []fgColumn) string {
-		maxRows := 0
-		for _, c := range band {
-			if len(c.Units) > maxRows {
-				maxRows = len(c.Units)
+	rows := make([][]string, maxRows+1)
+	for row := range rows {
+		rows[row] = make([]string, len(cols))
+		for col, c := range cols {
+			if row == maxRows {
+				rows[row][col] = c.Name
+				continue
+			}
+			unit := row - (maxRows - len(c.Units))
+			if unit >= 0 {
+				rows[row][col] = nonEmpty(c.Units[unit].Name, c.Units[unit].ID)
 			}
 		}
-		lines := []string{
-			"++++",
-			`<div style="background:#f5f5f5;padding:12px;">`,
-			`<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">`,
-		}
-		for row := 0; row < maxRows; row++ {
-			lines = append(lines, "<tr>")
-			for _, c := range band {
-				label := ""
-				// Bottom-align units within each FG column so the lowest FU row is populated first.
-				offset := maxRows - len(c.Units)
-				unitIdx := row - offset
-				if unitIdx >= 0 && unitIdx < len(c.Units) {
-					label = nonEmpty(strings.TrimSpace(c.Units[unitIdx].Name), strings.TrimSpace(c.Units[unitIdx].ID))
-				}
-				lines = append(lines, cell(label, "#e3f2fd", "#0d47a1", "#0d47a1"))
-			}
-			lines = append(lines, "</tr>")
-		}
-		lines = append(lines, "<tr>")
-		for _, c := range band {
-			lines = append(lines, cell(c.Name, "#e8f5e9", "#1b5e20", "#1b5e20"))
-		}
-		lines = append(lines, "</tr>", "</table>", "</div>", "++++")
-		return strings.Join(lines, "\n")
 	}
+	return publicationMatrixSVG(rows, true)
 
-	const maxColumnsPerBand = 8
-	if len(cols) <= maxColumnsPerBand {
-		return renderBand(cols)
-	}
-
-	sections := make([]string, 0, (len(cols)+maxColumnsPerBand-1)/maxColumnsPerBand)
-	for start := 0; start < len(cols); start += maxColumnsPerBand {
-		end := start + maxColumnsPerBand
-		if end > len(cols) {
-			end = len(cols)
-		}
-		band := cols[start:end]
-		sections = append(sections,
-			fmt.Sprintf("*FG Columns %d-%d*", start+1, end),
-			renderBand(band),
-		)
-	}
-	return strings.Join(sections, "\n\n")
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -666,7 +594,7 @@ func keysSortedStringSlices(m map[string][]string) []string {
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
 func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
 	// Stack the evidence chain to fit portrait publication pages.
-	lines := []string{"flowchart TB"}
+	lines := []string{`%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%`, "flowchart TB"}
 	rtByOwner := map[string][]string{}
 	for _, r := range runtime {
 		owner := strings.TrimSpace(r.Owner)
@@ -778,7 +706,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 				cmNode := "CODE_" + sanitizeNode(r.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(cm))
 				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(cm))+"\"]:::code_element")
 				if primaryRTNode != "" {
-					lines = append(lines, "  "+primaryRTNode+" -->|implemented_by| "+cmNode)
+					lines = append(lines, "  "+primaryRTNode+" --->|implemented_by| "+cmNode)
 				} else {
 					lines = append(lines, "  "+fuNode+" -->|code evidence| "+cmNode)
 				}
@@ -817,7 +745,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 			for _, label := range groupedCodeElementEvidenceLabels(v.CodeElements, verificationCodeLabelLookup) {
 				ceNode := "VERCODE_" + sanitizeNode(r.ID+"_"+v.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(label))
 				lines = append(lines, "  "+ceNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(label))+"\"]:::code_element")
-				lines = append(lines, "  "+verNode+" -->|implemented_by| "+ceNode)
+				lines = append(lines, "  "+verNode+" --->|implemented_by| "+ceNode)
 			}
 		}
 	}
@@ -1331,6 +1259,8 @@ func languageFromPath(p string) string {
 		return "typescript"
 	case ".rs":
 		return "rust"
+	case ".py":
+		return "python"
 	default:
 		return ""
 	}

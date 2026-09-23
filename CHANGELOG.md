@@ -6,7 +6,12 @@ semantic versioning.
 
 ## [Unreleased]
 
+- Keep Manhattan and requirement alignment matrices in single scalable vector figures; keep system boundary and decomposition figures together during pagination.
+
 ### Added
+
+- Python declaration tracing with decorator-aware attachment, qualified nested names,
+  parser-based comment isolation, syntax diagnostics and Python test-file discovery.
 
 - JavaScript trace extraction for named functions, methods and directly bound
   function expressions in JavaScript, ES modules and CommonJS sources.
@@ -17,6 +22,9 @@ semantic versioning.
   allocation relationships and trust-boundary membership.
 
 ### Fixed
+
+- Reduce publication edge-label crowding with wider authored/requirement flowchart
+  spacing and numbered long deployment relationships with complete description tables.
 
 - Keep test-only requirement links separate from production implementation.
 - Preserve distinct source identities when separately scanned files share a name

@@ -12,7 +12,7 @@ It combines:
 - LOBSTER activity trace export
 - design + requirement narrative generation to AsciiDoc
 - EARS requirement preflight linting
-- code trace mapping (Go, JavaScript, TypeScript, Rust, Verilog modules)
+- code trace mapping (Go, Python, JavaScript, TypeScript, Rust, Verilog modules)
 
 YAML remains the canonical authored and persistence format, with CUE as the
 authoritative schema and cross-field constraint layer. The canonical YAML/CUE
@@ -97,6 +97,7 @@ It is not a runtime observability or incident/compliance runtime system.
   - Go
   - TypeScript/TSX
   - JavaScript (`.js`, `.mjs`, `.cjs`): named functions/generators, methods, classes and directly bound function values. Anonymous callbacks and top-level statements are not independent declarations; this does not infer classic-script load order or runtime behavior. Syntax errors and multiple declarations on one line produce errors rather than ambiguous trace credit.
+  - Python (`.py`): functions (including async and nested definitions), methods and classes. Decorated declarations retain their definition-line coordinates; multiline decorators do not detach preceding trace comments. Strings and docstrings cannot create trace or ownership markers. Syntax errors fail declaration coverage. Lambdas and top-level script effects are outside this declaration scope. `test_*.py` and `*_test.py` are verification sources, with `not-run` status until result evidence is supplied.
   - Rust
 - Lexical Verilog (`.v`) module trace extraction, with one requirement-link block per module. This does not validate HDL syntax, elaborate designs, or expand macros. Unresolved macro invocations that may affect module declarations and malformed module boundaries produce errors. Macros recognized in expression positions inside a module produce warnings requiring independent build evidence; conditional branches are all inspected. `inferenceHints.codeSources` accepts directories or individual source files. Linked `tb_*.v` and `*_tb.v` testbenches produce verification links with `not-run` status until result evidence is supplied. Test-source links do not count as production implementation in the trace matrix.
 
@@ -357,6 +358,11 @@ Each authored view and each requirement coverage graph is published as one compl
 diagram. Large diagrams scale to fit the page instead of being split into repeated
 panels. Standalone Mermaid and SVG exports preserve the same complete graph and
 can be viewed at a larger scale.
+Deployment publications shorten relationship labels longer than 32 characters to
+numbered arrows and retain their full text in a table directly below the diagram.
+Extra routing space separates keyed edges; standalone graph exports retain the
+original labels. Browser and requirement flowcharts use wider spacing to reduce
+label collisions without removing nodes or relationships.
 
 Generate the machine-readable traceability matrix:
 
