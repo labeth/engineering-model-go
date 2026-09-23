@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 semantic versioning.
 
-## [Unreleased]
+## [0.3.0] — Source tracing and hardware publications
 
 ### Added
 
