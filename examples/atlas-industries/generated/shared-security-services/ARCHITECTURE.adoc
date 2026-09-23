@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Company identity, key management, and detection services.
@@ -312,6 +319,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_SEC_001["REQ-SEC-001"]:::requirement
   FU_FU_SEC_IDENTITY["Identity Service"]:::functional_unit
@@ -351,6 +359,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_SEC_002["REQ-SEC-002"]:::requirement
   FU_FU_SEC_MONITORING["Security Monitoring"]:::functional_unit

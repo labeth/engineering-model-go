@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Reusable rugged hardware and signed <<REF_IDX-CATALOG_FU_EDGE_RUNTIME,edge runtime>>.
@@ -306,6 +313,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_EDGE_001["REQ-EDGE-001"]:::requirement
   FU_FU_EDGE_RUNTIME["Edge Runtime"]:::functional_unit
@@ -345,6 +353,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_EDGE_002["REQ-EDGE-002"]:::requirement
   FU_FU_EDGE_RUNTIME["Edge Runtime"]:::functional_unit

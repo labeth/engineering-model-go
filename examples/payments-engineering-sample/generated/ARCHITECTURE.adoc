@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 This document describes the <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> architecture using authored functional design and inferred runtime/code realization.
@@ -433,6 +440,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
 N_ACT_CUSTOMER(("Customer")):::actor
@@ -536,13 +544,16 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   ACT_ACT_CUSTOMER(("Customer")):::actor
   ACT_ACT_SUPPORT(("Support Agent")):::actor
   ACT_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
@@ -550,7 +561,7 @@ flowchart LR
   REF_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
   REF_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction LR
+    direction TB
     subgraph FGCTX_FG_PAYMENTS["Payments"]
       direction LR
       FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -600,11 +611,14 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 === System Decomposition Diagram
 
 What this diagram shows: stable capability decomposition from functional groups into functional units.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
 flowchart LR
@@ -649,6 +663,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 <<<
 === Functional Group Manhattan Matrix
@@ -656,25 +671,26 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
 
 ++++
-<div style="background:#f5f5f5;padding:12px;">
-<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Checkout Handling</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Risk Scoring</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cluster Provisioning</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Payment Authorization</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Support Review</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">GitOps Operations</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Payments</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fraud Evaluation</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Platform</div></td>
-</tr>
-</table>
-</div>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 90" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="0" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Checkout Handling</text>
+<rect x="180" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Risk Scoring</text>
+<rect x="360" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Cluster Provisioning</text>
+<rect x="0" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">Payment Authorization</text>
+<rect x="180" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">Support Review</text>
+<rect x="360" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">GitOps Operations</text>
+<rect x="0" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">Payments</text>
+<rect x="180" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">Fraud Evaluation</text>
+<rect x="360" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">Platform</text>
+</svg>
 ++++
 
 
@@ -1168,6 +1184,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-COMMUNICATION (communication)
 N_ACT_CUSTOMER(("Customer")):::actor
@@ -1228,6 +1245,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 3/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1354,19 +1372,19 @@ N_FG_PAYMENTS -->|contains| N_FU_CHECKOUT
 N_FG_PAYMENTS -->|contains| N_FU_PAYMENT_AUTHORIZATION
 N_FG_PLATFORM -->|contains| N_FU_CLUSTER_PROVISIONING
 N_FG_PLATFORM -->|contains| N_FU_GITOPS_OPERATIONS
-N_FU_CHECKOUT -->|deployed_to: Checkout workload deployment target.| N_DEP_PAYMENTS_CLUSTER_PROD
-N_FU_CHECKOUT -->|depends_on: Delegates payment authorization.| N_FU_PAYMENT_AUTHORIZATION
+N_FU_CHECKOUT --->|R1| N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_CHECKOUT --->|R2| N_FU_PAYMENT_AUTHORIZATION
 N_FU_CHECKOUT -->|contains| N_IF_PAYMENTS_CHECKOUT_API
-N_FU_GITOPS_OPERATIONS -->|depends_on: Relies on provisioned cluster and namespace baseline.| N_FU_CLUSTER_PROVISIONING
-N_FU_GITOPS_OPERATIONS -->|depends_on: Uses Helm runtime platform for release orchestration.| N_REF_HELM_PLATFORM
-N_FU_PAYMENT_AUTHORIZATION -->|deployed_to: Authorization workload deployment target.| N_DEP_PAYMENTS_CLUSTER_PROD
-N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Requests fraud scoring before final authorization.| N_FU_RISK_SCORING
-N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Escalates high-risk payments for manual review.| N_FU_SUPPORT_REVIEW
+N_FU_GITOPS_OPERATIONS --->|R3| N_FU_CLUSTER_PROVISIONING
+N_FU_GITOPS_OPERATIONS --->|R4| N_REF_HELM_PLATFORM
+N_FU_PAYMENT_AUTHORIZATION --->|R5| N_DEP_PAYMENTS_CLUSTER_PROD
+N_FU_PAYMENT_AUTHORIZATION --->|R6| N_FU_RISK_SCORING
+N_FU_PAYMENT_AUTHORIZATION --->|R7| N_FU_SUPPORT_REVIEW
 N_FU_PAYMENT_AUTHORIZATION -->|contains| N_IF_PAYMENTS_BANK_AUTH
-N_FU_PAYMENT_AUTHORIZATION -->|depends_on: Calls external bank authorization endpoint.| N_REF_BANK_GATEWAY_ENDPOINT
+N_FU_PAYMENT_AUTHORIZATION --->|R8| N_REF_BANK_GATEWAY_ENDPOINT
 N_FU_RISK_SCORING -->|contains| N_IF_PAYMENTS_RISK_SCORE_API
-N_FU_RISK_SCORING -->|depends_on: Uses external library for audit persistence.| N_REF_POSTGRES_DRIVER
-N_IF_PAYMENTS_BANK_AUTH -->|deployed_to: External authorization interface boundary target.| N_DEP_PAYMENTS_BANK_EDGE
+N_FU_RISK_SCORING --->|R9| N_REF_POSTGRES_DRIVER
+N_IF_PAYMENTS_BANK_AUTH --->|R10| N_DEP_PAYMENTS_BANK_EDGE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1389,6 +1407,34 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+.Relationship descriptions
+[cols="1,8",options="header"]
+|===
+|Arrow |Description
+
+|R1 |deployed_to: Checkout workload deployment target.
+
+|R2 |depends_on: Delegates payment authorization.
+
+|R3 |depends_on: Relies on provisioned cluster and namespace baseline.
+
+|R4 |depends_on: Uses Helm runtime platform for release orchestration.
+
+|R5 |deployed_to: Authorization workload deployment target.
+
+|R6 |depends_on: Requests fraud scoring before final authorization.
+
+|R7 |depends_on: Escalates high-risk payments for manual review.
+
+|R8 |depends_on: Calls external bank authorization endpoint.
+
+|R9 |depends_on: Uses external library for audit persistence.
+
+|R10 |deployed_to: External authorization interface boundary target.
+
+|===
+
 === Coverage Gaps
 
 Coverage summary: 5/6 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1798,6 +1844,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-SECURITY (security)
 N_AV_COMPROMISED_DEPENDENCY(("Compromised Dependency")):::attack_vector
@@ -1852,6 +1899,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 4/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2579,6 +2627,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
 N_DEP_PAYMENTS_CLUSTER_PROD["Payments Cluster Production"]:::deployment_target
@@ -2622,6 +2671,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 5/6 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2688,6 +2738,7 @@ What this diagram shows: authored lifecycle states, triggering events, guard con
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
 N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
@@ -2784,6 +2835,7 @@ What this diagram shows: authored interaction flow steps, step ordering, async m
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-INTERACTION-FLOW (interaction-flow)
 N_ACT_CUSTOMER(("Customer")):::actor
@@ -2904,59 +2956,88 @@ Coverage summary: 4/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 
 What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-[cols="2,1,1,1,1",options="header"]
-|===
-|Requirement
-|FU-CHECKOUT
-|FU-PAYMENT-AUTHORIZATION
-|FU-RISK-SCORING
-|FU-SUPPORT-REVIEW
-|REQ-PAY-001
-|X
-|X
-|
-|
-|REQ-PAY-002
-|
-|
-|X
-|
-|REQ-PAY-003
-|X
-|
-|
-|
-|REQ-PAY-004
-|
-|X
-|
-|X
-|REQ-PAY-005
-|
-|
-|X
-|
-|REQ-PAY-006
-|X
-|X
-|
-|
-|REQ-PAY-007
-|X
-|X
-|
-|
-|REQ-PAY-008
-|X
-|
-|
-|
-|REQ-PAY-009
-|
-|X
-|
-|X
-|===
+++++
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="0" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Requirement</text>
+<rect x="180" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-CHECKOUT</text>
+<rect x="360" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-PAYMENT-AUTHORIZATION</text>
+<rect x="540" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="630" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-RISK-SCORING</text>
+<rect x="720" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="810" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-SUPPORT-REVIEW</text>
+<rect x="0" y="30" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-001</text>
+<rect x="180" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-002</text>
+<rect x="180" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-003</text>
+<rect x="180" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="120" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-004</text>
+<rect x="180" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="0" y="150" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-005</text>
+<rect x="180" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="180" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-006</text>
+<rect x="180" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="210" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-007</text>
+<rect x="180" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="240" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-008</text>
+<rect x="180" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="270" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PAY-009</text>
+<rect x="180" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+</svg>
+++++
 
 === Verification Result Mapping
 
@@ -3028,6 +3109,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_001["REQ-PAY-001"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -3037,22 +3119,22 @@ flowchart TB
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
   CODE_REQ_PAY_001_CHECKOUT_API_GO["checkout_api.go: 20, 32"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_001_CHECKOUT_API_GO
+  RTC_FU_CHECKOUT_PAYMENTS --->|implemented_by| CODE_REQ_PAY_001_CHECKOUT_API_GO
   REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_CHECKOUT_API_GO
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_001 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
   CODE_REQ_PAY_001_EVENTS_RS["events.rs: 12"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_001_EVENTS_RS
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE --->|implemented_by| CODE_REQ_PAY_001_EVENTS_RS
   REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_EVENTS_RS
   CODE_REQ_PAY_001_PAYMENT_ENGINE_RS["payment_engine.rs: 15, 31"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_001_PAYMENT_ENGINE_RS
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE --->|implemented_by| CODE_REQ_PAY_001_PAYMENT_ENGINE_RS
   REQC_REQ_PAY_001 -->|code trace| CODE_REQ_PAY_001_PAYMENT_ENGINE_RS
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597["VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597 (not-run)"]:::verification
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|verifies| REQC_REQ_PAY_001
   VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML["authorized_checkout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|implemented_by| VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML
+  VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 --->|implemented_by| VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3091,6 +3173,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_002["REQ-PAY-002"]:::requirement
   FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
@@ -3100,12 +3183,12 @@ flowchart TB
   RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
   CODE_REQ_PAY_002_RISK_SCORER_TS["risk_scorer.ts: 10, 24"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_002_RISK_SCORER_TS
+  RTC_FU_RISK_SCORING_RISK --->|implemented_by| CODE_REQ_PAY_002_RISK_SCORER_TS
   REQC_REQ_PAY_002 -->|code trace| CODE_REQ_PAY_002_RISK_SCORER_TS
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_002
   VERCODE_REQ_PAY_002_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS["fraud_gate_test.rs: 6"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VERCODE_REQ_PAY_002_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD --->|implemented_by| VERCODE_REQ_PAY_002_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3144,6 +3227,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_003["REQ-PAY-003"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -3153,16 +3237,16 @@ flowchart TB
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
   CODE_REQ_PAY_003_CHECKOUT_API_GO["checkout_api.go: 44, 50"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_003_CHECKOUT_API_GO
+  RTC_FU_CHECKOUT_PAYMENTS --->|implemented_by| CODE_REQ_PAY_003_CHECKOUT_API_GO
   REQC_REQ_PAY_003 -->|code trace| CODE_REQ_PAY_003_CHECKOUT_API_GO
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE["VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE (pass)"]:::verification
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|verifies| REQC_REQ_PAY_003
   VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go: 7"]:::code_element
-  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
+  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE --->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93["VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93 (not-run)"]:::verification
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|verifies| REQC_REQ_PAY_003
   VERCODE_REQ_PAY_003_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go: 7, 15, 20"]:::code_element
-  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
+  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 --->|implemented_by| VERCODE_REQ_PAY_003_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3201,6 +3285,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_004["REQ-PAY-004"]:::requirement
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
@@ -3208,14 +3293,14 @@ flowchart TB
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
   CODE_REQ_PAY_004_PAYMENT_ENGINE_RS["payment_engine.rs: 51, 60"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_004_PAYMENT_ENGINE_RS
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE --->|implemented_by| CODE_REQ_PAY_004_PAYMENT_ENGINE_RS
   REQC_REQ_PAY_004 -->|code trace| CODE_REQ_PAY_004_PAYMENT_ENGINE_RS
   FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   REQC_REQ_PAY_004 -->|applies_to| FU_FU_SUPPORT_REVIEW
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD["VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|verifies| REQC_REQ_PAY_004
   VERCODE_REQ_PAY_004_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS["fraud_gate_test.rs: 6"]:::code_element
-  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD -->|implemented_by| VERCODE_REQ_PAY_004_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
+  VERC_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD --->|implemented_by| VERCODE_REQ_PAY_004_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD_FRAUD_GATE_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3254,6 +3339,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_005["REQ-PAY-005"]:::requirement
   FU_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
@@ -3263,15 +3349,15 @@ flowchart TB
   RTC_FU_RISK_SCORING_RISK_RISK_SCORER["risk/risk-scorer"]:::runtime_element
   FU_FU_RISK_SCORING -->|runtime evidence| RTC_FU_RISK_SCORING_RISK_RISK_SCORER
   CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS["audit_envelope.ts: 11"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS
+  RTC_FU_RISK_SCORING_RISK --->|implemented_by| CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS
   REQC_REQ_PAY_005 -->|code trace| CODE_REQ_PAY_005_AUDIT_ENVELOPE_TS
   CODE_REQ_PAY_005_RISK_SCORER_TS["risk_scorer.ts: 43, 52"]:::code_element
-  RTC_FU_RISK_SCORING_RISK -->|implemented_by| CODE_REQ_PAY_005_RISK_SCORER_TS
+  RTC_FU_RISK_SCORING_RISK --->|implemented_by| CODE_REQ_PAY_005_RISK_SCORER_TS
   REQC_REQ_PAY_005 -->|code trace| CODE_REQ_PAY_005_RISK_SCORER_TS
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2["VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2 (not-run)"]:::verification
   VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|verifies| REQC_REQ_PAY_005
   VERCODE_REQ_PAY_005_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_AUDIT_RECORD_PERSISTENCE_TEST_TS["audit_record_persistence_test.ts: 5"]:::code_element
-  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 -->|implemented_by| VERCODE_REQ_PAY_005_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_AUDIT_RECORD_PERSISTENCE_TEST_TS
+  VERC_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2 --->|implemented_by| VERCODE_REQ_PAY_005_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2_AUDIT_RECORD_PERSISTENCE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3310,6 +3396,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_006["REQ-PAY-006"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -3319,19 +3406,19 @@ flowchart TB
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
   CODE_REQ_PAY_006_CHECKOUT_API_GO["checkout_api.go: 38, 56"]:::code_element
-  RTC_FU_CHECKOUT_PAYMENTS -->|implemented_by| CODE_REQ_PAY_006_CHECKOUT_API_GO
+  RTC_FU_CHECKOUT_PAYMENTS --->|implemented_by| CODE_REQ_PAY_006_CHECKOUT_API_GO
   REQC_REQ_PAY_006 -->|code trace| CODE_REQ_PAY_006_CHECKOUT_API_GO
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit
   REQC_REQ_PAY_006 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
   CODE_REQ_PAY_006_PAYMENT_ENGINE_RS["payment_engine.rs: 40"]:::code_element
-  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE -->|implemented_by| CODE_REQ_PAY_006_PAYMENT_ENGINE_RS
+  RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE --->|implemented_by| CODE_REQ_PAY_006_PAYMENT_ENGINE_RS
   REQC_REQ_PAY_006 -->|code trace| CODE_REQ_PAY_006_PAYMENT_ENGINE_RS
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE["VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE (pass)"]:::verification
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|verifies| REQC_REQ_PAY_006
   VERCODE_REQ_PAY_006_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go: 7"]:::code_element
-  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|implemented_by| VERCODE_REQ_PAY_006_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
+  VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE --->|implemented_by| VERCODE_REQ_PAY_006_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3370,6 +3457,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_007["REQ-PAY-007"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -3420,6 +3508,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_008["REQ-PAY-008"]:::requirement
   FU_FU_CHECKOUT["Checkout Handling"]:::functional_unit
@@ -3431,7 +3520,7 @@ flowchart TB
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93["VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93 (not-run)"]:::verification
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|verifies| REQC_REQ_PAY_008
   VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go: 7, 15, 20"]:::code_element
-  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|implemented_by| VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
+  VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 --->|implemented_by| VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3470,6 +3559,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PAY_009["REQ-PAY-009"]:::requirement
   FU_FU_PAYMENT_AUTHORIZATION["Payment Authorization"]:::functional_unit

@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Bounded readiness-only example for a non-autonomous <<REF_IDX-CATALOG_FU_YAW_CONTROL,yaw damping software>> item.
@@ -314,6 +321,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-YAW-CONTROL (architecture-intent)
 N_FG_FLIGHT_CONTROL["Flight Control"]:::functional_group
@@ -341,15 +349,18 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction LR
+    direction TB
     subgraph FGCTX_FG_FLIGHT_CONTROL["Flight Control"]
       direction LR
       FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
@@ -379,11 +390,14 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 === System Decomposition Diagram
 
 What this diagram shows: stable capability decomposition from functional groups into functional units.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
 flowchart LR
@@ -414,6 +428,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 <<<
 === Functional Group Manhattan Matrix
@@ -421,16 +436,12 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
 
 ++++
-<div style="background:#f5f5f5;padding:12px;">
-<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Yaw Damping Software</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Flight Control</div></td>
-</tr>
-</table>
-</div>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 60" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="0" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Yaw Damping Software</text>
+<rect x="0" y="30" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">Flight Control</text>
+</svg>
 ++++
 
 
@@ -518,6 +529,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_YD_HLR_001["REQ-YD-HLR-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
@@ -560,6 +572,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_YD_LLR_001["REQ-YD-LLR-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit
@@ -602,6 +615,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_YD_SYS_001["REQ-YD-SYS-001"]:::requirement
   FU_FU_YAW_CONTROL["Yaw Damping Software"]:::functional_unit

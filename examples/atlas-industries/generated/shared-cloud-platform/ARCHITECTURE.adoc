@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Reusable multi-region application runtime and <<REF_IDX-ENGMODEL_TERM_EVENT,event>> services.
@@ -306,6 +313,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_CLOUD_001["REQ-CLOUD-001"]:::requirement
   FU_FU_CLOUD_RUNTIME["Cloud Runtime"]:::functional_unit
@@ -345,6 +353,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_CLOUD_002["REQ-CLOUD-002"]:::requirement
   FU_FU_CLOUD_RUNTIME["Cloud Runtime"]:::functional_unit

@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 NIST and ISO aligned company <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> baseline with verification <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>.
@@ -324,6 +331,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_001["REQ-COMP-001"]:::requirement
   FU_FU_COMP_EVIDENCE["Compliance Evidence Service"]:::functional_unit
@@ -363,6 +371,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_002["REQ-COMP-002"]:::requirement
   FU_FU_COMP_EVIDENCE["Compliance Evidence Service"]:::functional_unit
@@ -402,6 +411,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_003["REQ-COMP-003"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
@@ -441,6 +451,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_004["REQ-COMP-004"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
@@ -480,6 +491,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_005["REQ-COMP-005"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
@@ -519,6 +531,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_006["REQ-COMP-006"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
@@ -558,6 +571,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_007["REQ-COMP-007"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit
@@ -597,6 +611,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COMP_008["REQ-COMP-008"]:::requirement
   FU_FU_COMP_PEOPLE["People Security and Awareness"]:::functional_unit

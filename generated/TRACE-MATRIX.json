@@ -237,7 +237,7 @@
         {
           "symbol": "CODE-ALLDIGITS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1296
+          "line": 1224
         },
         {
           "symbol": "CODE-ANYINSET",
@@ -247,7 +247,7 @@
         {
           "symbol": "CODE-APPENDMERMAIDCLASSDEFS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 16
+          "line": 15
         },
         {
           "symbol": "CODE-APPLYREFERENCEBACKLINKS",
@@ -272,12 +272,12 @@
         {
           "symbol": "CODE-BUILDCODEOWNERSHIPMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 939
+          "line": 867
         },
         {
           "symbol": "CODE-BUILDCODEOWNERSHIPROWS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 847
+          "line": 775
         },
         {
           "symbol": "CODE-BUILDCODEREFERENCES",
@@ -302,27 +302,27 @@
         {
           "symbol": "CODE-BUILDFUNCTIONALCOLLABORATIONMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 397
+          "line": 325
         },
         {
           "symbol": "CODE-BUILDFUNCTIONALCONTEXTMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 164
+          "line": 130
         },
         {
           "symbol": "CODE-BUILDFUNCTIONALDECOMPOSITIONMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 275
+          "line": 241
         },
         {
           "symbol": "CODE-BUILDFUNCTIONALGROUPDEPENDENCYMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 467
+          "line": 395
         },
         {
           "symbol": "CODE-BUILDFUNCTIONALMANHATTANTABLE",
           "path": "asciidoc_diagrams_core.go",
-          "line": 297
+          "line": 263
         },
         {
           "symbol": "CODE-BUILDHEALTHROWS",
@@ -372,17 +372,17 @@
         {
           "symbol": "CODE-BUILDREQUIREMENTALIGNMENTCOMPACTTABLE",
           "path": "asciidoc_diagrams_core.go",
-          "line": 51
+          "line": 50
         },
         {
           "symbol": "CODE-BUILDREQUIREMENTALIGNMENTMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 22
+          "line": 21
         },
         {
           "symbol": "CODE-BUILDREQUIREMENTCOVERAGEMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 667
+          "line": 595
         },
         {
           "symbol": "CODE-BUILDRUNTIMEAPIMERMAID",
@@ -482,37 +482,37 @@
         {
           "symbol": "CODE-CODEELEMENTEVIDENCEFILEKEY",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1227
+          "line": 1155
         },
         {
           "symbol": "CODE-CODEELEMENTEVIDENCELABEL",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1085
+          "line": 1013
         },
         {
           "symbol": "CODE-CODEELEMENTEVIDENCELABELLOOKUP",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1161
+          "line": 1089
         },
         {
           "symbol": "CODE-CODEITEMDISPLAYNAME",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1032
+          "line": 960
         },
         {
           "symbol": "CODE-CODEITEMEVIDENCEELEMENT",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1064
+          "line": 992
         },
         {
           "symbol": "CODE-CODEITEMEVIDENCELABEL",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1059
+          "line": 987
         },
         {
           "symbol": "CODE-CODEITEMPATH",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1020
+          "line": 948
         },
         {
           "symbol": "CODE-COMPACTEDGELABEL",
@@ -552,12 +552,12 @@
         {
           "symbol": "CODE-ESCAPEMERMAIDLABEL",
           "path": "asciidoc_diagrams_core.go",
-          "line": 839
+          "line": 767
         },
         {
           "symbol": "CODE-ESCAPETABLECELL",
           "path": "asciidoc_diagrams_core.go",
-          "line": 156
+          "line": 122
         },
         {
           "symbol": "CODE-FINDVIEW",
@@ -567,7 +567,7 @@
         {
           "symbol": "CODE-FUNCTIONALCONTEXTINTERNALNODEID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 265
+          "line": 231
         },
         {
           "symbol": "CODE-FUNCTIONALPUBLICATIONARCHITECTURE",
@@ -597,12 +597,12 @@
         {
           "symbol": "CODE-GROUPEDCODEELEMENTEVIDENCELABELS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1107
+          "line": 1035
         },
         {
           "symbol": "CODE-GROUPEDCODEELEMENTFILELABELS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1132
+          "line": 1060
         },
         {
           "symbol": "CODE-INDEX",
@@ -617,7 +617,7 @@
         {
           "symbol": "CODE-JOINEVIDENCELINENUMBERS",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1287
+          "line": 1215
         },
         {
           "symbol": "CODE-JOINLABELEDIDS",
@@ -632,17 +632,17 @@
         {
           "symbol": "CODE-KEYSFROMSET",
           "path": "asciidoc_diagrams_core.go",
-          "line": 147
+          "line": 113
         },
         {
           "symbol": "CODE-KEYSSORTED",
           "path": "asciidoc_diagrams_core.go",
-          "line": 646
+          "line": 574
         },
         {
           "symbol": "CODE-KEYSSORTEDSTRINGSLICES",
           "path": "asciidoc_diagrams_core.go",
-          "line": 656
+          "line": 584
         },
         {
           "symbol": "CODE-KINDFORID",
@@ -657,7 +657,7 @@
         {
           "symbol": "CODE-LANGUAGEFROMPATH",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1324
+          "line": 1252
         },
         {
           "symbol": "CODE-LINKIFYTEXT",
@@ -752,7 +752,7 @@
         {
           "symbol": "CODE-MODULEFROMPATH",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1309
+          "line": 1237
         },
         {
           "symbol": "CODE-NODE",
@@ -787,7 +787,7 @@
         {
           "symbol": "CODE-PARSELINENUMBERLIST",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1257
+          "line": 1185
         },
         {
           "symbol": "CODE-PLURALIZEPHRASE",
@@ -808,6 +808,16 @@
           "symbol": "CODE-PROJECTEDVIEW",
           "path": "view/types.go",
           "line": 28
+        },
+        {
+          "symbol": "CODE-PUBLICATIONEDGEKEY",
+          "path": "asciidoc_edge_key.go",
+          "line": 10
+        },
+        {
+          "symbol": "CODE-PUBLICATIONMATRIXSVG",
+          "path": "asciidoc_matrix_svg.go",
+          "line": 12
         },
         {
           "symbol": "CODE-PUBLICATIONTESTCODE",
@@ -842,7 +852,7 @@
         {
           "symbol": "CODE-RENDERASCIIDOCTEMPLATE",
           "path": "asciidoc_template.go",
-          "line": 453
+          "line": 454
         },
         {
           "symbol": "CODE-RENDERATTACKVECTORS",
@@ -907,7 +917,7 @@
         {
           "symbol": "CODE-SANITIZENODE",
           "path": "asciidoc_diagrams_core.go",
-          "line": 829
+          "line": 757
         },
         {
           "symbol": "CODE-SANITIZESOURCEPATH",
@@ -952,12 +962,12 @@
         {
           "symbol": "CODE-SETTOSORTEDSLICE",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1340
+          "line": 1270
         },
         {
           "symbol": "CODE-SHORTLIBRARYLABEL",
           "path": "asciidoc_diagrams_core.go",
-          "line": 997
+          "line": 925
         },
         {
           "symbol": "CODE-SINGLEWORDPLURAL",
@@ -982,7 +992,7 @@
         {
           "symbol": "CODE-SPLITCODEEVIDENCEPATHLINES",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1236
+          "line": 1164
         },
         {
           "symbol": "CODE-STRING",
@@ -1012,7 +1022,7 @@
         {
           "symbol": "CODE-UNIQUEPRESERVE",
           "path": "asciidoc_diagrams_core.go",
-          "line": 1352
+          "line": 1282
         },
         {
           "symbol": "CODE-UNIQUESORTED",
@@ -1104,6 +1114,7 @@
         "VER-INF-TEST-ASCIIDOC_COMPLETE_DIAGRAM_TEST-8C18F7",
         "VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84",
         "VER-INF-TEST-ASCIIDOC_DIAGRAMS_RUNTIME_TEST-A8483D",
+        "VER-INF-TEST-ASCIIDOC_EDGE_KEY_TEST-80ED9B",
         "VER-INF-TEST-ASCIIDOC_EVIDENCE_TABLE_TEST-963640",
         "VER-INF-TEST-ASCIIDOC_LINKING_UNITS_TEST-22FDE2",
         "VER-INF-TEST-ASCIIDOC_PUBLICATION_SCOPE_TEST-1BE464",
@@ -1983,22 +1994,22 @@
         {
           "symbol": "CODE-APPENDORMERGERESULT",
           "path": "inferred_verification.go",
-          "line": 956
+          "line": 957
         },
         {
           "symbol": "CODE-APPENDUNIQUE",
           "path": "inferred_verification.go",
-          "line": 933
+          "line": 934
         },
         {
           "symbol": "CODE-APPENDUNIQUESLICE",
           "path": "inferred_verification.go",
-          "line": 947
+          "line": 948
         },
         {
           "symbol": "CODE-AUTOTRACEID",
           "path": "codemap/scan.go",
-          "line": 559
+          "line": 576
         },
         {
           "symbol": "CODE-BUILDVERIFICATIONCODEELEMENTINDEX",
@@ -2011,9 +2022,14 @@
           "line": 518
         },
         {
+          "symbol": "CODE-COMMENTLINES",
+          "path": "codemap/python.go",
+          "line": 38
+        },
+        {
           "symbol": "CODE-DECLARATIONNAME",
           "path": "codemap/scan.go",
-          "line": 443
+          "line": 460
         },
         {
           "symbol": "CODE-DEPLOYMENTARTIFACTDISPLAYPATH",
@@ -2023,12 +2039,12 @@
         {
           "symbol": "CODE-EXTRACTCODEDESCRIPTIONMARKER",
           "path": "inferred_code.go",
-          "line": 359
+          "line": 366
         },
         {
           "symbol": "CODE-EXTRACTDECLARATIONS",
           "path": "codemap/scan.go",
-          "line": 298
+          "line": 305
         },
         {
           "symbol": "CODE-EXTRACTMARKERVALUE",
@@ -2048,12 +2064,12 @@
         {
           "symbol": "CODE-EXTRACTVERIFICATIONDESCRIPTION",
           "path": "inferred_verification.go",
-          "line": 886
+          "line": 887
         },
         {
           "symbol": "CODE-EXTRACTVERIFICATIONDESCRIPTIONMARKER",
           "path": "inferred_verification.go",
-          "line": 897
+          "line": 898
         },
         {
           "symbol": "CODE-EXTRACTVERILOGDECLARATIONS",
@@ -2063,7 +2079,7 @@
         {
           "symbol": "CODE-FIRSTLINE",
           "path": "codemap/scan.go",
-          "line": 495
+          "line": 512
         },
         {
           "symbol": "CODE-FUNCTIONALUNITEXISTS",
@@ -2098,12 +2114,12 @@
         {
           "symbol": "CODE-INFERREDCODEROOTS",
           "path": "inferred_verification.go",
-          "line": 601
+          "line": 602
         },
         {
           "symbol": "CODE-INFERREDSIBLINGDIRS",
           "path": "inferred_verification.go",
-          "line": 644
+          "line": 645
         },
         {
           "symbol": "CODE-INFERRUNTIMEITEMS",
@@ -2118,12 +2134,12 @@
         {
           "symbol": "CODE-ISATTRIBUTELIKE",
           "path": "codemap/scan.go",
-          "line": 553
+          "line": 570
         },
         {
           "symbol": "CODE-ISCOMMENTLIKE",
           "path": "codemap/scan.go",
-          "line": 544
+          "line": 561
         },
         {
           "symbol": "CODE-ISDEPLOYMENTEVIDENCEPATH",
@@ -2138,7 +2154,7 @@
         {
           "symbol": "CODE-ISVERIFICATIONCODEITEM",
           "path": "inferred_code.go",
-          "line": 430
+          "line": 437
         },
         {
           "symbol": "CODE-ISVERIFICATIONTESTPATH",
@@ -2163,17 +2179,17 @@
         {
           "symbol": "CODE-JOINLINENUMBERS",
           "path": "codemap/scan.go",
-          "line": 529
+          "line": 546
         },
         {
           "symbol": "CODE-MARKERVALUE",
           "path": "codemap/scan.go",
-          "line": 507
+          "line": 524
         },
         {
           "symbol": "CODE-MERGEVERIFICATIONRESULT",
           "path": "inferred_verification.go",
-          "line": 967
+          "line": 968
         },
         {
           "symbol": "CODE-MODELROOTDIR",
@@ -2198,7 +2214,7 @@
         {
           "symbol": "CODE-NORMALIZERESULTSTATUS",
           "path": "inferred_verification.go",
-          "line": 739
+          "line": 740
         },
         {
           "symbol": "CODE-NORMALIZETERRAFORMKIND",
@@ -2208,17 +2224,17 @@
         {
           "symbol": "CODE-NORMALIZEVERIFICATIONIDENTITY",
           "path": "inferred_verification.go",
-          "line": 817
+          "line": 818
         },
         {
           "symbol": "CODE-OWNERFORPATH",
           "path": "inferred_code.go",
-          "line": 380
+          "line": 387
         },
         {
           "symbol": "CODE-OWNERSFORREQUIREMENTS",
           "path": "inferred_verification.go",
-          "line": 634
+          "line": 635
         },
         {
           "symbol": "CODE-PARSECODEDEPENDENCIES",
@@ -2281,9 +2297,19 @@
           "line": 601
         },
         {
+          "symbol": "CODE-PYTHONDECLARATION",
+          "path": "codemap/python.go",
+          "line": 10
+        },
+        {
+          "symbol": "CODE-PYTHONSTANDALONECOMMENT",
+          "path": "codemap/python.go",
+          "line": 44
+        },
+        {
           "symbol": "CODE-REQUIREMENTOWNERS",
           "path": "inferred_verification.go",
-          "line": 614
+          "line": 615
         },
         {
           "symbol": "CODE-RESOLVERUNTIMEOWNER",
@@ -2298,7 +2324,7 @@
         {
           "symbol": "CODE-SCAN",
           "path": "codemap/scan.go",
-          "line": 72
+          "line": 75
         },
         {
           "symbol": "CODE-SCANCODEMETADATA",
@@ -2308,12 +2334,12 @@
         {
           "symbol": "CODE-SCANFILE",
           "path": "codemap/scan.go",
-          "line": 130
+          "line": 133
         },
         {
           "symbol": "CODE-SELECTBESTVERIFICATIONCHECKID",
           "path": "inferred_verification.go",
-          "line": 830
+          "line": 831
         },
         {
           "symbol": "CODE-SKIPSCANDIR",
@@ -2323,27 +2349,27 @@
         {
           "symbol": "CODE-SLUGUPPER",
           "path": "codemap/scan.go",
-          "line": 571
+          "line": 588
         },
         {
           "symbol": "CODE-SOURCEROOTDIR",
           "path": "inferred_code.go",
-          "line": 403
+          "line": 410
         },
         {
           "symbol": "CODE-SPLITCSV",
           "path": "codemap/scan.go",
-          "line": 516
+          "line": 533
         },
         {
           "symbol": "CODE-SUMMARIZECHECKSTATUS",
           "path": "inferred_verification.go",
-          "line": 764
+          "line": 765
         },
         {
           "symbol": "CODE-SYMBOLFORDECLARATION",
           "path": "codemap/scan.go",
-          "line": 276
+          "line": 283
         },
         {
           "symbol": "CODE-TOKENMATCHSCORE",
@@ -2353,27 +2379,27 @@
         {
           "symbol": "CODE-TREESITTERSPEC",
           "path": "codemap/scan.go",
-          "line": 379
+          "line": 393
         },
         {
           "symbol": "CODE-UNIQUEEXISTINGDIRS",
           "path": "inferred_verification.go",
-          "line": 661
+          "line": 662
         },
         {
           "symbol": "CODE-UNIQUEEXISTINGSOURCES",
           "path": "inferred_code.go",
-          "line": 411
+          "line": 418
         },
         {
           "symbol": "CODE-UNIQUESTRINGS",
           "path": "inferred_verification.go",
-          "line": 917
+          "line": 918
         },
         {
           "symbol": "CODE-VALIDREQUIREMENTID",
           "path": "codemap/scan.go",
-          "line": 539
+          "line": 556
         },
         {
           "symbol": "CODE-VERIFICATIONCODEELEMENTSFORPATH",
@@ -2383,32 +2409,32 @@
         {
           "symbol": "CODE-VERIFICATIONDESCRIPTIONFROMRESULTARTIFACT",
           "path": "inferred_verification.go",
-          "line": 865
+          "line": 866
         },
         {
           "symbol": "CODE-VERIFICATIONIDENTITYKEYSFROMPATH",
           "path": "inferred_verification.go",
-          "line": 794
+          "line": 795
         },
         {
           "symbol": "CODE-VERIFICATIONIDFROMPATH",
           "path": "inferred_verification.go",
-          "line": 720
+          "line": 721
         },
         {
           "symbol": "CODE-VERIFICATIONKINDFROMPATH",
           "path": "inferred_verification.go",
-          "line": 684
+          "line": 685
         },
         {
           "symbol": "CODE-VERIFICATIONNAMEFROMPATH",
           "path": "inferred_verification.go",
-          "line": 702
+          "line": 703
         },
         {
           "symbol": "CODE-VERIFICATIONSTATUSRANK",
           "path": "inferred_verification.go",
-          "line": 986
+          "line": 987
         },
         {
           "symbol": "CODE-VERILOGEXPRESSIONMACROPOSITION",
@@ -2426,9 +2452,11 @@
         "VER-INF-TEST-INFERRED_CODE_TEST-3CA82E",
         "VER-INF-TEST-INFERRED_JAVASCRIPT_TEST-52EB3E",
         "VER-INF-TEST-INFERRED_LAYERS_TEST-6634AF",
+        "VER-INF-TEST-INFERRED_PYTHON_TEST-680BB5",
         "VER-INF-TEST-INFERRED_VERIFICATION_TEST-6715F6",
         "VER-INF-TEST-INFERRED_VERILOG_TEST-32D5FA",
         "VER-INF-TEST-JAVASCRIPT_TEST-4E9F26",
+        "VER-INF-TEST-PYTHON_TEST-FFAD97",
         "VER-INF-TEST-SCAN_TEST-B04F81",
         "VER-INF-TEST-VERILOG_TEST-44F499"
       ],
@@ -3596,12 +3624,12 @@
         {
           "symbol": "CODE-BUILDREQUIREMENTALIGNMENTMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 22
+          "line": 21
         },
         {
           "symbol": "CODE-BUILDREQUIREMENTCOVERAGEMERMAID",
           "path": "asciidoc_diagrams_core.go",
-          "line": 667
+          "line": 595
         },
         {
           "symbol": "CODE-COMPOSITIONDELEGATIONMERMAID",
@@ -3715,7 +3743,7 @@
         {
           "symbol": "CODE-ISVERIFICATIONCODEITEM",
           "path": "inferred_code.go",
-          "line": 430
+          "line": 437
         },
         {
           "symbol": "CODE-MAIN",
@@ -3742,6 +3770,7 @@
         "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-C6896C",
         "VER-INF-TEST-COMPOSITION_TEST-AB66B8",
         "VER-INF-TEST-INFERRED_JAVASCRIPT_TEST-52EB3E",
+        "VER-INF-TEST-INFERRED_PYTHON_TEST-680BB5",
         "VER-INF-TEST-INFERRED_VERILOG_TEST-32D5FA",
         "VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C"
       ],

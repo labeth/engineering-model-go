@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Product <<REF_IDX-ENGMODEL_TERM_MODEL,model>> for autonomous perimeter sensing and reviewed response.
@@ -312,6 +319,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_AEG_001["REQ-AEG-001"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
@@ -351,6 +359,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_AEG_002["REQ-AEG-002"]:::requirement
   FU_FU_AEG_SENSOR_FUSION["Sensor Fusion Software"]:::functional_unit
@@ -392,6 +401,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_AEG_003["REQ-AEG-003"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
@@ -433,6 +443,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_AEG_004["REQ-AEG-004"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
@@ -476,6 +487,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_AEG_005["REQ-AEG-005"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit

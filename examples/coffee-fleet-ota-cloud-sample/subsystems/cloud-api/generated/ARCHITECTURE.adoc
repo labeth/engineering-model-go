@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 The <<REF_IDX-CATALOG_SYS_CLOUD_API,cloud API subsystem>> ingests fleet telemetry, persists metrics, and drives OTA
@@ -301,6 +308,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_CLOUD_001["REQ-CLOUD-001"]:::requirement
   FU_FU_CLOUD_INGEST["Cloud Ingest"]:::functional_unit
@@ -308,7 +316,7 @@ flowchart TB
   RTC_FU_CLOUD_INGEST_RUNTIME["Cloud Ingest runtime (inferred)"]:::runtime_element
   FU_FU_CLOUD_INGEST -->|runtime evidence| RTC_FU_CLOUD_INGEST_RUNTIME
   CODE_REQ_CLOUD_001_CLOUD_API_TS["cloud_api.ts: 6"]:::code_element
-  RTC_FU_CLOUD_INGEST_RUNTIME -->|implemented_by| CODE_REQ_CLOUD_001_CLOUD_API_TS
+  RTC_FU_CLOUD_INGEST_RUNTIME --->|implemented_by| CODE_REQ_CLOUD_001_CLOUD_API_TS
   REQC_REQ_CLOUD_001 -->|code trace| CODE_REQ_CLOUD_001_CLOUD_API_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -348,6 +356,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_CLOUD_002["REQ-CLOUD-002"]:::requirement
   FU_FU_CLOUD_INGEST["Cloud Ingest"]:::functional_unit
@@ -355,7 +364,7 @@ flowchart TB
   RTC_FU_CLOUD_INGEST_RUNTIME["Cloud Ingest runtime (inferred)"]:::runtime_element
   FU_FU_CLOUD_INGEST -->|runtime evidence| RTC_FU_CLOUD_INGEST_RUNTIME
   CODE_REQ_CLOUD_002_CLOUD_API_TS["cloud_api.ts: 12"]:::code_element
-  RTC_FU_CLOUD_INGEST_RUNTIME -->|implemented_by| CODE_REQ_CLOUD_002_CLOUD_API_TS
+  RTC_FU_CLOUD_INGEST_RUNTIME --->|implemented_by| CODE_REQ_CLOUD_002_CLOUD_API_TS
   REQC_REQ_CLOUD_002 -->|code trace| CODE_REQ_CLOUD_002_CLOUD_API_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;

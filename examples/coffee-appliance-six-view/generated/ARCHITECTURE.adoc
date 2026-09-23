@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 An original compact <<REF_IDX-ENGMODEL_TERM_MODEL,model>> of a connected countertop <<REF_IDX-CATALOG_SYS_COFFEE_APPLIANCE,coffee appliance>>, authored once and projected by concern.
@@ -401,6 +408,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -530,6 +538,7 @@ class N_SW_TEMPERATURE_CONTROLLER["Temperature Controller"]
 N_SW_APPLIANCE_CONTROLLER --> N_SW_BREW_COORDINATOR : contains
 N_SW_APPLIANCE_CONTROLLER --> N_SW_TEMPERATURE_CONTROLLER : contains
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -616,6 +625,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -715,6 +725,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -783,6 +794,7 @@ N_SW_BREW_COORDINATOR->>N_SW_TEMPERATURE_CONTROLLER: request heat - QTY-BREW-TEM
 N_SW_TEMPERATURE_CONTROLLER->>N_SW_TEMPERATURE_CONTROLLER: regulate temperature - QTY-BREW-TEMPERATURE
 N_SW_BREW_COORDINATOR->>N_ACT_COFFEE_DRINKER: report ready - ITEM-BREW-STATUS
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -850,6 +862,7 @@ N_UC_PREPARE_COFFEE -.->|include| N_UC_HEAT_WATER
 classDef actor fill:#fff8e1,stroke:#ef6c00,color:#7f3600;
 classDef use_case fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
 ----
+
 === Coverage Gaps
 
 Coverage summary: No <<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional units>> are in scope for this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -905,6 +918,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COFFEE_001["REQ-COFFEE-001"]:::requirement
   FU_CAP_BREW_BEVERAGE["CAP-BREW-BEVERAGE"]:::functional_unit

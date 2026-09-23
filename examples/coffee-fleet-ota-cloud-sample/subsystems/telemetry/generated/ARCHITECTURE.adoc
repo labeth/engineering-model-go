@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 The machine <<REF_IDX-CATALOG_SYS_TELEMETRY,telemetry subsystem>> samples coffee machine sensors and reports signed
@@ -304,6 +311,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_TELEM_001["REQ-TELEM-001"]:::requirement
   FU_FU_TELEM_REPORT["Telemetry Reporting"]:::functional_unit
@@ -311,7 +319,7 @@ flowchart TB
   RTC_FU_TELEM_REPORT_RUNTIME["Telemetry Reporting runtime (inferred)"]:::runtime_element
   FU_FU_TELEM_REPORT -->|runtime evidence| RTC_FU_TELEM_REPORT_RUNTIME
   CODE_REQ_TELEM_001_TELEMETRY_RS["telemetry.rs: 12"]:::code_element
-  RTC_FU_TELEM_REPORT_RUNTIME -->|implemented_by| CODE_REQ_TELEM_001_TELEMETRY_RS
+  RTC_FU_TELEM_REPORT_RUNTIME --->|implemented_by| CODE_REQ_TELEM_001_TELEMETRY_RS
   REQC_REQ_TELEM_001 -->|code trace| CODE_REQ_TELEM_001_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -351,6 +359,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_TELEM_002["REQ-TELEM-002"]:::requirement
   FU_FU_TELEM_SAMPLE["Telemetry Sampling"]:::functional_unit
@@ -393,6 +402,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_TELEM_003["REQ-TELEM-003"]:::requirement
   FU_FU_TELEM_REPORT["Telemetry Reporting"]:::functional_unit
@@ -400,7 +410,7 @@ flowchart TB
   RTC_FU_TELEM_REPORT_RUNTIME["Telemetry Reporting runtime (inferred)"]:::runtime_element
   FU_FU_TELEM_REPORT -->|runtime evidence| RTC_FU_TELEM_REPORT_RUNTIME
   CODE_REQ_TELEM_003_TELEMETRY_RS["telemetry.rs: 27"]:::code_element
-  RTC_FU_TELEM_REPORT_RUNTIME -->|implemented_by| CODE_REQ_TELEM_003_TELEMETRY_RS
+  RTC_FU_TELEM_REPORT_RUNTIME --->|implemented_by| CODE_REQ_TELEM_003_TELEMETRY_RS
   REQC_REQ_TELEM_003 -->|code trace| CODE_REQ_TELEM_003_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;

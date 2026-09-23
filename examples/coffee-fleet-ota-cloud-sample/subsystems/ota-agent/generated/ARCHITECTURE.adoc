@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 The OTA update agent subsystem verifies and applies signed firmware on the machine,
@@ -304,6 +311,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_OTA_001["REQ-OTA-001"]:::requirement
   FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
@@ -311,7 +319,7 @@ flowchart TB
   RTC_FU_OTA_APPLY_RUNTIME["OTA Apply runtime (inferred)"]:::runtime_element
   FU_FU_OTA_APPLY -->|runtime evidence| RTC_FU_OTA_APPLY_RUNTIME
   CODE_REQ_OTA_001_OTA_AGENT_RS["ota_agent.rs: 12"]:::code_element
-  RTC_FU_OTA_APPLY_RUNTIME -->|implemented_by| CODE_REQ_OTA_001_OTA_AGENT_RS
+  RTC_FU_OTA_APPLY_RUNTIME --->|implemented_by| CODE_REQ_OTA_001_OTA_AGENT_RS
   REQC_REQ_OTA_001 -->|code trace| CODE_REQ_OTA_001_OTA_AGENT_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -351,6 +359,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_OTA_002["REQ-OTA-002"]:::requirement
   FU_FU_OTA_VERIFY["OTA Verification"]:::functional_unit
@@ -393,6 +402,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_OTA_003["REQ-OTA-003"]:::requirement
   FU_FU_OTA_APPLY["OTA Apply"]:::functional_unit
@@ -400,7 +410,7 @@ flowchart TB
   RTC_FU_OTA_APPLY_RUNTIME["OTA Apply runtime (inferred)"]:::runtime_element
   FU_FU_OTA_APPLY -->|runtime evidence| RTC_FU_OTA_APPLY_RUNTIME
   CODE_REQ_OTA_003_OTA_AGENT_RS["ota_agent.rs: 24"]:::code_element
-  RTC_FU_OTA_APPLY_RUNTIME -->|implemented_by| CODE_REQ_OTA_003_OTA_AGENT_RS
+  RTC_FU_OTA_APPLY_RUNTIME --->|implemented_by| CODE_REQ_OTA_003_OTA_AGENT_RS
   REQC_REQ_OTA_003 -->|code trace| CODE_REQ_OTA_003_OTA_AGENT_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;

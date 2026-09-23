@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 This document describes a GitHub App that reviews pull requests using AWS Bedrock and Lambda.
@@ -451,6 +458,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
 N_ACT_DEVELOPER(("Developer")):::actor
@@ -554,13 +562,16 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   ACT_ACT_DEVELOPER(("Developer")):::actor
   ACT_ACT_SECURITY_ENGINEER(("Security Engineer")):::actor
   ACT_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
@@ -572,7 +583,7 @@ flowchart LR
   REF_REF_AWS_SDK_GO["AWS SDK for Go"]:::referenced_element
   REF_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction LR
+    direction TB
     subgraph FGCTX_FG_PR_INTEGRATION["PR Integration"]
       direction LR
       FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
@@ -628,11 +639,14 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 === System Decomposition Diagram
 
 What this diagram shows: stable capability decomposition from functional groups into functional units.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
 flowchart LR
@@ -679,6 +693,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 <<<
 === Functional Group Manhattan Matrix
@@ -686,30 +701,28 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
 
 ++++
-<div style="background:#f5f5f5;padding:12px;">
-<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Policy Checks</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">GitHub Webhook Ingress</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Review Orchestration</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Lambda Runtime Operations</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">PR Context Assembly</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Review Publication</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Secrets and Configuration</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">PR Integration</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Review Intelligence</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Platform Operations</div></td>
-</tr>
-</table>
-</div>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="180" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Policy Checks</text>
+<rect x="0" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">GitHub Webhook Ingress</text>
+<rect x="180" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">Review Orchestration</text>
+<rect x="360" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="49" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Lambda Runtime Operations</text>
+<rect x="0" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">PR Context Assembly</text>
+<rect x="180" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">Review Publication</text>
+<rect x="360" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="79" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Secrets and Configuration</text>
+<rect x="0" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">PR Integration</text>
+<rect x="180" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">Review Intelligence</text>
+<rect x="360" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">Platform Operations</text>
+</svg>
 ++++
 
 
@@ -1223,6 +1236,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-COMMUNICATION (communication)
 N_ACT_DEVELOPER(("Developer")):::actor
@@ -1293,6 +1307,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1427,25 +1442,25 @@ N_FG_PR_INTEGRATION -->|contains| N_FU_PR_CONTEXT_ASSEMBLY
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_POLICY_CHECKS
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_ORCHESTRATION
 N_FG_REVIEW_INTELLIGENCE -->|contains| N_FU_REVIEW_PUBLICATION
-N_FU_GITHUB_WEBHOOK_INGRESS -->|deployed_to: Webhook ingress executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
-N_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on: Forwards authenticated PR events for context assembly.| N_FU_PR_CONTEXT_ASSEMBLY
+N_FU_GITHUB_WEBHOOK_INGRESS --->|R1| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_GITHUB_WEBHOOK_INGRESS --->|R2| N_FU_PR_CONTEXT_ASSEMBLY
 N_FU_GITHUB_WEBHOOK_INGRESS -->|contains| N_IF_BEDROCK_WEBHOOK_API
-N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Requires secure runtime configuration and credential access.| N_FU_SECRETS_CONFIGURATION
-N_FU_LAMBDA_RUNTIME_OPERATIONS -->|depends_on: Uses managed secret store for runtime credentials.| N_REF_AWS_SECRETS_MANAGER
-N_FU_POLICY_CHECKS -->|depends_on: Evaluates repository policy and risk rules.| N_REF_POLICY_RULESET
-N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Sends normalized review context.| N_FU_REVIEW_ORCHESTRATION
-N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Fetches pull request files and metadata.| N_REF_GITHUB_APP_API
-N_FU_PR_CONTEXT_ASSEMBLY -->|depends_on: Uses the GitHub REST SDK to fetch pull request files and metadata.| N_REF_GITHUB_REST_SDK
-N_FU_REVIEW_ORCHESTRATION -->|deployed_to: Orchestration executes in primary lambda runtime.| N_DEP_BEDROCK_LAMBDA_PRIMARY
-N_FU_REVIEW_ORCHESTRATION -->|depends_on: Merges deterministic policy findings with model output.| N_FU_POLICY_CHECKS
-N_FU_REVIEW_ORCHESTRATION -->|depends_on: Submits final findings for publication.| N_FU_REVIEW_PUBLICATION
-N_FU_REVIEW_ORCHESTRATION -->|depends_on: Retrieves model configuration and safety settings.| N_FU_SECRETS_CONFIGURATION
-N_FU_REVIEW_ORCHESTRATION -->|depends_on: Requests model analysis for code review findings.| N_REF_AWS_BEDROCK_RUNTIME
-N_FU_REVIEW_PUBLICATION -->|depends_on: Retrieves app credentials and redaction rules.| N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --->|R3| N_FU_SECRETS_CONFIGURATION
+N_FU_LAMBDA_RUNTIME_OPERATIONS --->|R4| N_REF_AWS_SECRETS_MANAGER
+N_FU_POLICY_CHECKS --->|R5| N_REF_POLICY_RULESET
+N_FU_PR_CONTEXT_ASSEMBLY --->|R6| N_FU_REVIEW_ORCHESTRATION
+N_FU_PR_CONTEXT_ASSEMBLY --->|R7| N_REF_GITHUB_APP_API
+N_FU_PR_CONTEXT_ASSEMBLY --->|R8| N_REF_GITHUB_REST_SDK
+N_FU_REVIEW_ORCHESTRATION --->|R9| N_DEP_BEDROCK_LAMBDA_PRIMARY
+N_FU_REVIEW_ORCHESTRATION --->|R10| N_FU_POLICY_CHECKS
+N_FU_REVIEW_ORCHESTRATION --->|R11| N_FU_REVIEW_PUBLICATION
+N_FU_REVIEW_ORCHESTRATION --->|R12| N_FU_SECRETS_CONFIGURATION
+N_FU_REVIEW_ORCHESTRATION --->|R13| N_REF_AWS_BEDROCK_RUNTIME
+N_FU_REVIEW_PUBLICATION --->|R14| N_FU_SECRETS_CONFIGURATION
 N_FU_REVIEW_PUBLICATION -->|contains| N_IF_BEDROCK_REVIEW_PUBLISH_API
-N_FU_REVIEW_PUBLICATION -->|depends_on: Publishes check runs and inline review comments.| N_REF_GITHUB_APP_API
-N_FU_SECRETS_CONFIGURATION -->|depends_on: Uses AWS SDK for Go clients to load managed secret configuration.| N_REF_AWS_SDK_GO
-N_IF_BEDROCK_REVIEW_PUBLISH_API -->|deployed_to: Publication API crosses GitHub integration boundary.| N_DEP_BEDROCK_GITHUB_BOUNDARY
+N_FU_REVIEW_PUBLICATION --->|R15| N_REF_GITHUB_APP_API
+N_FU_SECRETS_CONFIGURATION --->|R16| N_REF_AWS_SDK_GO
+N_IF_BEDROCK_REVIEW_PUBLISH_API --->|R17| N_DEP_BEDROCK_GITHUB_BOUNDARY
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1468,6 +1483,48 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+.Relationship descriptions
+[cols="1,8",options="header"]
+|===
+|Arrow |Description
+
+|R1 |deployed_to: Webhook ingress executes in primary lambda runtime.
+
+|R2 |depends_on: Forwards authenticated PR events for context assembly.
+
+|R3 |depends_on: Requires secure runtime configuration and credential access.
+
+|R4 |depends_on: Uses managed secret store for runtime credentials.
+
+|R5 |depends_on: Evaluates repository policy and risk rules.
+
+|R6 |depends_on: Sends normalized review context.
+
+|R7 |depends_on: Fetches pull request files and metadata.
+
+|R8 |depends_on: Uses the GitHub REST SDK to fetch pull request files and metadata.
+
+|R9 |deployed_to: Orchestration executes in primary lambda runtime.
+
+|R10 |depends_on: Merges deterministic policy findings with model output.
+
+|R11 |depends_on: Submits final findings for publication.
+
+|R12 |depends_on: Retrieves model configuration and safety settings.
+
+|R13 |depends_on: Requests model analysis for code review findings.
+
+|R14 |depends_on: Retrieves app credentials and redaction rules.
+
+|R15 |depends_on: Publishes check runs and inline review comments.
+
+|R16 |depends_on: Uses AWS SDK for Go clients to load managed secret configuration.
+
+|R17 |deployed_to: Publication API crosses GitHub integration boundary.
+
+|===
+
 === Coverage Gaps
 
 Coverage summary: 3/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1867,6 +1924,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-SECURITY (security)
 N_AV_PR_SPAM_ABUSE(("Pull Request Spam Abuse")):::attack_vector
@@ -1940,6 +1998,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 5/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2723,6 +2782,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
 N_DEP_BEDROCK_LAMBDA_PRIMARY["Primary Lambda Runtime"]:::deployment_target
@@ -2777,6 +2837,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2843,6 +2904,7 @@ What this diagram shows: authored lifecycle states, triggering events, guard con
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
 N_CTRL_BEDROCK_WEBHOOK_SIGNATURE[["Webhook Signature Verification"]]:::control
@@ -2939,6 +3001,7 @@ What this diagram shows: authored interaction flow steps, step ordering, async m
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-INTERACTION-FLOW (interaction-flow)
 N_ACT_DEVELOPER(("Developer")):::actor
@@ -3045,105 +3108,142 @@ Coverage summary: 4/4 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 
 What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-[cols="2,1,1,1,1,1,1,1",options="header"]
-|===
-|Requirement
-|FU-GITHUB-WEBHOOK-INGRESS
-|FU-LAMBDA-RUNTIME-OPERATIONS
-|FU-POLICY-CHECKS
-|FU-PR-CONTEXT-ASSEMBLY
-|FU-REVIEW-ORCHESTRATION
-|FU-REVIEW-PUBLICATION
-|FU-SECRETS-CONFIGURATION
-|REQ-PRR-001
-|X
-|
-|
-|
-|
-|
-|
-|REQ-PRR-002
-|X
-|
-|
-|X
-|
-|
-|
-|REQ-PRR-003
-|
-|
-|
-|
-|X
-|
-|
-|REQ-PRR-004
-|
-|
-|X
-|
-|
-|
-|
-|REQ-PRR-005
-|
-|
-|
-|
-|
-|X
-|
-|REQ-PRR-006
-|
-|
-|X
-|
-|X
-|X
-|
-|REQ-PRR-007
-|
-|
-|
-|
-|
-|X
-|X
-|REQ-PRR-008
-|X
-|
-|
-|
-|
-|X
-|
-|REQ-PRR-009
-|
-|
-|
-|
-|
-|X
-|
-|REQ-PRR-010
-|X
-|
-|
-|
-|
-|X
-|
-|REQ-PRR-011
-|
-|X
-|
-|
-|
-|
-|
-|===
+++++
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 360" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="0" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Requirement</text>
+<rect x="180" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-GITHUB-WEBHOOK-INGRESS</text>
+<rect x="360" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-LAMBDA-RUNTIME-OPERATIONS</text>
+<rect x="540" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="630" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-POLICY-CHECKS</text>
+<rect x="720" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="810" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-PR-CONTEXT-ASSEMBLY</text>
+<rect x="900" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="990" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-REVIEW-ORCHESTRATION</text>
+<rect x="1080" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="1170" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-REVIEW-PUBLICATION</text>
+<rect x="1260" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="1350" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-SECRETS-CONFIGURATION</text>
+<rect x="0" y="30" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-001</text>
+<rect x="180" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-002</text>
+<rect x="180" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-003</text>
+<rect x="180" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="990" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1080" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="120" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-004</text>
+<rect x="180" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="150" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-005</text>
+<rect x="180" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="180" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-006</text>
+<rect x="180" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="990" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1080" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="210" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-007</text>
+<rect x="180" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1350" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="0" y="240" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-008</text>
+<rect x="180" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="270" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-009</text>
+<rect x="180" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="300" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-010</text>
+<rect x="180" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="330" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="349" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-PRR-011</text>
+<rect x="180" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="349" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+</svg>
+++++
 
 === Verification Result Mapping
 
@@ -3220,6 +3320,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_001["REQ-PRR-001"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
@@ -3227,12 +3328,12 @@ flowchart TB
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO["webhook_ingress.go: 17"]:::code_element
-  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS --->|implemented_by| CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO
   REQC_REQ_PRR_001 -->|code trace| CODE_REQ_PRR_001_WEBHOOK_INGRESS_GO
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_001
   VERCODE_REQ_PRR_001_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_001_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 --->|implemented_by| VERCODE_REQ_PRR_001_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3271,6 +3372,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_002["REQ-PRR-002"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
@@ -3278,19 +3380,19 @@ flowchart TB
   RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   FU_FU_GITHUB_WEBHOOK_INGRESS -->|runtime evidence| RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
   CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO["webhook_ingress.go: 28"]:::code_element
-  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO
+  RTC_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS --->|implemented_by| CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO
   REQC_REQ_PRR_002 -->|code trace| CODE_REQ_PRR_002_WEBHOOK_INGRESS_GO
   FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
   REQC_REQ_PRR_002 -->|applies_to| FU_FU_PR_CONTEXT_ASSEMBLY
   RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME["PR Context Assembly runtime (inferred)"]:::runtime_element
   FU_FU_PR_CONTEXT_ASSEMBLY -->|runtime evidence| RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
   CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts: 9, 13"]:::code_element
-  RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS
+  RTC_FU_PR_CONTEXT_ASSEMBLY_RUNTIME --->|implemented_by| CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS
   REQC_REQ_PRR_002 -->|code trace| CODE_REQ_PRR_002_PR_CONTEXT_ASSEMBLY_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_002
   VERCODE_REQ_PRR_002_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_002_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 --->|implemented_by| VERCODE_REQ_PRR_002_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3329,6 +3431,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_003["REQ-PRR-003"]:::requirement
   FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
@@ -3336,12 +3439,12 @@ flowchart TB
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs: 11"]:::code_element
-  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR --->|implemented_by| CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS
   REQC_REQ_PRR_003 -->|code trace| CODE_REQ_PRR_003_REVIEW_ORCHESTRATOR_RS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_003
   VERCODE_REQ_PRR_003_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_003_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 --->|implemented_by| VERCODE_REQ_PRR_003_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3380,6 +3483,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_004["REQ-PRR-004"]:::requirement
   FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
@@ -3387,12 +3491,12 @@ flowchart TB
   RTC_FU_POLICY_CHECKS_RUNTIME["Policy Checks runtime (inferred)"]:::runtime_element
   FU_FU_POLICY_CHECKS -->|runtime evidence| RTC_FU_POLICY_CHECKS_RUNTIME
   CODE_REQ_PRR_004_POLICY_CHECKS_RS["policy_checks.rs: 7"]:::code_element
-  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_REQ_PRR_004_POLICY_CHECKS_RS
+  RTC_FU_POLICY_CHECKS_RUNTIME --->|implemented_by| CODE_REQ_PRR_004_POLICY_CHECKS_RS
   REQC_REQ_PRR_004 -->|code trace| CODE_REQ_PRR_004_POLICY_CHECKS_RS
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_004
   VERCODE_REQ_PRR_004_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs: 5"]:::code_element
-  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VERCODE_REQ_PRR_004_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A --->|implemented_by| VERCODE_REQ_PRR_004_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3431,6 +3535,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_005["REQ-PRR-005"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
@@ -3438,16 +3543,16 @@ flowchart TB
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 13"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER --->|implemented_by| CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_005 -->|code trace| CODE_REQ_PRR_005_REVIEW_PUBLICATION_TS
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5["VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5 (pass)"]:::verification
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_005
   VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 --->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6["VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6 (not-run)"]:::verification
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|verifies| REQC_REQ_PRR_005
   VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO["github_check_run_contract_test.go: 8"]:::code_element
-  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO
+  VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 --->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3486,6 +3591,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_006["REQ-PRR-006"]:::requirement
   FU_FU_POLICY_CHECKS["Policy Checks"]:::functional_unit
@@ -3493,14 +3599,14 @@ flowchart TB
   RTC_FU_POLICY_CHECKS_RUNTIME["Policy Checks runtime (inferred)"]:::runtime_element
   FU_FU_POLICY_CHECKS -->|runtime evidence| RTC_FU_POLICY_CHECKS_RUNTIME
   CODE_REQ_PRR_006_POLICY_CHECKS_RS["policy_checks.rs: 21"]:::code_element
-  RTC_FU_POLICY_CHECKS_RUNTIME -->|implemented_by| CODE_REQ_PRR_006_POLICY_CHECKS_RS
+  RTC_FU_POLICY_CHECKS_RUNTIME --->|implemented_by| CODE_REQ_PRR_006_POLICY_CHECKS_RS
   REQC_REQ_PRR_006 -->|code trace| CODE_REQ_PRR_006_POLICY_CHECKS_RS
   FU_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_ORCHESTRATION
   RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]:::runtime_element
   FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs: 22"]:::code_element
-  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS
+  RTC_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR --->|implemented_by| CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS
   REQC_REQ_PRR_006 -->|code trace| CODE_REQ_PRR_006_REVIEW_ORCHESTRATOR_RS
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
   REQC_REQ_PRR_006 -->|applies_to| FU_FU_REVIEW_PUBLICATION
@@ -3509,7 +3615,7 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A["VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A (pass)"]:::verification
   VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|verifies| REQC_REQ_PRR_006
   VERCODE_REQ_PRR_006_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS["policy_only_fallback_test.rs: 5"]:::code_element
-  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A -->|implemented_by| VERCODE_REQ_PRR_006_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
+  VERC_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A --->|implemented_by| VERCODE_REQ_PRR_006_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A_POLICY_ONLY_FALLBACK_TEST_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3548,6 +3654,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_007["REQ-PRR-007"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
@@ -3555,19 +3662,19 @@ flowchart TB
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 27"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER --->|implemented_by| CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_007 -->|code trace| CODE_REQ_PRR_007_REVIEW_PUBLICATION_TS
   FU_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   REQC_REQ_PRR_007 -->|applies_to| FU_FU_SECRETS_CONFIGURATION
   RTC_FU_SECRETS_CONFIGURATION_RUNTIME["Secrets and Configuration runtime (inferred)"]:::runtime_element
   FU_FU_SECRETS_CONFIGURATION -->|runtime evidence| RTC_FU_SECRETS_CONFIGURATION_RUNTIME
   CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS["secrets_configuration.ts: 7, 10"]:::code_element
-  RTC_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS
+  RTC_FU_SECRETS_CONFIGURATION_RUNTIME --->|implemented_by| CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS
   REQC_REQ_PRR_007 -->|code trace| CODE_REQ_PRR_007_SECRETS_CONFIGURATION_TS
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1["VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1 (not-run)"]:::verification
   VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|verifies| REQC_REQ_PRR_007
   VERCODE_REQ_PRR_007_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_AUDIT_REDACTION_TEST_TS["audit_redaction_test.ts: 3"]:::code_element
-  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 -->|implemented_by| VERCODE_REQ_PRR_007_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_AUDIT_REDACTION_TEST_TS
+  VERC_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1 --->|implemented_by| VERCODE_REQ_PRR_007_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1_AUDIT_REDACTION_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3606,6 +3713,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_008["REQ-PRR-008"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
@@ -3617,12 +3725,12 @@ flowchart TB
   RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]:::runtime_element
   FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS["review_publication.ts: 9, 33"]:::code_element
-  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS
+  RTC_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER --->|implemented_by| CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS
   REQC_REQ_PRR_008 -->|code trace| CODE_REQ_PRR_008_REVIEW_PUBLICATION_TS
   VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2["VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2 (pass)"]:::verification
   VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|verifies| REQC_REQ_PRR_008
   VERCODE_REQ_PRR_008_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_RATE_LIMIT_DEFERRAL_TEST_GO["rate_limit_deferral_test.go: 8"]:::code_element
-  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 -->|implemented_by| VERCODE_REQ_PRR_008_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_RATE_LIMIT_DEFERRAL_TEST_GO
+  VERC_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2 --->|implemented_by| VERCODE_REQ_PRR_008_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2_RATE_LIMIT_DEFERRAL_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3661,6 +3769,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_009["REQ-PRR-009"]:::requirement
   FU_FU_REVIEW_PUBLICATION["Review Publication"]:::functional_unit
@@ -3705,6 +3814,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_010["REQ-PRR-010"]:::requirement
   FU_FU_GITHUB_WEBHOOK_INGRESS["GitHub Webhook Ingress"]:::functional_unit
@@ -3753,6 +3863,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_PRR_011["REQ-PRR-011"]:::requirement
   FU_FU_LAMBDA_RUNTIME_OPERATIONS["Lambda Runtime Operations"]:::functional_unit
@@ -3760,7 +3871,7 @@ flowchart TB
   RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME["Lambda Runtime Operations runtime (inferred)"]:::runtime_element
   FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME
   CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go: 10"]:::code_element
-  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME -->|implemented_by| CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO
+  RTC_FU_LAMBDA_RUNTIME_OPERATIONS_RUNTIME --->|implemented_by| CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO
   REQC_REQ_PRR_011 -->|code trace| CODE_REQ_PRR_011_LAMBDA_RUNTIME_OPS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;

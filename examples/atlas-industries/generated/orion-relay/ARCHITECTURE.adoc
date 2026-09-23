@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 Product <<REF_IDX-ENGMODEL_TERM_MODEL,model>> for resilient remote store-and-forward communications.
@@ -312,6 +319,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_ORI_001["REQ-ORI-001"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
@@ -351,6 +359,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_ORI_002["REQ-ORI-002"]:::requirement
   FU_FU_ORI_LINK["Link Scheduler Software"]:::functional_unit
@@ -392,6 +401,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_ORI_003["REQ-ORI-003"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
@@ -433,6 +443,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_ORI_004["REQ-ORI-004"]:::requirement
   FU_FU_ORI_LINK["Link Scheduler Software"]:::functional_unit
@@ -476,6 +487,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_ORI_005["REQ-ORI-005"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit

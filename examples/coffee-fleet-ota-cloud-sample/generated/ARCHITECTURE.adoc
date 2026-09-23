@@ -4,6 +4,13 @@
 :toclevels: 2
 :sectnums:
 
+++++
+<style>
+.complete-system-overview { break-inside: avoid; page-break-inside: avoid; }
+.complete-system-overview svg { width: 100%; height: auto; max-height: 650px; }
+</style>
+++++
+
 == Introduction
 
 This document models connected coffee machines that send <<REF_IDX-CATALOG_TELEMETRY,telemetry>> to a <<REF_IDX-CATALOG_CENTRAL_CLOUD_SITE,central cloud site>>,
@@ -450,6 +457,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-ARCHITECTURE-INTENT (architecture-intent)
 N_ACT_BARISTA(("Barista")):::actor
@@ -554,13 +562,16 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === System Boundary Diagram
 
 What this diagram shows: explicit internal vs external scope. Functional units are inside the `System Boundary (Internal)` container, while actors and referenced dependencies are shown outside the boundary.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
-flowchart LR
+flowchart TB
   ACT_ACT_BARISTA(("Barista")):::actor
   ACT_ACT_FLEET_OPERATOR(("Fleet Operator")):::actor
   ACT_ACT_PLATFORM_OPERATOR(("Platform Operator")):::actor
@@ -572,7 +583,7 @@ flowchart LR
   REF_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
   REF_REF_CLOUD_RUNTIME_SDK["Cloud Runtime SDK"]:::referenced_element
   subgraph SYSTEM_BOUNDARY["System Boundary (Internal)"]
-    direction LR
+    direction TB
     subgraph FGCTX_FG_MACHINE_EDGE["Machine Edge"]
       direction LR
       FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
@@ -627,11 +638,14 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 === System Decomposition Diagram
 
 What this diagram shows: stable capability decomposition from functional groups into functional units.
 
+[.complete-system-overview]
+--
 [source,mermaid]
 ----
 flowchart LR
@@ -678,6 +692,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+--
 
 <<<
 === Functional Group Manhattan Matrix
@@ -685,30 +700,28 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 What this diagram shows: a table-like matrix where functional groups are the bottom row (columns) and functional units are arranged in rows above their owning group.
 
 ++++
-<div style="background:#f5f5f5;padding:12px;">
-<table style="width:100%;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin:0;border:0;outline:0;">
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fleet Ingestion API</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;background:#f5f5f5;"></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Machine Telemetry Collection</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Fleet Observability Reporting</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cloud Runtime Operations</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">OTA Update Agent</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Update Campaign Orchestration</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e3f2fd;border:1px solid #0d47a1;color:#0d47a1;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Device Identity and Secrets</div></td>
-</tr>
-<tr>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Machine Edge</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Cloud Control</div></td>
-<td style="padding:0;border:none;vertical-align:bottom;"><div style="background:#e8f5e9;border:1px solid #1b5e20;color:#1b5e20;padding:1px 3px;margin:0;display:block;text-align:center;min-height:10px;font-size:0.82em;line-height:1.02;white-space:normal;">Platform Operations</div></td>
-</tr>
-</table>
-</div>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="180" y="0" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Fleet Ingestion API</text>
+<rect x="0" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Machine Telemetry Collection</text>
+<rect x="180" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="49" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Fleet Observability Reporting</text>
+<rect x="360" y="30" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="49" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Cloud Runtime Operations</text>
+<rect x="0" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">OTA Update Agent</text>
+<rect x="180" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="270" y="79" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Update Campaign Orchestration</text>
+<rect x="360" y="60" width="180" height="30" fill="#e3f2fd" stroke="#0d47a1"/>
+<text x="450" y="79" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">Device Identity and Secrets</text>
+<rect x="0" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">Machine Edge</text>
+<rect x="180" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">Cloud Control</text>
+<rect x="360" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">Platform Operations</text>
+</svg>
 ++++
 
 
@@ -1249,6 +1262,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-COMMUNICATION (communication)
 N_ACT_BARISTA(("Barista")):::actor
@@ -1320,6 +1334,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 4/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1454,28 +1469,28 @@ N_FG_MACHINE_EDGE -->|contains| N_FU_MACHINE_TELEMETRY_COLLECTION
 N_FG_MACHINE_EDGE -->|contains| N_FU_OTA_UPDATE_AGENT
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_CLOUD_RUNTIME_OPERATIONS
 N_FG_PLATFORM_OPERATIONS -->|contains| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Requires runtime credentials and encrypted config.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_CLOUD_RUNTIME_OPERATIONS -->|depends_on: Emits platform operation and deployment events.| N_REF_CLOUD_LOGGING_SERVICE
-N_FU_FLEET_INGESTION_API -->|deployed_to: Ingestion API runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
-N_FU_FLEET_INGESTION_API -->|depends_on: Validates device identity and token claims.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_FLEET_INGESTION_API -->|depends_on: Forwards validated telemetry and machine status events.| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_CLOUD_RUNTIME_OPERATIONS --->|R1| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_CLOUD_RUNTIME_OPERATIONS --->|R2| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_FLEET_INGESTION_API --->|R3| N_DEP_COFFEE_CLOUD_PROD
+N_FU_FLEET_INGESTION_API --->|R4| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_INGESTION_API --->|R5| N_FU_FLEET_OBSERVABILITY_REPORTING
 N_FU_FLEET_INGESTION_API -->|contains| N_IF_COFFEE_TELEMETRY_INGEST
-N_FU_FLEET_INGESTION_API -->|depends_on: Uses cloud SDK clients for ingest and routing operations.| N_REF_CLOUD_RUNTIME_SDK
-N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Uses controlled credentials for audit-log writes.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_FLEET_OBSERVABILITY_REPORTING -->|depends_on: Persists telemetry, OTA outcomes, and audit records.| N_REF_CLOUD_LOGGING_SERVICE
-N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses machine identity material for authenticated publish.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Sends normalized telemetry records to ingestion API.| N_FU_FLEET_INGESTION_API
-N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Publishes telemetry payloads to cloud ingestion.| N_REF_IOT_INGEST_ENDPOINT
-N_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on: Uses MQTT client for edge publish and command channels.| N_REF_MQTT_DEVICE_SDK
-N_FU_OTA_UPDATE_AGENT -->|deployed_to: OTA agent executes on managed edge fleet.| N_DEP_COFFEE_EDGE_FLEET
-N_FU_OTA_UPDATE_AGENT -->|depends_on: Uses trust anchors for firmware and endpoint authentication.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_OTA_UPDATE_AGENT -->|depends_on: Receives OTA rollout commands and policy constraints.| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
-N_FU_OTA_UPDATE_AGENT -->|depends_on: Downloads signed firmware bundle.| N_REF_FIRMWARE_BUNDLE_STORE
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|deployed_to: Orchestration service runs in cloud production target.| N_DEP_COFFEE_CLOUD_PROD
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Uses trusted control-plane credentials.| N_FU_DEVICE_IDENTITY_SECRETS
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Emits OTA rollout and rollback events for fleet visibility.| N_FU_FLEET_OBSERVABILITY_REPORTING
+N_FU_FLEET_INGESTION_API --->|R6| N_REF_CLOUD_RUNTIME_SDK
+N_FU_FLEET_OBSERVABILITY_REPORTING --->|R7| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_FLEET_OBSERVABILITY_REPORTING --->|R8| N_REF_CLOUD_LOGGING_SERVICE
+N_FU_MACHINE_TELEMETRY_COLLECTION --->|R9| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_MACHINE_TELEMETRY_COLLECTION --->|R10| N_FU_FLEET_INGESTION_API
+N_FU_MACHINE_TELEMETRY_COLLECTION --->|R11| N_REF_IOT_INGEST_ENDPOINT
+N_FU_MACHINE_TELEMETRY_COLLECTION --->|R12| N_REF_MQTT_DEVICE_SDK
+N_FU_OTA_UPDATE_AGENT --->|R13| N_DEP_COFFEE_EDGE_FLEET
+N_FU_OTA_UPDATE_AGENT --->|R14| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_OTA_UPDATE_AGENT --->|R15| N_FU_UPDATE_CAMPAIGN_ORCHESTRATION
+N_FU_OTA_UPDATE_AGENT --->|R16| N_REF_FIRMWARE_BUNDLE_STORE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --->|R17| N_DEP_COFFEE_CLOUD_PROD
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --->|R18| N_FU_DEVICE_IDENTITY_SECRETS
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --->|R19| N_FU_FLEET_OBSERVABILITY_REPORTING
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_IF_COFFEE_OTA_COMMAND
-N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on: Verifies firmware artifact signature metadata.| N_REF_FIRMWARE_SIGNER_SERVICE
+N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --->|R20| N_REF_FIRMWARE_SIGNER_SERVICE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1498,6 +1513,54 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
+.Relationship descriptions
+[cols="1,8",options="header"]
+|===
+|Arrow |Description
+
+|R1 |depends_on: Requires runtime credentials and encrypted config.
+
+|R2 |depends_on: Emits platform operation and deployment events.
+
+|R3 |deployed_to: Ingestion API runs in cloud production target.
+
+|R4 |depends_on: Validates device identity and token claims.
+
+|R5 |depends_on: Forwards validated telemetry and machine status events.
+
+|R6 |depends_on: Uses cloud SDK clients for ingest and routing operations.
+
+|R7 |depends_on: Uses controlled credentials for audit-log writes.
+
+|R8 |depends_on: Persists telemetry, OTA outcomes, and audit records.
+
+|R9 |depends_on: Uses machine identity material for authenticated publish.
+
+|R10 |depends_on: Sends normalized telemetry records to ingestion API.
+
+|R11 |depends_on: Publishes telemetry payloads to cloud ingestion.
+
+|R12 |depends_on: Uses MQTT client for edge publish and command channels.
+
+|R13 |deployed_to: OTA agent executes on managed edge fleet.
+
+|R14 |depends_on: Uses trust anchors for firmware and endpoint authentication.
+
+|R15 |depends_on: Receives OTA rollout commands and policy constraints.
+
+|R16 |depends_on: Downloads signed firmware bundle.
+
+|R17 |deployed_to: Orchestration service runs in cloud production target.
+
+|R18 |depends_on: Uses trusted control-plane credentials.
+
+|R19 |depends_on: Emits OTA rollout and rollback events for fleet visibility.
+
+|R20 |depends_on: Verifies firmware artifact signature metadata.
+
+|===
+
 === Coverage Gaps
 
 Coverage summary: 4/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -1911,6 +1974,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-SECURITY (security)
 N_AV_LOG_TAMPERING(("Log Tampering")):::attack_vector
@@ -1988,6 +2052,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 6/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2855,6 +2920,7 @@ This diagram follows the selected roots, depth, kinds and relationships of `VIEW
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
 N_DEP_COFFEE_CLOUD_PROD["Coffee Cloud Production"]:::deployment_target
@@ -2914,6 +2980,7 @@ classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#
 classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
 classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ----
+
 === Coverage Gaps
 
 Coverage summary: 7/7 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> coverage in this <<REF_IDX-ENGMODEL_TERM_VIEW,view>>.
@@ -2978,6 +3045,7 @@ What this diagram shows: authored lifecycle states, triggering events, guard con
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
 N_CTRL_COFFEE_FIRMWARE_SIGNATURE[["Firmware Signature Enforcement"]]:::control
@@ -3074,6 +3142,7 @@ What this diagram shows: authored interaction flow steps, step ordering, async m
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-INTERACTION-FLOW (interaction-flow)
 N_ACT_BARISTA(("Barista")):::actor
@@ -3183,113 +3252,162 @@ Coverage summary: 5/5 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 
 What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
-[cols="2,1,1,1,1,1,1,1",options="header"]
-|===
-|Requirement
-|FU-CLOUD-RUNTIME-OPERATIONS
-|FU-DEVICE-IDENTITY-SECRETS
-|FU-FLEET-INGESTION-API
-|FU-FLEET-OBSERVABILITY-REPORTING
-|FU-MACHINE-TELEMETRY-COLLECTION
-|FU-OTA-UPDATE-AGENT
-|FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|REQ-COF-001
-|
-|
-|X
-|
-|X
-|
-|
-|REQ-COF-002
-|
-|
-|X
-|X
-|
-|
-|
-|REQ-COF-003
-|
-|
-|
-|
-|
-|X
-|X
-|REQ-COF-004
-|
-|X
-|
-|
-|
-|X
-|
-|REQ-COF-005
-|
-|
-|
-|X
-|
-|X
-|X
-|REQ-COF-006
-|
-|
-|X
-|
-|X
-|
-|
-|REQ-COF-007
-|
-|X
-|
-|X
-|
-|
-|
-|REQ-COF-008
-|X
-|
-|X
-|X
-|
-|
-|
-|REQ-COF-009
-|
-|
-|X
-|X
-|
-|
-|
-|REQ-COF-010
-|
-|
-|
-|X
-|
-|X
-|X
-|REQ-COF-011
-|
-|
-|X
-|
-|X
-|
-|
-|REQ-COF-012
-|X
-|
-|X
-|X
-|
-|
-|
-|===
+++++
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 390" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<rect x="0" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Requirement</text>
+<rect x="180" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="270" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-CLOUD-RUNTIME-OPERATIONS</text>
+<rect x="360" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="450" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-DEVICE-IDENTITY-SECRETS</text>
+<rect x="540" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="630" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-FLEET-INGESTION-API</text>
+<rect x="720" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="810" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-FLEET-OBSERVABILITY-REPORTING</text>
+<rect x="900" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="990" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-MACHINE-TELEMETRY-COLLECTION</text>
+<rect x="1080" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="1170" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">FU-OTA-UPDATE-AGENT</text>
+<rect x="1260" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="1350" y="19" text-anchor="middle" font-family="sans-serif" font-size="12" textLength="170" lengthAdjust="spacingAndGlyphs">FU-UPDATE-CAMPAIGN-ORCHESTRATION</text>
+<rect x="0" y="30" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-001</text>
+<rect x="180" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="990" y="49" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1080" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="30" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="60" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-002</text>
+<rect x="180" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="79" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="60" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="90" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-003</text>
+<rect x="180" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="90" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1350" y="109" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="0" y="120" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-004</text>
+<rect x="180" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="139" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="120" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="150" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-005</text>
+<rect x="180" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="150" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1350" y="169" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="0" y="180" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-006</text>
+<rect x="180" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="990" y="199" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1080" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="180" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="210" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-007</text>
+<rect x="180" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="229" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="210" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="240" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-008</text>
+<rect x="180" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="259" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="240" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="270" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-009</text>
+<rect x="180" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="289" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="270" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="300" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-010</text>
+<rect x="180" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1170" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1260" y="300" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="1350" y="319" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="0" y="330" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="349" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-011</text>
+<rect x="180" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="349" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="900" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="990" y="349" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="1080" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="330" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="360" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="379" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-COF-012</text>
+<rect x="180" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="270" y="379" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="360" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="540" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="630" y="379" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="720" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="379" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="360" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+</svg>
+++++
 
 === Verification Result Mapping
 
@@ -3356,6 +3474,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_001["REQ-COF-001"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -3363,21 +3482,21 @@ flowchart TB
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_REQ_COF_001_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 13"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_001_FLEET_INGESTION_API_GO
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API --->|implemented_by| CODE_REQ_COF_001_FLEET_INGESTION_API_GO
   REQC_REQ_COF_001 -->|code trace| CODE_REQ_COF_001_FLEET_INGESTION_API_GO
   FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_001 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
   FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
   CODE_REQ_COF_001_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 12"]:::code_element
-  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME --->|implemented_by| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
   REQC_REQ_COF_001 -->|code trace| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
   SUBREQ_SUB_TELEMETRY_REQ_TELEM_001["REQ-TELEM-001 — SUB-TELEMETRY"]:::referenced_element
   REQC_REQ_COF_001 -->|delegates to| SUBREQ_SUB_TELEMETRY_REQ_TELEM_001
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794["VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794 (pass)"]:::verification
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|verifies| REQC_REQ_COF_001
   VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO["telemetry_ingest_contract_test.go: 7"]:::code_element
-  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|implemented_by| VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO
+  VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 --->|implemented_by| VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3416,6 +3535,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_002["REQ-COF-002"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -3423,21 +3543,21 @@ flowchart TB
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_REQ_COF_002_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 13"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_002_FLEET_INGESTION_API_GO
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API --->|implemented_by| CODE_REQ_COF_002_FLEET_INGESTION_API_GO
   REQC_REQ_COF_002 -->|code trace| CODE_REQ_COF_002_FLEET_INGESTION_API_GO
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_002 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 6"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
   REQC_REQ_COF_002 -->|code trace| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
   SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-CLOUD-API"]:::referenced_element
   REQC_REQ_COF_002 -->|delegates to| SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_002
   VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts: 4"]:::code_element
-  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF --->|implemented_by| VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3476,6 +3596,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_003["REQ-COF-003"]:::requirement
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
@@ -3483,25 +3604,25 @@ flowchart TB
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
   CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 6"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME --->|implemented_by| CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS
   REQC_REQ_COF_003 -->|code trace| CODE_REQ_COF_003_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_003 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
   CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts: 6"]:::code_element
-  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION --->|implemented_by| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   REQC_REQ_COF_003 -->|code trace| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   SUBREQ_SUB_OTA_AGENT_REQ_OTA_001["REQ-OTA-001 — SUB-OTA-AGENT"]:::referenced_element
   REQC_REQ_COF_003 -->|delegates to| SUBREQ_SUB_OTA_AGENT_REQ_OTA_001
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
   VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC --->|implemented_by| VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_003
   VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go: 8"]:::code_element
-  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 --->|implemented_by| VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3540,6 +3661,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_004["REQ-COF-004"]:::requirement
   FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
@@ -3547,19 +3669,19 @@ flowchart TB
   RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
   FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
   CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts: 5"]:::code_element
-  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME --->|implemented_by| CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS
   REQC_REQ_COF_004 -->|code trace| CODE_REQ_COF_004_DEVICE_IDENTITY_SECRETS_TS
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_004 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
   CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 6"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME --->|implemented_by| CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS
   REQC_REQ_COF_004 -->|code trace| CODE_REQ_COF_004_OTA_UPDATE_AGENT_RS
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_004
   VERCODE_REQ_COF_004_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go: 8"]:::code_element
-  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|implemented_by| VERCODE_REQ_COF_004_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
+  VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 --->|implemented_by| VERCODE_REQ_COF_004_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3598,6 +3720,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_005["REQ-COF-005"]:::requirement
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
@@ -3609,19 +3732,19 @@ flowchart TB
   RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
   FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
   CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 16"]:::code_element
-  RTC_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME --->|implemented_by| CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS
   REQC_REQ_COF_005 -->|code trace| CODE_REQ_COF_005_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_005 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime evidence| RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
   CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts: 12"]:::code_element
-  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
+  RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION --->|implemented_by| CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   REQC_REQ_COF_005 -->|code trace| CODE_REQ_COF_005_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_005
   VERCODE_REQ_COF_005_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
-  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|implemented_by| VERCODE_REQ_COF_005_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
+  VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC --->|implemented_by| VERCODE_REQ_COF_005_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3660,6 +3783,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_006["REQ-COF-006"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -3671,7 +3795,7 @@ flowchart TB
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
   FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
   CODE_REQ_COF_006_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 18"]:::code_element
-  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_REQ_COF_006_MACHINE_TELEMETRY_RS
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME --->|implemented_by| CODE_REQ_COF_006_MACHINE_TELEMETRY_RS
   REQC_REQ_COF_006 -->|code trace| CODE_REQ_COF_006_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -3711,6 +3835,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_007["REQ-COF-007"]:::requirement
   FU_FU_DEVICE_IDENTITY_SECRETS["Device Identity and Secrets"]:::functional_unit
@@ -3718,19 +3843,19 @@ flowchart TB
   RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME["Device Identity and Secrets runtime (inferred)"]:::runtime_element
   FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
   CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts: 10"]:::code_element
-  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS
+  RTC_FU_DEVICE_IDENTITY_SECRETS_RUNTIME --->|implemented_by| CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS
   REQC_REQ_COF_007 -->|code trace| CODE_REQ_COF_007_DEVICE_IDENTITY_SECRETS_TS
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_007 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 12"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS
   REQC_REQ_COF_007 -->|code trace| CODE_REQ_COF_007_FLEET_OBSERVABILITY_REPORTING_TS
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_007
   VERCODE_REQ_COF_007_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts: 4"]:::code_element
-  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|implemented_by| VERCODE_REQ_COF_007_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
+  VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF --->|implemented_by| VERCODE_REQ_COF_007_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3769,6 +3894,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_008["REQ-COF-008"]:::requirement
   FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
@@ -3782,21 +3908,21 @@ flowchart TB
   RTC_FU_CLOUD_RUNTIME_OPERATIONS_TELEMETRY_RETRY_QUEUE["telemetry_retry_queue"]:::runtime_element
   FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RTC_FU_CLOUD_RUNTIME_OPERATIONS_TELEMETRY_RETRY_QUEUE
   CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO["cloud_runtime_ops.go: 6"]:::code_element
-  RTC_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC -->|implemented_by| CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO
+  RTC_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC --->|implemented_by| CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO
   REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_CLOUD_RUNTIME_OPS_GO
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_INGESTION_API
   RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]:::runtime_element
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_REQ_COF_008_FLEET_INGESTION_API_GO["fleet_ingestion_api.go: 19"]:::code_element
-  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_REQ_COF_008_FLEET_INGESTION_API_GO
+  RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API --->|implemented_by| CODE_REQ_COF_008_FLEET_INGESTION_API_GO
   REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_FLEET_INGESTION_API_GO
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   REQC_REQ_COF_008 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 18"]:::code_element
-  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS
   REQC_REQ_COF_008 -->|code trace| CODE_REQ_COF_008_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -3836,6 +3962,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_009["REQ-COF-009"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -3884,6 +4011,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_010["REQ-COF-010"]:::requirement
   FU_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
@@ -3934,6 +4062,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_011["REQ-COF-011"]:::requirement
   FU_FU_FLEET_INGESTION_API["Fleet Ingestion API"]:::functional_unit
@@ -3980,6 +4109,7 @@ What this diagram shows: this requirement-to-unit mapping extended with inferred
 
 [source,mermaid]
 ----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart TB
   REQC_REQ_COF_012["REQ-COF-012"]:::requirement
   FU_FU_CLOUD_RUNTIME_OPERATIONS["Cloud Runtime Operations"]:::functional_unit
