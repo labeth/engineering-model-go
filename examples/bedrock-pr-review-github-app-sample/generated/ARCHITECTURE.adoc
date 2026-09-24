@@ -751,7 +751,7 @@ Ingress and <<REF_IDX-CATALOG_CONTEXT_ASSEMBLY,context assembly>> for GitHub pul
 
 
 
-	<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> and <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,pull request context>> intake.
+<<REF_IDX-CATALOG_FG_PR_INTEGRATION,PR Integration>> owns webhook <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> and <<REF_IDX-DO_DO_BEDROCK_PR_CONTEXT,pull request context>> intake.
 It converts incoming GitHub <<REF_IDX-ENGMODEL_TERM_EVENT,events>> into normalized review work with clear boundaries.
 
 
@@ -895,7 +895,7 @@ AI and deterministic review analysis with result <<REF_IDX-CATALOG_PUBLICATION,p
 
 
 
-	<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> owns generated findings, <<REF_IDX-CATALOG_DETERMINISTIC_CHECKS,deterministic checks>>, and final <<REF_IDX-CATALOG_PUBLICATION,publication>> behavior.
+<<REF_IDX-CATALOG_FG_REVIEW_INTELLIGENCE,Review Intelligence>> owns generated findings, <<REF_IDX-CATALOG_DETERMINISTIC_CHECKS,deterministic checks>>, and final <<REF_IDX-CATALOG_PUBLICATION,publication>> behavior.
 It combines Bedrock reasoning with predictable <<REF_IDX-CATALOG_FU_POLICY_CHECKS,policy checks>> and emits auditable review outputs.
 
 
@@ -1077,7 +1077,7 @@ Lambda deployment lifecycle, <<REF_IDX-CATALOG_RUNTIME_OPERATIONS,runtime operat
 
 
 
-	<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns safe deployment, runtime controls, and secret/config lifecycle for the app.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns safe deployment, runtime controls, and secret/config lifecycle for the app.
 It enables dependable review operation without owning business-level review policy semantics.
 
 

@@ -719,7 +719,7 @@ Core payment <<REF_IDX-CATALOG_CHECKOUT,checkout>> and authorization domain.
 
 
 
-	The <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
+The <<REF_IDX-CATALOG_FG_PAYMENTS,payments>> group defines the product-facing payment journey from user intent to final payment outcome.
 It owns the consistency of <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> messaging and transaction decisions when a payment is attempted,
 declined, retried, or temporarily unavailable. The group keeps <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> stable while depending on
 fraud and external bank capabilities.
@@ -875,7 +875,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment
 
 
 
-	The <<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
+The <<REF_IDX-CATALOG_FG_FRAUD,fraud evaluation>> group exists to reduce unsafe approvals while preserving throughput for legitimate <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>.
 It combines automated <<REF_IDX-CATALOG_FU_RISK_SCORING,risk scoring>> with manual <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> so uncertain transactions move through a controlled
 escalation path. The group ensures <<REF_IDX-ENGMODEL_TERM_RISK,risk>> decisions are explainable, auditable, and operationally actionable.
 
@@ -1014,7 +1014,7 @@ none
 
 
 
-	The <<REF_IDX-CATALOG_FG_PLATFORM,platform>> group provides the runtime and deployment foundation used by all product capabilities.
+The <<REF_IDX-CATALOG_FG_PLATFORM,platform>> group provides the runtime and deployment foundation used by all product capabilities.
 It owns environment provisioning, namespace and cluster boundaries, and continuous reconciliation behavior.
 The group enables safe delivery and reliable operations without owning payment business logic.
 
