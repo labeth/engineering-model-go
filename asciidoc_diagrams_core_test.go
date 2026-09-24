@@ -4,6 +4,8 @@ package engmodel
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -435,9 +437,42 @@ func TestCodeEvidenceAcrossIndependentSourceRoots(t *testing.T) {
 		{Kind: "symbol", Owner: "FU-APP", Source: "server.go:412", AbsPath: "/workspace/app/server.go", Implements: []string{"REQ-APP"}},
 		{Kind: "symbol", Owner: "FU-BROKER", Source: "server.go:16", AbsPath: "/workspace/ota/server.go", Implements: []string{"REQ-BROKER"}},
 	}
+
 	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-BROKER", AppliesTo: []string{"FU-BROKER"}}}, nil, code, nil, nil, nil)
 	if !strings.Contains(diagram, "ota/server.go: 16") || strings.Contains(diagram, "412") {
 		t.Fatalf("independent source roots merged in requirement graph: %s", diagram)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-010
+func TestInferredCodeEvidenceIsWorktreeIndependent(t *testing.T) {
+	var publications []string
+	for _, name := range []string{"checkout-a", "checkout-b"} {
+		root := filepath.Join(t.TempDir(), name)
+		source := filepath.Join(root, "internal", "demo.go")
+		if err := os.MkdirAll(filepath.Dir(source), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(source, []byte("// ENGMODEL-OWNER-UNIT: FU-DEMO\npackage demo\n\n// TRLC-LINKS: REQ-EMG-003\nfunc Run() {}\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		items, diagnostics := inferCodeItems(model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}, root)
+		if len(diagnostics) != 0 {
+			t.Fatalf("scan %s: %v", name, diagnostics)
+		}
+		elements := make([]string, 0, len(items))
+		for _, item := range items {
+			if item.Kind == "source_file" || item.Kind == "symbol" {
+				elements = append(elements, codeItemEvidenceElement(item))
+			}
+		}
+		publications = append(publications, strings.Join(groupedCodeElementFileLabels(elements, nil), ","))
+		if strings.Contains(publications[len(publications)-1], name) {
+			t.Fatalf("checkout name leaked into code evidence: %s", publications[len(publications)-1])
+		}
+	}
+	if publications[0] != publications[1] {
+		t.Fatalf("code evidence depends on checkout: %q != %q", publications[0], publications[1])
 	}
 }
 

@@ -996,7 +996,11 @@ func codeItemEvidenceElement(c inferredCodeItem) string {
 	case "symbol":
 		if strings.TrimSpace(c.AbsPath) != "" {
 			_, lines, _ := splitCodeEvidencePathLines(c.Source)
-			path := filepath.ToSlash(filepath.Clean(c.AbsPath))
+			path := c.AbsPath
+			if c.EvidencePath != "" {
+				path = c.EvidencePath
+			}
+			path = filepath.ToSlash(filepath.Clean(path))
 			if len(lines) > 0 {
 				path += ":" + joinEvidenceLineNumbers(lines)
 			}
