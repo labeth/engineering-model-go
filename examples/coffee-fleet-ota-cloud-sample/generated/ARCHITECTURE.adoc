@@ -750,7 +750,7 @@ Device-local <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and OTA execution responsib
 
 
 
-	<<REF_IDX-CATALOG_FG_MACHINE_EDGE,Machine Edge>> owns behavior that executes directly on coffee machines.
+<<REF_IDX-CATALOG_FG_MACHINE_EDGE,Machine Edge>> owns behavior that executes directly on coffee machines.
 It gathers <<REF_IDX-CATALOG_TELEMETRY,telemetry>>, applies OTA updates, and reports local status to cloud boundaries.
 
 
@@ -904,7 +904,7 @@ Central cloud ingestion, campaign <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, and
 
 
 
-	<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollouts>>.
+<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollouts>>.
 It provides global fleet visibility and deterministic rollout decisions.
 
 
@@ -1087,7 +1087,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION
 
 
 
-	<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns deployability, runtime guardrails, and secure identity/config lifecycle.
+<<REF_IDX-CATALOG_FG_PLATFORM_OPERATIONS,Platform Operations>> owns deployability, runtime guardrails, and secure identity/config lifecycle.
 It ensures cloud and device <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundaries>> remain enforceable over time.
 
 
