@@ -32,14 +32,15 @@ type inferredRuntimeItem struct {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type inferredCodeItem struct {
-	Element     string
-	Kind        string
-	Owner       string
-	Description string
-	Source      string
-	AbsPath     string // absolute file path (symbol items), for unambiguous model-boundary scoping
-	Implements  []string
-	ModelLinks  []string
+	Element      string
+	Kind         string
+	Owner        string
+	Description  string
+	Source       string
+	AbsPath      string // absolute file path (symbol items), for unambiguous model-boundary scoping
+	EvidencePath string // model-relative path for portable publication evidence
+	Implements   []string
+	ModelLinks   []string
 }
 
 // TRLC-LINKS: REQ-EMG-010

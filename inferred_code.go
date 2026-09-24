@@ -128,6 +128,13 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		pathsBySource[item.Source] = item.AbsPath
 	}
 	for i := range items {
+		if items[i].Kind == "symbol" && pathWithin(baseDir, items[i].AbsPath) {
+			relative, err := filepath.Rel(baseDir, items[i].AbsPath)
+			if err != nil {
+				return nil, []validate.Diagnostic{{Code: "code.relative_path_failed", Severity: validate.SeverityError, Message: err.Error(), Path: items[i].AbsPath}}
+			}
+			items[i].EvidencePath = filepath.ToSlash(relative)
+		}
 		if !ambiguous[items[i].Source] {
 			continue
 		}

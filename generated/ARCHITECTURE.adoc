@@ -1062,54 +1062,35 @@ flowchart LR
     FU_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
     subgraph RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_["CLI Orchestration runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGDOC_MAIN_GO["cmd/engdoc/main.go"]:::code_element
-      CODE_CMD_ENGGEMARA_MAIN_GO["cmd/enggemara/main.go"]:::code_element
-      CODE_CMD_ENGVIEW_MAIN_GO["cmd/engview/main.go"]:::code_element
-      CODE_CMD_SYSMLMETAMODEL_MAIN_GO["cmd/sysmlmetamodel/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGDOC_MAIN_GO["engineering-model-go/cmd/engdoc/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGGEMARA_MAIN_GO["engineering-model-go/cmd/enggemara/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGVIEW_MAIN_GO["engineering-model-go/cmd/engview/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_SYSMLMETAMODEL_MAIN_GO["engineering-model-go/cmd/sysmlmetamodel/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GENERATE_GO["engineering-model-go/generate.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GENERATION_TIME_GO["engineering-model-go/generation_time.go"]:::code_element
+      CODE_ENGDOC_MAIN_GO["engdoc/main.go"]:::code_element
+      CODE_ENGGEMARA_MAIN_GO["enggemara/main.go"]:::code_element
+      CODE_ENGVIEW_MAIN_GO["engview/main.go"]:::code_element
       CODE_GENERATE_GO["generate.go"]:::code_element
       CODE_GENERATION_TIME_GO["generation_time.go"]:::code_element
+      CODE_SYSMLMETAMODEL_MAIN_GO["sysmlmetamodel/main.go"]:::code_element
     end
     style RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RT_FU_CLI_ORCHESTRATION_CLI_ORCHESTRATION_RUNTIME__INFERRED_
     subgraph RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_["Model Change runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGCHANGE_MAIN_GO["cmd/engchange/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGCHANGE_MAIN_GO["engineering-model-go/cmd/engchange/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_REQUIREMENTS_DELTA_GO["engineering-model-go/requirements_delta.go"]:::code_element
+      CODE_ENGCHANGE_MAIN_GO["engchange/main.go"]:::code_element
       CODE_REQUIREMENTS_DELTA_GO["requirements_delta.go"]:::code_element
     end
     style RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_MODEL_CHANGE -->|runtime evidence| RT_FU_MODEL_CHANGE_MODEL_CHANGE_RUNTIME__INFERRED_
     subgraph RT_FU_MODEL_LOADER_MODEL_LOADER_RUNTIME__INFERRED_["Model Loader runtime (inferred)"]
       direction TB
-      CODE_ENGINEERING_MODEL_GO_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO["engineering-model-go/internal/sysmlmetamodel/metamodel.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_AUTHORING_GO["engineering-model-go/model/authoring.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_LOAD_GO["engineering-model-go/model/load.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_METAMODEL_INSTANCE_GO["engineering-model-go/model/metamodel_instance.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_NAF_GO["engineering-model-go/model/naf.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_PROJECTION_GO["engineering-model-go/model/projection.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_SCHEMA_GO["engineering-model-go/model/schema.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_SEMANTIC_GO["engineering-model-go/model/semantic.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_SUBSYSTEM_GO["engineering-model-go/model/subsystem.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_TYPES_GO["engineering-model-go/model/types.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MODEL_WORKSPACE_GO["engineering-model-go/model/workspace.go"]:::code_element
-      CODE_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO["internal/sysmlmetamodel/metamodel.go"]:::code_element
-      CODE_MODEL_AUTHORING_GO["model/authoring.go"]:::code_element
-      CODE_MODEL_LOAD_GO["model/load.go"]:::code_element
-      CODE_MODEL_METAMODEL_INSTANCE_GO["model/metamodel_instance.go"]:::code_element
-      CODE_MODEL_NAF_GO["model/naf.go"]:::code_element
-      CODE_MODEL_PROJECTION_GO["model/projection.go"]:::code_element
-      CODE_MODEL_SCHEMA_GO["model/schema.go"]:::code_element
-      CODE_MODEL_SEMANTIC_GO["model/semantic.go"]:::code_element
-      CODE_MODEL_SUBSYSTEM_GO["model/subsystem.go"]:::code_element
-      CODE_MODEL_TYPES_GO["model/types.go"]:::code_element
-      CODE_MODEL_WORKSPACE_GO["model/workspace.go"]:::code_element
+      CODE_AUTHORING_GO["authoring.go"]:::code_element
+      CODE_LOAD_GO["load.go"]:::code_element
+      CODE_METAMODEL_GO["metamodel.go"]:::code_element
+      CODE_METAMODEL_INSTANCE_GO["metamodel_instance.go"]:::code_element
+      CODE_NAF_GO["naf.go"]:::code_element
+      CODE_PROJECTION_GO["projection.go"]:::code_element
+      CODE_SCHEMA_GO["schema.go"]:::code_element
+      CODE_SEMANTIC_GO["semantic.go"]:::code_element
+      CODE_SUBSYSTEM_GO["subsystem.go"]:::code_element
+      CODE_TYPES_GO["types.go"]:::code_element
+      CODE_WORKSPACE_GO["workspace.go"]:::code_element
     end
     style RT_FU_MODEL_LOADER_MODEL_LOADER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_MODEL_LOADER -->|runtime evidence| RT_FU_MODEL_LOADER_MODEL_LOADER_RUNTIME__INFERRED_
@@ -1117,8 +1098,6 @@ flowchart LR
       direction TB
       CODE_COMPOSITION_GO["composition.go"]:::code_element
       CODE_COMPOSITION_PROJECTION_GO["composition_projection.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_COMPOSITION_PROJECTION_GO["engineering-model-go/composition_projection.go"]:::code_element
     end
     style RT_FU_SYSTEM_COMPOSITION_SYSTEM_COMPOSITION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RT_FU_SYSTEM_COMPOSITION_SYSTEM_COMPOSITION_RUNTIME__INFERRED_
@@ -1333,33 +1312,22 @@ flowchart LR
     FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
     subgraph RT_FU_CODEMAP_INFERENCE_CODEMAP_INFERENCE_RUNTIME__INFERRED_["Codemap Inference runtime (inferred)"]
       direction TB
-      CODE_CODEMAP_JAVASCRIPT_GO["codemap/javascript.go"]:::code_element
-      CODE_CODEMAP_PYTHON_GO["codemap/python.go"]:::code_element
-      CODE_CODEMAP_SCAN_GO["codemap/scan.go"]:::code_element
-      CODE_CODEMAP_VERILOG_GO["codemap/verilog.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CODEMAP_JAVASCRIPT_GO["engineering-model-go/codemap/javascript.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CODEMAP_PYTHON_GO["engineering-model-go/codemap/python.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CODEMAP_SCAN_GO["engineering-model-go/codemap/scan.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CODEMAP_VERILOG_GO["engineering-model-go/codemap/verilog.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_INFERRED_CODE_GO["engineering-model-go/inferred_code.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_INFERRED_LAYERS_GO["engineering-model-go/inferred_layers.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_INFERRED_VERIFICATION_GO["engineering-model-go/inferred_verification.go"]:::code_element
       CODE_INFERRED_CODE_GO["inferred_code.go"]:::code_element
       CODE_INFERRED_LAYERS_GO["inferred_layers.go"]:::code_element
       CODE_INFERRED_VERIFICATION_GO["inferred_verification.go"]:::code_element
+      CODE_JAVASCRIPT_GO["javascript.go"]:::code_element
+      CODE_PYTHON_GO["python.go"]:::code_element
+      CODE_SCAN_GO["scan.go"]:::code_element
+      CODE_VERILOG_GO["verilog.go"]:::code_element
     end
     style RT_FU_CODEMAP_INFERENCE_CODEMAP_INFERENCE_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RT_FU_CODEMAP_INFERENCE_CODEMAP_INFERENCE_RUNTIME__INFERRED_
     subgraph RT_FU_VALIDATION_ENGINE_VALIDATION_ENGINE_RUNTIME__INFERRED_["Validation Engine runtime (inferred)"]
       direction TB
       CODE_CATALOG_DESCRIPTION_VALIDATION_GO["catalog_description_validation.go"]:::code_element
+      CODE_DIAGNOSTIC_GO["diagnostic.go"]:::code_element
       CODE_EARS_PREFLIGHT_GO["ears_preflight.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CATALOG_DESCRIPTION_VALIDATION_GO["engineering-model-go/catalog_description_validation.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_EARS_PREFLIGHT_GO["engineering-model-go/ears_preflight.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_VALIDATE_DIAGNOSTIC_GO["engineering-model-go/validate/diagnostic.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_VALIDATE_VALIDATE_GO["engineering-model-go/validate/validate.go"]:::code_element
-      CODE_VALIDATE_DIAGNOSTIC_GO["validate/diagnostic.go"]:::code_element
-      CODE_VALIDATE_VALIDATE_GO["validate/validate.go"]:::code_element
+      CODE_VALIDATE_GO["validate.go"]:::code_element
     end
     style RT_FU_VALIDATION_ENGINE_VALIDATION_ENGINE_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_VALIDATION_ENGINE -->|runtime evidence| RT_FU_VALIDATION_ENGINE_VALIDATION_ENGINE_RUNTIME__INFERRED_
@@ -1525,48 +1493,26 @@ flowchart LR
       CODE_ASCIIDOC_MATRIX_SVG_GO["asciidoc_matrix_svg.go"]:::code_element
       CODE_ASCIIDOC_TEMPLATE_GO["asciidoc_template.go"]:::code_element
       CODE_ASCIIDOC_VIEWS_GO["asciidoc_views.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_GO["engineering-model-go/asciidoc.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_BACKLINKS_GO["engineering-model-go/asciidoc_backlinks.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_COMPOSITION_GO["engineering-model-go/asciidoc_composition.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_DECISIONS_GO["engineering-model-go/asciidoc_decisions.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_DESIGN_REFS_GO["engineering-model-go/asciidoc_design_refs.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_DIAGRAMS_CORE_GO["engineering-model-go/asciidoc_diagrams_core.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_DIAGRAMS_RUNTIME_GO["engineering-model-go/asciidoc_diagrams_runtime.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_EDGE_KEY_GO["engineering-model-go/asciidoc_edge_key.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_EVIDENCE_TABLE_GO["engineering-model-go/asciidoc_evidence_table.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_GEMARA_GO["engineering-model-go/asciidoc_gemara.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_LINKING_UNITS_GO["engineering-model-go/asciidoc_linking_units.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_MATRIX_SVG_GO["engineering-model-go/asciidoc_matrix_svg.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_TEMPLATE_GO["engineering-model-go/asciidoc_template.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_ASCIIDOC_VIEWS_GO["engineering-model-go/asciidoc_views.go"]:::code_element
     end
     style RT_FU_ASCIIDOC_GENERATOR_ASCIIDOC_GENERATOR_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_ASCIIDOC_GENERATOR -->|runtime evidence| RT_FU_ASCIIDOC_GENERATOR_ASCIIDOC_GENERATOR_RUNTIME__INFERRED_
     subgraph RT_FU_NAF_EXPORTER_NAF_EXPORTER_RUNTIME__INFERRED_["NAF Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGNAF_MAIN_GO["cmd/engnaf/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGNAF_MAIN_GO["engineering-model-go/cmd/engnaf/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_NAF_EXPORT_GO["engineering-model-go/naf_export.go"]:::code_element
+      CODE_ENGNAF_MAIN_GO["engnaf/main.go"]:::code_element
       CODE_NAF_EXPORT_GO["naf_export.go"]:::code_element
     end
     style RT_FU_NAF_EXPORTER_NAF_EXPORTER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_NAF_EXPORTER -->|runtime evidence| RT_FU_NAF_EXPORTER_NAF_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_STRUCTURIZR_EXPORTER_STRUCTURIZR_EXPORTER_RUNTIME__INFERRED_["Structurizr Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGSTRUCT_MAIN_GO["cmd/engstruct/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGSTRUCT_MAIN_GO["engineering-model-go/cmd/engstruct/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_STRUCTURIZR_EXPORT_GO["engineering-model-go/structurizr_export.go"]:::code_element
+      CODE_ENGSTRUCT_MAIN_GO["engstruct/main.go"]:::code_element
       CODE_STRUCTURIZR_EXPORT_GO["structurizr_export.go"]:::code_element
     end
     style RT_FU_STRUCTURIZR_EXPORTER_STRUCTURIZR_EXPORTER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_STRUCTURIZR_EXPORTER -->|runtime evidence| RT_FU_STRUCTURIZR_EXPORTER_STRUCTURIZR_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_SYSML_EXPORTER_SYSML_EXPORTER_RUNTIME__INFERRED_["SysML Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGSYSML_MAIN_GO["cmd/engsysml/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGSYSML_MAIN_GO["engineering-model-go/cmd/engsysml/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_SYSML_COVERAGE_GO["engineering-model-go/sysml_coverage.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_SYSML_EXPORT_GO["engineering-model-go/sysml_export.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_SYSML_INTERCHANGE_GO["engineering-model-go/sysml_interchange.go"]:::code_element
+      CODE_ENGSYSML_MAIN_GO["engsysml/main.go"]:::code_element
       CODE_SYSML_COVERAGE_GO["sysml_coverage.go"]:::code_element
       CODE_SYSML_EXPORT_GO["sysml_export.go"]:::code_element
       CODE_SYSML_INTERCHANGE_GO["sysml_interchange.go"]:::code_element
@@ -1575,27 +1521,19 @@ flowchart LR
     FU_FU_SYSML_EXPORTER -->|runtime evidence| RT_FU_SYSML_EXPORTER_SYSML_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_THREAT_EXPORTER_THREAT_EXPORTER_RUNTIME__INFERRED_["Threat Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGDRAGON_MAIN_GO["cmd/engdragon/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGDRAGON_MAIN_GO["engineering-model-go/cmd/engdragon/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_THREAT_MODEL_EXPORT_GO["engineering-model-go/threat_model_export.go"]:::code_element
+      CODE_ENGDRAGON_MAIN_GO["engdragon/main.go"]:::code_element
       CODE_THREAT_MODEL_EXPORT_GO["threat_model_export.go"]:::code_element
     end
     style RT_FU_THREAT_EXPORTER_THREAT_EXPORTER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_THREAT_EXPORTER -->|runtime evidence| RT_FU_THREAT_EXPORTER_THREAT_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_VIEW_PROJECTION_VIEW_PROJECTION_RUNTIME__INFERRED_["View Projection runtime (inferred)"]
       direction TB
-      CODE_ENGINEERING_MODEL_GO_RENDER_DIAGRAMSTYLE_MERMAID_GO["engineering-model-go/render/diagramstyle/mermaid.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_RENDER_MERMAID_RENDER_GO["engineering-model-go/render/mermaid/render.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_RENDER_SVG_RENDER_GO["engineering-model-go/render/svg/render.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_VIEW_PROJECT_GO["engineering-model-go/view/project.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_VIEW_SEMANTIC_CONCERNS_GO["engineering-model-go/view/semantic_concerns.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_VIEW_TYPES_GO["engineering-model-go/view/types.go"]:::code_element
-      CODE_RENDER_DIAGRAMSTYLE_MERMAID_GO["render/diagramstyle/mermaid.go"]:::code_element
-      CODE_RENDER_MERMAID_RENDER_GO["render/mermaid/render.go"]:::code_element
-      CODE_RENDER_SVG_RENDER_GO["render/svg/render.go"]:::code_element
-      CODE_VIEW_PROJECT_GO["view/project.go"]:::code_element
-      CODE_VIEW_SEMANTIC_CONCERNS_GO["view/semantic_concerns.go"]:::code_element
-      CODE_VIEW_TYPES_GO["view/types.go"]:::code_element
+      CODE_MERMAID_GO["mermaid.go"]:::code_element
+      CODE_MERMAID_RENDER_GO["mermaid/render.go"]:::code_element
+      CODE_PROJECT_GO["project.go"]:::code_element
+      CODE_SEMANTIC_CONCERNS_GO["semantic_concerns.go"]:::code_element
+      CODE_SVG_RENDER_GO["svg/render.go"]:::code_element
+      CODE_TYPES_GO["types.go"]:::code_element
     end
     style RT_FU_VIEW_PROJECTION_VIEW_PROJECTION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_VIEW_PROJECTION -->|runtime evidence| RT_FU_VIEW_PROJECTION_VIEW_PROJECTION_RUNTIME__INFERRED_
@@ -1859,20 +1797,13 @@ flowchart LR
     FU_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
     subgraph RT_FU_ALLOCATION_TRACE_ALLOCATION_TRACE_RUNTIME__INFERRED_["Allocation Trace runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGTRACE_MAIN_GO["cmd/engtrace/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGTRACE_MAIN_GO["engineering-model-go/cmd/engtrace/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_TRACE_MATRIX_GO["engineering-model-go/trace_matrix.go"]:::code_element
+      CODE_ENGTRACE_MAIN_GO["engtrace/main.go"]:::code_element
       CODE_TRACE_MATRIX_GO["trace_matrix.go"]:::code_element
     end
     style RT_FU_ALLOCATION_TRACE_ALLOCATION_TRACE_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_ALLOCATION_TRACE -->|runtime evidence| RT_FU_ALLOCATION_TRACE_ALLOCATION_TRACE_RUNTIME__INFERRED_
     subgraph RT_FU_GEMARA_EXPORTER_GEMARA_EXPORTER_RUNTIME__INFERRED_["Gemara Exporter runtime (inferred)"]
       direction TB
-      CODE_ENGINEERING_MODEL_GO_GEMARA_EVALUATION_GO["engineering-model-go/gemara_evaluation.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GEMARA_EXPORT_GO["engineering-model-go/gemara_export.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GEMARA_EXTENDED_GO["engineering-model-go/gemara_extended.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GEMARA_L1L3_GO["engineering-model-go/gemara_l1l3.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_GEMARA_OSCAL_GO["engineering-model-go/gemara_oscal.go"]:::code_element
       CODE_GEMARA_EVALUATION_GO["gemara_evaluation.go"]:::code_element
       CODE_GEMARA_EXPORT_GO["gemara_export.go"]:::code_element
       CODE_GEMARA_EXTENDED_GO["gemara_extended.go"]:::code_element
@@ -1883,23 +1814,14 @@ flowchart LR
     FU_FU_GEMARA_EXPORTER -->|runtime evidence| RT_FU_GEMARA_EXPORTER_GEMARA_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_LOBSTER_EXPORTER_LOBSTER_EXPORTER_RUNTIME__INFERRED_["LOBSTER Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGLOBSTER_MAIN_GO["cmd/englobster/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGLOBSTER_MAIN_GO["engineering-model-go/cmd/englobster/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_LOBSTER_EXPORT_GO["engineering-model-go/lobster_export.go"]:::code_element
+      CODE_ENGLOBSTER_MAIN_GO["englobster/main.go"]:::code_element
       CODE_LOBSTER_EXPORT_GO["lobster_export.go"]:::code_element
     end
     style RT_FU_LOBSTER_EXPORTER_LOBSTER_EXPORTER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_LOBSTER_EXPORTER -->|runtime evidence| RT_FU_LOBSTER_EXPORTER_LOBSTER_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_OSCAL_EXPORTER_OSCAL_EXPORTER_RUNTIME__INFERRED_["OSCAL Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGOSCAL_MAIN_GO["cmd/engoscal/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGOSCAL_MAIN_GO["engineering-model-go/cmd/engoscal/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_AP_GO["engineering-model-go/oscal_ap.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_AR_GO["engineering-model-go/oscal_ar.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_COMPLIANCE_GO["engineering-model-go/oscal_compliance.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_POAM_GO["engineering-model-go/oscal_poam.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_PROFILE_GO["engineering-model-go/oscal_profile.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_OSCAL_SSP_GO["engineering-model-go/oscal_ssp.go"]:::code_element
+      CODE_ENGOSCAL_MAIN_GO["engoscal/main.go"]:::code_element
       CODE_OSCAL_AP_GO["oscal_ap.go"]:::code_element
       CODE_OSCAL_AR_GO["oscal_ar.go"]:::code_element
       CODE_OSCAL_COMPLIANCE_GO["oscal_compliance.go"]:::code_element
@@ -1911,9 +1833,7 @@ flowchart LR
     FU_FU_OSCAL_EXPORTER -->|runtime evidence| RT_FU_OSCAL_EXPORTER_OSCAL_EXPORTER_RUNTIME__INFERRED_
     subgraph RT_FU_TRLC_EXPORTER_TRLC_EXPORTER_RUNTIME__INFERRED_["TRLC Exporter runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGTRLC_MAIN_GO["cmd/engtrlc/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGTRLC_MAIN_GO["engineering-model-go/cmd/engtrlc/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_TRLC_EXPORT_GO["engineering-model-go/trlc_export.go"]:::code_element
+      CODE_ENGTRLC_MAIN_GO["engtrlc/main.go"]:::code_element
       CODE_TRLC_EXPORT_GO["trlc_export.go"]:::code_element
     end
     style RT_FU_TRLC_EXPORTER_TRLC_EXPORTER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -2141,14 +2061,10 @@ flowchart LR
     FU_FU_MCP_SERVER["MCP Server"]:::functional_unit
     subgraph RT_FU_MCP_SERVER_MCP_SERVER_RUNTIME__INFERRED_["MCP Server runtime (inferred)"]
       direction TB
-      CODE_CMD_ENGMCP_MAIN_GO["cmd/engmcp/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_CMD_ENGMCP_MAIN_GO["engineering-model-go/cmd/engmcp/main.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MCP_COMPOSITION_GO["engineering-model-go/mcp/composition.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MCP_GEMARA_GO["engineering-model-go/mcp/gemara.go"]:::code_element
-      CODE_ENGINEERING_MODEL_GO_MCP_SERVER_GO["engineering-model-go/mcp/server.go"]:::code_element
-      CODE_MCP_COMPOSITION_GO["mcp/composition.go"]:::code_element
-      CODE_MCP_GEMARA_GO["mcp/gemara.go"]:::code_element
-      CODE_MCP_SERVER_GO["mcp/server.go"]:::code_element
+      CODE_COMPOSITION_GO["composition.go"]:::code_element
+      CODE_GEMARA_GO["gemara.go"]:::code_element
+      CODE_MAIN_GO["main.go"]:::code_element
+      CODE_SERVER_GO["server.go"]:::code_element
     end
     style RT_FU_MCP_SERVER_MCP_SERVER_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_MCP_SERVER -->|runtime evidence| RT_FU_MCP_SERVER_MCP_SERVER_RUNTIME__INFERRED_
@@ -2878,50 +2794,28 @@ flowchart LR
   AV_AV_MALFORMED_MODEL_INPUT -->|targets| SEC_TGT_FU_MODEL_LOADER
   SEC_RT_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MODEL_LOADER -->|runtime| SEC_RT_FU_MODEL_LOADER_RUNTIME
-  CODE_ENGINEERING_MODEL_GO_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO["engineering-model-go/internal/sysmlmetamodel/metamodel.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_AUTHORING_GO["engineering-model-go/model/authoring.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_AUTHORING_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_LOAD_GO["engineering-model-go/model/load.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_LOAD_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_METAMODEL_INSTANCE_GO["engineering-model-go/model/metamodel_instance.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_METAMODEL_INSTANCE_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_NAF_GO["engineering-model-go/model/naf.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_NAF_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_PROJECTION_GO["engineering-model-go/model/projection.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_PROJECTION_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_SCHEMA_GO["engineering-model-go/model/schema.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_SCHEMA_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_SEMANTIC_GO["engineering-model-go/model/semantic.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_SEMANTIC_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_SUBSYSTEM_GO["engineering-model-go/model/subsystem.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_SUBSYSTEM_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_TYPES_GO["engineering-model-go/model/types.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_TYPES_GO
-  CODE_ENGINEERING_MODEL_GO_MODEL_WORKSPACE_GO["engineering-model-go/model/workspace.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MODEL_WORKSPACE_GO
-  CODE_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO["internal/sysmlmetamodel/metamodel.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_INTERNAL_SYSMLMETAMODEL_METAMODEL_GO
-  CODE_MODEL_AUTHORING_GO["model/authoring.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_AUTHORING_GO
-  CODE_MODEL_LOAD_GO["model/load.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_LOAD_GO
-  CODE_MODEL_METAMODEL_INSTANCE_GO["model/metamodel_instance.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_METAMODEL_INSTANCE_GO
-  CODE_MODEL_NAF_GO["model/naf.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_NAF_GO
-  CODE_MODEL_PROJECTION_GO["model/projection.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_PROJECTION_GO
-  CODE_MODEL_SCHEMA_GO["model/schema.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_SCHEMA_GO
-  CODE_MODEL_SEMANTIC_GO["model/semantic.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_SEMANTIC_GO
-  CODE_MODEL_SUBSYSTEM_GO["model/subsystem.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_SUBSYSTEM_GO
+  CODE_AUTHORING_GO["authoring.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_AUTHORING_GO
+  CODE_LOAD_GO["load.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_LOAD_GO
+  CODE_METAMODEL_GO["metamodel.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_METAMODEL_GO
+  CODE_METAMODEL_INSTANCE_GO["metamodel_instance.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_METAMODEL_INSTANCE_GO
   CODE_MODEL_TYPES_GO["model/types.go"]:::code_element
   SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_TYPES_GO
-  CODE_MODEL_WORKSPACE_GO["model/workspace.go"]:::code_element
-  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_MODEL_WORKSPACE_GO
+  CODE_NAF_GO["naf.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_NAF_GO
+  CODE_PROJECTION_GO["projection.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_PROJECTION_GO
+  CODE_SCHEMA_GO["schema.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SCHEMA_GO
+  CODE_SEMANTIC_GO["semantic.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SEMANTIC_GO
+  CODE_SUBSYSTEM_GO["subsystem.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_SUBSYSTEM_GO
+  CODE_WORKSPACE_GO["workspace.go"]:::code_element
+  SEC_RT_FU_MODEL_LOADER_RUNTIME -->|implemented_by| CODE_WORKSPACE_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2986,22 +2880,14 @@ flowchart LR
   SEC_TGT_FU_MCP_SERVER -->|depends_on| SEC_DEP_VALIDATION_ENGINE
   SEC_RT_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_MCP_SERVER -->|runtime| SEC_RT_FU_MCP_SERVER_RUNTIME
-  CODE_CMD_ENGMCP_MAIN_GO["cmd/engmcp/main.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_CMD_ENGMCP_MAIN_GO
-  CODE_ENGINEERING_MODEL_GO_CMD_ENGMCP_MAIN_GO["engineering-model-go/cmd/engmcp/main.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_CMD_ENGMCP_MAIN_GO
-  CODE_ENGINEERING_MODEL_GO_MCP_COMPOSITION_GO["engineering-model-go/mcp/composition.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MCP_COMPOSITION_GO
-  CODE_ENGINEERING_MODEL_GO_MCP_GEMARA_GO["engineering-model-go/mcp/gemara.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MCP_GEMARA_GO
-  CODE_ENGINEERING_MODEL_GO_MCP_SERVER_GO["engineering-model-go/mcp/server.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_MCP_SERVER_GO
+  CODE_ENGMCP_MAIN_GO["engmcp/main.go"]:::code_element
+  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_ENGMCP_MAIN_GO
+  CODE_GEMARA_GO["gemara.go"]:::code_element
+  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_GEMARA_GO
   CODE_MCP_COMPOSITION_GO["mcp/composition.go"]:::code_element
   SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MCP_COMPOSITION_GO
-  CODE_MCP_GEMARA_GO["mcp/gemara.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MCP_GEMARA_GO
-  CODE_MCP_SERVER_GO["mcp/server.go"]:::code_element
-  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_MCP_SERVER_GO
+  CODE_SERVER_GO["server.go"]:::code_element
+  SEC_RT_FU_MCP_SERVER_RUNTIME -->|implemented_by| CODE_SERVER_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3062,34 +2948,20 @@ flowchart LR
   AV_AV_TRACEABILITY_GAP_DRIFT -->|targets| SEC_TGT_FU_CODEMAP_INFERENCE
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   SEC_TGT_FU_CODEMAP_INFERENCE -->|runtime| SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_CODEMAP_JAVASCRIPT_GO["codemap/javascript.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_CODEMAP_JAVASCRIPT_GO
-  CODE_CODEMAP_PYTHON_GO["codemap/python.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_CODEMAP_PYTHON_GO
-  CODE_CODEMAP_SCAN_GO["codemap/scan.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_CODEMAP_SCAN_GO
-  CODE_CODEMAP_VERILOG_GO["codemap/verilog.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_CODEMAP_VERILOG_GO
-  CODE_ENGINEERING_MODEL_GO_CODEMAP_JAVASCRIPT_GO["engineering-model-go/codemap/javascript.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_CODEMAP_JAVASCRIPT_GO
-  CODE_ENGINEERING_MODEL_GO_CODEMAP_PYTHON_GO["engineering-model-go/codemap/python.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_CODEMAP_PYTHON_GO
-  CODE_ENGINEERING_MODEL_GO_CODEMAP_SCAN_GO["engineering-model-go/codemap/scan.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_CODEMAP_SCAN_GO
-  CODE_ENGINEERING_MODEL_GO_CODEMAP_VERILOG_GO["engineering-model-go/codemap/verilog.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_CODEMAP_VERILOG_GO
-  CODE_ENGINEERING_MODEL_GO_INFERRED_CODE_GO["engineering-model-go/inferred_code.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_INFERRED_CODE_GO
-  CODE_ENGINEERING_MODEL_GO_INFERRED_LAYERS_GO["engineering-model-go/inferred_layers.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_INFERRED_LAYERS_GO
-  CODE_ENGINEERING_MODEL_GO_INFERRED_VERIFICATION_GO["engineering-model-go/inferred_verification.go"]:::code_element
-  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_ENGINEERING_MODEL_GO_INFERRED_VERIFICATION_GO
   CODE_INFERRED_CODE_GO["inferred_code.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_CODE_GO
   CODE_INFERRED_LAYERS_GO["inferred_layers.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_LAYERS_GO
   CODE_INFERRED_VERIFICATION_GO["inferred_verification.go"]:::code_element
   SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_INFERRED_VERIFICATION_GO
+  CODE_JAVASCRIPT_GO["javascript.go"]:::code_element
+  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_JAVASCRIPT_GO
+  CODE_PYTHON_GO["python.go"]:::code_element
+  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_PYTHON_GO
+  CODE_SCAN_GO["scan.go"]:::code_element
+  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_SCAN_GO
+  CODE_VERILOG_GO["verilog.go"]:::code_element
+  SEC_RT_FU_CODEMAP_INFERENCE_RUNTIME -->|implemented_by| CODE_VERILOG_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -5025,6 +4897,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84>>
+|<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-C6896C>>
 |<<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
 |not-run
@@ -5956,7 +5833,7 @@ flowchart TB
   CODE_REQ_EMG_003_ASCIIDOC_DESIGN_REFS_GO["asciidoc_design_refs.go: 14, 24, 34, 55, 84, 97, 105, 163, 169, 274, 361, 389, 400, 441, 488, 527, 568"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME --->|implemented_by| CODE_REQ_EMG_003_ASCIIDOC_DESIGN_REFS_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_REQ_EMG_003_ASCIIDOC_DESIGN_REFS_GO
-  CODE_REQ_EMG_003_ASCIIDOC_DIAGRAMS_CORE_GO["asciidoc_diagrams_core.go: 15, 21, 50, 113, 122, 130, 231, 241, 263, 325, 395, 574, 584, 595, 757, 767, 775, 867, 925, 948, 960, 987, 992, 1013, 1035, 1060, 1089, 1155, 1164, 1185, 1215, 1224, 1237, 1252, 1270, 1282"]:::code_element
+  CODE_REQ_EMG_003_ASCIIDOC_DIAGRAMS_CORE_GO["asciidoc_diagrams_core.go: 15, 21, 50, 113, 122, 130, 231, 241, 263, 325, 395, 574, 584, 595, 757, 767, 775, 867, 925, 948, 960, 987, 992, 1017, 1039, 1064, 1093, 1159, 1168, 1189, 1219, 1228, 1241, 1256, 1274, 1286"]:::code_element
   RTC_FU_ASCIIDOC_GENERATOR_RUNTIME --->|implemented_by| CODE_REQ_EMG_003_ASCIIDOC_DIAGRAMS_CORE_GO
   REQC_REQ_EMG_003 -->|code trace| CODE_REQ_EMG_003_ASCIIDOC_DIAGRAMS_CORE_GO
   CODE_REQ_EMG_003_ASCIIDOC_DIAGRAMS_RUNTIME_GO["asciidoc_diagrams_runtime.go: 14, 74, 91, 105, 215, 515, 530, 590, 613, 662, 765, 875, 973, 1053, 1063, 1098, 1127, 1133"]:::code_element
@@ -6015,7 +5892,7 @@ flowchart TB
   VERC_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_8C18F7 --->|implemented_by| VERCODE_REQ_EMG_003_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_8C18F7_ASCIIDOC_COMPLETE_DIAGRAM_TEST_GO
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84["VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84 (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 -->|verifies| REQC_REQ_EMG_003
-  VERCODE_REQ_EMG_003_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84_ASCIIDOC_DIAGRAMS_CORE_TEST_GO["asciidoc_diagrams_core_test.go: 14, 41, 135, 161, 188, 214, 245, 264, 284, 318, 341, 369, 397, 417, 433, 445, 458"]:::code_element
+  VERCODE_REQ_EMG_003_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84_ASCIIDOC_DIAGRAMS_CORE_TEST_GO["asciidoc_diagrams_core_test.go: 16, 43, 137, 163, 190, 216, 247, 266, 286, 320, 343, 371, 399, 419, 435, 448, 480, 493"]:::code_element
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 --->|implemented_by| VERCODE_REQ_EMG_003_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84_ASCIIDOC_DIAGRAMS_CORE_TEST_GO
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D["VER-INF-TEST-ASCIIDOC_DIAGRAMS_RUNTIME_TEST-A8483D (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D -->|verifies| REQC_REQ_EMG_003
@@ -6501,10 +6378,10 @@ flowchart TB
   REQC_REQ_EMG_010 -->|applies_to| FU_FU_CODEMAP_INFERENCE
   RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_REQ_EMG_010_INFERRED_CODE_GO["inferred_code.go: 22, 164, 169, 200, 231, 250, 283, 309, 366, 387, 410, 418, 437"]:::code_element
+  CODE_REQ_EMG_010_INFERRED_CODE_GO["inferred_code.go: 22, 171, 176, 207, 238, 257, 290, 316, 373, 394, 417, 425, 444"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_010_INFERRED_CODE_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_REQ_EMG_010_INFERRED_CODE_GO
-  CODE_REQ_EMG_010_INFERRED_LAYERS_GO["inferred_layers.go: 46, 55, 144, 214, 253, 277, 300, 325, 340, 355, 368, 384, 412, 430, 451, 502, 580, 601, 636, 648, 663"]:::code_element
+  CODE_REQ_EMG_010_INFERRED_LAYERS_GO["inferred_layers.go: 47, 56, 145, 215, 254, 278, 301, 326, 341, 356, 369, 385, 413, 431, 452, 503, 581, 602, 637, 649, 664"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_010_INFERRED_LAYERS_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_REQ_EMG_010_INFERRED_LAYERS_GO
   CODE_REQ_EMG_010_INFERRED_VERIFICATION_GO["inferred_verification.go: 49, 331, 368, 406, 441, 459, 474, 518, 560, 580, 602, 615, 635, 645, 662, 685, 703, 721, 740, 765, 795, 818, 831, 866, 887, 898, 918, 934, 948, 957, 968, 987"]:::code_element
@@ -6522,6 +6399,10 @@ flowchart TB
   CODE_REQ_EMG_010_VERILOG_GO["verilog.go: 23, 199, 213"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_010_VERILOG_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_REQ_EMG_010_VERILOG_GO
+  VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84["VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84 (not-run)"]:::verification
+  VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 -->|verifies| REQC_REQ_EMG_010
+  VERCODE_REQ_EMG_010_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84_ASCIIDOC_DIAGRAMS_CORE_TEST_GO["asciidoc_diagrams_core_test.go: 16, 43, 137, 163, 190, 216, 247, 266, 286, 320, 343, 371, 399, 419, 435, 448, 480, 493"]:::code_element
+  VERC_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84 --->|implemented_by| VERCODE_REQ_EMG_010_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84_ASCIIDOC_DIAGRAMS_CORE_TEST_GO
   VERC_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C["VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-C6896C (not-run)"]:::verification
   VERC_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C -->|verifies| REQC_REQ_EMG_010
   VERCODE_REQ_EMG_010_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C_ASCIIDOC_TEST_EVIDENCE_TEST_GO["asciidoc_test_evidence_test.go: 13, 60"]:::code_element
@@ -6691,7 +6572,7 @@ flowchart TB
   REQC_REQ_EMG_012 -->|applies_to| FU_FU_CODEMAP_INFERENCE
   RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_REQ_EMG_012_INFERRED_CODE_GO["inferred_code.go: 164"]:::code_element
+  CODE_REQ_EMG_012_INFERRED_CODE_GO["inferred_code.go: 171"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_012_INFERRED_CODE_GO
   REQC_REQ_EMG_012 -->|code trace| CODE_REQ_EMG_012_INFERRED_CODE_GO
   FU_FU_GEMARA_EXPORTER["Gemara Exporter"]:::functional_unit
@@ -7043,9 +6924,9 @@ flowchart TB
   REQC_REQ_EMG_016 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_016_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 105, 112, 173"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_016_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_016 -->|code trace| CODE_REQ_EMG_016_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_016_COMPOSITION_GO["composition.go: 105, 112, 173"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_016_COMPOSITION_GO
+  REQC_REQ_EMG_016 -->|code trace| CODE_REQ_EMG_016_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8["VER-INF-TEST-COMPOSITION_TEST-AB66B8 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8 -->|verifies| REQC_REQ_EMG_016
   VERCODE_REQ_EMG_016_VER_INF_TEST_COMPOSITION_TEST_AB66B8_COMPOSITION_TEST_GO["composition_test.go: 15, 54, 88, 120, 133"]:::code_element
@@ -7095,9 +6976,9 @@ flowchart TB
   REQC_REQ_EMG_017 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_017_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 392"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_017_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_017 -->|code trace| CODE_REQ_EMG_017_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_017_COMPOSITION_GO["composition.go: 392"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_017_COMPOSITION_GO
+  REQC_REQ_EMG_017 -->|code trace| CODE_REQ_EMG_017_COMPOSITION_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -7143,9 +7024,9 @@ flowchart TB
   REQC_REQ_EMG_018 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_018_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 173"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_018_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_018 -->|code trace| CODE_REQ_EMG_018_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_018_COMPOSITION_GO["composition.go: 173"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_018_COMPOSITION_GO
+  REQC_REQ_EMG_018 -->|code trace| CODE_REQ_EMG_018_COMPOSITION_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_018 -->|applies_to| FU_FU_VALIDATION_ENGINE
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -7195,9 +7076,9 @@ flowchart TB
   REQC_REQ_EMG_019 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_019_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 681, 909"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_019_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_019 -->|code trace| CODE_REQ_EMG_019_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_019_COMPOSITION_GO["composition.go: 681, 909"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_019_COMPOSITION_GO
+  REQC_REQ_EMG_019 -->|code trace| CODE_REQ_EMG_019_COMPOSITION_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -7745,7 +7626,7 @@ flowchart TB
   REQC_REQ_EMG_030 -->|applies_to| FU_FU_CODEMAP_INFERENCE
   RTC_FU_CODEMAP_INFERENCE_RUNTIME["Codemap Inference runtime (inferred)"]:::runtime_element
   FU_FU_CODEMAP_INFERENCE -->|runtime evidence| RTC_FU_CODEMAP_INFERENCE_RUNTIME
-  CODE_REQ_EMG_030_INFERRED_CODE_GO["inferred_code.go: 437"]:::code_element
+  CODE_REQ_EMG_030_INFERRED_CODE_GO["inferred_code.go: 444"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_030_INFERRED_CODE_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_REQ_EMG_030_INFERRED_CODE_GO
   VERC_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C["VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-C6896C (not-run)"]:::verification
@@ -8980,9 +8861,9 @@ flowchart TB
   REQC_REQ_EMG_047 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_047_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 50, 66, 112, 153, 173, 269, 313, 386, 406, 423, 560, 575"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_047_COMPOSITION_GO["composition.go: 50, 66, 112, 153, 173, 269, 313, 386, 406, 423, 560, 575"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_COMPOSITION_GO
+  REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11 -->|verifies| REQC_REQ_EMG_047
   VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11_COMPOSITION_OCI_TEST_GO["composition_oci_test.go: 17, 57, 89, 112, 139, 147, 153"]:::code_element
@@ -9058,9 +8939,9 @@ flowchart TB
   REQC_REQ_EMG_048 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_048_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 66, 112, 153, 173, 269, 575"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_048_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_048 -->|code trace| CODE_REQ_EMG_048_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_048_COMPOSITION_GO["composition.go: 66, 112, 153, 173, 269, 575"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_048_COMPOSITION_GO
+  REQC_REQ_EMG_048 -->|code trace| CODE_REQ_EMG_048_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11 -->|verifies| REQC_REQ_EMG_048
   VERCODE_REQ_EMG_048_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11_COMPOSITION_OCI_TEST_GO["composition_oci_test.go: 17, 57, 89, 112, 139, 147, 153"]:::code_element
@@ -9124,9 +9005,9 @@ flowchart TB
   REQC_REQ_EMG_049 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_049_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 50, 66, 112, 153, 173, 269, 386, 392, 423, 458, 468, 499, 528, 560, 575, 612, 622, 769, 781, 851"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_049_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_049 -->|code trace| CODE_REQ_EMG_049_ENGINEERING_MODEL_GO_COMPOSITION_GO
+  CODE_REQ_EMG_049_COMPOSITION_GO["composition.go: 50, 66, 112, 153, 173, 269, 386, 392, 423, 458, 468, 499, 528, 560, 575, 612, 622, 769, 781, 851"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_049_COMPOSITION_GO
+  REQC_REQ_EMG_049 -->|code trace| CODE_REQ_EMG_049_COMPOSITION_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_049 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
@@ -9323,12 +9204,12 @@ flowchart TB
   REQC_REQ_EMG_051 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
+  CODE_REQ_EMG_051_COMPOSITION_GO["composition.go: 50, 66, 112, 153, 173, 423, 458, 468, 499, 528, 560, 612, 769, 781, 851"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_COMPOSITION_GO
+  REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_COMPOSITION_GO
   CODE_REQ_EMG_051_COMPOSITION_PROJECTION_GO["composition_projection.go: 17, 29, 41, 49, 99, 114, 124, 135, 171, 208, 235, 249, 419, 435"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_COMPOSITION_PROJECTION_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_COMPOSITION_PROJECTION_GO
-  CODE_REQ_EMG_051_ENGINEERING_MODEL_GO_COMPOSITION_GO["engineering-model-go/composition.go: 50, 66, 112, 153, 173, 423, 458, 468, 499, 528, 560, 612, 769, 781, 851"]:::code_element
-  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_ENGINEERING_MODEL_GO_COMPOSITION_GO
-  REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_ENGINEERING_MODEL_GO_COMPOSITION_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_051 -->|applies_to| FU_FU_VALIDATION_ENGINE
   VERC_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3["VER-INF-TEST-COMPOSITION_PROJECTION_TEST-71E4C3 (not-run)"]:::verification
@@ -9919,10 +9800,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-3FAC84>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>
-|Test Code Elements |asciidoc_diagrams_core_test.go:14, 41, 135, 161, 188, 214, 245, 264, 284, 318, 341, 369, 397, 417, 433, 445, 458
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
-|Result Summary |not-run:1
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_010,REQ-EMG-010>>
+|Test Code Elements |asciidoc_diagrams_core_test.go:16, 43, 137, 163, 190, 216, 247, 266, 286, 320, 343, 371, 399, 419, 435, 448, 480, 493
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
+|Result Summary |not-run:2
 |Evidence |asciidoc_diagrams_core_test.go
 
 |Notes |Inferred from test source artifact.
@@ -12170,7 +12051,7 @@ Where requirement trace is complete, when model updated event is received, the e
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-010
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_52EB3E,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_680BB5,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERILOG_TEST_32D5FA,Inferred Verilog Test>>, <<REF_VERIFY_VER_INF_TEST_JAVASCRIPT_TEST_4E9F26,Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_PYTHON_TEST_FFAD97,Python Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_VERILOG_TEST_44F499,Verilog Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_52EB3E,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_680BB5,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERILOG_TEST_32D5FA,Inferred Verilog Test>>, <<REF_VERIFY_VER_INF_TEST_JAVASCRIPT_TEST_4E9F26,Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_PYTHON_TEST_FFAD97,Python Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_VERILOG_TEST_44F499,Verilog Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_011]]
 [discrete]
@@ -14980,7 +14861,7 @@ Infers runtime, code, and verification evidence from repository sources and test
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |codemap inference
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_52EB3E,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_680BB5,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERILOG_TEST_32D5FA,Inferred Verilog Test>>, <<REF_VERIFY_VER_INF_TEST_JAVASCRIPT_TEST_4E9F26,Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PYTHON_TEST_FFAD97,Python Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VERILOG_TEST_44F499,Verilog Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_CODE_TEST_3CA82E,Inferred Code Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_52EB3E,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_LAYERS_TEST_6634AF,Inferred Layers Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_680BB5,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERIFICATION_TEST_6715F6,Inferred Verification Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_VERILOG_TEST_32D5FA,Inferred Verilog Test>>, <<REF_VERIFY_VER_INF_TEST_JAVASCRIPT_TEST_4E9F26,Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PYTHON_TEST_FFAD97,Python Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_B04F81,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VERILOG_TEST_44F499,Verilog Test>>
 |===
 [[REF_IDX-CATALOG_FU_GEMARA_EXPORTER]]
 [discrete]
