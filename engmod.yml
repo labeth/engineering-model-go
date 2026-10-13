@@ -197,8 +197,6 @@ inferenceHints:
   - ./mcp
   - ./scripts
   - ./.github/workflows
-  codeSources:
-  - ./
   expectedRuntimeKinds:
   - workload
   - service

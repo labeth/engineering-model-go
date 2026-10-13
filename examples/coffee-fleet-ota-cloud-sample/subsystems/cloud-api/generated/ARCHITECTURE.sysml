@@ -96,12 +96,6 @@ package 'COF-CLOUD-API' {
     attribute 'EVT-TELEMETRY-INGESTED';
 
     @EngineeringElement {
-        sourceId = "EXTENSION-76484FFFA44D2A36";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EXTENSION-76484FFFA44D2A36';
-
-    @EngineeringElement {
         sourceId = "FEAT-CLOUD-INGEST";
         conceptKind = "engineering_extension";
     }

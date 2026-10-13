@@ -18,20 +18,19 @@ import (
 )
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-010
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057
 func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
 	baseDir := modelRootDir(bundle)
-	roots := make([]string, 0, len(bundle.Architecture.InferenceHints.CodeSources)+1)
+	roots := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
 		roots = append(roots, codeRootOption)
 	}
-	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
-		roots = append(roots, resolveSourcePath(baseDir, src))
-	}
-	roots = uniqueExistingSources(roots)
+	roots = withDefaultCodeRoot(bundle, uniqueExistingSources(roots))
 	if len(roots) == 0 {
 		return nil, nil
 	}
+	moduleRoot := moduleCodeRoot(bundle)
+	skip := codeScanSkipper(bundle)
 
 	items := []inferredCodeItem{}
 	diags := []validate.Diagnostic{}
@@ -43,7 +42,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 			abs, _ = filepath.Abs(root)
 		}
 		sourceBase := sourceRootDir(abs)
-		metadata := scanCodeMetadata(abs)
+		metadata := scanCodeMetadata(abs, skip)
 		owners := map[string]string{}
 		descriptions := map[string]string{}
 		for rel, m := range metadata {
@@ -52,7 +51,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				descriptions[rel] = x
 			}
 		}
-		symbols, sDiags, err := codemap.Scan(abs)
+		symbols, sDiags, err := codemap.ScanWithOptions(abs, codemap.ScanOptions{IDBase: moduleRoot, Skip: skip})
 		if err != nil {
 			diags = append(diags, validate.Diagnostic{
 				Code:     "code.scan_failed",
@@ -313,16 +312,19 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func scanCodeMetadata(root string) map[string]codeFileMetadata {
+func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[string]codeFileMetadata {
 	out := map[string]codeFileMetadata{}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
 		if d.IsDir() {
-			if skipScanDir(d.Name()) {
+			if skipScanDir(d.Name()) || (path != root && skip != nil && skip(path, true)) {
 				return filepath.SkipDir
 			}
+			return nil
+		}
+		if skip != nil && skip(path, false) {
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))

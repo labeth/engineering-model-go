@@ -9,8 +9,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-PERSISTFLEETMETRIC",
-          "path": "cloud_api.ts",
+          "symbol": "CODE-SRC-CLOUD-API-TS--PERSISTFLEETMETRIC",
+          "path": "src/cloud_api.ts",
           "line": 6
         }
       ],
@@ -24,8 +24,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-AUTHENTICATEMACHINE",
-          "path": "cloud_api.ts",
+          "symbol": "CODE-SRC-CLOUD-API-TS--AUTHENTICATEMACHINE",
+          "path": "src/cloud_api.ts",
           "line": 12
         }
       ],

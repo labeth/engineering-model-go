@@ -9,8 +9,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-REPORTTELEMETRYRECORD",
-          "path": "telemetry.rs",
+          "symbol": "CODE-SRC-TELEMETRY-RS--REPORTTELEMETRYRECORD",
+          "path": "src/telemetry.rs",
           "line": 12
         }
       ],
@@ -24,8 +24,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-SAMPLEMACHINESENSORS",
-          "path": "telemetry.rs",
+          "symbol": "CODE-SRC-TELEMETRY-RS--SAMPLEMACHINESENSORS",
+          "path": "src/telemetry.rs",
           "line": 18
         }
       ],
@@ -39,8 +39,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-SIGNTELEMETRYRECORD",
-          "path": "telemetry.rs",
+          "symbol": "CODE-SRC-TELEMETRY-RS--SIGNTELEMETRYRECORD",
+          "path": "src/telemetry.rs",
           "line": 27
         }
       ],

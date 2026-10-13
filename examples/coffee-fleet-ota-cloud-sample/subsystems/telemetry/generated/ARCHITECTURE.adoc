@@ -1478,7 +1478,7 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
-[[REF_CODE_SOURCE_FILE_TELEMETRY_RS_TELEMETRY_RS]]
+[[REF_CODE_SOURCE_FILE_TELEMETRY_RS_SRC_TELEMETRY_RS]]
 [discrete]
 ==== telemetry.rs
 
@@ -1489,63 +1489,63 @@ samples machine sensors and reports signed telemetry to the fleet
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-TELEM-REPORT
-|Source |telemetry.rs
+|Source |src/telemetry.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_TELEMETRY_RS_12_TELEMETRY_RS_12]]
+[[REF_CODE_SYMBOL_TELEMETRY_RS_12_SRC_TELEMETRY_RS_12]]
 [discrete]
 ==== telemetry.rs:12
 
-Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:12.
+Inferred code symbol owned by FU-TELEM-REPORT from src/telemetry.rs:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-TELEM-REPORT
-|Source |telemetry.rs:12
+|Source |src/telemetry.rs:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_TELEMETRY_RS_18_TELEMETRY_RS_18]]
+[[REF_CODE_SYMBOL_TELEMETRY_RS_18_SRC_TELEMETRY_RS_18]]
 [discrete]
 ==== telemetry.rs:18
 
-Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:18.
+Inferred code symbol owned by FU-TELEM-REPORT from src/telemetry.rs:18.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-TELEM-REPORT
-|Source |telemetry.rs:18
+|Source |src/telemetry.rs:18
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_TELEMETRY_RS_27_TELEMETRY_RS_27]]
+[[REF_CODE_SYMBOL_TELEMETRY_RS_27_SRC_TELEMETRY_RS_27]]
 [discrete]
 ==== telemetry.rs:27
 
-Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:27.
+Inferred code symbol owned by FU-TELEM-REPORT from src/telemetry.rs:27.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-TELEM-REPORT
-|Source |telemetry.rs:27
+|Source |src/telemetry.rs:27
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_TELEMETRY_RS_5_TELEMETRY_RS_5]]
+[[REF_CODE_SYMBOL_TELEMETRY_RS_5_SRC_TELEMETRY_RS_5]]
 [discrete]
 ==== telemetry.rs:5
 
-Inferred code symbol owned by FU-TELEM-REPORT from telemetry.rs:5.
+Inferred code symbol owned by FU-TELEM-REPORT from src/telemetry.rs:5.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-TELEM-REPORT
-|Source |telemetry.rs:5
+|Source |src/telemetry.rs:5
 |Mentioned In |n/a
 |===
 

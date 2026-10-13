@@ -28,8 +28,8 @@ generated_after="$log_dir/generated.after.sha256"
 find generated examples -type f \( -path 'generated/*' -o -path '*/generated/*' \) -print0 |
   sort -z | xargs -0 sha256sum >"$generated_before"
 
-# name|model-dir — each dir has engmod.yml plus schema-v2 domain documents and
-# inferenceHints.codeSources, so engdoc/engtrace need no --code-root.
+# name|model-dir — each dir has engmod.yml plus schema-v2 domain documents; the
+# module root is scanned by default, so engdoc/engtrace need no --code-root.
 MODELS=(
   "self|."
   "dal-c-flight-control|examples/dal-c-flight-control-sample"

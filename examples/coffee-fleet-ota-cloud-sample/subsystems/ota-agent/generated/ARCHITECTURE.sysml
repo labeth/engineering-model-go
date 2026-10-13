@@ -102,12 +102,6 @@ package 'COF-OTA-AGENT' {
     attribute 'EVT-VALIDATION-FAILED';
 
     @EngineeringElement {
-        sourceId = "EXTENSION-37E773CFEE430F8B";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EXTENSION-37E773CFEE430F8B';
-
-    @EngineeringElement {
         sourceId = "FEAT-OTA-CAMPAIGN";
         conceptKind = "engineering_extension";
     }

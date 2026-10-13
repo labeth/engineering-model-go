@@ -26,16 +26,16 @@ func TestScan(t *testing.T) {
 	foundTS := false
 	foundRustReview := false
 	for _, s := range symbols {
-		if s.TraceID == "CODE-STARTSESSION" {
+		if s.TraceID == "CODE-CHECKOUT-API-GO--STARTSESSION" {
 			foundCheckout = true
 		}
-		if s.TraceID == "CODE-AUTHORIZEPAYMENT" {
+		if s.TraceID == "CODE-PAYMENT-ENGINE-RS--AUTHORIZEPAYMENT" {
 			foundPaymentEngine = true
 		}
-		if s.TraceID == "CODE-CALCULATERISKSCORE" {
+		if s.TraceID == "CODE-RISK-SCORER-TS--CALCULATERISKSCORE" {
 			foundTS = true
 		}
-		if s.TraceID == "CODE-NOTIFYSUPPORT" {
+		if s.TraceID == "CODE-PAYMENT-ENGINE-RS--NOTIFYSUPPORT" {
 			foundRustReview = true
 		}
 	}
@@ -135,10 +135,10 @@ type Alias = string
 	if len(symbols) != 2 {
 		t.Fatalf("expected two type symbols, got %+v", symbols)
 	}
-	if symbols[0].TraceID != "CODE-DOCUMENT" || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
+	if symbols[0].TraceID != "CODE-SCHEMA-GO--DOCUMENT" || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
 		t.Fatalf("unexpected first type symbol: %+v", symbols[0])
 	}
-	if symbols[1].TraceID != "CODE-ALIAS" || symbols[1].Implements[0] != "REQ-SAMPLE-002" {
+	if symbols[1].TraceID != "CODE-SCHEMA-GO--ALIAS" || symbols[1].Implements[0] != "REQ-SAMPLE-002" {
 		t.Fatalf("unexpected second type symbol: %+v", symbols[1])
 	}
 }

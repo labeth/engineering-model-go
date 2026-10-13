@@ -665,6 +665,11 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 		}
 	}
 	for i, x := range a.Mappings {
+		// Mappings to inferred CODE identifiers are code trace links, not architecture
+		// relationships; validation resolves them against the code index instead.
+		if IsCodeID(x.From) || IsCodeID(x.To) {
+			continue
+		}
 		kind, ok := semanticMappingKind(x.Type)
 		if !ok {
 			kind = RelationshipExtension
@@ -1689,4 +1694,11 @@ func validControlKind(kind string) bool {
 // TRLC-LINKS: REQ-EMG-035
 func indexPath(prefix string, index int) string {
 	return fmt.Sprintf("%s[%d]", prefix, index)
+}
+
+// IsCodeID reports whether id is an inferred, path-derived CODE identifier.
+// TRLC-LINKS: REQ-EMG-059
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
+func IsCodeID(id string) bool {
+	return strings.HasPrefix(strings.TrimSpace(id), "CODE-")
 }

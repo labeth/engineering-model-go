@@ -138,8 +138,6 @@ publications:
 inferenceHints:
   runtimeSources:
   - ./infra/terraform
-  codeSources:
-  - ./src
   expectedRuntimeKinds:
   - lambda_function
   - eventbridge_rule

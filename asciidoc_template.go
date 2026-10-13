@@ -128,7 +128,6 @@ type asciidocViewConfig struct {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type asciidocInferenceHints struct {
 	RuntimeSources           string
-	CodeSources              string
 	ExpectedRuntimeKinds     string
 	OwnershipResolutionOrder string
 }

@@ -769,7 +769,6 @@ flowchart LR
     FU_FU_PR_CONTEXT_ASSEMBLY["PR Context Assembly"]:::functional_unit
     subgraph RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]
       direction TB
-      CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
       CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
     end
     style RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -777,7 +776,6 @@ flowchart LR
     subgraph RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_["PR Context Assembly runtime (inferred)"]
       direction TB
       CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts"]:::code_element
-      CODE_SRC_PR_CONTEXT_ASSEMBLY_TS["src/pr_context_assembly.ts"]:::code_element
     end
     style RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_PR_CONTEXT_ASSEMBLY -->|runtime evidence| RT_FU_PR_CONTEXT_ASSEMBLY_PR_CONTEXT_ASSEMBLY_RUNTIME__INFERRED_
@@ -915,21 +913,18 @@ flowchart LR
     subgraph RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_["Policy Checks runtime (inferred)"]
       direction TB
       CODE_POLICY_CHECKS_RS["policy_checks.rs"]:::code_element
-      CODE_SRC_POLICY_CHECKS_RS["src/policy_checks.rs"]:::code_element
     end
     style RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_POLICY_CHECKS -->|runtime evidence| RT_FU_POLICY_CHECKS_POLICY_CHECKS_RUNTIME__INFERRED_
     subgraph RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR["review_orchestrator"]
       direction TB
       CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
-      CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
     end
     style RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_REVIEW_ORCHESTRATION -->|runtime evidence| RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
     subgraph RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER["review_publisher"]
       direction TB
       CODE_REVIEW_PUBLICATION_TS["review_publication.ts"]:::code_element
-      CODE_SRC_REVIEW_PUBLICATION_TS["src/review_publication.ts"]:::code_element
     end
     style RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_REVIEW_PUBLICATION -->|runtime evidence| RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
@@ -1096,14 +1091,12 @@ flowchart LR
     subgraph RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_["Lambda Runtime Operations runtime (inferred)"]
       direction TB
       CODE_LAMBDA_RUNTIME_OPS_GO["lambda_runtime_ops.go"]:::code_element
-      CODE_SRC_LAMBDA_RUNTIME_OPS_GO["src/lambda_runtime_ops.go"]:::code_element
     end
     style RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_LAMBDA_RUNTIME_OPERATIONS -->|runtime evidence| RT_FU_LAMBDA_RUNTIME_OPERATIONS_LAMBDA_RUNTIME_OPERATIONS_RUNTIME__INFERRED_
     subgraph RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_["Secrets and Configuration runtime (inferred)"]
       direction TB
       CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts"]:::code_element
-      CODE_SRC_SECRETS_CONFIGURATION_TS["src/secrets_configuration.ts"]:::code_element
     end
     style RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_SECRETS_CONFIGURATION -->|runtime evidence| RT_FU_SECRETS_CONFIGURATION_SECRETS_AND_CONFIGURATION_RUNTIME__INFERRED_
@@ -1685,7 +1678,7 @@ Deploys as an independently managed Lambda runtime boundary.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_001,REQ-PRR-001>>, <<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_PR_CONTEXT_ASSEMBLY,PR Context Assembly>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: src
 |===
 
 
@@ -1710,7 +1703,7 @@ Deployed separately to allow context shaping changes without ingress disruption.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_002,REQ-PRR-002>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_REF_GITHUB_REST_SDK,GitHub REST SDK>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,Review Orchestration>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_PR_CONTEXT_ASSEMBLY_TS,pr_context_assembly>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -1764,7 +1757,7 @@ Deployed independently to evolve policy logic without <<REF_IDX-ENGMODEL_TERM_MO
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
 |Deployment dependencies |Review <<REF_IDX-CATALOG_REF_POLICY_RULESET,Policy Ruleset>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS_POLICY_CHECKS_RS,policy_checks>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -1789,7 +1782,7 @@ Isolated deployment enables cautious <<REF_IDX-ENGMODEL_TERM_MODEL,model>>/confi
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_003,REQ-PRR-003>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
 |Deployment dependencies |AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-CATALOG_FU_POLICY_CHECKS,Policy Checks>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,Review Publication>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: src
 |===
 
 
@@ -1814,7 +1807,7 @@ Release isolation protects <<REF_IDX-CATALOG_PUBLICATION,publication>> reliabili
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>, <<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>, <<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>, <<REF_IDX-REQ_REQ_PRR_009,REQ-PRR-009>>, <<REF_IDX-REQ_REQ_PRR_010,REQ-PRR-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_GITHUB_APP_API,GitHub App API>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: src
 |===
 
 
@@ -1854,7 +1847,7 @@ Governs source-to-release pipeline behavior and runtime placement boundaries.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_011,REQ-PRR-011>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_AWS_SECRETS_MANAGER,AWS Secrets Manager>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,Secrets and Configuration>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_LAMBDA_RUNTIME_OPS_GO,lambda_runtime_ops>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -1879,7 +1872,7 @@ Managed as a shared operational boundary with controlled rotation and rollout <<
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_AWS_SDK_GO,AWS SDK for Go>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS_SECRETS_CONFIGURATION_TS,secrets_configuration>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -2420,8 +2413,6 @@ flowchart LR
   SEC_TGT_FU_PR_CONTEXT_ASSEMBLY -->|runtime| SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME
   CODE_PR_CONTEXT_ASSEMBLY_TS["pr_context_assembly.ts"]:::code_element
   SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_PR_CONTEXT_ASSEMBLY_TS
-  CODE_SRC_PR_CONTEXT_ASSEMBLY_TS["src/pr_context_assembly.ts"]:::code_element
-  SEC_RT_FU_PR_CONTEXT_ASSEMBLY_RUNTIME -->|implemented_by| CODE_SRC_PR_CONTEXT_ASSEMBLY_TS
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
   AV_AV_PROMPT_INJECTION_IN_DIFF -->|targets| SEC_TGT_FU_REVIEW_ORCHESTRATION
   SEC_DEP_AWS_BEDROCK_RUNTIME_API["AWS Bedrock Runtime API"]:::referenced_element
@@ -2436,8 +2427,6 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
-  CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
-  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_SRC_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2476,7 +2465,7 @@ Applies contextual sanitization to reduce <<REF_IDX-CATALOG_PROMPT_INJECTION,pro
 [discrete]
 ====== Security Evidence Present
 
-code modules: <<REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_PR_CONTEXT_ASSEMBLY_TS,pr_context_assembly>>
+code modules: src
 
 ===== Review Orchestration (FU-REVIEW-ORCHESTRATION)
 
@@ -2492,7 +2481,7 @@ AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-C
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: src
 
 
 
@@ -2516,8 +2505,6 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
-  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_SRC_WEBHOOK_INGRESS_GO
   CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
   SEC_TGT_FU_REVIEW_ORCHESTRATION["Review Orchestration"]:::functional_unit
@@ -2534,8 +2521,6 @@ flowchart LR
   SEC_TGT_FU_REVIEW_ORCHESTRATION -->|runtime| SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR
   CODE_REVIEW_ORCHESTRATOR_RS["review_orchestrator.rs"]:::code_element
   SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_REVIEW_ORCHESTRATOR_RS
-  CODE_SRC_REVIEW_ORCHESTRATOR_RS["src/review_orchestrator.rs"]:::code_element
-  SEC_RT_FU_REVIEW_ORCHESTRATION_REVIEW_ORCHESTRATOR -->|implemented_by| CODE_SRC_REVIEW_ORCHESTRATOR_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2574,7 +2559,7 @@ Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMO
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: src
 
 ===== Review Orchestration (FU-REVIEW-ORCHESTRATION)
 
@@ -2590,7 +2575,7 @@ AWS <<REF_IDX-CATALOG_REF_AWS_BEDROCK_RUNTIME,Bedrock Runtime>> API, <<REF_IDX-C
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_ORCHESTRATOR,review_orchestrator>>; code modules: src
 
 
 
@@ -2618,8 +2603,6 @@ flowchart LR
   SEC_TGT_FU_REVIEW_PUBLICATION -->|runtime| SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER
   CODE_REVIEW_PUBLICATION_TS["review_publication.ts"]:::code_element
   SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_REVIEW_PUBLICATION_TS
-  CODE_SRC_REVIEW_PUBLICATION_TS["src/review_publication.ts"]:::code_element
-  SEC_RT_FU_REVIEW_PUBLICATION_REVIEW_PUBLISHER -->|implemented_by| CODE_SRC_REVIEW_PUBLICATION_TS
   SEC_TGT_FU_SECRETS_CONFIGURATION["Secrets and Configuration"]:::functional_unit
   AV_AV_SECRET_LEAKAGE_IN_REVIEW -->|targets| SEC_TGT_FU_SECRETS_CONFIGURATION
   SEC_DEP_AWS_SDK_FOR_GO["AWS SDK for Go"]:::referenced_element
@@ -2628,8 +2611,6 @@ flowchart LR
   SEC_TGT_FU_SECRETS_CONFIGURATION -->|runtime| SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME
   CODE_SECRETS_CONFIGURATION_TS["secrets_configuration.ts"]:::code_element
   SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SECRETS_CONFIGURATION_TS
-  CODE_SRC_SECRETS_CONFIGURATION_TS["src/secrets_configuration.ts"]:::code_element
-  SEC_RT_FU_SECRETS_CONFIGURATION_RUNTIME -->|implemented_by| CODE_SRC_SECRETS_CONFIGURATION_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2668,7 +2649,7 @@ Applies redaction and policy-aware output filtering before publishing findings.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: <<REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS,review_publication>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_REVIEW_PUBLISHER,review_publisher>>; code modules: src
 
 ===== Secrets and Configuration (FU-SECRETS-CONFIGURATION)
 
@@ -2684,7 +2665,7 @@ Enforces credential isolation, least-privilege access, and redaction-safe metada
 [discrete]
 ====== Security Evidence Present
 
-code modules: <<REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS_SECRETS_CONFIGURATION_TS,secrets_configuration>>
+code modules: src
 
 
 
@@ -2708,8 +2689,6 @@ flowchart LR
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|depends_on| SEC_DEP_PR_CONTEXT_ASSEMBLY
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS["webhook_ingress"]:::runtime_element
   SEC_TGT_FU_GITHUB_WEBHOOK_INGRESS -->|runtime| SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS
-  CODE_SRC_WEBHOOK_INGRESS_GO["src/webhook_ingress.go"]:::code_element
-  SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_SRC_WEBHOOK_INGRESS_GO
   CODE_WEBHOOK_INGRESS_GO["webhook_ingress.go"]:::code_element
   SEC_RT_FU_GITHUB_WEBHOOK_INGRESS_WEBHOOK_INGRESS -->|implemented_by| CODE_WEBHOOK_INGRESS_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2750,7 +2729,7 @@ Enforces signature verification and rejects spoofed or malformed <<REF_IDX-ENGMO
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_WEBHOOK_INGRESS,webhook_ingress>>; code modules: src
 
 
 
@@ -3931,10 +3910,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |integration
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_007,REQ-PRR-007>>
-|Test Code Elements |audit_redaction_test.ts:3
+|Test Code Elements |<<REF_CODE_SYMBOL_AUDIT_REDACTION_TEST_TS_3_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_3,audit_redaction_test.ts:3>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>, <<REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION,FU-SECRETS-CONFIGURATION>>
 |Result Summary |not-run:1
-|Evidence |tests/integration/audit_redaction_test.ts
+|Evidence |tests/integration/<<REF_CODE_SOURCE_FILE_AUDIT_REDACTION_TEST_TS_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS,audit_redaction_test.ts>>
 
 |Notes |checks audit <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> redaction for secrets and sensitive payload fields
 
@@ -3951,10 +3930,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |integration
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_004,REQ-PRR-004>>, <<REF_IDX-REQ_REQ_PRR_006,REQ-PRR-006>>
-|Test Code Elements |policy_only_fallback_test.rs:5
+|Test Code Elements |<<REF_CODE_SYMBOL_POLICY_ONLY_FALLBACK_TEST_RS_5_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_5,policy_only_fallback_test.rs:5>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_POLICY_CHECKS,FU-POLICY-CHECKS>>, <<REF_IDX-CATALOG_FU_REVIEW_ORCHESTRATION,FU-REVIEW-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>
 |Result Summary |pass:2
-|Evidence |test-results/integration-policy-fallback.json, tests/integration/policy_only_fallback_test.rs
+|Evidence |test-results/integration-policy-fallback.json, tests/integration/<<REF_CODE_SOURCE_FILE_POLICY_ONLY_FALLBACK_TEST_RS_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS,policy_only_fallback_test.rs>>
 
 |Notes |verifies policy-only fallback when Bedrock inference is unavailable
 
@@ -3971,10 +3950,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
-|Test Code Elements |github_check_run_contract_test.go:8
+|Test Code Elements |<<REF_CODE_SYMBOL_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_8_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_8,github_check_run_contract_test.go:8>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>
 |Result Summary |not-run:1
-|Evidence |tests/contract/github_check_run_contract_test.go
+|Evidence |tests/contract/<<REF_CODE_SOURCE_FILE_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO,github_check_run_contract_test.go>>
 
 |Notes |validates GitHub check-run contract shape and required review result fields
 
@@ -3991,10 +3970,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |unit
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_008,REQ-PRR-008>>
-|Test Code Elements |rate_limit_deferral_test.go:8
+|Test Code Elements |<<REF_CODE_SYMBOL_RATE_LIMIT_DEFERRAL_TEST_GO_8_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_8,rate_limit_deferral_test.go:8>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_GITHUB_WEBHOOK_INGRESS,FU-GITHUB-WEBHOOK-INGRESS>>, <<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>
 |Result Summary |pass:1
-|Evidence |test-results/unit-rate-limit.xml, tests/unit/rate_limit_deferral_test.go
+|Evidence |test-results/unit-rate-limit.xml, tests/unit/<<REF_CODE_SOURCE_FILE_RATE_LIMIT_DEFERRAL_TEST_GO_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO,rate_limit_deferral_test.go>>
 
 |Notes |verifies rate-limit deferral behavior for pull request review processing
 
@@ -6682,133 +6661,189 @@ validates GitHub webhook signature and normalizes pull request event payloads
 |===
 
 === Inferred Code References
-[[REF_CODE_LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER__SECRETS_CONFIGURATION_TS__SECRETS_CONFIGURATION_TS]]
+[[REF_CODE_LIBRARY_EXTERNAL_AWS_SDK_GO_V2_SECRETSMANAGER__SECRETS_CONFIGURATION_TS__SRC_SECRETS_CONFIGURATION_TS]]
 [discrete]
 ==== aws-sdk-go-v2/secretsmanager (secrets_configuration.ts)
 
-Inferred library_external dependency owned by FU-SECRETS-CONFIGURATION from secrets_configuration.ts.
+Inferred library_external dependency owned by FU-SECRETS-CONFIGURATION from src/secrets_configuration.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-SECRETS-CONFIGURATION
-|Source |secrets_configuration.ts
+|Source |src/secrets_configuration.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK__PR_CONTEXT_ASSEMBLY_TS__PR_CONTEXT_ASSEMBLY_TS]]
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK__PR_CONTEXT_ASSEMBLY_TS__SRC_PR_CONTEXT_ASSEMBLY_TS]]
 [discrete]
 ==== github-rest-sdk (pr_context_assembly.ts)
 
-Inferred library_external dependency owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts.
+Inferred library_external dependency owned by FU-PR-CONTEXT-ASSEMBLY from src/pr_context_assembly.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts
+|Source |src/pr_context_assembly.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT__REVIEW_PUBLICATION_TS__REVIEW_PUBLICATION_TS]]
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_REST_SDK_PUBLICATION_CLIENT__REVIEW_PUBLICATION_TS__SRC_REVIEW_PUBLICATION_TS]]
 [discrete]
 ==== github-rest-sdk/publication-client (review_publication.ts)
 
-Inferred library_external dependency owned by FU-REVIEW-PUBLICATION from review_publication.ts.
+Inferred library_external dependency owned by FU-REVIEW-PUBLICATION from src/review_publication.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts
+|Source |src/review_publication.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__REVIEW_ORCHESTRATOR_RS__REVIEW_ORCHESTRATOR_RS]]
+[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__REVIEW_ORCHESTRATOR_RS__SRC_REVIEW_ORCHESTRATOR_RS]]
 [discrete]
 ==== serde_json::json (review_orchestrator.rs)
 
-Inferred library_external dependency owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs.
+Inferred library_external dependency owned by FU-REVIEW-ORCHESTRATION from src/review_orchestrator.rs.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs
+|Source |src/review_orchestrator.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_CRYPTO_HMAC__WEBHOOK_INGRESS_GO__WEBHOOK_INGRESS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_CRYPTO_HMAC__WEBHOOK_INGRESS_GO__SRC_WEBHOOK_INGRESS_GO]]
 [discrete]
 ==== crypto/hmac (webhook_ingress.go)
 
-Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go
+|Source |src/webhook_ingress.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_CRYPTO_SHA256__WEBHOOK_INGRESS_GO__WEBHOOK_INGRESS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_CRYPTO_SHA256__WEBHOOK_INGRESS_GO__SRC_WEBHOOK_INGRESS_GO]]
 [discrete]
 ==== crypto/sha256 (webhook_ingress.go)
 
-Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go
+|Source |src/webhook_ingress.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_ENCODING_HEX__WEBHOOK_INGRESS_GO__WEBHOOK_INGRESS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_ENCODING_HEX__WEBHOOK_INGRESS_GO__SRC_WEBHOOK_INGRESS_GO]]
 [discrete]
 ==== encoding/hex (webhook_ingress.go)
 
-Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go
+|Source |src/webhook_ingress.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_FMT__WEBHOOK_INGRESS_GO__WEBHOOK_INGRESS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_FMT__WEBHOOK_INGRESS_GO__SRC_WEBHOOK_INGRESS_GO]]
 [discrete]
 ==== fmt (webhook_ingress.go)
 
-Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go.
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go
+|Source |src/webhook_ingress.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_LOG__LAMBDA_RUNTIME_OPS_GO__LAMBDA_RUNTIME_OPS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_LOG__LAMBDA_RUNTIME_OPS_GO__SRC_LAMBDA_RUNTIME_OPS_GO]]
 [discrete]
 ==== log (lambda_runtime_ops.go)
 
-Inferred library_stdlib dependency owned by FU-LAMBDA-RUNTIME-OPERATIONS from lambda_runtime_ops.go.
+Inferred library_stdlib dependency owned by FU-LAMBDA-RUNTIME-OPERATIONS from src/lambda_runtime_ops.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-LAMBDA-RUNTIME-OPERATIONS
-|Source |lambda_runtime_ops.go
+|Source |src/lambda_runtime_ops.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_LAMBDA_RUNTIME_OPS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_TESTING__GITHUB_CHECK_RUN_CONTRACT_TEST_GO__TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO]]
+[discrete]
+==== testing (github_check_run_contract_test.go)
+
+Inferred library_stdlib dependency owned by FU-REVIEW-PUBLICATION from tests/contract/github_check_run_contract_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-REVIEW-PUBLICATION
+|Source |tests/contract/github_check_run_contract_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_STDLIB_TESTING__RATE_LIMIT_DEFERRAL_TEST_GO__TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO]]
+[discrete]
+==== testing (rate_limit_deferral_test.go)
+
+Inferred library_stdlib dependency owned by FU-GITHUB-WEBHOOK-INGRESS from tests/unit/rate_limit_deferral_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |tests/unit/rate_limit_deferral_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SOURCE_FILE_AUDIT_REDACTION_TEST_TS_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS]]
+[discrete]
+==== audit_redaction_test.ts
+
+Inferred source file owned by unresolved from tests/integration/audit_redaction_test.ts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/integration/audit_redaction_test.ts
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
+|===
+[[REF_CODE_SOURCE_FILE_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO]]
+[discrete]
+==== github_check_run_contract_test.go
+
+Inferred source file owned by FU-REVIEW-PUBLICATION from tests/contract/github_check_run_contract_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-REVIEW-PUBLICATION
+|Source |tests/contract/github_check_run_contract_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
+|===
+[[REF_CODE_SOURCE_FILE_LAMBDA_RUNTIME_OPS_GO_SRC_LAMBDA_RUNTIME_OPS_GO]]
 [discrete]
 ==== lambda_runtime_ops.go
 
@@ -6819,10 +6854,10 @@ wires Lambda runtime entrypoints and shared execution dependencies
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-LAMBDA-RUNTIME-OPERATIONS
-|Source |lambda_runtime_ops.go
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Source |src/lambda_runtime_ops.go
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS_POLICY_CHECKS_RS]]
+[[REF_CODE_SOURCE_FILE_POLICY_CHECKS_RS_SRC_POLICY_CHECKS_RS]]
 [discrete]
 ==== policy_checks.rs
 
@@ -6833,10 +6868,24 @@ evaluates policy and style rules before review publication
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-POLICY-CHECKS
-|Source |policy_checks.rs
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Source |src/policy_checks.rs
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_PR_CONTEXT_ASSEMBLY_TS]]
+[[REF_CODE_SOURCE_FILE_POLICY_ONLY_FALLBACK_TEST_RS_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS]]
+[discrete]
+==== policy_only_fallback_test.rs
+
+Inferred source file owned by unresolved from tests/integration/policy_only_fallback_test.rs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/integration/policy_only_fallback_test.rs
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
+|===
+[[REF_CODE_SOURCE_FILE_PR_CONTEXT_ASSEMBLY_TS_SRC_PR_CONTEXT_ASSEMBLY_TS]]
 [discrete]
 ==== pr_context_assembly.ts
 
@@ -6847,10 +6896,24 @@ collects pull request diff context and prepares review input payloads
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/pr_context_assembly.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_REVIEW_ORCHESTRATOR_RS]]
+[[REF_CODE_SOURCE_FILE_RATE_LIMIT_DEFERRAL_TEST_GO_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO]]
+[discrete]
+==== rate_limit_deferral_test.go
+
+Inferred source file owned by FU-GITHUB-WEBHOOK-INGRESS from tests/unit/rate_limit_deferral_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |tests/unit/rate_limit_deferral_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
+|===
+[[REF_CODE_SOURCE_FILE_REVIEW_ORCHESTRATOR_RS_SRC_REVIEW_ORCHESTRATOR_RS]]
 [discrete]
 ==== review_orchestrator.rs
 
@@ -6861,10 +6924,10 @@ coordinates deterministic and AI review steps for pull requests
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs
+|Source |src/review_orchestrator.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_REVIEW_PUBLICATION_TS]]
+[[REF_CODE_SOURCE_FILE_REVIEW_PUBLICATION_TS_SRC_REVIEW_PUBLICATION_TS]]
 [discrete]
 ==== review_publication.ts
 
@@ -6875,10 +6938,10 @@ publishes review comments and check-run outcomes back to GitHub
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/review_publication.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS_SECRETS_CONFIGURATION_TS]]
+[[REF_CODE_SOURCE_FILE_SECRETS_CONFIGURATION_TS_SRC_SECRETS_CONFIGURATION_TS]]
 [discrete]
 ==== secrets_configuration.ts
 
@@ -6889,10 +6952,10 @@ loads GitHub and Bedrock secret configuration for review execution
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-SECRETS-CONFIGURATION
-|Source |secrets_configuration.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/secrets_configuration.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_WEBHOOK_INGRESS_GO_WEBHOOK_INGRESS_GO]]
+[[REF_CODE_SOURCE_FILE_WEBHOOK_INGRESS_GO_SRC_WEBHOOK_INGRESS_GO]]
 [discrete]
 ==== webhook_ingress.go
 
@@ -6903,287 +6966,343 @@ validates GitHub webhook signatures and routes pull request events
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go
+|Source |src/webhook_ingress.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_LAMBDA_RUNTIME_OPS_GO_10_LAMBDA_RUNTIME_OPS_GO_10]]
+[[REF_CODE_SYMBOL_AUDIT_REDACTION_TEST_TS_3_TESTS_INTEGRATION_AUDIT_REDACTION_TEST_TS_3]]
+[discrete]
+==== audit_redaction_test.ts:3
+
+Inferred code symbol owned by unresolved from tests/integration/audit_redaction_test.ts:3.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/integration/audit_redaction_test.ts:3
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>
+|===
+[[REF_CODE_SYMBOL_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_8_TESTS_CONTRACT_GITHUB_CHECK_RUN_CONTRACT_TEST_GO_8]]
+[discrete]
+==== github_check_run_contract_test.go:8
+
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from tests/contract/github_check_run_contract_test.go:8.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-REVIEW-PUBLICATION
+|Source |tests/contract/github_check_run_contract_test.go:8
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
+|===
+[[REF_CODE_SYMBOL_LAMBDA_RUNTIME_OPS_GO_10_SRC_LAMBDA_RUNTIME_OPS_GO_10]]
 [discrete]
 ==== lambda_runtime_ops.go:10
 
-Inferred code symbol owned by FU-LAMBDA-RUNTIME-OPERATIONS from lambda_runtime_ops.go:10.
+Inferred code symbol owned by FU-LAMBDA-RUNTIME-OPERATIONS from src/lambda_runtime_ops.go:10.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-LAMBDA-RUNTIME-OPERATIONS
-|Source |lambda_runtime_ops.go:10
+|Source |src/lambda_runtime_ops.go:10
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_POLICY_CHECKS_RS_21_POLICY_CHECKS_RS_21]]
+[[REF_CODE_SYMBOL_POLICY_CHECKS_RS_21_SRC_POLICY_CHECKS_RS_21]]
 [discrete]
 ==== policy_checks.rs:21
 
-Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:21.
+Inferred code symbol owned by FU-POLICY-CHECKS from src/policy_checks.rs:21.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-POLICY-CHECKS
-|Source |policy_checks.rs:21
+|Source |src/policy_checks.rs:21
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_POLICY_CHECKS_RS_7_POLICY_CHECKS_RS_7]]
+[[REF_CODE_SYMBOL_POLICY_CHECKS_RS_7_SRC_POLICY_CHECKS_RS_7]]
 [discrete]
 ==== policy_checks.rs:7
 
-Inferred code symbol owned by FU-POLICY-CHECKS from policy_checks.rs:7.
+Inferred code symbol owned by FU-POLICY-CHECKS from src/policy_checks.rs:7.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-POLICY-CHECKS
-|Source |policy_checks.rs:7
+|Source |src/policy_checks.rs:7
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_13_PR_CONTEXT_ASSEMBLY_TS_13]]
+[[REF_CODE_SYMBOL_POLICY_ONLY_FALLBACK_TEST_RS_5_TESTS_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_RS_5]]
+[discrete]
+==== policy_only_fallback_test.rs:5
+
+Inferred code symbol owned by unresolved from tests/integration/policy_only_fallback_test.rs:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/integration/policy_only_fallback_test.rs:5
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>
+|===
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_13_SRC_PR_CONTEXT_ASSEMBLY_TS_13]]
 [discrete]
 ==== pr_context_assembly.ts:13
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:13.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from src/pr_context_assembly.ts:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:13
+|Source |src/pr_context_assembly.ts:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_20_PR_CONTEXT_ASSEMBLY_TS_20]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_20_SRC_PR_CONTEXT_ASSEMBLY_TS_20]]
 [discrete]
 ==== pr_context_assembly.ts:20
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:20.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from src/pr_context_assembly.ts:20.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:20
+|Source |src/pr_context_assembly.ts:20
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_6_PR_CONTEXT_ASSEMBLY_TS_6]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_6_SRC_PR_CONTEXT_ASSEMBLY_TS_6]]
 [discrete]
 ==== pr_context_assembly.ts:6
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:6.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from src/pr_context_assembly.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:6
+|Source |src/pr_context_assembly.ts:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_9_PR_CONTEXT_ASSEMBLY_TS_9]]
+[[REF_CODE_SYMBOL_PR_CONTEXT_ASSEMBLY_TS_9_SRC_PR_CONTEXT_ASSEMBLY_TS_9]]
 [discrete]
 ==== pr_context_assembly.ts:9
 
-Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from pr_context_assembly.ts:9.
+Inferred code symbol owned by FU-PR-CONTEXT-ASSEMBLY from src/pr_context_assembly.ts:9.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PR-CONTEXT-ASSEMBLY
-|Source |pr_context_assembly.ts:9
+|Source |src/pr_context_assembly.ts:9
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_11_REVIEW_ORCHESTRATOR_RS_11]]
+[[REF_CODE_SYMBOL_RATE_LIMIT_DEFERRAL_TEST_GO_8_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO_8]]
+[discrete]
+==== rate_limit_deferral_test.go:8
+
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from tests/unit/rate_limit_deferral_test.go:8.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-GITHUB-WEBHOOK-INGRESS
+|Source |tests/unit/rate_limit_deferral_test.go:8
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
+|===
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_11_SRC_REVIEW_ORCHESTRATOR_RS_11]]
 [discrete]
 ==== review_orchestrator.rs:11
 
-Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:11.
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from src/review_orchestrator.rs:11.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs:11
+|Source |src/review_orchestrator.rs:11
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_22_REVIEW_ORCHESTRATOR_RS_22]]
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_22_SRC_REVIEW_ORCHESTRATOR_RS_22]]
 [discrete]
 ==== review_orchestrator.rs:22
 
-Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:22.
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from src/review_orchestrator.rs:22.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs:22
+|Source |src/review_orchestrator.rs:22
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_6_REVIEW_ORCHESTRATOR_RS_6]]
+[[REF_CODE_SYMBOL_REVIEW_ORCHESTRATOR_RS_6_SRC_REVIEW_ORCHESTRATOR_RS_6]]
 [discrete]
 ==== review_orchestrator.rs:6
 
-Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from review_orchestrator.rs:6.
+Inferred code symbol owned by FU-REVIEW-ORCHESTRATION from src/review_orchestrator.rs:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-ORCHESTRATION
-|Source |review_orchestrator.rs:6
+|Source |src/review_orchestrator.rs:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_13_REVIEW_PUBLICATION_TS_13]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_13_SRC_REVIEW_PUBLICATION_TS_13]]
 [discrete]
 ==== review_publication.ts:13
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:13.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from src/review_publication.ts:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:13
+|Source |src/review_publication.ts:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_27_REVIEW_PUBLICATION_TS_27]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_27_SRC_REVIEW_PUBLICATION_TS_27]]
 [discrete]
 ==== review_publication.ts:27
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:27.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from src/review_publication.ts:27.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:27
+|Source |src/review_publication.ts:27
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_33_REVIEW_PUBLICATION_TS_33]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_33_SRC_REVIEW_PUBLICATION_TS_33]]
 [discrete]
 ==== review_publication.ts:33
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:33.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from src/review_publication.ts:33.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:33
+|Source |src/review_publication.ts:33
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_6_REVIEW_PUBLICATION_TS_6]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_6_SRC_REVIEW_PUBLICATION_TS_6]]
 [discrete]
 ==== review_publication.ts:6
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:6.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from src/review_publication.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:6
+|Source |src/review_publication.ts:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_9_REVIEW_PUBLICATION_TS_9]]
+[[REF_CODE_SYMBOL_REVIEW_PUBLICATION_TS_9_SRC_REVIEW_PUBLICATION_TS_9]]
 [discrete]
 ==== review_publication.ts:9
 
-Inferred code symbol owned by FU-REVIEW-PUBLICATION from review_publication.ts:9.
+Inferred code symbol owned by FU-REVIEW-PUBLICATION from src/review_publication.ts:9.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-REVIEW-PUBLICATION
-|Source |review_publication.ts:9
+|Source |src/review_publication.ts:9
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_SECRETS_CONFIGURATION_TS_10_SECRETS_CONFIGURATION_TS_10]]
+[[REF_CODE_SYMBOL_SECRETS_CONFIGURATION_TS_10_SRC_SECRETS_CONFIGURATION_TS_10]]
 [discrete]
 ==== secrets_configuration.ts:10
 
-Inferred code symbol owned by FU-SECRETS-CONFIGURATION from secrets_configuration.ts:10.
+Inferred code symbol owned by FU-SECRETS-CONFIGURATION from src/secrets_configuration.ts:10.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-SECRETS-CONFIGURATION
-|Source |secrets_configuration.ts:10
+|Source |src/secrets_configuration.ts:10
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_SECRETS_CONFIGURATION_TS_7_SECRETS_CONFIGURATION_TS_7]]
+[[REF_CODE_SYMBOL_SECRETS_CONFIGURATION_TS_7_SRC_SECRETS_CONFIGURATION_TS_7]]
 [discrete]
 ==== secrets_configuration.ts:7
 
-Inferred code symbol owned by FU-SECRETS-CONFIGURATION from secrets_configuration.ts:7.
+Inferred code symbol owned by FU-SECRETS-CONFIGURATION from src/secrets_configuration.ts:7.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-SECRETS-CONFIGURATION
-|Source |secrets_configuration.ts:7
+|Source |src/secrets_configuration.ts:7
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_13_WEBHOOK_INGRESS_GO_13]]
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_13_SRC_WEBHOOK_INGRESS_GO_13]]
 [discrete]
 ==== webhook_ingress.go:13
 
-Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:13.
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go:13
+|Source |src/webhook_ingress.go:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_17_WEBHOOK_INGRESS_GO_17]]
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_17_SRC_WEBHOOK_INGRESS_GO_17]]
 [discrete]
 ==== webhook_ingress.go:17
 
-Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:17.
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go:17.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go:17
+|Source |src/webhook_ingress.go:17
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_28_WEBHOOK_INGRESS_GO_28]]
+[[REF_CODE_SYMBOL_WEBHOOK_INGRESS_GO_28_SRC_WEBHOOK_INGRESS_GO_28]]
 [discrete]
 ==== webhook_ingress.go:28
 
-Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from webhook_ingress.go:28.
+Inferred code symbol owned by FU-GITHUB-WEBHOOK-INGRESS from src/webhook_ingress.go:28.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-GITHUB-WEBHOOK-INGRESS
-|Source |webhook_ingress.go:28
+|Source |src/webhook_ingress.go:28
 |Mentioned In |n/a
 |===
 

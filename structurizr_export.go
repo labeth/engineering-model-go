@@ -127,7 +127,7 @@ type structurizrDeploymentView struct {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-005
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportResult, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return StructurizrExportResult{}, err
 	}

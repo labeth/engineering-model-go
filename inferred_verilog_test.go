@@ -15,14 +15,14 @@ func TestVerilogFileOwnership(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "capture.v"), []byte("// ENGMODEL-OWNER-UNIT: FU-CAPTURE\n// TRLC-LINKS: REQ-CAP-001\nmodule capture;\nendmodule\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	metadata := scanCodeMetadata(root)
+	metadata := scanCodeMetadata(root, nil)
 	if len(metadata) != 1 || metadata["capture.v"].Owner != "FU-CAPTURE" {
 		t.Fatalf("lost RTL ownership: %+v", metadata)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
-func TestVerilogIndividualSourcesAndVerification(t *testing.T) {
+func TestVerilogExcludedSourcesAndVerification(t *testing.T) {
 	root := t.TempDir()
 	fixtures := map[string]string{
 		"capture.v":    "// ENGMODEL-OWNER-UNIT: FU-CAPTURE\n// TRLC-LINKS: REQ-CAP-001\nmodule capture; endmodule\n",
@@ -34,7 +34,7 @@ func TestVerilogIndividualSourcesAndVerification(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"capture.v", "tb_capture.v"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{Exclude: []string{"unselected.v"}}}}
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-CAP-001"}, {ID: "REQ-CAP-002"}}}
 	code, diags := inferCodeItems(bundle, "")
 	if len(diags) != 0 {
@@ -59,8 +59,8 @@ func TestVerilogIndividualSourcesAndVerification(t *testing.T) {
 		t.Fatalf("test-only links must not imply implementation: %+v", matrix)
 	}
 	roots := effectiveCodeRoots(bundle, "")
-	if len(roots) != 2 {
-		t.Fatalf("file roots lost from scoping: %+v", roots)
+	if len(roots) != 1 || roots[0] != root {
+		t.Fatalf("module root not used for scoping: %+v", roots)
 	}
 }
 

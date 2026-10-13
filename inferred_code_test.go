@@ -21,7 +21,7 @@ package sample
 		t.Fatalf("write code fixture: %v", err)
 	}
 
-	meta := scanCodeMetadata(dir)
+	meta := scanCodeMetadata(dir, nil)
 	got, ok := meta["handler.go"]
 	if !ok {
 		t.Fatalf("expected metadata for handler.go")

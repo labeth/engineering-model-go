@@ -6,6 +6,24 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- Code is scanned from the module root (git working tree root, or the manifest directory
+  when nested under another module) minus git-ignored files, nested modules and the new
+  `inferenceHints.exclude` globs. `inferenceHints.codeSources` is removed and rejected
+  with `model.code_sources_removed`.
+- Inferred declaration IDs are path-qualified: `CODE-<PATH>--<NAME>` instead of
+  `CODE-<NAME>`, so same-named declarations in different files no longer collide.
+- `referencedElements` must describe artifacts outside the repository: a local or
+  `file:` uri is rejected (`model.referenced_element_local_uri`), and a mutable uri needs
+  a `version` unless it is pinned to a commit or doi.
+
+### Added
+
+- Every in-scope file gets a referenceable `CODE-<PATH>` ID. Authored references to
+  `CODE-*` IDs are resolved during validation (unknown → broken reference, collisions →
+  `model.ambiguous_code_reference`); the code index is only built when one is used.
+
 - Keep Manhattan and requirement alignment matrices in single scalable vector figures; keep system boundary and decomposition figures together during pagination.
 
 ### Added

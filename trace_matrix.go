@@ -200,20 +200,16 @@ func knownModelIDs(bundle model.Bundle, requirements model.RequirementsDocument)
 }
 
 // effectiveCodeRoots mirrors inferCodeItems' root derivation: the explicit code-root
-// option plus the model's inferenceHints.codeSources. Scoping must use the same roots
+// option, or the module root when it is not set. Scoping must use the same roots
 // the scan used, otherwise items scanned via inferenceHints (with no --code-root) escape it.
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-MODEL-LOADER
 func effectiveCodeRoots(bundle model.Bundle, codeRootOption string) []string {
-	baseDir := modelRootDir(bundle)
-	roots := make([]string, 0, len(bundle.Architecture.InferenceHints.CodeSources)+1)
+	roots := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
 		roots = append(roots, codeRootOption)
 	}
-	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
-		roots = append(roots, resolveSourcePath(baseDir, src))
-	}
-	return uniqueExistingSources(roots)
+	return withDefaultCodeRoot(bundle, uniqueExistingSources(roots))
 }
 
 // scopeCodeToModel keeps only code that belongs to the model rooted at modelDir: a file
@@ -455,7 +451,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
 func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (TraceMatrix, []validate.Diagnostic, error) {
-	bundle, err := model.LoadBundle(modelPath)
+	bundle, err := loadBundle(modelPath)
 	if err != nil {
 		return TraceMatrix{}, nil, err
 	}

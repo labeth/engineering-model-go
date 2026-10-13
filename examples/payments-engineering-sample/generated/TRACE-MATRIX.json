@@ -10,29 +10,29 @@
       ],
       "code": [
         {
-          "symbol": "CODE-AUTHORIZEPAYMENT",
-          "path": "payment_engine.rs",
-          "line": 15
-        },
-        {
-          "symbol": "CODE-NEW",
-          "path": "domain/events.rs",
-          "line": 12
-        },
-        {
-          "symbol": "CODE-REQUESTBANKAUTHORIZATION",
-          "path": "payment_engine.rs",
-          "line": 31
-        },
-        {
-          "symbol": "CODE-STARTSESSION",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--STARTSESSION",
+          "path": "src/checkout_api.go",
           "line": 20
         },
         {
-          "symbol": "CODE-SUBMITAUTHORIZATIONREQUEST",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--SUBMITAUTHORIZATIONREQUEST",
+          "path": "src/checkout_api.go",
           "line": 32
+        },
+        {
+          "symbol": "CODE-SRC-DOMAIN-EVENTS-RS--NEW",
+          "path": "src/domain/events.rs",
+          "line": 12
+        },
+        {
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--AUTHORIZEPAYMENT",
+          "path": "src/payment_engine.rs",
+          "line": 15
+        },
+        {
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--REQUESTBANKAUTHORIZATION",
+          "path": "src/payment_engine.rs",
+          "line": 31
         }
       ],
       "verifications": [
@@ -48,13 +48,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CALCULATERISKSCORE",
-          "path": "risk_scorer.ts",
+          "symbol": "CODE-SRC-RISK-SCORER-TS--CALCULATERISKSCORE",
+          "path": "src/risk_scorer.ts",
           "line": 10
         },
         {
-          "symbol": "CODE-CLASSIFYRISK",
-          "path": "risk_scorer.ts",
+          "symbol": "CODE-SRC-RISK-SCORER-TS--CLASSIFYRISK",
+          "path": "src/risk_scorer.ts",
           "line": 24
         }
       ],
@@ -71,13 +71,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-SHOWDECLINEREASON",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--SHOWDECLINEREASON",
+          "path": "src/checkout_api.go",
           "line": 44
         },
         {
-          "symbol": "CODE-SHOWRETRYOPTION",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--SHOWRETRYOPTION",
+          "path": "src/checkout_api.go",
           "line": 50
         }
       ],
@@ -96,24 +96,24 @@
       ],
       "code": [
         {
-          "symbol": "CODE-BUILDREVIEWREASON",
-          "path": "risk_scorer.ts",
-          "line": 58
-        },
-        {
-          "symbol": "CODE-ISHIGHRISK",
-          "path": "risk_scorer.ts",
-          "line": 33
-        },
-        {
-          "symbol": "CODE-NOTIFYSUPPORT",
-          "path": "payment_engine.rs",
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--NOTIFYSUPPORT",
+          "path": "src/payment_engine.rs",
           "line": 60
         },
         {
-          "symbol": "CODE-PLACEINREVIEW",
-          "path": "payment_engine.rs",
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--PLACEINREVIEW",
+          "path": "src/payment_engine.rs",
           "line": 51
+        },
+        {
+          "symbol": "CODE-SRC-RISK-SCORER-TS--BUILDREVIEWREASON",
+          "path": "src/risk_scorer.ts",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-SRC-RISK-SCORER-TS--ISHIGHRISK",
+          "path": "src/risk_scorer.ts",
+          "line": 33
         }
       ],
       "verifications": [
@@ -129,24 +129,24 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CREATEAUDITENVELOPE",
-          "path": "support/audit_envelope.ts",
-          "line": 11
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--PERSISTAUDITRECORD",
+          "path": "src/payment_engine.rs",
+          "line": 69
         },
         {
-          "symbol": "CODE-CREATEAUDITRECORD",
-          "path": "risk_scorer.ts",
+          "symbol": "CODE-SRC-RISK-SCORER-TS--CREATEAUDITRECORD",
+          "path": "src/risk_scorer.ts",
           "line": 43
         },
         {
-          "symbol": "CODE-ENRICHAUDITMETADATA",
-          "path": "risk_scorer.ts",
+          "symbol": "CODE-SRC-RISK-SCORER-TS--ENRICHAUDITMETADATA",
+          "path": "src/risk_scorer.ts",
           "line": 52
         },
         {
-          "symbol": "CODE-PERSISTAUDITRECORD",
-          "path": "payment_engine.rs",
-          "line": 69
+          "symbol": "CODE-SRC-SUPPORT-AUDIT-ENVELOPE-TS--CREATEAUDITENVELOPE",
+          "path": "src/support/audit_envelope.ts",
+          "line": 11
         }
       ],
       "verifications": [
@@ -163,19 +163,19 @@
       ],
       "code": [
         {
-          "symbol": "CODE-HANDLEBANKLINKUNAVAILABLE",
-          "path": "payment_engine.rs",
-          "line": 40
-        },
-        {
-          "symbol": "CODE-HANDLEBANKUNAVAILABLE",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--HANDLEBANKUNAVAILABLE",
+          "path": "src/checkout_api.go",
           "line": 38
         },
         {
-          "symbol": "CODE-SHOWTEMPORARYUNAVAILABLE",
-          "path": "checkout_api.go",
+          "symbol": "CODE-SRC-CHECKOUT-API-GO--SHOWTEMPORARYUNAVAILABLE",
+          "path": "src/checkout_api.go",
           "line": 56
+        },
+        {
+          "symbol": "CODE-SRC-PAYMENT-ENGINE-RS--HANDLEBANKLINKUNAVAILABLE",
+          "path": "src/payment_engine.rs",
+          "line": 40
         }
       ],
       "verifications": [

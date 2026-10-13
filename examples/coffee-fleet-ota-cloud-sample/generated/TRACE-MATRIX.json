@@ -10,13 +10,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INGESTTELEMETRY",
-          "path": "fleet_ingestion_api.go",
+          "symbol": "CODE-SRC-FLEET-INGESTION-API-GO--INGESTTELEMETRY",
+          "path": "src/fleet_ingestion_api.go",
           "line": 13
         },
         {
-          "symbol": "CODE-PUBLISHBREWTELEMETRY",
-          "path": "machine_telemetry.rs",
+          "symbol": "CODE-SRC-MACHINE-TELEMETRY-RS--PUBLISHBREWTELEMETRY",
+          "path": "src/machine_telemetry.rs",
           "line": 12
         }
       ],
@@ -39,13 +39,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INGESTTELEMETRY",
-          "path": "fleet_ingestion_api.go",
+          "symbol": "CODE-SRC-FLEET-INGESTION-API-GO--INGESTTELEMETRY",
+          "path": "src/fleet_ingestion_api.go",
           "line": 13
         },
         {
-          "symbol": "CODE-PERSISTTELEMETRYMETRIC",
-          "path": "fleet_observability_reporting.ts",
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--PERSISTTELEMETRYMETRIC",
+          "path": "src/fleet_observability_reporting.ts",
           "line": 6
         }
       ],
@@ -68,13 +68,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-PLANCAMPAIGN",
-          "path": "update_campaign_orchestrator.ts",
+          "symbol": "CODE-SRC-OTA-UPDATE-AGENT-RS--VALIDATEANDAPPLY",
+          "path": "src/ota_update_agent.rs",
           "line": 6
         },
         {
-          "symbol": "CODE-VALIDATEANDAPPLY",
-          "path": "ota_update_agent.rs",
+          "symbol": "CODE-SRC-UPDATE-CAMPAIGN-ORCHESTRATOR-TS--PLANCAMPAIGN",
+          "path": "src/update_campaign_orchestrator.ts",
           "line": 6
         }
       ],
@@ -98,14 +98,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-VALIDATEANDAPPLY",
-          "path": "ota_update_agent.rs",
-          "line": 6
+          "symbol": "CODE-SRC-DEVICE-IDENTITY-SECRETS-TS--VERIFYFIRMWARESIGNATURE",
+          "path": "src/device_identity_secrets.ts",
+          "line": 5
         },
         {
-          "symbol": "CODE-VERIFYFIRMWARESIGNATURE",
-          "path": "device_identity_secrets.ts",
-          "line": 5
+          "symbol": "CODE-SRC-OTA-UPDATE-AGENT-RS--VALIDATEANDAPPLY",
+          "path": "src/ota_update_agent.rs",
+          "line": 6
         }
       ],
       "verifications": [
@@ -123,14 +123,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-HANDLEROLLBACK",
-          "path": "update_campaign_orchestrator.ts",
-          "line": 12
+          "symbol": "CODE-SRC-OTA-UPDATE-AGENT-RS--ROLLBACKANDREPORT",
+          "path": "src/ota_update_agent.rs",
+          "line": 16
         },
         {
-          "symbol": "CODE-ROLLBACKANDREPORT",
-          "path": "ota_update_agent.rs",
-          "line": 16
+          "symbol": "CODE-SRC-UPDATE-CAMPAIGN-ORCHESTRATOR-TS--HANDLEROLLBACK",
+          "path": "src/update_campaign_orchestrator.ts",
+          "line": 12
         }
       ],
       "verifications": [
@@ -147,8 +147,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-QUEUEFORRETRY",
-          "path": "machine_telemetry.rs",
+          "symbol": "CODE-SRC-MACHINE-TELEMETRY-RS--QUEUEFORRETRY",
+          "path": "src/machine_telemetry.rs",
           "line": 18
         }
       ],
@@ -163,14 +163,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-PERSISTAUDITLOG",
-          "path": "fleet_observability_reporting.ts",
-          "line": 12
+          "symbol": "CODE-SRC-DEVICE-IDENTITY-SECRETS-TS--REDACTIDENTITYFORAUDIT",
+          "path": "src/device_identity_secrets.ts",
+          "line": 10
         },
         {
-          "symbol": "CODE-REDACTIDENTITYFORAUDIT",
-          "path": "device_identity_secrets.ts",
-          "line": 10
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--PERSISTAUDITLOG",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 12
         }
       ],
       "verifications": [
@@ -188,19 +188,19 @@
       ],
       "code": [
         {
-          "symbol": "CODE-NOTIFYREPLAYABUSE",
-          "path": "fleet_observability_reporting.ts",
-          "line": 18
-        },
-        {
-          "symbol": "CODE-RAISESECURITYNOTIFICATION",
-          "path": "cloud_runtime_ops.go",
+          "symbol": "CODE-SRC-CLOUD-RUNTIME-OPS-GO--RAISESECURITYNOTIFICATION",
+          "path": "src/cloud_runtime_ops.go",
           "line": 6
         },
         {
-          "symbol": "CODE-REJECTREPLAY",
-          "path": "fleet_ingestion_api.go",
+          "symbol": "CODE-SRC-FLEET-INGESTION-API-GO--REJECTREPLAY",
+          "path": "src/fleet_ingestion_api.go",
           "line": 19
+        },
+        {
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--NOTIFYREPLAYABUSE",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 18
         }
       ],
       "status": "implemented"

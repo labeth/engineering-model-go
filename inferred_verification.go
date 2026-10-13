@@ -66,7 +66,8 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 
 	diags := []validate.Diagnostic{}
 	codeBySource := buildVerificationCodeElementIndex(inferredCode)
-	testSymbols, symbolDiags := buildVerificationTestSymbolIndex(baseDir, testRoots)
+	skip := codeScanSkipper(bundle)
+	testSymbols, symbolDiags := buildVerificationTestSymbolIndex(baseDir, testRoots, skip)
 	diags = append(diags, symbolDiags...)
 	for path, symbols := range testSymbols {
 		if len(symbols) > 0 {
@@ -92,7 +93,16 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 
 	for _, root := range testRoots {
 		err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-			if err != nil || d.IsDir() {
+			if err != nil {
+				return nil
+			}
+			if d.IsDir() {
+				if path != root && (skipScanDir(d.Name()) || skip(path, true)) {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if skip(path, false) {
 				return nil
 			}
 			rel, _ := filepath.Rel(baseDir, path)
@@ -515,11 +525,11 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func buildVerificationTestSymbolIndex(baseDir string, roots []string) (map[string][]string, []validate.Diagnostic) {
+func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(path string, isDir bool) bool) (map[string][]string, []validate.Diagnostic) {
 	out := map[string][]string{}
 	diags := []validate.Diagnostic{}
 	for _, root := range uniqueExistingSources(roots) {
-		symbols, scanDiags, err := codemap.Scan(root)
+		symbols, scanDiags, err := codemap.ScanWithOptions(root, codemap.ScanOptions{Skip: skip})
 		if err != nil {
 			diags = append(diags, validate.Diagnostic{
 				Code:     "verification.code_scan_failed",
@@ -604,10 +614,7 @@ func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption strin
 	if strings.TrimSpace(codeRootOption) != "" {
 		out = append(out, resolveSourcePath(baseDir, codeRootOption))
 	}
-	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
-		out = append(out, resolveSourcePath(baseDir, src))
-	}
-	return out
+	return withDefaultCodeRoot(bundle, uniqueExistingSources(out))
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -649,10 +656,6 @@ func inferredSiblingDirs(baseDir string, bundle model.Bundle, codeRootOption, si
 		if !filepath.IsAbs(root) {
 			root = filepath.Join(baseDir, root)
 		}
-		out = append(out, filepath.Join(filepath.Dir(root), sibling))
-	}
-	for _, src := range bundle.Architecture.InferenceHints.CodeSources {
-		root := resolveSourcePath(baseDir, src)
 		out = append(out, filepath.Join(filepath.Dir(root), sibling))
 	}
 	return out

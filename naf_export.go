@@ -22,7 +22,7 @@ type NAFExportResult struct {
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-042, REQ-EMG-043
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, IF-CLI-ENGNAF, DO-NAF-V4-ARCHITECTURE, REF-NAF-V4-1-SPECIFICATION
 func GenerateNAFV41FromFile(architecturePath string) (NAFExportResult, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return NAFExportResult{}, err
 	}

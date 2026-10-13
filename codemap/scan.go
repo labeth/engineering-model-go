@@ -70,9 +70,24 @@ var supportedExt = map[string]bool{
 	".py":  true,
 }
 
+// ScanOptions controls identifier derivation and path filtering for ScanWithOptions.
+// IDBase is the directory symbol identifiers are made relative to (the module root);
+// it defaults to the scan root. Skip, when set, excludes files and directories.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type ScanOptions struct {
+	IDBase string
+	Skip   func(path string, isDir bool) bool
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
+	return ScanWithOptions(root, ScanOptions{})
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058
+func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {
 		return nil, nil, fmt.Errorf("resolve code root: %w", err)
@@ -81,6 +96,12 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 	scanBase := absRoot
 	if info, err := os.Stat(absRoot); err == nil && !info.IsDir() {
 		scanBase = filepath.Dir(absRoot)
+	}
+	idBase := scanBase
+	if strings.TrimSpace(opts.IDBase) != "" {
+		if idBase, err = filepath.Abs(opts.IDBase); err != nil {
+			return nil, nil, fmt.Errorf("resolve identifier base: %w", err)
+		}
 	}
 
 	symbols := []Symbol{}
@@ -97,13 +118,19 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 			if name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.') {
 				return filepath.SkipDir
 			}
+			if path != absRoot && opts.Skip != nil && opts.Skip(path, true) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))
 		if !supportedExt[ext] {
 			return nil
 		}
-		fileSymbols, fileDiags, err := scanFile(scanBase, path)
+		if opts.Skip != nil && opts.Skip(path, false) {
+			return nil
+		}
+		fileSymbols, fileDiags, err := scanFile(scanBase, idBase, path)
 		if err != nil {
 			return err
 		}
@@ -130,7 +157,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
+func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error) {
 	src, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil, fmt.Errorf("read %s: %w", path, err)
@@ -141,6 +168,11 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		relPath = path
 	}
 	relPath = filepath.ToSlash(relPath)
+	// Identifiers are module-relative; files outside the identifier base keep scan-relative ones.
+	idPath := relPath
+	if rel, relErr := filepath.Rel(idBase, path); relErr == nil && !strings.HasPrefix(filepath.ToSlash(rel), "../") {
+		idPath = filepath.ToSlash(rel)
+	}
 
 	decls, commentLines, parseDiags, err := extractDeclarations(path, src)
 	if err != nil {
@@ -222,7 +254,7 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 		if d, ok := declByLine[lineNo]; ok {
 			implements := append([]string(nil), pending.implements...)
 			modelLinks := append([]string(nil), pending.modelLinks...)
-			symbols = append(symbols, symbolForDeclaration(d, relPath, lineNo, trimmed, pending.traceID, pending.partOf, implements, modelLinks))
+			symbols = append(symbols, symbolForDeclaration(d, relPath, idPath, lineNo, trimmed, pending.traceID, pending.partOf, implements, modelLinks))
 			if len(implements) > 0 {
 				linkedLines[lineNo] = true
 			}
@@ -280,10 +312,10 @@ func scanFile(root, path string) ([]Symbol, []validate.Diagnostic, error) {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func symbolForDeclaration(d declaration, relPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
+func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
 	traceID = strings.TrimSpace(traceID)
 	if traceID == "" {
-		traceID = autoTraceID(d.Name, relPath, lineNo)
+		traceID = autoTraceID(d.Name, relPath, idPath, lineNo)
 	}
 	signature := strings.TrimSpace(d.Signature)
 	if signature == "" {
@@ -572,13 +604,21 @@ func isAttributeLike(trimmed string) bool {
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-010
-func autoTraceID(symbolName, relPath string, lineNo int) string {
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-058
+func autoTraceID(symbolName, relPath, idPath string, lineNo int) string {
 	name := strings.TrimSpace(symbolName)
 	if name != "" {
-		return "CODE-" + slugUpper(name)
+		return FileID(idPath) + "--" + slugUpper(name)
 	}
 	return fmt.Sprintf("AUTO-%s:%d", relPath, lineNo)
+}
+
+// FileID returns the CODE identifier of a module-relative file path: the path upper-cased
+// with each run of non-alphanumeric characters folded to one hyphen.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-058
+func FileID(relPath string) string {
+	return "CODE-" + strings.ToUpper(strings.Trim(nonAlnum.ReplaceAllString(filepath.ToSlash(relPath), "-"), "-"))
 }
 
 var nonAlnum = regexp.MustCompile(`[^A-Za-z0-9]+`)

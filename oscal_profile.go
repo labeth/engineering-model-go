@@ -40,7 +40,7 @@ type oscalAggregateImport struct {
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateOSCALProfileFromFile(path string, options OSCALProfileOptions) (string, error) {
-	bundle, err := model.LoadBundle(path)
+	bundle, err := loadBundle(path)
 	if err != nil {
 		return "", err
 	}

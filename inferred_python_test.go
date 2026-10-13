@@ -19,7 +19,7 @@ func TestPythonOwnershipAndTestOnlyInference(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	metadata := scanCodeMetadata(root)
+	metadata := scanCodeMetadata(root, nil)
 	if metadata["worker.py"].Owner != "FU-PY" {
 		t.Fatalf("false ownership: %+v", metadata)
 	}

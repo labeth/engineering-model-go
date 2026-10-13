@@ -9,8 +9,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-VERIFYSIGNATURE",
-          "path": "webhook_ingress.go",
+          "symbol": "CODE-SRC-WEBHOOK-INGRESS-GO--VERIFYSIGNATURE",
+          "path": "src/webhook_ingress.go",
           "line": 17
         }
       ],
@@ -28,18 +28,18 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CONSTRUCTOR",
-          "path": "pr_context_assembly.ts",
+          "symbol": "CODE-SRC-PR-CONTEXT-ASSEMBLY-TS--CONSTRUCTOR",
+          "path": "src/pr_context_assembly.ts",
           "line": 9
         },
         {
-          "symbol": "CODE-FETCHCHANGEDFILES",
-          "path": "pr_context_assembly.ts",
+          "symbol": "CODE-SRC-PR-CONTEXT-ASSEMBLY-TS--FETCHCHANGEDFILES",
+          "path": "src/pr_context_assembly.ts",
           "line": 13
         },
         {
-          "symbol": "CODE-ROUTEPULLREQUESTEVENT",
-          "path": "webhook_ingress.go",
+          "symbol": "CODE-SRC-WEBHOOK-INGRESS-GO--ROUTEPULLREQUESTEVENT",
+          "path": "src/webhook_ingress.go",
           "line": 28
         }
       ],
@@ -56,13 +56,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-BUILDDIFFCONTEXT",
-          "path": "pr_context_assembly.ts",
+          "symbol": "CODE-SRC-PR-CONTEXT-ASSEMBLY-TS--BUILDDIFFCONTEXT",
+          "path": "src/pr_context_assembly.ts",
           "line": 20
         },
         {
-          "symbol": "CODE-REQUESTBEDROCKREVIEW",
-          "path": "review_orchestrator.rs",
+          "symbol": "CODE-SRC-REVIEW-ORCHESTRATOR-RS--REQUESTBEDROCKREVIEW",
+          "path": "src/review_orchestrator.rs",
           "line": 11
         }
       ],
@@ -79,8 +79,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-RUNDETERMINISTICCHECKS",
-          "path": "policy_checks.rs",
+          "symbol": "CODE-SRC-POLICY-CHECKS-RS--RUNDETERMINISTICCHECKS",
+          "path": "src/policy_checks.rs",
           "line": 7
         }
       ],
@@ -97,13 +97,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CONSTRUCTOR",
-          "path": "review_publication.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--CONSTRUCTOR",
+          "path": "src/review_publication.ts",
           "line": 9
         },
         {
-          "symbol": "CODE-PUBLISHCHECKRUN",
-          "path": "review_publication.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--PUBLISHCHECKRUN",
+          "path": "src/review_publication.ts",
           "line": 13
         }
       ],
@@ -123,14 +123,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-FALLBACKPOLICYONLY",
-          "path": "review_orchestrator.rs",
-          "line": 22
+          "symbol": "CODE-SRC-POLICY-CHECKS-RS--POLICYONLYSUMMARY",
+          "path": "src/policy_checks.rs",
+          "line": 21
         },
         {
-          "symbol": "CODE-POLICYONLYSUMMARY",
-          "path": "policy_checks.rs",
-          "line": 21
+          "symbol": "CODE-SRC-REVIEW-ORCHESTRATOR-RS--FALLBACKPOLICYONLY",
+          "path": "src/review_orchestrator.rs",
+          "line": 22
         }
       ],
       "verifications": [
@@ -147,24 +147,24 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CONSTRUCTOR",
-          "path": "review_publication.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--CONSTRUCTOR",
+          "path": "src/review_publication.ts",
           "line": 9
         },
         {
-          "symbol": "CODE-CONSTRUCTOR",
-          "path": "secrets_configuration.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--RECORDREDACTEDAUDITMETADATA",
+          "path": "src/review_publication.ts",
+          "line": 27
+        },
+        {
+          "symbol": "CODE-SRC-SECRETS-CONFIGURATION-TS--CONSTRUCTOR",
+          "path": "src/secrets_configuration.ts",
           "line": 7
         },
         {
-          "symbol": "CODE-GETGITHUBAPPPRIVATEKEY",
-          "path": "secrets_configuration.ts",
+          "symbol": "CODE-SRC-SECRETS-CONFIGURATION-TS--GETGITHUBAPPPRIVATEKEY",
+          "path": "src/secrets_configuration.ts",
           "line": 10
-        },
-        {
-          "symbol": "CODE-RECORDREDACTEDAUDITMETADATA",
-          "path": "review_publication.ts",
-          "line": 27
         }
       ],
       "verifications": [
@@ -181,13 +181,13 @@
       ],
       "code": [
         {
-          "symbol": "CODE-CONSTRUCTOR",
-          "path": "review_publication.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--CONSTRUCTOR",
+          "path": "src/review_publication.ts",
           "line": 9
         },
         {
-          "symbol": "CODE-NOTIFYMAINTAINERDEFERRAL",
-          "path": "review_publication.ts",
+          "symbol": "CODE-SRC-REVIEW-PUBLICATION-TS--NOTIFYMAINTAINERDEFERRAL",
+          "path": "src/review_publication.ts",
           "line": 33
         }
       ],
@@ -221,8 +221,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-APPLYRELEASE",
-          "path": "lambda_runtime_ops.go",
+          "symbol": "CODE-SRC-LAMBDA-RUNTIME-OPS-GO--APPLYRELEASE",
+          "path": "src/lambda_runtime_ops.go",
           "line": 10
         }
       ],

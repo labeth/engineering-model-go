@@ -9,8 +9,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-APPLYFIRMWARE",
-          "path": "ota_agent.rs",
+          "symbol": "CODE-SRC-OTA-AGENT-RS--APPLYFIRMWARE",
+          "path": "src/ota_agent.rs",
           "line": 12
         }
       ],
@@ -24,8 +24,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-VERIFYFIRMWARESIGNATURE",
-          "path": "ota_agent.rs",
+          "symbol": "CODE-SRC-OTA-AGENT-RS--VERIFYFIRMWARESIGNATURE",
+          "path": "src/ota_agent.rs",
           "line": 18
         }
       ],
@@ -39,8 +39,8 @@
       ],
       "code": [
         {
-          "symbol": "CODE-ROLLBACKFIRMWAREAPPLY",
-          "path": "ota_agent.rs",
+          "symbol": "CODE-SRC-OTA-AGENT-RS--ROLLBACKFIRMWAREAPPLY",
+          "path": "src/ota_agent.rs",
           "line": 24
         }
       ],

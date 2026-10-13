@@ -73,8 +73,8 @@ Strict mode should mean that missing links are fatal for in-scope first-party co
 
 Expected strict behavior:
 
-- Scan configured code roots from `architecture.inferenceHints.codeSources`.
-- If no code roots are configured, scan the model directory or repository root by default.
+- Scan the module root: the git working tree root, or the manifest directory when another `engmod.yml` encloses the model. Directories holding another `engmod.yml`, git-ignored files, and `inferenceHints.exclude` globs (`dir/**` for subtrees) are skipped. There is no include list; `inferenceHints.codeSources` is rejected.
+- Every in-scope file has a referenceable ID `CODE-<PATH>` (e.g. `app/internal/capture.go` is `CODE-APP-INTERNAL-CAPTURE-GO`), and each traced declaration `CODE-<PATH>--<NAME>`. Authored model data (`sourceRefs`, mappings, …) may reference these; validation fails if the file or declaration is gone or the ID is ambiguous. Use `referencedElements` only for artifacts outside the repository.
 - Emit a fatal diagnostic when strict mode cannot find any supported first-party source files.
 - Emit fatal diagnostics for required declarations without `TRLC-LINKS`.
 - Emit fatal diagnostics for first-party source files without `ENGMODEL-OWNER-UNIT`.

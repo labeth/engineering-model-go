@@ -541,3 +541,29 @@ to workspace replacement mechanisms in established module ecosystems.
 - CI and released products resolve exact OCI module versions while local workspaces can use explicit sibling-repository replacements.
 - Published artifacts remain valid CUE modules and can use existing OCI registry authentication and mirroring.
 - The resolver must reject ambiguous source declarations, invalid versions, path escapes, and replacement module identity mismatches.
+
+[[ADR-EMG-021]]
+== ADR-EMG-021: Derive file references from repository paths instead of authored source artifacts
+
+Status:: accepted
+Date:: 2026-10-13
+
+=== Context
+
+Models referenced in-repository source files through hand-authored referenced elements carrying a path,
+a commit, and a blob hash. The model and the code are versioned together, so the pinned commit is always
+the commit being validated and goes stale on every change, while nothing checked that the path still existed.
+Inferred CODE identifiers could not be referenced because they were keyed on symbol names alone and were
+only known when generators scanned code.
+
+=== Decision
+
+Give every in-scope file and declaration a CODE identifier derived from its module-relative path, resolve
+authored CODE references during validation, and restrict referenced elements to artifacts outside the
+repository, where an explicit version still carries information.
+
+=== Consequences
+
+- In-repository files need no authored entries; renaming or deleting a referenced file fails validation.
+- Declaration identifiers change from CODE-<NAME> to CODE-<PATH>--<NAME>, so generated trace outputs change once.
+- Models that pointed referenced elements at local paths must switch those references to CODE identifiers.

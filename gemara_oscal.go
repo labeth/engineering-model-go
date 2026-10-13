@@ -30,7 +30,7 @@ const gemaraOSCALControlHrefFormat = "https://gemara.local/controls/%s#%s"
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraExportOptions) (string, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return "", err
 	}
@@ -82,7 +82,7 @@ func GenerateGemaraOSCALCatalog(bundle model.Bundle, options GemaraExportOptions
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (string, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return "", err
 	}

@@ -379,9 +379,11 @@ func Bundle(b model.Bundle) []Diagnostic {
 		kindByID[a.ID] = "attack_vector"
 	}
 	for i, r := range b.Architecture.AuthoredArchitecture.ReferencedElements {
-		addID(r.ID, fmt.Sprintf("authoredArchitecture.referencedElements[%d]", i))
+		path := fmt.Sprintf("authoredArchitecture.referencedElements[%d]", i)
+		addID(r.ID, path)
 		references[r.ID] = true
 		kindByID[r.ID] = "referenced_element"
+		diags = append(diags, referencedElementURIDiagnostics(r, path)...)
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.Interfaces {
 		path := fmt.Sprintf("authoredArchitecture.interfaces[%d]", i)
@@ -495,9 +497,26 @@ func Bundle(b model.Bundle) []Diagnostic {
 		kindByID[document.ID] = "document"
 	}
 
+	var codeIndex map[string]int
+	ambiguousCodeIDs := map[string]bool{}
+	if len(b.Architecture.InferenceHints.CodeSources) > 0 {
+		diags = append(diags, Diagnostic{Code: "model.code_sources_removed", Severity: SeverityError, Message: "inferenceHints.codeSources is no longer supported: the module root is scanned; list paths to leave out under inferenceHints.exclude", Path: "inferenceHints.codeSources"})
+	}
+
 	validID := func(id string) bool {
-		_, ok := idOwner[id]
-		return ok
+		if _, ok := idOwner[id]; ok {
+			return true
+		}
+		if !model.IsCodeID(id) || b.CodeIndex == nil {
+			return false
+		}
+		if codeIndex == nil {
+			codeIndex = b.CodeIndex()
+		}
+		if codeIndex[id] > 1 {
+			ambiguousCodeIDs[id] = true
+		}
+		return codeIndex[id] > 0
 	}
 
 	for i, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
@@ -594,8 +613,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if !validID(m.To) {
 			diags = append(diags, Diagnostic{Code: "model.broken_reference", Severity: SeverityError, Message: fmt.Sprintf("mapping to %q does not exist", m.To), Path: path})
 		}
-		if strings.HasPrefix(strings.TrimSpace(m.From), "RT-") || strings.HasPrefix(strings.TrimSpace(m.From), "CODE-") || strings.HasPrefix(strings.TrimSpace(m.To), "RT-") || strings.HasPrefix(strings.TrimSpace(m.To), "CODE-") {
-			diags = append(diags, Diagnostic{Code: "model.inferred_id_not_allowed", Severity: SeverityError, Message: "authored mappings must not reference inferred RT-* or CODE-* ids", Path: path})
+		if unreferenceableInferredID(m.From) || unreferenceableInferredID(m.To) {
+			diags = append(diags, Diagnostic{Code: "model.inferred_id_not_allowed", Severity: SeverityError, Message: "authored mappings must not reference inferred RT-* or AUTO-* ids", Path: path})
 		}
 		if m.Type == "interacts_with" && !((actors[m.From] && units[m.To]) || (kindByID[m.From] == "hardware_item" && kindByID[m.To] == "hardware_item")) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_interaction", Severity: SeverityError, Message: "interacts_with must be actor -> functional unit or hardware item -> hardware item", Path: path})
@@ -1204,6 +1223,9 @@ func Bundle(b model.Bundle) []Diagnostic {
 			Path:     diagnostic.Path,
 		})
 	}
+	for id := range ambiguousCodeIDs {
+		diags = append(diags, Diagnostic{Code: "model.ambiguous_code_reference", Severity: SeverityError, Message: fmt.Sprintf("CODE id %q is produced by more than one file or declaration; rename one or exclude it from the code scope", id), Path: id})
+	}
 
 	return SortDiagnostics(diags)
 }
@@ -1425,4 +1447,36 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+// unreferenceableInferredID reports inferred identifiers authored links must not use:
+// runtime RT-* ids and line-based AUTO-* ids. Path-derived CODE-* ids are resolved instead.
+// TRLC-LINKS: REQ-EMG-059
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func unreferenceableInferredID(id string) bool {
+	id = strings.TrimSpace(id)
+	return strings.HasPrefix(id, "RT-") || strings.HasPrefix(id, "AUTO-")
+}
+
+var uriSchemeRe = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9+.-]+:`)
+var commitIDRe = regexp.MustCompile(`(^|[^0-9a-fA-F])[0-9a-fA-F]{40}([^0-9a-fA-F]|$)`)
+
+// referencedElementURIDiagnostics keeps referenced elements for artifacts outside the
+// repository: a local path must be a CODE reference, and a mutable uri needs a version.
+// TRLC-LINKS: REQ-EMG-060
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func referencedElementURIDiagnostics(r model.ReferencedElement, path string) []Diagnostic {
+	uri := strings.TrimSpace(r.URI)
+	if uri == "" {
+		return nil
+	}
+	scheme := strings.ToLower(uriSchemeRe.FindString(uri))
+	if scheme == "" || scheme == "file:" {
+		return []Diagnostic{{Code: "model.referenced_element_local_uri", Severity: SeverityError, Message: fmt.Sprintf("referenced element %q points at local path %q; reference the file's CODE id instead", r.ID, uri), Path: path + ".uri"}}
+	}
+	immutable := scheme == "doi:" || commitIDRe.MatchString(uri)
+	if !immutable && strings.TrimSpace(r.Version) == "" {
+		return []Diagnostic{{Code: "model.referenced_element_missing_version", Severity: SeverityError, Message: fmt.Sprintf("referenced element %q uri %q can change; set version or pin the uri to a commit or doi", r.ID, uri), Path: path + ".version"}}
+	}
+	return nil
 }

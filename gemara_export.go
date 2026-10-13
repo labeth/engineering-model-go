@@ -85,7 +85,7 @@ type GemaraExportResult struct {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions) (GemaraExportResult, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return GemaraExportResult{}, err
 	}

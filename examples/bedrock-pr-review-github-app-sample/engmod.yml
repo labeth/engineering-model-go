@@ -109,8 +109,6 @@ publications:
 inferenceHints:
   runtimeSources:
   - ./infra/terraform
-  codeSources:
-  - ./src
   expectedRuntimeKinds:
   - terraform_resource
   - lambda_function

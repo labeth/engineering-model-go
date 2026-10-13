@@ -769,14 +769,12 @@ flowchart LR
     subgraph RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_["Machine Telemetry Collection runtime (inferred)"]
       direction TB
       CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs"]:::code_element
-      CODE_SRC_MACHINE_TELEMETRY_RS["src/machine_telemetry.rs"]:::code_element
     end
     style RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RT_FU_MACHINE_TELEMETRY_COLLECTION_MACHINE_TELEMETRY_COLLECTION_RUNTIME__INFERRED_
     subgraph RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_["OTA Update Agent runtime (inferred)"]
       direction TB
       CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs"]:::code_element
-      CODE_SRC_OTA_UPDATE_AGENT_RS["src/ota_update_agent.rs"]:::code_element
     end
     style RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RT_FU_OTA_UPDATE_AGENT_OTA_UPDATE_AGENT_RUNTIME__INFERRED_
@@ -924,20 +922,17 @@ flowchart LR
     subgraph RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API["fleet_ingestion_api"]
       direction TB
       CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
-      CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
     end
     style RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_FLEET_INGESTION_API -->|runtime evidence| RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
     subgraph RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]
       direction TB
       CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
-      CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
     end
     style RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
     subgraph RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]
       direction TB
-      CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["src/update_campaign_orchestrator.ts"]:::code_element
       CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts"]:::code_element
     end
     style RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -1106,7 +1101,6 @@ flowchart LR
     subgraph RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC["fleet_event_topic"]
       direction TB
       CODE_CLOUD_RUNTIME_OPS_GO["cloud_runtime_ops.go"]:::code_element
-      CODE_SRC_CLOUD_RUNTIME_OPS_GO["src/cloud_runtime_ops.go"]:::code_element
     end
     style RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CLOUD_RUNTIME_OPERATIONS -->|runtime evidence| RT_FU_CLOUD_RUNTIME_OPERATIONS_FLEET_EVENT_TOPIC
@@ -1131,7 +1125,6 @@ flowchart LR
     subgraph RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_["Device Identity and Secrets runtime (inferred)"]
       direction TB
       CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts"]:::code_element
-      CODE_SRC_DEVICE_IDENTITY_SECRETS_TS["src/device_identity_secrets.ts"]:::code_element
     end
     style RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_DEVICE_IDENTITY_SECRETS -->|runtime evidence| RT_FU_DEVICE_IDENTITY_SECRETS_DEVICE_IDENTITY_AND_SECRETS_RUNTIME__INFERRED_
@@ -1737,7 +1730,7 @@ Deployed as edge software component with independent release cadence.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>, <<REF_IDX-REQ_REQ_COF_006,REQ-COF-006>>, <<REF_IDX-REQ_REQ_COF_011,REQ-COF-011>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,Fleet Ingestion API>>, <<REF_IDX-CATALOG_REF_IOT_INGEST_ENDPOINT,IoT Ingest Endpoint>>, <<REF_IDX-CATALOG_REF_MQTT_DEVICE_SDK,MQTT Device SDK>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS_MACHINE_TELEMETRY_RS,machine_telemetry>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -1762,7 +1755,7 @@ Versioned and rolled independently from <<REF_IDX-CATALOG_TELEMETRY,telemetry>> 
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>, <<REF_IDX-REQ_REQ_COF_004,REQ-COF-004>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>, <<REF_IDX-REQ_REQ_COF_010,REQ-COF-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_BUNDLE_STORE,Firmware Bundle Store>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,Update Campaign Orchestration>>
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -1806,7 +1799,7 @@ Deployed as independent cloud ingestion boundary to isolate scaling concerns.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>, <<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>, <<REF_IDX-REQ_REQ_COF_006,REQ-COF-006>>, <<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_009,REQ-COF-009>>, <<REF_IDX-REQ_REQ_COF_011,REQ-COF-011>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_RUNTIME_SDK,Cloud Runtime SDK>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: src
 |===
 
 
@@ -1831,7 +1824,7 @@ Deployed as reporting plane with independent scaling and retention controls.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>, <<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>, <<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_009,REQ-COF-009>>, <<REF_IDX-REQ_REQ_COF_010,REQ-COF-010>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: src
 |===
 
 
@@ -1856,7 +1849,7 @@ Isolated deployment supports safe OTA policy evolution.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>, <<REF_IDX-REQ_REQ_COF_005,REQ-COF-005>>, <<REF_IDX-REQ_REQ_COF_010,REQ-COF-010>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>, <<REF_IDX-CATALOG_REF_FIRMWARE_SIGNER_SERVICE,Firmware Signer Service>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,Fleet Observability Reporting>>
-|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+|Inferred deployment evidence |runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: src
 |===
 
 
@@ -1914,7 +1907,7 @@ Owns source-to-runtime release controls and rollback guardrails.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_008,REQ-COF-008>>, <<REF_IDX-REQ_REQ_COF_012,REQ-COF-012>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_CLOUD_LOGGING_SERVICE,Cloud Logging Service>>, <<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,Device Identity and Secrets>>
-|Inferred deployment evidence |runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>>, <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>>; code modules: <<REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_CLOUD_RUNTIME_OPS_GO,cloud_runtime_ops>>
+|Inferred deployment evidence |runtime: <<REF_RT_TOPIC_FLEET_EVENT_TOPIC,fleet_event_topic>>, <<REF_RT_EVENTBRIDGE_RULE_OTA_CAMPAIGN_SCHEDULE,ota_campaign_schedule>>, <<REF_RT_EVENTBRIDGE_TARGET_OTA_CAMPAIGN_TARGET,ota_campaign_target>>, <<REF_RT_QUEUE_TELEMETRY_RETRY_QUEUE,telemetry_retry_queue>>; code modules: src
 |===
 
 
@@ -1939,7 +1932,7 @@ Managed as shared control-plane boundary with controlled key rotation.
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_COF_004,REQ-COF-004>>, <<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>
 |Deployment dependencies |none
-|Inferred deployment evidence |code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
+|Inferred deployment evidence |code modules: src
 |===
 
 
@@ -2523,8 +2516,6 @@ flowchart LR
   SEC_TGT_FU_DEVICE_IDENTITY_SECRETS -->|runtime| SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME
   CODE_DEVICE_IDENTITY_SECRETS_TS["device_identity_secrets.ts"]:::code_element
   SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_DEVICE_IDENTITY_SECRETS_TS
-  CODE_SRC_DEVICE_IDENTITY_SECRETS_TS["src/device_identity_secrets.ts"]:::code_element
-  SEC_RT_FU_DEVICE_IDENTITY_SECRETS_RUNTIME -->|implemented_by| CODE_SRC_DEVICE_IDENTITY_SECRETS_TS
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_LOG_TAMPERING -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
   SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
@@ -2535,8 +2526,6 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
-  CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
-  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2575,7 +2564,7 @@ none
 [discrete]
 ====== Security Evidence Present
 
-code modules: <<REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_DEVICE_IDENTITY_SECRETS_TS,device_identity_secrets>>
+code modules: src
 
 ===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
 
@@ -2591,7 +2580,7 @@ Preserves audit integrity and protects sensitive identifiers in persisted record
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: src
 
 
 
@@ -2621,8 +2610,6 @@ flowchart LR
   SEC_TGT_FU_OTA_UPDATE_AGENT -->|runtime| SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME
   CODE_OTA_UPDATE_AGENT_RS["ota_update_agent.rs"]:::code_element
   SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_OTA_UPDATE_AGENT_RS
-  CODE_SRC_OTA_UPDATE_AGENT_RS["src/ota_update_agent.rs"]:::code_element
-  SEC_RT_FU_OTA_UPDATE_AGENT_RUNTIME -->|implemented_by| CODE_SRC_OTA_UPDATE_AGENT_RS
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   AV_AV_MALICIOUS_FIRMWARE_BUNDLE -->|targets| SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
@@ -2632,8 +2619,6 @@ flowchart LR
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|depends_on| SEC_DEP_FLEET_OBSERVABILITY_REPORTING
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
   SEC_TGT_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|runtime| SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION
-  CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["src/update_campaign_orchestrator.ts"]:::code_element
-  SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts"]:::code_element
   SEC_RT_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION -->|implemented_by| CODE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2674,7 +2659,7 @@ Enforces <<REF_IDX-CATALOG_SIGNATURE_VALID,signature valid>>ation and rejects un
 [discrete]
 ====== Security Evidence Present
 
-code modules: <<REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS_OTA_UPDATE_AGENT_RS,ota_update_agent>>
+code modules: src
 
 ===== Update Campaign Orchestration (FU-UPDATE-CAMPAIGN-ORCHESTRATION)
 
@@ -2690,7 +2675,7 @@ Enforces signed-firmware policy and campaign authorization boundaries.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: <<REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS,update_campaign_orchestrator>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_UPDATE_CAMPAIGN_ORCHESTRATION,update_campaign_orchestration>>; code modules: src
 
 
 
@@ -2720,8 +2705,6 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
-  CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
-  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_SRC_FLEET_INGESTION_API_GO
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   AV_AV_SPOOFED_DEVICE_IDENTITY -->|targets| SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|depends_on| SEC_DEP_DEVICE_IDENTITY_AND_SECRETS
@@ -2735,8 +2718,6 @@ flowchart LR
   SEC_TGT_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime| SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
   CODE_MACHINE_TELEMETRY_RS["machine_telemetry.rs"]:::code_element
   SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_MACHINE_TELEMETRY_RS
-  CODE_SRC_MACHINE_TELEMETRY_RS["src/machine_telemetry.rs"]:::code_element
-  SEC_RT_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME -->|implemented_by| CODE_SRC_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2775,7 +2756,7 @@ Applies identity checks and replay throttling for ingest requests.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: src
 
 ===== Machine Telemetry Collection (FU-MACHINE-TELEMETRY-COLLECTION)
 
@@ -2791,7 +2772,7 @@ Protects <<REF_IDX-CATALOG_TELEMETRY,telemetry>> authenticity and defends agains
 [discrete]
 ====== Security Evidence Present
 
-code modules: <<REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS_MACHINE_TELEMETRY_RS,machine_telemetry>>
+code modules: src
 
 
 
@@ -2821,8 +2802,6 @@ flowchart LR
   SEC_TGT_FU_FLEET_INGESTION_API -->|runtime| SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   CODE_FLEET_INGESTION_API_GO["fleet_ingestion_api.go"]:::code_element
   SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_FLEET_INGESTION_API_GO
-  CODE_SRC_FLEET_INGESTION_API_GO["src/fleet_ingestion_api.go"]:::code_element
-  SEC_RT_FU_FLEET_INGESTION_API_FLEET_INGESTION_API -->|implemented_by| CODE_SRC_FLEET_INGESTION_API_GO
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING["Fleet Observability Reporting"]:::functional_unit
   AV_AV_TELEMETRY_REPLAY_ABUSE -->|targets| SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING
   SEC_DEP_CLOUD_LOGGING_SERVICE["Cloud Logging Service"]:::referenced_element
@@ -2832,8 +2811,6 @@ flowchart LR
   SEC_TGT_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime| SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   CODE_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts"]:::code_element
   SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_FLEET_OBSERVABILITY_REPORTING_TS
-  CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS["src/fleet_observability_reporting.ts"]:::code_element
-  SEC_RT_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING -->|implemented_by| CODE_SRC_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2872,7 +2849,7 @@ Applies identity checks and replay throttling for ingest requests.
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_INGESTION_API,fleet_ingestion_api>>; code modules: src
 
 ===== Fleet Observability Reporting (FU-FLEET-OBSERVABILITY-REPORTING)
 
@@ -2888,7 +2865,7 @@ Preserves audit integrity and protects sensitive identifiers in persisted record
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>
+runtime: <<REF_RT_LAMBDA_FUNCTION_FLEET_OBSERVABILITY_REPORTING,fleet_observability_reporting>>; code modules: src
 
 
 
@@ -4188,10 +4165,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |integration
 |Status |partial
 |Verifies Requirements |<<REF_IDX-REQ_REQ_COF_002,REQ-COF-002>>, <<REF_IDX-REQ_REQ_COF_007,REQ-COF-007>>
-|Test Code Elements |logging_pipeline_test.ts:4
+|Test Code Elements |<<REF_CODE_SYMBOL_LOGGING_PIPELINE_TEST_TS_4_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_4,logging_pipeline_test.ts:4>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,FU-DEVICE-IDENTITY-SECRETS>>, <<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,FU-FLEET-INGESTION-API>>, <<REF_IDX-CATALOG_FU_FLEET_OBSERVABILITY_REPORTING,FU-FLEET-OBSERVABILITY-REPORTING>>
 |Result Summary |not-run:1, pass:1
-|Evidence |test-results/integration-logging.json, tests/integration/logging_pipeline_test.ts
+|Evidence |test-results/integration-logging.json, tests/integration/<<REF_CODE_SOURCE_FILE_LOGGING_PIPELINE_TEST_TS_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS,logging_pipeline_test.ts>>
 
 |Notes |validates <<REF_IDX-CATALOG_TELEMETRY,telemetry>> logging pipeline persistence and operational reporting signals
 
@@ -4208,10 +4185,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_COF_001,REQ-COF-001>>
-|Test Code Elements |telemetry_ingest_contract_test.go:7
+|Test Code Elements |<<REF_CODE_SYMBOL_TELEMETRY_INGEST_CONTRACT_TEST_GO_7_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_7,telemetry_ingest_contract_test.go:7>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_FLEET_INGESTION_API,FU-FLEET-INGESTION-API>>, <<REF_IDX-CATALOG_FU_MACHINE_TELEMETRY_COLLECTION,FU-MACHINE-TELEMETRY-COLLECTION>>
 |Result Summary |pass:1
-|Evidence |test-results/contract-telemetry.json, tests/contract/telemetry_ingest_contract_test.go
+|Evidence |test-results/contract-telemetry.json, tests/contract/<<REF_CODE_SOURCE_FILE_TELEMETRY_INGEST_CONTRACT_TEST_GO_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO,telemetry_ingest_contract_test.go>>
 
 |Notes |validates <<REF_IDX-CATALOG_TELEMETRY,telemetry>> ingest contract fields and accepted request semantics
 
@@ -4228,10 +4205,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |unit
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>, <<REF_IDX-REQ_REQ_COF_004,REQ-COF-004>>
-|Test Code Elements |ota_campaign_test.go:8
+|Test Code Elements |<<REF_CODE_SYMBOL_OTA_CAMPAIGN_TEST_GO_8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_8,ota_campaign_test.go:8>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_DEVICE_IDENTITY_SECRETS,FU-DEVICE-IDENTITY-SECRETS>>, <<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,FU-OTA-UPDATE-AGENT>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,FU-UPDATE-CAMPAIGN-ORCHESTRATION>>
 |Result Summary |pass:2
-|Evidence |test-results/unit-ota.xml, tests/unit/ota_campaign_test.go
+|Evidence |test-results/unit-ota.xml, tests/unit/<<REF_CODE_SOURCE_FILE_OTA_CAMPAIGN_TEST_GO_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO,ota_campaign_test.go>>
 
 |Notes |verifies OTA campaign <<REF_IDX-CATALOG_SIGNATURE_VALID,signature valid>>ation and rollout trigger behavior
 
@@ -7653,7 +7630,35 @@ broadcasts fleet-wide telemetry and OTA lifecycle events to subscribed processor
 |===
 
 === Inferred Code References
-[[REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_CLOUD_RUNTIME_OPS_GO]]
+[[REF_CODE_LIBRARY_STDLIB_TESTING__OTA_CAMPAIGN_TEST_GO__TESTS_UNIT_OTA_CAMPAIGN_TEST_GO]]
+[discrete]
+==== testing (ota_campaign_test.go)
+
+Inferred library_stdlib dependency owned by unresolved from tests/unit/ota_campaign_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |unresolved
+|Source |tests/unit/ota_campaign_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_STDLIB_TESTING__TELEMETRY_INGEST_CONTRACT_TEST_GO__TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO]]
+[discrete]
+==== testing (telemetry_ingest_contract_test.go)
+
+Inferred library_stdlib dependency owned by unresolved from tests/contract/telemetry_ingest_contract_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |unresolved
+|Source |tests/contract/telemetry_ingest_contract_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SOURCE_FILE_CLOUD_RUNTIME_OPS_GO_SRC_CLOUD_RUNTIME_OPS_GO]]
 [discrete]
 ==== cloud_runtime_ops.go
 
@@ -7664,10 +7669,10 @@ wires cloud runtime handlers and integration entrypoints
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-CLOUD-RUNTIME-OPERATIONS
-|Source |cloud_runtime_ops.go
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Source |src/cloud_runtime_ops.go
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_DEVICE_IDENTITY_SECRETS_TS]]
+[[REF_CODE_SOURCE_FILE_DEVICE_IDENTITY_SECRETS_TS_SRC_DEVICE_IDENTITY_SECRETS_TS]]
 [discrete]
 ==== device_identity_secrets.ts
 
@@ -7678,10 +7683,10 @@ resolves device identity credentials and firmware verification secrets
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-DEVICE-IDENTITY-SECRETS
-|Source |device_identity_secrets.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/device_identity_secrets.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO_FLEET_INGESTION_API_GO]]
+[[REF_CODE_SOURCE_FILE_FLEET_INGESTION_API_GO_SRC_FLEET_INGESTION_API_GO]]
 [discrete]
 ==== fleet_ingestion_api.go
 
@@ -7692,10 +7697,10 @@ ingests device telemetry and emits normalized fleet ingestion events
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-FLEET-INGESTION-API
-|Source |fleet_ingestion_api.go
+|Source |src/fleet_ingestion_api.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_FLEET_OBSERVABILITY_REPORTING_TS]]
+[[REF_CODE_SOURCE_FILE_FLEET_OBSERVABILITY_REPORTING_TS_SRC_FLEET_OBSERVABILITY_REPORTING_TS]]
 [discrete]
 ==== fleet_observability_reporting.ts
 
@@ -7706,10 +7711,24 @@ aggregates telemetry and OTA outcome signals for fleet observability reporting
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
-|Source |fleet_observability_reporting.ts
+|Source |src/fleet_observability_reporting.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS_MACHINE_TELEMETRY_RS]]
+[[REF_CODE_SOURCE_FILE_LOGGING_PIPELINE_TEST_TS_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS]]
+[discrete]
+==== logging_pipeline_test.ts
+
+Inferred source file owned by unresolved from tests/integration/logging_pipeline_test.ts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/integration/logging_pipeline_test.ts
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
+|===
+[[REF_CODE_SOURCE_FILE_MACHINE_TELEMETRY_RS_SRC_MACHINE_TELEMETRY_RS]]
 [discrete]
 ==== machine_telemetry.rs
 
@@ -7720,10 +7739,24 @@ builds machine telemetry and status payloads at the edge
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
-|Source |machine_telemetry.rs
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/machine_telemetry.rs
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS_OTA_UPDATE_AGENT_RS]]
+[[REF_CODE_SOURCE_FILE_OTA_CAMPAIGN_TEST_GO_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO]]
+[discrete]
+==== ota_campaign_test.go
+
+Inferred source file owned by unresolved from tests/unit/ota_campaign_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/unit/ota_campaign_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
+|===
+[[REF_CODE_SOURCE_FILE_OTA_UPDATE_AGENT_RS_SRC_OTA_UPDATE_AGENT_RS]]
 [discrete]
 ==== ota_update_agent.rs
 
@@ -7734,10 +7767,24 @@ applies OTA campaign updates and reports rollout outcomes
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-OTA-UPDATE-AGENT
-|Source |ota_update_agent.rs
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/ota_update_agent.rs
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]
+[[REF_CODE_SOURCE_FILE_TELEMETRY_INGEST_CONTRACT_TEST_GO_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO]]
+[discrete]
+==== telemetry_ingest_contract_test.go
+
+Inferred source file owned by unresolved from tests/contract/telemetry_ingest_contract_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/contract/telemetry_ingest_contract_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
+|===
+[[REF_CODE_SOURCE_FILE_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS]]
 [discrete]
 ==== update_campaign_orchestrator.ts
 
@@ -7748,231 +7795,273 @@ plans OTA rollout cohorts and campaign lifecycle transitions
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|Source |update_campaign_orchestrator.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/update_campaign_orchestrator.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CLOUD_RUNTIME_OPS_GO_6_CLOUD_RUNTIME_OPS_GO_6]]
+[[REF_CODE_SYMBOL_CLOUD_RUNTIME_OPS_GO_6_SRC_CLOUD_RUNTIME_OPS_GO_6]]
 [discrete]
 ==== cloud_runtime_ops.go:6
 
-Inferred code symbol owned by FU-CLOUD-RUNTIME-OPERATIONS from cloud_runtime_ops.go:6.
+Inferred code symbol owned by FU-CLOUD-RUNTIME-OPERATIONS from src/cloud_runtime_ops.go:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CLOUD-RUNTIME-OPERATIONS
-|Source |cloud_runtime_ops.go:6
+|Source |src/cloud_runtime_ops.go:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_DEVICE_IDENTITY_SECRETS_TS_10_DEVICE_IDENTITY_SECRETS_TS_10]]
+[[REF_CODE_SYMBOL_DEVICE_IDENTITY_SECRETS_TS_10_SRC_DEVICE_IDENTITY_SECRETS_TS_10]]
 [discrete]
 ==== device_identity_secrets.ts:10
 
-Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_secrets.ts:10.
+Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from src/device_identity_secrets.ts:10.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-DEVICE-IDENTITY-SECRETS
-|Source |device_identity_secrets.ts:10
+|Source |src/device_identity_secrets.ts:10
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_DEVICE_IDENTITY_SECRETS_TS_5_DEVICE_IDENTITY_SECRETS_TS_5]]
+[[REF_CODE_SYMBOL_DEVICE_IDENTITY_SECRETS_TS_5_SRC_DEVICE_IDENTITY_SECRETS_TS_5]]
 [discrete]
 ==== device_identity_secrets.ts:5
 
-Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from device_identity_secrets.ts:5.
+Inferred code symbol owned by FU-DEVICE-IDENTITY-SECRETS from src/device_identity_secrets.ts:5.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-DEVICE-IDENTITY-SECRETS
-|Source |device_identity_secrets.ts:5
+|Source |src/device_identity_secrets.ts:5
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_13_FLEET_INGESTION_API_GO_13]]
+[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_13_SRC_FLEET_INGESTION_API_GO_13]]
 [discrete]
 ==== fleet_ingestion_api.go:13
 
-Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go:13.
+Inferred code symbol owned by FU-FLEET-INGESTION-API from src/fleet_ingestion_api.go:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-INGESTION-API
-|Source |fleet_ingestion_api.go:13
+|Source |src/fleet_ingestion_api.go:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_19_FLEET_INGESTION_API_GO_19]]
+[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_19_SRC_FLEET_INGESTION_API_GO_19]]
 [discrete]
 ==== fleet_ingestion_api.go:19
 
-Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go:19.
+Inferred code symbol owned by FU-FLEET-INGESTION-API from src/fleet_ingestion_api.go:19.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-INGESTION-API
-|Source |fleet_ingestion_api.go:19
+|Source |src/fleet_ingestion_api.go:19
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_6_FLEET_INGESTION_API_GO_6]]
+[[REF_CODE_SYMBOL_FLEET_INGESTION_API_GO_6_SRC_FLEET_INGESTION_API_GO_6]]
 [discrete]
 ==== fleet_ingestion_api.go:6
 
-Inferred code symbol owned by FU-FLEET-INGESTION-API from fleet_ingestion_api.go:6.
+Inferred code symbol owned by FU-FLEET-INGESTION-API from src/fleet_ingestion_api.go:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-INGESTION-API
-|Source |fleet_ingestion_api.go:6
+|Source |src/fleet_ingestion_api.go:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_12_FLEET_OBSERVABILITY_REPORTING_TS_12]]
+[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_12_SRC_FLEET_OBSERVABILITY_REPORTING_TS_12]]
 [discrete]
 ==== fleet_observability_reporting.ts:12
 
-Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:12.
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from src/fleet_observability_reporting.ts:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
-|Source |fleet_observability_reporting.ts:12
+|Source |src/fleet_observability_reporting.ts:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_18_FLEET_OBSERVABILITY_REPORTING_TS_18]]
+[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_18_SRC_FLEET_OBSERVABILITY_REPORTING_TS_18]]
 [discrete]
 ==== fleet_observability_reporting.ts:18
 
-Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:18.
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from src/fleet_observability_reporting.ts:18.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
-|Source |fleet_observability_reporting.ts:18
+|Source |src/fleet_observability_reporting.ts:18
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_6_FLEET_OBSERVABILITY_REPORTING_TS_6]]
+[[REF_CODE_SYMBOL_FLEET_OBSERVABILITY_REPORTING_TS_6_SRC_FLEET_OBSERVABILITY_REPORTING_TS_6]]
 [discrete]
 ==== fleet_observability_reporting.ts:6
 
-Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from fleet_observability_reporting.ts:6.
+Inferred code symbol owned by FU-FLEET-OBSERVABILITY-REPORTING from src/fleet_observability_reporting.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-FLEET-OBSERVABILITY-REPORTING
-|Source |fleet_observability_reporting.ts:6
+|Source |src/fleet_observability_reporting.ts:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_12_MACHINE_TELEMETRY_RS_12]]
+[[REF_CODE_SYMBOL_LOGGING_PIPELINE_TEST_TS_4_TESTS_INTEGRATION_LOGGING_PIPELINE_TEST_TS_4]]
+[discrete]
+==== logging_pipeline_test.ts:4
+
+Inferred code symbol owned by unresolved from tests/integration/logging_pipeline_test.ts:4.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/integration/logging_pipeline_test.ts:4
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF,Logging Pipeline Test>>
+|===
+[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_12_SRC_MACHINE_TELEMETRY_RS_12]]
 [discrete]
 ==== machine_telemetry.rs:12
 
-Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telemetry.rs:12.
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_telemetry.rs:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
-|Source |machine_telemetry.rs:12
+|Source |src/machine_telemetry.rs:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_18_MACHINE_TELEMETRY_RS_18]]
+[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_18_SRC_MACHINE_TELEMETRY_RS_18]]
 [discrete]
 ==== machine_telemetry.rs:18
 
-Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telemetry.rs:18.
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_telemetry.rs:18.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
-|Source |machine_telemetry.rs:18
+|Source |src/machine_telemetry.rs:18
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_5_MACHINE_TELEMETRY_RS_5]]
+[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_5_SRC_MACHINE_TELEMETRY_RS_5]]
 [discrete]
 ==== machine_telemetry.rs:5
 
-Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from machine_telemetry.rs:5.
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_telemetry.rs:5.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
-|Source |machine_telemetry.rs:5
+|Source |src/machine_telemetry.rs:5
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_UPDATE_AGENT_RS_16_OTA_UPDATE_AGENT_RS_16]]
+[[REF_CODE_SYMBOL_OTA_CAMPAIGN_TEST_GO_8_TESTS_UNIT_OTA_CAMPAIGN_TEST_GO_8]]
+[discrete]
+==== ota_campaign_test.go:8
+
+Inferred code symbol owned by unresolved from tests/unit/ota_campaign_test.go:8.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/unit/ota_campaign_test.go:8
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
+|===
+[[REF_CODE_SYMBOL_OTA_UPDATE_AGENT_RS_16_SRC_OTA_UPDATE_AGENT_RS_16]]
 [discrete]
 ==== ota_update_agent.rs:16
 
-Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:16.
+Inferred code symbol owned by FU-OTA-UPDATE-AGENT from src/ota_update_agent.rs:16.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-UPDATE-AGENT
-|Source |ota_update_agent.rs:16
+|Source |src/ota_update_agent.rs:16
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_UPDATE_AGENT_RS_6_OTA_UPDATE_AGENT_RS_6]]
+[[REF_CODE_SYMBOL_OTA_UPDATE_AGENT_RS_6_SRC_OTA_UPDATE_AGENT_RS_6]]
 [discrete]
 ==== ota_update_agent.rs:6
 
-Inferred code symbol owned by FU-OTA-UPDATE-AGENT from ota_update_agent.rs:6.
+Inferred code symbol owned by FU-OTA-UPDATE-AGENT from src/ota_update_agent.rs:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-UPDATE-AGENT
-|Source |ota_update_agent.rs:6
+|Source |src/ota_update_agent.rs:6
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_12_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_12]]
+[[REF_CODE_SYMBOL_TELEMETRY_INGEST_CONTRACT_TEST_GO_7_TESTS_CONTRACT_TELEMETRY_INGEST_CONTRACT_TEST_GO_7]]
+[discrete]
+==== telemetry_ingest_contract_test.go:7
+
+Inferred code symbol owned by unresolved from tests/contract/telemetry_ingest_contract_test.go:7.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/contract/telemetry_ingest_contract_test.go:7
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794,Telemetry Ingest Contract Test>>
+|===
+[[REF_CODE_SYMBOL_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_12_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_12]]
 [discrete]
 ==== update_campaign_orchestrator.ts:12
 
-Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campaign_orchestrator.ts:12.
+Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from src/update_campaign_orchestrator.ts:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|Source |update_campaign_orchestrator.ts:12
+|Source |src/update_campaign_orchestrator.ts:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_6_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_6]]
+[[REF_CODE_SYMBOL_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_6_SRC_UPDATE_CAMPAIGN_ORCHESTRATOR_TS_6]]
 [discrete]
 ==== update_campaign_orchestrator.ts:6
 
-Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from update_campaign_orchestrator.ts:6.
+Inferred code symbol owned by FU-UPDATE-CAMPAIGN-ORCHESTRATION from src/update_campaign_orchestrator.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-UPDATE-CAMPAIGN-ORCHESTRATION
-|Source |update_campaign_orchestrator.ts:6
+|Source |src/update_campaign_orchestrator.ts:6
 |Mentioned In |n/a
 |===
 

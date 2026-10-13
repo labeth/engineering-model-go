@@ -36,6 +36,4 @@ publications:
   requirements:
   - REQ-CLOUD-001
   - REQ-CLOUD-002
-inferenceHints:
-  codeSources:
-  - ./src
+inferenceHints: {}

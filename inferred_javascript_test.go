@@ -23,7 +23,7 @@ func TestJavaScriptOwnershipAndTestOnlyTraceInference(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			metadata := scanCodeMetadata(root)
+			metadata := scanCodeMetadata(root, nil)
 			if metadata[impl].Owner != "FU-WEB" {
 				t.Fatalf("ownership lost: %+v", metadata)
 			}

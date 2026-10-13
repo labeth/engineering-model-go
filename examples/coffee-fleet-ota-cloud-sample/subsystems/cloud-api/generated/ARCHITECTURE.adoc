@@ -1406,7 +1406,7 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
-[[REF_CODE_SOURCE_FILE_CLOUD_API_TS_CLOUD_API_TS]]
+[[REF_CODE_SOURCE_FILE_CLOUD_API_TS_SRC_CLOUD_API_TS]]
 [discrete]
 ==== cloud_api.ts
 
@@ -1417,35 +1417,35 @@ ingests and persists authenticated fleet telemetry
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-CLOUD-INGEST
-|Source |cloud_api.ts
+|Source |src/cloud_api.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CLOUD_API_TS_12_CLOUD_API_TS_12]]
+[[REF_CODE_SYMBOL_CLOUD_API_TS_12_SRC_CLOUD_API_TS_12]]
 [discrete]
 ==== cloud_api.ts:12
 
-Inferred code symbol owned by FU-CLOUD-INGEST from cloud_api.ts:12.
+Inferred code symbol owned by FU-CLOUD-INGEST from src/cloud_api.ts:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CLOUD-INGEST
-|Source |cloud_api.ts:12
+|Source |src/cloud_api.ts:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CLOUD_API_TS_6_CLOUD_API_TS_6]]
+[[REF_CODE_SYMBOL_CLOUD_API_TS_6_SRC_CLOUD_API_TS_6]]
 [discrete]
 ==== cloud_api.ts:6
 
-Inferred code symbol owned by FU-CLOUD-INGEST from cloud_api.ts:6.
+Inferred code symbol owned by FU-CLOUD-INGEST from src/cloud_api.ts:6.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CLOUD-INGEST
-|Source |cloud_api.ts:6
+|Source |src/cloud_api.ts:6
 |Mentioned In |n/a
 |===
 

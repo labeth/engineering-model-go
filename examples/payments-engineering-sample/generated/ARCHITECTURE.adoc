@@ -740,7 +740,6 @@ flowchart LR
     subgraph RT_FU_CHECKOUT_PAYMENTS["payments"]
       direction TB
       CODE_CHECKOUT_API_GO["checkout_api.go"]:::code_element
-      CODE_SRC_CHECKOUT_API_GO["src/checkout_api.go"]:::code_element
     end
     style RT_FU_CHECKOUT_PAYMENTS fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_CHECKOUT -->|runtime evidence| RT_FU_CHECKOUT_PAYMENTS
@@ -752,10 +751,8 @@ flowchart LR
     FU_FU_CHECKOUT -->|runtime evidence| RT_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
     subgraph RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]
       direction TB
-      CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
+      CODE_EVENTS_RS["events.rs"]:::code_element
       CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
-      CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
-      CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
     end
     style RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RT_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
@@ -894,10 +891,8 @@ flowchart LR
     FU_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
     subgraph RT_FU_RISK_SCORING_RISK["risk"]
       direction TB
+      CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts"]:::code_element
       CODE_RISK_SCORER_TS["risk_scorer.ts"]:::code_element
-      CODE_SRC_RISK_SCORER_TS["src/risk_scorer.ts"]:::code_element
-      CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS["src/support/audit_envelope.ts"]:::code_element
-      CODE_SUPPORT_AUDIT_ENVELOPE_TS["support/audit_envelope.ts"]:::code_element
     end
     style RT_FU_RISK_SCORING_RISK fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
     FU_FU_RISK_SCORING -->|runtime evidence| RT_FU_RISK_SCORING_RISK
@@ -1626,7 +1621,7 @@ Deployment design favors fast rollback and compatibility checks with the current
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
 |Deployment dependencies |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
-|Inferred deployment evidence |runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
+|Inferred deployment evidence |runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: src
 |===
 
 
@@ -1652,7 +1647,7 @@ Releases should stage gradually, verify dependency health, and preserve in-fligh
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_009,REQ-PAY-009>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
-|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+|Inferred deployment evidence |runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: src, src/domain
 |===
 
 
@@ -1698,7 +1693,7 @@ Deployment design includes observation windows for score distribution and escala
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
 |Deployment dependencies |<<REF_IDX-CATALOG_REF_POSTGRES_DRIVER,PostgreSQL Client Driver>>
-|Inferred deployment evidence |runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
+|Inferred deployment evidence |runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: src, src/<<REF_IDX-CATALOG_ACT_SUPPORT,support>>
 |===
 
 
@@ -2294,9 +2289,9 @@ Crafted payload shape attempts to force ambiguous authorization behavior and byp
 |===
 |Signal |Layer |Owner |Evidence
 
-|application security telemetry hooks |code |FU-RISK-SCORING |code support/audit_envelope.ts
+|application security telemetry hooks |code |FU-RISK-SCORING |code src/support/audit_envelope.ts
 
-|fraud and abuse detection code paths |code |FU-RISK-SCORING |code risk_scorer.ts
+|fraud and abuse detection code paths |code |FU-RISK-SCORING |code src/risk_scorer.ts
 
 |deployment and platform audit events |deployment |FU-CHECKOUT |helmrelease checkout-api
 
@@ -2351,14 +2346,10 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_DOMAIN_EVENTS_RS
+  CODE_EVENTS_RS["events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
   CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
-  CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_DOMAIN_EVENTS_RS
-  CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_PAYMENT_ENGINE_RS
   SEC_TGT_FU_RISK_SCORING["Risk Scoring"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_RISK_SCORING
   SEC_DEP_POSTGRESQL_CLIENT_DRIVER["PostgreSQL Client Driver"]:::referenced_element
@@ -2367,14 +2358,10 @@ flowchart LR
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK
   SEC_RT_FU_RISK_SCORING_RISK_SCORER["risk-scorer"]:::runtime_element
   SEC_TGT_FU_RISK_SCORING -->|runtime| SEC_RT_FU_RISK_SCORING_RISK_SCORER
+  CODE_AUDIT_ENVELOPE_TS["audit_envelope.ts"]:::code_element
+  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_AUDIT_ENVELOPE_TS
   CODE_RISK_SCORER_TS["risk_scorer.ts"]:::code_element
   SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_RISK_SCORER_TS
-  CODE_SRC_RISK_SCORER_TS["src/risk_scorer.ts"]:::code_element
-  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SRC_RISK_SCORER_TS
-  CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS["src/support/audit_envelope.ts"]:::code_element
-  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SRC_SUPPORT_AUDIT_ENVELOPE_TS
-  CODE_SUPPORT_AUDIT_ENVELOPE_TS["support/audit_envelope.ts"]:::code_element
-  SEC_RT_FU_RISK_SCORING_RISK -->|implemented_by| CODE_SUPPORT_AUDIT_ENVELOPE_TS
   SEC_TGT_FU_SUPPORT_REVIEW["Support Review"]:::functional_unit
   AV_AV_FRAUDULENT_TRANSACTION_PATTERN -->|targets| SEC_TGT_FU_SUPPORT_REVIEW
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -2416,7 +2403,7 @@ The design defends against replay, policy probing, and ambiguous error channels 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: src, src/domain
 
 ===== Risk Scoring (FU-RISK-SCORING)
 
@@ -2433,7 +2420,7 @@ Design controls enforce strict input handling and <<REF_IDX-ENGMODEL_TERM_EVIDEN
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: <<REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS,risk_scorer>>, <<REF_IDX-CATALOG_ACT_SUPPORT,support>>
+runtime: <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, <<REF_RT_HELMRELEASE_RISK_RISK_SCORER,risk/risk-scorer>>; code modules: src, src/<<REF_IDX-CATALOG_ACT_SUPPORT,support>>
 
 ===== Support Review (FU-SUPPORT-REVIEW)
 
@@ -2478,8 +2465,6 @@ flowchart LR
   SEC_TGT_FU_CHECKOUT -->|runtime| SEC_RT_FU_CHECKOUT_PAYMENTS
   CODE_CHECKOUT_API_GO["checkout_api.go"]:::code_element
   SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| CODE_CHECKOUT_API_GO
-  CODE_SRC_CHECKOUT_API_GO["src/checkout_api.go"]:::code_element
-  SEC_RT_FU_CHECKOUT_CHECKOUT_API -->|implemented_by| CODE_SRC_CHECKOUT_API_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2520,7 +2505,7 @@ are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: <<REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO,checkout_api>>
+runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: src
 
 
 
@@ -2548,14 +2533,10 @@ flowchart LR
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|depends_on| SEC_DEP_SUPPORT_REVIEW
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE["payment-engine"]:::runtime_element
   SEC_TGT_FU_PAYMENT_AUTHORIZATION -->|runtime| SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE
-  CODE_DOMAIN_EVENTS_RS["domain/events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_DOMAIN_EVENTS_RS
+  CODE_EVENTS_RS["events.rs"]:::code_element
+  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_EVENTS_RS
   CODE_PAYMENT_ENGINE_RS["payment_engine.rs"]:::code_element
   SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_PAYMENT_ENGINE_RS
-  CODE_SRC_DOMAIN_EVENTS_RS["src/domain/events.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_DOMAIN_EVENTS_RS
-  CODE_SRC_PAYMENT_ENGINE_RS["src/payment_engine.rs"]:::code_element
-  SEC_RT_FU_PAYMENT_AUTHORIZATION_PAYMENT_ENGINE -->|implemented_by| CODE_SRC_PAYMENT_ENGINE_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2595,7 +2576,7 @@ The design defends against replay, policy probing, and ambiguous error channels 
 [discrete]
 ====== Security Evidence Present
 
-runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: domain, <<REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS,payment_engine>>
+runtime: <<REF_RT_HELMRELEASE_PAYMENTS_PAYMENT_ENGINE,payments/payment-engine>>; code modules: src, src/domain
 
 
 
@@ -3626,10 +3607,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |integration
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_005,REQ-PAY-005>>
-|Test Code Elements |audit_record_persistence_test.ts:5
+|Test Code Elements |<<REF_CODE_SYMBOL_AUDIT_RECORD_PERSISTENCE_TEST_TS_5_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_5,audit_record_persistence_test.ts:5>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>
 |Result Summary |not-run:1
-|Evidence |tests/integration/audit_record_persistence_test.ts
+|Evidence |tests/integration/<<REF_CODE_SOURCE_FILE_AUDIT_RECORD_PERSISTENCE_TEST_TS_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS,audit_record_persistence_test.ts>>
 
 |Notes |checks audit record persistence includes <<REF_IDX-CATALOG_DATA_PAYMENT_ID,payment id>> and computed <<REF_IDX-CATALOG_DATA_RISK_SCORE,risk score>>
 
@@ -3646,10 +3627,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |integration
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>, <<REF_IDX-REQ_REQ_PAY_004,REQ-PAY-004>>
-|Test Code Elements |fraud_gate_test.rs:6
+|Test Code Elements |<<REF_CODE_SYMBOL_FRAUD_GATE_TEST_RS_6_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_6,fraud_gate_test.rs:6>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>, <<REF_IDX-CATALOG_FU_RISK_SCORING,FU-RISK-SCORING>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,FU-SUPPORT-REVIEW>>
 |Result Summary |pass:2
-|Evidence |test-results/integration-fraud-gate.json, tests/integration/fraud_gate_test.rs
+|Evidence |test-results/integration-fraud-gate.json, tests/integration/<<REF_CODE_SOURCE_FILE_FRAUD_GATE_TEST_RS_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS,fraud_gate_test.rs>>
 
 |Notes |validates fraud gate escalation and block decisions before authorization completion
 
@@ -3666,10 +3647,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |pass
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
-|Test Code Elements |checkout_decline_response_test.go:7
+|Test Code Elements |<<REF_CODE_SYMBOL_CHECKOUT_DECLINE_RESPONSE_TEST_GO_7_TESTS_CONTRACT_CHECKOUT_DECLINE_RESPONSE_TEST_GO_7,checkout_decline_response_test.go:7>>
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
 |Result Summary |pass:2
-|Evidence |test-results/contract-checkout-decline.json, tests/contract/checkout_decline_response_test.go
+|Evidence |test-results/contract-checkout-decline.json, tests/contract/<<REF_CODE_SOURCE_FILE_CHECKOUT_DECLINE_RESPONSE_TEST_GO_TESTS_CONTRACT_CHECKOUT_DECLINE_RESPONSE_TEST_GO,checkout_decline_response_test.go>>
 
 |Notes |validates <<REF_IDX-CATALOG_CHECKOUT,checkout>> <<REF_IDX-CATALOG_DECLINE,decline>> response contract includes reason and retry guidance
 
@@ -3686,10 +3667,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |unit
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
-|Test Code Elements |checkout_decline_reason_test.go:7, 15, 20
+|Test Code Elements |<<REF_CODE_SYMBOL_CHECKOUT_DECLINE_REASON_TEST_GO_7_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO_7,checkout_decline_reason_test.go:7>>, 15, 20
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>
 |Result Summary |not-run:2
-|Evidence |tests/unit/checkout_decline_reason_test.go
+|Evidence |tests/unit/<<REF_CODE_SOURCE_FILE_CHECKOUT_DECLINE_REASON_TEST_GO_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO,checkout_decline_reason_test.go>>
 
 |Notes |validates <<REF_IDX-CATALOG_CHECKOUT,checkout>> <<REF_IDX-CATALOG_DATA_DECLINE_REASON,decline reason>> normalization and retry policy messaging
 
@@ -6260,105 +6241,133 @@ runtime namespace boundary for fraud scoring and review support workloads
 |===
 
 === Inferred Code References
-[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__CHECKOUT_API_GO__CHECKOUT_API_GO]]
+[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
 [discrete]
 ==== gopkg.in/yaml.v3 (checkout_api.go)
 
-Inferred library_external dependency owned by FU-CHECKOUT from checkout_api.go.
+Inferred library_external dependency owned by FU-CHECKOUT from src/checkout_api.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go
+|Source |src/checkout_api.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__PAYMENT_ENGINE_RS__PAYMENT_ENGINE_RS]]
+[[REF_CODE_LIBRARY_EXTERNAL_SERDE_JSON__JSON__PAYMENT_ENGINE_RS__SRC_PAYMENT_ENGINE_RS]]
 [discrete]
 ==== serde_json::json (payment_engine.rs)
 
-Inferred library_external dependency owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs.
+Inferred library_external dependency owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs
+|Source |src/payment_engine.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_ZOD__RISK_SCORER_TS__RISK_SCORER_TS]]
+[[REF_CODE_LIBRARY_EXTERNAL_ZOD__RISK_SCORER_TS__SRC_RISK_SCORER_TS]]
 [discrete]
 ==== zod (risk_scorer.ts)
 
-Inferred library_external dependency owned by FU-RISK-SCORING from risk_scorer.ts.
+Inferred library_external dependency owned by FU-RISK-SCORING from src/risk_scorer.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_external
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts
+|Source |src/risk_scorer.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE__RISK_SCORER_TS__RISK_SCORER_TS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY___SUPPORT_AUDIT_ENVELOPE__RISK_SCORER_TS__SRC_RISK_SCORER_TS]]
 [discrete]
 ==== ./support/audit_envelope (risk_scorer.ts)
 
-Inferred library_first_party dependency owned by FU-RISK-SCORING from risk_scorer.ts.
+Inferred library_first_party dependency owned by FU-RISK-SCORING from src/risk_scorer.ts.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_first_party
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts
+|Source |src/risk_scorer.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT__PAYMENT_ENGINE_RS__PAYMENT_ENGINE_RS]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_CRATE__DOMAIN__EVENTS__PAYMENTEVENT__PAYMENT_ENGINE_RS__SRC_PAYMENT_ENGINE_RS]]
 [discrete]
 ==== crate::domain::events::PaymentEvent (payment_engine.rs)
 
-Inferred library_first_party dependency owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs.
+Inferred library_first_party dependency owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_first_party
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs
+|Source |src/payment_engine.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__CHECKOUT_API_GO__CHECKOUT_API_GO]]
+[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go/validate (checkout_api.go)
 
-Inferred library_first_party dependency owned by FU-CHECKOUT from checkout_api.go.
+Inferred library_first_party dependency owned by FU-CHECKOUT from src/checkout_api.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_first_party
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go
+|Source |src/checkout_api.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_STDLIB_FMT__CHECKOUT_API_GO__CHECKOUT_API_GO]]
+[[REF_CODE_LIBRARY_STDLIB_FMT__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
 [discrete]
 ==== fmt (checkout_api.go)
 
-Inferred library_stdlib dependency owned by FU-CHECKOUT from checkout_api.go.
+Inferred library_stdlib dependency owned by FU-CHECKOUT from src/checkout_api.go.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code library_stdlib
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go
+|Source |src/checkout_api.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_AUDIT_ENVELOPE_TS_SUPPORT_AUDIT_ENVELOPE_TS]]
+[[REF_CODE_LIBRARY_STDLIB_TESTING__CHECKOUT_DECLINE_REASON_TEST_GO__TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO]]
+[discrete]
+==== testing (checkout_decline_reason_test.go)
+
+Inferred library_stdlib dependency owned by unresolved from tests/unit/checkout_decline_reason_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |unresolved
+|Source |tests/unit/checkout_decline_reason_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_STDLIB_TESTING__CHECKOUT_DECLINE_RESPONSE_TEST_GO__TESTS_CONTRACT_CHECKOUT_DECLINE_RESPONSE_TEST_GO]]
+[discrete]
+==== testing (checkout_decline_response_test.go)
+
+Inferred library_stdlib dependency owned by unresolved from tests/contract/checkout_decline_response_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_stdlib
+|Owner |unresolved
+|Source |tests/contract/checkout_decline_response_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SOURCE_FILE_AUDIT_ENVELOPE_TS_SRC_SUPPORT_AUDIT_ENVELOPE_TS]]
 [discrete]
 ==== audit_envelope.ts
 
@@ -6369,10 +6378,24 @@ formats support-review audit envelopes for traceability workflows
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-RISK-SCORING
-|Source |support/audit_envelope.ts
+|Source |src/support/audit_envelope.ts
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_CHECKOUT_API_GO]]
+[[REF_CODE_SOURCE_FILE_AUDIT_RECORD_PERSISTENCE_TEST_TS_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS]]
+[discrete]
+==== audit_record_persistence_test.ts
+
+Inferred source file owned by unresolved from tests/integration/audit_record_persistence_test.ts.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/integration/audit_record_persistence_test.ts
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
+|===
+[[REF_CODE_SOURCE_FILE_CHECKOUT_API_GO_SRC_CHECKOUT_API_GO]]
 [discrete]
 ==== checkout_api.go
 
@@ -6383,10 +6406,38 @@ accepts checkout requests and forwards payment authorization flow input
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/checkout_api.go
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_EVENTS_RS_DOMAIN_EVENTS_RS]]
+[[REF_CODE_SOURCE_FILE_CHECKOUT_DECLINE_REASON_TEST_GO_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO]]
+[discrete]
+==== checkout_decline_reason_test.go
+
+Inferred source file owned by unresolved from tests/unit/checkout_decline_reason_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/unit/checkout_decline_reason_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
+|===
+[[REF_CODE_SOURCE_FILE_CHECKOUT_DECLINE_RESPONSE_TEST_GO_TESTS_CONTRACT_CHECKOUT_DECLINE_RESPONSE_TEST_GO]]
+[discrete]
+==== checkout_decline_response_test.go
+
+Inferred source file owned by unresolved from tests/contract/checkout_decline_response_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/contract/checkout_decline_response_test.go
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>
+|===
+[[REF_CODE_SOURCE_FILE_EVENTS_RS_SRC_DOMAIN_EVENTS_RS]]
 [discrete]
 ==== events.rs
 
@@ -6397,10 +6448,24 @@ defines payment domain events used across authorization and risk paths
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |domain/events.rs
+|Source |src/domain/events.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_PAYMENT_ENGINE_RS]]
+[[REF_CODE_SOURCE_FILE_FRAUD_GATE_TEST_RS_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS]]
+[discrete]
+==== fraud_gate_test.rs
+
+Inferred source file owned by unresolved from tests/integration/fraud_gate_test.rs.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |unresolved
+|Source |tests/integration/fraud_gate_test.rs
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|===
+[[REF_CODE_SOURCE_FILE_PAYMENT_ENGINE_RS_SRC_PAYMENT_ENGINE_RS]]
 [discrete]
 ==== payment_engine.rs
 
@@ -6411,10 +6476,10 @@ executes authorization decisions and persists payment-side audit records
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/payment_engine.rs
+|Mentioned In |n/a
 |===
-[[REF_CODE_SOURCE_FILE_RISK_SCORER_TS_RISK_SCORER_TS]]
+[[REF_CODE_SOURCE_FILE_RISK_SCORER_TS_SRC_RISK_SCORER_TS]]
 [discrete]
 ==== risk_scorer.ts
 
@@ -6425,385 +6490,469 @@ computes fraud risk scores and decides review or decline outcomes
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts
-|Mentioned In |<<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>
+|Source |src/risk_scorer.ts
+|Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_AUDIT_ENVELOPE_TS_11_SUPPORT_AUDIT_ENVELOPE_TS_11]]
+[[REF_CODE_SYMBOL_AUDIT_ENVELOPE_TS_11_SRC_SUPPORT_AUDIT_ENVELOPE_TS_11]]
 [discrete]
 ==== audit_envelope.ts:11
 
-Inferred code symbol owned by FU-RISK-SCORING from support/audit_envelope.ts:11.
+Inferred code symbol owned by FU-RISK-SCORING from src/support/audit_envelope.ts:11.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |support/audit_envelope.ts:11
+|Source |src/support/audit_envelope.ts:11
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_13_CHECKOUT_API_GO_13]]
+[[REF_CODE_SYMBOL_AUDIT_RECORD_PERSISTENCE_TEST_TS_5_TESTS_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_TS_5]]
+[discrete]
+==== audit_record_persistence_test.ts:5
+
+Inferred code symbol owned by unresolved from tests/integration/audit_record_persistence_test.ts:5.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/integration/audit_record_persistence_test.ts:5
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2,Audit Record Persistence Test>>
+|===
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_13_SRC_CHECKOUT_API_GO_13]]
 [discrete]
 ==== checkout_api.go:13
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:13.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:13.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:13
+|Source |src/checkout_api.go:13
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_16_CHECKOUT_API_GO_16]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_16_SRC_CHECKOUT_API_GO_16]]
 [discrete]
 ==== checkout_api.go:16
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:16.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:16.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:16
+|Source |src/checkout_api.go:16
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_20_CHECKOUT_API_GO_20]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_20_SRC_CHECKOUT_API_GO_20]]
 [discrete]
 ==== checkout_api.go:20
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:20.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:20.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:20
+|Source |src/checkout_api.go:20
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_32_CHECKOUT_API_GO_32]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_32_SRC_CHECKOUT_API_GO_32]]
 [discrete]
 ==== checkout_api.go:32
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:32.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:32.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:32
+|Source |src/checkout_api.go:32
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_38_CHECKOUT_API_GO_38]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_38_SRC_CHECKOUT_API_GO_38]]
 [discrete]
 ==== checkout_api.go:38
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:38.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:38.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:38
+|Source |src/checkout_api.go:38
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_44_CHECKOUT_API_GO_44]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_44_SRC_CHECKOUT_API_GO_44]]
 [discrete]
 ==== checkout_api.go:44
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:44.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:44.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:44
+|Source |src/checkout_api.go:44
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_50_CHECKOUT_API_GO_50]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_50_SRC_CHECKOUT_API_GO_50]]
 [discrete]
 ==== checkout_api.go:50
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:50.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:50.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:50
+|Source |src/checkout_api.go:50
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_CHECKOUT_API_GO_56_CHECKOUT_API_GO_56]]
+[[REF_CODE_SYMBOL_CHECKOUT_API_GO_56_SRC_CHECKOUT_API_GO_56]]
 [discrete]
 ==== checkout_api.go:56
 
-Inferred code symbol owned by FU-CHECKOUT from checkout_api.go:56.
+Inferred code symbol owned by FU-CHECKOUT from src/checkout_api.go:56.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-CHECKOUT
-|Source |checkout_api.go:56
+|Source |src/checkout_api.go:56
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_EVENTS_RS_12_DOMAIN_EVENTS_RS_12]]
+[[REF_CODE_SYMBOL_CHECKOUT_DECLINE_REASON_TEST_GO_15_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO_15]]
+[discrete]
+==== checkout_decline_reason_test.go:15
+
+Inferred code symbol owned by unresolved from tests/unit/checkout_decline_reason_test.go:15.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/unit/checkout_decline_reason_test.go:15
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_CHECKOUT_DECLINE_REASON_TEST_GO_20_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO_20]]
+[discrete]
+==== checkout_decline_reason_test.go:20
+
+Inferred code symbol owned by unresolved from tests/unit/checkout_decline_reason_test.go:20.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/unit/checkout_decline_reason_test.go:20
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_CHECKOUT_DECLINE_REASON_TEST_GO_7_TESTS_UNIT_CHECKOUT_DECLINE_REASON_TEST_GO_7]]
+[discrete]
+==== checkout_decline_reason_test.go:7
+
+Inferred code symbol owned by unresolved from tests/unit/checkout_decline_reason_test.go:7.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/unit/checkout_decline_reason_test.go:7
+|Mentioned In |<<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
+|===
+[[REF_CODE_SYMBOL_CHECKOUT_DECLINE_RESPONSE_TEST_GO_7_TESTS_CONTRACT_CHECKOUT_DECLINE_RESPONSE_TEST_GO_7]]
+[discrete]
+==== checkout_decline_response_test.go:7
+
+Inferred code symbol owned by unresolved from tests/contract/checkout_decline_response_test.go:7.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/contract/checkout_decline_response_test.go:7
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>
+|===
+[[REF_CODE_SYMBOL_EVENTS_RS_12_SRC_DOMAIN_EVENTS_RS_12]]
 [discrete]
 ==== events.rs:12
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from domain/events.rs:12.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/domain/events.rs:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |domain/events.rs:12
+|Source |src/domain/events.rs:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_EVENTS_RS_4_DOMAIN_EVENTS_RS_4]]
+[[REF_CODE_SYMBOL_EVENTS_RS_4_SRC_DOMAIN_EVENTS_RS_4]]
 [discrete]
 ==== events.rs:4
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from domain/events.rs:4.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/domain/events.rs:4.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |domain/events.rs:4
+|Source |src/domain/events.rs:4
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_10_PAYMENT_ENGINE_RS_10]]
+[[REF_CODE_SYMBOL_FRAUD_GATE_TEST_RS_6_TESTS_INTEGRATION_FRAUD_GATE_TEST_RS_6]]
+[discrete]
+==== fraud_gate_test.rs:6
+
+Inferred code symbol owned by unresolved from tests/integration/fraud_gate_test.rs:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |unresolved
+|Source |tests/integration/fraud_gate_test.rs:6
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>
+|===
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_10_SRC_PAYMENT_ENGINE_RS_10]]
 [discrete]
 ==== payment_engine.rs:10
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:10.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:10.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:10
+|Source |src/payment_engine.rs:10
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_15_PAYMENT_ENGINE_RS_15]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_15_SRC_PAYMENT_ENGINE_RS_15]]
 [discrete]
 ==== payment_engine.rs:15
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:15.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:15.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:15
+|Source |src/payment_engine.rs:15
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_31_PAYMENT_ENGINE_RS_31]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_31_SRC_PAYMENT_ENGINE_RS_31]]
 [discrete]
 ==== payment_engine.rs:31
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:31.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:31.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:31
+|Source |src/payment_engine.rs:31
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_40_PAYMENT_ENGINE_RS_40]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_40_SRC_PAYMENT_ENGINE_RS_40]]
 [discrete]
 ==== payment_engine.rs:40
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:40.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:40.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:40
+|Source |src/payment_engine.rs:40
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_51_PAYMENT_ENGINE_RS_51]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_51_SRC_PAYMENT_ENGINE_RS_51]]
 [discrete]
 ==== payment_engine.rs:51
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:51.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:51.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:51
+|Source |src/payment_engine.rs:51
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_60_PAYMENT_ENGINE_RS_60]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_60_SRC_PAYMENT_ENGINE_RS_60]]
 [discrete]
 ==== payment_engine.rs:60
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:60.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:60.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:60
+|Source |src/payment_engine.rs:60
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_69_PAYMENT_ENGINE_RS_69]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_69_SRC_PAYMENT_ENGINE_RS_69]]
 [discrete]
 ==== payment_engine.rs:69
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:69.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:69.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:69
+|Source |src/payment_engine.rs:69
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_7_PAYMENT_ENGINE_RS_7]]
+[[REF_CODE_SYMBOL_PAYMENT_ENGINE_RS_7_SRC_PAYMENT_ENGINE_RS_7]]
 [discrete]
 ==== payment_engine.rs:7
 
-Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from payment_engine.rs:7.
+Inferred code symbol owned by FU-PAYMENT-AUTHORIZATION from src/payment_engine.rs:7.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-PAYMENT-AUTHORIZATION
-|Source |payment_engine.rs:7
+|Source |src/payment_engine.rs:7
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_10_RISK_SCORER_TS_10]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_10_SRC_RISK_SCORER_TS_10]]
 [discrete]
 ==== risk_scorer.ts:10
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:10.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:10.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:10
+|Source |src/risk_scorer.ts:10
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_24_RISK_SCORER_TS_24]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_24_SRC_RISK_SCORER_TS_24]]
 [discrete]
 ==== risk_scorer.ts:24
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:24.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:24.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:24
+|Source |src/risk_scorer.ts:24
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_33_RISK_SCORER_TS_33]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_33_SRC_RISK_SCORER_TS_33]]
 [discrete]
 ==== risk_scorer.ts:33
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:33.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:33.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:33
+|Source |src/risk_scorer.ts:33
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_40_RISK_SCORER_TS_40]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_40_SRC_RISK_SCORER_TS_40]]
 [discrete]
 ==== risk_scorer.ts:40
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:40.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:40.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:40
+|Source |src/risk_scorer.ts:40
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_43_RISK_SCORER_TS_43]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_43_SRC_RISK_SCORER_TS_43]]
 [discrete]
 ==== risk_scorer.ts:43
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:43.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:43.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:43
+|Source |src/risk_scorer.ts:43
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_52_RISK_SCORER_TS_52]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_52_SRC_RISK_SCORER_TS_52]]
 [discrete]
 ==== risk_scorer.ts:52
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:52.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:52.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:52
+|Source |src/risk_scorer.ts:52
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_58_RISK_SCORER_TS_58]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_58_SRC_RISK_SCORER_TS_58]]
 [discrete]
 ==== risk_scorer.ts:58
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:58.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:58.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:58
+|Source |src/risk_scorer.ts:58
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_RISK_SCORER_TS_7_RISK_SCORER_TS_7]]
+[[REF_CODE_SYMBOL_RISK_SCORER_TS_7_SRC_RISK_SCORER_TS_7]]
 [discrete]
 ==== risk_scorer.ts:7
 
-Inferred code symbol owned by FU-RISK-SCORING from risk_scorer.ts:7.
+Inferred code symbol owned by FU-RISK-SCORING from src/risk_scorer.ts:7.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-RISK-SCORING
-|Source |risk_scorer.ts:7
+|Source |src/risk_scorer.ts:7
 |Mentioned In |n/a
 |===
 

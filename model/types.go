@@ -674,8 +674,11 @@ type ViewsDocument struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type InferenceHints struct {
-	RuntimeSources           []string `yaml:"runtimeSources"`
+	RuntimeSources []string `yaml:"runtimeSources"`
+	// CodeSources is no longer supported: the code scope is the module root minus Exclude.
+	// It is still decoded so validation can report it instead of failing to load.
 	CodeSources              []string `yaml:"codeSources"`
+	Exclude                  []string `yaml:"exclude"`
 	ExpectedRuntimeKinds     []string `yaml:"expectedRuntimeKinds"`
 	OwnershipResolutionOrder []string `yaml:"ownershipResolutionOrder"`
 }
@@ -921,4 +924,9 @@ type Bundle struct {
 	Requirements RequirementsDocument
 	Design       DesignDocument
 	Aviation     *AviationDocument
+
+	// CodeIndex, when set, returns how many in-scope files or declarations produce each
+	// inferred CODE identifier. It is built lazily, so validation only scans code when the
+	// model references a CODE identifier.
+	CodeIndex func() map[string]int `yaml:"-" json:"-"`
 }

@@ -1478,7 +1478,7 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
-[[REF_CODE_SOURCE_FILE_OTA_AGENT_RS_OTA_AGENT_RS]]
+[[REF_CODE_SOURCE_FILE_OTA_AGENT_RS_SRC_OTA_AGENT_RS]]
 [discrete]
 ==== ota_agent.rs
 
@@ -1489,63 +1489,63 @@ verifies and applies signed firmware, rolling back on failure
 |Key |Value
 |Kind |Code source_file
 |Owner |FU-OTA-APPLY
-|Source |ota_agent.rs
+|Source |src/ota_agent.rs
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_AGENT_RS_12_OTA_AGENT_RS_12]]
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_12_SRC_OTA_AGENT_RS_12]]
 [discrete]
 ==== ota_agent.rs:12
 
-Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:12.
+Inferred code symbol owned by FU-OTA-APPLY from src/ota_agent.rs:12.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-APPLY
-|Source |ota_agent.rs:12
+|Source |src/ota_agent.rs:12
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_AGENT_RS_18_OTA_AGENT_RS_18]]
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_18_SRC_OTA_AGENT_RS_18]]
 [discrete]
 ==== ota_agent.rs:18
 
-Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:18.
+Inferred code symbol owned by FU-OTA-APPLY from src/ota_agent.rs:18.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-APPLY
-|Source |ota_agent.rs:18
+|Source |src/ota_agent.rs:18
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_AGENT_RS_24_OTA_AGENT_RS_24]]
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_24_SRC_OTA_AGENT_RS_24]]
 [discrete]
 ==== ota_agent.rs:24
 
-Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:24.
+Inferred code symbol owned by FU-OTA-APPLY from src/ota_agent.rs:24.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-APPLY
-|Source |ota_agent.rs:24
+|Source |src/ota_agent.rs:24
 |Mentioned In |n/a
 |===
-[[REF_CODE_SYMBOL_OTA_AGENT_RS_5_OTA_AGENT_RS_5]]
+[[REF_CODE_SYMBOL_OTA_AGENT_RS_5_SRC_OTA_AGENT_RS_5]]
 [discrete]
 ==== ota_agent.rs:5
 
-Inferred code symbol owned by FU-OTA-APPLY from ota_agent.rs:5.
+Inferred code symbol owned by FU-OTA-APPLY from src/ota_agent.rs:5.
 
 [cols="1,4",options="header"]
 |===
 |Key |Value
 |Kind |Code symbol
 |Owner |FU-OTA-APPLY
-|Source |ota_agent.rs:5
+|Source |src/ota_agent.rs:5
 |Mentioned In |n/a
 |===
 

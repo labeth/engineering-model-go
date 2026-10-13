@@ -104,7 +104,7 @@ type oscalARRisk struct {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return OSCALARResult{}, err
 	}

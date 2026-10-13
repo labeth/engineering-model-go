@@ -111,8 +111,6 @@ inferenceHints:
   - ./infra/terraform
   - ./infra/flux
   - ./infra/helm
-  codeSources:
-  - ./src
   expectedRuntimeKinds:
   - cluster
   - namespace

@@ -373,3 +373,24 @@ requirements:
       - FU-AIRBORNE-ASSURANCE-EXPORTER
       - FU-VALIDATION-ENGINE
       - FU-ASCIIDOC-GENERATOR
+  - id: REQ-EMG-057
+    text: When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.
+    notes: Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+  - id: REQ-EMG-058
+    text: When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.
+    notes: A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+  - id: REQ-EMG-059
+    text: When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.
+    notes: An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-CODEMAP-INFERENCE
+  - id: REQ-EMG-060
+    text: When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.
+    notes: Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.
+    appliesTo:
+      - FU-VALIDATION-ENGINE

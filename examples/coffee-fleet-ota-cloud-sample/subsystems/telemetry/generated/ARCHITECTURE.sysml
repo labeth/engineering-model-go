@@ -102,12 +102,6 @@ package 'COF-TELEMETRY' {
     attribute 'EVT-SAMPLE-DUE';
 
     @EngineeringElement {
-        sourceId = "EXTENSION-095302628C010BF0";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EXTENSION-095302628C010BF0';
-
-    @EngineeringElement {
         sourceId = "FEAT-TELEMETRY";
         conceptKind = "engineering_extension";
     }

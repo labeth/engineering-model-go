@@ -44,7 +44,7 @@ def final(): pass
 	if err != nil || len(diags) != 0 {
 		t.Fatalf("scan: %v %+v", err, diags)
 	}
-	want := map[string]int{"CODE-OUTER": 6, "CODE-OUTERINNER": 8, "CODE-READER": 12, "CODE-READERVALUE": 15, "CODE-OTHERVALUE": 19, "CODE-FINAL": 25}
+	want := map[string]int{"CODE-SOURCE-PY--OUTER": 6, "CODE-SOURCE-PY--OUTERINNER": 8, "CODE-SOURCE-PY--READER": 12, "CODE-SOURCE-PY--READERVALUE": 15, "CODE-SOURCE-PY--OTHERVALUE": 19, "CODE-SOURCE-PY--FINAL": 25}
 	if len(symbols) != len(want) {
 		t.Fatalf("symbols: %+v", symbols)
 	}

@@ -138,7 +138,7 @@ func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan,
 	if err := decodeStrictYAML(candidateYAML, &candidate); err != nil {
 		return requirementsDeltaPlan{}, fmt.Errorf("decode merged requirements: %w", err)
 	}
-	bundle, err := model.LoadBundle(filepath.Join(filepath.Dir(rootPath), "engmod.yml"))
+	bundle, err := loadBundle(filepath.Join(filepath.Dir(rootPath), "engmod.yml"))
 	if err != nil {
 		return requirementsDeltaPlan{}, fmt.Errorf("load model bundle: %w", err)
 	}

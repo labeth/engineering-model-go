@@ -23,7 +23,7 @@ type Result struct {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
 // ENGMODEL-LINKS: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION
 func GenerateFromFile(architecturePath, viewID string) (Result, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return Result{}, err
 	}

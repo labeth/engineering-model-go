@@ -29,7 +29,7 @@ type AsciiDocResult struct {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
-	bundle, err := model.LoadBundle(architecturePath)
+	bundle, err := loadBundle(architecturePath)
 	if err != nil {
 		return AsciiDocResult{}, err
 	}
@@ -628,7 +628,6 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		ViewConfig: renderViewConfig(bundle.Architecture.Views),
 		InferenceHints: asciidocInferenceHints{
 			RuntimeSources:           strings.Join(bundle.Architecture.InferenceHints.RuntimeSources, ", "),
-			CodeSources:              strings.Join(bundle.Architecture.InferenceHints.CodeSources, ", "),
 			ExpectedRuntimeKinds:     strings.Join(bundle.Architecture.InferenceHints.ExpectedRuntimeKinds, ", "),
 			OwnershipResolutionOrder: strings.Join(bundle.Architecture.InferenceHints.OwnershipResolutionOrder, ", "),
 		},

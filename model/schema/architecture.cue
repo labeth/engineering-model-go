@@ -336,7 +336,9 @@ package model
 
 #InferenceHints: {
 	runtimeSources?:           #StringList
+	// Removed: decoded only so validation reports model.code_sources_removed.
 	codeSources?:              #StringList
+	exclude?:                  #StringList
 	expectedRuntimeKinds?:     #StringList
 	ownershipResolutionOrder?: #StringList
 }

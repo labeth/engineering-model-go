@@ -40,6 +40,4 @@ publications:
   - REQ-OTA-001
   - REQ-OTA-002
   - REQ-OTA-003
-inferenceHints:
-  codeSources:
-  - ./src
+inferenceHints: {}

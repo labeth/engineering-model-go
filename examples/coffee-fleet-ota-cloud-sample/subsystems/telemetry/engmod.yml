@@ -39,6 +39,4 @@ publications:
   - REQ-TELEM-001
   - REQ-TELEM-002
   - REQ-TELEM-003
-inferenceHints:
-  codeSources:
-  - ./src
+inferenceHints: {}
