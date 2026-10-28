@@ -188,12 +188,6 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-020';
 
     @EngineeringElement {
-        sourceId = "ADR-EMG-021";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'ADR-EMG-021';
-
-    @EngineeringElement {
         sourceId = "AV-MALFORMED-MODEL-INPUT";
         conceptKind = "engineering_extension";
     }
@@ -2505,39 +2499,12 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
-        sourceId = "REQ-EMG-057";
+        sourceId = "REQ-EMG-061";
         conceptKind = "requirement_definition";
     }
-    requirement def 'REQ-EMG-057' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.";
-        attribute 'notes' : 'String' = "Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root.";
-    }
-
-    @EngineeringElement {
-        sourceId = "REQ-EMG-058";
-        conceptKind = "requirement_definition";
-    }
-    requirement def 'REQ-EMG-058' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.";
-        attribute 'notes' : 'String' = "A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.";
-    }
-
-    @EngineeringElement {
-        sourceId = "REQ-EMG-059";
-        conceptKind = "requirement_definition";
-    }
-    requirement def 'REQ-EMG-059' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.";
-        attribute 'notes' : 'String' = "An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost.";
-    }
-
-    @EngineeringElement {
-        sourceId = "REQ-EMG-060";
-        conceptKind = "requirement_definition";
-    }
-    requirement def 'REQ-EMG-060' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.";
-        attribute 'notes' : 'String' = "Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.";
+    requirement def 'REQ-EMG-061' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.";
+        attribute 'notes' : 'String' = "Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust";
     }
 
     @EngineeringElement {

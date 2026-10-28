@@ -394,3 +394,9 @@ requirements:
     notes: Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.
     appliesTo:
       - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-061
+    text: When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.
+    notes: Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust #[test]-like functions including those inside #[cfg(test)] modules, and Python test functions. TRLC-LINKS on other declarations in test code raise verification.helper_link. The trace summary reports tested and passed separately; verified is kept as tested for compatibility, and passed requires a parsed test-result artifact.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FU-ALLOCATION-TRACE

@@ -24,6 +24,12 @@ package model
 	derivedRationale?:     string
 	tags?:                 #StringList
 	appliesTo?:            #StringList
+	lintWaivers?: [...#LintWaiver]
+}
+
+#LintWaiver: {
+	code:   string & =~"^lint\\."
+	reason: string & !=""
 }
 
 #Expected: {

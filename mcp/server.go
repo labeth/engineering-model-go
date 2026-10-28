@@ -17,6 +17,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/codemap"
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
@@ -512,19 +513,20 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if path == "" {
 			return nil, fmt.Errorf("files.owner requires path")
 		}
-		ownerFU := ""
 		safePath, ok := s.resolvePathInRepo(path)
 		if !ok {
 			return nil, fmt.Errorf("files.owner path must be inside repoRoot")
 		}
 		content, _ := os.ReadFile(safePath)
+		ownerFU, markerLine := ownerUnitMarker(safePath, content)
+		ownerKnown := false
 		for _, fu := range a.FunctionalUnits {
-			if strings.Contains(string(content), fu.ID) {
-				ownerFU = fu.ID
+			if ownerFU != "" && fu.ID == ownerFU {
+				ownerKnown = true
 				break
 			}
 		}
-		return simple(map[string]any{"path": safePath, "ownerFunctionalUnit": ownerFU})
+		return simple(map[string]any{"path": safePath, "ownerFunctionalUnit": ownerFU, "ownerKnown": ownerKnown, "markerLine": markerLine})
 	case "verification.status":
 		status := []model.ControlVerification{}
 		for _, cv := range a.ControlVerifications {
@@ -621,7 +623,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "model.list", "entities.list":
 		return simple(map[string]any{"entities": s.modelEntityNodes(query, firstNonEmptyArg(args, "kind"), maxArg(args, 500))})
 	case "model.authoringContract":
-		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle)})
+		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle), "rules": validate.AuthoringRules()})
 	case "model.entity":
 		id := firstNonEmptyArg(args, "entityId", "id")
 		if id == "" {
@@ -731,13 +733,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 			return nil, fmt.Errorf("interfaces.matchFromCode path must be inside repoRoot")
 		}
 		content, _ := os.ReadFile(safePath)
-		ownerFU := ""
-		for _, fu := range a.FunctionalUnits {
-			if strings.Contains(string(content), fu.ID) {
-				ownerFU = fu.ID
-				break
-			}
-		}
+		ownerFU, _ := ownerUnitMarker(safePath, content)
 		matched := []string{}
 		for _, i := range a.Interfaces {
 			if strings.Contains(string(content), i.ID) || strings.Contains(string(content), i.Endpoint) {
@@ -2423,6 +2419,42 @@ func (s *Server) graphEdges(query string, max int) []map[string]any {
 		out = out[:max]
 	}
 	return out
+}
+
+// ownerUnitMarker returns the value of the first ENGMODEL-OWNER-UNIT comment
+// marker and its 1-based line, or "" and 0 when the file has none. Mentions of
+// FU IDs elsewhere in the file are ignored; Python markers count only in comments.
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-010
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
+func ownerUnitMarker(path string, content []byte) (string, int) {
+	const marker = "ENGMODEL-OWNER-UNIT:"
+	var pythonComments map[int]bool
+	isPython := strings.EqualFold(filepath.Ext(path), ".py")
+	if isPython {
+		pythonComments, _ = codemap.CommentLines(path, content)
+	}
+	for index, line := range strings.Split(string(content), "\n") {
+		if isPython && !pythonComments[index+1] {
+			continue
+		}
+		x := strings.TrimSpace(line)
+		isComment := false
+		for _, prefix := range []string{"//", "#", "/*", "*", "--", ";", "%"} {
+			if strings.HasPrefix(x, prefix) {
+				x = strings.TrimSpace(strings.TrimPrefix(x, prefix))
+				isComment = true
+				break
+			}
+		}
+		if !isComment || !strings.HasPrefix(strings.ToUpper(x), marker) {
+			continue
+		}
+		value := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(x[len(marker):]), "*/"))
+		if fields := strings.Fields(value); len(fields) > 0 {
+			return fields[0], index + 1
+		}
+	}
+	return "", 0
 }
 
 // TRLC-LINKS: REQ-EMG-008

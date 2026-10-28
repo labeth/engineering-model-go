@@ -13,11 +13,23 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 const (
 	gemaraRefPrincipleCatalog = "ENGMOD-PRINCIPLE-CATALOG"
 	gemaraRefGuidanceCatalog  = "ENGMOD-GUIDANCE-CATALOG"
+)
+
+// gemaraNotSet marks a value Gemara requires but the model does not state.
+const gemaraNotSet = "not set in the model"
+
+// Accepted evaluation methods the policy may declare, chosen from the authored
+// control-verification methods. No method is marked required: the model does
+// not state which methods a policy owner mandates.
+var (
+	automatedEvaluationMethod = gemara.AcceptedMethod{Id: "EM-INTENT", Type: gemara.MethodIntent, Mode: gemara.ModeAutomated, Description: "Automated tests recorded as control verifications."}
+	manualEvaluationMethod    = gemara.AcceptedMethod{Id: "EM-MANUAL", Type: gemara.MethodIntent, Mode: gemara.ModeManual, Description: "Manual analysis, inspection or review recorded as control verifications."}
 )
 
 // -------------------- L1 Principle Catalog --------------------
@@ -128,11 +140,12 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.Pol
 	if start == "" {
 		start = gemaraDefaultTimestamp
 	}
-	contact := []gemara.Contact{{Name: cfg.options.AuthorName}}
+	contact, contactsSet := policyContacts(bundle)
+	notSet := gemaraNotSet
 
 	pol := gemara.Policy{
 		Title:    cfg.modelTitle + " - Security Policy",
-		Metadata: cfg.newMetadata(cfg.modelID+"-POLICY", "Security policy for "+cfg.modelTitle, gemara.PolicyArtifact),
+		Metadata: cfg.newMetadata(cfg.policyID(), "Security policy for "+cfg.modelTitle, gemara.PolicyArtifact),
 		Contacts: gemara.RACI{Responsible: contact, Accountable: contact},
 		Scope: gemara.Scope{In: gemara.Dimensions{
 			Technologies: policyTechnologies(a),
@@ -143,22 +156,28 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.Pol
 			Catalogs: []gemara.CatalogImport{{ReferenceId: gemaraRefControlCatalog}},
 			Guidance: []gemara.GuidanceImport{{ReferenceId: gemaraRefGuidanceCatalog}},
 		},
+		// The model records no evaluation cadence or change gate, so the
+		// timelines say so instead of claiming continuous evaluation.
 		ImplementationPlan: gemara.ImplementationPlan{
-			EvaluationTimeline:  gemara.ImplementationDetails{Start: gemara.Datetime(start), Notes: "Controls are evaluated continuously from inferred verification."},
-			EnforcementTimeline: gemara.ImplementationDetails{Start: gemara.Datetime(start), Notes: "Non-compliant changes are gated and remediated via POA&M."},
+			EvaluationTimeline:  gemara.ImplementationDetails{Start: gemara.Datetime(start), Notes: notSet},
+			EnforcementTimeline: gemara.ImplementationDetails{Start: gemara.Datetime(start), Notes: notSet},
 		},
 		Adherence: gemara.Adherence{
-			EvaluationMethods: []gemara.AcceptedMethod{
-				{Id: "EM-INTENT", Type: gemara.MethodIntent, Mode: gemara.ModeAutomated, Required: true, Description: "Static analysis of code, configuration, and test evidence."},
-				{Id: "EM-BEHAVIORAL", Type: gemara.MethodBehavioral, Mode: gemara.ModeManual, Required: false, Description: "Exercise and review of runtime behavior."},
-			},
-			EnforcementMethods: []gemara.AcceptedMethod{
-				{Id: "ENM-GATE", Type: gemara.MethodGate, Mode: gemara.ModeAutomated, Required: true, Description: "Preventive change-control gate."},
-				{Id: "ENM-REMEDIATION", Type: gemara.MethodRemediation, Mode: gemara.ModeManual, Required: false, Description: "Remediation tracked via POA&M."},
-			},
-			AssessmentPlans: policyAssessmentPlans(a),
-			NonCompliance:   "Non-compliant findings are tracked as POA&M items with an owner and due date; unresolved high-severity findings block release.",
+			EvaluationMethods:  policyEvaluationMethods(a),
+			EnforcementMethods: policyEnforcementMethods(a),
+			AssessmentPlans:    policyAssessmentPlans(a),
 		},
+	}
+	if len(a.POAMItems) > 0 {
+		pol.Adherence.NonCompliance = "Non-compliant findings are tracked as POA&M items in the model."
+	}
+	if !contactsSet {
+		cfg.addDiagnostic(validate.Diagnostic{
+			Code:     "gemara.policy_contacts_not_set",
+			Severity: validate.SeverityWarning,
+			Message:  "no risk or control-verification owner resolves to an actor; policy contacts are rendered as \"not set\"",
+			Path:     "policy.contacts",
+		})
 	}
 
 	pol.Risks = policyRisks(a)
@@ -216,20 +235,23 @@ func policyUsers(a model.AuthoredArchitecture) []string {
 	return out
 }
 
-// policyAssessmentPlans maps each control verification to an assessment plan.
+// policyAssessmentPlans maps each control verification to an assessment plan
+// whose method mirrors the verification's authored method.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-015
 func policyAssessmentPlans(a model.AuthoredArchitecture) []gemara.AssessmentPlan {
 	var out []gemara.AssessmentPlan
 	for _, cv := range a.ControlVerifications {
+		method := manualEvaluationMethod
+		if isAutomatedVerificationMethod(cv.Method) {
+			method = automatedEvaluationMethod
+		}
 		out = append(out, gemara.AssessmentPlan{
-			Id:            "AP-" + cv.ID,
-			RequirementId: cv.ID,
-			Frequency:     "continuous",
-			EvaluationMethods: []gemara.AcceptedMethod{
-				{Id: "EM-INTENT", Type: gemara.MethodIntent, Mode: gemara.ModeAutomated, Required: true},
-			},
-			EvidenceRequirements: "Verification evidence linked to the control.",
+			Id:                   "AP-" + cv.ID,
+			RequirementId:        cv.ID,
+			Frequency:            gemaraNotSet,
+			EvaluationMethods:    []gemara.AcceptedMethod{{Id: method.Id, Type: method.Type, Mode: method.Mode}},
+			EvidenceRequirements: "Evidence recorded on control verification " + cv.ID + ".",
 		})
 	}
 	return out
@@ -246,7 +268,7 @@ func policyRisks(a model.AuthoredArchitecture) gemara.Risks {
 			risks.Accepted = append(risks.Accepted, gemara.AcceptedRisk{
 				Id:            "ACC-" + r.ID,
 				Risk:          ref,
-				Justification: fallback(r.Rationale, fallback(r.ResidualRisk, "Accepted by policy owner.")),
+				Justification: fallback(r.Rationale, fallback(r.ResidualRisk, "Justification "+gemaraNotSet+".")),
 			})
 		} else {
 			risks.Mitigated = append(risks.Mitigated, gemara.MitigatedRisk{Id: "MIT-" + r.ID, Risk: ref})
@@ -254,3 +276,96 @@ func policyRisks(a model.AuthoredArchitecture) gemara.Risks {
 	}
 	return risks
 }
+
+// policyContacts resolves the distinct risk and control-verification owners to
+// actor names. Without owners it returns a single "not set" contact and false.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func policyContacts(bundle model.Bundle) ([]gemara.Contact, bool) {
+	a := bundle.Architecture.AuthoredArchitecture
+	names := map[string]string{}
+	for _, e := range bundle.Catalog.Catalog.Actors {
+		if id := strings.TrimSpace(e.ID); id != "" && strings.TrimSpace(e.Name) != "" {
+			names[id] = strings.TrimSpace(e.Name)
+		}
+	}
+	for _, ac := range a.Actors {
+		if id := strings.TrimSpace(ac.ID); id != "" && strings.TrimSpace(ac.Name) != "" {
+			names[id] = strings.TrimSpace(ac.Name)
+		}
+	}
+	var owners []string
+	for _, r := range a.Risks {
+		owners = appendUnique(owners, strings.TrimSpace(r.Owner))
+	}
+	for _, cv := range a.ControlVerifications {
+		owners = appendUnique(owners, strings.TrimSpace(cv.Owner))
+	}
+	var out []gemara.Contact
+	seen := map[string]bool{}
+	for _, o := range owners {
+		if o == "" {
+			continue
+		}
+		name := fallback(names[o], o)
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
+		out = append(out, gemara.Contact{Name: name})
+	}
+	if len(out) == 0 {
+		return []gemara.Contact{{Name: "not set"}}, false
+	}
+	return out, true
+}
+
+// isAutomatedVerificationMethod reports whether an authored verification
+// method is an automated test.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func isAutomatedVerificationMethod(method string) bool {
+	m := strings.ToLower(strings.TrimSpace(method))
+	switch m {
+	case "test", "tests", "automated", "automated-test", "automation":
+		return true
+	}
+	return strings.HasSuffix(m, "-test")
+}
+
+// policyEvaluationMethods declares only the evaluation modes the authored
+// control verifications use.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func policyEvaluationMethods(a model.AuthoredArchitecture) []gemara.AcceptedMethod {
+	automated, manual := false, false
+	for _, cv := range a.ControlVerifications {
+		if isAutomatedVerificationMethod(cv.Method) {
+			automated = true
+		} else {
+			manual = true
+		}
+	}
+	var out []gemara.AcceptedMethod
+	if automated {
+		out = append(out, automatedEvaluationMethod)
+	}
+	if manual {
+		out = append(out, manualEvaluationMethod)
+	}
+	return out
+}
+
+// policyEnforcementMethods declares manual POA&M remediation when the model has
+// POA&M items. No automated change gate is claimed: the model does not state one.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func policyEnforcementMethods(a model.AuthoredArchitecture) []gemara.AcceptedMethod {
+	if len(a.POAMItems) == 0 {
+		return nil
+	}
+	return []gemara.AcceptedMethod{{Id: policyRemediationMethodID, Type: gemara.MethodRemediation, Mode: gemara.ModeManual, Description: "Remediation tracked as POA&M items in the model."}}
+}
+
+// policyRemediationMethodID is the policy enforcement-method id the enforcement log cites.
+const policyRemediationMethodID = "ENM-REMEDIATION"

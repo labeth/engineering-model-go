@@ -22,9 +22,9 @@ metadata:
     version: 1.1.0
 contacts:
   responsible:
-  - name: Atlas Industries
+  - name: not set
   accountable:
-  - name: Atlas Industries
+  - name: not set
 scope:
   in:
     technologies:
@@ -41,31 +41,8 @@ imports:
 implementation-plan:
   evaluation-timeline:
     start: "2026-09-19T00:00:00Z"
-    notes: Controls are evaluated continuously from inferred verification.
+    notes: not set in the model
   enforcement-timeline:
     start: "2026-09-19T00:00:00Z"
-    notes: Non-compliant changes are gated and remediated via POA&M.
-adherence:
-  evaluation-methods:
-  - id: EM-INTENT
-    type: Intent
-    mode: Automated
-    required: true
-    description: Static analysis of code, configuration, and test evidence.
-  - id: EM-BEHAVIORAL
-    type: Behavioral
-    mode: Manual
-    required: false
-    description: Exercise and review of runtime behavior.
-  enforcement-methods:
-  - id: ENM-GATE
-    type: Gate
-    mode: Automated
-    required: true
-    description: Preventive change-control gate.
-  - id: ENM-REMEDIATION
-    type: Remediation
-    mode: Manual
-    required: false
-    description: Remediation tracked via POA&M.
-  non-compliance: Non-compliant findings are tracked as POA&M items with an owner and due date; unresolved high-severity findings block release.
+    notes: not set in the model
+adherence: {}

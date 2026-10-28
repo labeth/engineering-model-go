@@ -268,8 +268,51 @@ Rules:
 
 - Link test functions, contract tests, e2e tests, and verification scripts to the requirements they prove.
 - Prefer test-level links over file-level links when a test file covers multiple requirements.
-- Test helpers should not require requirement links unless they independently assert modeled behavior.
+- Test helpers, fakes and fixtures do not need requirement links, and links on them verify nothing (see below).
 - If a requirement has implementation links but no verification links, strict verification coverage should report a gap.
+
+### What counts as a test
+
+A requirement is test-linked only through a declaration that the language's test
+runner executes. `TRLC-LINKS` on any other declaration in test code (a helper,
+fake, fixture or `impl FakeClock`) creates no verification and is reported as the
+warning `verification.helper_link` at `path:line`; move the link onto the test.
+
+| Language | Test entry point | Test-only code (never production implementation) |
+| --- | --- | --- |
+| Go | `func TestX`, `BenchmarkX`, `FuzzX`, `ExampleX` in `*_test.go` (not `TestMain`, not methods) | every declaration in `*_test.go` |
+| Rust | a function with `#[test]`, `#[rstest]`, `#[test_case(..)]`, `#[wasm_bindgen_test]` or `#[<path>::test]` such as `#[tokio::test]`, in any `.rs` file | items under a `#[cfg(test)]` item (typically `mod tests`), files with `#![cfg(test)]`, and `.rs` files under `tests/` |
+| Python | module-level `test*` functions and `test*` methods of a class, in `test_*.py` / `*_test.py` | every declaration in a test-path file, including `conftest.py` and modules under `tests/` |
+| JavaScript, TypeScript, YAML, Verilog, Java | no detection yet: any `TRLC-LINKS` in a test-path file verifies (file level) | the whole test-path file |
+
+Rust unit tests can therefore stay inline in production files:
+
+```rust
+// TRLC-LINKS: REQ-SIM-001
+pub fn now_ms() -> u64 { 0 }       // implements REQ-SIM-001
+
+#[cfg(test)]
+mod tests {
+    struct FakeClock;               // test-only: no link needed
+    // TRLC-LINKS: REQ-SIM-001
+    #[test]
+    fn reads_clock() {}             // verifies REQ-SIM-001
+}
+```
+
+Helpers in test code do not trigger `code.missing_trlc_link`; test entry points do.
+Stacked `TRLC-LINKS` lines above one declaration accumulate.
+
+### Tested and passed
+
+The trace matrix separates two facts. `summary.tested` counts requirements with at
+least one linked test (or verification artifact); `summary.verified` is kept for
+compatibility and equals `tested` ("test linked"). `summary.passed` counts
+requirements whose linked verification has a recorded pass and no recorded failure
+in a parsed `test-results/` artifact (JUnit XML, JSON or text). Each row with a
+linked verification carries `result`: `passed`, `failed` (a fail, blocked, partial
+or flaky result) or `not-run` (no result recorded). The CSV export adds a `result`
+column.
 
 ## Choosing the Right Level
 
@@ -312,10 +355,11 @@ The scanner should define required and optional declaration kinds per supported 
 
 | Language | Required in strict mode | Optional but linkable |
 | --- | --- | --- |
-| Go | Functions, methods, behavior tests, API handlers | Type declarations, API/schema structs, interfaces |
+| Go | Functions, methods, behavior tests, API handlers (helpers in `*_test.go` exempt) | Type declarations, API/schema structs, interfaces |
 | TypeScript | Function declarations, methods, exported function variables, handlers | Classes, interfaces, type aliases, components |
 | TSX | Function declarations, methods, exported function variables, components, hooks | Props types, interfaces, type aliases |
-| Rust | Free functions, impl methods, trait methods, behavior tests | Structs, enums, traits, type aliases |
+| Rust | Free functions, impl methods, trait methods, behavior tests (helpers under `#[cfg(test)]` exempt) | Structs, enums, traits, type aliases |
+| Python | Functions and methods (helpers in test-path files exempt) | Classes |
 
 The scanner should document unsupported syntax explicitly so gaps are visible.
 

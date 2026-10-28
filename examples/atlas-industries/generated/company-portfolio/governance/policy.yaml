@@ -22,9 +22,11 @@ metadata:
     version: 1.1.0
 contacts:
   responsible:
-  - name: Atlas Industries
+  - name: Product Security Engineer
+  - name: Relay Security Engineer
   accountable:
-  - name: Atlas Industries
+  - name: Product Security Engineer
+  - name: Relay Security Engineer
 scope:
   in:
     technologies:
@@ -48,10 +50,10 @@ imports:
 implementation-plan:
   evaluation-timeline:
     start: "2026-09-19T00:00:00Z"
-    notes: Controls are evaluated continuously from inferred verification.
+    notes: not set in the model
   enforcement-timeline:
     start: "2026-09-19T00:00:00Z"
-    notes: Non-compliant changes are gated and remediated via POA&M.
+    notes: not set in the model
 risks:
   mitigated:
   - id: MIT-aegis::RISK-AEG-FALSE-TRACK
@@ -67,41 +69,31 @@ adherence:
   - id: EM-INTENT
     type: Intent
     mode: Automated
-    required: true
-    description: Static analysis of code, configuration, and test evidence.
-  - id: EM-BEHAVIORAL
-    type: Behavioral
-    mode: Manual
     required: false
-    description: Exercise and review of runtime behavior.
+    description: Automated tests recorded as control verifications.
   assessment-plans:
   - id: AP-aegis::CV-AEG-TRACK-CONFIDENCE
     requirement-id: aegis::CV-AEG-TRACK-CONFIDENCE
-    frequency: continuous
+    frequency: not set in the model
     evaluation-methods:
     - id: EM-INTENT
       type: Intent
       mode: Automated
-      required: true
-    evidence-requirements: Verification evidence linked to the control.
+      required: false
+    evidence-requirements: Evidence recorded on control verification aegis::CV-AEG-TRACK-CONFIDENCE.
   - id: AP-orion::CV-ORI-ADMISSION
     requirement-id: orion::CV-ORI-ADMISSION
-    frequency: continuous
+    frequency: not set in the model
     evaluation-methods:
     - id: EM-INTENT
       type: Intent
       mode: Automated
-      required: true
-    evidence-requirements: Verification evidence linked to the control.
+      required: false
+    evidence-requirements: Evidence recorded on control verification orion::CV-ORI-ADMISSION.
   enforcement-methods:
-  - id: ENM-GATE
-    type: Gate
-    mode: Automated
-    required: true
-    description: Preventive change-control gate.
   - id: ENM-REMEDIATION
     type: Remediation
     mode: Manual
     required: false
-    description: Remediation tracked via POA&M.
-  non-compliance: Non-compliant findings are tracked as POA&M items with an owner and due date; unresolved high-severity findings block release.
+    description: Remediation tracked as POA&M items in the model.
+  non-compliance: Non-compliant findings are tracked as POA&M items in the model.

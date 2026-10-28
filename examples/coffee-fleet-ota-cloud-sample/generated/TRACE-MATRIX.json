@@ -23,6 +23,7 @@
       "verifications": [
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
+      "result": "passed",
       "delegatedTo": {
         "subsystem": "SUB-TELEMETRY",
         "target": "telemetry::CAP-TELEM-REPORT",
@@ -52,6 +53,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
+      "result": "not-run",
       "delegatedTo": {
         "subsystem": "SUB-CLOUD-API",
         "target": "cloud-api::CAP-CLOUD-INGEST",
@@ -82,6 +84,7 @@
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "result": "passed",
       "delegatedTo": {
         "subsystem": "SUB-OTA-AGENT",
         "target": "ota-agent::CAP-OTA-APPLY",
@@ -111,6 +114,7 @@
       "verifications": [
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -136,6 +140,7 @@
       "verifications": [
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
       ],
+      "result": "not-run",
       "status": "implemented"
     },
     {
@@ -176,6 +181,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -398,6 +404,8 @@
     "requirements": 20,
     "implemented": 8,
     "verified": 6,
+    "tested": 6,
+    "passed": 4,
     "delegated": 6,
     "orphan": 4,
     "danglingLinks": 0

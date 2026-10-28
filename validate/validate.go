@@ -532,6 +532,15 @@ func Bundle(b model.Bundle) []Diagnostic {
 	}
 	for i, requirement := range b.Requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
+		for j, waiver := range requirement.LintWaivers {
+			wpath := fmt.Sprintf("%s.lintWaivers[%d]", path, j)
+			if !strings.HasPrefix(strings.TrimSpace(waiver.Code), "lint.") {
+				diags = append(diags, Diagnostic{Code: "model.invalid_lint_waiver_code", Severity: SeverityError, Message: fmt.Sprintf("lint waiver code %q must name a lint.* warning", waiver.Code), Path: wpath + ".code"})
+			}
+			if strings.TrimSpace(waiver.Reason) == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_lint_waiver_reason", Severity: SeverityError, Message: fmt.Sprintf("lint waiver %q on %q needs a reason", waiver.Code, requirement.ID), Path: wpath + ".reason"})
+			}
+		}
 		if requirement.Derived && strings.TrimSpace(requirement.DerivedRationale) == "" {
 			diags = append(diags, Diagnostic{Code: "model.missing_derived_requirement_rationale", Severity: SeverityError, Message: fmt.Sprintf("derived requirement %q must include derivedRationale", requirement.ID), Path: path + ".derivedRationale"})
 		}
@@ -1329,6 +1338,100 @@ func validateNAFProfile(architecture model.ArchitectureDocument, actors map[stri
 	return diags
 }
 
+// mappingPairs is the single table of allowed relationship kind pairs; it is
+// read by mappingPairAllowed and exported through AuthoringRules.
+var mappingPairs = map[string]map[string]bool{
+	"contains": {
+		"hardware_item:hardware_item":      true,
+		"hardware_item:hardware_interface": true,
+		"functional_group:functional_unit": true,
+		"functional_unit:interface":        true,
+		"functional_unit:data_object":      true,
+	},
+	"depends_on": {
+		"functional_unit:functional_unit":    true,
+		"functional_unit:referenced_element": true,
+		"functional_unit:interface":          true,
+		"functional_unit:deployment_target":  true,
+	},
+	"interacts_with": {
+		"hardware_item:hardware_item": true,
+		"actor:functional_unit":       true,
+	},
+	"targets": {
+		"attack_vector:functional_unit":    true,
+		"attack_vector:referenced_element": true,
+		"attack_vector:interface":          true,
+		"attack_vector:deployment_target":  true,
+	},
+	"calls": {
+		"functional_unit:functional_unit": true,
+		"functional_unit:interface":       true,
+	},
+	"publishes": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"subscribes": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"reads": {
+		"functional_unit:data_object": true,
+	},
+	"writes": {
+		"functional_unit:data_object": true,
+	},
+	"streams": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"implements": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"satisfies": {
+		"functional_unit:referenced_element": true,
+		"functional_unit:control":            true,
+	},
+	"allocated_to": {
+		"deployment_target:hardware_item":   true,
+		"functional_unit:hardware_item":     true,
+		"functional_unit:deployment_target": true,
+		"interface:deployment_target":       true,
+	},
+	"verified_by": {
+		"functional_unit:referenced_element": true,
+		"control:referenced_element":         true,
+	},
+	"transitions_to": {
+		"state:state": true,
+	},
+	"triggered_by": {
+		"state:event": true,
+	},
+	"guarded_by": {
+		"state:control":            true,
+		"state:trust_boundary":     true,
+		"state:referenced_element": true,
+	},
+	"deployed_to": {
+		"functional_unit:deployment_target": true,
+		"interface:deployment_target":       true,
+	},
+	"mitigated_by": {
+		"attack_vector:control": true,
+	},
+	"bounded_by": {
+		"actor:trust_boundary":             true,
+		"hardware_item:trust_boundary":     true,
+		"data_object:trust_boundary":       true,
+		"functional_unit:trust_boundary":   true,
+		"deployment_target:trust_boundary": true,
+		"interface:trust_boundary":         true,
+	},
+}
+
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
@@ -1338,104 +1441,7 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 	if t == "" || from == "" || to == "" {
 		return false
 	}
-	if t == "contains" {
-		if from == "hardware_item" && (to == "hardware_item" || to == "hardware_interface") {
-			return true
-		}
-		if from == "functional_group" && to == "functional_unit" {
-			return true
-		}
-		if from == "functional_unit" {
-			return to == "interface" || to == "data_object"
-		}
-		return false
-	}
-	allowed := map[string]map[string]bool{
-		"depends_on": {
-			"functional_unit:functional_unit":    true,
-			"functional_unit:referenced_element": true,
-			"functional_unit:interface":          true,
-			"functional_unit:deployment_target":  true,
-		},
-		"interacts_with": {
-			"hardware_item:hardware_item": true,
-			"actor:functional_unit":       true,
-		},
-		"targets": {
-			"attack_vector:functional_unit":    true,
-			"attack_vector:referenced_element": true,
-			"attack_vector:interface":          true,
-			"attack_vector:deployment_target":  true,
-		},
-		"calls": {
-			"functional_unit:functional_unit": true,
-			"functional_unit:interface":       true,
-		},
-		"publishes": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"subscribes": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"reads": {
-			"functional_unit:data_object": true,
-		},
-		"writes": {
-			"functional_unit:data_object": true,
-		},
-		"streams": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"implements": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"satisfies": {
-			"functional_unit:referenced_element": true,
-			"functional_unit:control":            true,
-		},
-		"allocated_to": {
-			"deployment_target:hardware_item":   true,
-			"functional_unit:hardware_item":     true,
-			"functional_unit:deployment_target": true,
-			"interface:deployment_target":       true,
-		},
-		"verified_by": {
-			"functional_unit:referenced_element": true,
-			"control:referenced_element":         true,
-		},
-		"transitions_to": {
-			"state:state": true,
-		},
-		"triggered_by": {
-			"state:event": true,
-		},
-		"guarded_by": {
-			"state:control":            true,
-			"state:trust_boundary":     true,
-			"state:referenced_element": true,
-		},
-		"deployed_to": {
-			"functional_unit:deployment_target": true,
-			"interface:deployment_target":       true,
-		},
-		"mitigated_by": {
-			"attack_vector:control": true,
-		},
-		"bounded_by": {
-			"actor:trust_boundary":             true,
-			"hardware_item:trust_boundary":     true,
-			"data_object:trust_boundary":       true,
-			"functional_unit:trust_boundary":   true,
-			"deployment_target:trust_boundary": true,
-			"interface:trust_boundary":         true,
-		},
-	}
-	key := from + ":" + to
-	return allowed[t][key]
+	return mappingPairs[t][from+":"+to]
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE

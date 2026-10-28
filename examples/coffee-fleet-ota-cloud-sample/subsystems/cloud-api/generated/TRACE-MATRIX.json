@@ -38,6 +38,8 @@
     "requirements": 2,
     "implemented": 2,
     "verified": 0,
+    "tested": 0,
+    "passed": 0,
     "delegated": 0,
     "orphan": 0,
     "danglingLinks": 0

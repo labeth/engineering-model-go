@@ -26,6 +26,7 @@ import (
 	goyaml "github.com/goccy/go-yaml"
 
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 // GemaraVersion is the Gemara specification version stamped into every artifact's metadata.
@@ -79,6 +80,10 @@ type GemaraExportResult struct {
 
 	// YAML maps an artifact short-name (e.g. "control-catalog") to its serialized document.
 	YAML map[string]string
+
+	// Diagnostics reports values Gemara requires that the model does not state
+	// (rendered as "not set") so they are not mistaken for authored content.
+	Diagnostics []validate.Diagnostic
 }
 
 // GenerateGemaraFromFile loads the model bundle and renders the Gemara catalogs.
@@ -110,6 +115,8 @@ func GenerateGemara(bundle model.Bundle, options GemaraExportOptions) (GemaraExp
 		return GemaraExportResult{}, err
 	}
 	cfg := newGemaraConfig(bundle, options)
+	var diags []validate.Diagnostic
+	cfg.diags = &diags
 
 	res := GemaraExportResult{
 		VectorCatalog:     buildVectorCatalog(bundle, cfg),
@@ -189,6 +196,7 @@ func GenerateGemara(bundle model.Bundle, options GemaraExportOptions) (GemaraExp
 		}
 		res.YAML[d.name] = out
 	}
+	res.Diagnostics = validate.SortDiagnostics(diags)
 	return res, nil
 }
 
@@ -231,7 +239,29 @@ type gemaraConfig struct {
 	modelID    string
 	modelTitle string
 	author     gemara.Actor
+	// diags collects export diagnostics; nil discards them.
+	diags *[]validate.Diagnostic
 }
+
+// addDiagnostic records an export diagnostic when a sink is attached.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c gemaraConfig) addDiagnostic(d validate.Diagnostic) {
+	if c.diags != nil {
+		*c.diags = append(*c.diags, d)
+	}
+}
+
+// policyID is the metadata id of the rendered Policy; artifacts that cite the
+// policy use it as their mapping-reference id so the reference resolves.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c gemaraConfig) policyID() string { return c.modelID + "-POLICY" }
+
+// evaluationLogID is the metadata id of the rendered Evaluation Log.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c gemaraConfig) evaluationLogID() string { return c.modelID + "-EVALUATION-LOG" }
 
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
@@ -615,9 +645,11 @@ func buildRiskCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.RiskCatalog 
 	cat.Groups = []gemara.RiskCategory{{
 		Id:          defaultCategory,
 		Title:       "Operational Risk",
-		Description: "Risks to the operation, security, and compliance of the system.",
-		Appetite:    gemara.RiskAppetiteLow,
-		MaxSeverity: gemara.SeverityHigh,
+		Description: "Risks to the operation, security, and compliance of the system. Risk appetite not set in the model; default applied.",
+		// appetite is required by the schema; the model has no appetite field,
+		// so a default is applied and disclosed above. max-severity is optional
+		// and stays unset.
+		Appetite: gemara.RiskAppetiteLow,
 	}}
 
 	threatIDs := map[string]bool{}

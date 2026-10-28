@@ -10,18 +10,18 @@ metadata:
     name: Atlas Industries
     type: Human
   mapping-references:
-  - id: ENGMOD-EVALUATION-LOG
+  - id: atlas-industries-portfolio-EVALUATION-LOG
     title: Evaluation Log
     version: 1.1.0
-  - id: ENGMOD-POLICY
+  - id: atlas-industries-portfolio-POLICY
     title: Policy
     version: 1.1.0
 disposition: Enforced
 actions:
 - disposition: Enforced
   method:
-    reference-id: ENGMOD-POLICY
-    entry-id: remediation
+    reference-id: atlas-industries-portfolio-POLICY
+    entry-id: ENM-REMEDIATION
   message: "Remediation for orion::RISK-ORI-LINK-EXHAUSTION (milestone: Extend admission testing to simultaneous multi-band congestion., due: 2027-02-28, status: planned)."
   start: "2026-09-19T00:00:00Z"
   steps:
@@ -29,10 +29,10 @@ actions:
   - evidence/orion/congestion-test-plan.md
   justification:
     assessments:
-    - result: Failed
+    - result: Needs Review
       log:
-        reference-id: ENGMOD-EVALUATION-LOG
-        entry-id: orion::RISK-ORI-LINK-EXHAUSTION
+        reference-id: atlas-industries-portfolio-EVALUATION-LOG
+        entry-id: orion::CV-ORI-ADMISSION
 target:
   id: atlas-industries-portfolio
   name: Atlas Industries Company Portfolio

@@ -30,6 +30,14 @@ type Symbol struct {
 	Path       string
 	Line       int
 	Signature  string
+	// IsTest marks a test entry point the language's runner executes (Go TestX/
+	// BenchmarkX/FuzzX/ExampleX in _test.go, Rust #[test]-like functions, Python
+	// test* functions in test files). Only these verify the requirements they link.
+	IsTest bool
+	// TestOnly marks code compiled or collected only for tests: every declaration
+	// in a Go _test.go or Python test file and Rust items under #[cfg(test)]. It
+	// never counts as production implementation.
+	TestOnly bool
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -49,6 +57,8 @@ type declaration struct {
 	Signature    string
 	RequiresTRLC bool
 	LeadingLine  int
+	IsTest       bool
+	TestOnly     bool
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -179,6 +189,7 @@ func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error
 		return nil, nil, err
 	}
 	diags := append([]validate.Diagnostic(nil), parseDiags...)
+	decls = markTestContext(relPath, decls)
 
 	declByLine := map[int]declaration{}
 	traceRequiredByLine := map[int]declaration{}
@@ -222,8 +233,10 @@ func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error
 				continue
 			}
 			if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
-				pending.implements = splitCSV(v)
-				for _, link := range pending.implements {
+				links := splitCSV(v)
+				// Stacked TRLC-LINKS lines above one declaration accumulate.
+				pending.implements = append(pending.implements, links...)
+				for _, link := range links {
 					if !validRequirementID(link) {
 						diags = append(diags, validate.Diagnostic{
 							Code:     "code.invalid_trlc_link",
@@ -329,6 +342,8 @@ func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, lin
 		Path:       relPath,
 		Line:       lineNo,
 		Signature:  signature,
+		IsTest:     d.IsTest,
+		TestOnly:   d.TestOnly || d.IsTest,
 	}
 }
 
@@ -381,6 +396,10 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 			}
 		} else if ext == ".py" {
 			if decl, ok := pythonDeclaration(n, src); ok {
+				if isPythonTestFile(path) {
+					decl.TestOnly = true
+					decl.IsTest = pythonTestFunction(n, src)
+				}
 				out = append(out, decl)
 			}
 		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
@@ -388,13 +407,24 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 			line := int(n.StartPosition().Row) + 1
 			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
 			if name != "" {
-				out = append(out, declaration{
+				d := declaration{
 					Name:         name,
 					Kind:         n.Kind(),
 					Line:         line,
 					Signature:    signature,
 					RequiresTRLC: spec.TraceRequiredKind[n.Kind()],
-				})
+				}
+				switch ext {
+				case ".go":
+					if isGoTestFile(path) {
+						d.TestOnly = true
+						d.IsTest = goTestFunction(n, name)
+					}
+				case ".rs":
+					d.IsTest = rustTestFunction(n, src)
+					d.TestOnly = d.IsTest || rustInTestScope(n, src)
+				}
+				out = append(out, d)
 			}
 		}
 		count := n.NamedChildCount()

@@ -35,14 +35,19 @@ type TraceMatrix struct {
 // TraceRow is one requirement and everything that traces to it.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 type TraceRow struct {
-	ID            string           `json:"id"`
-	Text          string           `json:"text,omitempty"`
-	Units         []string         `json:"units,omitempty"`
-	Code          []TraceCodeRef   `json:"code,omitempty"`
-	Verifications []string         `json:"verifications,omitempty"`
-	DelegatedTo   *TraceDelegation `json:"delegatedTo,omitempty"`
-	Provenance    *TraceProvenance `json:"provenance,omitempty"`
-	Status        string           `json:"status"`
+	ID            string         `json:"id"`
+	Text          string         `json:"text,omitempty"`
+	Units         []string       `json:"units,omitempty"`
+	Code          []TraceCodeRef `json:"code,omitempty"`
+	Verifications []string       `json:"verifications,omitempty"`
+	// Result is the recorded outcome of the linked tests: "passed" when parsed
+	// test-result artifacts report only passes, "failed" when any reports a
+	// failure (or a blocked, partial or flaky run), "not-run" otherwise. It is
+	// empty when no verification is linked.
+	Result      string           `json:"result,omitempty"`
+	DelegatedTo *TraceDelegation `json:"delegatedTo,omitempty"`
+	Provenance  *TraceProvenance `json:"provenance,omitempty"`
+	Status      string           `json:"status"`
 }
 
 // TraceProvenance identifies the selected dependency publication that supplied
@@ -84,9 +89,17 @@ type DanglingLink struct {
 // TraceSummary is the headline coverage roll-up.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type TraceSummary struct {
-	Requirements  int `json:"requirements"`
-	Implemented   int `json:"implemented"`
-	Verified      int `json:"verified"`
+	Requirements int `json:"requirements"`
+	Implemented  int `json:"implemented"`
+	// Verified counts test-linked requirements and always equals Tested; it is
+	// kept for existing callers. Use Passed for requirements with recorded passes.
+	Verified int `json:"verified"`
+	// Tested counts requirements with at least one linked test function (or
+	// verification artifact).
+	Tested int `json:"tested"`
+	// Passed counts requirements whose linked verification has a recorded pass
+	// and no recorded failure in parsed test-result artifacts.
+	Passed        int `json:"passed"`
 	Delegated     int `json:"delegated"`
 	Orphan        int `json:"orphan"`
 	DanglingLinks int `json:"danglingLinks"`
@@ -397,6 +410,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 			verByReq[id] = append(verByReq[id], strings.TrimSpace(v.ID))
 		}
 	}
+	resultByReq := requirementResults(verification)
 
 	matrix := TraceMatrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
 	for _, r := range requirements.Requirements {
@@ -404,6 +418,9 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 		row := TraceRow{ID: id, Text: strings.TrimSpace(r.Text), Units: uniqueSorted(r.AppliesTo)}
 		row.Code = codeByReq[id]
 		row.Verifications = uniqueSorted(verByReq[id])
+		if len(row.Verifications) > 0 {
+			row.Result = resultByReq[id]
+		}
 		if d := delegationsByReq[id]; len(d) > 0 {
 			row.DelegatedTo = &TraceDelegation{Subsystem: d[0].Subsystem, Target: d[0].Target, TargetRequirement: d[0].TargetRef}
 		}
@@ -433,7 +450,10 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 			matrix.Summary.Implemented++
 		}
 		if len(row.Verifications) > 0 {
-			matrix.Summary.Verified++
+			matrix.Summary.Tested++
+		}
+		if row.Result == "passed" {
+			matrix.Summary.Passed++
 		}
 		if row.DelegatedTo != nil {
 			matrix.Summary.Delegated++
@@ -443,7 +463,38 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 	}
 	matrix.Summary.DanglingLinks = len(dangling)
+	matrix.Summary.Verified = matrix.Summary.Tested
 	return matrix
+}
+
+// requirementResults rolls the per-requirement results of every linked
+// verification into one row result: failed > passed > not-run.
+// TRLC-LINKS: REQ-EMG-030
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func requirementResults(verification []inferredVerificationCheck) map[string]string {
+	out := map[string]string{}
+	rank := map[string]int{"not-run": 0, "passed": 1, "failed": 2}
+	for _, v := range verification {
+		for _, req := range v.Verifies {
+			id := strings.TrimSpace(req)
+			result := "not-run"
+			for _, r := range v.Results {
+				if strings.TrimSpace(r.Requirement) != id {
+					continue
+				}
+				switch normalizeResultStatus(r.Status) {
+				case "pass":
+					result = "passed"
+				case "fail", "blocked", "partial", "flaky":
+					result = "failed"
+				}
+			}
+			if current, ok := out[id]; !ok || rank[result] > rank[current] {
+				out[id] = result
+			}
+		}
+	}
+	return out
 }
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
@@ -550,6 +601,7 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 		matrix.Summary.Requirements++
 		if len(row.Verifications) > 0 {
 			matrix.Summary.Verified++
+			matrix.Summary.Tested++
 		}
 		if row.DelegatedTo != nil {
 			matrix.Summary.Delegated++
@@ -566,7 +618,7 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 func (m TraceMatrix) CSV() []byte {
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
-	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo", "provenance"})
+	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo", "provenance", "result"})
 	for _, r := range m.Requirements {
 		code := make([]string, 0, len(r.Code))
 		for _, c := range r.Code {
@@ -586,7 +638,7 @@ func (m TraceMatrix) CSV() []byte {
 		}
 		_ = w.Write([]string{
 			r.ID, r.Status, strings.Join(r.Units, " "), strings.Join(code, " "),
-			strings.Join(r.Verifications, " "), delegated, provenance,
+			strings.Join(r.Verifications, " "), delegated, provenance, r.Result,
 		})
 	}
 	w.Flush()

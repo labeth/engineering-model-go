@@ -23,6 +23,35 @@ semantic versioning.
 - Every in-scope file gets a referenceable `CODE-<PATH>` ID. Authored references to
   `CODE-*` IDs are resolved during validation (unknown → broken reference, collisions →
   `model.ambiguous_code_reference`); the code index is only built when one is used.
+Fixes from field use of the trace, MCP and Gemara outputs.
+
+### Changed
+
+- **Trace:** only test entry points verify a requirement (Go `Test/Benchmark/Fuzz/Example`, Rust `#[test]`-like
+  functions including inside `#[cfg(test)]` modules, Python `test_*`). `TRLC-LINKS` on helpers, fakes and
+  fixtures in test code raise `verification.helper_link` instead of counting. Rust `#[cfg(test)]` code is no
+  longer counted as implementation. The summary adds `tested` and `passed` and each row a `result`
+  (`passed`/`failed`/`not-run`); `verified` equals `tested` for compatibility. The CSV gains a `result` column.
+- **Gemara:** policy contacts come from model owners ("not set" otherwise); no automated gate or continuous
+  evaluation is claimed unless the model supports it; the default risk appetite is disclosed and
+  `max-severity` left unset; the enforcement log cites only evaluation-log entries that exist; mapping-reference
+  ids match artifact ids.
+
+### Added
+
+- `model.authoringContract` returns `rules`: allowed enums, every allowed relationship type/from/to pair and
+  field rules, built from the validator's own tables (`validate.AuthoringRules`).
+- `gemara.validate` checks cross references across the rendered set (`crossReferenceErrors`, `valid`).
+- Requirement `lintWaivers: [{code: lint.*, reason}]`; waived warnings are suppressed, errors never are, and a
+  waiver without a reason is rejected.
+- `validate.DedupeDiagnostics` for callers that merge diagnostic lists.
+
+### Fixed
+
+- `files.owner` and `interfaces.matchFromCode` read only the `ENGMODEL-OWNER-UNIT` marker, not the first unit
+  id mentioned anywhere in the file; `files.owner` adds `ownerKnown` and `markerLine`.
+- `catalog.term_unreferenced` reports only terms used nowhere in the model.
+- Stacked `TRLC-LINKS` lines above one declaration accumulate.
 
 - Keep Manhattan and requirement alignment matrices in single scalable vector figures; keep system boundary and decomposition figures together during pagination.
 
