@@ -107,12 +107,15 @@ type CheckOptions struct {
 	InProcess bool
 	// Jobs bounds the concurrent exec checks; 0 means GOMAXPROCS.
 	Jobs int
+	// Refresh re-fetches every registry dependency instead of reusing the
+	// module cache (ENGMOD_MODULE_CACHE=refresh), so a moved tag is seen.
+	Refresh bool
 }
 
 // RunChecks runs the model check in every target. A repository that ships
 // .github/engmod-check with --workspace-root support is checked with its
-// own pinned engine (go run, GOWORK=off so the root go.work does not capture
-// the check module); otherwise the library in this binary checks it
+// own pinned engine (go run with GOWORK from ToolGoWork, so the root go.work
+// never captures the check module); otherwise the library in this binary checks it
 // in-process. Exec checks run concurrently; in-process checks run one at a
 // time because they share process state (environment, caches).
 // TRLC-LINKS: REQ-EMG-068
@@ -122,6 +125,10 @@ func RunChecks(ctx context.Context, root string, targets []CheckTarget, opts Che
 	jobs := opts.Jobs
 	if jobs <= 0 {
 		jobs = runtime.GOMAXPROCS(0)
+	}
+	if opts.Refresh {
+		restore := setEnv(engmodel.ModuleCacheEnv, engmodel.ModuleCacheRefresh)
+		defer restore()
 	}
 	sem := make(chan struct{}, jobs)
 	var wg sync.WaitGroup
@@ -226,6 +233,22 @@ var (
 	warningLine = regexp.MustCompile(`^\S+ \[warning\](?: x(\d+))?`)
 )
 
+// ToolGoWork is the GOWORK value for running a repository's own
+// .github/engmod-check: its go.work when the repository deliberately builds
+// the check against a local engine, else "off". The workspace root go.work
+// lists the checkouts, not the tool module, and is never inherited.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func ToolGoWork(repoDir string) string {
+	if path := filepath.Join(repoDir, ".github", "engmod-check", GoWorkFileName); fileExists(path) {
+		if abs, err := filepath.Abs(path); err == nil {
+			return abs
+		}
+		return path
+	}
+	return "off"
+}
+
 // execCheck runs the repository's own pinned check with summary output.
 // TRLC-LINKS: REQ-EMG-068
 func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult {
@@ -237,7 +260,7 @@ func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult
 	}
 	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = target.Entry.Dir
-	cmd.Env = append(os.Environ(), "GOWORK=off")
+	cmd.Env = append(os.Environ(), "GOWORK="+ToolGoWork(target.Entry.Dir))
 	if work := filepath.Join(root, model.WorkspaceFileName); fileExists(work) && os.Getenv("ENGMOD_WORK") == "" {
 		// Pin the check to the root work file; engines without ENGMOD_WORK
 		// support ignore it and find the same file by parent search.
@@ -389,6 +412,28 @@ func libraryCheck(target CheckTarget) CheckResult {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func WorkFileDrift(plan Plan) string {
+	return workFileDrift(plan, true)
+}
+
+// CheckAllDrift is WorkFileDrift for check --all, whose plan marks every
+// checkout local on purpose: it warns only when a changed or pinned checkout
+// is missing from engmod.work.yml, never about the unchanged ones --all adds
+// or about extra replacements.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func CheckAllDrift(plan Plan) string {
+	needed := Plan{Root: plan.Root, Notes: plan.Notes, Entries: make([]Entry, len(plan.Entries))}
+	for i, entry := range plan.Entries {
+		entry.Local = entry.Pinned || len(entry.Reasons) > 0
+		needed.Entries[i] = entry
+	}
+	return workFileDrift(needed, false)
+}
+
+// workFileDrift compares engmod.work.yml with the plan's local set; extra
+// replacements are reported when withExtra is set.
+// TRLC-LINKS: REQ-EMG-068
+func workFileDrift(plan Plan, withExtra bool) string {
 	path := filepath.Join(plan.Root, model.WorkspaceFileName)
 	if _, err := os.Stat(path); err != nil {
 		if len(plan.Local()) == 0 {
@@ -415,7 +460,7 @@ func WorkFileDrift(plan Plan) string {
 		}
 	}
 	for module, path := range have {
-		if _, ok := want[module]; !ok {
+		if _, ok := want[module]; !ok && withExtra {
 			diffs = append(diffs, "extra "+path)
 		}
 	}

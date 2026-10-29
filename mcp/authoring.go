@@ -576,7 +576,11 @@ func (s *Server) modelDiagnose(args map[string]any) (map[string]any, error) {
 	otherByCode := map[string]int{}
 	docErrors, docWarnings, allErrors := 0, 0, 0
 	tree, _ := parser.ParseBytes([]byte(content), 0)
+	manifestPrefix := s.bundle.ManifestPath + ":"
 	for _, d := range diags {
+		// Composition reports root-model fields as <engmod.yml>:<field path>;
+		// the field path names the document.
+		d.Path = strings.TrimPrefix(d.Path, manifestPrefix)
 		if d.Severity == validate.SeverityError {
 			allErrors++
 		}
@@ -740,10 +744,13 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 		}
 	}
 
-	// Composition runs against the real model root; never let a diagnose call
-	// write a lock there. An explicit ENGMOD_LOCK is respected.
+	// Dependencies resolve from the real model root (its workspace and module
+	// cache); the root system is the in-memory bundle with the submitted
+	// content, so its alias::ID references and composition are checked as
+	// submitted. Never let a diagnose call write a lock there: an explicit
+	// ENGMOD_LOCK is respected, unset or empty means check.
 	resolution := engmodel.ResolutionOptions{}
-	if _, set := os.LookupEnv(engmodel.LockEnv); !set {
+	if strings.TrimSpace(os.Getenv(engmodel.LockEnv)) == "" {
 		resolution.Lock = engmodel.LockModeCheck
 	}
 	var diags []validate.Diagnostic
@@ -788,6 +795,9 @@ var diagnosticPathDocuments = []struct{ prefix, document, yamlRoot string }{
 	{"naf", "views", "naf"},
 	{"design", "views", "design"},
 	{"compliance", "compliance", "compliance"},
+	{"behavior", "behavior", "behavior"},
+	{"assurance", "assurance", "assurance"},
+	{"architecture", "architecture", "architecture"},
 	{"composition", "architecture", "architecture.composition"},
 	{"contract", "architecture", "architecture.contract"},
 	{"semantics", "architecture", "architecture.semantics"},

@@ -34,6 +34,8 @@ type Checkout struct {
 	Dir      string // absolute directory
 	Manifest model.ManifestDocument
 	GoModule string // module path from go.mod, empty without go.mod
+	// GoRequires maps each module path required in go.mod to its version.
+	GoRequires map[string]string
 }
 
 // FindRoot returns the nearest directory at or above start that contains
@@ -89,12 +91,12 @@ func Scan(root string) ([]Checkout, error) {
 			errs = append(errs, fmt.Errorf("%s: %w", name, err))
 			continue
 		}
-		goModule, err := readGoModule(dir)
+		goModule, goRequires, err := readGoModule(dir)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", name, err))
 			continue
 		}
-		out = append(out, Checkout{Name: name, Dir: dir, Manifest: manifest, GoModule: goModule})
+		out = append(out, Checkout{Name: name, Dir: dir, Manifest: manifest, GoModule: goModule, GoRequires: goRequires})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out, errors.Join(errs...)
@@ -121,21 +123,29 @@ func readManifest(path string) (model.ManifestDocument, error) {
 	return manifest, nil
 }
 
-// readGoModule returns the module path declared in dir/go.mod, or "".
+// readGoModule returns the module path declared in dir/go.mod and its
+// requires (path to version), or "" and nil without go.mod.
 // TRLC-LINKS: REQ-EMG-068
-func readGoModule(dir string) (string, error) {
+func readGoModule(dir string) (string, map[string]string, error) {
 	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
 	if errors.Is(err, os.ErrNotExist) {
-		return "", nil
+		return "", nil, nil
 	}
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
-	path := modfile.ModulePath(data)
-	if path == "" {
-		return "", fmt.Errorf("go.mod has no module directive")
+	file, err := modfile.ParseLax("go.mod", data, nil)
+	if err != nil {
+		return "", nil, fmt.Errorf("go.mod: %w", err)
 	}
-	return path, nil
+	if file.Module == nil || file.Module.Mod.Path == "" {
+		return "", nil, fmt.Errorf("go.mod has no module directive")
+	}
+	requires := map[string]string{}
+	for _, r := range file.Require {
+		requires[r.Mod.Path] = r.Mod.Version
+	}
+	return file.Module.Mod.Path, requires, nil
 }
 
 // tagFor is the git tag that releases a manifest version: v<version>, with

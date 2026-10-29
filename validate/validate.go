@@ -518,6 +518,27 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 		return codeIndex[id] > 0
 	}
+	appliesToTargets := map[string]bool{}
+	for _, group := range [][]model.CatalogEntry{
+		b.Catalog.Catalog.Systems, b.Catalog.Catalog.FunctionalGroups, b.Catalog.Catalog.FunctionalUnits,
+		b.Catalog.Catalog.ReferencedElements, b.Catalog.Catalog.Actors, b.Catalog.Catalog.AttackVectors,
+		b.Catalog.Catalog.Events, b.Catalog.Catalog.States, b.Catalog.Catalog.Features, b.Catalog.Catalog.Modes,
+		b.Catalog.Catalog.Conditions, b.Catalog.Catalog.DataTerms,
+	} {
+		for _, entry := range group {
+			appliesToTargets[strings.TrimSpace(entry.ID)] = true
+		}
+	}
+	// A requirement may also apply to a composition subsystem or a contract
+	// entry of this model.
+	for _, subsystem := range b.Architecture.Composition.Subsystems {
+		appliesToTargets[strings.TrimSpace(subsystem.ID)] = true
+	}
+	for _, entries := range [][]model.ContractEntry{b.Architecture.Contract.Provides, b.Architecture.Contract.Requires} {
+		for _, entry := range entries {
+			appliesToTargets[strings.TrimSpace(entry.ID)] = true
+		}
+	}
 
 	for i, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
 		path := fmt.Sprintf("authoredArchitecture.hardwareInterfaces[%d]", i)
@@ -555,6 +576,17 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 		if len(requirement.VerificationMethods) > 0 && strings.TrimSpace(requirement.VerificationCriteria) == "" {
 			diags = append(diags, Diagnostic{Code: "model.missing_requirement_verification_criteria", Severity: SeverityError, Message: fmt.Sprintf("requirement %q with verification methods must include verificationCriteria", requirement.ID), Path: path + ".verificationCriteria"})
+		}
+		for j, rawTarget := range requirement.AppliesTo {
+			// alias::ID entries are checked against the dependencies'
+			// publications by composition (composition.unpublished_reference).
+			target := strings.TrimSpace(rawTarget)
+			if strings.Contains(target, "::") {
+				continue
+			}
+			if target == "" || !(validID(target) || appliesToTargets[target]) {
+				diags = append(diags, Diagnostic{Code: "requirement.invalid_applies_to", Severity: SeverityError, Message: fmt.Sprintf("requirement %q appliesTo unknown id %q", requirement.ID, target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
 		}
 		for j, sourceRef := range requirement.SourceRefs {
 			sourceRef = strings.TrimSpace(sourceRef)

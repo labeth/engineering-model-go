@@ -24,7 +24,10 @@ type SyncResult struct {
 }
 
 // Sync writes root/engmod.work.yml with every local checkout and root/go.work
-// with the local checkouts that have go.mod, removing go.work when none do.
+// with every checkout that has go.mod, removing go.work when none do. A
+// non-local checkout is at its published tag, so its code equals the version
+// a consumer pins at that tag; another pinned version is reported by Skews.
+// Listing every Go checkout lets go test and go run work in each of them.
 // It writes nothing inside a checkout. A work file that engws did not
 // generate is kept unless force is set.
 // TRLC-LINKS: REQ-EMG-068
@@ -43,7 +46,7 @@ func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 	}
 	result := SyncResult{WorkFile: workPath}
 	var goDirs []string
-	for _, entry := range local {
+	for _, entry := range plan.Entries {
 		if entry.GoModule != "" {
 			goDirs = append(goDirs, entry.Name)
 		}

@@ -183,15 +183,22 @@ type Skew struct {
 	Consumer, Alias, Module, Pinned, LocalCheckout, LocalVersion string
 }
 
-// String is the SKEW line: consumer, alias, pinned, local, then context.
+// String is the SKEW line: consumer, alias, pinned, local, then context. A Go
+// require skew has alias go:<module path>.
 // TRLC-LINKS: REQ-EMG-068
 func (s Skew) String() string {
+	if strings.HasPrefix(s.Alias, "go:") {
+		return fmt.Sprintf("SKEW %s %s %s %s (go.mod requires %s; go.work uses ./%s at %s)",
+			s.Consumer, s.Alias, s.Pinned, s.LocalVersion, s.Module, s.LocalCheckout, s.LocalVersion)
+	}
 	return fmt.Sprintf("SKEW %s %s %s %s (%s is replaced by local ./%s at %s)",
 		s.Consumer, s.Alias, s.Pinned, s.LocalVersion, s.Module, s.LocalCheckout, s.LocalVersion)
 }
 
 // Skews lists every dependency pin of a checkout whose module is local at a
-// different version; the replacement overrides every pin of its module.
+// different version (the replacement overrides every pin of its module), and
+// every go.mod require of a workspace checkout's Go module at another version
+// than that checkout's version tag (go.work uses every Go checkout).
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func (p Plan) Skews() []Skew {
@@ -209,6 +216,29 @@ func (p Plan) Skews() []Skew {
 			out = append(out, Skew{
 				Consumer: entry.Name, Alias: dep.Alias, Module: dep.Path, Pinned: dep.Version,
 				LocalCheckout: l.Name, LocalVersion: l.Manifest.Module.Version,
+			})
+		}
+	}
+	byGoModule := map[string]Entry{}
+	for _, entry := range p.Entries {
+		if entry.GoModule != "" {
+			byGoModule[entry.GoModule] = entry
+		}
+	}
+	for _, entry := range p.Entries {
+		paths := make([]string, 0, len(entry.GoRequires))
+		for path := range entry.GoRequires {
+			paths = append(paths, path)
+		}
+		sort.Strings(paths)
+		for _, path := range paths {
+			c, ok := byGoModule[path]
+			if !ok || c.Name == entry.Name || entry.GoRequires[path] == tagFor(c.Manifest.Module.Version) {
+				continue
+			}
+			out = append(out, Skew{
+				Consumer: entry.Name, Alias: "go:" + path, Module: path, Pinned: entry.GoRequires[path],
+				LocalCheckout: c.Name, LocalVersion: tagFor(c.Manifest.Module.Version),
 			})
 		}
 	}

@@ -83,8 +83,9 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 
 // traceMatrix builds the traceability matrix for the loaded model: per-requirement
 // implementation, verification, and delegation status, with orphans and dangling links.
-// With summaryOnly it returns only the summary and diagnostics.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061
+// Delegated rows carry the target requirement's own trace status
+// (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFiles(s.modelPath, s.requirementsPath, "")
@@ -101,8 +102,12 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"passed":       matrix.Summary.Passed,
 			"verified":     matrix.Summary.Verified, // deprecated alias of testLinked
 			"delegated":    matrix.Summary.Delegated,
-			"orphan":       matrix.Summary.Orphan,
-			"dangling":     matrix.Summary.DanglingLinks,
+			// Delegated rows whose target requirement is implemented or
+			// test linked in the target repository.
+			"delegatedImplemented": matrix.Summary.DelegatedImplemented,
+			"delegatedTestLinked":  matrix.Summary.DelegatedTestLinked,
+			"orphan":               matrix.Summary.Orphan,
+			"dangling":             matrix.Summary.DanglingLinks,
 		},
 		"diagnostics": diagRows(diags),
 	}
@@ -132,6 +137,9 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 				"target":            r.DelegatedTo.Target,
 				"targetRequirement": r.DelegatedTo.TargetRequirement,
 			}
+		}
+		if r.DelegatedStatus != nil {
+			row["delegatedStatus"] = r.DelegatedStatus
 		}
 		rows = append(rows, row)
 	}

@@ -12,14 +12,20 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 )
 
-// sync writes engmod.work.yml and go.work at the root with only the local
-// checkouts, and git status stays clean in every checkout.
-// Mutation: writing the work file into a checkout, or listing every checkout,
-// fails this test.
+// sync writes engmod.work.yml at the root with only the local checkouts and
+// go.work with every checkout that has go.mod (a non-local checkout is at its
+// published tag, so go test and go run work in it), and git status stays
+// clean in every checkout.
+// Mutation: writing the work file into a checkout, listing every checkout in
+// engmod.work.yml, or listing only local checkouts in go.work fails this test.
 // TRLC-LINKS: REQ-EMG-068
 func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	root := t.TempDir()
 	a := checkout(t, root, "if-a")
+	write(t, filepath.Join(a, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
+	runGit(t, a, "add", "go.mod")
+	runGit(t, a, "commit", "-q", "-m", "go")
+	runGit(t, a, "tag", "-f", "v0.1.0") // still tagged -> not local
 	b := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
 	write(t, filepath.Join(b, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n")
 	runGit(t, b, "add", "go.mod")
@@ -44,7 +50,7 @@ func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(goWork), "\t./svc-b\n") || !strings.Contains(string(goWork), "\ngo 1.") {
+	if !strings.Contains(string(goWork), "\t./svc-b\n") || !strings.Contains(string(goWork), "\t./if-a\n") || !strings.Contains(string(goWork), "\ngo 1.") {
 		t.Fatalf("go.work:\n%s", goWork)
 	}
 	if !strings.Contains(out, "1 local of 2") {
@@ -54,8 +60,8 @@ func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	assertClean(t, b)
 }
 
-// go.work is removed when no local checkout has go.mod, and the work file
-// then lists no replacements.
+// go.work is removed when no checkout has go.mod, and the work file then
+// lists no replacements.
 // Mutation: leaving a stale go.work fails this test.
 // TRLC-LINKS: REQ-EMG-068
 func TestSyncRemovesGoWorkWithoutLocalGoModules(t *testing.T) {
@@ -174,5 +180,30 @@ func TestMainUsageErrors(t *testing.T) {
 	}
 	if code, out, _ := runMain(t, fakeRegistry{}, "--help"); code != 0 || !strings.Contains(out, "bump <repo> <alias> <version>") {
 		t.Fatalf("--help: %d %s", code, out)
+	}
+}
+
+// A consumer's go.mod require of a workspace checkout's Go module at another
+// version than the checkout's version tag is SKEW, because go.work makes the
+// checkout replace that require; an equal version is not.
+// Mutation: comparing only engmod.yml pins (no Go requires), or reporting a
+// require that equals the checkout's tag, fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestSkewReportsGoRequireAgainstCheckoutVersion(t *testing.T) {
+	root := t.TempDir()
+	ifA := checkout(t, root, "if-a")
+	write(t, filepath.Join(ifA, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
+	svcB := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcB, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n\nrequire example.com/go/if-a v0.0.9\n")
+	svcC := checkout(t, root, "svc-c", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcC, "go.mod"), "module example.com/go/svc-c\n\ngo 1.25\n\nrequire example.com/go/if-a v0.1.0\n")
+	for _, dir := range []string{ifA, svcB, svcC} {
+		runGit(t, dir, "add", "go.mod")
+		runGit(t, dir, "commit", "-q", "-m", "go")
+		runGit(t, dir, "tag", "-f", "v0.1.0")
+	}
+	code, out, _ := runMain(t, allPublished("if-a", "svc-b", "svc-c"), "--root", root, "skew")
+	if code != 1 || !strings.Contains(out, "SKEW svc-b go:example.com/go/if-a v0.0.9 v0.1.0 ") || strings.Contains(out, "svc-c") {
+		t.Fatalf("skew: %d\n%s", code, out)
 	}
 }

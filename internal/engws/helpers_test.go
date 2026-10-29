@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"golang.org/x/mod/module"
+	modzip "golang.org/x/mod/zip"
 )
 
 const testFamily = "example.com/fam"
@@ -157,4 +160,41 @@ func assertClean(t *testing.T, dir string) {
 	if out := runGit(t, dir, "status", "--porcelain", "--ignored"); out != "" {
 		t.Fatalf("checkout %s was modified:\n%s", dir, out)
 	}
+}
+
+// goProxy serves each "path@version" as an empty Go module from a file://
+// GOPROXY and points the go command at it, with a private module cache and no
+// checksum database, so go get works offline.
+func goProxy(t *testing.T, mods ...string) {
+	t.Helper()
+	dir := t.TempDir()
+	lists := map[string][]string{}
+	for _, mv := range mods {
+		path, version, _ := strings.Cut(mv, "@")
+		at := filepath.Join(dir, filepath.FromSlash(path), "@v")
+		gomod := "module " + path + "\n\ngo 1.21\n"
+		write(t, filepath.Join(at, version+".mod"), gomod)
+		write(t, filepath.Join(at, version+".info"), `{"Version":"`+version+`"}`)
+		src := filepath.Join(t.TempDir(), "src")
+		write(t, filepath.Join(src, "go.mod"), gomod)
+		write(t, filepath.Join(src, "doc.go"), "package x\n")
+		zf, err := os.Create(filepath.Join(at, version+".zip"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := modzip.CreateFromDir(zf, module.Version{Path: path, Version: version}, src); err != nil {
+			t.Fatal(err)
+		}
+		zf.Close()
+		lists[at] = append(lists[at], version)
+	}
+	for at, versions := range lists {
+		write(t, filepath.Join(at, "list"), strings.Join(versions, "\n")+"\n")
+	}
+	t.Setenv("GOPROXY", "file://"+filepath.ToSlash(dir))
+	t.Setenv("GOSUMDB", "off")
+	t.Setenv("GONOSUMDB", "")
+	t.Setenv("GOPRIVATE", "")
+	t.Setenv("GOFLAGS", "-modcacherw")
+	t.Setenv("GOMODCACHE", filepath.Join(t.TempDir(), "modcache"))
 }

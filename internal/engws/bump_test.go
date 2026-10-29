@@ -12,19 +12,22 @@ import (
 )
 
 // bump changes only the dependency's version line in engmod.yml, the go.mod
-// require of the dependency's Go module, and regenerates the lock from the
-// registry.
+// require of the dependency's Go module and its go.sum entries (so
+// GOWORK=off go builds), and regenerates the lock from the registry.
 // Mutation: re-marshalling the manifest (comments and quoting lost), editing
-// another dependency's version, skipping go mod edit, or not rolling back
-// when the lock cannot be written fails this test.
+// another dependency's version, skipping the go.mod update, leaving go.sum
+// without the new version, or not rolling back engmod.yml, go.mod and go.sum
+// when go get or the lock fails fails this test.
 // TRLC-LINKS: REQ-EMG-068
 func TestBumpEditsVersionLineGoModAndLock(t *testing.T) {
 	work := t.TempDir()
 	registryRoot := filepath.Join(work, "registry")
-	for _, v := range []string{"v0.1.0", "v0.2.0"} {
+	for _, v := range []string{"v0.1.0", "v0.2.0", "v0.9.0"} {
 		writeModel(t, filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-a_"+v), "if-a", v)
 		writeModel(t, filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-b_"+v), "if-b", v)
 	}
+	// Go: v0.9.0 has no Go release, v0.3.0 has no model release.
+	goProxy(t, "example.com/go/if-a@v0.1.0", "example.com/go/if-a@v0.2.0", "example.com/go/if-a@v0.3.0", "example.com/other@v1.0.0")
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
 		t.Fatal(err)
@@ -59,6 +62,10 @@ func TestBumpEditsVersionLineGoModAndLock(t *testing.T) {
 	if !strings.Contains(string(goMod), "example.com/go/if-a v0.2.0") || !strings.Contains(string(goMod), "example.com/other v1.0.0") {
 		t.Fatalf("go.mod:\n%s", goMod)
 	}
+	goSum, _ := os.ReadFile(filepath.Join(svc, "go.sum"))
+	if !strings.Contains(string(goSum), "example.com/go/if-a v0.2.0/go.mod h1:") {
+		t.Fatalf("go.sum lacks the bumped version:\n%s", goSum)
+	}
 	lockData, err := os.ReadFile(filepath.Join(svc, "engmod.lock.yml"))
 	if err != nil {
 		t.Fatalf("lock not written: %v\n%s", err, out)
@@ -77,17 +84,31 @@ func TestBumpEditsVersionLineGoModAndLock(t *testing.T) {
 		t.Fatalf("lock: %s", lockData)
 	}
 
-	// An unpublished version cannot be locked: nothing changes.
+	// A version without a Go release (v0.9.0) or without a model release
+	// (v0.3.0) cannot be bumped: nothing changes.
 	manifestNow, _ := os.ReadFile(manifestPath)
 	goModNow, _ := os.ReadFile(filepath.Join(svc, "go.mod"))
-	if code, _, _ := runMain(t, NewCUERegistry(), "--root", root, "bump", "svc", "ia", "v0.9.0"); code != 1 {
-		t.Fatal("bump to an unpublished version succeeded")
-	}
-	if m, _ := os.ReadFile(manifestPath); string(m) != string(manifestNow) {
-		t.Fatalf("engmod.yml not rolled back:\n%s", m)
-	}
-	if g, _ := os.ReadFile(filepath.Join(svc, "go.mod")); string(g) != string(goModNow) {
-		t.Fatalf("go.mod not rolled back:\n%s", g)
+	lockNow, _ := os.ReadFile(filepath.Join(svc, "engmod.lock.yml"))
+	for _, v := range []string{"v0.9.0", "v0.3.0"} {
+		code, out, errOut := runMain(t, NewCUERegistry(), "--root", root, "bump", "svc", "ia", v)
+		if code != 1 {
+			t.Fatalf("bump to %s succeeded:\n%s", v, out)
+		}
+		if v == "v0.9.0" && !strings.Contains(errOut, "go get") {
+			t.Fatalf("go get failure not reported: %s", errOut)
+		}
+		if m, _ := os.ReadFile(manifestPath); string(m) != string(manifestNow) {
+			t.Fatalf("%s: engmod.yml not rolled back:\n%s", v, m)
+		}
+		if g, _ := os.ReadFile(filepath.Join(svc, "go.mod")); string(g) != string(goModNow) {
+			t.Fatalf("%s: go.mod not rolled back:\n%s", v, g)
+		}
+		if g, _ := os.ReadFile(filepath.Join(svc, "go.sum")); string(g) != string(goSum) {
+			t.Fatalf("%s: go.sum not rolled back:\n%s", v, g)
+		}
+		if l, _ := os.ReadFile(filepath.Join(svc, "engmod.lock.yml")); string(l) != string(lockNow) {
+			t.Fatalf("%s: lock changed:\n%s", v, l)
+		}
 	}
 	if code, _, _ := runMain(t, NewCUERegistry(), "--root", root, "bump", "svc", "nope", "v0.2.0"); code != 1 {
 		t.Fatal("unknown alias accepted")

@@ -96,6 +96,35 @@ dependencies come from the OCI registry into the local cache.
 - `files.owner` and `interfaces.matchFromCode` read only the `ENGMODEL-OWNER-UNIT` marker, not the first unit
   id mentioned anywhere in the file; `files.owner` adds `ownerKnown` and `markerLine`.
 - `catalog.term_unreferenced` reports only terms used nowhere in the model.
+- **Multi-repository acceptance run fixes:**
+  - `engws check` runs a repository's own `.github/engmod-check` with `GOWORK` set to its
+    `.github/engmod-check/go.work` when that file exists (a deliberately local engine) and `off` otherwise;
+    the workspace root `go.work` is never inherited (`engws.ToolGoWork`).
+  - `engws sync` writes a root `go.work` that uses every checkout with `go.mod`, not only the local ones, so
+    `go test` and `go run` work in every checkout. `status`/`skew` report a consumer `go.mod` require of a
+    checkout's Go module at another version than the checkout's tag as `SKEW <consumer> go:<module> ...`.
+  - `engws bump` updates `go.sum` with the `go.mod` require (`go get module@version`, `GOWORK=off`, the user's
+    `GOPROXY`/`GOFLAGS`), so `GOWORK=off go test` passes; any failure restores `engmod.yml`, `go.mod` and
+    `go.sum`.
+  - The module cache no longer masks a moved tag (REQ-EMG-064): `ENGMOD_MODULE_CACHE=refresh`
+    (`ResolutionOptions.ModuleCache`, `engws check --refresh`) re-fetches every dependency; lock
+    regeneration (write mode with `ENGMOD_WORK=off`, as in `engws bump`) always re-fetches; lock check mode
+    compares each cached module's manifest digest with the registry (one lookup per dependency; offline it
+    reuses the cache) and re-fetches a moved tag, which then fails as `composition.lock_mismatch`.
+  - `model.diagnose` checks the submitted content's `alias::ID` references and composition: dependencies
+    resolve from the real project, the root system is the in-memory bundle
+    (`engmodel.GenerateCompositionForBundle`, also used by `GenerateAsciiDoc` and the trace matrix), so an
+    unpublished reference in the content is reported for the document and a broken reference on disk that
+    the content fixes is not.
+  - MCP `trace.matrix` returns each delegated row's `delegatedStatus` and the summary's
+    `delegatedImplemented` and `delegatedTestLinked` (also with `summaryOnly`).
+  - A requirement `appliesTo` naming an unknown local ID is `requirement.invalid_applies_to` in model
+    validation (it was only checked for requirements deltas); `alias::ID` entries stay with composition.
+  - Composition diagnostics located in a fetched dependency name it as `module@version:path` instead of the
+    `.engmod/modules/<hash>` cache path; `composition.lock_mismatch` names `module@version` without the
+    major suffix twice (`nats-interface@v0.1.0`, not `nats-interface@v0@v0.1.0`).
+  - `engws check --all` no longer warns that `engmod.work.yml` lacks the unchanged checkouts it checks on
+    purpose.
 - Stacked `TRLC-LINKS` lines above one declaration accumulate.
 
 - Keep Manhattan and requirement alignment matrices in single scalable vector figures; keep system boundary and decomposition figures together during pagination.

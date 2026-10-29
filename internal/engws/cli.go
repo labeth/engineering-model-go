@@ -28,23 +28,33 @@ checkout.
 
 commands:
   status [--all]             table of checkouts with state and mode; exit 1 on skew
-  sync [--all] [--force]     write engmod.work.yml and go.work for the local
-                             checkouts (--all: every checkout); remove go.work
-                             when no local checkout has go.mod; always exit 0
+  sync [--all] [--force]     write engmod.work.yml for the local checkouts
+                             (--all: every checkout) and go.work with every
+                             checkout that has go.mod; remove go.work when none
+                             has; always exit 0
   pin <repo>                 always resolve <repo> locally (.engws.yml), then sync
   unpin <repo>               drop the pin, then sync
-  skew [--all]               print SKEW consumer alias pinned local; exit 1 if any
-  check [--summary] [--in-process] [--all]
+  skew [--all]               print SKEW consumer alias pinned local (also a
+                             go.mod require of a checkout's Go module at
+                             another version than its tag, alias go:<module>);
+                             exit 1 if any
+  check [--summary] [--in-process] [--all] [--refresh]
                              run the model check in the local checkouts, their
                              reverse dependencies and the top systems: one line
                              per repo plus its errors (--summary: lines only);
                              a repo's own .github/engmod-check is used when it
-                             supports --workspace-root, else the built-in
-                             library (--in-process forces it); exit 1 on failure
+                             supports --workspace-root, run with GOWORK set to
+                             its .github/engmod-check/go.work if present, else
+                             off; otherwise the built-in library (--in-process
+                             forces it); --refresh re-fetches every registry
+                             dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
+                             on failure
   bump <repo> <alias> <version>
                              set dependency <alias> of <repo> to <version> in
-                             engmod.yml, the matching go.mod require, and the
-                             lock (composed with ENGMOD_WORK=off)
+                             engmod.yml, the matching go.mod require and go.sum
+                             (go get, GOWORK=off), and the lock (composed with
+                             ENGMOD_WORK=off, dependencies re-fetched); any
+                             failure restores all files
 
 exit codes: 0 ok, 1 skew or failure, 2 usage
 `
@@ -77,6 +87,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	force := sub.Bool("force", false, "")
 	summary := sub.Bool("summary", false, "")
 	inProcess := sub.Bool("in-process", false, "")
+	refresh := sub.Bool("refresh", false, "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
 	if err := sub.Parse(rest); err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n%s", command, err, Usage)
@@ -121,7 +132,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	case "skew":
 		code, err = runSkew(ctx, root, registry, *all, stdout)
 	case "check":
-		code, err = runCheck(ctx, root, registry, *all, *summary, *inProcess, stdout, stderr)
+		code, err = runCheck(ctx, root, registry, *all, *summary, CheckOptions{InProcess: *inProcess, Refresh: *refresh}, stdout, stderr)
 	case "bump":
 		err = runBump(root, positional[0], positional[1], positional[2], stdout)
 	}
@@ -251,12 +262,16 @@ func runSkew(ctx context.Context, root string, registry Registry, all bool, w io
 
 // runCheck selects the affected checkouts and checks each one.
 // TRLC-LINKS: REQ-EMG-068
-func runCheck(ctx context.Context, root string, registry Registry, all, summary, inProcess bool, stdout, stderr io.Writer) (int, error) {
+func runCheck(ctx context.Context, root string, registry Registry, all, summary bool, opts CheckOptions, stdout, stderr io.Writer) (int, error) {
 	plan, err := BuildPlan(ctx, root, registry, all)
 	if err != nil {
 		return 1, err
 	}
-	if drift := WorkFileDrift(plan); drift != "" {
+	drift := WorkFileDrift(plan)
+	if all {
+		drift = CheckAllDrift(plan)
+	}
+	if drift != "" {
 		fmt.Fprintln(stderr, "engws: warning:", drift)
 	}
 	targets := SelectCheckTargets(plan)
@@ -265,7 +280,7 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary,
 		return 0, nil
 	}
 	code := 0
-	for _, r := range RunChecks(ctx, root, targets, CheckOptions{InProcess: inProcess}) {
+	for _, r := range RunChecks(ctx, root, targets, opts) {
 		fmt.Fprintln(stdout, r.Line())
 		if !summary {
 			for _, line := range r.Lines {

@@ -190,3 +190,104 @@ func TestCheckWritesNothingInsideCheckouts(t *testing.T) {
 		assertClean(t, dir)
 	}
 }
+
+// The repo's own check runs with GOWORK=<repo>/.github/engmod-check/go.work
+// when that file exists (a deliberately local engine) and GOWORK=off
+// otherwise; the root go.work is never inherited.
+// Mutation: hard-coding GOWORK=off, or inheriting the root go.work, fails
+// this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestExecCheckSelectsToolGoWork(t *testing.T) {
+	root := t.TempDir()
+	dir := checkout(t, root, "if-a")
+	checkDir := filepath.Join(dir, ".github", "engmod-check")
+	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
+	write(t, filepath.Join(checkDir, "main.go"), `package main
+
+import (
+	"fmt"
+	"os"
+)
+
+// Accepts "workspace-root"; reports the GOWORK it was built under.
+func main() {
+	fmt.Println("tool.gowork [error] GOWORK=" + os.Getenv("GOWORK"))
+	os.Exit(1)
+}
+`)
+	write(t, filepath.Join(root, GoWorkFileName), "go 1.22\n\nuse ./nothing-here\n")
+	target := CheckTarget{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}
+	gowork := func() string {
+		t.Helper()
+		result := execCheck(context.Background(), root, target)
+		for _, line := range result.Lines {
+			if _, value, ok := strings.Cut(line, "GOWORK="); ok {
+				return value
+			}
+		}
+		t.Fatalf("tool did not run: %+v", result)
+		return ""
+	}
+	if got := gowork(); got != "off" {
+		t.Fatalf("without the tool go.work: GOWORK=%q, want off", got)
+	}
+	write(t, filepath.Join(checkDir, GoWorkFileName), "go 1.22\n\nuse .\n")
+	if got, want := gowork(), filepath.Join(checkDir, GoWorkFileName); got != want {
+		t.Fatalf("with the tool go.work: GOWORK=%q, want %q", got, want)
+	}
+}
+
+// check --all checks every checkout on purpose, so it does not warn that
+// engmod.work.yml lacks the checkouts that are not local; a plain check still
+// warns when the work file is out of date.
+// Mutation: computing the drift warning from the --all plan fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestCheckAllDoesNotWarnAboutWorkFileDrift(t *testing.T) {
+	root := t.TempDir()
+	checkout(t, root, "if-a")
+	dirty := checkout(t, root, "if-b")
+	reg := allPublished("if-a", "if-b")
+	if code, _, errOut := runMain(t, reg, "--root", root, "sync"); code != 0 {
+		t.Fatal(errOut)
+	}
+	if _, _, errOut := runMain(t, reg, "--root", root, "check", "--all", "--in-process"); strings.Contains(errOut, "out of date") {
+		t.Fatalf("check --all warned about drift:\n%s", errOut)
+	}
+	write(t, filepath.Join(dirty, "x.txt"), "dirty\n")
+	if _, _, errOut := runMain(t, reg, "--root", root, "check", "--in-process"); !strings.Contains(errOut, "out of date") {
+		t.Fatalf("plain check must warn about drift:\n%s", errOut)
+	}
+}
+
+// check --refresh runs every check with ENGMOD_MODULE_CACHE=refresh, so the
+// dependencies are re-fetched instead of read from the module cache.
+// Mutation: ignoring --refresh (no ENGMOD_MODULE_CACHE in the tool's
+// environment) fails this test.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-064
+func TestCheckRefreshSetsModuleCacheRefresh(t *testing.T) {
+	t.Setenv("ENGMOD_MODULE_CACHE", "")
+	root := t.TempDir()
+	dir := checkout(t, root, "if-a")
+	checkDir := filepath.Join(dir, ".github", "engmod-check")
+	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
+	write(t, filepath.Join(checkDir, "main.go"), `package main
+
+import (
+	"fmt"
+	"os"
+)
+
+// Accepts "workspace-root"; reports the module cache mode.
+func main() {
+	fmt.Println("tool.cache [error] CACHE=" + os.Getenv("ENGMOD_MODULE_CACHE") + ".")
+	os.Exit(1)
+}
+`)
+	reg := allPublished("if-a")
+	for args, want := range map[string]string{"check": "CACHE=.", "check --refresh": "CACHE=refresh."} {
+		_, out, _ := runMain(t, reg, append([]string{"--root", root}, strings.Fields(args)...)...)
+		if !strings.Contains(out, want) {
+			t.Fatalf("%s: want %s in\n%s", args, want, out)
+		}
+	}
+}

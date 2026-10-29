@@ -166,3 +166,151 @@ func TestCompositionLockWorkspaceModeWritesLocalLock(t *testing.T) {
 	}
 	assertCompositionDiagnostic(t, res.Diagnostics, "composition.module_fetch_failed")
 }
+
+// lock_mismatch messages name a dependency as module@version without the
+// major suffix twice (shared@v0.2.0, not shared@v0@v0.2.0).
+// Mutation: formatting Path+"@"+Version again fails this test.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func TestLockMismatchMessageNamesModuleOnce(t *testing.T) {
+	dir := t.TempDir()
+	lockPath := filepath.Join(dir, CompositionLockFileName)
+	writeFile(t, lockPath, "schemaVersion: 1\ndependencies:\n  - alias: s\n    path: example.com/shared@v0\n    version: v0.1.0\n    publications: [public]\n    digest: sha256:aa\n")
+	resolved := func(version, digest string) CompositionLockDocument {
+		return CompositionLockDocument{SchemaVersion: 1, Dependencies: []CompositionLockDependency{{Alias: "s", Path: "example.com/shared@v0", Version: version, Publications: []string{"public"}, Digest: digest}}}
+	}
+	for _, lock := range []CompositionLockDocument{resolved("v0.2.0", "sha256:aa"), resolved("v0.1.0", "sha256:bb"), {SchemaVersion: 1, Dependencies: append(resolved("v0.1.0", "sha256:aa").Dependencies, CompositionLockDependency{Alias: "t", Path: "example.com/t@v1", Version: "v1.0.0"})}} {
+		diags := checkCompositionLock(lockPath, lock)
+		if len(diags) == 0 {
+			t.Fatalf("no mismatch for %+v", lock)
+		}
+		for _, d := range diags {
+			if strings.Contains(d.Message, "@v0@") || strings.Contains(d.Message, "@v1@") {
+				t.Fatalf("module path printed with duplicated major: %s", d.Message)
+			}
+			if !strings.Contains(d.Message, "example.com/shared@v0.") && !strings.Contains(d.Message, "example.com/t@v1.0.0") {
+				t.Fatalf("message must name module@version: %s", d.Message)
+			}
+		}
+	}
+}
+
+// A tag moved in the registry is not masked by the module cache: check mode
+// verifies each cached module against the registry's current manifest and
+// re-fetches it when it changed (lock_mismatch); write mode with the
+// workspace off (lock regeneration) and ENGMOD_MODULE_CACHE=refresh re-fetch,
+// so the regenerated lock records the registry's content; the default write
+// mode reuses the cache offline.
+// Mutation: reusing the cache entry unconditionally (no verification in
+// check mode, no refresh for workspace off or ENGMOD_MODULE_CACHE=refresh)
+// fails this test.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY
+func TestModuleCacheDoesNotMaskMovedTag(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, "")
+	t.Setenv(LockEnv, "")
+	t.Setenv(ModuleCacheEnv, "")
+	root := t.TempDir()
+	startLockRegistry(t, root, "first")
+	workspace := filepath.Join(root, "workspace")
+	writeParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	manifest := filepath.Join(workspace, "engmod.yml")
+	lockPath := filepath.Join(workspace, CompositionLockFileName)
+	digest := func() string {
+		t.Helper()
+		data, err := os.ReadFile(lockPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, after, _ := strings.Cut(string(data), "digest: ")
+		return strings.TrimSpace(after)
+	}
+	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
+		t.Fatal(err)
+	}
+	first := digest()
+
+	// The tag moves: the same version now has other content.
+	startLockRegistry(t, root, "second")
+	res, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeCheck})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := lockCodes(res.Diagnostics); len(got) != 1 || !strings.Contains(got[0], "content digest") {
+		t.Fatalf("check mode with a warm cache must see the moved tag: %v", got)
+	}
+
+	// Default write mode reuses the (now refreshed) cache; restore the stale
+	// entry first by fetching from the first registry again.
+	startLockRegistry(t, root, "first")
+	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite, ModuleCache: ModuleCacheRefresh}); err != nil {
+		t.Fatal(err)
+	}
+	if digest() != first {
+		t.Fatal("refresh against the first registry must restore the first content")
+	}
+	startLockRegistry(t, root, "second")
+	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
+		t.Fatal(err)
+	}
+	if digest() != first {
+		t.Fatal("default write mode must reuse the cache offline")
+	}
+	t.Setenv(ModuleCacheEnv, ModuleCacheRefresh)
+	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
+		t.Fatal(err)
+	}
+	second := digest()
+	if second == first {
+		t.Fatal("ENGMOD_MODULE_CACHE=refresh must re-fetch")
+	}
+	t.Setenv(ModuleCacheEnv, "")
+
+	startLockRegistry(t, root, "first")
+	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite, Workspace: model.WorkspaceOff}); err != nil {
+		t.Fatal(err)
+	}
+	if digest() != first {
+		t.Fatal("lock regeneration with the workspace off must re-fetch")
+	}
+}
+
+// A diagnostic located in a fetched dependency names it as module@version
+// and its path inside the module, not the .engmod/modules cache directory.
+// Mutation: returning the cache path unchanged fails this test.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func TestDependencyDiagnosticPathNamesModuleVersion(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, model.WorkspaceOff)
+	t.Setenv(LockEnv, "")
+	root := t.TempDir()
+	startLockRegistry(t, root, "first")
+	workspace := filepath.Join(root, "workspace")
+	writeV2CompositionParent(t, workspace, `dependencies:
+  - alias: shared
+    path: models.atlas.example/shared-edge@v0
+    version: v0.1.0
+    publications: [public, nope]
+`, `  composition:
+    subsystems:
+      - id: SUB-SHARED
+        dependency: shared
+        publication: public
+`)
+	res, err := GenerateCompositionFromFileWith(filepath.Join(workspace, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var found *validate.Diagnostic
+	for i, d := range res.Diagnostics {
+		if d.Code == "composition.unknown_publication" {
+			found = &res.Diagnostics[i]
+		}
+	}
+	if found == nil {
+		t.Fatalf("no unknown_publication: %+v", res.Diagnostics)
+	}
+	if found.Path != "models.atlas.example/shared-edge@v0.1.0:engmod.yml" || strings.Contains(found.Message, ".engmod") {
+		t.Fatalf("diagnostic must name module@version:engmod.yml, got %q (%s)", found.Path, found.Message)
+	}
+}

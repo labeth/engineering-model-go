@@ -27,9 +27,11 @@ type BumpResult struct {
 }
 
 // Bump sets the version of dependency alias in root/<repo>/engmod.yml by
-// editing only that YAML line, updates the go.mod require of the Go module
-// of the same repository family when the dependency's checkout has go.mod,
-// and regenerates engmod.lock.yml with the workspace off.
+// editing only that YAML line, updates the go.mod require and go.sum of the
+// Go module of the same repository family (go get with GOWORK=off) when the
+// dependency's checkout has go.mod, and regenerates engmod.lock.yml with the
+// workspace off and the module cache refreshed. Any failure restores
+// engmod.yml, go.mod and go.sum.
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func Bump(root, repo, alias, version string) (BumpResult, error) {
@@ -91,9 +93,11 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 	}
 
 	goModPath := filepath.Join(consumer.Dir, "go.mod")
+	goSumPath := filepath.Join(consumer.Dir, "go.sum")
 	goModBefore, goModErr := os.ReadFile(goModPath)
+	goSumBefore, goSumErr := os.ReadFile(goSumPath)
 	rollback := func(cause error) (BumpResult, error) {
-		// The three files change together or not at all.
+		// engmod.yml, go.mod, go.sum and the lock change together or not at all.
 		if err := writeFileAtomic(manifestPath, data); err != nil {
 			return result, fmt.Errorf("%w; restoring engmod.yml also failed: %v", cause, err)
 		}
@@ -101,19 +105,31 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 			if err := writeFileAtomic(goModPath, goModBefore); err != nil {
 				return result, fmt.Errorf("%w; restoring go.mod also failed: %v", cause, err)
 			}
+			var err error
+			if goSumErr == nil {
+				err = writeFileAtomic(goSumPath, goSumBefore)
+			} else if rmErr := os.Remove(goSumPath); rmErr != nil && !os.IsNotExist(rmErr) {
+				err = rmErr
+			}
+			if err != nil {
+				return result, fmt.Errorf("%w; restoring go.sum also failed: %v", cause, err)
+			}
 		}
 		result.LockWritten = false
-		return result, fmt.Errorf("%w; engmod.yml and go.mod left unchanged", cause)
+		return result, fmt.Errorf("%w; engmod.yml, go.mod and go.sum left unchanged", cause)
 	}
 	if err := writeFileAtomic(manifestPath, edited); err != nil {
 		return result, err
 	}
 	if result.GoModule != "" {
-		cmd := exec.Command("go", "mod", "edit", "-require="+result.GoModule+"@"+version)
+		// go get updates the require and go.sum, so GOWORK=off go build and
+		// go test work after the bump. It runs outside any go.work, with the
+		// user's GOPROXY, GOFLAGS and credentials from the environment.
+		cmd := exec.Command("go", "get", result.GoModule+"@"+version)
 		cmd.Dir = consumer.Dir
 		cmd.Env = append(os.Environ(), "GOWORK=off")
 		if out, err := cmd.CombinedOutput(); err != nil {
-			return rollback(fmt.Errorf("go mod edit: %v: %s", err, strings.TrimSpace(string(out))))
+			return rollback(fmt.Errorf("go get %s@%s: %v: %s", result.GoModule, version, err, strings.TrimSpace(string(out))))
 		}
 	}
 

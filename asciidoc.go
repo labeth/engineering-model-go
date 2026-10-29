@@ -687,8 +687,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 }
 
 // composeForGeneration returns the composition for a bundle: the caller's
-// result when given, otherwise one fresh resolution. A model without
-// composition returns an empty result.
+// result when given, otherwise one fresh resolution with the bundle itself as
+// the root system (so in-memory content, not the files on disk, is checked).
+// A model without composition returns an empty result.
 // TRLC-LINKS: REQ-EMG-066
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION
 func composeForGeneration(bundle model.Bundle, given *CompositionResult, options ResolutionOptions) (CompositionResult, error) {
@@ -698,7 +699,7 @@ func composeForGeneration(bundle model.Bundle, given *CompositionResult, options
 	if given != nil {
 		return *given, nil
 	}
-	return GenerateCompositionFromFileWith(bundle.ManifestPath, options)
+	return GenerateCompositionForBundle(bundle, options)
 }
 
 // validationBundle enriches the bundle with the dependencies' published

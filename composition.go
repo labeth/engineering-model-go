@@ -129,6 +129,52 @@ const (
 type ResolutionOptions struct {
 	Workspace string
 	Lock      string
+	// ModuleCache is "refresh" to re-fetch every registry dependency into
+	// the module cache, or "reuse"; empty falls back to ENGMOD_MODULE_CACHE.
+	ModuleCache string
+}
+
+// ModuleCacheEnv selects the module cache mode: "refresh" re-fetches every
+// registry dependency; unset or "reuse" reuses cached modules (offline).
+const ModuleCacheEnv = "ENGMOD_MODULE_CACHE"
+
+const (
+	// ModuleCacheReuse reuses a cached module without contacting the registry,
+	// except in lock check mode, which verifies it (see cacheMode).
+	ModuleCacheReuse = "reuse"
+	// ModuleCacheRefresh re-fetches every registry dependency.
+	ModuleCacheRefresh = "refresh"
+	// moduleCacheVerify compares a cached module with the registry's current
+	// manifest and re-fetches it when the tag moved; offline it reuses it.
+	moduleCacheVerify = "verify"
+)
+
+// cacheMode returns how cached registry modules are used. Explicit refresh
+// (option or ENGMOD_MODULE_CACHE) re-fetches. Lock regeneration - write mode
+// with the workspace off - also re-fetches, so a regenerated lock never
+// records a stale cached digest. Lock check mode verifies each cached module
+// against the registry (one manifest lookup per dependency), so a moved tag
+// is reported as composition.lock_mismatch even with a warm cache.
+// TRLC-LINKS: REQ-EMG-064
+func (o ResolutionOptions) cacheMode() string {
+	mode := strings.TrimSpace(o.ModuleCache)
+	if mode == "" {
+		mode = strings.TrimSpace(os.Getenv(ModuleCacheEnv))
+	}
+	if mode == ModuleCacheRefresh {
+		return ModuleCacheRefresh
+	}
+	if o.lockMode() == LockModeCheck {
+		return moduleCacheVerify
+	}
+	workspace := strings.TrimSpace(o.Workspace)
+	if workspace == "" {
+		workspace = strings.TrimSpace(os.Getenv(model.WorkspaceEnv))
+	}
+	if workspace == model.WorkspaceOff {
+		return ModuleCacheRefresh
+	}
+	return ModuleCacheReuse
 }
 
 // lockMode returns the effective lock mode for the options.
@@ -166,6 +212,27 @@ func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error)
 // TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateCompositionFromFileWith(manifestPath string, options ResolutionOptions) (CompositionResult, error) {
+	return generateComposition(manifestPath, nil, options)
+}
+
+// GenerateCompositionForBundle resolves the composition of an already loaded
+// bundle: the dependencies are resolved from bundle.ManifestPath's location
+// (workspace, module cache, lock) as in GenerateCompositionFromFileWith, but
+// the root system - its manifest dependencies, composition, contract and
+// every alias::ID reference - is the given bundle, not the files on disk. A
+// caller validating edited content in memory thus gets the diagnostics of
+// that content.
+// TRLC-LINKS: REQ-EMG-065, REQ-EMG-066, REQ-EMG-069
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
+func GenerateCompositionForBundle(bundle model.Bundle, options ResolutionOptions) (CompositionResult, error) {
+	return generateComposition(bundle.ManifestPath, &bundle, options)
+}
+
+// generateComposition resolves the composition rooted at manifestPath, with
+// rootBundle (when set) as the root system instead of the manifest's files.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
+func generateComposition(manifestPath string, rootBundle *model.Bundle, options ResolutionOptions) (CompositionResult, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
 		return CompositionResult{}, fmt.Errorf("engmod.yml is the only supported composition entry point")
 	}
@@ -185,6 +252,10 @@ func GenerateCompositionFromFileWith(manifestPath string, options ResolutionOpti
 	resolver := &compositionResolver{
 		workspace:         workspace,
 		workspaceDocument: workspaceDocument,
+		cacheMode:         options.cacheMode(),
+		fetched:           map[string]string{},
+		cacheNames:        map[string]string{},
+		rootBundle:        rootBundle,
 	}
 	ancestry := map[string]bool{}
 	root, provenance, locks, diags := resolver.resolveSystem("", "", "", absTop, ancestry, true)
@@ -197,6 +268,7 @@ func GenerateCompositionFromFileWith(manifestPath string, options ResolutionOpti
 		res.Allocations = materializeAllocations(root)
 		res.Diagnostics = append(res.Diagnostics, validateComposition(root, true)...)
 	}
+	resolver.nameCachePaths(res.Diagnostics)
 	if hasCompositionErrors(res.Diagnostics) {
 		return res, nil
 	}
@@ -242,11 +314,11 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 		delete(byAlias, got.Alias)
 		switch {
 		case !ok:
-			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q (%s@%s) is missing from the committed lock", got.Alias, got.Path, got.Version), path))
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q (%s) is missing from the committed lock", got.Alias, moduleAt(got.Path, got.Version)), path))
 		case want.Path != got.Path || want.Version != got.Version:
-			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q: lock pins %s@%s but the manifest resolves %s@%s", got.Alias, want.Path, want.Version, got.Path, got.Version), path))
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q: lock pins %s but the manifest resolves %s", got.Alias, moduleAt(want.Path, want.Version), moduleAt(got.Path, got.Version)), path))
 		case want.Digest != got.Digest:
-			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q %s@%s: content digest %s differs from the locked %s (tag moved or content changed)", got.Alias, got.Path, got.Version, got.Digest, want.Digest), path))
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q %s: content digest %s differs from the locked %s (tag moved or content changed)", got.Alias, moduleAt(got.Path, got.Version), got.Digest, want.Digest), path))
 		}
 	}
 	extra := make([]string, 0, len(byAlias))
@@ -258,6 +330,17 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 		diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("committed lock lists dependency %q that the manifest no longer resolves", alias), path))
 	}
 	return diags
+}
+
+// moduleAt names a module version for messages: the major-qualified path
+// example.com/m@v0 at v0.1.0 is example.com/m@v0.1.0.
+// TRLC-LINKS: REQ-EMG-064
+func moduleAt(path, version string) string {
+	path, version = strings.TrimSpace(path), strings.TrimSpace(version)
+	if base, major, ok := strings.Cut(path, "@"); ok && (version == major || strings.HasPrefix(version, major+".")) {
+		path = base
+	}
+	return path + "@" + version
 }
 
 // WriteCompositionLock writes deterministic generated dependency state.
@@ -294,14 +377,19 @@ func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, public
 	ancestry[manifestPath] = true
 	defer delete(ancestry, manifestPath)
 
-	canonical, err := model.LoadCanonicalBundle(manifestPath)
-	if err != nil {
-		return nil, nil, nil, []validate.Diagnostic{{
-			Code: "composition.load_failed", Severity: validate.SeverityError,
-			Message: err.Error(), Path: manifestPath,
-		}}
+	var bundle model.Bundle
+	if root && r.rootBundle != nil {
+		bundle = *r.rootBundle
+	} else {
+		canonical, err := model.LoadCanonicalBundle(manifestPath)
+		if err != nil {
+			return nil, nil, nil, []validate.Diagnostic{{
+				Code: "composition.load_failed", Severity: validate.SeverityError,
+				Message: err.Error(), Path: manifestPath,
+			}}
+		}
+		bundle = canonical.Documents()
 	}
-	bundle := canonical.Documents()
 	sys := &ComposedSystem{
 		SubsystemID: subsystemID, Dependency: dependencyAlias, Publication: publicationID,
 		ModulePath: bundle.Manifest.Module.Path, Version: bundle.Manifest.Module.Version,
@@ -373,6 +461,44 @@ type compositionResolver struct {
 	workspace         string
 	workspaceDocument model.WorkspaceDocument
 	moduleClient      *modregistry.Client
+	cacheMode         string
+	// fetched holds the modules refreshed or verified in this run, so a
+	// module shared by several dependents is fetched once.
+	fetched map[string]string
+	// cacheNames maps each module cache directory used in this run to the
+	// module@version it holds.
+	cacheNames map[string]string
+	// rootBundle, when set, is the root system instead of its files on disk.
+	rootBundle *model.Bundle
+}
+
+// nameCachePaths rewrites diagnostic paths and messages that point into the
+// module cache (.engmod/modules/<entry>/file) to module@version:file, so a
+// reader sees which dependency version is at fault, not a cache hash.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func (r *compositionResolver) nameCachePaths(diags []validate.Diagnostic) {
+	if len(r.cacheNames) == 0 {
+		return
+	}
+	dirs := make([]string, 0, len(r.cacheNames))
+	for dir := range r.cacheNames {
+		dirs = append(dirs, dir)
+	}
+	// Longest first, so no directory is replaced inside a longer one.
+	sort.Slice(dirs, func(i, j int) bool { return len(dirs[i]) > len(dirs[j]) })
+	rename := func(text string) string {
+		for _, dir := range dirs {
+			name := r.cacheNames[dir]
+			text = strings.ReplaceAll(text, dir+string(filepath.Separator), name+":")
+			text = strings.ReplaceAll(text, dir, name)
+		}
+		return text
+	}
+	for i := range diags {
+		diags[i].Path = rename(diags[i].Path)
+		diags[i].Message = rename(diags[i].Message)
+	}
 }
 
 // resolveDependency resolves an exact manifest dependency to its engmod.yml.
@@ -419,16 +545,27 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 }
 
 // fetchModule downloads and atomically materializes a CUE module in the
-// workspace cache. Existing cache entries are reused offline.
-// TRLC-LINKS: REQ-EMG-047
+// workspace cache. A cached entry is reused offline in reuse mode; in verify
+// mode it is reused when the registry's manifest digest equals the one
+// recorded at fetch time (or the registry is unreachable) and replaced
+// otherwise; in refresh mode it is always replaced.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-064
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY
 func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	cacheRoot := filepath.Join(r.workspace, ".engmod", "modules")
 	dest := filepath.Join(cacheRoot, moduleCacheDirName(mv))
+	r.cacheNames[dest] = mv.String()
+	if done, ok := r.fetched[dest]; ok {
+		return done, nil
+	}
+	cached := false
 	if _, err := os.Stat(dest); err == nil {
-		return dest, nil
+		cached = true
 	} else if !os.IsNotExist(err) {
 		return "", err
+	}
+	if cached && r.cacheMode != ModuleCacheRefresh && r.cacheMode != moduleCacheVerify {
+		return dest, nil
 	}
 	if err := os.MkdirAll(cacheRoot, 0o755); err != nil {
 		return "", err
@@ -439,19 +576,37 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	}
 	defer func() { _ = lock.Unlock() }()
 	if _, err := os.Stat(dest); err == nil {
+		cached = true
+	}
+	if cached && r.cacheMode != ModuleCacheRefresh && r.cacheMode != moduleCacheVerify {
 		return dest, nil
 	}
 
 	if r.moduleClient == nil {
 		resolver, err := modconfig.NewResolver(nil)
 		if err != nil {
+			if cached && r.cacheMode == moduleCacheVerify {
+				return dest, nil
+			}
 			return "", err
 		}
 		r.moduleClient = modregistry.NewClientWithResolver(resolver)
 	}
 	remoteModule, err := r.moduleClient.GetModule(context.Background(), mv)
 	if err != nil {
+		if cached && r.cacheMode == moduleCacheVerify {
+			// Offline: the committed lock still guards the cached content.
+			return dest, nil
+		}
 		return "", err
+	}
+	manifestDigest := string(remoteModule.ManifestDigest())
+	digestFile := dest + ".manifest-digest"
+	if cached && r.cacheMode == moduleCacheVerify {
+		if recorded, err := os.ReadFile(digestFile); err == nil && strings.TrimSpace(string(recorded)) == manifestDigest {
+			r.fetched[dest] = dest
+			return dest, nil
+		}
 	}
 	zipReader, err := remoteModule.GetZip(context.Background())
 	if err != nil {
@@ -485,12 +640,24 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	if err := modzip.Unzip(tempDir, mv, zipPath); err != nil {
 		return "", err
 	}
-	if err := os.Rename(tempDir, dest); err != nil {
-		if _, statErr := os.Stat(dest); statErr == nil {
-			return dest, nil
+	if cached {
+		// Replace the stale entry: move it aside, then put the new one in.
+		stale, err := os.MkdirTemp(cacheRoot, "."+sanitizeDirName(mv.Path())+"-stale-")
+		if err != nil {
+			return "", err
 		}
-		return "", err
+		defer os.RemoveAll(stale)
+		if err := os.Rename(dest, filepath.Join(stale, "module")); err != nil {
+			return "", err
+		}
 	}
+	if err := os.Rename(tempDir, dest); err != nil {
+		if _, statErr := os.Stat(dest); statErr != nil {
+			return "", err
+		}
+	}
+	_ = os.WriteFile(digestFile, []byte(manifestDigest+"\n"), 0o644)
+	r.fetched[dest] = dest
 	return dest, nil
 }
 
