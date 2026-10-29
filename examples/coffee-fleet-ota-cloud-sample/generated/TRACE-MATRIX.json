@@ -29,6 +29,12 @@
         "target": "telemetry::CAP-TELEM-REPORT",
         "targetRequirement": "REQ-TELEM-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "status": "implemented"
     },
     {
@@ -58,6 +64,12 @@
         "subsystem": "SUB-CLOUD-API",
         "target": "cloud-api::CAP-CLOUD-INGEST",
         "targetRequirement": "REQ-CLOUD-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "status": "implemented"
     },
@@ -89,6 +101,12 @@
         "subsystem": "SUB-OTA-AGENT",
         "target": "ota-agent::CAP-OTA-APPLY",
         "targetRequirement": "REQ-OTA-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "status": "implemented"
     },
@@ -260,6 +278,12 @@
         "target": "cloud-api::CAP-CLOUD-INGEST",
         "targetRequirement": "cloud-api::REQ-CLOUD-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "cloud-api",
         "modulePath": "models.example/coffee-fleet/cloud-api@v0",
@@ -296,6 +320,12 @@
         "subsystem": "SUB-OTA-AGENT",
         "target": "ota-agent::CAP-OTA-APPLY",
         "targetRequirement": "ota-agent::REQ-OTA-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "provenance": {
         "alias": "ota-agent",
@@ -349,6 +379,12 @@
         "subsystem": "SUB-TELEMETRY",
         "target": "telemetry::CAP-TELEM-REPORT",
         "targetRequirement": "telemetry::REQ-TELEM-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "provenance": {
         "alias": "telemetry",
@@ -408,6 +444,8 @@
     "testLinked": 6,
     "passed": 4,
     "delegated": 6,
+    "delegatedImplemented": 3,
+    "delegatedTestLinked": 0,
     "orphan": 4,
     "danglingLinks": 0
   }

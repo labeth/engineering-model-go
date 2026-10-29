@@ -31,7 +31,6 @@ import (
 const (
 	defaultCompletionMax = 50
 	// lockModeEnv is the library's composition lock mode setting (REQ-EMG-064).
-	lockModeEnv = "ENGMOD_LOCK"
 )
 
 // completion is one model.complete candidate.
@@ -742,13 +741,10 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 	}
 
 	// Composition runs against the real model root; never let a diagnose call
-	// write engmod.lock.yml there. An explicit ENGMOD_LOCK is respected.
-	if engmodel.HasComposition(bundle) {
-		if _, set := os.LookupEnv(lockModeEnv); !set {
-			if err := os.Setenv(lockModeEnv, "check"); err == nil {
-				defer os.Unsetenv(lockModeEnv)
-			}
-		}
+	// write a lock there. An explicit ENGMOD_LOCK is respected.
+	resolution := engmodel.ResolutionOptions{}
+	if _, set := os.LookupEnv(engmodel.LockEnv); !set {
+		resolution.Lock = engmodel.LockModeCheck
 	}
 	var diags []validate.Diagnostic
 	canonical, cerr := model.NewCanonicalBundle(bundle)
@@ -758,7 +754,7 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 	if cerr != nil {
 		diags = append(diags, validate.Bundle(bundle)...)
 	} else {
-		result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{})
+		result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{Resolution: resolution})
 		diags = append(diags, result.Diagnostics...)
 	}
 	for i := range diags {

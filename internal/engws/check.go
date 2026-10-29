@@ -156,7 +156,17 @@ func RunChecks(ctx context.Context, root string, targets []CheckTarget, opts Che
 // replacements; a check must not change a checkout.
 // TRLC-LINKS: REQ-EMG-068
 func guardLock(dir string) func(*CheckResult) {
-	path := filepath.Join(dir, engmodel.CompositionLockFileName)
+	restoreLocal := guardLockFile(filepath.Join(dir, engmodel.CompositionLocalLockFileName))
+	restore := guardLockFile(filepath.Join(dir, engmodel.CompositionLockFileName))
+	return func(result *CheckResult) {
+		restore(result)
+		restoreLocal(result)
+	}
+}
+
+// guardLockFile restores or removes one lock file after the check.
+// TRLC-LINKS: REQ-EMG-068
+func guardLockFile(path string) func(*CheckResult) {
 	before, err := os.ReadFile(path)
 	existed := err == nil
 	return func(result *CheckResult) {
@@ -164,11 +174,11 @@ func guardLock(dir string) func(*CheckResult) {
 		switch {
 		case !existed && err == nil:
 			if os.Remove(path) == nil {
-				result.Lines = append(result.Lines, "note: removed "+engmodel.CompositionLockFileName+" written by the check")
+				result.Lines = append(result.Lines, "note: removed "+filepath.Base(path)+" written by the check")
 			}
 		case existed && (err != nil || !bytes.Equal(before, after)):
 			if writeFileAtomic(path, before) == nil {
-				result.Lines = append(result.Lines, "note: restored "+engmodel.CompositionLockFileName+" changed by the check")
+				result.Lines = append(result.Lines, "note: restored "+filepath.Base(path)+" changed by the check")
 			}
 		}
 	}

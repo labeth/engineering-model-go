@@ -20,6 +20,12 @@
         "target": "aegis::CAP-AEGIS-MISSION",
         "targetRequirement": "REQ-AEG-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-AEG-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "status": "delegated"
     },
     {
@@ -33,6 +39,12 @@
         "target": "orion::CAP-ORION-MISSION",
         "targetRequirement": "REQ-ORI-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-ORI-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "status": "delegated"
     },
     {
@@ -45,6 +57,12 @@
         "subsystem": "SUB-PORT-AEGIS",
         "target": "aegis::CAP-AEGIS-MISSION",
         "targetRequirement": "aegis::REQ-AEG-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-AEG-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
       },
       "provenance": {
         "alias": "aegis",
@@ -131,6 +149,12 @@
         "subsystem": "SUB-PORT-ORION",
         "target": "orion::CAP-ORION-MISSION",
         "targetRequirement": "orion::REQ-ORI-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-ORI-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
       },
       "provenance": {
         "alias": "orion",
@@ -220,6 +244,8 @@
     "testLinked": 0,
     "passed": 0,
     "delegated": 4,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
     "orphan": 1,
     "danglingLinks": 0
   }

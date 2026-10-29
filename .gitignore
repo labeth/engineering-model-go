@@ -34,3 +34,7 @@ tmp/
 .github/mcp.json
 .github/skills/
 openspec/
+
+# local multi-repo state (engmod.work.yml replacements, engws)
+engmod.lock.local.yml
+.engws.yml

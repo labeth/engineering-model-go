@@ -24,6 +24,32 @@ semantic versioning.
   `CODE-*` IDs are resolved during validation (unknown → broken reference, collisions →
   `model.ambiguous_code_reference`); the code index is only built when one is used.
 Fixes from field use of the trace, MCP and Gemara outputs.
+Fixes from field use of the trace, MCP and Gemara outputs, and multi-repository support from the
+`test-system` spike: everything runs locally (CLIs, `engws`, a per-checkout stdio MCP server) and
+dependencies come from the OCI registry into the local cache.
+
+### Added
+
+- **Workspace selection** (REQ-EMG-063): `ENGMOD_WORK=off` ignores every `engmod.work.yml`;
+  `ENGMOD_WORK=<path>` uses that file only. `model.FindWorkspaceWith`, `engmodel.ResolutionOptions`, and
+  `--workspace=off|<path>` on `engtrace`, `engdoc`, `enggemara`, `engoscal`, `engmcp`.
+- **Lock policy** (REQ-EMG-064): with workspace replacements active the committed `engmod.lock.yml` is never
+  written; the resolved lock goes to `engmod.lock.local.yml`. `ENGMOD_LOCK=check` / `--lock=check` compares
+  with the committed lock and reports `composition.lock_missing`, `composition.lock_invalid` or
+  `composition.lock_mismatch` (missing, extra or changed dependency; changed digest after a moved tag).
+- **Qualified references** (REQ-EMG-065): validation and the trace resolve `alias::ID` against the published
+  entities of selected dependencies, including ownership (FU group, interface owner, trust boundary parent,
+  risk/threat/verification owners) and view roots. An unpublished reference is one
+  `composition.unpublished_reference` error with its field path.
+- **Composition diagnostics** (REQ-EMG-066): `GenerateAsciiDoc` returns them and composes once per call
+  (`AsciiDocOptions.Composition` reuses a result). `composition.unsatisfied_require` is an error at the root of
+  a `kind: system` composition; `composition.allocation_target_not_contract` warns on non-contract targets.
+- **Delegated status** (REQ-EMG-067): delegated trace rows carry `delegatedStatus` with the target
+  requirement's status in its repository; the summary adds `delegatedImplemented` and `delegatedTestLinked`.
+- **`cmd/engws`** (REQ-EMG-068): `status`, `sync`, `pin`, `unpin`, `skew`, `check`, `bump` for a workspace of
+  checkouts; local only, writes only `engmod.work.yml` and `go.work` in the workspace root.
+- **MCP authoring help** (REQ-EMG-069): `model.complete` (local and imported IDs, catalog terms, enum values,
+  relationship types) and `model.diagnose` (validate one document's edited content in memory).
 
 ### Changed
 
