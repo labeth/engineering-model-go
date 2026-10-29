@@ -92,12 +92,16 @@ func replacePathPrefix(s string, prefix scrubPrefix) string {
 		}
 		at := i + j
 		end := at + len(from)
-		before := at == 0 || !pathChar(s[at-1])
+		// "file://" + path is a path, not a URL host or path segment.
+		before := at == 0 || !pathChar(s[at-1]) || strings.HasSuffix(s[:at], "file://")
 		next := byte(0)
 		if end < len(s) {
 			next = s[end]
 		}
-		after := end == len(s) || string(next) == sep || !pathChar(next)
+		// A '.' that ends a sentence (followed by the end or a non-path
+		// character) is not part of the path.
+		sentenceDot := next == '.' && (end+1 == len(s) || !pathChar(s[end+1]))
+		after := end == len(s) || string(next) == sep || !pathChar(next) || sentenceDot
 		if !before || !after {
 			b.WriteString(s[i : at+1])
 			i = at + 1

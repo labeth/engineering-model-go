@@ -259,7 +259,8 @@ func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 		if code == 0 {
 			code = -32602
 		}
-		return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "error": map[string]any{"code": code, "message": rpcErr.Error()}})
+		message := newPathScrubber(s.repoRoot, s.modelPath).scrubString(rpcErr.Error())
+		return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "error": map[string]any{"code": code, "message": message}})
 	}
 	return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "result": result})
 }

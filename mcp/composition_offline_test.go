@@ -259,7 +259,8 @@ func TestPathScrubberPrefixes(t *testing.T) {
 		"/w/fam/proj-b/x":        "workspace:proj-b/x",
 		"/home/alice/x":          "/home/alice/x",
 		"https://h/w/fam/proj/x": "https://h/w/fam/proj/x",
-		"REQ-NMEA-001":           "REQ-NMEA-001",
+		"in /w/fam/proj.":        "in ..",
+		"file:///w/fam/proj/x":   "file://x",
 	} {
 		if got := p.scrubString(in); got != want {
 			t.Fatalf("scrub %q = %q, want %q", in, got, want)
@@ -290,6 +291,32 @@ func TestToolErrorsCarryNoAbsolutePaths(t *testing.T) {
 	for _, abs := range []string{filepath.Dir(parent), evalOrSame(filepath.Dir(parent))} {
 		if strings.Contains(text, abs) {
 			t.Fatalf("tool error leaks absolute path %s: %s", abs, text)
+		}
+	}
+}
+
+// An initialize failure (the canonical model does not load) is a JSON-RPC
+// error; its message carries no absolute path either.
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func TestRPCErrorsCarryNoAbsolutePaths(t *testing.T) {
+	t.Setenv("CUE_REGISTRY", "none")
+	parent := writeMCPCompositionFixture(t)
+	if err := os.WriteFile(filepath.Join(parent, "model", "catalog.yml"), []byte("schemaVersion: 2\ncatalog: [\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s := NewServer()
+	resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0", "id": 1, "method": "initialize",
+		"params": map[string]any{"initializationOptions": map[string]any{"modelPath": filepath.Join(parent, "engmod.yml"), "repoRoot": parent}},
+	})
+	text := mustJSON(t, resp)
+	if resp["error"] == nil || !strings.Contains(text, "catalog.yml") {
+		t.Fatalf("expected an initialize error naming the broken document: %s", text)
+	}
+	for _, abs := range []string{filepath.Dir(parent), evalOrSame(filepath.Dir(parent))} {
+		if strings.Contains(text, abs) {
+			t.Fatalf("JSON-RPC error leaks absolute path %s: %s", abs, text)
 		}
 	}
 }

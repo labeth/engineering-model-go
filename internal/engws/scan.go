@@ -91,8 +91,25 @@ func isHomeOrAncestor(dir string) bool {
 	if abs, err := filepath.Abs(home); err == nil {
 		home = abs
 	}
-	rel, err := filepath.Rel(dir, home)
-	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel)
+	// Compare given and symlink-resolved forms, so a symlinked home (or a
+	// project reached through its real path) still stops the search.
+	homes := []string{home}
+	if real, err := filepath.EvalSymlinks(home); err == nil && real != home {
+		homes = append(homes, real)
+	}
+	dirs := []string{dir}
+	if real, err := filepath.EvalSymlinks(dir); err == nil && real != dir {
+		dirs = append(dirs, real)
+	}
+	for _, h := range homes {
+		for _, d := range dirs {
+			rel, err := filepath.Rel(d, h)
+			if err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Scan lists the direct children of root that hold an engmod.yml, sorted by

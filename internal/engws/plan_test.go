@@ -257,6 +257,19 @@ func TestFindRootStopsAtHome(t *testing.T) {
 	if got, err := FindRoot(deep); err != nil || got != filepath.Join(home, "src", "ws") {
 		t.Fatalf("marker below $HOME: got %s, %v", got, err)
 	}
+	// $HOME given as a symlink to the real home: the search from the real
+	// path still stops at the home directory.
+	if err := os.Remove(filepath.Join(home, "src", "ws", ".engws.yml")); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(top, "home-link")
+	if err := os.Symlink(home, link); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", link)
+	if got, err := FindRoot(deep); err != nil || got != deep {
+		t.Fatalf("symlinked $HOME: got %s, %v; want %s", got, err, deep)
+	}
 }
 
 // A world-writable root found by the search is refused; --root accepts it.
