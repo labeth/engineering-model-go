@@ -28,14 +28,28 @@ import (
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func resolution() engmodel.ResolutionOptions {
 	options := engmodel.ResolutionOptions{}
-	lockSet := strings.TrimSpace(os.Getenv(engmodel.LockEnv)) != ""
-	if !lockSet {
+	if strings.TrimSpace(os.Getenv(engmodel.LockEnv)) == "" {
 		options.Lock = engmodel.LockModeCheck
 	}
-	if !lockSet && strings.TrimSpace(os.Getenv(engmodel.ModuleCacheEnv)) == "" {
+	if strings.TrimSpace(os.Getenv(engmodel.ModuleCacheEnv)) == "" {
 		options.ModuleCache = engmodel.ModuleCacheReuse
 	}
 	return options
+}
+
+// ApplyReadOnlyResolutionDefaults sets the process defaults of a model
+// server: the lock is checked, never written (ENGMOD_LOCK=check), and cached
+// modules are reused without registry lookups (ENGMOD_MODULE_CACHE=reuse),
+// unless the environment already sets them. It covers every composing tool,
+// the Gemara and OSCAL exporters included. Call it once at startup.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func ApplyReadOnlyResolutionDefaults() {
+	for key, value := range map[string]string{engmodel.LockEnv: engmodel.LockModeCheck, engmodel.ModuleCacheEnv: engmodel.ModuleCacheReuse} {
+		if strings.TrimSpace(os.Getenv(key)) == "" {
+			_ = os.Setenv(key, value)
+		}
+	}
 }
 
 // compositionResolve resolves the system-of-systems rooted at the loaded model and

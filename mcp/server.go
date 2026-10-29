@@ -318,6 +318,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 			return nil, -32602, err
 		}
 		payload, err := s.callTool(name, args)
+		scrubber := newPathScrubber(s.repoRoot, s.modelPath)
 		if err != nil {
 			errPayload, _ := json.Marshal(map[string]any{
 				"ok":            false,
@@ -325,7 +326,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 				"schemaVersion": toolSchemaVersion,
 				"error": map[string]any{
 					"code":    "INVALID_ARGUMENT",
-					"message": err.Error(),
+					"message": scrubber.scrubString(err.Error()),
 					"hint":    "see tools/list.inputSchema for accepted arguments",
 				},
 				"generatedAt": time.Now().UTC().Format(time.RFC3339),
@@ -337,7 +338,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 		buf, _ := json.Marshal(payload)
 		var generic any
 		if json.Unmarshal(buf, &generic) == nil {
-			buf, _ = json.Marshal(newPathScrubber(s.repoRoot, s.modelPath).scrub(generic))
+			buf, _ = json.Marshal(scrubber.scrub(generic))
 		}
 		return map[string]any{"content": []map[string]any{{"type": "text", "text": string(buf)}}, "isError": false}, 0, nil
 	default:

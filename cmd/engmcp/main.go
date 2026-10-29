@@ -28,6 +28,7 @@ func main() {
 		os.Exit(2)
 	}
 	modelEnv.MustApply()
+	mcp.ApplyReadOnlyResolutionDefaults()
 	s := mcp.NewServer()
 	r := bufio.NewReader(os.Stdin)
 	w := bufio.NewWriter(os.Stdout)

@@ -138,8 +138,36 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
 	callAll("committed lock")
 	t.Setenv("ENGMOD_WORK", "off")
 	callAll("workspace off")
+	// The template bridge sets ENGMOD_LOCK=check explicitly; the read tools
+	// must still reuse the warm cache.
+	t.Setenv("ENGMOD_LOCK", "check")
+	callAll("lock check set explicitly")
 	if data, _ := os.ReadFile(lockPath); string(data) != committed {
 		t.Fatalf("an MCP read tool changed engmod.lock.yml:\n%s", data)
+	}
+	// Under the server's process defaults the exporters (Gemara, OSCAL)
+	// compose without registry requests and without writing the lock either.
+	t.Setenv("ENGMOD_LOCK", "")
+	t.Setenv("ENGMOD_MODULE_CACHE", "")
+	ApplyReadOnlyResolutionDefaults()
+	if os.Getenv("ENGMOD_LOCK") != "check" || os.Getenv("ENGMOD_MODULE_CACHE") != "reuse" {
+		t.Fatalf("server defaults not applied: lock=%q cache=%q", os.Getenv("ENGMOD_LOCK"), os.Getenv("ENGMOD_MODULE_CACHE"))
+	}
+	if err := os.Remove(lockPath); err != nil {
+		t.Fatal(err)
+	}
+	requests.Store(0)
+	callToolData(t, s, "gemara.controlCatalog")
+	if n := requests.Load(); n != 0 {
+		t.Fatalf("gemara.controlCatalog: %d registry requests with a warm cache", n)
+	}
+	if _, err := os.Stat(lockPath); err == nil {
+		t.Fatal("gemara.controlCatalog wrote engmod.lock.yml")
+	}
+	t.Setenv("ENGMOD_MODULE_CACHE", "refresh")
+	ApplyReadOnlyResolutionDefaults()
+	if os.Getenv("ENGMOD_MODULE_CACHE") != "refresh" {
+		t.Fatal("an explicit ENGMOD_MODULE_CACHE must be kept")
 	}
 }
 
@@ -219,17 +247,49 @@ func TestToolOutputCarriesNoAbsolutePaths(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-069
 func TestPathScrubberPrefixes(t *testing.T) {
-	home, _ := os.UserHomeDir()
-	p := pathScrubber{prefixes: []scrubPrefix{{from: "/w/fam/proj", to: ""}, {from: "/w/fam", to: "workspace:"}, {from: home, to: "~"}}}
+	p := pathScrubber{prefixes: []scrubPrefix{{from: "/w/fam/proj", to: ""}, {from: "/w/fam", to: "workspace:"}, {from: "/home/al", to: "~"}}}
 	for in, want := range map[string]string{
 		"/w/fam/proj/engmod.lock.yml":     "engmod.lock.yml",
 		"/w/fam/proj":                     ".",
 		"/w/fam/sibling/model/a.yml":      "workspace:sibling/model/a.yml",
-		home + "/go/pkg/mod/x":            "~/go/pkg/mod/x",
+		"/home/al/go/pkg/mod/x":           "~/go/pkg/mod/x",
 		"see (/w/fam/proj/model/r.yml:3)": "see (model/r.yml:3)",
+		"stat /w/fam/proj/x: no such":     "stat x: no such",
+		// Whole paths only: longer names, URLs and other users stay intact.
+		"/w/fam/proj-b/x":        "workspace:proj-b/x",
+		"/home/alice/x":          "/home/alice/x",
+		"https://h/w/fam/proj/x": "https://h/w/fam/proj/x",
+		"REQ-NMEA-001":           "REQ-NMEA-001",
 	} {
 		if got := p.scrubString(in); got != want {
 			t.Fatalf("scrub %q = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// A tool error that names an absolute path (here a read error from
+// model.diagnose) reaches the client with the path scrubbed.
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func TestToolErrorsCarryNoAbsolutePaths(t *testing.T) {
+	t.Setenv("ENGMOD_WORK", "")
+	t.Setenv("CUE_REGISTRY", "none")
+	parent := writeMCPCompositionFixture(t)
+	s := initializedServerAt(t, parent)
+	if err := os.Remove(filepath.Join(parent, "model", "views.yml")); err != nil {
+		t.Fatal(err)
+	}
+	resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0", "id": 7, "method": "tools/call",
+		"params": map[string]any{"name": "model.diagnose", "arguments": map[string]any{"document": "requirements", "content": "schemaVersion: 2\nrequirements: []\n"}},
+	})
+	text := mustJSON(t, resp)
+	if !strings.Contains(text, "views.yml") {
+		t.Fatalf("expected an error naming the missing document: %s", text)
+	}
+	for _, abs := range []string{filepath.Dir(parent), evalOrSame(filepath.Dir(parent))} {
+		if strings.Contains(text, abs) {
+			t.Fatalf("tool error leaks absolute path %s: %s", abs, text)
 		}
 	}
 }

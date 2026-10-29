@@ -62,30 +62,74 @@ func evalOrSame(path string) string {
 	return path
 }
 
-// scrubString replaces every absolute-path prefix in s.
+// scrubString replaces every absolute-path prefix in s. A prefix matches only
+// as a whole path: at the start of s or after a character that cannot be part
+// of a path, and followed by a separator or a character that cannot continue
+// a path element, so /w/proj never rewrites /w/proj-b and a URL path such as
+// https://h/w/proj/x is left alone.
 // TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (p pathScrubber) scrubString(s string) string {
 	for _, prefix := range p.prefixes {
-		if !strings.Contains(s, prefix.from) {
-			continue
-		}
-		sep := string(filepath.Separator)
-		replacement := prefix.to
-		withSep := prefix.from + sep
-		if replacement == "" {
-			s = strings.ReplaceAll(s, withSep, "")
-			s = strings.ReplaceAll(s, prefix.from, ".")
-			continue
-		}
-		if strings.HasSuffix(replacement, ":") {
-			s = strings.ReplaceAll(s, withSep, replacement)
-		} else {
-			s = strings.ReplaceAll(s, withSep, replacement+sep)
-		}
-		s = strings.ReplaceAll(s, prefix.from, replacement)
+		s = replacePathPrefix(s, prefix)
 	}
 	return s
+}
+
+// TRLC-LINKS: REQ-EMG-069
+func replacePathPrefix(s string, prefix scrubPrefix) string {
+	from := prefix.from
+	if !strings.Contains(s, from) {
+		return s
+	}
+	sep := string(filepath.Separator)
+	var b strings.Builder
+	for i := 0; i < len(s); {
+		j := strings.Index(s[i:], from)
+		if j < 0 {
+			b.WriteString(s[i:])
+			break
+		}
+		at := i + j
+		end := at + len(from)
+		before := at == 0 || !pathChar(s[at-1])
+		next := byte(0)
+		if end < len(s) {
+			next = s[end]
+		}
+		after := end == len(s) || string(next) == sep || !pathChar(next)
+		if !before || !after {
+			b.WriteString(s[i : at+1])
+			i = at + 1
+			continue
+		}
+		b.WriteString(s[i:at])
+		atSep := end < len(s) && string(next) == sep
+		switch {
+		case prefix.to == "" && atSep:
+			end++ // project-relative: drop the separator too
+		case prefix.to == "":
+			b.WriteString(".")
+		case strings.HasSuffix(prefix.to, ":") && atSep:
+			b.WriteString(prefix.to)
+			end++
+		default:
+			b.WriteString(prefix.to)
+		}
+		i = end
+	}
+	return b.String()
+}
+
+// pathChar reports whether c can appear inside a path element, so a prefix
+// next to it is part of a longer name (or of a URL host or path).
+// TRLC-LINKS: REQ-EMG-069
+func pathChar(c byte) bool {
+	switch {
+	case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9':
+		return true
+	}
+	return strings.IndexByte("._-+@~%/", c) >= 0
 }
 
 // scrub rewrites strings anywhere in a JSON-like value.
@@ -95,10 +139,11 @@ func (p pathScrubber) scrub(value any) any {
 	case string:
 		return p.scrubString(v)
 	case map[string]any:
+		out := make(map[string]any, len(v))
 		for key, item := range v {
-			v[key] = p.scrub(item)
+			out[p.scrubString(key)] = p.scrub(item)
 		}
-		return v
+		return out
 	case []any:
 		for i, item := range v {
 			v[i] = p.scrub(item)

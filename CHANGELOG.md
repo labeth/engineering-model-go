@@ -50,8 +50,10 @@ dependencies come from the OCI registry into the local cache.
   checkouts; local only. `sync` writes `engmod.work.yml` and `go.work` in the workspace root, `pin`/`unpin`
   write `.engws.yml` there, and `bump` writes inside the consumer checkout (`engmod.yml`, `go.mod`, `go.sum`,
   `engmod.lock.yml`).
-- **MCP output paths** (REQ-EMG-069): every tool response is scrubbed of absolute paths: project paths become
-  relative, workspace paths `workspace:<dir>/…`, the home directory `~`.
+- **MCP output paths** (REQ-EMG-069): every tool response and tool error is scrubbed of absolute paths (whole
+  path matches only): project paths become relative, workspace paths `workspace:<dir>/…`, the home directory `~`.
+- **MCP read-only defaults** (REQ-EMG-069): `engmcp` sets `ENGMOD_LOCK=check` and `ENGMOD_MODULE_CACHE=reuse` unless
+  set, so no composing tool (exporters included) writes the lock or contacts the registry with a warm cache.
 - **MCP authoring help** (REQ-EMG-069): `model.complete` (local and imported IDs, catalog terms, enum values,
   relationship types) and `model.diagnose` (validate one document's edited content in memory).
 
