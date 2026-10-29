@@ -3,6 +3,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -327,6 +328,11 @@ func argsForTool(name string) map[string]any {
 		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}
 	case "coverage.strictStatus":
 		return map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}
+	case "model.complete":
+		return map[string]any{"prefix": "FU-", "field": "appliesTo"}
+	case "model.diagnose":
+		content, _ := os.ReadFile(filepath.Join("..", "examples", "payments-engineering-sample", "model", "decisions.yml"))
+		return map[string]any{"document": "decisions", "content": string(content)}
 	default:
 		return map[string]any{}
 	}

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/cliflags"
 	"github.com/labeth/engineering-model-go/validate"
 )
 
@@ -32,7 +33,7 @@ func (v *viewFlags) Set(value string) error {
 	return nil
 }
 
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-009, REQ-EMG-014
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-009, REQ-EMG-014, REQ-EMG-063, REQ-EMG-064
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FU-VIEW-PROJECTION, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
@@ -43,7 +44,9 @@ func main() {
 	decisionsOut := flag.String("decisions-out", "", "optional output path for generated architecture decision records .adoc")
 	var views viewFlags
 	flag.Var(&views, "view", "optional viewpoint ID; repeat to include multiple views")
+	modelEnv := cliflags.Register(nil)
 	flag.Parse()
+	modelEnv.MustApply()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*reqPath) == "" || strings.TrimSpace(*designPath) == "" {
 		fmt.Fprintln(os.Stderr, "usage: engdoc --model <engmod.yml> --requirements <model/requirements.yml> --design <model/views.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>]")

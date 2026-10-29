@@ -80,6 +80,8 @@ var toolArgsAllowlist = map[string][]string{
 	"model.list":                   {"query", "q", "kind", "max"},
 	"entities.list":                {"query", "q", "kind", "max"},
 	"model.authoringContract":      {},
+	"model.complete":               {"prefix", "query", "q", "field", "max"},
+	"model.diagnose":               {"document", "path", "content"},
 	"model.entity":                 {"entityId", "id"},
 	"model.implementations":        {"entityId", "id", "groupBy", "max"},
 	"code.contextForTask":          {"query", "q", "requirementId", "reqId", "entityId", "id", "path", "file", "max"},
@@ -135,7 +137,7 @@ type indexedFile struct {
 	Content string
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-045
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-045, REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func NewServer() *Server {
 	all := []Tool{
@@ -161,6 +163,8 @@ func NewServer() *Server {
 		{Name: "model.list", Description: "List model entities"},
 		{Name: "entities.list", Description: "List model entities"},
 		{Name: "model.authoringContract", Description: "Get the compact canonical YAML authoring contract"},
+		{Name: "model.complete", Description: "Complete a value while editing model YAML: local IDs, imported alias::ID from selected dependency publications (workspace replacement or local module cache; offline), catalog term names, allowed enum values and relationship types with their kind pairs. prefix is matched case-insensitively (empty lists all); field narrows candidates, e.g. appliesTo, owner, interfaceRef, relationship.type, flow.kind, status, risk.status, catalog; max defaults to 50. Returns candidates [{value, kind, source (local, rules or the dependency alias), title}] and a note when imports cannot be resolved"},
+		{Name: "model.diagnose", Description: "Validate the model with one document's content replaced in memory (nothing is written): document is a manifest document key (catalog, requirements, architecture, behavior, assurance, compliance, views, decisions) or its path; content is the full YAML text. Returns valid, that document's diagnostics with line/column where they can be located, a count of other diagnostics and YAML parse errors with line and column"},
 		{Name: "model.entity", Description: "Get model entity detail"},
 		{Name: "model.implementations", Description: "List source declarations linked to any model entity"},
 		{Name: "code.contextForTask", Description: "Assemble compact code and model context for a task"},
@@ -429,7 +433,7 @@ func (s *Server) loadContext(params any) error {
 	return nil
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045, REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION, FU-CODEMAP-INFERENCE
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
@@ -624,6 +628,14 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"entities": s.modelEntityNodes(query, firstNonEmptyArg(args, "kind"), maxArg(args, 500))})
 	case "model.authoringContract":
 		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle), "rules": validate.AuthoringRules()})
+	case "model.complete":
+		return simple(s.modelComplete(args))
+	case "model.diagnose":
+		data, err := s.modelDiagnose(args)
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "model.entity":
 		id := firstNonEmptyArg(args, "entityId", "id")
 		if id == "" {
