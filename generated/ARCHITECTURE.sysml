@@ -188,6 +188,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-020';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-021";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-021';
+
+    @EngineeringElement {
         sourceId = "AV-MALFORMED-MODEL-INPUT";
         conceptKind = "engineering_extension";
     }
@@ -2438,7 +2444,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-049' {
         attribute 'text' : 'String' = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject invalid manifest dependency plus publication plus workspace replacement plus qualified reference declarations.";
-        attribute 'notes' : 'String' = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported. A resolved dependency (registry module or workspace replacement) is confined to its module root: before any of its documents is read, every document reference, inferenceHints codeSources and runtimeSources entry, engmod.yml and cue.mod/module.cue that is absolute or resolves after symlinks outside the module is rejected as composition.dependency_path_escape naming the dependency alias and field, and no content of the target is read; the root model's own paths are not confined this way. A fetched module zip is checked before extraction (modzip rejects .. and absolute entries, the registry client verifies the blob digest) and an entry that is not a regular file or directory, such as a symlink, fails the fetch.";
+        attribute 'notes' : 'String' = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported. A resolved dependency (registry module or workspace replacement) is confined to its module root: before any of its documents is read, every document reference, inferenceHints runtimeSources entry and inferenceHints exclude glob, engmod.yml and cue.mod/module.cue that is absolute or resolves after symlinks outside the module is rejected as composition.dependency_path_escape naming the dependency alias and field, and no content of the target is read; the root model's own paths are not confined this way. A fetched module zip is checked before extraction (modzip rejects .. and absolute entries, the registry client verifies the blob digest) and an entry that is not a regular file or directory, such as a symlink, fails the fetch.";
     }
 
     @EngineeringElement {
@@ -2505,6 +2511,42 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-057";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-057' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.";
+        attribute 'notes' : 'String' = "Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-058";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-058' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.";
+        attribute 'notes' : 'String' = "A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-059";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-059' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.";
+        attribute 'notes' : 'String' = "An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-060";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-060' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.";
+        attribute 'notes' : 'String' = "Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.";
+    }
+
+    @EngineeringElement {
         sourceId = "REQ-EMG-061";
         conceptKind = "requirement_definition";
     }
@@ -2564,7 +2606,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-067' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall show the trace status of each delegated requirement in its target repository.";
-        attribute 'notes' : 'String' = "For a delegated row the matrix computes the target requirement's own trace status (implemented, test linked, orphan) from the resolved dependency at its pinned or replaced version and reports it as delegatedStatus; a dependency without code shows not-available.";
+        attribute 'notes' : 'String' = "For a delegated row the matrix computes the target requirement's own trace status (implemented, test linked, orphan) from the resolved dependency at its pinned or replaced version and reports it as delegatedStatus. The dependency's code scope is its own module directory (the workspace checkout or the module cache entry) minus its inferenceHints exclude globs, never the consumer repository around it; a dependency without code there shows not-available.";
     }
 
     @EngineeringElement {
