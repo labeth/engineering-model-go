@@ -266,6 +266,11 @@ catalog:
     definition: Event indicating a validated requirements change should replace the canonical document.
     aliases:
     - requirements apply requested
+  - id: EVT-WORKSPACE-SYNC-REQUESTED
+    name: workspace sync is requested
+    definition: Event indicating a developer asked engws to rebuild the local multi-repository workspace or report its state.
+    aliases:
+    - engws sync requested
   - id: EVT-EXAMPLE-VALIDATION-REQUESTED
     name: example validation is requested
     definition: Event indicating maintained reference workspaces must be loaded, composed, generated, and checked.

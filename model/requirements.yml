@@ -406,3 +406,45 @@ requirements:
     appliesTo:
       - FU-GEMARA-EXPORTER
       - FU-MCP-SERVER
+  - id: REQ-EMG-063
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall select the model workspace from the ENGMOD_WORK setting.
+    notes: ENGMOD_WORK=off ignores every engmod.work.yml (CI and the pre-push gate); ENGMOD_WORK=<path> uses that file only and skips the parent search; unset searches parent directories as before. A path that does not exist is an error. CLI tools and the MCP server accept --workspace=off|<path> with the same meaning.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-MODEL-LOADER
+      - FU-CLI-ORCHESTRATION
+  - id: REQ-EMG-064
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall write or check the composition lock according to the lock mode.
+    notes: While workspace replacements are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and composition.lock_missing, composition.lock_invalid or composition.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Otherwise engmod.lock.yml is written as before.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+  - id: REQ-EMG-065
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall validate each qualified reference against the published entities of the selected dependencies.
+    notes: Covers relationships, flows and flow steps, appliesTo, interface and data references, ownership (functional unit group, interface owner, trust boundary parent, risk, threat and verification owners), view roots and code ENGMODEL-LINKS. Requirements stay local, so trace counts do not include imported requirements. A qualified reference to an entity the dependency does not publish is reported once as composition.unpublished_reference with its field path, not as a generic broken reference.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-VALIDATION-ENGINE
+      - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-066
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall return the composition diagnostics with the generation result.
+    notes: GenerateAsciiDoc and the trace matrix return every composition diagnostic, so callers need not compose again; composition runs once per call and its result is reused. An unsatisfied required interface is an error for a model of kind system that has no parent and a warning otherwise; an allocation whose target is not a contract provides entry is a warning.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-ASCIIDOC-GENERATOR
+  - id: REQ-EMG-067
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall show the trace status of each delegated requirement in its target repository.
+    notes: For a delegated row the matrix computes the target requirement's own trace status (implemented, test linked, orphan) from the resolved dependency at its pinned or replaced version and reports it as delegatedStatus; a dependency without code shows not-available.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-SYSTEM-COMPOSITION
+  - id: REQ-EMG-068
+    text: When workspace sync is requested, the engineering model go shall write a local workspace that replaces only changed or pinned checkouts.
+    notes: engws scans direct child directories with engmod.yml. A checkout is changed when its git tree is dirty, HEAD is not at tag v<module.version>, or that version is not in the registry configured by CUE_REGISTRY; .engws.yml pins force local. sync writes engmod.work.yml and a go.work with the local checkouts that have go.mod (removing go.work when none), and writes nothing inside any checkout. status and skew report SKEW when a local checkout's version differs from a version another checkout pins, and exit 1. check runs the model check in every local checkout affected by the change (reverse dependencies inside the workspace) and the top system with summary output. bump updates a dependency version in engmod.yml, the matching go.mod require and the lock together.
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+      - FU-SYSTEM-COMPOSITION
+  - id: REQ-EMG-069
+    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document.
+    notes: model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics. Both work offline from the local cache; no central service is involved.
+    appliesTo:
+      - FU-MCP-SERVER
