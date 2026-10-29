@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/mod/modregistrytest"
+	"github.com/labeth/engineering-model-go/model"
 )
 
 // A clean checkout at its tag whose version is published resolves from OCI.
@@ -231,5 +232,72 @@ func TestFindRootSearchesAncestors(t *testing.T) {
 	write(t, filepath.Join(root, ".engws.yml"), "pins: []\n")
 	if got, _ := FindRoot(deep); got != root {
 		t.Fatalf("marker: got %s want %s", got, root)
+	}
+}
+
+// The ancestor search never returns $HOME or an ancestor of it: a stray
+// .engws.yml or engmod.work.yml there does not make it the root. The search
+// below $HOME still finds a marker.
+// Mutation: searching up to / without stopping at $HOME fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestFindRootStopsAtHome(t *testing.T) {
+	top := t.TempDir()
+	home := filepath.Join(top, "home")
+	deep := filepath.Join(home, "src", "ws", "repo")
+	if err := os.MkdirAll(deep, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	write(t, filepath.Join(home, ".engws.yml"), "pins: []\n")
+	write(t, filepath.Join(top, model.WorkspaceFileName), "schemaVersion: 2\nreplacements: []\n")
+	if got, err := FindRoot(deep); err != nil || got != deep {
+		t.Fatalf("marker in $HOME and above it: got %s, %v; want %s", got, err, deep)
+	}
+	write(t, filepath.Join(home, "src", "ws", ".engws.yml"), "pins: []\n")
+	if got, err := FindRoot(deep); err != nil || got != filepath.Join(home, "src", "ws") {
+		t.Fatalf("marker below $HOME: got %s, %v", got, err)
+	}
+}
+
+// A world-writable root found by the search is refused; --root accepts it.
+// Mutation: dropping the world-writable check fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestWorldWritableRootNeedsExplicitRoot(t *testing.T) {
+	t.Setenv("HOME", filepath.Join(t.TempDir(), "home"))
+	shared := filepath.Join(t.TempDir(), "shared")
+	deep := filepath.Join(shared, "repo")
+	if err := os.MkdirAll(deep, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write(t, filepath.Join(shared, ".engws.yml"), "pins: []\n")
+	if err := os.Chmod(shared, 0o777); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := FindRoot(deep); err == nil || !strings.Contains(err.Error(), "world-writable") {
+		t.Fatalf("world-writable root must be refused: %s, %v", got, err)
+	}
+	if code, out, errOut := runMain(t, allPublished(), "--root", shared, "status"); code != 0 || !strings.HasPrefix(out, "workspace "+shared) {
+		t.Fatalf("explicit --root accepts it: %d\n%s\n%s", code, out, errOut)
+	}
+}
+
+// Every command names the chosen root on its first output line (skew on
+// stderr, so its stdout stays the SKEW lines).
+// Mutation: not printing the root for bump or skew fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestEveryCommandPrintsRootFirst(t *testing.T) {
+	root := t.TempDir()
+	checkout(t, root, "if-a")
+	reg := allPublished("if-a")
+	for _, args := range [][]string{{"status"}, {"sync"}, {"skew"}, {"check", "--in-process"}, {"pin", "if-a"}, {"unpin", "if-a"}, {"bump", "if-a", "nope", "v0.2.0"}} {
+		_, out, errOut := runMain(t, reg, append([]string{"--root", root}, args...)...)
+		first := out
+		if args[0] == "skew" {
+			first = errOut
+		}
+		line, _, _ := strings.Cut(first, "\n")
+		if !strings.Contains(line, root) {
+			t.Fatalf("%v: first line %q does not name the root\nstdout:\n%s\nstderr:\n%s", args, line, out, errOut)
+		}
 	}
 }

@@ -513,3 +513,58 @@ func mustRead(t *testing.T, path string) string {
 	}
 	return string(data)
 }
+
+// Only reference-typed fields are checked as alias::ID: a model without
+// dependencies whose prose (a description, requirement notes, rationale,
+// a C++ snippet, a flow step action) contains "::" validates clean, and a
+// "::" in a free-text field ending in "ref" (an href or schemaRef URL) is
+// not taken for a qualified reference.
+// Mutation: checking every string field instead of reference fields, or
+// treating a "::" in a URL-valued *Ref field as a qualified reference,
+// fails this test.
+// TRLC-LINKS: REQ-EMG-065
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, "")
+	t.Setenv(LockEnv, "")
+	dir := t.TempDir()
+	writeV2ModuleFiles(t, dir, "example.com/solo@v0", "v0.1.0", "SOLO", "", `  functionalGroups:
+    - id: FG-CORE
+      name: Core
+      description: "uses std::vector and a::b"
+  functionalUnits:
+    - id: FU-CORE
+      name: Core unit
+      group: FG-CORE
+      prose: "calls Foo::bar() via std::map"
+  interfaces:
+    - id: IF-CORE
+      name: Core API
+      protocol: https
+      endpoint: "https://[fe80::1]:8443/api"
+      schemaRef: "schemas::v1.json"
+      owner: FU-CORE
+`)
+	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 2
+lintRun: {}
+requirements:
+  - id: REQ-SOLO-001
+    text: The solo system shall store values.
+    notes: "Implementation uses std::vector; see Foo::bar and a::b::c."
+    rationale: "C++ scope resolution: ns::name."
+    appliesTo: [FU-CORE]
+`)
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if diags := QualifiedReferenceDiagnostics(bundle, CompositionResult{}); len(diags) != 0 {
+		t.Fatalf("prose with :: reported as qualified references: %+v", diags)
+	}
+	res, _ := GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, AsciiDocOptions{})
+	for _, d := range res.Diagnostics {
+		if strings.HasPrefix(d.Code, "composition.") || strings.Contains(d.Message, "::") {
+			t.Fatalf("prose with :: produced %+v", d)
+		}
+	}
+}

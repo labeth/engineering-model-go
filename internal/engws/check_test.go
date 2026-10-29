@@ -291,3 +291,62 @@ func main() {
 		}
 	}
 }
+
+// A repository's own check runs with an allowlisted environment: provider
+// keys and other secrets of the caller are not visible to sibling code,
+// while PATH, HOME, the Go and CUE settings and ENGMOD_* are.
+// Mutation: passing os.Environ() unfiltered to the exec'd check fails this
+// test.
+// TRLC-LINKS: REQ-EMG-068
+func TestExecCheckFiltersEnvironment(t *testing.T) {
+	t.Setenv("ANTHROPIC_API_KEY", "secret-key")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "secret-aws")
+	t.Setenv("ENGMOD_PROBE", "kept")
+	t.Setenv("CUE_REGISTRY", "registry.example")
+	root := t.TempDir()
+	dir := checkout(t, root, "if-a")
+	checkDir := filepath.Join(dir, ".github", "engmod-check")
+	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
+	write(t, filepath.Join(checkDir, "main.go"), `package main
+
+import (
+	"fmt"
+	"os"
+)
+
+// Accepts "workspace-root"; reports selected variables.
+func main() {
+	for _, k := range []string{"ANTHROPIC_API_KEY", "AWS_SECRET_ACCESS_KEY", "ENGMOD_PROBE", "CUE_REGISTRY", "GOWORK"} {
+		fmt.Println("tool.env [error] " + k + "=" + os.Getenv(k) + ".")
+	}
+	os.Exit(1)
+}
+`)
+	target := CheckTarget{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}
+	out := strings.Join(execCheck(context.Background(), root, target).Lines, "\n")
+	for _, want := range []string{"ANTHROPIC_API_KEY=.", "AWS_SECRET_ACCESS_KEY=.", "ENGMOD_PROBE=kept.", "CUE_REGISTRY=registry.example.", "GOWORK=off."} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("want %s in the tool environment:\n%s", want, out)
+		}
+	}
+}
+
+// check and --help say that a checkout's own .github/engmod-check is
+// trusted code and that --in-process is the choice for untrusted siblings.
+// Mutation: dropping the trust line from the check output fails this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestCheckStatesTrust(t *testing.T) {
+	root := t.TempDir()
+	checkout(t, root, "if-a")
+	_, out, _ := runMain(t, allPublished("if-a"), "--root", root, "check")
+	if !strings.Contains(out, "every checkout under "+root+" is trusted code") {
+		t.Fatalf("check output must state the trust assumption:\n%s", out)
+	}
+	_, out, _ = runMain(t, allPublished("if-a"), "--root", root, "check", "--in-process")
+	if strings.Contains(out, "trusted code") || !strings.Contains(out, "in-process") {
+		t.Fatalf("--in-process runs no checkout code:\n%s", out)
+	}
+	if _, help, _ := runMain(t, nil, "--help"); !strings.Contains(help, "trusted code") || !strings.Contains(help, "--in-process") {
+		t.Fatalf("help must state the trust assumption:\n%s", help)
+	}
+}

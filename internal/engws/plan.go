@@ -38,6 +38,8 @@ type Plan struct {
 	Root    string
 	Entries []Entry
 	Notes   []string
+	// Warnings name the checkouts Scan skipped as unsafe.
+	Warnings []string
 }
 
 // BuildPlan classifies every checkout under root. A checkout is local when it
@@ -46,7 +48,7 @@ type Plan struct {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func BuildPlan(ctx context.Context, root string, registry Registry, all bool) (Plan, error) {
-	checkouts, err := Scan(root)
+	checkouts, warnings, err := ScanWithWarnings(root)
 	if err != nil {
 		return Plan{}, err
 	}
@@ -54,7 +56,7 @@ func BuildPlan(ctx context.Context, root string, registry Registry, all bool) (P
 	if err != nil {
 		return Plan{}, err
 	}
-	plan := Plan{Root: root, Entries: make([]Entry, len(checkouts))}
+	plan := Plan{Root: root, Entries: make([]Entry, len(checkouts)), Warnings: warnings}
 	var wg sync.WaitGroup
 	for i, checkout := range checkouts {
 		wg.Add(1)

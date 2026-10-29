@@ -47,7 +47,9 @@ dependencies come from the OCI registry into the local cache.
 - **Delegated status** (REQ-EMG-067): delegated trace rows carry `delegatedStatus` with the target
   requirement's status in its repository; the summary adds `delegatedImplemented` and `delegatedTestLinked`.
 - **`cmd/engws`** (REQ-EMG-068): `status`, `sync`, `pin`, `unpin`, `skew`, `check`, `bump` for a workspace of
-  checkouts; local only, writes only `engmod.work.yml` and `go.work` in the workspace root.
+  checkouts; local only. `sync` writes `engmod.work.yml` and `go.work` in the workspace root, `pin`/`unpin`
+  write `.engws.yml` there, and `bump` writes inside the consumer checkout (`engmod.yml`, `go.mod`, `go.sum`,
+  `engmod.lock.yml`).
 - **MCP authoring help** (REQ-EMG-069): `model.complete` (local and imported IDs, catalog terms, enum values,
   relationship types) and `model.diagnose` (validate one document's edited content in memory).
 
@@ -118,14 +120,49 @@ dependencies come from the OCI registry into the local cache.
     the content fixes is not.
   - MCP `trace.matrix` returns each delegated row's `delegatedStatus` and the summary's
     `delegatedImplemented` and `delegatedTestLinked` (also with `summaryOnly`).
-  - A requirement `appliesTo` naming an unknown local ID is `requirement.invalid_applies_to` in model
-    validation (it was only checked for requirements deltas); `alias::ID` entries stay with composition.
+  - **Breaking** for models with stale `appliesTo`: a requirement `appliesTo` naming an unknown local ID is
+    now the error `requirement.invalid_applies_to` in model validation (it was only checked for
+    requirements deltas); `alias::ID` entries stay with composition.
+  - **Breaking:** an `alias::ID` reference in a model without composition (no dependency publishes it) is
+    now the error `composition.unpublished_reference`; it used to pass until a parent composed the model.
   - Composition diagnostics located in a fetched dependency name it as `module@version:path` instead of the
     `.engmod/modules/<hash>` cache path; `composition.lock_mismatch` names `module@version` without the
     major suffix twice (`nats-interface@v0.1.0`, not `nats-interface@v0@v0.1.0`).
   - `engws check --all` no longer warns that `engmod.work.yml` lacks the unchanged checkouts it checks on
     purpose.
 - Stacked `TRLC-LINKS` lines above one declaration accumulate.
+- **Security review fixes:**
+  - Dependency confinement (REQ-EMG-049): a resolved dependency (registry module or workspace replacement)
+    whose manifest names a document, `inferenceHints.codeSources` or `runtimeSources` entry that is absolute
+    or resolves (after symlinks) outside the dependency module is rejected as
+    `composition.dependency_path_escape`, naming the alias and field, before any of its documents is read; no
+    content of the target reaches a diagnostic. The root model's own paths are unchanged.
+  - Module zips (REQ-EMG-047): a zip entry that is not a regular file or directory (a symlink) fails the
+    fetch; `..` and absolute entries (rejected by `modzip.Unzip`) and a blob whose bytes do not match its
+    digest (rejected by the OCI client) are covered by tests.
+  - `engws check` runs each checkout's own `.github/engmod-check` with an allowlisted environment (`PATH`,
+    `HOME`, Go, CUE, proxy, certificate, XDG, `DOCKER_CONFIG`, `CI`, `ENGMOD_*`); API keys and other
+    credentials are no longer passed. The help and the check output state that every checkout under the
+    root is trusted code and name `--in-process` as the choice for untrusted checkouts.
+  - `engws` root search stops below `$HOME` (never `$HOME` or an ancestor) and refuses a world-writable
+    root unless `--root` names it; every command prints the root first (`skew` on stderr).
+  - `engws sync` skips with a warning a checkout whose `module.path` is not a valid major-qualified CUE
+    module path or whose directory name is outside `[A-Za-z0-9._-]`, so neither reaches the work files.
+  - `engws bump` validates the Go module path (`golang.org/x/mod/module.CheckPath`) before `go get`.
+  - MCP `composition.resolve` returns `resolvedDirectory` (also in provenance) relative to the workspace
+    root, or `module@version` for module cache entries, never an absolute path
+    (`CompositionResult.DisplayDir`).
+  - MCP read tools never write the lock and work offline (REQ-EMG-069): `model.complete`, `model.diagnose`,
+    `composition.resolve` and `trace.matrix` resolve with `ENGMOD_LOCK=check` unless `ENGMOD_LOCK` is set and
+    with the new explicit `ENGMOD_MODULE_CACHE=reuse` / `ModuleCacheReuse` (cache reused in every lock mode)
+    unless `ENGMOD_MODULE_CACHE` is set, so a call makes no registry request with a warm cache. Verifying the
+    cache against the registry stays with the CLI/CI check path (`ENGMOD_LOCK=check`). `model.complete` lists
+    imported IDs also while the lock is missing or stale.
+  - `ENGMOD_LOCK=check` with workspace replacements active warns `composition.lock_check_skipped` instead of
+    skipping the lock comparison silently (REQ-EMG-064).
+  - Qualified-reference validation ignores `schemaRef`, `catalogRef` and `href` (paths and URLs, e.g. an IPv6
+    URL with `::`); prose fields were already ignored and are now covered by a test (REQ-EMG-065).
+  - `engws check` in-process: the pre-REQ-EMG-065 enrichment fallback (`library, enriched`) is removed.
 
 - Keep Manhattan and requirement alignment matrices in single scalable vector figures; keep system boundary and decomposition figures together during pagination.
 

@@ -315,17 +315,22 @@ func (s *Server) importedIDCompletions() ([]completion, string) {
 	if s.bundle == nil || !engmodel.HasComposition(*s.bundle) {
 		return nil, ""
 	}
-	projection, result, err := engmodel.ResolveCompositionProjection(*s.bundle)
+	// The lock state (missing or stale engmod.lock.yml) does not hide the
+	// published entities; composition.resolve and model.diagnose report it.
+	result, err := engmodel.GenerateCompositionFromFileWith(s.bundle.ManifestPath, resolution())
+	reason := ""
 	if err != nil {
-		reason := err.Error()
-		for _, d := range result.Diagnostics {
-			if d.Severity == validate.SeverityError {
-				reason = d.Code + ": " + d.Message
-				break
-			}
+		reason = err.Error()
+	}
+	for _, d := range result.Diagnostics {
+		if reason == "" && d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "composition.lock_") {
+			reason = d.Code + ": " + d.Message
 		}
+	}
+	if reason != "" {
 		return nil, "imported IDs unavailable (dependencies are not in a workspace replacement or the local module cache, or composition is invalid): " + reason + "; returning local candidates only"
 	}
+	projection := engmodel.BuildCompositionProjection(result)
 	out := make([]completion, 0, len(projection.Entities))
 	for _, e := range projection.Entities {
 		kind, title := importedKindAndTitle(e)
@@ -747,12 +752,9 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 	// Dependencies resolve from the real model root (its workspace and module
 	// cache); the root system is the in-memory bundle with the submitted
 	// content, so its alias::ID references and composition are checked as
-	// submitted. Never let a diagnose call write a lock there: an explicit
-	// ENGMOD_LOCK is respected, unset or empty means check.
-	resolution := engmodel.ResolutionOptions{}
-	if strings.TrimSpace(os.Getenv(engmodel.LockEnv)) == "" {
-		resolution.Lock = engmodel.LockModeCheck
-	}
+	// submitted. Like every MCP read tool it writes no lock and reuses the
+	// module cache offline (see resolution).
+	options := resolution()
 	var diags []validate.Diagnostic
 	canonical, cerr := model.NewCanonicalBundle(bundle)
 	for _, d := range canonical.Diagnostics() {
@@ -761,7 +763,7 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 	if cerr != nil {
 		diags = append(diags, validate.Bundle(bundle)...)
 	} else {
-		result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{Resolution: resolution})
+		result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{Resolution: options})
 		diags = append(diags, result.Diagnostics...)
 	}
 	for i := range diags {

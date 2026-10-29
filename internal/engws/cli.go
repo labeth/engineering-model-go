@@ -19,19 +19,30 @@ import (
 const Usage = `usage: engws [--root DIR] <command> [flags]
 
 Multi-repository workspace helper. The root is the nearest directory at or
-above the current one holding engmod.work.yml or .engws.yml (else the current
-directory); its direct children with engmod.yml are the checkouts. A checkout
-is local when it is pinned or changed: no own git repository, dirty tree,
-HEAD not at tag v<module.version>, or that version missing from the registry
-configured by CUE_REGISTRY. engws writes only at the root, never inside a
-checkout.
+above the current one, below $HOME, holding engmod.work.yml or .engws.yml
+(else the current directory); $HOME and its ancestors and a world-writable
+directory are used only when given with --root. Every command prints the
+root first. The root's direct children with engmod.yml are the checkouts. A
+checkout is local when it is pinned or changed: no own git repository, dirty
+tree, HEAD not at tag v<module.version>, or that version missing from the
+registry configured by CUE_REGISTRY. sync, pin and unpin write only at the
+root (engmod.work.yml, go.work, .engws.yml); bump writes inside the consumer
+checkout (engmod.yml, go.mod, go.sum, engmod.lock.yml).
+
+Trust: check runs each checkout's own .github/engmod-check, so every
+checkout under the root is trusted code. It gets a filtered environment
+(PATH, HOME, Go, CUE, proxy and certificate settings, CI, ENGMOD_*; no API
+keys or other credentials). Use check --in-process for checkouts you do not
+trust: the built-in library checks them and no checkout code runs.
 
 commands:
   status [--all]             table of checkouts with state and mode; exit 1 on skew
   sync [--all] [--force]     write engmod.work.yml for the local checkouts
                              (--all: every checkout) and go.work with every
                              checkout that has go.mod; remove go.work when none
-                             has; always exit 0
+                             has; a checkout whose module path or directory
+                             name is not safe is skipped with a warning;
+                             always exit 0
   pin <repo>                 always resolve <repo> locally (.engws.yml), then sync
   unpin <repo>               drop the pin, then sync
   skew [--all]               print SKEW consumer alias pinned local (also a
@@ -42,11 +53,13 @@ commands:
                              run the model check in the local checkouts, their
                              reverse dependencies and the top systems: one line
                              per repo plus its errors (--summary: lines only);
-                             a repo's own .github/engmod-check is used when it
-                             supports --workspace-root, run with GOWORK set to
-                             its .github/engmod-check/go.work if present, else
+                             a repo's own .github/engmod-check (trusted code,
+                             see Trust) is used when it supports
+                             --workspace-root, run with GOWORK set to its
+                             .github/engmod-check/go.work if present, else
                              off; otherwise the built-in library (--in-process
-                             forces it); --refresh re-fetches every registry
+                             forces it: the safe choice for untrusted
+                             checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
   bump <repo> <alias> <version>
@@ -120,6 +133,14 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		root = abs
 	}
 
+	// Every command names the root first; skew keeps stdout for SKEW lines.
+	switch command {
+	case "skew":
+		fmt.Fprintf(stderr, "engws: workspace %s\n", root)
+	case "check", "bump":
+		fmt.Fprintf(stdout, "engws: workspace %s\n", root)
+	}
+
 	var err error
 	code := 0
 	switch command {
@@ -183,6 +204,9 @@ func printTable(w io.Writer, plan Plan) {
 	for _, note := range plan.Notes {
 		fmt.Fprintln(w, "note:", note)
 	}
+	for _, warning := range plan.Warnings {
+		fmt.Fprintln(w, "warning:", warning)
+	}
 }
 
 // printSkews prints one SKEW line per overridden pin.
@@ -237,7 +261,7 @@ func runPin(ctx context.Context, root string, registry Registry, repo string, ad
 		pins[repo] = true
 	} else {
 		if !pins[repo] {
-			fmt.Fprintf(w, "engws: %s was not pinned\n", repo)
+			defer fmt.Fprintf(w, "engws: %s was not pinned\n", repo)
 		}
 		delete(pins, repo)
 	}
@@ -273,6 +297,11 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 	}
 	if drift != "" {
 		fmt.Fprintln(stderr, "engws: warning:", drift)
+	}
+	if opts.InProcess {
+		fmt.Fprintln(stdout, "engws: --in-process: the built-in library checks every checkout; no checkout code runs")
+	} else {
+		fmt.Fprintf(stdout, "engws: runs each checkout's own .github/engmod-check: every checkout under %s is trusted code (use --in-process for untrusted checkouts)\n", root)
 	}
 	targets := SelectCheckTargets(plan)
 	if len(targets) == 0 {

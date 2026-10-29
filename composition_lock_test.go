@@ -314,3 +314,36 @@ func TestDependencyDiagnosticPathNamesModuleVersion(t *testing.T) {
 		t.Fatalf("diagnostic must name module@version:engmod.yml, got %q (%s)", found.Path, found.Message)
 	}
 }
+
+// With ENGMOD_LOCK=check and workspace replacements active the committed
+// lock is not compared; the resolution says so with a
+// composition.lock_check_skipped warning instead of passing silently.
+// Mutation: dropping the lock_check_skipped warning fails this test.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, DEP-LOCAL-WORKSPACE
+func TestLockCheckWithReplacementsWarnsSkipped(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, "")
+	t.Setenv(LockEnv, "")
+	root := t.TempDir()
+	writeOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	writeFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
+	product := filepath.Join(root, "repos", "product")
+	writeParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	res, err := GenerateCompositionFromFileWith(filepath.Join(product, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertNoCompositionErrors(t, res.Diagnostics)
+	var found *validate.Diagnostic
+	for i, d := range res.Diagnostics {
+		if d.Code == "composition.lock_check_skipped" {
+			found = &res.Diagnostics[i]
+		}
+	}
+	if found == nil || found.Severity != validate.SeverityWarning || !strings.Contains(found.Message, "ENGMOD_WORK=off") {
+		t.Fatalf("want a lock_check_skipped warning naming ENGMOD_WORK=off: %+v", res.Diagnostics)
+	}
+	if _, err := os.Stat(filepath.Join(product, CompositionLockFileName)); err == nil {
+		t.Fatal("check mode wrote the lock")
+	}
+}

@@ -207,3 +207,38 @@ func TestSkewReportsGoRequireAgainstCheckoutVersion(t *testing.T) {
 		t.Fatalf("skew: %d\n%s", code, out)
 	}
 }
+
+// sync skips, with a warning, a checkout whose module.path is not a valid
+// CUE module path (here one carrying a YAML line break) or whose directory
+// name is unsafe, so neither reaches engmod.work.yml or go.work.
+// Mutation: dropping the module path or directory name check in Scan fails
+// this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
+	root := t.TempDir()
+	good := filepath.Join(root, "if-a")
+	writeModel(t, good, "if-a", "v0.1.0")
+	write(t, filepath.Join(good, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
+	badPath := filepath.Join(root, "if-b")
+	writeModel(t, badPath, "if-b", "v0.1.0")
+	manifest, _ := os.ReadFile(filepath.Join(badPath, "engmod.yml"))
+	write(t, filepath.Join(badPath, "engmod.yml"), strings.Replace(string(manifest), "  path: "+modulePathOf("if-b")+"\n", "  path: \"x@v0\\n    path: /etc\"\n", 1))
+	badDir := filepath.Join(root, "if c")
+	writeModel(t, badDir, "if-c", "v0.1.0")
+	write(t, filepath.Join(badDir, "go.mod"), "module example.com/go/if-c\n\ngo 1.25\n")
+	code, out, errOut := runMain(t, allPublished(), "--root", root, "sync", "--all")
+	if code != 0 {
+		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
+	}
+	work, _ := os.ReadFile(filepath.Join(root, model.WorkspaceFileName))
+	goWork, _ := os.ReadFile(filepath.Join(root, GoWorkFileName))
+	if strings.Contains(string(work), "/etc") || strings.Contains(string(work), "if c") || strings.Contains(string(goWork), "if c") || !strings.Contains(string(work), "./if-a") {
+		t.Fatalf("unsafe checkout written:\n%s\n%s", work, goWork)
+	}
+	if _, err := model.LoadWorkspace(filepath.Join(root, model.WorkspaceFileName)); err != nil {
+		t.Fatalf("work file invalid: %v", err)
+	}
+	if !strings.Contains(out+errOut, "warning: if-b: module.path") || !strings.Contains(out+errOut, `warning: skipping "if c"`) {
+		t.Fatalf("missing warnings:\n%s\n%s", out, errOut)
+	}
+}

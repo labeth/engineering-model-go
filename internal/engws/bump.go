@@ -13,6 +13,7 @@ import (
 	"github.com/labeth/engineering-model-go/model"
 	"github.com/labeth/engineering-model-go/validate"
 	"golang.org/x/mod/modfile"
+	gomodule "golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
 )
@@ -82,6 +83,11 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 		}
 	}
 	if result.GoModule != "" {
+		// go get takes the path as an argument and has no "--": a path
+		// starting with "-" would be read as a flag.
+		if err := gomodule.CheckPath(result.GoModule); err != nil {
+			return result, fmt.Errorf("invalid Go module path %q in the go.mod of %s's checkout: %v", result.GoModule, dep.Path, err)
+		}
 		goMod, err := os.ReadFile(filepath.Join(consumer.Dir, "go.mod"))
 		if err != nil {
 			return result, err

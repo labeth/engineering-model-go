@@ -260,7 +260,7 @@ func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult
 	}
 	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = target.Entry.Dir
-	cmd.Env = append(os.Environ(), "GOWORK="+ToolGoWork(target.Entry.Dir))
+	cmd.Env = append(checkEnvironment(os.Environ()), "GOWORK="+ToolGoWork(target.Entry.Dir))
 	if work := filepath.Join(root, model.WorkspaceFileName); fileExists(work) && os.Getenv("ENGMOD_WORK") == "" {
 		// Pin the check to the root work file; engines without ENGMOD_WORK
 		// support ignore it and find the same file by parent search.
@@ -290,24 +290,31 @@ func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult
 	return result
 }
 
-// mentionsQualifiedReference reports whether any error names an alias::ID.
-// TRLC-LINKS: REQ-EMG-068
-func mentionsQualifiedReference(diagnostics []validate.Diagnostic) bool {
-	for _, d := range diagnostics {
-		if d.Severity == validate.SeverityError && strings.Contains(d.Message, "::") {
-			return true
-		}
-	}
-	return false
+// checkEnvAllowlist names the variables a repository's own check receives;
+// ENGMOD_* variables pass as well. Everything else (provider API keys, cloud
+// credentials, tokens) stays with the caller: sibling checkout code must not
+// see it.
+var checkEnvAllowlist = map[string]bool{
+	"PATH": true, "HOME": true, "USER": true, "LOGNAME": true, "LANG": true, "LC_ALL": true, "TERM": true,
+	"GOPATH": true, "GOMODCACHE": true, "GOCACHE": true, "GOENV": true, "GOROOT": true,
+	"GOPROXY": true, "GOSUMDB": true, "GOPRIVATE": true, "GONOSUMDB": true, "GONOPROXY": true,
+	"GOFLAGS": true, "GOTOOLCHAIN": true, "GOINSECURE": true,
+	"TMPDIR": true, "SSL_CERT_FILE": true, "SSL_CERT_DIR": true,
+	"HTTP_PROXY": true, "HTTPS_PROXY": true, "NO_PROXY": true, "http_proxy": true, "https_proxy": true, "no_proxy": true,
+	"CUE_REGISTRY": true, "CUE_CONFIG_DIR": true, "CUE_CACHE_DIR": true,
+	"XDG_CONFIG_HOME": true, "XDG_CACHE_HOME": true, "XDG_RUNTIME_DIR": true,
+	"DOCKER_CONFIG": true, "CI": true,
 }
 
-// withoutQualifiedReferences drops errors that name an alias::ID.
+// checkEnvironment filters environ to the allowlist and ENGMOD_*; GOWORK is
+// dropped because the caller sets it per checkout.
 // TRLC-LINKS: REQ-EMG-068
-func withoutQualifiedReferences(diagnostics []validate.Diagnostic) []validate.Diagnostic {
-	out := make([]validate.Diagnostic, 0, len(diagnostics))
-	for _, d := range diagnostics {
-		if d.Severity != validate.SeverityError || !strings.Contains(d.Message, "::") {
-			out = append(out, d)
+func checkEnvironment(environ []string) []string {
+	out := make([]string, 0, len(checkEnvAllowlist))
+	for _, kv := range environ {
+		key, _, _ := strings.Cut(kv, "=")
+		if checkEnvAllowlist[key] || strings.HasPrefix(key, "ENGMOD_") {
+			out = append(out, kv)
 		}
 	}
 	return out
@@ -348,23 +355,10 @@ func libraryCheck(target CheckTarget) CheckResult {
 	if err != nil {
 		return fail("load: %v", err)
 	}
+	// GenerateAsciiDoc validates alias::ID references against the
+	// dependencies' publications (REQ-EMG-065) and returns the composition
+	// diagnostics (REQ-EMG-066).
 	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{})
-	if err != nil && engmodel.HasComposition(bundle) && mentionsQualifiedReference(doc.Diagnostics) {
-		// Engines before REQ-EMG-065 validate the authored bundle without the
-		// dependencies' published entities, so every alias::ID reference is
-		// broken. Validate the projection-enriched bundle instead, as the
-		// exporters do; an engine with REQ-EMG-065 passes the first call.
-		projection, comp, perr := engmodel.ResolveCompositionProjection(bundle)
-		result.Method = "library, enriched"
-		if perr == nil {
-			enriched := projection.EnrichBundle(bundle, "architecture", "behavior", "assurance", "compliance")
-			doc, err = engmodel.GenerateAsciiDoc(enriched, enriched.Requirements, enriched.Design, engmodel.AsciiDocOptions{})
-		} else if validate.HasErrors(comp.Diagnostics) {
-			// Composition names the precise cause (composition.unpublished_reference
-			// with its field path); drop the generic alias::ID broken references.
-			doc.Diagnostics = append(withoutQualifiedReferences(doc.Diagnostics), comp.Diagnostics...)
-		}
-	}
 	diagnostics := doc.Diagnostics
 	if err == nil && engmodel.HasComposition(bundle) {
 		comp, cerr := engmodel.GenerateCompositionFromFile(manifest)

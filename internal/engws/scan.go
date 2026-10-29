@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
+	cuemodule "cuelang.org/go/mod/module"
 	"github.com/labeth/engineering-model-go/model"
 	"golang.org/x/mod/modfile"
 	"gopkg.in/yaml.v3"
@@ -39,7 +41,10 @@ type Checkout struct {
 }
 
 // FindRoot returns the nearest directory at or above start that contains
-// engmod.work.yml or .engws.yml, or start itself when none does.
+// engmod.work.yml or .engws.yml, or start itself when none does. The search
+// stops below $HOME: $HOME and its ancestors are never returned, so a stray
+// marker there cannot make sync write $HOME/go.work. A world-writable root
+// is refused; give it explicitly with --root.
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func FindRoot(start string) (string, error) {
@@ -47,18 +52,47 @@ func FindRoot(start string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for dir := abs; ; {
-		for _, name := range []string{model.WorkspaceFileName, StateFileName} {
-			if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
-				return dir, nil
-			}
+	root := abs
+	for dir := abs; !isHomeOrAncestor(dir); {
+		if hasRootMarker(dir) {
+			root = dir
+			break
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return abs, nil
+			break
 		}
 		dir = parent
 	}
+	if info, err := os.Stat(root); err == nil && info.Mode().Perm()&0o002 != 0 {
+		return "", fmt.Errorf("workspace root %s is world-writable; pass it with --root if you trust it", root)
+	}
+	return root, nil
+}
+
+// hasRootMarker reports whether dir holds engmod.work.yml or .engws.yml.
+// TRLC-LINKS: REQ-EMG-068
+func hasRootMarker(dir string) bool {
+	for _, name := range []string{model.WorkspaceFileName, StateFileName} {
+		if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// isHomeOrAncestor reports whether dir is $HOME or one of its ancestors.
+// TRLC-LINKS: REQ-EMG-068
+func isHomeOrAncestor(dir string) bool {
+	home, err := os.UserHomeDir()
+	if err != nil || strings.TrimSpace(home) == "" {
+		return false
+	}
+	if abs, err := filepath.Abs(home); err == nil {
+		home = abs
+	}
+	rel, err := filepath.Rel(dir, home)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel)
 }
 
 // Scan lists the direct children of root that hold an engmod.yml, sorted by
@@ -67,11 +101,27 @@ func FindRoot(start string) (string, error) {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func Scan(root string) ([]Checkout, error) {
+	checkouts, _, err := ScanWithWarnings(root)
+	return checkouts, err
+}
+
+// safeDirName is the directory name a checkout may have: engws writes it
+// unquoted into engmod.work.yml and go.work.
+var safeDirName = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+
+// ScanWithWarnings is Scan that also returns one warning per skipped
+// checkout: a directory name outside [A-Za-z0-9._-] or a module.path that is
+// not a valid CUE module path (host/path@vN). Neither is written into the
+// work files.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func ScanWithWarnings(root string) ([]Checkout, []string, error) {
 	entries, err := os.ReadDir(root)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var out []Checkout
+	var warnings []string
 	var errs []error
 	for _, entry := range entries {
 		name := entry.Name()
@@ -86,9 +136,17 @@ func Scan(root string) ([]Checkout, error) {
 		if _, err := os.Stat(manifestPath); err != nil {
 			continue
 		}
+		if !safeDirName.MatchString(name) {
+			warnings = append(warnings, fmt.Sprintf("skipping %q: directory name must match %s", name, safeDirName))
+			continue
+		}
 		manifest, err := readManifest(manifestPath)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", name, err))
+			continue
+		}
+		if err := cuemodule.CheckPath(manifest.Module.Path); err != nil || !strings.Contains(manifest.Module.Path, "@v") {
+			warnings = append(warnings, fmt.Sprintf("%s: module.path %q is not a valid major-qualified module path; skipped", name, manifest.Module.Path))
 			continue
 		}
 		goModule, goRequires, err := readGoModule(dir)
@@ -99,7 +157,7 @@ func Scan(root string) ([]Checkout, error) {
 		out = append(out, Checkout{Name: name, Dir: dir, Manifest: manifest, GoModule: goModule, GoRequires: goRequires})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
-	return out, errors.Join(errs...)
+	return out, warnings, errors.Join(errs...)
 }
 
 // readManifest decodes only the manifest into the library's manifest type;

@@ -98,6 +98,32 @@ type CompositionResult struct {
 	Provenance  []ImportedEntityProvenance
 	Lock        CompositionLockDocument
 	Diagnostics []validate.Diagnostic
+	// Workspace is the workspace root the dependencies resolved from.
+	Workspace string
+	// cacheNames maps each module cache directory used to module@version.
+	cacheNames map[string]string
+}
+
+// DisplayDir names a resolved directory for output that may leave the
+// machine (MCP responses): a module cache entry as module@version, a
+// directory under the workspace root relative to it, anything else by its
+// base name. It never returns an absolute path.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func (r CompositionResult) DisplayDir(dir string) string {
+	if dir == "" {
+		return ""
+	}
+	dir = filepath.Clean(dir)
+	if name, ok := r.cacheNames[dir]; ok {
+		return name
+	}
+	if r.Workspace != "" {
+		if rel, err := filepath.Rel(r.Workspace, dir); err == nil && filepath.IsLocal(rel) {
+			return filepath.ToSlash(rel)
+		}
+	}
+	return filepath.Base(dir)
 }
 
 // HasComposition reports whether the model declares any subsystems.
@@ -135,12 +161,14 @@ type ResolutionOptions struct {
 }
 
 // ModuleCacheEnv selects the module cache mode: "refresh" re-fetches every
-// registry dependency; unset or "reuse" reuses cached modules (offline).
+// registry dependency; "reuse" reuses cached modules offline; unset applies
+// the defaults of cacheMode.
 const ModuleCacheEnv = "ENGMOD_MODULE_CACHE"
 
 const (
-	// ModuleCacheReuse reuses a cached module without contacting the registry,
-	// except in lock check mode, which verifies it (see cacheMode).
+	// ModuleCacheReuse reuses a cached module without contacting the
+	// registry. Set explicitly it applies in every lock mode; it is also the
+	// default except for lock check mode and lock regeneration (see cacheMode).
 	ModuleCacheReuse = "reuse"
 	// ModuleCacheRefresh re-fetches every registry dependency.
 	ModuleCacheRefresh = "refresh"
@@ -150,19 +178,24 @@ const (
 )
 
 // cacheMode returns how cached registry modules are used. Explicit refresh
-// (option or ENGMOD_MODULE_CACHE) re-fetches. Lock regeneration - write mode
-// with the workspace off - also re-fetches, so a regenerated lock never
-// records a stale cached digest. Lock check mode verifies each cached module
-// against the registry (one manifest lookup per dependency), so a moved tag
-// is reported as composition.lock_mismatch even with a warm cache.
-// TRLC-LINKS: REQ-EMG-064
+// (option or ENGMOD_MODULE_CACHE) re-fetches; explicit reuse reuses the
+// cache offline in every lock mode (the MCP server's read tools). Unset:
+// lock regeneration - write mode with the workspace off - re-fetches, so a
+// regenerated lock never records a stale cached digest, and lock check mode
+// (the CLI and CI check path) verifies each cached module against the
+// registry (one manifest lookup per dependency), so a moved tag is reported
+// as composition.lock_mismatch even with a warm cache.
+// TRLC-LINKS: REQ-EMG-064, REQ-EMG-069
 func (o ResolutionOptions) cacheMode() string {
 	mode := strings.TrimSpace(o.ModuleCache)
 	if mode == "" {
 		mode = strings.TrimSpace(os.Getenv(ModuleCacheEnv))
 	}
-	if mode == ModuleCacheRefresh {
+	switch mode {
+	case ModuleCacheRefresh:
 		return ModuleCacheRefresh
+	case ModuleCacheReuse:
+		return ModuleCacheReuse
 	}
 	if o.lockMode() == LockModeCheck {
 		return moduleCacheVerify
@@ -263,6 +296,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 		Root: root, Provenance: provenance,
 		Lock:        CompositionLockDocument{SchemaVersion: 1, Dependencies: locks},
 		Diagnostics: diags,
+		Workspace:   workspace, cacheNames: resolver.cacheNames,
 	}
 	if root != nil {
 		res.Allocations = materializeAllocations(root)
@@ -278,6 +312,12 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	case options.lockMode() == LockModeCheck:
 		if !replaced {
 			res.Diagnostics = append(res.Diagnostics, checkCompositionLock(filepath.Join(dir, CompositionLockFileName), res.Lock)...)
+		} else {
+			res.Diagnostics = append(res.Diagnostics, validate.Diagnostic{
+				Code: "composition.lock_check_skipped", Severity: validate.SeverityWarning,
+				Message: fmt.Sprintf("workspace replacements active; the committed %s is checked only with %s=off", CompositionLockFileName, model.WorkspaceEnv),
+				Path:    filepath.Join(dir, CompositionLockFileName),
+			})
 		}
 	case replaced:
 		if err := WriteCompositionLock(filepath.Join(dir, CompositionLocalLockFileName), res.Lock); err != nil {
@@ -526,6 +566,10 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 		}
 	}
 
+	// Confine the dependency before reading any file it names.
+	if escapes := dependencyPathEscapes(dependency.Alias, moduleRoot, filepath.Join(moduleRoot, "engmod.yml")); len(escapes) > 0 {
+		return "", "", "", escapes
+	}
 	actualModule, err := model.ReadCUEModulePath(moduleRoot)
 	if err != nil {
 		return "", "", "", at("composition.module_identity", fmt.Sprintf("dependency %q: %v", dependency.Alias, err))
@@ -632,6 +676,9 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 		return "", err
 	}
 
+	if err := checkModuleZipEntries(zipPath); err != nil {
+		return "", err
+	}
 	tempDir, err := os.MkdirTemp(cacheRoot, "."+sanitizeDirName(mv.Path())+"-")
 	if err != nil {
 		return "", err
@@ -1179,6 +1226,9 @@ func QualifiedReferenceDiagnostics(bundle model.Bundle, result CompositionResult
 func isReferenceField(tag string) bool {
 	lower := strings.ToLower(tag)
 	switch lower {
+	case "schemaref", "catalogref", "basecatalogref", "href", "cataloghref":
+		// File paths and URLs (an IPv6 URL holds "::"), never model IDs.
+		return false
 	case "group", "owner", "responsiblerole", "responsibleroles", "targets", "triggers", "namespace", "inheritedfrom", "relatedcontrols", "attackvectors", "threatscenarios", "threats":
 		return true
 	}

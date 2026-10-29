@@ -11,10 +11,32 @@ package mcp
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/validate"
 )
+
+// resolution is how the MCP server's read tools resolve composition: they
+// never write engmod.lock.yml (lock check unless ENGMOD_LOCK is set) and
+// work offline from the local module cache (reuse unless ENGMOD_MODULE_CACHE
+// or ENGMOD_LOCK is set), so a tool call makes no registry request when the
+// cache is warm. Verifying the cache against the registry is the CLI and CI
+// check path.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func resolution() engmodel.ResolutionOptions {
+	options := engmodel.ResolutionOptions{}
+	lockSet := strings.TrimSpace(os.Getenv(engmodel.LockEnv)) != ""
+	if !lockSet {
+		options.Lock = engmodel.LockModeCheck
+	}
+	if !lockSet && strings.TrimSpace(os.Getenv(engmodel.ModuleCacheEnv)) == "" {
+		options.ModuleCache = engmodel.ModuleCacheReuse
+	}
+	return options
+}
 
 // compositionResolve resolves the system-of-systems rooted at the loaded model and
 // returns its subsystems, materialized requirement allocations, and diagnostics.
@@ -27,7 +49,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			"note":           "this model declares no subsystems (composition.subsystems is empty)",
 		}, nil
 	}
-	res, err := engmodel.GenerateCompositionFromFile(s.bundle.ManifestPath)
+	res, err := engmodel.GenerateCompositionFromFileWith(s.bundle.ManifestPath, resolution())
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +71,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 				"publication":       c.Publication,
 				"modulePath":        c.ModulePath,
 				"version":           c.Version,
-				"resolvedDirectory": c.Dir,
+				"resolvedDirectory": res.DisplayDir(c.Dir),
 				"provides":          provides,
 				"requires":          requires,
 			})
@@ -66,6 +88,11 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			"note":              a.Note,
 		})
 	}
+	provenance := make([]engmodel.ImportedEntityProvenance, len(res.Provenance))
+	for i, p := range res.Provenance {
+		p.ResolvedDir = res.DisplayDir(p.ResolvedDir)
+		provenance[i] = p
+	}
 	rootID := ""
 	if res.Root != nil {
 		rootID = res.Root.Bundle.Architecture.Model.ID
@@ -75,7 +102,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"root":           rootID,
 		"subsystems":     subsystems,
 		"allocations":    allocations,
-		"provenance":     res.Provenance,
+		"provenance":     provenance,
 		"lock":           res.Lock,
 		"diagnostics":    diagRows(res.Diagnostics),
 	}, nil
@@ -88,7 +115,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 // TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
-	matrix, diags, err := engmodel.BuildTraceMatrixFromFiles(s.modelPath, s.requirementsPath, "")
+	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
 	}

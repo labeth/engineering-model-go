@@ -1108,6 +1108,7 @@ flowchart LR
     subgraph RT_FU_SYSTEM_COMPOSITION_SYSTEM_COMPOSITION_RUNTIME__INFERRED_["System Composition runtime (inferred)"]
       direction TB
       CODE_COMPOSITION_GO["composition.go"]:::code_element
+      CODE_COMPOSITION_CONFINEMENT_GO["composition_confinement.go"]:::code_element
       CODE_COMPOSITION_PROJECTION_GO["composition_projection.go"]:::code_element
     end
     style RT_FU_SYSTEM_COMPOSITION_SYSTEM_COMPOSITION_RUNTIME__INFERRED_ fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
@@ -5328,6 +5329,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F>>
+|<<REF_IDX-REQ_REQ_EMG_017,REQ-EMG-017>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_ASCIIDOC_HARDWARE_LABELS_TEST_AFE4FA,VER-INF-TEST-ASCIIDOC_HARDWARE_LABELS_TEST-AFE4FA>>
 |<<REF_IDX-REQ_REQ_EMG_024,REQ-EMG-024>>
 |not-run
@@ -5648,6 +5654,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961>>
+|<<REF_IDX-REQ_REQ_EMG_047,REQ-EMG-047>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_SERVER_TEST_389957,VER-INF-TEST-SERVER_TEST-389957>>
 |<<REF_IDX-REQ_REQ_EMG_047,REQ-EMG-047>>
 |not-run
@@ -5673,12 +5684,22 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F>>
+|<<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11>>
 |<<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,VER-INF-TEST-COMPOSITION_TEST-8FE8F1>>
+|<<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961>>
 |<<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
@@ -5873,6 +5894,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE>>
+|<<REF_IDX-REQ_REQ_EMG_060,REQ-EMG-064>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,VER-INF-TEST-COMPOSITION_TEST-8FE8F1>>
 |<<REF_IDX-REQ_REQ_EMG_060,REQ-EMG-064>>
 |not-run
@@ -5934,6 +5960,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_AUTHORING_TEST_904EEE,VER-INF-TEST-AUTHORING_TEST-904EEE>>
+|<<REF_IDX-REQ_REQ_EMG_065,REQ-EMG-069>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE>>
 |<<REF_IDX-REQ_REQ_EMG_065,REQ-EMG-069>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
@@ -6628,7 +6659,7 @@ flowchart TB
   CODE_REQ_EMG_008_ENGMCP_MAIN_GO["engmcp/main.go: 23, 62, 98"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_008_ENGMCP_MAIN_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_REQ_EMG_008_ENGMCP_MAIN_GO
-  CODE_REQ_EMG_008_MCP_AUTHORING_GO["mcp/authoring.go: 645"]:::code_element
+  CODE_REQ_EMG_008_MCP_AUTHORING_GO["mcp/authoring.go: 650"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_008_MCP_AUTHORING_GO
   REQC_REQ_EMG_008 -->|code trace| CODE_REQ_EMG_008_MCP_AUTHORING_GO
   CODE_REQ_EMG_008_SERVER_GO["server.go: 142, 225, 1833, 2252, 2279, 2291, 2311, 2341, 2431, 2489, 2503, 2513, 2520, 2536, 2553, 2568, 2588, 2603"]:::code_element
@@ -7364,7 +7395,7 @@ flowchart TB
   REQC_REQ_EMG_016 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_016_COMPOSITION_GO["composition.go: 106, 201, 214, 235, 368"]:::code_element
+  CODE_REQ_EMG_016_COMPOSITION_GO["composition.go: 132, 234, 247, 268, 408"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_016_COMPOSITION_GO
   REQC_REQ_EMG_016 -->|code trace| CODE_REQ_EMG_016_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_AB66B8["VER-INF-TEST-COMPOSITION_TEST-AB66B8 (not-run)"]:::verification
@@ -7416,9 +7447,16 @@ flowchart TB
   REQC_REQ_EMG_017 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_017_COMPOSITION_GO["composition.go: 671"]:::code_element
+  CODE_REQ_EMG_017_COMPOSITION_GO["composition.go: 718"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_017_COMPOSITION_GO
   REQC_REQ_EMG_017 -->|code trace| CODE_REQ_EMG_017_COMPOSITION_GO
+  CODE_REQ_EMG_017_COMPOSITION_CONFINEMENT_GO["composition_confinement.go: 31, 107"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_017_COMPOSITION_CONFINEMENT_GO
+  REQC_REQ_EMG_017 -->|code trace| CODE_REQ_EMG_017_COMPOSITION_CONFINEMENT_GO
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F["VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F -->|verifies| REQC_REQ_EMG_017
+  VERCODE_REQ_EMG_017_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F_COMPOSITION_CONFINEMENT_TEST_GO["composition_confinement_test.go: 47, 108, 145"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F --->|implemented_by| VERCODE_REQ_EMG_017_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F_COMPOSITION_CONFINEMENT_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -7464,7 +7502,7 @@ flowchart TB
   REQC_REQ_EMG_018 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_018_COMPOSITION_GO["composition.go: 368"]:::code_element
+  CODE_REQ_EMG_018_COMPOSITION_GO["composition.go: 408"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_018_COMPOSITION_GO
   REQC_REQ_EMG_018 -->|code trace| CODE_REQ_EMG_018_COMPOSITION_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
@@ -7516,7 +7554,7 @@ flowchart TB
   REQC_REQ_EMG_019 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_019_COMPOSITION_GO["composition.go: 963, 1241"]:::code_element
+  CODE_REQ_EMG_019_COMPOSITION_GO["composition.go: 1010, 1291"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_019_COMPOSITION_GO
   REQC_REQ_EMG_019 -->|code trace| CODE_REQ_EMG_019_COMPOSITION_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
@@ -9309,9 +9347,12 @@ flowchart TB
   REQC_REQ_EMG_047 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_047_COMPOSITION_GO["composition.go: 51, 67, 201, 214, 235, 348, 368, 507, 554, 665, 685, 702, 839, 854"]:::code_element
+  CODE_REQ_EMG_047_COMPOSITION_GO["composition.go: 51, 67, 234, 247, 268, 388, 408, 547, 598, 712, 732, 749, 886, 901"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_COMPOSITION_GO
   REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_COMPOSITION_GO
+  CODE_REQ_EMG_047_COMPOSITION_CONFINEMENT_GO["composition_confinement.go: 88"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_COMPOSITION_CONFINEMENT_GO
+  REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_COMPOSITION_CONFINEMENT_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11 -->|verifies| REQC_REQ_EMG_047
   VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11_COMPOSITION_OCI_TEST_GO["composition_oci_test.go: 17, 57, 89, 112, 139"]:::code_element
@@ -9320,6 +9361,10 @@ flowchart TB
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_047
   VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_TEST_8FE8F1_COMPOSITION_TEST_GO["composition_test.go: 16, 78, 111, 143, 192, 207, 225"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 --->|implemented_by| VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_TEST_8FE8F1_COMPOSITION_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961["VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961 (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961 -->|verifies| REQC_REQ_EMG_047
+  VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961_COMPOSITION_ZIP_SAFETY_TEST_GO["composition_zip_safety_test.go: 136"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961 --->|implemented_by| VERCODE_REQ_EMG_047_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961_COMPOSITION_ZIP_SAFETY_TEST_GO
   VERC_VER_INF_TEST_SERVER_TEST_389957["VER-INF-TEST-SERVER_TEST-389957 (not-run)"]:::verification
   VERC_VER_INF_TEST_SERVER_TEST_389957 -->|verifies| REQC_REQ_EMG_047
   VERCODE_REQ_EMG_047_VER_INF_TEST_SERVER_TEST_389957_SERVER_TEST_GO["server_test.go: 15, 103, 127, 152, 198, 240, 469, 522, 566, 612"]:::code_element
@@ -9383,7 +9428,7 @@ flowchart TB
   REQC_REQ_EMG_048 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_048_COMPOSITION_GO["composition.go: 67, 201, 214, 235, 348, 368, 507, 854"]:::code_element
+  CODE_REQ_EMG_048_COMPOSITION_GO["composition.go: 67, 234, 247, 268, 388, 408, 547, 901"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_048_COMPOSITION_GO
   REQC_REQ_EMG_048 -->|code trace| CODE_REQ_EMG_048_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
@@ -9426,7 +9471,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_MODE_CI_VALIDATION,ci validation mode is active>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall reject <<REF_IDX-CATALOG_INVALID,invalid>> manifest dependency plus publication plus <<REF_IDX-CATALOG_WORKSPACE_REPLACEMENT,workspace replacement>> plus qualified reference declarations.
 
 
-NOTE: Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported.
+NOTE: Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported. A resolved dependency (registry module or <<REF_IDX-CATALOG_WORKSPACE_REPLACEMENT,workspace replacement>>) is confined to its module root: before any of its documents is read, every document reference, inferenceHints codeSources and runtimeSources entry, engmod.yml and cue.mod/module.cue that is absolute or resolves after symlinks outside the module is rejected as <<REF_IDX-CATALOG_COMPOSITION,composition>>.dependency_path_escape naming the dependency alias and field, and no content of the target is read; the root <<REF_IDX-ENGMODEL_TERM_MODEL,model>>'s own paths are not confined this way. A fetched module zip is checked before extraction (modzip rejects .. and absolute entries, the registry client verifies the blob digest) and an entry that is not a regular file or directory, such as a symlink, fails the fetch.
 
 
 
@@ -9445,9 +9490,12 @@ flowchart TB
   REQC_REQ_EMG_049 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_049_COMPOSITION_GO["composition.go: 51, 67, 201, 214, 235, 348, 368, 507, 665, 671, 702, 737, 747, 778, 807, 839, 854, 891, 901, 1060, 1072, 1179"]:::code_element
+  CODE_REQ_EMG_049_COMPOSITION_GO["composition.go: 51, 67, 234, 247, 268, 388, 408, 547, 712, 718, 749, 784, 794, 825, 854, 886, 901, 938, 948, 1107, 1119, 1226"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_049_COMPOSITION_GO
   REQC_REQ_EMG_049 -->|code trace| CODE_REQ_EMG_049_COMPOSITION_GO
+  CODE_REQ_EMG_049_COMPOSITION_CONFINEMENT_GO["composition_confinement.go: 31, 88, 107"]:::code_element
+  RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_049_COMPOSITION_CONFINEMENT_GO
+  REQC_REQ_EMG_049 -->|code trace| CODE_REQ_EMG_049_COMPOSITION_CONFINEMENT_GO
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_049 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
@@ -9455,6 +9503,10 @@ flowchart TB
   CODE_REQ_EMG_049_VALIDATE_GO["validate.go: 286"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_049_VALIDATE_GO
   REQC_REQ_EMG_049 -->|code trace| CODE_REQ_EMG_049_VALIDATE_GO
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F["VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F -->|verifies| REQC_REQ_EMG_049
+  VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F_COMPOSITION_CONFINEMENT_TEST_GO["composition_confinement_test.go: 47, 108, 145"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F --->|implemented_by| VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F_COMPOSITION_CONFINEMENT_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11["VER-INF-TEST-COMPOSITION_OCI_TEST-D86C11 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11 -->|verifies| REQC_REQ_EMG_049
   VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11_COMPOSITION_OCI_TEST_GO["composition_oci_test.go: 17, 57, 89, 112, 139"]:::code_element
@@ -9463,6 +9515,10 @@ flowchart TB
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_049
   VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_TEST_8FE8F1_COMPOSITION_TEST_GO["composition_test.go: 16, 78, 111, 143, 192, 207, 225"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 --->|implemented_by| VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_TEST_8FE8F1_COMPOSITION_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961["VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961 (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961 -->|verifies| REQC_REQ_EMG_049
+  VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961_COMPOSITION_ZIP_SAFETY_TEST_GO["composition_zip_safety_test.go: 136"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961 --->|implemented_by| VERCODE_REQ_EMG_049_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961_COMPOSITION_ZIP_SAFETY_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -9640,7 +9696,7 @@ flowchart TB
   REQC_REQ_EMG_051 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_051_COMPOSITION_GO["composition.go: 51, 67, 201, 214, 235, 348, 368, 702, 737, 747, 778, 807, 839, 891, 1060, 1072, 1179"]:::code_element
+  CODE_REQ_EMG_051_COMPOSITION_GO["composition.go: 51, 67, 234, 247, 268, 388, 408, 749, 784, 794, 825, 854, 886, 938, 1107, 1119, 1226"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_COMPOSITION_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_COMPOSITION_GO
   CODE_REQ_EMG_051_COMPOSITION_PROJECTION_GO["composition_projection.go: 17, 29, 41, 49, 99, 106, 121, 131, 142, 178, 215, 242, 256, 444, 460"]:::code_element
@@ -10199,7 +10255,7 @@ flowchart TB
   REQC_REQ_EMG_059 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_059_COMPOSITION_GO["composition.go: 129, 201, 214, 235"]:::code_element
+  CODE_REQ_EMG_059_COMPOSITION_GO["composition.go: 155, 234, 247, 268"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_059_COMPOSITION_GO
   REQC_REQ_EMG_059 -->|code trace| CODE_REQ_EMG_059_COMPOSITION_GO
   CODE_REQ_EMG_059_COMPOSITION_PROJECTION_GO["composition_projection.go: 106"]:::code_element
@@ -10241,7 +10297,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_SYSTEM_COMPOSITION,system composition is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall write or check the <<REF_IDX-CATALOG_COMPOSITION,composition>> lock according to the lock mode.
 
 
-NOTE: While <<REF_IDX-CATALOG_WORKSPACE_REPLACEMENT,workspace replacements>> are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_missing, <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_invalid or <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Otherwise engmod.lock.yml is written as before. A cached registry module is reused offline, except that ENGMOD_MODULE_CACHE=refresh and lock regeneration (write mode with the workspace off) re-fetch every dependency, and lock check mode compares each cached module's recorded manifest digest with the registry (one lookup per dependency, cache reused when offline) and re-fetches a moved tag, so a warm cache never masks it. Diagnostics located in a fetched dependency name it as module@version:path instead of the cache directory.
+NOTE: While <<REF_IDX-CATALOG_WORKSPACE_REPLACEMENT,workspace replacements>> are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_missing, <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_invalid or <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Exception: while <<REF_IDX-CATALOG_WORKSPACE_REPLACEMENT,workspace replacements>> are active the committed lock is not compared (it pins published content, the replacements are local) and the warning <<REF_IDX-CATALOG_COMPOSITION,composition>>.lock_check_skipped says that it is checked only with ENGMOD_WORK=off. Otherwise engmod.lock.yml is written as before. A cached registry module is reused offline, except that ENGMOD_MODULE_CACHE=refresh and lock regeneration (write mode with the workspace off) re-fetch every dependency, ENGMOD_MODULE_CACHE=reuse (ResolutionOptions.ModuleCache) reuses the cache offline in every lock mode, and otherwise lock check mode compares each cached module's recorded manifest digest with the registry (one lookup per dependency, cache reused when offline) and re-fetches a moved tag, so a warm cache never masks it. Diagnostics located in a fetched dependency name it as module@version:path instead of the cache directory.
 
 
 
@@ -10258,7 +10314,7 @@ flowchart TB
   REQC_REQ_EMG_060 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_060_COMPOSITION_GO["composition.go: 129, 159, 182, 201, 214, 235, 298, 338, 554, 854"]:::code_element
+  CODE_REQ_EMG_060_COMPOSITION_GO["composition.go: 155, 189, 215, 234, 247, 268, 338, 378, 598, 901"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_060_COMPOSITION_GO
   REQC_REQ_EMG_060 -->|code trace| CODE_REQ_EMG_060_COMPOSITION_GO
   CODE_REQ_EMG_060_COMPOSITION_PROJECTION_GO["composition_projection.go: 106"]:::code_element
@@ -10266,7 +10322,7 @@ flowchart TB
   REQC_REQ_EMG_060 -->|code trace| CODE_REQ_EMG_060_COMPOSITION_PROJECTION_GO
   VERC_VER_INF_TEST_CHECK_TEST_72E628["VER-INF-TEST-CHECK_TEST-72E628 (not-run)"]:::verification
   VERC_VER_INF_TEST_CHECK_TEST_72E628 -->|verifies| REQC_REQ_EMG_060
-  VERCODE_REQ_EMG_060_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO["check_test.go: 38, 85, 115, 138, 168, 200, 245, 267"]:::code_element
+  VERCODE_REQ_EMG_060_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO["check_test.go: 38, 85, 115, 138, 168, 200, 245, 267, 301, 338"]:::code_element
   VERC_VER_INF_TEST_CHECK_TEST_72E628 --->|implemented_by| VERCODE_REQ_EMG_060_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO
   VERC_VER_INF_TEST_CLIFLAGS_TEST_DE9738["VER-INF-TEST-CLIFLAGS_TEST-DE9738 (not-run)"]:::verification
   VERC_VER_INF_TEST_CLIFLAGS_TEST_DE9738 -->|verifies| REQC_REQ_EMG_060
@@ -10274,8 +10330,12 @@ flowchart TB
   VERC_VER_INF_TEST_CLIFLAGS_TEST_DE9738 --->|implemented_by| VERCODE_REQ_EMG_060_VER_INF_TEST_CLIFLAGS_TEST_DE9738_CLIFLAGS_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70["VER-INF-TEST-COMPOSITION_LOCK_TEST-41AE70 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70 -->|verifies| REQC_REQ_EMG_060
-  VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO["composition_lock_test.go: 51, 137, 175, 209, 283"]:::code_element
+  VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO["composition_lock_test.go: 51, 137, 175, 209, 283, 324"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70 --->|implemented_by| VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE["VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE -->|verifies| REQC_REQ_EMG_060
+  VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE_COMPOSITION_OFFLINE_TEST_GO["composition_offline_test.go: 65, 151"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE --->|implemented_by| VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE_COMPOSITION_OFFLINE_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1["VER-INF-TEST-COMPOSITION_TEST-8FE8F1 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_TEST_8FE8F1 -->|verifies| REQC_REQ_EMG_060
   VERCODE_REQ_EMG_060_VER_INF_TEST_COMPOSITION_TEST_8FE8F1_COMPOSITION_TEST_GO["composition_test.go: 16, 78, 111, 143, 192, 207, 225"]:::code_element
@@ -10308,7 +10368,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_SYSTEM_COMPOSITION,system composition is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall validate each qualified reference against the published entities of the selected dependencies.
 
 
-NOTE: Covers relationships, flows and <<REF_IDX-ENGMODEL_TERM_FLOW_STEP,flow steps>>, appliesTo, <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> and data references, ownership (<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional unit>> group, <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> owner, <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundary>> parent, <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, threat and verification owners), <<REF_IDX-ENGMODEL_TERM_VIEW,view>> roots and code ENGMODEL-LINKS. <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,Requirements>> stay local, so trace counts do not include imported <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>. A qualified reference to an entity the dependency does not publish is reported once as <<REF_IDX-CATALOG_COMPOSITION,composition>>.unpublished_reference with its field path, not as a generic broken reference.
+NOTE: Covers relationships, flows and <<REF_IDX-ENGMODEL_TERM_FLOW_STEP,flow steps>>, appliesTo, <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> and data references, ownership (<<REF_IDX-ENGMODEL_TERM_FUNCTIONAL_UNIT,functional unit>> group, <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> owner, <<REF_IDX-ENGMODEL_TERM_TRUST_BOUNDARY,trust boundary>> parent, <<REF_IDX-ENGMODEL_TERM_RISK,risk>>, threat and verification owners), <<REF_IDX-ENGMODEL_TERM_VIEW,view>> roots and code ENGMODEL-LINKS. <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,Requirements>> stay local, so trace counts do not include imported <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>. A qualified reference to an entity the dependency does not publish is reported once as <<REF_IDX-CATALOG_COMPOSITION,composition>>.unpublished_reference with its field path, not as a generic broken reference. Only reference-typed fields are checked; prose (descriptions, notes, rationale, <<REF_IDX-ENGMODEL_TERM_FLOW_STEP,flow step>> actions) and file or URL fields (schemaRef, catalogRef, href) may contain :: freely.
 
 
 
@@ -10332,7 +10392,7 @@ flowchart TB
   REQC_REQ_EMG_061 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_061_COMPOSITION_GO["composition.go: 227, 1072, 1170, 1179"]:::code_element
+  CODE_REQ_EMG_061_COMPOSITION_GO["composition.go: 260, 1119, 1217, 1226"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_061_COMPOSITION_GO
   REQC_REQ_EMG_061 -->|code trace| CODE_REQ_EMG_061_COMPOSITION_GO
   CODE_REQ_EMG_061_COMPOSITION_PROJECTION_GO["composition_projection.go: 256"]:::code_element
@@ -10347,7 +10407,7 @@ flowchart TB
   REQC_REQ_EMG_061 -->|code trace| CODE_REQ_EMG_061_VALIDATE_GO
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C["VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-86A92C (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C -->|verifies| REQC_REQ_EMG_061
-  VERCODE_REQ_EMG_061_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460"]:::code_element
+  VERCODE_REQ_EMG_061_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460, 527"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C --->|implemented_by| VERCODE_REQ_EMG_061_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO
   VERC_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D["VER-INF-TEST-DIAGNOSE_COMPOSITION_TEST-B00C4D (not-run)"]:::verification
   VERC_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D -->|verifies| REQC_REQ_EMG_061
@@ -10412,16 +10472,16 @@ flowchart TB
   REQC_REQ_EMG_062 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME["System Composition runtime (inferred)"]:::runtime_element
   FU_FU_SYSTEM_COMPOSITION -->|runtime evidence| RTC_FU_SYSTEM_COMPOSITION_RUNTIME
-  CODE_REQ_EMG_062_COMPOSITION_GO["composition.go: 214, 227, 235, 480, 963"]:::code_element
+  CODE_REQ_EMG_062_COMPOSITION_GO["composition.go: 113, 247, 260, 268, 520, 1010"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_062_COMPOSITION_GO
   REQC_REQ_EMG_062 -->|code trace| CODE_REQ_EMG_062_COMPOSITION_GO
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70["VER-INF-TEST-COMPOSITION_LOCK_TEST-41AE70 (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70 -->|verifies| REQC_REQ_EMG_062
-  VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO["composition_lock_test.go: 51, 137, 175, 209, 283"]:::code_element
+  VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO["composition_lock_test.go: 51, 137, 175, 209, 283, 324"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70 --->|implemented_by| VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70_COMPOSITION_LOCK_TEST_GO
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C["VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-86A92C (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C -->|verifies| REQC_REQ_EMG_062
-  VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460"]:::code_element
+  VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460, 527"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C --->|implemented_by| VERCODE_REQ_EMG_062_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -10475,7 +10535,7 @@ flowchart TB
   REQC_REQ_EMG_063 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C["VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-86A92C (not-run)"]:::verification
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C -->|verifies| REQC_REQ_EMG_063
-  VERCODE_REQ_EMG_063_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460"]:::code_element
+  VERCODE_REQ_EMG_063_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO["composition_multirepo_test.go: 229, 254, 310, 359, 377, 420, 460, 527"]:::code_element
   VERC_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C --->|implemented_by| VERCODE_REQ_EMG_063_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C_COMPOSITION_MULTIREPO_TEST_GO
   VERC_VER_INF_TEST_TRACE_DELEGATED_TEST_77C31C["VER-INF-TEST-TRACE_DELEGATED_TEST-77C31C (not-run)"]:::verification
   VERC_VER_INF_TEST_TRACE_DELEGATED_TEST_77C31C -->|verifies| REQC_REQ_EMG_063
@@ -10509,7 +10569,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_WORKSPACE_SYNC_REQUESTED,workspace sync is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall write a <<REF_IDX-DEP_DEP_LOCAL_WORKSPACE,local workspace>> that replaces only changed or pinned checkouts.
 
 
-NOTE: engws scans direct child directories with engmod.yml. A checkout is changed when its git tree is dirty, HEAD is not at tag v<module.version>, or that version is not in the registry configured by CUE_REGISTRY; .engws.yml pins force local. sync writes engmod.work.yml with the local checkouts and a go.work with every checkout that has go.mod (a non-local checkout is at its published tag, so go test and go run work in every checkout; go.work is removed when none has go.mod), and writes nothing inside any checkout. status and skew report SKEW when a local checkout's version differs from a version another checkout pins, or when a consumer's go.mod requires a checkout's Go module at another version than the checkout's version tag, and exit 1. check runs the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> check in every local checkout affected by the change (reverse dependencies inside the workspace) and the top system with summary output; a repository's own .github/engmod-check runs with GOWORK set to its .github/engmod-check/go.work when present and off otherwise, never the root go.work; --refresh re-fetches dependencies; --all does not warn that engmod.work.yml lacks the unchanged checkouts. bump updates a dependency version in engmod.yml, the matching go.mod require and go.sum (go get with GOWORK=off) and the lock together, and restores all of them on any failure.
+NOTE: engws scans direct child directories with engmod.yml. A checkout is changed when its git tree is dirty, HEAD is not at tag v<module.version>, or that version is not in the registry configured by CUE_REGISTRY; .engws.yml pins force local. The root search stops below $HOME (never $HOME or an ancestor) and refuses a world-writable root unless --root names it; every command prints the root first. sync skips with a warning a checkout whose module.path is not a <<REF_IDX-CATALOG_VALID,valid>> major-qualified CUE module path or whose directory name is outside [A-Za-z0-9._-]. sync writes engmod.work.yml with the local checkouts and a go.work with every checkout that has go.mod (a non-local checkout is at its published tag, so go test and go run work in every checkout; go.work is removed when none has go.mod), and writes nothing inside any checkout. status and skew report SKEW when a local checkout's version differs from a version another checkout pins, or when a consumer's go.mod requires a checkout's Go module at another version than the checkout's version tag, and exit 1. check runs the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> check in every local checkout affected by the change (reverse dependencies inside the workspace) and the top system with summary output; a repository's own .github/engmod-check is trusted code (stated in the help and the check output; --in-process is the choice for untrusted checkouts) and runs with an allowlisted environment (PATH, HOME, Go, CUE, proxy, certificate, XDG, DOCKER_CONFIG, CI and ENGMOD_* variables; no API keys or other credentials) and GOWORK set to its .github/engmod-check/go.work when present and off otherwise, never the root go.work; the in-process check relies on the library's qualified-reference <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>>; --refresh re-fetches dependencies; --all does not warn that engmod.work.yml lacks the unchanged checkouts. bump writes inside the consumer checkout: it updates a dependency version in engmod.yml, the matching go.mod require and go.sum (go get with GOWORK=off, after validating the Go module path) and the lock together, and restores all of them on any failure; pin and unpin write .engws.yml at the root.
 
 
 
@@ -10526,22 +10586,22 @@ flowchart TB
   REQC_REQ_EMG_064 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_REQ_EMG_064_BUMP_GO["bump.go: 37, 172, 179, 194, 211, 246, 268, 275, 286, 294"]:::code_element
+  CODE_REQ_EMG_064_BUMP_GO["bump.go: 38, 178, 185, 200, 217, 252, 274, 281, 292, 300"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_BUMP_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_BUMP_GO
-  CODE_REQ_EMG_064_CHECK_GO["check.go: 35, 96, 123, 165, 176, 204, 227, 242, 254, 295, 306, 318, 325, 338, 414, 424, 436"]:::code_element
+  CODE_REQ_EMG_064_CHECK_GO["check.go: 35, 96, 123, 165, 176, 204, 227, 242, 254, 312, 325, 332, 345, 408, 418, 430"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_CHECK_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_CHECK_GO
-  CODE_REQ_EMG_064_CLI_GO["cli.go: 65, 148, 163, 190, 200, 228, 252, 265, 299"]:::code_element
+  CODE_REQ_EMG_064_CLI_GO["cli.go: 78, 169, 184, 214, 224, 252, 276, 289, 328"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_CLI_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_CLI_GO
   CODE_REQ_EMG_064_ENGWS_MAIN_GO["engws/main.go: 13"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_ENGWS_MAIN_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_ENGWS_MAIN_GO
-  CODE_REQ_EMG_064_ENGWS_SCAN_GO["engws/scan.go: 45, 69, 108, 129, 154, 166, 190, 211"]:::code_element
+  CODE_REQ_EMG_064_ENGWS_SCAN_GO["engws/scan.go: 50, 75, 86, 103, 118, 166, 187, 212, 224, 248, 269"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_ENGWS_SCAN_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_ENGWS_SCAN_GO
-  CODE_REQ_EMG_064_PLAN_GO["plan.go: 48, 89, 130, 145, 160, 171, 189, 204"]:::code_element
+  CODE_REQ_EMG_064_PLAN_GO["plan.go: 50, 91, 132, 147, 162, 173, 191, 206"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_PLAN_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_PLAN_GO
   CODE_REQ_EMG_064_REGISTRY_GO["registry.go: 55, 74"]:::code_element
@@ -10554,19 +10614,19 @@ flowchart TB
   REQC_REQ_EMG_064 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   VERC_VER_INF_TEST_BUMP_TEST_638DBA["VER-INF-TEST-BUMP_TEST-638DBA (not-run)"]:::verification
   VERC_VER_INF_TEST_BUMP_TEST_638DBA -->|verifies| REQC_REQ_EMG_064
-  VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO["bump_test.go: 22, 128, 152"]:::code_element
+  VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO["bump_test.go: 22, 128, 152, 212"]:::code_element
   VERC_VER_INF_TEST_BUMP_TEST_638DBA --->|implemented_by| VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO
   VERC_VER_INF_TEST_CHECK_TEST_72E628["VER-INF-TEST-CHECK_TEST-72E628 (not-run)"]:::verification
   VERC_VER_INF_TEST_CHECK_TEST_72E628 -->|verifies| REQC_REQ_EMG_064
-  VERCODE_REQ_EMG_064_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO["check_test.go: 38, 85, 115, 138, 168, 200, 245, 267"]:::code_element
+  VERCODE_REQ_EMG_064_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO["check_test.go: 38, 85, 115, 138, 168, 200, 245, 267, 301, 338"]:::code_element
   VERC_VER_INF_TEST_CHECK_TEST_72E628 --->|implemented_by| VERCODE_REQ_EMG_064_VER_INF_TEST_CHECK_TEST_72E628_CHECK_TEST_GO
   VERC_VER_INF_TEST_PLAN_TEST_2CD695["VER-INF-TEST-PLAN_TEST-2CD695 (not-run)"]:::verification
   VERC_VER_INF_TEST_PLAN_TEST_2CD695 -->|verifies| REQC_REQ_EMG_064
-  VERCODE_REQ_EMG_064_VER_INF_TEST_PLAN_TEST_2CD695_PLAN_TEST_GO["plan_test.go: 17, 33, 50, 69, 94, 124, 174, 191, 222"]:::code_element
+  VERCODE_REQ_EMG_064_VER_INF_TEST_PLAN_TEST_2CD695_PLAN_TEST_GO["plan_test.go: 18, 34, 51, 70, 95, 125, 175, 192, 223, 243, 265, 288"]:::code_element
   VERC_VER_INF_TEST_PLAN_TEST_2CD695 --->|implemented_by| VERCODE_REQ_EMG_064_VER_INF_TEST_PLAN_TEST_2CD695_PLAN_TEST_GO
   VERC_VER_INF_TEST_SYNC_TEST_864483["VER-INF-TEST-SYNC_TEST-864483 (not-run)"]:::verification
   VERC_VER_INF_TEST_SYNC_TEST_864483 -->|verifies| REQC_REQ_EMG_064
-  VERCODE_REQ_EMG_064_VER_INF_TEST_SYNC_TEST_864483_SYNC_TEST_GO["sync_test.go: 22, 67, 86, 102, 134, 161, 175, 192"]:::code_element
+  VERCODE_REQ_EMG_064_VER_INF_TEST_SYNC_TEST_864483_SYNC_TEST_GO["sync_test.go: 22, 67, 86, 102, 134, 161, 175, 192, 217"]:::code_element
   VERC_VER_INF_TEST_SYNC_TEST_864483 --->|implemented_by| VERCODE_REQ_EMG_064_VER_INF_TEST_SYNC_TEST_864483_SYNC_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -10596,7 +10656,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_FEAT_MCP_SERVER,mcp server is enabled>>, when <<REF_IDX-CATALOG_EVT_MCP_TOOL_CALL_RECEIVED,mcp tool call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return <<REF_IDX-CATALOG_AUTHORING,authoring>> assistance for an edited <<REF_IDX-ENGMODEL_TERM_MODEL,model>> document.
 
 
-NOTE: <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> terms, allowed enum values and relationship type pairs that match a prefix and an optional field; <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.diagnose validates the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its <<REF_IDX-CATALOG_COMPOSITION,composition>> and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved.
+NOTE: <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> terms, allowed enum values and relationship type pairs that match a prefix and an optional field; <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.diagnose validates the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its <<REF_IDX-CATALOG_COMPOSITION,composition>> and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (<<REF_IDX-ENGMODEL_TERM_MODEL,model>>.complete, <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.diagnose, <<REF_IDX-CATALOG_COMPOSITION,composition>>.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. <<REF_IDX-CATALOG_COMPOSITION,composition>>.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.
 
 
 
@@ -10613,9 +10673,12 @@ flowchart TB
   REQC_REQ_EMG_065 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
-  CODE_REQ_EMG_065_MCP_AUTHORING_GO["mcp/authoring.go: 92, 157, 190, 234, 268, 314, 341, 416, 462, 471, 484, 504, 528, 626, 645, 668, 692, 776, 828, 854, 878, 890, 896"]:::code_element
+  CODE_REQ_EMG_065_MCP_AUTHORING_GO["mcp/authoring.go: 92, 157, 190, 234, 268, 314, 346, 421, 467, 476, 489, 509, 533, 631, 650, 673, 697, 778, 830, 856, 880, 892, 898"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_065_MCP_AUTHORING_GO
   REQC_REQ_EMG_065 -->|code trace| CODE_REQ_EMG_065_MCP_AUTHORING_GO
+  CODE_REQ_EMG_065_MCP_COMPOSITION_GO["mcp/composition.go: 29"]:::code_element
+  RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_065_MCP_COMPOSITION_GO
+  REQC_REQ_EMG_065 -->|code trace| CODE_REQ_EMG_065_MCP_COMPOSITION_GO
   CODE_REQ_EMG_065_SERVER_GO["server.go: 142, 438"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_065_SERVER_GO
   REQC_REQ_EMG_065 -->|code trace| CODE_REQ_EMG_065_SERVER_GO
@@ -10623,6 +10686,10 @@ flowchart TB
   VERC_VER_INF_TEST_AUTHORING_TEST_904EEE -->|verifies| REQC_REQ_EMG_065
   VERCODE_REQ_EMG_065_VER_INF_TEST_AUTHORING_TEST_904EEE_AUTHORING_TEST_GO["authoring_test.go: 40, 70, 106, 133, 227, 255, 363"]:::code_element
   VERC_VER_INF_TEST_AUTHORING_TEST_904EEE --->|implemented_by| VERCODE_REQ_EMG_065_VER_INF_TEST_AUTHORING_TEST_904EEE_AUTHORING_TEST_GO
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE["VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE (not-run)"]:::verification
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE -->|verifies| REQC_REQ_EMG_065
+  VERCODE_REQ_EMG_065_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE_COMPOSITION_OFFLINE_TEST_GO["composition_offline_test.go: 65, 151"]:::code_element
+  VERC_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE --->|implemented_by| VERCODE_REQ_EMG_065_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE_COMPOSITION_OFFLINE_TEST_GO
   VERC_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D["VER-INF-TEST-DIAGNOSE_COMPOSITION_TEST-B00C4D (not-run)"]:::verification
   VERC_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D -->|verifies| REQC_REQ_EMG_065
   VERCODE_REQ_EMG_065_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D_DIAGNOSE_COMPOSITION_TEST_GO["diagnose_composition_test.go: 21"]:::code_element
@@ -11165,7 +11232,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_064,REQ-EMG-068>>
-|Test Code Elements |bump_test.go:22, 128, 152
+|Test Code Elements |bump_test.go:22, 128, 152, 212
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:1
 |Evidence |internal/engws/bump_test.go
@@ -11225,7 +11292,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_060,REQ-EMG-064>>, <<REF_IDX-REQ_REQ_EMG_064,REQ-EMG-068>>
-|Test Code Elements |check_test.go:38, 85, 115, 138, 168, 200, 245, 267
+|Test Code Elements |check_test.go:38, 85, 115, 138, 168, 200, 245, 267, 301, 338
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:2
 |Evidence |internal/engws/check_test.go
@@ -11275,6 +11342,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+[[REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F]]
+==== Composition Confinement Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
+|Test Code Elements |composition_confinement_test.go:47, 108, 145
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Result Summary |not-run:2
+|Evidence |composition_confinement_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
 [[REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70]]
 ==== Composition Lock Test
 
@@ -11285,7 +11372,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_060,REQ-EMG-064>>, <<REF_IDX-REQ_REQ_EMG_062,REQ-EMG-066>>
-|Test Code Elements |composition_lock_test.go:51, 137, 175, 209, 283
+|Test Code Elements |composition_lock_test.go:51, 137, 175, 209, 283, 324
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:2
 |Evidence |composition_lock_test.go
@@ -11305,7 +11392,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_061,REQ-EMG-065>>, <<REF_IDX-REQ_REQ_EMG_062,REQ-EMG-066>>, <<REF_IDX-REQ_REQ_EMG_063,REQ-EMG-067>>
-|Test Code Elements |composition_multirepo_test.go:229, 254, 310, 359, 377, 420, 460
+|Test Code Elements |composition_multirepo_test.go:229, 254, 310, 359, 377, 420, 460, 527
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:3
 |Evidence |composition_multirepo_test.go
@@ -11329,6 +11416,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:3
 |Evidence |composition_oci_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE]]
+==== Composition Offline Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_060,REQ-EMG-064>>, <<REF_IDX-REQ_REQ_EMG_065,REQ-EMG-069>>
+|Test Code Elements |composition_offline_test.go:65, 151
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
+|Result Summary |not-run:2
+|Evidence |mcp/composition_offline_test.go
 
 |Notes |Inferred from test source artifact.
 
@@ -11389,6 +11496,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:4
 |Evidence |mcp/composition_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961]]
+==== Composition Zip Safety Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_047,REQ-EMG-047>>, <<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>
+|Test Code Elements |composition_zip_safety_test.go:136
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Result Summary |not-run:2
+|Evidence |composition_zip_safety_test.go
 
 |Notes |Inferred from test source artifact.
 
@@ -12045,7 +12172,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_064,REQ-EMG-068>>
-|Test Code Elements |plan_test.go:17, 33, 50, 69, 94, 124, 174, 191, 222
+|Test Code Elements |plan_test.go:18, 34, 51, 70, 95, 125, 175, 192, 223, 243, 265, 288
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:1
 |Evidence |internal/engws/plan_test.go
@@ -12305,7 +12432,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_064,REQ-EMG-068>>
-|Test Code Elements |sync_test.go:22, 67, 86, 102, 134, 161, 175, 192
+|Test Code Elements |sync_test.go:22, 67, 86, 102, 134, 161, 175, 192, 217
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:1
 |Evidence |internal/engws/sync_test.go
@@ -13526,7 +13653,7 @@ Where system composition is enabled, when generation run is requested, the engin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-017
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_018]]
 [discrete]
@@ -13916,7 +14043,7 @@ Where system composition is enabled, when generation run is requested, the engin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-047
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_048]]
 [discrete]
@@ -13942,7 +14069,7 @@ While ci validation mode is active, when generation run is requested, the engine
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-049
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_050]]
 [discrete]
@@ -14085,7 +14212,7 @@ Where system composition is enabled, when generation run is requested, the engin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-064
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_061]]
 [discrete]
@@ -14150,7 +14277,7 @@ While mcp server is enabled, when mcp tool call is received, the engineering mod
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-069
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_904EEE,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_904EEE,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>
 |===
 [[REF_IDX-TB_TB_EXTERNAL_VALIDATION_TOOLS]]
 [discrete]
@@ -14503,7 +14630,7 @@ Resolves downward subsystem references from local paths, external git repositori
 |Key |Value
 |Kind |Catalog Alias
 |Name |composition
-|Mentioned In |<<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_060,REQ-EMG-064>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-069>>
+|Mentioned In |<<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_060,REQ-EMG-064>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-069>>
 |===
 [[REF_IDX-CATALOG_CUE_REGISTRY]]
 [discrete]
@@ -15595,7 +15722,7 @@ State where authored model passes validation checks.
 |Key |Value
 |Kind |Catalog Alias
 |Name |valid
-|Mentioned In |<<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_045,REQ-EMG-045>>
+|Mentioned In |<<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-068>>
 |===
 [[REF_IDX-CATALOG_VALIDATION_FAILURE]]
 [discrete]
@@ -16375,7 +16502,7 @@ Command entrypoints that orchestrate loading, validation, generation, and export
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |cli orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_8C18F7,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_80ED9B,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_963640,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_1BE464,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_9CCAB7,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_9234C6,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_9C7166,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_CF2F5A,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_8C18F7,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_3FAC84,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_A8483D,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_80ED9B,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_963640,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_22FDE2,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_1BE464,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_F60765,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_C6896C,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_BFC7F2,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_9CCAB7,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_9234C6,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_2ECF72,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_886374,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_9C7166,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_CF2F5A,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_DD1345,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
 |===
 [[REF_IDX-CATALOG_FU_CODEMAP_INFERENCE]]
 [discrete]
@@ -16427,7 +16554,7 @@ Serves model-backed MCP tools with validated inputs and structured responses.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |mcp server
-|Mentioned In |<<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_904EEE,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_B699E0,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_9CCAB7,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_904EEE,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_B699E0,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_9CCAB7,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>
 |===
 [[REF_IDX-CATALOG_FU_MODEL_CHANGE]]
 [discrete]
@@ -16453,7 +16580,7 @@ Validates canonical YAML documents against embedded CUE schemas, strictly decode
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |model loader
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_B699E0,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_B699E0,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
 |===
 [[REF_IDX-CATALOG_FU_NAF_EXPORTER]]
 [discrete]
@@ -16518,7 +16645,7 @@ Resolves downward subsystem references from local paths, external git repositori
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |system composition
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_EXAMPLES_COMPANY_TEST_A50783,Examples Company Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_77C31C,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_EXAMPLES_COMPANY_TEST_A50783,Examples Company Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_389957,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_77C31C,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
 |===
 [[REF_IDX-CATALOG_FU_THREAT_EXPORTER]]
 [discrete]
@@ -16557,7 +16684,7 @@ Validates IDs, references, and model consistency across authored entities and ma
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |validation engine
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_EXAMPLES_COMPANY_TEST_A50783,Examples Company Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_9C7166,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_CF2F5A,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_E46ECA,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_9E54F7,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2A7639,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_2F6002,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_6807D7,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_MULTIREPO_TEST_86A92C,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_8FE8F1,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_480387,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_B00C4D,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_BE56F8,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_1ABE26,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_EXAMPLES_COMPANY_TEST_A50783,Examples Company Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_45C982,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_58DBDA,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_445BFD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_8CB069,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_F0D9BD,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_1C1C7E,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_26D0A4,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_C12EF9,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_4B08EF,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_5A1C59,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_EECC23,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_64E119,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_V2_PROJECTION_TEST_81EEBD,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_9C7166,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_8BDA4E,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_CF2F5A,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_721A8D,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_9FB80C,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_498C59,Validate Test>>
 |===
 [[REF_IDX-CATALOG_FU_VIEW_PROJECTION]]
 [discrete]
@@ -17246,7 +17373,7 @@ The authored architecture model root that composes functional structure, relatio
 |Key |Value
 |Kind |Engineering Model Term
 |Name |model
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-069>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-069>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_42E2CB,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_A58EB3,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_33196D,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_D8D752,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_AB1606,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_CB8EF3,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_21DA9C,Workspace Test>>
 |===
 [[REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]
 [discrete]
@@ -17584,7 +17711,7 @@ Model quality gate that checks authored documents, references, relationship sema
 |Key |Value
 |Kind |Engineering Model Term
 |Name |validation
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,Ota Campaign Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-068>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_9000FB,Ota Campaign Test>>
 |===
 [[REF_IDX-ENGMODEL_TERM_VALIDATION_DIAGNOSTIC]]
 [discrete]
@@ -17811,6 +17938,20 @@ Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal
 |Source |internal/engws/bump_test.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODREGISTRYTEST__COMPOSITION_CONFINEMENT_TEST_GO__COMPOSITION_CONFINEMENT_TEST_GO]]
+[discrete]
+==== cuelang.org/go/mod/modregistrytest (composition_confinement_test.go)
+
+Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from composition_confinement_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition_confinement_test.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODREGISTRYTEST__COMPOSITION_LOCK_TEST_GO__COMPOSITION_LOCK_TEST_GO]]
 [discrete]
 ==== cuelang.org/go/mod/modregistrytest (composition_lock_test.go)
@@ -17837,6 +17978,20 @@ Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from composi
 |Kind |Code library_external
 |Owner |FU-SYSTEM-COMPOSITION
 |Source |composition_oci_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODREGISTRYTEST__COMPOSITION_OFFLINE_TEST_GO__MCP_COMPOSITION_OFFLINE_TEST_GO]]
+[discrete]
+==== cuelang.org/go/mod/modregistrytest (composition_offline_test.go)
+
+Inferred library_external dependency owned by FU-MCP-SERVER from mcp/composition_offline_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MCP-SERVER
+|Source |mcp/composition_offline_test.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODREGISTRYTEST__PLAN_TEST_GO__INTERNAL_ENGWS_PLAN_TEST_GO]]
@@ -17879,6 +18034,20 @@ Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from example
 |Kind |Code library_external
 |Owner |FU-SYSTEM-COMPOSITION
 |Source |examples_company_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODULE__SCAN_GO__INTERNAL_ENGWS_SCAN_GO]]
+[discrete]
+==== cuelang.org/go/mod/module (scan.go)
+
+Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal/engws/scan.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-CLI-ORCHESTRATION
+|Source |internal/engws/scan.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_CUELANG_ORG_GO_MOD_MODULE__SUBSYSTEM_GO__MODEL_SUBSYSTEM_GO]]
@@ -18329,6 +18498,20 @@ Inferred library_external dependency owned by FU-MCP-SERVER from mcp/composition
 |Source |mcp/composition.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__COMPOSITION_OFFLINE_TEST_GO__MCP_COMPOSITION_OFFLINE_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (composition_offline_test.go)
+
+Inferred library_external dependency owned by FU-MCP-SERVER from mcp/composition_offline_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MCP-SERVER
+|Source |mcp/composition_offline_test.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__GEMARA_GO__MCP_GEMARA_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go (gemara.go)
@@ -18735,6 +18918,20 @@ Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal
 |Source |internal/engws/scan.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GOLANG_ORG_X_MOD_MODULE__BUMP_GO__INTERNAL_ENGWS_BUMP_GO]]
+[discrete]
+==== golang.org/x/mod/module (bump.go)
+
+Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal/engws/bump.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-CLI-ORCHESTRATION
+|Source |internal/engws/bump.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GOLANG_ORG_X_MOD_MODULE__HELPERS_TEST_GO__INTERNAL_ENGWS_HELPERS_TEST_GO]]
 [discrete]
 ==== golang.org/x/mod/module (helpers_test.go)
@@ -18845,6 +19042,20 @@ Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from composi
 |Kind |Code library_external
 |Owner |FU-SYSTEM-COMPOSITION
 |Source |composition.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__COMPOSITION_CONFINEMENT_GO__COMPOSITION_CONFINEMENT_GO]]
+[discrete]
+==== gopkg.in/yaml.v3 (composition_confinement.go)
+
+Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from composition_confinement.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |composition_confinement.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__INFERRED_LAYERS_GO__INFERRED_LAYERS_GO]]
@@ -19223,90 +19434,6 @@ Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asci
 |Kind |Code library_first_party
 |Owner |FU-ASCIIDOC-GENERATOR
 |Source |asciidoc.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_COMPLETE_DIAGRAM_TEST_GO__ASCIIDOC_COMPLETE_DIAGRAM_TEST_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_complete_diagram_test.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_complete_diagram_test.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_complete_diagram_test.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_COMPOSITION_GO__ASCIIDOC_COMPOSITION_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_composition.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_composition.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_composition.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DECISIONS_GO__ASCIIDOC_DECISIONS_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_decisions.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_decisions.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_decisions.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DESIGN_REFS_GO__ASCIIDOC_DESIGN_REFS_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_design_refs.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_design_refs.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_design_refs.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_CORE_GO__ASCIIDOC_DIAGRAMS_CORE_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_core.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_core.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_diagrams_core.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_MODEL__ASCIIDOC_DIAGRAMS_CORE_TEST_GO__ASCIIDOC_DIAGRAMS_CORE_TEST_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/model (asciidoc_diagrams_core_test.go)
-
-Inferred library_first_party dependency owned by FU-ASCIIDOC-GENERATOR from asciidoc_diagrams_core_test.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-ASCIIDOC-GENERATOR
-|Source |asciidoc_diagrams_core_test.go
 |Mentioned In |n/a
 |===
 
@@ -19776,6 +19903,21 @@ Inferred from test source artifact.
 |Name |Coffee Six View Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COFFEE_SIX_VIEW_TEST_4B177C,Coffee Six View Test>>
 |===
+[[REF_IDX-VER_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F]]
+[discrete]
+==== VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-D20C8F
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |composition_confinement_test.go
+|Name |Composition Confinement Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_D20C8F,Composition Confinement Test>>
+|===
 [[REF_IDX-VER_VER_INF_TEST_COMPOSITION_LOCK_TEST_41AE70]]
 [discrete]
 ==== VER-INF-TEST-COMPOSITION_LOCK_TEST-41AE70
@@ -19821,6 +19963,21 @@ Inferred from test source artifact.
 |Name |Composition Oci Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_D86C11,Composition Oci Test>>
 |===
+[[REF_IDX-VER_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE]]
+[discrete]
+==== VER-INF-TEST-COMPOSITION_OFFLINE_TEST-CB14AE
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |mcp/composition_offline_test.go
+|Name |Composition Offline Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_CB14AE,Composition Offline Test>>
+|===
 [[REF_IDX-VER_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_71E4C3]]
 [discrete]
 ==== VER-INF-TEST-COMPOSITION_PROJECTION_TEST-71E4C3
@@ -19865,6 +20022,21 @@ Inferred from test source artifact.
 |Source |mcp/composition_test.go
 |Name |Composition Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_AB66B8,Composition Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961]]
+[discrete]
+==== VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-3F7961
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |composition_zip_safety_test.go
+|Name |Composition Zip Safety Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_3F7961,Composition Zip Safety Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_DEDUPE_TEST_480387]]
 [discrete]

@@ -202,3 +202,32 @@ func TestBumpNeverLocksLocalReplacement(t *testing.T) {
 		t.Fatalf("bump: %d %s %s", code, out, errOut)
 	}
 }
+
+// bump refuses a Go module path that is not a valid module path (here one
+// starting with "-", which go get would read as a flag) before running go
+// get, and leaves every file unchanged.
+// Mutation: dropping the module.CheckPath validation of the Go module fails
+// this test.
+// TRLC-LINKS: REQ-EMG-068
+func TestBumpRejectsInvalidGoModulePath(t *testing.T) {
+	root := t.TempDir()
+	ifA := filepath.Join(root, "if-a")
+	writeModel(t, ifA, "if-a", "v0.1.0")
+	write(t, filepath.Join(ifA, "go.mod"), "module -toolexec=/bin/false\n\ngo 1.25\n")
+	svc := filepath.Join(root, "svc")
+	writeModel(t, svc, "svc", "v0.1.0", dep{"ia", "if-a", "v0.1.0"})
+	goMod := "module example.com/go/svc\n\ngo 1.25\n\nrequire -toolexec=/bin/false v0.1.0\n"
+	write(t, filepath.Join(svc, "go.mod"), goMod)
+	manifest, _ := os.ReadFile(filepath.Join(svc, "engmod.yml"))
+	t.Setenv("CUE_REGISTRY", "127.0.0.1:1+insecure")
+	code, out, errOut := runMain(t, NewCUERegistry(), "--root", root, "bump", "svc", "ia", "v0.2.0")
+	if code != 1 || !strings.Contains(errOut, "invalid Go module path") || strings.Contains(errOut, "go get") {
+		t.Fatalf("want refusal before go get: %d\n%s\n%s", code, out, errOut)
+	}
+	if m, _ := os.ReadFile(filepath.Join(svc, "engmod.yml")); string(m) != string(manifest) {
+		t.Fatal("engmod.yml changed")
+	}
+	if g, _ := os.ReadFile(filepath.Join(svc, "go.mod")); string(g) != goMod {
+		t.Fatal("go.mod changed")
+	}
+}
