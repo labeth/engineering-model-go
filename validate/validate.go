@@ -282,7 +282,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -365,7 +365,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 		units[u.ID] = true
 		kindByID[u.ID] = "functional_unit"
 		if strings.TrimSpace(u.Group) == "" || !groups[u.Group] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_group", Severity: SeverityError, Message: fmt.Sprintf("functional unit %q must reference a valid functional group", u.ID), Path: path})
+			diags = append(diags, Diagnostic{Code: "model.invalid_group", Severity: SeverityError, Message: fmt.Sprintf("functional unit %q must reference a valid functional group, not %q", u.ID, strings.TrimSpace(u.Group)), Path: path})
 		}
 	}
 	for i, a := range b.Architecture.AuthoredArchitecture.Actors {

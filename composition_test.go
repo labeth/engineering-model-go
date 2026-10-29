@@ -11,7 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-064
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionResolvesManifestPublicationAndWritesLock(t *testing.T) {
 	root := t.TempDir()
@@ -53,7 +53,8 @@ replacements:
 	if len(result.Provenance) != 2 || result.Provenance[0].Alias != "child" || result.Provenance[0].ResolvedDir != child {
 		t.Fatalf("unexpected provenance: %+v", result.Provenance)
 	}
-	lockPath := filepath.Join(parent, CompositionLockFileName)
+	// Workspace replacements are active, so the resolved lock is local only.
+	lockPath := filepath.Join(parent, CompositionLocalLockFileName)
 	first, err := os.ReadFile(lockPath)
 	if err != nil {
 		t.Fatal(err)

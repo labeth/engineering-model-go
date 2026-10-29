@@ -51,6 +51,44 @@ func LoadWorkspace(path string) (WorkspaceDocument, error) {
 // TRLC-LINKS: REQ-EMG-048
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
 func FindWorkspace(start string) (WorkspaceDocument, string, error) {
+	return FindWorkspaceWith(start, "")
+}
+
+// WorkspaceEnv selects the model workspace: "off" ignores every
+// engmod.work.yml, a file path uses that file only, unset searches parents.
+const WorkspaceEnv = "ENGMOD_WORK"
+
+// WorkspaceOff is the workspace mode that disables workspace lookup.
+const WorkspaceOff = "off"
+
+// FindWorkspaceWith finds the model workspace for start under an explicit
+// mode. An empty mode falls back to ENGMOD_WORK; "off" returns no workspace;
+// any other value is a workspace file path (relative to the working
+// directory) that is used without searching parent directories and must exist.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
+	mode = strings.TrimSpace(mode)
+	if mode == "" {
+		mode = strings.TrimSpace(os.Getenv(WorkspaceEnv))
+	}
+	switch mode {
+	case "":
+	case WorkspaceOff:
+		return WorkspaceDocument{}, "", nil
+	default:
+		path, err := filepath.Abs(mode)
+		if err != nil {
+			return WorkspaceDocument{}, "", err
+		}
+		if info, err := os.Stat(path); err != nil {
+			return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s): %w", path, WorkspaceEnv, err)
+		} else if info.IsDir() {
+			return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s) is a directory, expected a %s file", path, WorkspaceEnv, WorkspaceFileName)
+		}
+		workspace, err := LoadWorkspace(path)
+		return workspace, path, err
+	}
 	dir, err := filepath.Abs(start)
 	if err != nil {
 		return WorkspaceDocument{}, "", err

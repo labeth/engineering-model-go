@@ -1083,7 +1083,7 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 					Message: fmt.Sprintf("semantic element %q cannot own itself", element.ID),
 					Path:    path + ".owner",
 				})
-			} else if _, exists := elements[owner]; !exists {
+			} else if _, exists := elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
 				diagnostics = append(diagnostics, SemanticDiagnostic{
 					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
 					Message: fmt.Sprintf("semantic element %q owner %q does not exist", element.ID, owner),
@@ -1140,7 +1140,7 @@ func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
 	for i, relationship := range semantic.Relationships {
 		path := indexPath("semantic.relationships", i)
 		if owner := strings.TrimSpace(relationship.Owner); owner != "" {
-			if _, exists := elements[owner]; !exists {
+			if _, exists := elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
 				diagnostics = append(diagnostics, SemanticDiagnostic{
 					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
 					Message: fmt.Sprintf("semantic relationship %q owner %q does not exist", relationship.ID, owner),
@@ -1350,6 +1350,17 @@ func isOccurrenceKind(kind SemanticElementKind) bool {
 	default:
 		return false
 	}
+}
+
+// isQualifiedSemanticReference reports whether ref is an alias::ID reference
+// into a dependency. Its existence and visibility are not known to a single
+// model's projection; composition validates it against the dependency's
+// selected publication (composition.unpublished_reference).
+// TRLC-LINKS: REQ-EMG-065
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func isQualifiedSemanticReference(ref string) bool {
+	_, _, err := ParseQualifiedReference(ref)
+	return err == nil
 }
 
 // TRLC-LINKS: REQ-EMG-035
