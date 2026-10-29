@@ -97,6 +97,9 @@ func TestBumpEditsVersionLineGoModAndLock(t *testing.T) {
 		if v == "v0.9.0" && !strings.Contains(errOut, "go get") {
 			t.Fatalf("go get failure not reported: %s", errOut)
 		}
+		if v == "v0.3.0" && !strings.Contains(errOut, "svc does not compose against "+strings.TrimSuffix(modulePathOf("if-a"), "@v0")+"@v0.3.0 (") {
+			t.Fatalf("composition failure must name the consumer and the module version once: %s", errOut)
+		}
 		if m, _ := os.ReadFile(manifestPath); string(m) != string(manifestNow) {
 			t.Fatalf("%s: engmod.yml not rolled back:\n%s", v, m)
 		}

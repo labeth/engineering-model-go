@@ -10526,7 +10526,7 @@ flowchart TB
   REQC_REQ_EMG_064 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_REQ_EMG_064_BUMP_GO["bump.go: 37, 172, 179, 194, 211, 246, 268, 275"]:::code_element
+  CODE_REQ_EMG_064_BUMP_GO["bump.go: 37, 172, 179, 194, 211, 246, 268, 275, 286, 294"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_064_BUMP_GO
   REQC_REQ_EMG_064 -->|code trace| CODE_REQ_EMG_064_BUMP_GO
   CODE_REQ_EMG_064_CHECK_GO["check.go: 35, 96, 123, 165, 176, 204, 227, 242, 254, 295, 306, 318, 325, 338, 414, 424, 436"]:::code_element
@@ -10554,7 +10554,7 @@ flowchart TB
   REQC_REQ_EMG_064 -->|applies_to| FU_FU_SYSTEM_COMPOSITION
   VERC_VER_INF_TEST_BUMP_TEST_638DBA["VER-INF-TEST-BUMP_TEST-638DBA (not-run)"]:::verification
   VERC_VER_INF_TEST_BUMP_TEST_638DBA -->|verifies| REQC_REQ_EMG_064
-  VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO["bump_test.go: 22, 125, 149"]:::code_element
+  VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO["bump_test.go: 22, 128, 152"]:::code_element
   VERC_VER_INF_TEST_BUMP_TEST_638DBA --->|implemented_by| VERCODE_REQ_EMG_064_VER_INF_TEST_BUMP_TEST_638DBA_BUMP_TEST_GO
   VERC_VER_INF_TEST_CHECK_TEST_72E628["VER-INF-TEST-CHECK_TEST-72E628 (not-run)"]:::verification
   VERC_VER_INF_TEST_CHECK_TEST_72E628 -->|verifies| REQC_REQ_EMG_064
@@ -11165,7 +11165,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_064,REQ-EMG-068>>
-|Test Code Elements |bump_test.go:22, 125, 149
+|Test Code Elements |bump_test.go:22, 128, 152
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
 |Result Summary |not-run:1
 |Evidence |internal/engws/bump_test.go

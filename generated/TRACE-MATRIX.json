@@ -8358,6 +8358,16 @@
           "line": 160
         },
         {
+          "symbol": "CODE-COUNTERRORS",
+          "path": "internal/engws/bump.go",
+          "line": 294
+        },
+        {
+          "symbol": "CODE-DEPMODULEAT",
+          "path": "internal/engws/bump.go",
+          "line": 286
+        },
+        {
           "symbol": "CODE-DETECTPINNEDCHECK",
           "path": "internal/engws/check.go",
           "line": 204

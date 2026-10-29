@@ -145,8 +145,8 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 		return rollback(fmt.Errorf("regenerate lock: %w", err))
 	}
 	if validate.HasErrors(comp.Diagnostics) {
-		return rollback(fmt.Errorf("regenerate lock: composition has errors, %s not written (is %s@%s published? an engine without ENGMOD_WORK support also applies the root %s)",
-			engmodel.CompositionLockFileName, dep.Path, version, model.WorkspaceFileName))
+		return rollback(fmt.Errorf("regenerate lock: %s does not compose against %s (%d errors above); adapt it to that version first, then bump again",
+			repo, depModuleAt(dep.Path, version), countErrors(comp.Diagnostics)))
 	}
 	if comp.Root != nil {
 		for _, child := range comp.Root.Children {
@@ -279,4 +279,24 @@ func mappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
 		}
 	}
 	return nil, nil
+}
+
+// depModuleAt names a module version without repeating the major suffix.
+// TRLC-LINKS: REQ-EMG-068
+func depModuleAt(path, version string) string {
+	if base, major, ok := strings.Cut(path, "@"); ok && (version == major || strings.HasPrefix(version, major+".")) {
+		path = base
+	}
+	return path + "@" + version
+}
+
+// TRLC-LINKS: REQ-EMG-068
+func countErrors(diags []validate.Diagnostic) int {
+	n := 0
+	for _, d := range diags {
+		if d.Severity == validate.SeverityError {
+			n++
+		}
+	}
+	return n
 }
