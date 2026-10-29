@@ -25,6 +25,18 @@ func loadBundle(manifestPath string) (model.Bundle, error) {
 	if err != nil {
 		return bundle, err
 	}
+	return withCodeIndex(bundle), nil
+}
+
+// withCodeIndex attaches the lazily built CODE identifier index unless the bundle has one,
+// so bundles loaded by callers with model.LoadBundle resolve CODE references too. An
+// in-memory bundle without a manifest or architecture path has no module root and gets none.
+// TRLC-LINKS: REQ-EMG-059
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
+func withCodeIndex(bundle model.Bundle) model.Bundle {
+	if bundle.CodeIndex != nil || (bundle.ManifestPath == "" && bundle.ArchitecturePath == "") {
+		return bundle
+	}
 	var once sync.Once
 	var index map[string]int
 	indexed := bundle
@@ -32,14 +44,21 @@ func loadBundle(manifestPath string) (model.Bundle, error) {
 		once.Do(func() { index = buildCodeIndex(indexed) })
 		return index
 	}
-	return bundle, nil
+	return bundle
 }
 
-// moduleCodeRoot is the directory a model owns for code: the git working tree root, or the
-// manifest directory when another engmod.yml encloses the model below that root.
-// TRLC-LINKS: REQ-EMG-057
+// moduleCodeRoot is the directory a model owns for code: bundle.CodeScopeRoot when set (a
+// resolved dependency's module directory), else the git working tree root, or the manifest
+// directory when another engmod.yml encloses the model below that root.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-067
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func moduleCodeRoot(bundle model.Bundle) string {
+	if root := strings.TrimSpace(bundle.CodeScopeRoot); root != "" {
+		if abs, err := filepath.Abs(root); err == nil {
+			return abs
+		}
+		return root
+	}
 	manifestDir, err := filepath.Abs(modelRootDir(bundle))
 	if err != nil {
 		return modelRootDir(bundle)
@@ -135,12 +154,16 @@ func excludedPath(rel string, patterns []string) bool {
 }
 
 // gitVisibleFiles lists files git tracks or would track (not ignored) under root, relative to
-// root. It returns nil when root is not in a git repository or git is unavailable, which
-// disables ignore filtering.
-// TRLC-LINKS: REQ-EMG-057
+// root. It returns nil when root is not in a git repository, git is unavailable, or root
+// itself is ignored (a dependency in a consumer's git-ignored module cache), which disables
+// ignore filtering.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-067
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func gitVisibleFiles(root string) map[string]bool {
 	if gitWorkTreeRoot(root) == "" {
+		return nil
+	}
+	if exec.Command("git", "-C", root, "check-ignore", "-q", ".").Run() == nil {
 		return nil
 	}
 	cmd := exec.Command("git", "-C", root, "ls-files", "-z", "--cached", "--others", "--exclude-standard")

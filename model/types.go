@@ -938,4 +938,9 @@ type Bundle struct {
 	// inferred CODE identifier. It is built lazily, so validation only scans code when the
 	// model references a CODE identifier.
 	CodeIndex func() map[string]int `yaml:"-" json:"-"`
+
+	// CodeScopeRoot, when set, is the directory the model owns for code instead of the
+	// one derived from the git working tree. Composition sets it for a resolved
+	// dependency to the dependency's own module directory.
+	CodeScopeRoot string `yaml:"-" json:"-"`
 }

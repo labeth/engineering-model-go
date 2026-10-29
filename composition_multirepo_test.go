@@ -3,6 +3,7 @@ package engmodel
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -179,9 +180,6 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
-inferenceHints:
-  codeSources:
-    - ./src
 `)
 	writeFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-SVC\n      name: service\n      definition: The service.\n      aliases: [the service]\n")
 	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), docs.requirements)
@@ -459,8 +457,7 @@ func TestCompositionSeverityRules(t *testing.T) {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	// The interface has code and a test for its requirement.
-	writeFile(t, filepath.Join(f.iface, "engmod.yml"), mustRead(t, filepath.Join(f.iface, "engmod.yml"))+"inferenceHints:\n  codeSources:\n    - ./src\n")
+	// The interface has code and a test for its requirement in its module directory.
 	writeFile(t, filepath.Join(f.iface, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
 	testFile := filepath.Join(f.iface, "src", "iface_test.go")
 	writeFile(t, testFile, "package iface\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-IF-001\nfunc TestEncode(t *testing.T) { Encode() }\n")
@@ -494,14 +491,46 @@ func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
 		t.Fatalf("removing the dependency's test link did not show: %+v", got.DelegatedStatus)
 	}
 
-	// A dependency without code sources reports not-available.
-	writeFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "inferenceHints:\n  codeSources:\n    - ./src\n", "", 1))
+	// A dependency whose module directory holds no code reports not-available.
 	if err := os.RemoveAll(filepath.Join(f.iface, "src")); err != nil {
 		t.Fatal(err)
 	}
 	if got = row(); got.DelegatedStatus == nil || got.DelegatedStatus.Status != "not-available" {
 		t.Fatalf("no code: %+v", got.DelegatedStatus)
 	}
+}
+
+// TestDelegatedStatusScansOnlyTheDependencyModule verifies that a dependency's
+// trace is computed from its own module directory: with the workspace inside
+// one git repository, code elsewhere in that repository that links the
+// dependency's requirement does not count for the dependency.
+// Mutation: not setting the dependency bundle's CodeScopeRoot in
+// resolveSystem fails this test.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-057
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION, FU-CODEMAP-INFERENCE
+func TestDelegatedStatusScansOnlyTheDependencyModule(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not available")
+	}
+	f := writeMultiRepoFixture(t, defaultServiceDocs())
+	if out, err := exec.Command("git", "-C", f.root, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v %s", err, out)
+	}
+	writeFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
+	writeFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
+	matrix, _, err := BuildTraceMatrixFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range matrix.Requirements {
+		if r.ID == "REQ-SVC-001" {
+			if r.DelegatedStatus == nil || r.DelegatedStatus.Status != "not-available" || r.DelegatedStatus.Implemented {
+				t.Fatalf("code outside the dependency module counted for it: %+v", r.DelegatedStatus)
+			}
+			return
+		}
+	}
+	t.Fatal("row REQ-SVC-001 missing")
 }
 
 // TRLC-LINKS: REQ-EMG-066, REQ-EMG-067

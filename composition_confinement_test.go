@@ -60,7 +60,7 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 		t.Fatal(err)
 	}
 	escaped := strings.Replace(string(data), "catalog: model/catalog.yml", "catalog: ../../../../secret.yml", 1)
-	escaped += "inferenceHints:\n  codeSources:\n    - " + root + "\n"
+	escaped += "inferenceHints:\n  exclude:\n    - ../../../../**\n"
 	writeFile(t, manifest, escaped)
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
@@ -85,13 +85,13 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 		fields = append(fields, d.Message)
 	}
 	joined := strings.Join(fields, "\n")
-	if len(got) != 2 || !strings.Contains(joined, "documents.catalog") || !strings.Contains(joined, "inferenceHints.codeSources[0]") {
-		t.Fatalf("want documents.catalog and inferenceHints.codeSources[0] escapes, got %+v", res.Diagnostics)
+	if len(got) != 2 || !strings.Contains(joined, "documents.catalog") || !strings.Contains(joined, "inferenceHints.exclude[0]") {
+		t.Fatalf("want documents.catalog and inferenceHints.exclude[0] escapes, got %+v", res.Diagnostics)
 	}
 	if res.Root != nil && len(res.Root.Children) != 0 {
 		t.Fatal("a dependency with escaping paths must not be loaded")
 	}
-	// The trace never follows the rejected code source either.
+	// The trace never reads the rejected dependency either.
 	_, traceDiags, err := BuildTraceMatrixFromFiles(filepath.Join(workspace, "engmod.yml"), filepath.Join(workspace, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
@@ -135,9 +135,8 @@ func TestWorkspaceReplacementSymlinkedDocumentIsConfined(t *testing.T) {
 	}
 }
 
-// The root model keeps its own loader behaviour: a root code source outside
-// the model directory (the template's ../ layouts) is not a composition
-// error.
+// The root model keeps its own loader behaviour: a root exclude glob that
+// leaves the model directory is not a composition error.
 // Mutation: applying the dependency confinement to the root model fails
 // this test.
 // TRLC-LINKS: REQ-EMG-049
@@ -155,7 +154,7 @@ func TestRootModelPathsAreNotDependencyConfined(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	writeFile(t, manifest, string(data)+"inferenceHints:\n  codeSources:\n    - ../shared-src\n")
+	writeFile(t, manifest, string(data)+"inferenceHints:\n  exclude:\n    - ../shared-src/**\n")
 	res, err := GenerateCompositionFromFile(manifest)
 	if err != nil {
 		t.Fatal(err)

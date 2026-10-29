@@ -165,3 +165,29 @@ func mustWrite(t *testing.T, path, text string) {
 		t.Fatal(err)
 	}
 }
+
+// GenerateAsciiDoc resolves CODE references for a bundle a caller loaded with
+// model.LoadBundle (engws check, MCP model.diagnose), not only through the
+// package's own file loaders.
+// Mutation: not attaching the code index in GenerateAsciiDoc fails this test.
+// TRLC-LINKS: REQ-EMG-059, REQ-EMG-068, REQ-EMG-069
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, "")
+	t.Setenv(LockEnv, "")
+	dir := t.TempDir()
+	writeInterfaceModule(t, dir)
+	mustWrite(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
+	mustWrite(t, filepath.Join(dir, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, _ := GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, AsciiDocOptions{})
+	assertDiag(t, result.Diagnostics, "model.invalid_requirement_source_ref", "CODE-SRC-GONE-GO")
+	for _, d := range result.Diagnostics {
+		if strings.Contains(d.Message, "CODE-SRC-IFACE-GO") {
+			t.Fatalf("resolvable CODE reference rejected: %+v", d)
+		}
+	}
+}

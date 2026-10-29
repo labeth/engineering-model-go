@@ -403,7 +403,7 @@ func WriteCompositionLock(path string, lock CompositionLockDocument) error {
 }
 
 // resolveSystem loads the model and recursively resolves manifest dependencies.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-018, REQ-EMG-035, REQ-EMG-036, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-018, REQ-EMG-035, REQ-EMG-036, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-067
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY, DEP-LOCAL-WORKSPACE
 func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, publicationID, manifestPath string, ancestry map[string]bool, root bool) (*ComposedSystem, []ImportedEntityProvenance, []CompositionLockDependency, []validate.Diagnostic) {
 	var diags []validate.Diagnostic
@@ -434,6 +434,11 @@ func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, public
 		SubsystemID: subsystemID, Dependency: dependencyAlias, Publication: publicationID,
 		ModulePath: bundle.Manifest.Module.Path, Version: bundle.Manifest.Module.Version,
 		Dir: filepath.Dir(manifestPath), Bundle: bundle, Requirements: bundle.Requirements,
+	}
+	if !root {
+		// A dependency's code is its own module directory (workspace checkout or
+		// module cache entry), never the consumer's repository around it.
+		sys.Bundle.CodeScopeRoot = sys.Dir
 	}
 
 	dependencies, ddiags := validateDependencies(bundle.Manifest, manifestPath)

@@ -4,6 +4,7 @@ package codemap
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -27,9 +28,11 @@ func scanFixture(t *testing.T, name, content string) map[string]Symbol {
 			t.Fatalf("unexpected error diagnostic: %+v", d)
 		}
 	}
+	// Key by declaration name: CODE-<FILE>--<NAME> becomes CODE-<NAME>.
+	prefix := FileID(name) + "--"
 	out := map[string]Symbol{}
 	for _, s := range symbols {
-		out[s.TraceID] = s
+		out["CODE-"+strings.TrimPrefix(s.TraceID, prefix)] = s
 	}
 	return out
 }

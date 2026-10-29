@@ -6,6 +6,10 @@ semantic versioning.
 
 ## [Unreleased]
 
+Code references derived from repository paths, fixes from field use of the trace, MCP and Gemara outputs,
+and multi-repository support from the `test-system` spike: everything runs locally (CLIs, `engws`, a
+per-checkout stdio MCP server) and dependencies come from the OCI registry into the local cache.
+
 ### Changed (breaking)
 
 - Code is scanned from the module root (git working tree root, or the manifest directory
@@ -17,19 +21,17 @@ semantic versioning.
 - `referencedElements` must describe artifacts outside the repository: a local or
   `file:` uri is rejected (`model.referenced_element_local_uri`), and a mutable uri needs
   a `version` unless it is pinned to a commit or doi.
+- A requirement `appliesTo` naming an unknown local ID is
+  now the error `requirement.invalid_applies_to` in model validation (it was only checked for
+  requirements deltas); `alias::ID` entries stay with composition.
+- An `alias::ID` reference in a model without composition (no dependency publishes it) is
+  now the error `composition.unpublished_reference`; it used to pass until a parent composed the model.
 
 ### Added
 
 - Every in-scope file gets a referenceable `CODE-<PATH>` ID. Authored references to
   `CODE-*` IDs are resolved during validation (unknown → broken reference, collisions →
   `model.ambiguous_code_reference`); the code index is only built when one is used.
-Fixes from field use of the trace, MCP and Gemara outputs.
-Fixes from field use of the trace, MCP and Gemara outputs, and multi-repository support from the
-`test-system` spike: everything runs locally (CLIs, `engws`, a per-checkout stdio MCP server) and
-dependencies come from the OCI registry into the local cache.
-
-### Added
-
 - **Workspace selection** (REQ-EMG-063): `ENGMOD_WORK=off` ignores every `engmod.work.yml`;
   `ENGMOD_WORK=<path>` uses that file only. `model.FindWorkspaceWith`, `engmodel.ResolutionOptions`, and
   `--workspace=off|<path>` on `engtrace`, `engdoc`, `enggemara`, `engoscal`, `engmcp`.
@@ -56,6 +58,14 @@ dependencies come from the OCI registry into the local cache.
   set, so no composing tool (exporters included) writes the lock or contacts the registry with a warm cache.
 - **MCP authoring help** (REQ-EMG-069): `model.complete` (local and imported IDs, catalog terms, enum values,
   relationship types) and `model.diagnose` (validate one document's edited content in memory).
+- `CheckGemaraModelConsistency`: compares rendered dispositions and risk treatment with the model;
+  `gemara.validate` returns `modelConsistencyErrors` and is `valid: false` on any. Adds REQ-EMG-062.
+- `model.authoringContract` returns `rules`: allowed enums, every allowed relationship type/from/to pair and
+  field rules, built from the validator's own tables (`validate.AuthoringRules`).
+- `gemara.validate` checks cross references across the rendered set (`crossReferenceErrors`, `valid`).
+- Requirement `lintWaivers: [{code: lint.*, reason}]`; waived warnings are suppressed, errors never are, and a
+  waiver without a reason is rejected.
+- `validate.DedupeDiagnostics` for callers that merge diagnostic lists.
 
 ### Changed
 
@@ -85,17 +95,9 @@ dependencies come from the OCI registry into the local cache.
   gate or continuous evaluation is claimed unless the model supports it; the default risk appetite is disclosed and
   `max-severity` left unset; the enforcement log cites only evaluation-log entries that exist; mapping-reference
   ids match artifact ids.
-
-### Added
-
-- `CheckGemaraModelConsistency`: compares rendered dispositions and risk treatment with the model;
-  `gemara.validate` returns `modelConsistencyErrors` and is `valid: false` on any. Adds REQ-EMG-062.
-- `model.authoringContract` returns `rules`: allowed enums, every allowed relationship type/from/to pair and
-  field rules, built from the validator's own tables (`validate.AuthoringRules`).
-- `gemara.validate` checks cross references across the rendered set (`crossReferenceErrors`, `valid`).
-- Requirement `lintWaivers: [{code: lint.*, reason}]`; waived warnings are suppressed, errors never are, and a
-  waiver without a reason is rejected.
-- `validate.DedupeDiagnostics` for callers that merge diagnostic lists.
+- A resolved dependency's code scope (delegated status, REQ-EMG-067) is its own module directory — the
+  workspace checkout or the module cache entry — minus its `inferenceHints.exclude` globs, never the
+  consumer repository around it; a dependency with no code there reports `not-available`.
 
 ### Fixed
 
@@ -124,11 +126,6 @@ dependencies come from the OCI registry into the local cache.
     the content fixes is not.
   - MCP `trace.matrix` returns each delegated row's `delegatedStatus` and the summary's
     `delegatedImplemented` and `delegatedTestLinked` (also with `summaryOnly`).
-  - **Breaking** for models with stale `appliesTo`: a requirement `appliesTo` naming an unknown local ID is
-    now the error `requirement.invalid_applies_to` in model validation (it was only checked for
-    requirements deltas); `alias::ID` entries stay with composition.
-  - **Breaking:** an `alias::ID` reference in a model without composition (no dependency publishes it) is
-    now the error `composition.unpublished_reference`; it used to pass until a parent composed the model.
   - Composition diagnostics located in a fetched dependency name it as `module@version:path` instead of the
     `.engmod/modules/<hash>` cache path; `composition.lock_mismatch` names `module@version` without the
     major suffix twice (`nats-interface@v0.1.0`, not `nats-interface@v0@v0.1.0`).
@@ -137,7 +134,7 @@ dependencies come from the OCI registry into the local cache.
 - Stacked `TRLC-LINKS` lines above one declaration accumulate.
 - **Security review fixes:**
   - Dependency confinement (REQ-EMG-049): a resolved dependency (registry module or workspace replacement)
-    whose manifest names a document, `inferenceHints.codeSources` or `runtimeSources` entry that is absolute
+    whose manifest names a document, `inferenceHints.runtimeSources` entry or `inferenceHints.exclude` glob that is absolute
     or resolves (after symlinks) outside the dependency module is rejected as
     `composition.dependency_path_escape`, naming the alias and field, before any of its documents is read; no
     content of the target reaches a diagnostic. The root model's own paths are unchanged.

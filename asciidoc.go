@@ -67,7 +67,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	if err != nil {
 		return AsciiDocResult{}, err
 	}
-	bundle = canonical.Documents()
+	bundle = withCodeIndex(canonical.Documents())
 	requirements = bundle.Requirements
 	design = bundle.Design
 	composition, compositionErr := composeForGeneration(bundle, options.Composition, options.Resolution)

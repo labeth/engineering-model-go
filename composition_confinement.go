@@ -22,8 +22,9 @@ import (
 
 // dependencyPathEscapes reports every path of the dependency at moduleRoot
 // that is absolute or resolves, after symlinks, outside moduleRoot: its
-// engmod.yml and cue.mod/module.cue, each manifest document reference and
-// each inferenceHints code and runtime source. It reads only engmod.yml
+// engmod.yml and cue.mod/module.cue, each manifest document reference, each
+// inferenceHints runtime source and each inferenceHints exclude glob (which
+// must stay relative to the module). It reads only engmod.yml
 // (never a referenced file), so no diagnostic can carry the content of a
 // file outside the module.
 // TRLC-LINKS: REQ-EMG-049, REQ-EMG-017
@@ -69,8 +70,12 @@ func dependencyPathEscapes(alias, moduleRoot, manifestPath string) []validate.Di
 	} {
 		check(ref.field, ref.value)
 	}
-	for i, src := range manifest.InferenceHints.CodeSources {
-		check(fmt.Sprintf("inferenceHints.codeSources[%d]", i), src)
+	// The dependency's code scope is its module directory (ComposedSystem.Dir);
+	// exclude globs are anchored there and must not name anything outside it.
+	for i, pattern := range manifest.InferenceHints.Exclude {
+		if p := strings.TrimSpace(pattern); p != "" && (filepath.IsAbs(p) || strings.HasPrefix(p, "/") || !filepath.IsLocal(filepath.FromSlash(p))) {
+			escape(fmt.Sprintf("inferenceHints.exclude[%d]", i), p)
+		}
 	}
 	for i, src := range manifest.InferenceHints.RuntimeSources {
 		check(fmt.Sprintf("inferenceHints.runtimeSources[%d]", i), src)

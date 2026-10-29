@@ -613,18 +613,19 @@ func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string,
 }
 
 // dependencyTraceRows computes a resolved dependency's own trace matrix rows
-// by requirement id, from its code sources in its resolved directory (local
-// replacement or module cache). ok is false when it has no code sources.
+// by requirement id, scanning its module directory (local replacement or
+// module cache entry, minus its exclude globs) the way the root model's module
+// root is scanned. ok is false when that directory holds no source code.
 // TRLC-LINKS: REQ-EMG-067
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func dependencyTraceRows(child *ComposedSystem) (map[string]TraceRow, bool) {
 	bundle := child.Bundle
-	if len(effectiveCodeRoots(bundle, "")) == 0 {
-		return nil, false
-	}
 	code, _ := inferCodeItems(bundle, "")
 	verification, _ := inferVerificationChecks(bundle, bundle.Requirements, code, "")
 	scoped := scopeCodeToModel(code, effectiveCodeRoots(bundle, ""), modelRootDir(bundle))
+	if len(scoped) == 0 && len(verification) == 0 {
+		return nil, false
+	}
 	delegations := map[string][]MaterializedAllocation{}
 	for _, m := range materializeAllocations(&ComposedSystem{Bundle: bundle, Children: child.Children, Requirements: child.Requirements}) {
 		if m.System == strings.TrimSpace(bundle.Architecture.Model.ID) {
