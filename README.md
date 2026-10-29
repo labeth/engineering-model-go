@@ -268,7 +268,7 @@ Verification metadata is inferred from test artifacts:
 - requirement IDs in result artifacts are inferred by matching `REQ-*` tokens in result content
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
-- strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are not referenced by any requirement text (`catalog.term_unreferenced`)
+- strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
 
 ### Code trace markers
 
@@ -616,7 +616,7 @@ It exposes 50+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, and RSL export
 - `interfaces.*`: software and HW/SW interface resolution and code matching
 - `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
-- `trace.matrix`: per-requirement implemented/verified/delegated/orphan status, code references, and dangling code trace links
+- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:

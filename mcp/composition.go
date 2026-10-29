@@ -83,12 +83,31 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 
 // traceMatrix builds the traceability matrix for the loaded model: per-requirement
 // implementation, verification, and delegation status, with orphans and dangling links.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030
+// With summaryOnly it returns only the summary and diagnostics.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
-func (s *Server) traceMatrix() (map[string]any, error) {
+func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFiles(s.modelPath, s.requirementsPath, "")
 	if err != nil {
 		return nil, err
+	}
+	out := map[string]any{
+		"model": matrix.Model,
+		"summary": map[string]any{
+			"requirements": matrix.Summary.Requirements,
+			"implemented":  matrix.Summary.Implemented,
+			"tested":       matrix.Summary.Tested,
+			"testLinked":   matrix.Summary.TestLinked,
+			"passed":       matrix.Summary.Passed,
+			"verified":     matrix.Summary.Verified, // deprecated alias of testLinked
+			"delegated":    matrix.Summary.Delegated,
+			"orphan":       matrix.Summary.Orphan,
+			"dangling":     matrix.Summary.DanglingLinks,
+		},
+		"diagnostics": diagRows(diags),
+	}
+	if summaryOnly {
+		return out, nil
 	}
 	rows := make([]map[string]any, 0, len(matrix.Requirements))
 	for _, r := range matrix.Requirements {
@@ -120,21 +139,10 @@ func (s *Server) traceMatrix() (map[string]any, error) {
 	for _, d := range matrix.DanglingLinks {
 		dangling = append(dangling, map[string]any{"kind": d.Kind, "target": d.Target, "from": d.From})
 	}
-	return map[string]any{
-		"model": matrix.Model,
-		"summary": map[string]any{
-			"requirements": matrix.Summary.Requirements,
-			"implemented":  matrix.Summary.Implemented,
-			"verified":     matrix.Summary.Verified,
-			"delegated":    matrix.Summary.Delegated,
-			"orphan":       matrix.Summary.Orphan,
-			"dangling":     matrix.Summary.DanglingLinks,
-		},
-		"requirements":  rows,
-		"orphans":       matrix.Orphans,
-		"danglingLinks": dangling,
-		"diagnostics":   diagRows(diags),
-	}, nil
+	out["requirements"] = rows
+	out["orphans"] = matrix.Orphans
+	out["danglingLinks"] = dangling
+	return out, nil
 }
 
 // diagRows renders diagnostics as compact maps for MCP tool responses.

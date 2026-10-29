@@ -8,14 +8,14 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: sample-payments-layered-model-POLICY
     title: Policy
     version: 1.1.0
-disposition: Enforced
+disposition: Undetermined
 actions:
-- disposition: Enforced
+- disposition: Undetermined
   method:
     reference-id: sample-payments-layered-model-POLICY
     entry-id: ENM-REMEDIATION

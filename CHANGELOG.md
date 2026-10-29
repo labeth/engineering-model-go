@@ -27,18 +27,37 @@ Fixes from field use of the trace, MCP and Gemara outputs.
 
 ### Changed
 
+- **Trace:** the summary adds `testLinked` (equal to `tested`). `verified` is **deprecated**: it stays as an
+  alias of `testLinked` for existing callers, because a linked test is not a verification. `trace.matrix`
+  over MCP now reports `tested`, `testLinked` and `passed`, and accepts `summaryOnly` (`true` or `"true"`) to
+  return only the summary and diagnostics.
+- **Gemara enforcement log:** an action is `Enforced` only for a `completed` POA&M item and `Tolerated` only
+  for an accepted one; `planned`, `in-progress`, `deferred` and unset items are `Undetermined`. The aggregate
+  is `Undetermined` while any item is unresolved (it was `Enforced` for planned work).
+- **Gemara policy:** `risks.mitigated` lists only `closed` risks; `risks.accepted` lists risks with status
+  `accepted` or response `accept`. Open and mitigating risks are in neither list (Gemara has no other bucket
+  or notes field) and the export diagnostic `gemara.policy_risks_untreated` names them.
+- **Gemara metadata:** the default `metadata.author` (the generator) is typed `Software`, not `Human`;
+  `GemaraExportOptions.AuthorType` overrides it.
+- `catalog.term_unreferenced` counts a term as referenced when its name or alias appears in any authored
+  model text other than its own entry (requirement notes, verification criteria and rationale, other
+  catalog entries, architecture/behavior/assurance/compliance/views/decisions text). The message now says
+  "is not referenced anywhere in the model".
+- `golang.org/x/text` v0.39.0 (GO-2026-5970); `golang.org/x/tools` v0.47.0 follows.
 - **Trace:** only test entry points verify a requirement (Go `Test/Benchmark/Fuzz/Example`, Rust `#[test]`-like
   functions including inside `#[cfg(test)]` modules, Python `test_*`). `TRLC-LINKS` on helpers, fakes and
   fixtures in test code raise `verification.helper_link` instead of counting. Rust `#[cfg(test)]` code is no
   longer counted as implementation. The summary adds `tested` and `passed` and each row a `result`
   (`passed`/`failed`/`not-run`); `verified` equals `tested` for compatibility. The CSV gains a `result` column.
-- **Gemara:** policy contacts come from model owners ("not set" otherwise); no automated gate or continuous
-  evaluation is claimed unless the model supports it; the default risk appetite is disclosed and
+- **Gemara contacts and adherence:** policy contacts come from model owners ("not set" otherwise); no automated
+  gate or continuous evaluation is claimed unless the model supports it; the default risk appetite is disclosed and
   `max-severity` left unset; the enforcement log cites only evaluation-log entries that exist; mapping-reference
   ids match artifact ids.
 
 ### Added
 
+- `CheckGemaraModelConsistency`: compares rendered dispositions and risk treatment with the model;
+  `gemara.validate` returns `modelConsistencyErrors` and is `valid: false` on any. Adds REQ-EMG-062.
 - `model.authoringContract` returns `rules`: allowed enums, every allowed relationship type/from/to pair and
   field rules, built from the validator's own tables (`validate.AuthoringRules`).
 - `gemara.validate` checks cross references across the rendered set (`crossReferenceErrors`, `valid`).

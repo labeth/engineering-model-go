@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
     title: Control Catalog
@@ -50,24 +50,6 @@ implementation-plan:
   enforcement-timeline:
     start: "2026-09-19T00:00:00Z"
     notes: not set in the model
-risks:
-  mitigated:
-  - id: MIT-RISK-PAYMENTS-SSO-MFA-GAP
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-PAYMENTS-SSO-MFA-GAP
-  - id: MIT-RISK-PAYMENTS-CHECKOUT-SPOOFING
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-PAYMENTS-CHECKOUT-SPOOFING
-  - id: MIT-RISK-PAYMENTS-BANK-CALLBACK-REPLAY
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-PAYMENTS-BANK-CALLBACK-REPLAY
-  - id: MIT-RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-PAYMENTS-MANUAL-REVIEW-TAMPER
 adherence:
   evaluation-methods:
   - id: EM-INTENT

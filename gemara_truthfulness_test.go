@@ -236,7 +236,10 @@ func TestGemaraCrossReferenceCheckReportsInjectedDanglingRef(t *testing.T) {
 		t.Fatalf("dangling TS-DOES-NOT-EXIST not reported: %+v", errs)
 	}
 
-	docs["policy"] = strings.Replace(docs["policy"], "reference-id: ENGMOD-RISK-CATALOG", "reference-id: ENGMOD-MISSING-CATALOG", 1)
+	if !strings.Contains(docs["policy"], "reference-id: ENGMOD-CONTROL-CATALOG") {
+		t.Fatalf("fixture changed: policy no longer imports ENGMOD-CONTROL-CATALOG")
+	}
+	docs["policy"] = strings.Replace(docs["policy"], "reference-id: ENGMOD-CONTROL-CATALOG", "reference-id: ENGMOD-MISSING-CATALOG", 1)
 	errs = CheckGemaraCrossReferences(docs)
 	found = false
 	for _, e := range errs {
@@ -272,4 +275,163 @@ func renderGemaraSet(t *testing.T, modelPath string) map[string]string {
 		docs["evaluation-log"] = evalRes.YAML
 	}
 	return docs
+}
+
+// An enforcement action is Enforced only for a completed POA&M item and
+// Tolerated only for an accepted one; planned, in-progress, deferred and unset
+// items are Undetermined, and so is the aggregate while any item is open.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraEnforcementDispositionFollowsPOAMStatus(t *testing.T) {
+	b := gemaraTruthBundle("test")
+	a := &b.Architecture.AuthoredArchitecture
+	a.POAMItems = []model.POAMItem{
+		{ID: "POAM-1", RiskRef: "RISK-A", Milestone: "m", Status: "completed"},
+		{ID: "POAM-2", RiskRef: "RISK-A", Milestone: "m", Status: "accepted"},
+		{ID: "POAM-3", RiskRef: "RISK-A", Milestone: "m", Status: "planned"},
+		{ID: "POAM-4", RiskRef: "RISK-A", Milestone: "m", Status: "in-progress"},
+		{ID: "POAM-5", RiskRef: "RISK-A", Milestone: "m", Status: "deferred"},
+		{ID: "POAM-6", RiskRef: "RISK-A", Milestone: "m"},
+	}
+	res := generateTruth(t, b)
+	want := []gemara.Disposition{gemara.DispositionEnforced, gemara.DispositionTolerated, gemara.DispositionUndetermined, gemara.DispositionUndetermined, gemara.DispositionUndetermined, gemara.DispositionUndetermined}
+	if len(res.EnforcementLog.Actions) != len(want) {
+		t.Fatalf("actions = %d, want %d", len(res.EnforcementLog.Actions), len(want))
+	}
+	for i, w := range want {
+		if got := res.EnforcementLog.Actions[i].Disposition; got != w {
+			t.Errorf("%s disposition = %v, want %v", a.POAMItems[i].ID, got, w)
+		}
+	}
+	if res.EnforcementLog.Disposition != gemara.DispositionUndetermined {
+		t.Fatalf("aggregate with open items = %v, want Undetermined", res.EnforcementLog.Disposition)
+	}
+	if !strings.Contains(res.YAML["enforcement-log"], "disposition: Undetermined") {
+		t.Fatalf("Undetermined must serialize:\n%s", res.YAML["enforcement-log"])
+	}
+
+	for _, tc := range []struct {
+		statuses []string
+		want     gemara.Disposition
+	}{
+		{[]string{"planned", "planned"}, gemara.DispositionUndetermined},
+		{[]string{"accepted", "accepted"}, gemara.DispositionTolerated},
+		{[]string{"completed", "accepted"}, gemara.DispositionEnforced},
+		{[]string{"completed", "completed"}, gemara.DispositionEnforced},
+	} {
+		a.POAMItems = nil
+		for i, st := range tc.statuses {
+			a.POAMItems = append(a.POAMItems, model.POAMItem{ID: "POAM-" + string(rune('A'+i)), RiskRef: "RISK-A", Milestone: "m", Status: st})
+		}
+		if got := generateTruth(t, b).EnforcementLog.Disposition; got != tc.want {
+			t.Errorf("aggregate for %v = %v, want %v", tc.statuses, got, tc.want)
+		}
+	}
+}
+
+// Policy risks.mitigated lists only closed risks; accepted lists risks with
+// status accepted or response accept; open and mitigating risks are in neither
+// list and a diagnostic says so.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraPolicyRisksFollowRiskStatus(t *testing.T) {
+	b := gemaraTruthBundle("test")
+	a := &b.Architecture.AuthoredArchitecture
+	a.Risks = []model.Risk{
+		{ID: "RISK-OPEN", Title: "o", Likelihood: "low", Impact: "low", Status: "open", Response: "mitigate"},
+		{ID: "RISK-MITIGATING", Title: "m", Likelihood: "low", Impact: "low", Status: "mitigating", Response: "mitigate"},
+		{ID: "RISK-CLOSED", Title: "c", Likelihood: "low", Impact: "low", Status: "closed", Response: "mitigate"},
+		{ID: "RISK-ACCEPTED", Title: "a", Likelihood: "low", Impact: "low", Status: "accepted", Response: "mitigate"},
+		{ID: "RISK-ACCEPT-RESPONSE", Title: "r", Likelihood: "low", Impact: "low", Status: "open", Response: "accept", Rationale: "cheap"},
+	}
+	a.ControlVerifications[0].RiskRefs = []string{"RISK-OPEN"}
+	a.POAMItems = []model.POAMItem{{ID: "POAM-A", RiskRef: "RISK-OPEN", Milestone: "m", Status: "planned"}}
+	res := generateTruth(t, b)
+	var mitigated, accepted []string
+	for _, r := range res.Policy.Risks.Mitigated {
+		mitigated = append(mitigated, r.Risk.EntryId)
+	}
+	for _, r := range res.Policy.Risks.Accepted {
+		accepted = append(accepted, r.Risk.EntryId)
+	}
+	if strings.Join(mitigated, ",") != "RISK-CLOSED" {
+		t.Fatalf("mitigated = %v, want only RISK-CLOSED", mitigated)
+	}
+	if strings.Join(accepted, ",") != "RISK-ACCEPTED,RISK-ACCEPT-RESPONSE" {
+		t.Fatalf("accepted = %v", accepted)
+	}
+	found := false
+	for _, d := range res.Diagnostics {
+		if d.Code == "gemara.policy_risks_untreated" && strings.Contains(d.Message, "RISK-OPEN") && strings.Contains(d.Message, "RISK-MITIGATING") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected gemara.policy_risks_untreated naming the open risks, got %+v", res.Diagnostics)
+	}
+}
+
+// The default metadata author is the generator, typed Software; an explicit
+// AuthorType overrides it.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraGeneratorAuthorIsSoftware(t *testing.T) {
+	res, err := GenerateGemara(gemaraTruthBundle("test"), GemaraExportOptions{Date: "2026-06-26T00:00:00Z"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	au := res.Policy.Metadata.Author
+	if au.Id != "engmod" || au.Type != gemara.Software {
+		t.Fatalf("default author = %+v, want engmod typed Software", au)
+	}
+	if !strings.Contains(res.YAML["policy"], "type: Software") {
+		t.Fatalf("policy YAML must carry author type Software")
+	}
+	res, err = GenerateGemara(gemaraTruthBundle("test"), GemaraExportOptions{AuthorName: "Jane Doe", AuthorType: gemara.Human, Date: "2026-06-26T00:00:00Z"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Policy.Metadata.Author.Type != gemara.Human {
+		t.Fatalf("AuthorType override ignored: %+v", res.Policy.Metadata.Author)
+	}
+}
+
+// The model consistency check passes on the rendered set and catches an
+// Enforced action for an open POA&M item, a non-closed risk listed as
+// mitigated, and a non-accepted risk listed as accepted.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraModelConsistencyCatchesOverclaims(t *testing.T) {
+	b := gemaraTruthBundle("test")
+	a := &b.Architecture.AuthoredArchitecture
+	a.Risks[0].Status = "open"
+	a.Risks[1].Status = "closed"
+	res := generateTruth(t, b)
+	docs := map[string]string{}
+	for k, v := range res.YAML {
+		docs[k] = v
+	}
+	if errs := CheckGemaraModelConsistency(b, docs); len(errs) != 0 {
+		t.Fatalf("rendered set must be consistent, got %+v", errs)
+	}
+	enf := docs["enforcement-log"]
+	if !strings.Contains(enf, "disposition: Undetermined") {
+		t.Fatalf("fixture changed: no Undetermined action:\n%s", enf)
+	}
+	docs["enforcement-log"] = strings.ReplaceAll(enf, "disposition: Undetermined", "disposition: Enforced")
+	pol := docs["policy"]
+	docs["policy"] = strings.Replace(pol, "entry-id: RISK-B", "entry-id: RISK-A", 1)
+	errs := CheckGemaraModelConsistency(b, docs)
+	var enforced, mitigated bool
+	for _, e := range errs {
+		if e.Artifact == "enforcement-log" && strings.Contains(e.Message, "POAM-A") {
+			enforced = true
+		}
+		if e.Artifact == "policy" && strings.Contains(e.Message, "RISK-A") {
+			mitigated = true
+		}
+	}
+	if !enforced || !mitigated {
+		t.Fatalf("expected enforcement and policy overclaims, got %+v", errs)
+	}
 }

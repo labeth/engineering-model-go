@@ -20,7 +20,7 @@
       "parties": [
         {
           "name": "Engineering Model Go Examples",
-          "type": "person",
+          "type": "organization",
           "uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9"
         }
       ],
@@ -146,7 +146,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -181,7 +181,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -209,7 +209,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -237,7 +237,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -265,7 +265,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -319,7 +319,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -355,7 +355,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -391,7 +391,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -427,7 +427,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -463,7 +463,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -499,7 +499,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -535,7 +535,7 @@
                   {
                     "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }

@@ -230,6 +230,7 @@
     "implemented": 6,
     "verified": 7,
     "tested": 7,
+    "testLinked": 7,
     "passed": 4,
     "delegated": 0,
     "orphan": 2,

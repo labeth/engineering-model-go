@@ -8,7 +8,7 @@ metadata:
   author:
     id: atlas-industries
     name: Atlas Industries
-    type: Human
+    type: Software
   mapping-references:
   - id: atlas-industries-portfolio-EVALUATION-LOG
     title: Evaluation Log
@@ -16,9 +16,9 @@ metadata:
   - id: atlas-industries-portfolio-POLICY
     title: Policy
     version: 1.1.0
-disposition: Enforced
+disposition: Undetermined
 actions:
-- disposition: Enforced
+- disposition: Undetermined
   method:
     reference-id: atlas-industries-portfolio-POLICY
     entry-id: ENM-REMEDIATION

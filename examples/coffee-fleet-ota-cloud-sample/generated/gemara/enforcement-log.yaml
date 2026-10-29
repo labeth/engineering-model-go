@@ -8,7 +8,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: sample-coffee-fleet-ota-cloud-model-EVALUATION-LOG
     title: Evaluation Log
@@ -16,9 +16,9 @@ metadata:
   - id: sample-coffee-fleet-ota-cloud-model-POLICY
     title: Policy
     version: 1.1.0
-disposition: Enforced
+disposition: Undetermined
 actions:
-- disposition: Enforced
+- disposition: Undetermined
   method:
     reference-id: sample-coffee-fleet-ota-cloud-model-POLICY
     entry-id: ENM-REMEDIATION

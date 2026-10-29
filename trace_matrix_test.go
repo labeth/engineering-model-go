@@ -2,6 +2,7 @@
 package engmodel
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -125,5 +126,28 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 	scoped := scopeCodeToModel(items, []string{dir}, dir)
 	if len(scoped) != 1 || scoped[0].Element != "p" {
 		t.Fatalf("expected only parent code attributed to TOP, got %+v", scoped)
+	}
+}
+
+// TestTraceSummaryJSONReportsTestLinked verifies the summary serializes
+// testLinked (equal to tested) and keeps verified as a deprecated alias.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
+	checks := []inferredVerificationCheck{{ID: "VC-X", Name: "TestX", Verifies: []string{"REQ-X-001"}}}
+	m := buildTraceMatrix(model.Bundle{}, reqs, nil, checks, nil)
+	raw, err := json.Marshal(m.Summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{"testLinked", "tested", "verified"} {
+		if got[key] != float64(1) {
+			t.Fatalf("summary %s = %v, want 1 (%s)", key, got[key], raw)
+		}
 	}
 }

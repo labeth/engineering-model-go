@@ -183,6 +183,65 @@ func TestLintModelRequirementsEARS_SuppressesTermsUsedInModel(t *testing.T) {
 	}
 }
 
+// A catalog term whose name appears in any authored model text other than its
+// own entry (requirement notes or verification criteria, another catalog
+// entry's definition, an architecture, behavior or assurance description) is
+// in use; a term named only in its own definition is still reported, with a
+// message that says "anywhere in the model".
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func TestLintModelRequirementsEARS_TermNamedInModelTextIsReferenced(t *testing.T) {
+	var bundle model.Bundle
+	bundle.Catalog = model.CatalogDocument{Catalog: model.CatalogGroups{
+		Systems: []model.CatalogEntry{{ID: "SYS-COFFEE-FLEET-SYSTEM", Name: "coffee fleet system"}},
+		Events:  []model.CatalogEntry{{ID: "EVT-TELEMETRY-INGESTED", Name: "telemetry ingested event is received", Definition: "One output period, the inverse of the output rate, has passed."}},
+		DataTerms: []model.CatalogEntry{
+			{ID: "DATA-BREW-TELEMETRY", Name: "brew telemetry"},
+			{ID: "DATA-OUTPUT-RATE", Name: "output rate"},
+			{ID: "DATA-NOTES-ONLY", Name: "grind size"},
+			{ID: "DATA-CRITERIA-ONLY", Name: "water hardness"},
+			{ID: "DATA-ARCH-ONLY", Name: "boiler pressure"},
+			{ID: "DATA-BEHAVIOR-ONLY", Name: "descale cycle"},
+			{ID: "DATA-ASSURANCE-ONLY", Name: "tamper seal"},
+			{ID: "DATA-SELF-ONLY", Name: "milk froth", Definition: "The milk froth level."},
+		},
+	}}
+	bundle.Architecture.AuthoredArchitecture.FunctionalUnits = []model.FunctionalUnit{{ID: "FU-BOILER", Name: "Boiler", Prose: "Holds the Boiler Pressure."}}
+	bundle.Behavior.Behavior.Events = []model.Event{{ID: "EVT-X", Name: "Starts the descale cycle"}}
+	bundle.Assurance.Assurance.Risks = []model.Risk{{ID: "RISK-1", Statement: "A broken tamper seal goes unnoticed."}}
+	requirements := model.RequirementsDocument{
+		LintRun: model.LintRun{ID: "lint-coverage-text", Mode: "strict", CommaAsAnd: true},
+		Requirements: []model.Requirement{{
+			ID:                   "REQ-TST-005",
+			Text:                 "When telemetry ingested event is received, the coffee fleet system shall publish brew telemetry.",
+			Notes:                "The grind size is fixed.",
+			VerificationCriteria: "Measured at nominal water hardness.",
+		}},
+	}
+	reported := map[string]string{}
+	for _, d := range lintModelRequirementsEARS(bundle, requirements) {
+		if d.Code != "catalog.term_unreferenced" {
+			continue
+		}
+		for _, e := range bundle.Catalog.Catalog.DataTerms {
+			if strings.Contains(d.Message, "("+e.ID+")") {
+				reported[e.ID] = d.Message
+			}
+		}
+	}
+	for _, id := range []string{"DATA-OUTPUT-RATE", "DATA-NOTES-ONLY", "DATA-CRITERIA-ONLY", "DATA-ARCH-ONLY", "DATA-BEHAVIOR-ONLY", "DATA-ASSURANCE-ONLY"} {
+		if msg, ok := reported[id]; ok {
+			t.Errorf("%s is named in model text but reported: %s", id, msg)
+		}
+	}
+	msg, ok := reported["DATA-SELF-ONLY"]
+	if !ok {
+		t.Fatalf("term named only in its own entry must be reported: %v", reported)
+	}
+	if !strings.Contains(msg, "anywhere in the model") || strings.Contains(msg, "requirement text") {
+		t.Fatalf("message = %q, want it to say anywhere in the model", msg)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestSuppressWaivedDiagnostics(t *testing.T) {
 	diags := []validate.Diagnostic{

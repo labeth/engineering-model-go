@@ -20,7 +20,7 @@
       "parties": [
         {
           "name": "Engineering Model Go Examples",
-          "type": "person",
+          "type": "organization",
           "uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95"
         }
       ],
@@ -97,7 +97,7 @@
                   {
                     "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -129,7 +129,7 @@
                   {
                     "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -184,7 +184,7 @@
                   {
                     "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -220,7 +220,7 @@
                   {
                     "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -256,7 +256,7 @@
                   {
                     "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }

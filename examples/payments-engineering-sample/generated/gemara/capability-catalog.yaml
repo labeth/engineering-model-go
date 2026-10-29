@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
 capabilities:
 - id: CAP-SYSTEM
   title: Sample Payments Layered Architecture

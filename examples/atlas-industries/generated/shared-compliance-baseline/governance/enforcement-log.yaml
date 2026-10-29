@@ -8,7 +8,7 @@ metadata:
   author:
     id: atlas-industries
     name: Atlas Industries
-    type: Human
+    type: Software
   mapping-references:
   - id: atlas-shared-compliance-baseline-EVALUATION-LOG
     title: Evaluation Log
@@ -16,9 +16,9 @@ metadata:
   - id: atlas-shared-compliance-baseline-POLICY
     title: Policy
     version: 1.1.0
-disposition: Enforced
+disposition: Undetermined
 actions:
-- disposition: Enforced
+- disposition: Undetermined
   method:
     reference-id: atlas-shared-compliance-baseline-POLICY
     entry-id: ENM-REMEDIATION
@@ -33,7 +33,7 @@ actions:
       log:
         reference-id: atlas-shared-compliance-baseline-EVALUATION-LOG
         entry-id: CV-COMP-ACCESS-REVIEW
-- disposition: Enforced
+- disposition: Undetermined
   method:
     reference-id: atlas-shared-compliance-baseline-POLICY
     entry-id: ENM-REMEDIATION

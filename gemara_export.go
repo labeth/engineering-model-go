@@ -48,8 +48,11 @@ const systemCapabilityID = "CAP-SYSTEM"
 // GemaraExportOptions configures the deterministic metadata stamped into artifacts.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 type GemaraExportOptions struct {
-	AuthorID           string // metadata.author.id (default "engmod")
-	AuthorName         string // metadata.author.name (default "Engineering Model")
+	AuthorID   string // metadata.author.id (default "engmod")
+	AuthorName string // metadata.author.name (default "Engineering Model")
+	// AuthorType is metadata.author.type. The default author is this generator,
+	// so the zero value renders Software; set Human when a person signs.
+	AuthorType         gemara.EntityType
 	Version            string // metadata.version (optional)
 	Date               string // metadata.date, ISO 8601 (optional; omitted when empty for reproducibility)
 	AssessmentPlanHref string // OSCAL Assessment Results import-ap href
@@ -272,6 +275,9 @@ func newGemaraConfig(bundle model.Bundle, options GemaraExportOptions) gemaraCon
 	if strings.TrimSpace(options.AuthorName) == "" {
 		options.AuthorName = "Engineering Model"
 	}
+	if options.AuthorType == gemara.InvalidEntityType {
+		options.AuthorType = gemara.Software
+	}
 	id := strings.TrimSpace(bundle.Architecture.Model.ID)
 	if id == "" {
 		id = "engmod-model"
@@ -287,7 +293,7 @@ func newGemaraConfig(bundle model.Bundle, options GemaraExportOptions) gemaraCon
 		author: gemara.Actor{
 			Id:   slug(options.AuthorID),
 			Name: options.AuthorName,
-			Type: gemara.Human,
+			Type: options.AuthorType,
 		},
 	}
 }

@@ -88,7 +88,7 @@ var toolArgsAllowlist = map[string][]string{
 	"generation.plan":              {},
 	"generation.status":            {},
 	"composition.resolve":          {},
-	"trace.matrix":                 {},
+	"trace.matrix":                 {"summaryOnly"},
 	"governance.policy":            {},
 	"governance.checkPatch":        {"diff"},
 	"tasks.entryPoints":            {},
@@ -169,7 +169,7 @@ func NewServer() *Server {
 		{Name: "generation.plan", Description: "Plan artifact regeneration"},
 		{Name: "generation.status", Description: "Get artifact freshness status"},
 		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
-		{Name: "trace.matrix", Description: "Traceability matrix: per-requirement implemented/verified/delegated/orphan status, code references, and dangling code trace links"},
+		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling; verified is a deprecated alias of testLinked), per-requirement status, code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
 		{Name: "tasks.entryPoints", Description: "List task entry points"},
@@ -207,7 +207,7 @@ func NewServer() *Server {
 		{Name: "gemara.auditLog", Description: "Render the OpenSSF Gemara L7 Audit Log (YAML) from the model"},
 		{Name: "gemara.enforcementLog", Description: "Render the OpenSSF Gemara L6 Enforcement Log (YAML) from POA&M items"},
 		{Name: "gemara.evaluationLog", Description: "Render the OpenSSF Gemara L5 Evaluation Log (YAML) from the model"},
-		{Name: "gemara.validate", Description: "Validate all generated Gemara artifacts via the go-gemara SDK type discriminator"},
+		{Name: "gemara.validate", Description: "Validate all generated Gemara artifacts: go-gemara SDK type discriminator, cross references within the set, and dispositions and risk treatment against the model"},
 	}
 	m := map[string]Tool{}
 	for _, t := range all {
@@ -679,7 +679,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(data)
 	case "trace.matrix":
-		data, err := s.traceMatrix()
+		data, err := s.traceMatrix(boolArg(args, "summaryOnly"))
 		if err != nil {
 			return nil, err
 		}
@@ -1814,6 +1814,21 @@ func isTestPath(path string) bool {
 		strings.HasSuffix(base, ".spec.tsx")
 }
 
+// boolArg reads a flag argument sent as a JSON boolean or as the string
+// "true"/"false" (case-insensitive); anything else is false.
+// TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-STRICT-MCP-INPUT-SCHEMA
+func boolArg(args map[string]any, key string) bool {
+	switch v := args[key].(type) {
+	case bool:
+		return v
+	case string:
+		return strings.EqualFold(strings.TrimSpace(v), "true")
+	default:
+		return false
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 func maxArg(args map[string]any, fallback int) int {
@@ -2516,12 +2531,21 @@ func containsString(in []string, target string) bool {
 	return false
 }
 
+// booleanToolArgs lists the arguments that are flags; their schema accepts a
+// JSON boolean or the strings "true"/"false".
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-STRICT-MCP-INPUT-SCHEMA
+var booleanToolArgs = map[string]bool{"summaryOnly": true}
+
 // TRLC-LINKS: REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func inputSchemaForTool(name string) map[string]any {
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
 	for _, k := range allowed {
+		if booleanToolArgs[k] {
+			props[k] = map[string]any{"type": []string{"boolean", "string"}, "enum": []any{true, false, "true", "false"}}
+			continue
+		}
 		props[k] = map[string]any{"type": "string"}
 	}
 	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}

@@ -404,3 +404,32 @@ func TestVerification_PythonConftestFixturesDoNotVerify(t *testing.T) {
 		t.Fatalf("helper_link: %v", got)
 	}
 }
+
+// In a Go test file an unmarked helper function or method raises no
+// code.missing_trlc_link, an unmarked Test function does, and a marked helper
+// raises only the verification.helper_link warning.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func TestVerification_GoUnmarkedTestHelpersNeedNoLinks(t *testing.T) {
+	src := "package sample\n\nimport \"testing\"\n\n" +
+		"type fakeClock struct{}\n\n" +
+		"func (fakeClock) Now() int { return 1 }\n\n" +
+		"func newFake() fakeClock { return fakeClock{} }\n\n" +
+		"// TRLC-LINKS: REQ-GO-001\n" +
+		"func markedHelper() {}\n\n" +
+		"func TestUnlinked(t *testing.T) {}\n\n" +
+		"// TRLC-LINKS: REQ-GO-001\n" +
+		"func TestLinked(t *testing.T) {}\n"
+	_, _, diags := verificationFixture(t, map[string]string{"clock_test.go": src}, "REQ-GO-001")
+	missing := map[string]bool{}
+	for _, d := range diags {
+		if d.Code == "code.missing_trlc_link" {
+			missing[d.Path] = true
+		}
+	}
+	if len(missing) != 1 || !missing["clock_test.go:14"] {
+		t.Fatalf("missing_trlc_link = %v, want only the unlinked Test at clock_test.go:14", missing)
+	}
+	if got := helperLinkPaths(t, diags); !got["clock_test.go:12"] || len(got) != 1 {
+		t.Fatalf("helper_link = %v, want only clock_test.go:12", got)
+	}
+}

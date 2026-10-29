@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
     title: Control Catalog
@@ -53,24 +53,6 @@ implementation-plan:
   enforcement-timeline:
     start: "2026-09-19T00:00:00Z"
     notes: not set in the model
-risks:
-  mitigated:
-  - id: MIT-RISK-COFFEE-DEVICE-SPOOFING
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-COFFEE-DEVICE-SPOOFING
-  - id: MIT-RISK-COFFEE-MALICIOUS-OTA
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-COFFEE-MALICIOUS-OTA
-  - id: MIT-RISK-COFFEE-TELEMETRY-REPLAY
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-COFFEE-TELEMETRY-REPLAY
-  - id: MIT-RISK-COFFEE-LOG-TAMPERING
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-COFFEE-LOG-TAMPERING
 adherence:
   evaluation-methods:
   - id: EM-INTENT

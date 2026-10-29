@@ -129,14 +129,15 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 	if evalRes.HasContent {
 		docs["evaluation-log"] = evalRes.YAML
 	}
-	return validateGemaraDocuments(docs), nil
+	return validateGemaraDocuments(s.bundle, docs), nil
 }
 
-// validateGemaraDocuments type-checks each rendered artifact and resolves its
-// cross references; valid is false when either check fails.
-// TRLC-LINKS: REQ-EMG-015
+// validateGemaraDocuments type-checks each rendered artifact, resolves its
+// cross references and checks its treatment claims (dispositions, mitigated
+// and accepted risks) against the model; valid is false when any check fails.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
-func validateGemaraDocuments(docs map[string]string) map[string]any {
+func validateGemaraDocuments(bundle *model.Bundle, docs map[string]string) map[string]any {
 	artifacts := []map[string]any{}
 	allValid := true
 	names := make([]string, 0, len(gemaraArtifactTypes))
@@ -165,11 +166,16 @@ func validateGemaraDocuments(docs map[string]string) map[string]any {
 	if xrefErrs == nil {
 		xrefErrs = []engmodel.GemaraCrossReferenceError{}
 	}
+	consistencyErrs := []engmodel.GemaraCrossReferenceError{}
+	if bundle != nil {
+		consistencyErrs = append(consistencyErrs, engmodel.CheckGemaraModelConsistency(*bundle, docs)...)
+	}
 	return map[string]any{
-		"valid":                len(xrefErrs) == 0 && allValid,
-		"allValid":             allValid,
-		"artifactCount":        len(artifacts),
-		"artifacts":            artifacts,
-		"crossReferenceErrors": xrefErrs,
+		"valid":                  len(xrefErrs) == 0 && len(consistencyErrs) == 0 && allValid,
+		"allValid":               allValid,
+		"artifactCount":          len(artifacts),
+		"artifacts":              artifacts,
+		"crossReferenceErrors":   xrefErrs,
+		"modelConsistencyErrors": consistencyErrs,
 	}
 }

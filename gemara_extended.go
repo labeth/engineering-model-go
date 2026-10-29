@@ -256,17 +256,12 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 	}
 	findings := evaluationFindingsByRisk(a)
 
-	aggregate := gemara.DispositionClear
 	usedEvalRef := false
 	var actions []*gemara.ActionResult
+	dispositions := make([]gemara.Disposition, 0, len(a.POAMItems))
 	for _, p := range a.POAMItems {
-		disp := gemara.DispositionEnforced
-		if isAcceptedStatus(p.Status) {
-			disp = gemara.DispositionTolerated
-		}
-		if aggregate == gemara.DispositionClear || (disp == gemara.DispositionEnforced && aggregate == gemara.DispositionTolerated) {
-			aggregate = disp
-		}
+		disp := poamDisposition(p.Status)
+		dispositions = append(dispositions, disp)
 		msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
 			fallback(p.RiskRef, p.ID), fallback(p.Milestone, "not set"), fallback(p.DueDate, "not set"), fallback(p.Status, "not set"))
 		steps := []gemara.EnforcementStep{gemara.EnforcementStep(fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
@@ -301,7 +296,7 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 
 	log := gemara.EnforcementLog{
 		Metadata:    cfg.newMetadata(cfg.modelID+"-ENFORCEMENT-LOG", "Remediation enforcement actions for "+cfg.modelTitle, gemara.EnforcementLogArtifact),
-		Disposition: aggregate,
+		Disposition: aggregateDisposition(dispositions),
 		Actions:     actions,
 		Target:      cfg.targetResource(),
 	}
@@ -339,6 +334,44 @@ func evaluationFindingsByRisk(a model.AuthoredArchitecture) map[string][]evaluat
 				out[r] = append(out[r], evaluationFinding{entryID: cv.ID, result: mapVerificationResult(cv.Status)})
 			}
 		}
+	}
+	return out
+}
+
+// poamDisposition maps a POA&M status to the enforcement disposition it
+// supports: only a completed item was enforced and only an accepted one is
+// tolerated. Planned, in-progress, deferred or unset items have no enforcement
+// outcome yet, so they are Undetermined rather than claimed as Enforced.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func poamDisposition(status string) gemara.Disposition {
+	switch {
+	case strings.EqualFold(strings.TrimSpace(status), "completed"):
+		return gemara.DispositionEnforced
+	case isAcceptedStatus(status):
+		return gemara.DispositionTolerated
+	default:
+		return gemara.DispositionUndetermined
+	}
+}
+
+// aggregateDisposition rolls action dispositions up for the log: Undetermined
+// while any item is unresolved, otherwise Enforced if any item was enforced,
+// otherwise Tolerated.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func aggregateDisposition(ds []gemara.Disposition) gemara.Disposition {
+	out := gemara.DispositionTolerated
+	for _, d := range ds {
+		switch d {
+		case gemara.DispositionUndetermined:
+			return gemara.DispositionUndetermined
+		case gemara.DispositionEnforced:
+			out = gemara.DispositionEnforced
+		}
+	}
+	if len(ds) == 0 {
+		return gemara.DispositionUndetermined
 	}
 	return out
 }

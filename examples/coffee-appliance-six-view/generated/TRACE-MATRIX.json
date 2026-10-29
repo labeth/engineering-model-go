@@ -19,6 +19,7 @@
     "implemented": 0,
     "verified": 0,
     "tested": 0,
+    "testLinked": 0,
     "passed": 0,
     "delegated": 0,
     "orphan": 1,

@@ -405,6 +405,7 @@
     "implemented": 8,
     "verified": 6,
     "tested": 6,
+    "testLinked": 6,
     "passed": 4,
     "delegated": 6,
     "orphan": 4,

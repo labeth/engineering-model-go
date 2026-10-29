@@ -2508,6 +2508,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-062";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-062' {
+        attribute 'text' : 'String' = "Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status.";
+        attribute 'notes' : 'String' = "Only a completed POA&M item is Enforced and only an accepted one Tolerated; planned, in-progress, deferred and unset items are Undetermined, and so is the log aggregate while any item is unresolved. The policy lists a risk as mitigated only when its status is closed and as accepted only when its status is accepted or its response is accept; open and mitigating risks are left out with a gemara.policy_risks_untreated warning. The generator author is typed Software unless overridden. gemara.validate reports claims the model does not support as modelConsistencyErrors.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }

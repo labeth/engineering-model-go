@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: ENGMOD-CONTROL-CATALOG
     title: Control Catalog
@@ -49,20 +49,6 @@ implementation-plan:
   enforcement-timeline:
     start: "2026-09-19T00:00:00Z"
     notes: not set in the model
-risks:
-  mitigated:
-  - id: MIT-RISK-BEDROCK-WEBHOOK-SPOOFING
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-BEDROCK-WEBHOOK-SPOOFING
-  - id: MIT-RISK-BEDROCK-PROMPT-INJECTION
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-BEDROCK-PROMPT-INJECTION
-  - id: MIT-RISK-BEDROCK-SECRET-LEAKAGE
-    risk:
-      reference-id: ENGMOD-RISK-CATALOG
-      entry-id: RISK-BEDROCK-SECRET-LEAKAGE
 adherence:
   evaluation-methods:
   - id: EM-INTENT

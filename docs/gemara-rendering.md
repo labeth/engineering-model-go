@@ -75,9 +75,23 @@ The policy states only what the model records:
 
 No accepted method is marked `required`: the model does not say which methods the policy owner
 mandates. `metadata.author` stays the generator identity (`--author`, default
-`Engineering Model`); it is never used as a policy contact.
+`Engineering Model`, typed `Software`; `GemaraExportOptions.AuthorType` overrides the type); it
+is never used as a policy contact.
+
+`risks` follows the model risk `status`: `mitigated` lists only risks whose status is `closed`;
+`accepted` lists risks whose status is `accepted` or whose response is `accept`. Open and
+mitigating risks are still being treated. Gemara `Risks` has only these two lists and no notes
+field, so they are left out of both and the export diagnostic `gemara.policy_risks_untreated`
+names them.
 
 ### POA&M item → Enforcement Log action (L6)
+
+Each action's `disposition` follows the POA&M item's `status`: `completed` is `Enforced`;
+`accepted` (or `risk-accepted`, `accept`, `waived`, `tolerated`) is `Tolerated`; `planned`,
+`in-progress`, `deferred` or no status is `Undetermined` (a value the go-gemara SDK
+serializes and accepts), because no enforcement outcome exists yet. The log's aggregate
+`disposition` is `Undetermined` while any action is, otherwise `Enforced` if any action is,
+otherwise `Tolerated`.
 
 Each action cites the policy's `ENM-REMEDIATION` method. Its `justification.assessments` cite
 the Evaluation Log entries (control verifications) whose `riskRefs` include the POA&M item's
@@ -113,6 +127,11 @@ L5 Evaluation Log.
   the target artifact. The MCP tool `gemara.validate` returns `crossReferenceErrors` and sets
   `valid: false` when any reference does not resolve or any artifact is not SDK-recognized
   (`allValid` keeps the type-discriminator result alone).
+- **Model consistency (in-repo):** `CheckGemaraModelConsistency` compares the rendered claims
+  with the model: each enforcement action's disposition and the aggregate must follow the POA&M
+  statuses as above, and a risk listed as `mitigated` must be `closed` and one listed as
+  `accepted` must be accepted. `gemara.validate` returns these as `modelConsistencyErrors` and
+  sets `valid: false` when there are any.
 - **SDK (in-repo):** `go test -run TestGemara ./...` builds every artifact, loads it back
   through `gemara.Load[T]`, confirms `gemara.DetectType`, and checks structural invariants.
 - **CUE schemas:** `scripts/validate-gemara.sh` runs `cue vet` for each artifact against the

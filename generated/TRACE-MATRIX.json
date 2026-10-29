@@ -15,6 +15,11 @@
       ],
       "code": [
         {
+          "symbol": "CODE-ANYPHRASEIN",
+          "path": "ears_preflight.go",
+          "line": 118
+        },
+        {
           "symbol": "CODE-BUNDLE",
           "path": "validate/validate.go",
           "line": 286
@@ -25,9 +30,14 @@
           "line": 6
         },
         {
-          "symbol": "CODE-COLLECTIDTOKENS",
+          "symbol": "CODE-CATALOGTERMSNAMEDINMODEL",
           "path": "ears_preflight.go",
-          "line": 242
+          "line": 51
+        },
+        {
+          "symbol": "CODE-CONTAINSPHRASE",
+          "path": "ears_preflight.go",
+          "line": 133
         },
         {
           "symbol": "CODE-DECODEYAMLFILE",
@@ -42,7 +52,7 @@
         {
           "symbol": "CODE-DEDUPEEARSENTRIES",
           "path": "ears_preflight.go",
-          "line": 149
+          "line": 273
         },
         {
           "symbol": "CODE-ENSURESINGLEYAMLDOCUMENT",
@@ -132,17 +142,17 @@
         {
           "symbol": "CODE-ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "ears_preflight.go",
-          "line": 187
+          "line": 311
         },
         {
           "symbol": "CODE-ISNOTIDRUNE",
           "path": "ears_preflight.go",
-          "line": 276
+          "line": 403
         },
         {
           "symbol": "CODE-LINTMODELREQUIREMENTSEARS",
           "path": "ears_preflight.go",
-          "line": 28
+          "line": 29
         },
         {
           "symbol": "CODE-LINTREQUIREMENTSEARS",
@@ -152,7 +162,7 @@
         {
           "symbol": "CODE-LINTREQUIREMENTSEARSWITHUSAGE",
           "path": "ears_preflight.go",
-          "line": 36
+          "line": 160
         },
         {
           "symbol": "CODE-LOADBUNDLE",
@@ -182,7 +192,7 @@
         {
           "symbol": "CODE-MAPEARSSEVERITY",
           "path": "ears_preflight.go",
-          "line": 173
+          "line": 297
         },
         {
           "symbol": "CODE-MAPPINGPAIRALLOWED",
@@ -192,7 +202,7 @@
         {
           "symbol": "CODE-MODELREFERENCEDIDS",
           "path": "ears_preflight.go",
-          "line": 231
+          "line": 355
         },
         {
           "symbol": "CODE-PRINTDIAGNOSTICS",
@@ -212,12 +222,12 @@
         {
           "symbol": "CODE-REQUIREMENTIDFROMPATH",
           "path": "ears_preflight.go",
-          "line": 312
+          "line": 439
         },
         {
           "symbol": "CODE-REQUIREMENTPATH",
           "path": "ears_preflight.go",
-          "line": 196
+          "line": 320
         },
         {
           "symbol": "CODE-SORTDIAGNOSTICS",
@@ -227,22 +237,22 @@
         {
           "symbol": "CODE-SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "ears_preflight.go",
-          "line": 287
+          "line": 414
         },
         {
           "symbol": "CODE-TOEARSCATALOG",
           "path": "ears_preflight.go",
-          "line": 102
+          "line": 226
         },
         {
           "symbol": "CODE-TOEARSCOVERAGECATALOG",
           "path": "ears_preflight.go",
-          "line": 120
+          "line": 244
         },
         {
           "symbol": "CODE-TOEARSENTRIES",
           "path": "ears_preflight.go",
-          "line": 135
+          "line": 259
         },
         {
           "symbol": "CODE-VALIDATECATALOGDESCRIPTIONS",
@@ -250,9 +260,14 @@
           "line": 14
         },
         {
+          "symbol": "CODE-WALKSTRINGS",
+          "path": "ears_preflight.go",
+          "line": 371
+        },
+        {
           "symbol": "CODE-WITHOUTUSEDTERMS",
           "path": "ears_preflight.go",
-          "line": 208
+          "line": 332
         }
       ],
       "verifications": [
@@ -1519,17 +1534,17 @@
         {
           "symbol": "CODE-CONTEXTFORTASK",
           "path": "mcp/server.go",
-          "line": 2022
+          "line": 2037
         },
         {
           "symbol": "CODE-DIAGNOSTICFILEPATH",
           "path": "mcp/server.go",
-          "line": 2145
+          "line": 2160
         },
         {
           "symbol": "CODE-DIFFSCHEMAREFS",
           "path": "mcp/server.go",
-          "line": 2171
+          "line": 2186
         },
         {
           "symbol": "CODE-DISPATCH",
@@ -1559,7 +1574,7 @@
         {
           "symbol": "CODE-FINDFLOW",
           "path": "mcp/server.go",
-          "line": 2007
+          "line": 2022
         },
         {
           "symbol": "CODE-FINDINTERFACE",
@@ -1669,22 +1684,22 @@
         {
           "symbol": "CODE-MAXARG",
           "path": "mcp/server.go",
-          "line": 1819
+          "line": 1834
         },
         {
           "symbol": "CODE-MODELENTITY",
           "path": "mcp/server.go",
-          "line": 1833
+          "line": 1848
         },
         {
           "symbol": "CODE-MODELENTITYKIND",
           "path": "mcp/server.go",
-          "line": 1964
+          "line": 1979
         },
         {
           "symbol": "CODE-MODELENTITYNODES",
           "path": "mcp/server.go",
-          "line": 1971
+          "line": 1986
         },
         {
           "symbol": "CODE-NEWSERVER",
@@ -1699,7 +1714,7 @@
         {
           "symbol": "CODE-OWNERUNITMARKER",
           "path": "mcp/server.go",
-          "line": 2429
+          "line": 2444
         },
         {
           "symbol": "CODE-POLICYFORENTITY",
@@ -1749,12 +1764,12 @@
         {
           "symbol": "CODE-SCHEMAFILEMETA",
           "path": "mcp/server.go",
-          "line": 2191
+          "line": 2206
         },
         {
           "symbol": "CODE-SCHEMAREFFORINTERFACE",
           "path": "mcp/server.go",
-          "line": 2161
+          "line": 2176
         },
         {
           "symbol": "CODE-SHELLPATH",
@@ -1774,7 +1789,7 @@
         {
           "symbol": "CODE-STRICTCOVERAGESTATUS",
           "path": "mcp/server.go",
-          "line": 2094
+          "line": 2109
         },
         {
           "symbol": "CODE-SYMBOLROWS",
@@ -1809,7 +1824,7 @@
         {
           "symbol": "CODE-UNIQUEDIAGNOSTICROWS",
           "path": "mcp/server.go",
-          "line": 2129
+          "line": 2144
         },
         {
           "symbol": "CODE-VERIFICATIONRECOMMENDATIONS",
@@ -1842,37 +1857,42 @@
         {
           "symbol": "CODE-AUTHHINTSFORINTERFACE",
           "path": "mcp/server.go",
-          "line": 2264
+          "line": 2279
+        },
+        {
+          "symbol": "CODE-BOOLARG",
+          "path": "mcp/server.go",
+          "line": 1821
         },
         {
           "symbol": "CODE-CONTAINSSTRING",
           "path": "mcp/server.go",
-          "line": 2509
+          "line": 2524
         },
         {
           "symbol": "CODE-ENDPOINTFORENV",
           "path": "mcp/server.go",
-          "line": 2252
+          "line": 2267
         },
         {
           "symbol": "CODE-FIRSTNONEMPTYARG",
           "path": "mcp/server.go",
-          "line": 2462
+          "line": 2477
         },
         {
           "symbol": "CODE-GRAPHEDGES",
           "path": "mcp/server.go",
-          "line": 2404
+          "line": 2419
         },
         {
           "symbol": "CODE-GRAPHNODES",
           "path": "mcp/server.go",
-          "line": 2314
+          "line": 2329
         },
         {
           "symbol": "CODE-INPUTSCHEMAFORTOOL",
           "path": "mcp/server.go",
-          "line": 2521
+          "line": 2541
         },
         {
           "symbol": "CODE-MAIN",
@@ -1887,12 +1907,12 @@
         {
           "symbol": "CODE-NONEMPTYSTRING",
           "path": "mcp/server.go",
-          "line": 2476
+          "line": 2491
         },
         {
           "symbol": "CODE-OWNERFOR",
           "path": "mcp/server.go",
-          "line": 2284
+          "line": 2299
         },
         {
           "symbol": "CODE-READMESSAGE",
@@ -1902,17 +1922,17 @@
         {
           "symbol": "CODE-REQUIRESTABLEID",
           "path": "mcp/server.go",
-          "line": 2552
+          "line": 2576
         },
         {
           "symbol": "CODE-REQUIREWELLFORMEDSTABLEID",
           "path": "mcp/server.go",
-          "line": 2567
+          "line": 2591
         },
         {
           "symbol": "CODE-RESOLVEPATHINREPO",
           "path": "mcp/server.go",
-          "line": 2225
+          "line": 2240
         },
         {
           "symbol": "CODE-TOOLNAMES",
@@ -1922,17 +1942,17 @@
         {
           "symbol": "CODE-TOSTRING",
           "path": "mcp/server.go",
-          "line": 2486
+          "line": 2501
         },
         {
           "symbol": "CODE-UNIQUESTRINGS",
           "path": "mcp/server.go",
-          "line": 2493
+          "line": 2508
         },
         {
           "symbol": "CODE-VALIDATETOOLARGUMENTS",
           "path": "mcp/server.go",
-          "line": 2532
+          "line": 2556
         },
         {
           "symbol": "CODE-WRITEMESSAGE",
@@ -1941,6 +1961,7 @@
         }
       ],
       "verifications": [
+        "VER-INF-TEST-COMPOSITION_TEST-AB66B8",
         "VER-INF-TEST-FILES_OWNER_TEST-B699E0",
         "VER-INF-TEST-MAIN_TEST-6B61AE",
         "VER-INF-TEST-SERVER_TEST-389957"
@@ -1957,6 +1978,11 @@
       ],
       "code": [
         {
+          "symbol": "CODE-ANYPHRASEIN",
+          "path": "ears_preflight.go",
+          "line": 118
+        },
+        {
           "symbol": "CODE-AUTHORINGRULES",
           "path": "validate/authoring_rules.go",
           "line": 77
@@ -1967,9 +1993,14 @@
           "line": 286
         },
         {
-          "symbol": "CODE-COLLECTIDTOKENS",
+          "symbol": "CODE-CATALOGTERMSNAMEDINMODEL",
           "path": "ears_preflight.go",
-          "line": 242
+          "line": 51
+        },
+        {
+          "symbol": "CODE-CONTAINSPHRASE",
+          "path": "ears_preflight.go",
+          "line": 133
         },
         {
           "symbol": "CODE-DEDUPEDIAGNOSTICS",
@@ -1979,7 +2010,7 @@
         {
           "symbol": "CODE-DEDUPEEARSENTRIES",
           "path": "ears_preflight.go",
-          "line": 149
+          "line": 273
         },
         {
           "symbol": "CODE-FIRSTNONEMPTY",
@@ -1994,17 +2025,17 @@
         {
           "symbol": "CODE-ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "ears_preflight.go",
-          "line": 187
+          "line": 311
         },
         {
           "symbol": "CODE-ISNOTIDRUNE",
           "path": "ears_preflight.go",
-          "line": 276
+          "line": 403
         },
         {
           "symbol": "CODE-LINTMODELREQUIREMENTSEARS",
           "path": "ears_preflight.go",
-          "line": 28
+          "line": 29
         },
         {
           "symbol": "CODE-LINTREQUIREMENTSEARS",
@@ -2014,7 +2045,7 @@
         {
           "symbol": "CODE-LINTREQUIREMENTSEARSWITHUSAGE",
           "path": "ears_preflight.go",
-          "line": 36
+          "line": 160
         },
         {
           "symbol": "CODE-MAIN",
@@ -2024,7 +2055,7 @@
         {
           "symbol": "CODE-MAPEARSSEVERITY",
           "path": "ears_preflight.go",
-          "line": 173
+          "line": 297
         },
         {
           "symbol": "CODE-MAPPINGPAIRALLOWED",
@@ -2034,7 +2065,7 @@
         {
           "symbol": "CODE-MODELREFERENCEDIDS",
           "path": "ears_preflight.go",
-          "line": 231
+          "line": 355
         },
         {
           "symbol": "CODE-PRINTDIAGNOSTICS",
@@ -2044,12 +2075,12 @@
         {
           "symbol": "CODE-REQUIREMENTIDFROMPATH",
           "path": "ears_preflight.go",
-          "line": 312
+          "line": 439
         },
         {
           "symbol": "CODE-REQUIREMENTPATH",
           "path": "ears_preflight.go",
-          "line": 196
+          "line": 320
         },
         {
           "symbol": "CODE-SORTDIAGNOSTICS",
@@ -2059,22 +2090,22 @@
         {
           "symbol": "CODE-SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "ears_preflight.go",
-          "line": 287
+          "line": 414
         },
         {
           "symbol": "CODE-TOEARSCATALOG",
           "path": "ears_preflight.go",
-          "line": 102
+          "line": 226
         },
         {
           "symbol": "CODE-TOEARSCOVERAGECATALOG",
           "path": "ears_preflight.go",
-          "line": 120
+          "line": 244
         },
         {
           "symbol": "CODE-TOEARSENTRIES",
           "path": "ears_preflight.go",
-          "line": 135
+          "line": 259
         },
         {
           "symbol": "CODE-VALIDATECATALOGDESCRIPTIONS",
@@ -2082,9 +2113,14 @@
           "line": 14
         },
         {
+          "symbol": "CODE-WALKSTRINGS",
+          "path": "ears_preflight.go",
+          "line": 371
+        },
+        {
           "symbol": "CODE-WITHOUTUSEDTERMS",
           "path": "ears_preflight.go",
-          "line": 208
+          "line": 332
         }
       ],
       "verifications": [
@@ -2378,7 +2414,7 @@
         {
           "symbol": "CODE-OWNERUNITMARKER",
           "path": "mcp/server.go",
-          "line": 2429
+          "line": 2444
         },
         {
           "symbol": "CODE-PARSECODEDEPENDENCIES",
@@ -2848,7 +2884,7 @@
         {
           "symbol": "CODE-RESOLVEGEMARAOPTIONS",
           "path": "gemara_export.go",
-          "line": 205
+          "line": 208
         },
         {
           "symbol": "CODE-RESOLVEGENERATEDTIMESTAMP",
@@ -3207,17 +3243,22 @@
         {
           "symbol": "CODE-ADD",
           "path": "gemara_export.go",
-          "line": 777
+          "line": 783
         },
         {
           "symbol": "CODE-ADDDIAGNOSTIC",
           "path": "gemara_export.go",
-          "line": 249
+          "line": 252
+        },
+        {
+          "symbol": "CODE-AGGREGATEDISPOSITION",
+          "path": "gemara_extended.go",
+          "line": 363
         },
         {
           "symbol": "CODE-BUILDASSESSMENTREQUIREMENTS",
           "path": "gemara_export.go",
-          "line": 600
+          "line": 606
         },
         {
           "symbol": "CODE-BUILDAUDITLOG",
@@ -3227,12 +3268,12 @@
         {
           "symbol": "CODE-BUILDCAPABILITYCATALOG",
           "path": "gemara_export.go",
-          "line": 376
+          "line": 382
         },
         {
           "symbol": "CODE-BUILDCONTROLCATALOG",
           "path": "gemara_export.go",
-          "line": 493
+          "line": 499
         },
         {
           "symbol": "CODE-BUILDCONTROLTHREATMAPPING",
@@ -3247,7 +3288,7 @@
         {
           "symbol": "CODE-BUILDGUIDANCECATALOG",
           "path": "gemara_l1l3.go",
-          "line": 62
+          "line": 63
         },
         {
           "symbol": "CODE-BUILDLEXICON",
@@ -3257,37 +3298,42 @@
         {
           "symbol": "CODE-BUILDPOLICY",
           "path": "gemara_l1l3.go",
-          "line": 134
+          "line": 135
         },
         {
           "symbol": "CODE-BUILDPRINCIPLECATALOG",
           "path": "gemara_l1l3.go",
-          "line": 40
+          "line": 41
         },
         {
           "symbol": "CODE-BUILDRISKCATALOG",
           "path": "gemara_export.go",
-          "line": 634
+          "line": 640
         },
         {
           "symbol": "CODE-BUILDTHREATCATALOG",
           "path": "gemara_export.go",
-          "line": 419
+          "line": 425
         },
         {
           "symbol": "CODE-BUILDVECTORCATALOG",
           "path": "gemara_export.go",
-          "line": 337
+          "line": 343
         },
         {
           "symbol": "CODE-CHECKGEMARACROSSREFERENCES",
           "path": "gemara_xref.go",
-          "line": 45
+          "line": 48
+        },
+        {
+          "symbol": "CODE-CHECKGEMARAMODELCONSISTENCY",
+          "path": "gemara_xref.go",
+          "line": 243
         },
         {
           "symbol": "CODE-CHECKXREFDOC",
           "path": "gemara_xref.go",
-          "line": 130
+          "line": 133
         },
         {
           "symbol": "CODE-COLLECTGEMARAOSCALUUIDS",
@@ -3297,7 +3343,7 @@
         {
           "symbol": "CODE-COLLECTXREFENTRIES",
           "path": "gemara_xref.go",
-          "line": 86
+          "line": 89
         },
         {
           "symbol": "CODE-CONFIDENCEFORRESULT",
@@ -3307,12 +3353,12 @@
         {
           "symbol": "CODE-CONTROLGROUPID",
           "path": "gemara_export.go",
-          "line": 842
+          "line": 848
         },
         {
           "symbol": "CODE-CONTROLGROUPTITLE",
           "path": "gemara_export.go",
-          "line": 851
+          "line": 857
         },
         {
           "symbol": "CODE-CONTROLVERIFICATIONEVIDENCE",
@@ -3322,22 +3368,22 @@
         {
           "symbol": "CODE-DERIVESEVERITY",
           "path": "gemara_export.go",
-          "line": 698
+          "line": 704
         },
         {
           "symbol": "CODE-EVALUATIONFINDINGSBYRISK",
           "path": "gemara_extended.go",
-          "line": 326
+          "line": 321
         },
         {
           "symbol": "CODE-EVALUATIONLOGID",
           "path": "gemara_export.go",
-          "line": 264
+          "line": 267
         },
         {
           "symbol": "CODE-FALLBACK",
           "path": "gemara_export.go",
-          "line": 903
+          "line": 909
         },
         {
           "symbol": "CODE-FIRSTGEMARAOSCALPARTYUUID",
@@ -3347,7 +3393,7 @@
         {
           "symbol": "CODE-FIRSTKNOWN",
           "path": "gemara_extended.go",
-          "line": 362
+          "line": 395
         },
         {
           "symbol": "CODE-GEMARAARTIFACT",
@@ -3377,7 +3423,7 @@
         {
           "symbol": "CODE-GENERATEGEMARA",
           "path": "gemara_export.go",
-          "line": 107
+          "line": 110
         },
         {
           "symbol": "CODE-GENERATEGEMARAEVALUATIONLOG",
@@ -3392,7 +3438,7 @@
         {
           "symbol": "CODE-GENERATEGEMARAFROMFILE",
           "path": "gemara_export.go",
-          "line": 92
+          "line": 95
         },
         {
           "symbol": "CODE-GENERATEGEMARAOSCALASSESSMENTRESULTS",
@@ -3417,37 +3463,37 @@
         {
           "symbol": "CODE-GUIDANCEGUIDELINES",
           "path": "gemara_l1l3.go",
-          "line": 86
+          "line": 87
         },
         {
           "symbol": "CODE-GUIDELINEIDFORCATEGORY",
           "path": "gemara_l1l3.go",
-          "line": 121
+          "line": 122
         },
         {
           "symbol": "CODE-HAS",
           "path": "gemara_export.go",
-          "line": 790
+          "line": 796
         },
         {
           "symbol": "CODE-ISACCEPTEDSTATUS",
           "path": "gemara_extended.go",
-          "line": 350
+          "line": 383
         },
         {
           "symbol": "CODE-ISAUTOMATEDVERIFICATIONMETHOD",
           "path": "gemara_l1l3.go",
-          "line": 327
+          "line": 359
         },
         {
           "symbol": "CODE-LEVELSCORE",
           "path": "gemara_export.go",
-          "line": 747
+          "line": 753
         },
         {
           "symbol": "CODE-LIST",
           "path": "gemara_export.go",
-          "line": 794
+          "line": 800
         },
         {
           "symbol": "CODE-MAIN",
@@ -3457,12 +3503,12 @@
         {
           "symbol": "CODE-MAPPINGREF",
           "path": "gemara_export.go",
-          "line": 860
+          "line": 866
         },
         {
           "symbol": "CODE-MAPPINGREFS",
           "path": "gemara_export.go",
-          "line": 869
+          "line": 875
         },
         {
           "symbol": "CODE-MAPVERIFICATIONRESULT",
@@ -3477,27 +3523,27 @@
         {
           "symbol": "CODE-MARSHALGEMARA",
           "path": "gemara_export.go",
-          "line": 227
+          "line": 230
         },
         {
           "symbol": "CODE-NEWGEMARACONFIG",
           "path": "gemara_export.go",
-          "line": 268
+          "line": 271
         },
         {
           "symbol": "CODE-NEWGROUPSET",
           "path": "gemara_export.go",
-          "line": 773
+          "line": 779
         },
         {
           "symbol": "CODE-NEWMETADATA",
           "path": "gemara_export.go",
-          "line": 298
+          "line": 304
         },
         {
           "symbol": "CODE-NORMALIZEDATETIME",
           "path": "gemara_export.go",
-          "line": 317
+          "line": 323
         },
         {
           "symbol": "CODE-NORMALIZEGEMARAOSCALASSESSMENTRESULTS",
@@ -3530,49 +3576,54 @@
           "line": 208
         },
         {
+          "symbol": "CODE-POAMDISPOSITION",
+          "path": "gemara_extended.go",
+          "line": 347
+        },
+        {
           "symbol": "CODE-POLICYASSESSMENTPLANS",
           "path": "gemara_l1l3.go",
-          "line": 242
+          "line": 252
         },
         {
           "symbol": "CODE-POLICYCONTACTS",
           "path": "gemara_l1l3.go",
-          "line": 284
+          "line": 316
         },
         {
           "symbol": "CODE-POLICYENFORCEMENTMETHODS",
           "path": "gemara_l1l3.go",
-          "line": 363
+          "line": 395
         },
         {
           "symbol": "CODE-POLICYEVALUATIONMETHODS",
           "path": "gemara_l1l3.go",
-          "line": 340
+          "line": 372
         },
         {
           "symbol": "CODE-POLICYID",
           "path": "gemara_export.go",
-          "line": 259
+          "line": 262
         },
         {
           "symbol": "CODE-POLICYRISKS",
           "path": "gemara_l1l3.go",
-          "line": 263
+          "line": 277
         },
         {
           "symbol": "CODE-POLICYSENSITIVITIES",
           "path": "gemara_l1l3.go",
-          "line": 210
+          "line": 220
         },
         {
           "symbol": "CODE-POLICYTECHNOLOGIES",
           "path": "gemara_l1l3.go",
-          "line": 195
+          "line": 205
         },
         {
           "symbol": "CODE-POLICYUSERS",
           "path": "gemara_l1l3.go",
-          "line": 227
+          "line": 237
         },
         {
           "symbol": "CODE-RENDERGEMARAASCIIDOCCHAPTER",
@@ -3582,27 +3633,37 @@
         {
           "symbol": "CODE-RESOLVEGEMARAOPTIONS",
           "path": "gemara_export.go",
-          "line": 205
+          "line": 208
+        },
+        {
+          "symbol": "CODE-RISKACCEPTED",
+          "path": "gemara_l1l3.go",
+          "line": 301
+        },
+        {
+          "symbol": "CODE-RISKMITIGATED",
+          "path": "gemara_l1l3.go",
+          "line": 308
         },
         {
           "symbol": "CODE-RISKRANKMAP",
           "path": "gemara_export.go",
-          "line": 717
+          "line": 723
         },
         {
           "symbol": "CODE-SLUG",
           "path": "gemara_export.go",
-          "line": 882
+          "line": 888
         },
         {
           "symbol": "CODE-SORTEDKEYS",
           "path": "gemara_export.go",
-          "line": 913
+          "line": 919
         },
         {
           "symbol": "CODE-STRPTR",
           "path": "gemara_extended.go",
-          "line": 373
+          "line": 406
         },
         {
           "symbol": "CODE-TARGETRESOURCE",
@@ -3612,32 +3673,32 @@
         {
           "symbol": "CODE-THREATACTORSFOR",
           "path": "gemara_export.go",
-          "line": 826
+          "line": 832
         },
         {
           "symbol": "CODE-THREATGROUPID",
           "path": "gemara_export.go",
-          "line": 800
+          "line": 806
         },
         {
           "symbol": "CODE-THREATGROUPTITLE",
           "path": "gemara_export.go",
-          "line": 812
+          "line": 818
         },
         {
           "symbol": "CODE-VALIDATEGEMARADOCUMENTS",
           "path": "mcp/gemara.go",
-          "line": 139
+          "line": 140
         },
         {
           "symbol": "CODE-XREFMAP",
           "path": "gemara_xref.go",
-          "line": 217
+          "line": 220
         },
         {
           "symbol": "CODE-XREFSTRING",
           "path": "gemara_xref.go",
-          "line": 224
+          "line": 227
         }
       ],
       "verifications": [
@@ -3665,7 +3726,7 @@
         {
           "symbol": "CODE-DIAGROWS",
           "path": "mcp/composition.go",
-          "line": 143
+          "line": 151
         },
         {
           "symbol": "CODE-GENERATECOMPOSITIONFROMFILE",
@@ -3922,7 +3983,7 @@
         {
           "symbol": "CODE-TRACEMATRIX",
           "path": "mcp/composition.go",
-          "line": 88
+          "line": 89
         }
       ],
       "status": "implemented"
@@ -3948,22 +4009,22 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 508
+          "line": 513
         },
         {
           "symbol": "CODE-KNOWNMODELIDS",
           "path": "trace_matrix.go",
-          "line": 123
+          "line": 127
         },
         {
           "symbol": "CODE-REQUIREMENTIDSET",
           "path": "trace_matrix.go",
-          "line": 111
+          "line": 115
         },
         {
           "symbol": "CODE-VALIDATETRACEINTEGRITY",
           "path": "trace_matrix.go",
-          "line": 324
+          "line": 328
         }
       ],
       "verifications": [
@@ -3983,7 +4044,7 @@
         {
           "symbol": "CODE-VALIDATETRACEINTEGRITY",
           "path": "trace_matrix.go",
-          "line": 324
+          "line": 328
         }
       ],
       "verifications": [
@@ -4003,22 +4064,22 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIX",
           "path": "trace_matrix.go",
-          "line": 383
+          "line": 387
         },
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 508
+          "line": 513
         },
         {
           "symbol": "CODE-CSV",
           "path": "trace_matrix.go",
-          "line": 622
+          "line": 628
         },
         {
           "symbol": "CODE-EFFECTIVECODEROOTS",
           "path": "trace_matrix.go",
-          "line": 220
+          "line": 224
         },
         {
           "symbol": "CODE-ISVERIFICATIONCODEITEM",
@@ -4033,7 +4094,7 @@
         {
           "symbol": "CODE-REQUIREMENTRESULTS",
           "path": "trace_matrix.go",
-          "line": 478
+          "line": 483
         },
         {
           "symbol": "CODE-RUSTTESTONLYLINES",
@@ -4043,17 +4104,17 @@
         {
           "symbol": "CODE-SCOPECODETOMODEL",
           "path": "trace_matrix.go",
-          "line": 237
+          "line": 241
         },
         {
           "symbol": "CODE-SPLITSOURCELINE",
           "path": "trace_matrix.go",
-          "line": 308
+          "line": 312
         },
         {
           "symbol": "CODE-TRACEMATRIX",
           "path": "mcp/composition.go",
-          "line": 88
+          "line": 89
         }
       ],
       "verifications": [
@@ -4357,7 +4418,7 @@
         {
           "symbol": "CODE-GENERATEGEMARA",
           "path": "gemara_export.go",
-          "line": 107
+          "line": 110
         },
         {
           "symbol": "CODE-GENERATEGEMARAEVALUATIONLOG",
@@ -4694,7 +4755,7 @@
         {
           "symbol": "CODE-GENERATEGEMARA",
           "path": "gemara_export.go",
-          "line": 107
+          "line": 110
         },
         {
           "symbol": "CODE-GENERATEGEMARAEVALUATIONLOG",
@@ -6780,7 +6841,7 @@
         {
           "symbol": "CODE-APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "trace_matrix.go",
-          "line": 560
+          "line": 565
         },
         {
           "symbol": "CODE-BUILDCOMPOSITIONPROJECTION",
@@ -6790,7 +6851,7 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 508
+          "line": 513
         },
         {
           "symbol": "CODE-COMPOSITIONEXTERNALENDPOINTS",
@@ -6962,7 +7023,7 @@
         {
           "symbol": "CODE-APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "trace_matrix.go",
-          "line": 560
+          "line": 565
         },
         {
           "symbol": "CODE-BUILDCOMPOSITIONPROJECTION",
@@ -6972,7 +7033,7 @@
         {
           "symbol": "CODE-BUILDTRACEMATRIXFROMFILES",
           "path": "trace_matrix.go",
-          "line": 508
+          "line": 513
         },
         {
           "symbol": "CODE-COLLECTOWNEDIDS",
@@ -7631,10 +7692,69 @@
           "symbol": "CODE-RUSTTESTFUNCTION",
           "path": "codemap/testfunc.go",
           "line": 105
+        },
+        {
+          "symbol": "CODE-TRACEMATRIX",
+          "path": "mcp/composition.go",
+          "line": 89
         }
       ],
       "verifications": [
-        "VER-INF-TEST-TESTFUNC_TEST-CCBFAB"
+        "VER-INF-TEST-COMPOSITION_TEST-AB66B8",
+        "VER-INF-TEST-INFERRED_VERIFICATION_TEST-6715F6",
+        "VER-INF-TEST-TESTFUNC_TEST-CCBFAB",
+        "VER-INF-TEST-TRACE_MATRIX_TEST-9FB80C"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-062",
+      "text": "Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status.",
+      "units": [
+        "FU-GEMARA-EXPORTER",
+        "FU-MCP-SERVER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-AGGREGATEDISPOSITION",
+          "path": "gemara_extended.go",
+          "line": 363
+        },
+        {
+          "symbol": "CODE-CHECKGEMARAMODELCONSISTENCY",
+          "path": "gemara_xref.go",
+          "line": 243
+        },
+        {
+          "symbol": "CODE-POAMDISPOSITION",
+          "path": "gemara_extended.go",
+          "line": 347
+        },
+        {
+          "symbol": "CODE-POLICYRISKS",
+          "path": "gemara_l1l3.go",
+          "line": 277
+        },
+        {
+          "symbol": "CODE-RISKACCEPTED",
+          "path": "gemara_l1l3.go",
+          "line": 301
+        },
+        {
+          "symbol": "CODE-RISKMITIGATED",
+          "path": "gemara_l1l3.go",
+          "line": 308
+        },
+        {
+          "symbol": "CODE-VALIDATEGEMARADOCUMENTS",
+          "path": "mcp/gemara.go",
+          "line": 140
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-GEMARA_TEST-9CCAB7",
+        "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-B64F89"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -7645,10 +7765,11 @@
     "REQ-EMG-027"
   ],
   "summary": {
-    "requirements": 56,
-    "implemented": 55,
-    "verified": 45,
-    "tested": 45,
+    "requirements": 57,
+    "implemented": 56,
+    "verified": 46,
+    "tested": 46,
+    "testLinked": 46,
     "passed": 0,
     "delegated": 0,
     "orphan": 1,

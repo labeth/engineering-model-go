@@ -91,12 +91,16 @@ type DanglingLink struct {
 type TraceSummary struct {
 	Requirements int `json:"requirements"`
 	Implemented  int `json:"implemented"`
-	// Verified counts test-linked requirements and always equals Tested; it is
-	// kept for existing callers. Use Passed for requirements with recorded passes.
+	// Verified is deprecated: it counts test-linked requirements and always
+	// equals TestLinked and Tested. A linked test is not a verification; use
+	// TestLinked for links and Passed for requirements with recorded passes.
 	Verified int `json:"verified"`
 	// Tested counts requirements with at least one linked test function (or
 	// verification artifact).
 	Tested int `json:"tested"`
+	// TestLinked equals Tested under the name that says what it counts: a
+	// requirement linked from a test entry point, run or not.
+	TestLinked int `json:"testLinked"`
 	// Passed counts requirements whose linked verification has a recorded pass
 	// and no recorded failure in parsed test-result artifacts.
 	Passed        int `json:"passed"`
@@ -464,6 +468,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 	}
 	matrix.Summary.DanglingLinks = len(dangling)
 	matrix.Summary.Verified = matrix.Summary.Tested
+	matrix.Summary.TestLinked = matrix.Summary.Tested
 	return matrix
 }
 
@@ -602,6 +607,7 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 		if len(row.Verifications) > 0 {
 			matrix.Summary.Verified++
 			matrix.Summary.Tested++
+			matrix.Summary.TestLinked++
 		}
 		if row.DelegatedTo != nil {
 			matrix.Summary.Delegated++

@@ -306,13 +306,17 @@ Stacked `TRLC-LINKS` lines above one declaration accumulate.
 ### Tested and passed
 
 The trace matrix separates two facts. `summary.tested` counts requirements with at
-least one linked test (or verification artifact); `summary.verified` is kept for
-compatibility and equals `tested` ("test linked"). `summary.passed` counts
+least one linked test (or verification artifact) and `summary.testLinked` reports
+the same count under a name that says what it is. `summary.verified` is deprecated:
+it is kept for compatibility and equals `testLinked`; a linked test is not a
+verification. `summary.passed` counts
 requirements whose linked verification has a recorded pass and no recorded failure
 in a parsed `test-results/` artifact (JUnit XML, JSON or text). Each row with a
 linked verification carries `result`: `passed`, `failed` (a fail, blocked, partial
 or flaky result) or `not-run` (no result recorded). The CSV export adds a `result`
-column.
+column. The MCP tool `trace.matrix` accepts `summaryOnly` (`true` or `"true"`) to
+return only the summary and diagnostics, without the per-requirement rows, orphan
+list and dangling-link details.
 
 ## Choosing the Right Level
 

@@ -8,6 +8,7 @@ package engmodel
 //                            from compliance mappings, risks, and controls
 
 import (
+	"fmt"
 	"strings"
 
 	gemara "github.com/gemaraproj/go-gemara"
@@ -180,7 +181,16 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.Pol
 		})
 	}
 
-	pol.Risks = policyRisks(a)
+	var untreated []string
+	pol.Risks, untreated = policyRisks(a)
+	if len(untreated) > 0 {
+		cfg.addDiagnostic(validate.Diagnostic{
+			Code:     "gemara.policy_risks_untreated",
+			Severity: validate.SeverityWarning,
+			Message:  fmt.Sprintf("risks %s are neither closed nor accepted; the policy lists them as neither mitigated nor accepted", strings.Join(untreated, ", ")),
+			Path:     "policy.risks",
+		})
+	}
 
 	pol.Metadata.MappingReferences = []gemara.MappingReference{
 		{Id: gemaraRefControlCatalog, Title: "Control Catalog", Version: GemaraVersion},
@@ -257,24 +267,46 @@ func policyAssessmentPlans(a model.AuthoredArchitecture) []gemara.AssessmentPlan
 	return out
 }
 
-// policyRisks splits model risks into mitigated and accepted treatments.
+// policyRisks lists model risks by their treatment state: mitigated only when
+// the risk status is closed, accepted when the status is accepted or the
+// response is accept. Open and mitigating risks are still being treated;
+// Gemara Risks has no bucket or notes field for them, so they are left out and
+// returned as untreated for a diagnostic.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-015
-func policyRisks(a model.AuthoredArchitecture) gemara.Risks {
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func policyRisks(a model.AuthoredArchitecture) (gemara.Risks, []string) {
 	var risks gemara.Risks
+	var untreated []string
 	for _, r := range a.Risks {
 		ref := gemara.EntryMapping{ReferenceId: gemaraRefRiskCatalog, EntryId: r.ID}
-		if strings.Contains(strings.ToLower(r.Response), "accept") {
+		switch {
+		case riskAccepted(r):
 			risks.Accepted = append(risks.Accepted, gemara.AcceptedRisk{
 				Id:            "ACC-" + r.ID,
 				Risk:          ref,
 				Justification: fallback(r.Rationale, fallback(r.ResidualRisk, "Justification "+gemaraNotSet+".")),
 			})
-		} else {
+		case riskMitigated(r):
 			risks.Mitigated = append(risks.Mitigated, gemara.MitigatedRisk{Id: "MIT-" + r.ID, Risk: ref})
+		default:
+			untreated = append(untreated, r.ID)
 		}
 	}
-	return risks
+	return risks, untreated
+}
+
+// riskAccepted reports whether the model records the risk as accepted.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func riskAccepted(r model.Risk) bool {
+	return strings.EqualFold(strings.TrimSpace(r.Status), "accepted") || strings.EqualFold(strings.TrimSpace(r.Response), "accept")
+}
+
+// riskMitigated reports whether the model records the risk as mitigated (closed).
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func riskMitigated(r model.Risk) bool {
+	return strings.EqualFold(strings.TrimSpace(r.Status), "closed")
 }
 
 // policyContacts resolves the distinct risk and control-verification owners to

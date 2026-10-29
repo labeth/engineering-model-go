@@ -396,7 +396,13 @@ requirements:
       - FU-VALIDATION-ENGINE
   - id: REQ-EMG-061
     text: When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.
-    notes: Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust #[test]-like functions including those inside #[cfg(test)] modules, and Python test functions. TRLC-LINKS on other declarations in test code raise verification.helper_link. The trace summary reports tested and passed separately; verified is kept as tested for compatibility, and passed requires a parsed test-result artifact.
+    notes: Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust #[test]-like functions including those inside #[cfg(test)] modules, and Python test functions. TRLC-LINKS on other declarations in test code raise verification.helper_link. The trace summary reports tested (also as testLinked) and passed separately; verified is a deprecated alias of testLinked kept for compatibility, and passed requires a parsed test-result artifact. trace.matrix accepts summaryOnly to return only the summary and diagnostics.
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-062
+    text: Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status.
+    notes: Only a completed POA&M item is Enforced and only an accepted one Tolerated; planned, in-progress, deferred and unset items are Undetermined, and so is the log aggregate while any item is unresolved. The policy lists a risk as mitigated only when its status is closed and as accepted only when its status is accepted or its response is accept; open and mitigating risks are left out with a gemara.policy_risks_untreated warning. The generator author is typed Software unless overridden. gemara.validate reports claims the model does not support as modelConsistencyErrors.
+    appliesTo:
+      - FU-GEMARA-EXPORTER
+      - FU-MCP-SERVER

@@ -11,7 +11,10 @@ import (
 	"fmt"
 	"strings"
 
+	gemara "github.com/gemaraproj/go-gemara"
 	goyaml "github.com/goccy/go-yaml"
+
+	"github.com/labeth/engineering-model-go/model"
 )
 
 // GemaraCrossReferenceError reports one reference that does not resolve within
@@ -226,4 +229,79 @@ func xrefString(v any) string {
 		return ""
 	}
 	return strings.TrimSpace(fmt.Sprint(v))
+}
+
+// CheckGemaraModelConsistency compares the treatment claims in a rendered
+// artifact set (short-name -> YAML) with the model they were rendered from: an
+// enforcement action's disposition must follow its POA&M item's status (only
+// completed is Enforced, only accepted is Tolerated), the log's aggregate must
+// follow the actions, the policy may list a risk as mitigated only when it is
+// closed and as accepted only when it is accepted. It reports each claim the
+// model does not support with the same error shape as the cross-reference check.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func CheckGemaraModelConsistency(bundle model.Bundle, docs map[string]string) []GemaraCrossReferenceError {
+	a := bundle.Architecture.AuthoredArchitecture
+	var errs []GemaraCrossReferenceError
+	fail := func(artifact, path, entry, msg string) {
+		errs = append(errs, GemaraCrossReferenceError{Artifact: artifact, Path: path, EntryId: entry, Message: msg})
+	}
+	parse := func(name string) map[string]any {
+		var root map[string]any
+		if content := strings.TrimSpace(docs[name]); content != "" {
+			if err := goyaml.Unmarshal([]byte(content), &root); err != nil {
+				fail(name, "", "", "parse: "+err.Error())
+				return nil
+			}
+		}
+		return root
+	}
+
+	if root := parse("enforcement-log"); root != nil {
+		actions, _ := root["actions"].([]any)
+		if len(actions) != len(a.POAMItems) {
+			fail("enforcement-log", "actions", "", fmt.Sprintf("%d actions for %d POA&M items in the model", len(actions), len(a.POAMItems)))
+		} else {
+			want := make([]gemara.Disposition, 0, len(a.POAMItems))
+			for i, p := range a.POAMItems {
+				expected := poamDisposition(p.Status)
+				want = append(want, expected)
+				got := xrefString(xrefMap(actions[i])["disposition"])
+				if got != expected.String() {
+					fail("enforcement-log", fmt.Sprintf("actions[%d].disposition", i), p.ID,
+						fmt.Sprintf("POA&M item %s has status %q, which supports disposition %s, not %s", p.ID, fallback(p.Status, "not set"), expected, got))
+				}
+			}
+			if got, expected := xrefString(root["disposition"]), aggregateDisposition(want); got != expected.String() {
+				fail("enforcement-log", "disposition", "", fmt.Sprintf("aggregate disposition %s is not supported by the actions; expected %s", got, expected))
+			}
+		}
+	}
+
+	if root := parse("policy"); root != nil {
+		risksByID := map[string]model.Risk{}
+		for _, r := range a.Risks {
+			risksByID[strings.TrimSpace(r.ID)] = r
+		}
+		risks := xrefMap(root["risks"])
+		for _, bucket := range []struct {
+			key   string
+			ok    func(model.Risk) bool
+			claim string
+		}{
+			{"mitigated", riskMitigated, "mitigated, but its status is not closed"},
+			{"accepted", riskAccepted, "accepted, but neither its status nor its response is accept"},
+		} {
+			entries, _ := risks[bucket.key].([]any)
+			for i, e := range entries {
+				id := xrefString(xrefMap(xrefMap(e)["risk"])["entry-id"])
+				r, known := risksByID[id]
+				if known && !bucket.ok(r) {
+					fail("policy", fmt.Sprintf("risks.%s[%d]", bucket.key, i), id,
+						fmt.Sprintf("risk %s (status %q) is listed as %s", id, fallback(r.Status, "not set"), bucket.claim))
+				}
+			}
+		}
+	}
+	return errs
 }
