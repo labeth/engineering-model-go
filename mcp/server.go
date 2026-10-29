@@ -332,7 +332,13 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 			})
 			return map[string]any{"content": []map[string]any{{"type": "text", "text": string(errPayload)}}, "isError": true}, 0, nil
 		}
+		// Round-trip through JSON so every string, typed structs included, is
+		// scrubbed of absolute machine paths before it leaves the server.
 		buf, _ := json.Marshal(payload)
+		var generic any
+		if json.Unmarshal(buf, &generic) == nil {
+			buf, _ = json.Marshal(newPathScrubber(s.repoRoot, s.modelPath).scrub(generic))
+		}
 		return map[string]any{"content": []map[string]any{{"type": "text", "text": string(buf)}}, "isError": false}, 0, nil
 	default:
 		return nil, -32601, fmt.Errorf("unsupported method: %s", method)

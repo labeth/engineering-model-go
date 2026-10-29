@@ -175,3 +175,61 @@ func mustJSON(t *testing.T, v any) string {
 	}
 	return string(data)
 }
+
+// No tool output names an absolute path: the workspace root (here the parent
+// of the project and its sibling) and the project root are rewritten, also in
+// diagnostics such as composition.lock_check_skipped that carry file paths.
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func TestToolOutputCarriesNoAbsolutePaths(t *testing.T) {
+	t.Setenv("ENGMOD_WORK", "")
+	t.Setenv("ENGMOD_LOCK", "")
+	t.Setenv("CUE_REGISTRY", "none")
+	parent := writeMCPCompositionFixture(t)
+	workspace := filepath.Dir(parent)
+	s := initializedServerAt(t, parent)
+	for _, tool := range []string{"composition.resolve", "trace.matrix"} {
+		text := mustJSON(t, callToolData(t, s, tool))
+		for _, abs := range []string{workspace, evalOrSame(workspace)} {
+			if strings.Contains(text, abs) {
+				t.Fatalf("%s leaks absolute path %s:\n%s", tool, abs, text)
+			}
+		}
+	}
+	// A sibling checkout path (as a diagnostic from a dependency would carry)
+	// is named relative to the workspace root found from the model.
+	sibling := filepath.Join(workspace, "child", "model", "architecture.yml")
+	if got := newPathScrubber(s.repoRoot, s.modelPath).scrubString("in " + sibling); got != "in workspace:child/model/architecture.yml" {
+		t.Fatalf("sibling path scrubbed to %q", got)
+	}
+	comp := callToolData(t, s, "composition.resolve")
+	found := false
+	for _, d := range comp["diagnostics"].([]any) {
+		if d.(map[string]any)["code"] == "composition.lock_check_skipped" {
+			found = true
+			if path := d.(map[string]any)["path"]; path != "engmod.lock.yml" {
+				t.Fatalf("diagnostic path must be project-relative, got %v", path)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("fixture must raise composition.lock_check_skipped: %s", mustJSON(t, comp))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-069
+func TestPathScrubberPrefixes(t *testing.T) {
+	home, _ := os.UserHomeDir()
+	p := pathScrubber{prefixes: []scrubPrefix{{from: "/w/fam/proj", to: ""}, {from: "/w/fam", to: "workspace:"}, {from: home, to: "~"}}}
+	for in, want := range map[string]string{
+		"/w/fam/proj/engmod.lock.yml":     "engmod.lock.yml",
+		"/w/fam/proj":                     ".",
+		"/w/fam/sibling/model/a.yml":      "workspace:sibling/model/a.yml",
+		home + "/go/pkg/mod/x":            "~/go/pkg/mod/x",
+		"see (/w/fam/proj/model/r.yml:3)": "see (model/r.yml:3)",
+	} {
+		if got := p.scrubString(in); got != want {
+			t.Fatalf("scrub %q = %q, want %q", in, got, want)
+		}
+	}
+}
