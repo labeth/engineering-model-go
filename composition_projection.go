@@ -97,10 +97,17 @@ func BuildCompositionProjection(result CompositionResult) CompositionProjection 
 // ResolveCompositionProjection resolves and validates composition for a bundle.
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
 func ResolveCompositionProjection(bundle model.Bundle) (CompositionProjection, CompositionResult, error) {
+	return ResolveCompositionProjectionWith(bundle, ResolutionOptions{})
+}
+
+// ResolveCompositionProjectionWith is ResolveCompositionProjection under
+// explicit workspace and lock modes.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064
+func ResolveCompositionProjectionWith(bundle model.Bundle, options ResolutionOptions) (CompositionProjection, CompositionResult, error) {
 	if !HasComposition(bundle) {
 		return CompositionProjection{}, CompositionResult{}, nil
 	}
-	result, err := GenerateCompositionFromFile(bundle.ManifestPath)
+	result, err := GenerateCompositionFromFileWith(bundle.ManifestPath, options)
 	if err != nil {
 		return CompositionProjection{}, result, err
 	}
@@ -245,17 +252,35 @@ func (entity PublishedProjectionEntity) qualifyList(refs []string) []string {
 // EnrichBundle returns a projection-only copy containing typed published
 // entities. It is intended for native generators after the authored bundle has
 // been validated; unsupported relationships are omitted rather than flattened.
-// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065
 func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domains ...string) model.Bundle {
 	selected := map[string]bool{}
 	for _, domain := range domains {
 		selected[domain] = true
+	}
+	// Enrichment is idempotent: an entity or relationship already present
+	// (for example a bundle enriched by the caller) is not added twice.
+	present := map[string]bool{}
+	for _, value := range []any{bundle.Architecture, bundle.Behavior, bundle.Assurance, bundle.Compliance, bundle.Requirements, bundle.Views} {
+		collectOwnedIDs(reflect.ValueOf(value), present)
+	}
+	mappingKey := func(m model.Mapping) string { return m.Type + "\x00" + m.From + "\x00" + m.To }
+	for _, m := range bundle.Architecture.AuthoredArchitecture.Mappings {
+		present[mappingKey(m)] = true
 	}
 	for _, entity := range projection.Entities {
 		if !selected[entity.Domain] {
 			continue
 		}
 		q := entity.QualifiedID
+		if mapping, ok := entity.Value.(model.Mapping); ok {
+			mapping.From, mapping.To = entity.qualify(mapping.From), entity.qualify(mapping.To)
+			if present[mappingKey(mapping)] {
+				continue
+			}
+		} else if present[q] {
+			continue
+		}
 		switch value := entity.Value.(type) {
 		case model.FunctionalGroup:
 			value.ID = q

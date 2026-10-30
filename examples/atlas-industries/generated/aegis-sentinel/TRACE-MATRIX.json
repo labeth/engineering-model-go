@@ -20,6 +20,12 @@
         "target": "edge::CAP-EDGE-COMPUTE",
         "targetRequirement": "REQ-EDGE-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-EDGE-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "status": "delegated"
     },
     {
@@ -32,6 +38,12 @@
         "subsystem": "SUB-AEG-CLOUD",
         "target": "cloud::CAP-CLOUD-OPERATIONS",
         "targetRequirement": "REQ-CLOUD-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
       },
       "status": "delegated"
     },
@@ -47,6 +59,12 @@
         "target": "security::CAP-ZERO-TRUST",
         "targetRequirement": "REQ-SEC-002"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-SEC-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "status": "delegated"
     },
     {
@@ -60,6 +78,12 @@
         "target": "compliance::CAP-CONTROL-BASELINE",
         "targetRequirement": "REQ-COMP-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "status": "delegated"
     },
     {
@@ -72,6 +96,12 @@
         "subsystem": "SUB-AEG-CLOUD",
         "target": "cloud::CAP-CLOUD-OPERATIONS",
         "targetRequirement": "cloud::REQ-CLOUD-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
       },
       "provenance": {
         "alias": "cloud",
@@ -109,6 +139,12 @@
         "subsystem": "SUB-AEG-COMPLIANCE",
         "target": "compliance::CAP-CONTROL-BASELINE",
         "targetRequirement": "compliance::REQ-COMP-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
       },
       "provenance": {
         "alias": "compliance",
@@ -243,6 +279,12 @@
         "target": "edge::CAP-EDGE-COMPUTE",
         "targetRequirement": "edge::REQ-EDGE-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-EDGE-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "edge",
         "modulePath": "models.atlas.example/shared/edge-platform@v0",
@@ -296,6 +338,12 @@
         "target": "security::CAP-ZERO-TRUST",
         "targetRequirement": "security::REQ-SEC-002"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-SEC-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "security",
         "modulePath": "models.atlas.example/shared/security-services@v0",
@@ -315,7 +363,12 @@
     "requirements": 19,
     "implemented": 0,
     "verified": 0,
+    "tested": 0,
+    "testLinked": 0,
+    "passed": 0,
     "delegated": 8,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
     "orphan": 1,
     "danglingLinks": 0
   }

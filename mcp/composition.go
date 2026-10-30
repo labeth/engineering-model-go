@@ -11,10 +11,46 @@ package mcp
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/validate"
 )
+
+// resolution is how the MCP server's read tools resolve composition: they
+// never write engmod.lock.yml (lock check unless ENGMOD_LOCK is set) and
+// work offline from the local module cache (reuse unless ENGMOD_MODULE_CACHE
+// or ENGMOD_LOCK is set), so a tool call makes no registry request when the
+// cache is warm. Verifying the cache against the registry is the CLI and CI
+// check path.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func resolution() engmodel.ResolutionOptions {
+	options := engmodel.ResolutionOptions{}
+	if strings.TrimSpace(os.Getenv(engmodel.LockEnv)) == "" {
+		options.Lock = engmodel.LockModeCheck
+	}
+	if strings.TrimSpace(os.Getenv(engmodel.ModuleCacheEnv)) == "" {
+		options.ModuleCache = engmodel.ModuleCacheReuse
+	}
+	return options
+}
+
+// ApplyReadOnlyResolutionDefaults sets the process defaults of a model
+// server: the lock is checked, never written (ENGMOD_LOCK=check), and cached
+// modules are reused without registry lookups (ENGMOD_MODULE_CACHE=reuse),
+// unless the environment already sets them. It covers every composing tool,
+// the Gemara and OSCAL exporters included. Call it once at startup.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func ApplyReadOnlyResolutionDefaults() {
+	for key, value := range map[string]string{engmodel.LockEnv: engmodel.LockModeCheck, engmodel.ModuleCacheEnv: engmodel.ModuleCacheReuse} {
+		if strings.TrimSpace(os.Getenv(key)) == "" {
+			_ = os.Setenv(key, value)
+		}
+	}
+}
 
 // compositionResolve resolves the system-of-systems rooted at the loaded model and
 // returns its subsystems, materialized requirement allocations, and diagnostics.
@@ -27,7 +63,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			"note":           "this model declares no subsystems (composition.subsystems is empty)",
 		}, nil
 	}
-	res, err := engmodel.GenerateCompositionFromFile(s.bundle.ManifestPath)
+	res, err := engmodel.GenerateCompositionFromFileWith(s.bundle.ManifestPath, resolution())
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +85,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 				"publication":       c.Publication,
 				"modulePath":        c.ModulePath,
 				"version":           c.Version,
-				"resolvedDirectory": c.Dir,
+				"resolvedDirectory": res.DisplayDir(c.Dir),
 				"provides":          provides,
 				"requires":          requires,
 			})
@@ -66,6 +102,11 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			"note":              a.Note,
 		})
 	}
+	provenance := make([]engmodel.ImportedEntityProvenance, len(res.Provenance))
+	for i, p := range res.Provenance {
+		p.ResolvedDir = res.DisplayDir(p.ResolvedDir)
+		provenance[i] = p
+	}
 	rootID := ""
 	if res.Root != nil {
 		rootID = res.Root.Bundle.Architecture.Model.ID
@@ -75,7 +116,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"root":           rootID,
 		"subsystems":     subsystems,
 		"allocations":    allocations,
-		"provenance":     res.Provenance,
+		"provenance":     provenance,
 		"lock":           res.Lock,
 		"diagnostics":    diagRows(res.Diagnostics),
 	}, nil
@@ -83,12 +124,36 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 
 // traceMatrix builds the traceability matrix for the loaded model: per-requirement
 // implementation, verification, and delegation status, with orphans and dangling links.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030
+// Delegated rows carry the target requirement's own trace status
+// (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
-func (s *Server) traceMatrix() (map[string]any, error) {
-	matrix, diags, err := engmodel.BuildTraceMatrixFromFiles(s.modelPath, s.requirementsPath, "")
+func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
+	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
+	}
+	out := map[string]any{
+		"model": matrix.Model,
+		"summary": map[string]any{
+			"requirements": matrix.Summary.Requirements,
+			"implemented":  matrix.Summary.Implemented,
+			"tested":       matrix.Summary.Tested,
+			"testLinked":   matrix.Summary.TestLinked,
+			"passed":       matrix.Summary.Passed,
+			"verified":     matrix.Summary.Verified, // deprecated alias of testLinked
+			"delegated":    matrix.Summary.Delegated,
+			// Delegated rows whose target requirement is implemented or
+			// test linked in the target repository.
+			"delegatedImplemented": matrix.Summary.DelegatedImplemented,
+			"delegatedTestLinked":  matrix.Summary.DelegatedTestLinked,
+			"orphan":               matrix.Summary.Orphan,
+			"dangling":             matrix.Summary.DanglingLinks,
+		},
+		"diagnostics": diagRows(diags),
+	}
+	if summaryOnly {
+		return out, nil
 	}
 	rows := make([]map[string]any, 0, len(matrix.Requirements))
 	for _, r := range matrix.Requirements {
@@ -114,27 +179,19 @@ func (s *Server) traceMatrix() (map[string]any, error) {
 				"targetRequirement": r.DelegatedTo.TargetRequirement,
 			}
 		}
+		if r.DelegatedStatus != nil {
+			row["delegatedStatus"] = r.DelegatedStatus
+		}
 		rows = append(rows, row)
 	}
 	dangling := make([]map[string]any, 0, len(matrix.DanglingLinks))
 	for _, d := range matrix.DanglingLinks {
 		dangling = append(dangling, map[string]any{"kind": d.Kind, "target": d.Target, "from": d.From})
 	}
-	return map[string]any{
-		"model": matrix.Model,
-		"summary": map[string]any{
-			"requirements": matrix.Summary.Requirements,
-			"implemented":  matrix.Summary.Implemented,
-			"verified":     matrix.Summary.Verified,
-			"delegated":    matrix.Summary.Delegated,
-			"orphan":       matrix.Summary.Orphan,
-			"dangling":     matrix.Summary.DanglingLinks,
-		},
-		"requirements":  rows,
-		"orphans":       matrix.Orphans,
-		"danglingLinks": dangling,
-		"diagnostics":   diagRows(diags),
-	}, nil
+	out["requirements"] = rows
+	out["orphans"] = matrix.Orphans
+	out["danglingLinks"] = dangling
+	return out, nil
 }
 
 // diagRows renders diagnostics as compact maps for MCP tool responses.

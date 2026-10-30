@@ -17,6 +17,7 @@
       "verifications": [
         "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -46,6 +47,7 @@
       "verifications": [
         "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -69,6 +71,7 @@
       "verifications": [
         "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -87,6 +90,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -111,6 +115,7 @@
         "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
         "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -136,6 +141,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-POLICY_ONLY_FALLBACK_TEST-76E20A"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -170,6 +176,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-AUDIT_REDACTION_TEST-B108A1"
       ],
+      "result": "not-run",
       "status": "implemented"
     },
     {
@@ -194,6 +201,7 @@
       "verifications": [
         "VER-INF-UNIT-RATE_LIMIT_DEFERRAL_TEST-DC9EB2"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -238,7 +246,12 @@
     "requirements": 11,
     "implemented": 9,
     "verified": 8,
+    "tested": 8,
+    "testLinked": 8,
+    "passed": 7,
     "delegated": 0,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
     "orphan": 2,
     "danglingLinks": 0
   }

@@ -812,3 +812,33 @@ func schemaV2TestBundle(bundle model.Bundle) model.Bundle {
 	}
 	return bundle
 }
+
+// A requirement appliesTo naming an unknown local ID is an error at its field
+// path; known local IDs, catalog IDs, composition subsystems, contract
+// entries and alias::ID entries (checked by composition) are accepted.
+// Mutation: removing the requirement appliesTo existence check, applying it
+// to alias::ID entries, or not accepting subsystem and contract IDs fails
+// this test.
+// TRLC-LINKS: REQ-EMG-046, REQ-EMG-065
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestRequirementAppliesToUnknownLocalIDIsError(t *testing.T) {
+	p := filepath.Join("..", "examples", "payments-engineering-sample", "engmod.yml")
+	b, err := model.LoadBundle(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b = schemaV2TestBundle(b)
+	unit := b.Architecture.AuthoredArchitecture.FunctionalUnits[0].ID
+	b.Architecture.Composition.Subsystems = append(b.Architecture.Composition.Subsystems, model.Subsystem{ID: "SUB-TEST", Dependency: "dep", Publication: "public"})
+	b.Architecture.Contract.Provides = append(b.Architecture.Contract.Provides, model.ContractEntry{ID: "CAP-TEST", Kind: "capability"})
+	b.Requirements.Requirements[0].AppliesTo = []string{unit, "FU-DOES-NOT-EXIST", "dep::FU-ELSEWHERE", "SUB-TEST", "CAP-TEST"}
+	var found []Diagnostic
+	for _, d := range Bundle(b) {
+		if d.Code == "requirement.invalid_applies_to" {
+			found = append(found, d)
+		}
+	}
+	if len(found) != 1 || found[0].Severity != SeverityError || found[0].Path != "requirements[0].appliesTo[1]" {
+		t.Fatalf("want one requirement.invalid_applies_to at requirements[0].appliesTo[1], got %+v", found)
+	}
+}

@@ -15,12 +15,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 
 	"github.com/labeth/engineering-model-go/model"
-)
-
-// Mapping-reference ids for cross-artifact links in the extended documents.
-const (
-	gemaraRefEvaluationLog = "ENGMOD-EVALUATION-LOG"
-	gemaraRefPolicy        = "ENGMOD-POLICY"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
@@ -199,20 +194,29 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.A
 		}
 		results = append(results, ar)
 	}
-	// Residual-risk observations.
+	// Residual-risk observations. The criterion is the first related control
+	// that exists in the control catalog, otherwise the risk itself.
+	controlIDs := map[string]bool{}
+	for _, c := range a.Controls {
+		controlIDs[c.ID] = true
+	}
+	usedRiskRef := false
 	for _, r := range a.Risks {
 		if strings.TrimSpace(r.ResidualRisk) == "" {
 			continue
 		}
+		criteria := gemara.MultiEntryMapping{ReferenceId: gemaraRefRiskCatalog, Entries: []gemara.ArtifactMapping{{ReferenceId: r.ID}}}
+		if ctrl := firstKnown(r.RelatedControls, controlIDs); ctrl != "" {
+			criteria = gemara.MultiEntryMapping{ReferenceId: gemaraRefControlCatalog, Entries: []gemara.ArtifactMapping{{ReferenceId: ctrl}}}
+		} else {
+			usedRiskRef = true
+		}
 		results = append(results, &gemara.AuditResult{
-			Id:          "AUD-" + r.ID,
-			Title:       "Residual risk: " + fallback(r.Title, r.ID),
-			Type:        gemara.ResultObservation,
-			Description: fmt.Sprintf("Residual risk after mitigation: %s", r.ResidualRisk),
-			CriteriaReference: gemara.MultiEntryMapping{
-				ReferenceId: gemaraRefControlCatalog,
-				Entries:     []gemara.ArtifactMapping{{ReferenceId: firstNonEmpty(r.RelatedControls)}},
-			},
+			Id:                "AUD-" + r.ID,
+			Title:             "Residual risk: " + fallback(r.Title, r.ID),
+			Type:              gemara.ResultObservation,
+			Description:       fmt.Sprintf("Residual risk after mitigation: %s", r.ResidualRisk),
+			CriteriaReference: criteria,
 		})
 	}
 	if len(results) == 0 {
@@ -226,16 +230,19 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.A
 		Results:  results,
 		Target:   cfg.targetResource(),
 	}
-	log.Metadata.MappingReferences = []gemara.MappingReference{
-		{Id: gemaraRefControlCatalog, Title: "Control Catalog", Version: GemaraVersion},
-		{Id: gemaraRefEvaluationLog, Title: "Evaluation Log", Version: GemaraVersion},
-	}
+	log.Metadata.MappingReferences = mappingRefs(
+		mappingRef(true, gemaraRefControlCatalog, "Control Catalog"),
+		mappingRef(usedRiskRef, gemaraRefRiskCatalog, "Risk Catalog"),
+	)
 	return log, true
 }
 
 // -------------------- L6 Enforcement Log --------------------
 
 // buildEnforcementLog derives an enforcement log from POA&M remediation items.
+// An action cites an evaluation-log entry only when a control verification of
+// the POA&M item's risk is rendered in the evaluation log; otherwise the action
+// carries no assessment reference rather than a fabricated one.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-015
 func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.EnforcementLog, bool) {
@@ -247,55 +254,148 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 	if start == "" {
 		start = gemaraDefaultTimestamp
 	}
+	findings := evaluationFindingsByRisk(a)
 
-	riskTitle := map[string]string{}
-	for _, r := range a.Risks {
-		riskTitle[r.ID] = fallback(r.Title, r.ID)
-	}
-
-	aggregate := gemara.DispositionClear
+	usedEvalRef := false
 	var actions []*gemara.ActionResult
-	for _, p := range a.POAMItems {
-		disp := gemara.DispositionEnforced
-		if isAcceptedStatus(p.Status) {
-			disp = gemara.DispositionTolerated
-		}
-		if aggregate == gemara.DispositionClear || (disp == gemara.DispositionEnforced && aggregate == gemara.DispositionTolerated) {
-			aggregate = disp
-		}
+	dispositions := make([]gemara.Disposition, 0, len(a.POAMItems))
+	for _, p := range justifiedPOAMItems(a, findings) {
+		disp := poamDisposition(p.Status)
+		dispositions = append(dispositions, disp)
 		msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
-			fallback(p.RiskRef, p.ID), fallback(p.Milestone, "n/a"), fallback(p.DueDate, "n/a"), fallback(p.Status, "open"))
-		steps := []gemara.EnforcementStep{gemara.EnforcementStep(fallback(p.ResponsibleRole, "remediation-owner"))}
+			fallback(p.RiskRef, p.ID), fallback(p.Milestone, "not set"), fallback(p.DueDate, "not set"), fallback(p.Status, "not set"))
+		steps := []gemara.EnforcementStep{gemara.EnforcementStep(fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
 		for _, art := range p.Artifacts {
 			steps = append(steps, gemara.EnforcementStep(fallback(art.Path, art.Description)))
 		}
+		var assessments []gemara.AssessmentFinding
+		for _, f := range findings[strings.TrimSpace(p.RiskRef)] {
+			assessments = append(assessments, gemara.AssessmentFinding{
+				Result: f.result,
+				Log:    gemara.EntryMapping{ReferenceId: cfg.evaluationLogID(), EntryId: f.entryID},
+			})
+			usedEvalRef = true
+		}
 		actions = append(actions, &gemara.ActionResult{
-			Disposition: disp,
-			Method:      gemara.EntryMapping{ReferenceId: gemaraRefPolicy, EntryId: "remediation"},
-			Message:     strPtr(msg),
-			Start:       gemara.Datetime(start),
-			Steps:       steps,
-			Justification: gemara.Justification{
-				Assessments: []gemara.AssessmentFinding{{
-					Result: gemara.Failed,
-					Log:    gemara.EntryMapping{ReferenceId: gemaraRefEvaluationLog, EntryId: fallback(p.RiskRef, p.ID)},
-				}},
-			},
+			Disposition:   disp,
+			Method:        gemara.EntryMapping{ReferenceId: cfg.policyID(), EntryId: policyRemediationMethodID},
+			Message:       strPtr(msg),
+			Start:         gemara.Datetime(start),
+			Steps:         steps,
+			Justification: gemara.Justification{Assessments: assessments},
 		})
 	}
 
+	for _, p := range a.POAMItems {
+		if len(findings[strings.TrimSpace(p.RiskRef)]) == 0 {
+			cfg.addDiagnostic(validate.Diagnostic{
+				Code:     "gemara.enforcement_unjustified",
+				Severity: validate.SeverityWarning,
+				Message:  fmt.Sprintf("POA&M item %s has no control verification of risk %q in the evaluation log; Gemara requires an assessment for every enforcement action, so the item is left out of the enforcement log", p.ID, p.RiskRef),
+				Path:     "poamItems[" + p.ID + "]",
+			})
+		}
+	}
+	if len(actions) == 0 {
+		// Gemara requires at least one action; with none justified there is no log.
+		return gemara.EnforcementLog{}, false
+	}
 	log := gemara.EnforcementLog{
 		Metadata:    cfg.newMetadata(cfg.modelID+"-ENFORCEMENT-LOG", "Remediation enforcement actions for "+cfg.modelTitle, gemara.EnforcementLogArtifact),
-		Disposition: aggregate,
+		Disposition: aggregateDisposition(dispositions),
 		Actions:     actions,
 		Target:      cfg.targetResource(),
 	}
-	log.Metadata.MappingReferences = []gemara.MappingReference{
-		{Id: gemaraRefEvaluationLog, Title: "Evaluation Log", Version: GemaraVersion},
-		{Id: gemaraRefPolicy, Title: "Policy", Version: GemaraVersion},
-	}
-	_ = riskTitle
+	log.Metadata.MappingReferences = mappingRefs(
+		mappingRef(usedEvalRef, cfg.evaluationLogID(), "Evaluation Log"),
+		mappingRef(true, cfg.policyID(), "Policy"),
+	)
 	return log, true
+}
+
+// justifiedPOAMItems returns the POA&M items whose risk has at least one
+// control verification in the evaluation log. Gemara requires every
+// enforcement action to cite an assessment finding, so only these become
+// actions; the others are reported as gemara.enforcement_unjustified.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func justifiedPOAMItems(a model.AuthoredArchitecture, findings map[string][]evaluationFinding) []model.POAMItem {
+	out := make([]model.POAMItem, 0, len(a.POAMItems))
+	for _, p := range a.POAMItems {
+		if len(findings[strings.TrimSpace(p.RiskRef)]) > 0 {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// evaluationFinding is an evaluation-log assessment entry an enforcement action may cite.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type evaluationFinding struct {
+	entryID string
+	result  gemara.Result
+}
+
+// evaluationFindingsByRisk indexes, per risk id, the control verifications the
+// evaluation log renders (those whose control exists) with their result.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func evaluationFindingsByRisk(a model.AuthoredArchitecture) map[string][]evaluationFinding {
+	controlIDs := map[string]bool{}
+	for _, c := range a.Controls {
+		controlIDs[c.ID] = true
+	}
+	out := map[string][]evaluationFinding{}
+	for _, cv := range a.ControlVerifications {
+		if !controlIDs[cv.ControlRef] {
+			continue
+		}
+		for _, r := range cv.RiskRefs {
+			r = strings.TrimSpace(r)
+			if r != "" {
+				out[r] = append(out[r], evaluationFinding{entryID: cv.ID, result: mapVerificationResult(cv.Status)})
+			}
+		}
+	}
+	return out
+}
+
+// poamDisposition maps a POA&M status to the enforcement disposition it
+// supports: only a completed item was enforced and only an accepted one is
+// tolerated. Planned, in-progress, deferred or unset items have no enforcement
+// outcome yet, so they are Undetermined rather than claimed as Enforced.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func poamDisposition(status string) gemara.Disposition {
+	switch {
+	case strings.EqualFold(strings.TrimSpace(status), "completed"):
+		return gemara.DispositionEnforced
+	case isAcceptedStatus(status):
+		return gemara.DispositionTolerated
+	default:
+		return gemara.DispositionUndetermined
+	}
+}
+
+// aggregateDisposition rolls action dispositions up for the log: Undetermined
+// while any item is unresolved, otherwise Enforced if any item was enforced,
+// otherwise Tolerated.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func aggregateDisposition(ds []gemara.Disposition) gemara.Disposition {
+	out := gemara.DispositionTolerated
+	for _, d := range ds {
+		switch d {
+		case gemara.DispositionUndetermined:
+			return gemara.DispositionUndetermined
+		case gemara.DispositionEnforced:
+			out = gemara.DispositionEnforced
+		}
+	}
+	if len(ds) == 0 {
+		return gemara.DispositionUndetermined
+	}
+	return out
 }
 
 // -------------------- small helpers --------------------
@@ -311,11 +411,12 @@ func isAcceptedStatus(s string) bool {
 	}
 }
 
+// firstKnown returns the first id in ss that is in known, or "".
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-015
-func firstNonEmpty(ss []string) string {
+func firstKnown(ss []string, known map[string]bool) string {
 	for _, s := range ss {
-		if strings.TrimSpace(s) != "" {
+		if s = strings.TrimSpace(s); s != "" && known[s] {
 			return s
 		}
 	}

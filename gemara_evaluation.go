@@ -91,7 +91,7 @@ func GenerateGemaraEvaluationLog(bundle model.Bundle, requirements model.Require
 	}
 
 	log := gemara.EvaluationLog{
-		Metadata: cfg.newMetadata(cfg.modelID+"-EVALUATION-LOG", "Control evaluation results for "+cfg.modelTitle, gemara.EvaluationLogArtifact),
+		Metadata: cfg.newMetadata(cfg.evaluationLogID(), "Control evaluation results for "+cfg.modelTitle, gemara.EvaluationLogArtifact),
 		Target: gemara.Resource{
 			Id:          cfg.modelID,
 			Name:        cfg.modelTitle,

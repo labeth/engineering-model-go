@@ -13,9 +13,10 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/cliflags"
 )
 
-// TRLC-LINKS: REQ-EMG-015
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-063, REQ-EMG-064
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-GEMARA-EXPORTER
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
@@ -29,7 +30,9 @@ func main() {
 	oscalCatalogOut := flag.String("oscal-catalog-out", "", "also emit an OSCAL Catalog (JSON) derived from the Gemara control catalog")
 	oscalAROut := flag.String("oscal-ar-out", "", "also emit OSCAL Assessment Results (JSON) derived from the Gemara evaluation log")
 	oscalAPHref := flag.String("oscal-ap-href", "", "assessment-plan href imported by the optional OSCAL Assessment Results")
+	modelEnv := cliflags.Register(nil)
 	flag.Parse()
+	modelEnv.MustApply()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*outDir) == "" {
 		fmt.Fprintln(os.Stderr, "usage: enggemara --model <engmod.yml> --out-dir <dir> [--requirements <model/requirements.yml>] [--code-root <dir>] [--author <name>] [--version <v>]")

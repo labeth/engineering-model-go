@@ -42,22 +42,31 @@ type LintRun struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Requirement struct {
-	ID                   string   `yaml:"id"`
-	Title                string   `yaml:"title,omitempty"`
-	Text                 string   `yaml:"text"`
-	Notes                string   `yaml:"notes"`
-	Category             string   `yaml:"category,omitempty"`
-	Rationale            string   `yaml:"rationale,omitempty"`
-	SourceRefs           []string `yaml:"sourceRefs,omitempty"`
-	VerificationMethods  []string `yaml:"verificationMethods,omitempty"`
-	VerificationCriteria string   `yaml:"verificationCriteria,omitempty"`
-	Priority             string   `yaml:"priority,omitempty"`
-	Criticality          string   `yaml:"criticality,omitempty"`
-	Status               string   `yaml:"status,omitempty"`
-	Derived              bool     `yaml:"derived,omitempty"`
-	DerivedRationale     string   `yaml:"derivedRationale,omitempty"`
-	Tags                 []string `yaml:"tags,omitempty"`
-	AppliesTo            []string `yaml:"appliesTo"`
+	ID                   string       `yaml:"id"`
+	Title                string       `yaml:"title,omitempty"`
+	Text                 string       `yaml:"text"`
+	Notes                string       `yaml:"notes"`
+	Category             string       `yaml:"category,omitempty"`
+	Rationale            string       `yaml:"rationale,omitempty"`
+	SourceRefs           []string     `yaml:"sourceRefs,omitempty"`
+	VerificationMethods  []string     `yaml:"verificationMethods,omitempty"`
+	VerificationCriteria string       `yaml:"verificationCriteria,omitempty"`
+	Priority             string       `yaml:"priority,omitempty"`
+	Criticality          string       `yaml:"criticality,omitempty"`
+	Status               string       `yaml:"status,omitempty"`
+	Derived              bool         `yaml:"derived,omitempty"`
+	DerivedRationale     string       `yaml:"derivedRationale,omitempty"`
+	Tags                 []string     `yaml:"tags,omitempty"`
+	AppliesTo            []string     `yaml:"appliesTo"`
+	LintWaivers          []LintWaiver `yaml:"lintWaivers,omitempty"`
+}
+
+// LintWaiver records an accepted EARS lint warning for one requirement, with
+// the reason it does not apply. Errors are never waived.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type LintWaiver struct {
+	Code   string `yaml:"code"`
+	Reason string `yaml:"reason"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -929,4 +938,9 @@ type Bundle struct {
 	// inferred CODE identifier. It is built lazily, so validation only scans code when the
 	// model references a CODE identifier.
 	CodeIndex func() map[string]int `yaml:"-" json:"-"`
+
+	// CodeScopeRoot, when set, is the directory the model owns for code instead of the
+	// one derived from the git working tree. Composition sets it for a resolved
+	// dependency to the dependency's own module directory.
+	CodeScopeRoot string `yaml:"-" json:"-"`
 }

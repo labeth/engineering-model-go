@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: ENGMOD-THREAT-CATALOG
     title: Threat Catalog

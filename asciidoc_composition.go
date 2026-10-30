@@ -19,6 +19,18 @@ import (
 // TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
+	if !HasComposition(bundle) {
+		return renderCompositionAsciiDocChapterFor(bundle, CompositionResult{}, nil)
+	}
+	res, err := GenerateCompositionFromFile(bundle.ManifestPath)
+	return renderCompositionAsciiDocChapterFor(bundle, res, err)
+}
+
+// renderCompositionAsciiDocChapterFor renders the chapter from an already
+// resolved composition, so a generation call composes once.
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionResult, err error) string {
 	a := bundle.Architecture.AuthoredArchitecture
 	hasHW := len(a.HardwareItems) > 0 || len(a.HardwareInterfaces) > 0
 	hasComp := len(bundle.Architecture.Composition.Subsystems) > 0
@@ -62,7 +74,6 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 		return b.String()
 	}
 
-	res, err := GenerateCompositionFromFile(bundle.ManifestPath)
 	if err != nil {
 		b.WriteString("NOTE: composition could not be resolved: " + escapeTableCell(err.Error()) + "\n\n")
 		return b.String()

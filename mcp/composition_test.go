@@ -152,3 +152,48 @@ func callToolData(t *testing.T, s *Server, name string) map[string]any {
 	}
 	return data
 }
+
+// TestTraceMatrixToolSummaryAndSummaryOnly verifies trace.matrix reports the
+// tested/testLinked/passed counts and that summaryOnly (boolean or string)
+// drops the per-requirement rows, orphan list and dangling-link details while
+// keeping the summary and diagnostics.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061, REQ-EMG-008
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	summary, _ := full["summary"].(map[string]any)
+	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "verified", "delegated", "orphan", "dangling"} {
+		if _, ok := summary[key]; !ok {
+			t.Fatalf("trace.matrix summary missing %q: %+v", key, summary)
+		}
+	}
+	if summary["testLinked"] != summary["tested"] || summary["verified"] != summary["tested"] {
+		t.Fatalf("testLinked/verified must equal tested: %+v", summary)
+	}
+	if rows, _ := full["requirements"].([]any); len(rows) == 0 {
+		t.Fatalf("full trace.matrix must list requirement rows")
+	}
+	for _, arg := range []any{true, "true"} {
+		short := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": arg})
+		for _, key := range []string{"requirements", "orphans", "danglingLinks"} {
+			if _, ok := short[key]; ok {
+				t.Fatalf("summaryOnly=%v must omit %q: %+v", arg, key, short)
+			}
+		}
+		if _, ok := short["diagnostics"]; !ok {
+			t.Fatalf("summaryOnly=%v must keep diagnostics", arg)
+		}
+		if got, _ := short["summary"].(map[string]any); got["requirements"] != summary["requirements"] {
+			t.Fatalf("summaryOnly=%v summary differs: %+v vs %+v", arg, got, summary)
+		}
+	}
+	if rows, _ := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": "false"})["requirements"].([]any); len(rows) == 0 {
+		t.Fatalf("summaryOnly=false must keep requirement rows")
+	}
+	schema := inputSchemaForTool("trace.matrix")
+	props, _ := schema["properties"].(map[string]any)
+	if _, ok := props["summaryOnly"]; !ok {
+		t.Fatalf("trace.matrix inputSchema must declare summaryOnly: %+v", schema)
+	}
+}

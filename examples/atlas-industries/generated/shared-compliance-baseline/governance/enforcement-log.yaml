@@ -8,20 +8,20 @@ metadata:
   author:
     id: atlas-industries
     name: Atlas Industries
-    type: Human
+    type: Software
   mapping-references:
-  - id: ENGMOD-EVALUATION-LOG
+  - id: atlas-shared-compliance-baseline-EVALUATION-LOG
     title: Evaluation Log
     version: 1.1.0
-  - id: ENGMOD-POLICY
+  - id: atlas-shared-compliance-baseline-POLICY
     title: Policy
     version: 1.1.0
-disposition: Enforced
+disposition: Undetermined
 actions:
-- disposition: Enforced
+- disposition: Undetermined
   method:
-    reference-id: ENGMOD-POLICY
-    entry-id: remediation
+    reference-id: atlas-shared-compliance-baseline-POLICY
+    entry-id: ENM-REMEDIATION
   message: "Remediation for RISK-COMP-ACCESS-REVIEW-GAP (milestone: Add delegated reviewer escalation and overdue reporting., due: 2026-12-15, status: in-progress)."
   start: "2026-09-19T00:00:00Z"
   steps:
@@ -29,14 +29,14 @@ actions:
   - evidence/compliance/access-review-plan.md
   justification:
     assessments:
-    - result: Failed
+    - result: Needs Review
       log:
-        reference-id: ENGMOD-EVALUATION-LOG
-        entry-id: RISK-COMP-ACCESS-REVIEW-GAP
-- disposition: Enforced
+        reference-id: atlas-shared-compliance-baseline-EVALUATION-LOG
+        entry-id: CV-COMP-ACCESS-REVIEW
+- disposition: Undetermined
   method:
-    reference-id: ENGMOD-POLICY
-    entry-id: remediation
+    reference-id: atlas-shared-compliance-baseline-POLICY
+    entry-id: ENM-REMEDIATION
   message: "Remediation for RISK-COMP-UNTRAINED-PERSONNEL (milestone: Add contractor learning-platform completion data to the common monthly report., due: 2026-11-30, status: planned)."
   start: "2026-09-19T00:00:00Z"
   steps:
@@ -44,10 +44,10 @@ actions:
   - evidence/compliance/contractor-training-plan.md
   justification:
     assessments:
-    - result: Failed
+    - result: Needs Review
       log:
-        reference-id: ENGMOD-EVALUATION-LOG
-        entry-id: RISK-COMP-UNTRAINED-PERSONNEL
+        reference-id: atlas-shared-compliance-baseline-EVALUATION-LOG
+        entry-id: CV-COMP-AWARENESS
 target:
   id: atlas-shared-compliance-baseline
   name: Atlas Shared Compliance Baseline

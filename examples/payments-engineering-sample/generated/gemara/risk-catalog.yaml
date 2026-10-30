@@ -9,7 +9,7 @@ metadata:
   author:
     id: engineering-model-go
     name: Engineering Model Go Examples
-    type: Human
+    type: Software
   mapping-references:
   - id: ENGMOD-THREAT-CATALOG
     title: Threat Catalog
@@ -17,9 +17,8 @@ metadata:
 groups:
 - appetite: Low
   id: operational-risk
-  max-severity: High
   title: Operational Risk
-  description: Risks to the operation, security, and compliance of the system.
+  description: Risks to the operation, security, and compliance of the system. Risk appetite not set in the model; default applied.
 risks:
 - id: RISK-PAYMENTS-SSO-MFA-GAP
   title: Privileged SSO path bypass risk

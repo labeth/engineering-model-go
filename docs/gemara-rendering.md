@@ -56,8 +56,53 @@ functional units (plus an `all-systems` catch-all), resolved from `compliance.ma
 | `threatScenarios` | `threats[]` | |
 | `rationale` | `impact` (prose) | |
 
-Risks are grouped under an authored `operational-risk` `#RiskCategory` carrying the
-organization's appetite/`max-severity` (the appetite is an authored input, not inferable).
+Risks are grouped under an `operational-risk` `#RiskCategory`. The model has no risk-appetite
+field, so the schema-required `appetite` is set to a default (`Low`) and the category
+description says "Risk appetite not set in the model; default applied". The optional
+`max-severity` is left unset.
+
+### Policy (L3)
+
+The policy states only what the model records:
+
+| Policy field | Source | When the model does not state it |
+|---|---|---|
+| `contacts.responsible` / `contacts.accountable` | distinct `owner` actor ids of `risks` and `controlVerifications`, resolved to actor names (architecture `actors`, then catalog `actors`) | a single contact named `not set`, plus the export diagnostic `gemara.policy_contacts_not_set` |
+| `adherence.evaluation-methods` | `EM-INTENT` (automated) when any control verification has method `test`/`automated`; `EM-MANUAL` (manual) for analysis, inspection or review | omitted |
+| `adherence.assessment-plans[*]` | one per control verification, with that verification's method | `frequency: not set in the model` |
+| `adherence.enforcement-methods` | `ENM-REMEDIATION` (manual) when the model has `poamItems` | omitted; no automated change gate is claimed |
+| `implementation-plan.*.notes` | — | `not set in the model` |
+
+No accepted method is marked `required`: the model does not say which methods the policy owner
+mandates. `metadata.author` stays the generator identity (`--author`, default
+`Engineering Model`, typed `Software`; `GemaraExportOptions.AuthorType` overrides the type); it
+is never used as a policy contact.
+
+`risks` follows the model risk `status`: `mitigated` lists only risks whose status is `closed`;
+`accepted` lists risks whose status is `accepted` or whose response is `accept`. Open and
+mitigating risks are still being treated. Gemara `Risks` has only these two lists and no notes
+field, so they are left out of both and the export diagnostic `gemara.policy_risks_untreated`
+names them.
+
+### POA&M item → Enforcement Log action (L6)
+
+Each action's `disposition` follows the POA&M item's `status`: `completed` is `Enforced`;
+`accepted` (or `risk-accepted`, `accept`, `waived`, `tolerated`) is `Tolerated`; `planned`,
+`in-progress`, `deferred` or no status is `Undetermined` (a value the go-gemara SDK
+serializes and accepts), because no enforcement outcome exists yet. The log's aggregate
+`disposition` is `Undetermined` while any action is, otherwise `Enforced` if any action is,
+otherwise `Tolerated`.
+
+Each action cites the policy's `ENM-REMEDIATION` method. Its `justification.assessments` cite
+the Evaluation Log entries (control verifications) whose `riskRefs` include the POA&M item's
+`riskRef`, with the verification's result. A POA&M item without such a verification cites no
+assessment (empty list) and raises the export diagnostic `gemara.enforcement_unjustified`; no
+entry id is invented. Missing milestone, due date, status or responsible role are rendered as
+`not set`.
+
+Mapping-reference ids for the Policy and the Evaluation Log are those artifacts' own
+`metadata.id` (`<model-id>-POLICY`, `<model-id>-EVALUATION-LOG`), so references resolve within
+the rendered set.
 
 ### ThreatScenario → `#Threat` (threatcatalog)
 
@@ -75,6 +120,18 @@ L5 Evaluation Log.
 
 ## Validation
 
+- **Cross-references (in-repo):** `CheckGemaraCrossReferences` resolves, across the rendered set
+  (including the Evaluation Log), every `reference-id` against the document's declared
+  `mapping-references` and the rendered artifacts' `metadata.id`, and every `entry-id`,
+  `entries[].reference-id` and mapping-document `source`/`targets[].entry-id` against the ids in
+  the target artifact. The MCP tool `gemara.validate` returns `crossReferenceErrors` and sets
+  `valid: false` when any reference does not resolve or any artifact is not SDK-recognized
+  (`allValid` keeps the type-discriminator result alone).
+- **Model consistency (in-repo):** `CheckGemaraModelConsistency` compares the rendered claims
+  with the model: each enforcement action's disposition and the aggregate must follow the POA&M
+  statuses as above, and a risk listed as `mitigated` must be `closed` and one listed as
+  `accepted` must be accepted. `gemara.validate` returns these as `modelConsistencyErrors` and
+  sets `valid: false` when there are any.
 - **SDK (in-repo):** `go test -run TestGemara ./...` builds every artifact, loads it back
   through `gemara.Load[T]`, confirms `gemara.DetectType`, and checks structural invariants.
 - **CUE schemas:** `scripts/validate-gemara.sh` runs `cue vet` for each artifact against the

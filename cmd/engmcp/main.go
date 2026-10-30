@@ -4,21 +4,31 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/cliflags"
 	"github.com/labeth/engineering-model-go/mcp"
 )
 
 // ENGMODEL-LINKS: IF-CLI-ENGMCP, FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 const maxMessageBytes = 8 * 1024 * 1024
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-063, REQ-EMG-064
 // ENGMODEL-LINKS: IF-CLI-ENGMCP, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
 func main() {
+	modelEnv := cliflags.Register(nil)
+	flag.Parse()
+	if flag.NArg() != 0 {
+		_, _ = fmt.Fprintln(os.Stderr, "usage: engmcp [--workspace off|<engmod.work.yml>] [--lock check|write]")
+		os.Exit(2)
+	}
+	modelEnv.MustApply()
+	mcp.ApplyReadOnlyResolutionDefaults()
 	s := mcp.NewServer()
 	r := bufio.NewReader(os.Stdin)
 	w := bufio.NewWriter(os.Stdout)

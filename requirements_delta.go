@@ -347,7 +347,7 @@ func validateRequirementsDeltaOperations(operations RequirementsDeltaOperations)
 func validateRequirementsCandidate(bundle model.Bundle, requirements model.RequirementsDocument) []validate.Diagnostic {
 	diags := validate.Bundle(bundle)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
-	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
+	diags = append(diags, lintModelRequirementsEARS(bundle, requirements)...)
 	diags = append(diags, lintRequirementInternalLinks(requirements)...)
 
 	seen := map[string]bool{}

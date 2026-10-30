@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync/atomic"
 
 	"cuelang.org/go/mod/modconfig"
 	"cuelang.org/go/mod/modregistry"
@@ -97,6 +98,32 @@ type CompositionResult struct {
 	Provenance  []ImportedEntityProvenance
 	Lock        CompositionLockDocument
 	Diagnostics []validate.Diagnostic
+	// Workspace is the workspace root the dependencies resolved from.
+	Workspace string
+	// cacheNames maps each module cache directory used to module@version.
+	cacheNames map[string]string
+}
+
+// DisplayDir names a resolved directory for output that may leave the
+// machine (MCP responses): a module cache entry as module@version, a
+// directory under the workspace root relative to it, anything else by its
+// base name. It never returns an absolute path.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func (r CompositionResult) DisplayDir(dir string) string {
+	if dir == "" {
+		return ""
+	}
+	dir = filepath.Clean(dir)
+	if name, ok := r.cacheNames[dir]; ok {
+		return name
+	}
+	if r.Workspace != "" {
+		if rel, err := filepath.Rel(r.Workspace, dir); err == nil && filepath.IsLocal(rel) {
+			return filepath.ToSlash(rel)
+		}
+	}
+	return filepath.Base(dir)
 }
 
 // HasComposition reports whether the model declares any subsystems.
@@ -106,10 +133,139 @@ func HasComposition(bundle model.Bundle) bool {
 	return len(bundle.Architecture.Composition.Subsystems) > 0
 }
 
-// GenerateCompositionFromFile resolves the system-of-systems rooted at engmod.yml.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+// CompositionLocalLockFileName receives the resolved lock while workspace
+// replacements are active, so the committed lock never pins unpublished content.
+const CompositionLocalLockFileName = "engmod.lock.local.yml"
+
+// LockEnv selects the lock mode: "check" compares with the committed lock and
+// writes nothing; "write" (or unset) writes the lock.
+const LockEnv = "ENGMOD_LOCK"
+
+const (
+	// LockModeWrite writes engmod.lock.yml (or the local lock in workspace mode).
+	LockModeWrite = "write"
+	// LockModeCheck compares the resolved lock with engmod.lock.yml and writes nothing.
+	LockModeCheck = "check"
+)
+
+// ResolutionOptions overrides the ENGMOD_WORK and ENGMOD_LOCK environment for
+// one call. Empty fields fall back to the environment. Workspace is "off" or a
+// workspace file path; Lock is "check" or "write".
+// TRLC-LINKS: REQ-EMG-063, REQ-EMG-064
+type ResolutionOptions struct {
+	Workspace string
+	Lock      string
+	// ModuleCache is "refresh" to re-fetch every registry dependency into
+	// the module cache, or "reuse"; empty falls back to ENGMOD_MODULE_CACHE.
+	ModuleCache string
+}
+
+// ModuleCacheEnv selects the module cache mode: "refresh" re-fetches every
+// registry dependency; "reuse" reuses cached modules offline; unset applies
+// the defaults of cacheMode.
+const ModuleCacheEnv = "ENGMOD_MODULE_CACHE"
+
+const (
+	// ModuleCacheReuse reuses a cached module without contacting the
+	// registry. Set explicitly it applies in every lock mode; it is also the
+	// default except for lock check mode and lock regeneration (see cacheMode).
+	ModuleCacheReuse = "reuse"
+	// ModuleCacheRefresh re-fetches every registry dependency.
+	ModuleCacheRefresh = "refresh"
+	// moduleCacheVerify compares a cached module with the registry's current
+	// manifest and re-fetches it when the tag moved; offline it reuses it.
+	moduleCacheVerify = "verify"
+)
+
+// cacheMode returns how cached registry modules are used. Explicit refresh
+// (option or ENGMOD_MODULE_CACHE) re-fetches; explicit reuse reuses the
+// cache offline in every lock mode (the MCP server's read tools). Unset:
+// lock regeneration - write mode with the workspace off - re-fetches, so a
+// regenerated lock never records a stale cached digest, and lock check mode
+// (the CLI and CI check path) verifies each cached module against the
+// registry (one manifest lookup per dependency), so a moved tag is reported
+// as composition.lock_mismatch even with a warm cache.
+// TRLC-LINKS: REQ-EMG-064, REQ-EMG-069
+func (o ResolutionOptions) cacheMode() string {
+	mode := strings.TrimSpace(o.ModuleCache)
+	if mode == "" {
+		mode = strings.TrimSpace(os.Getenv(ModuleCacheEnv))
+	}
+	switch mode {
+	case ModuleCacheRefresh:
+		return ModuleCacheRefresh
+	case ModuleCacheReuse:
+		return ModuleCacheReuse
+	}
+	if o.lockMode() == LockModeCheck {
+		return moduleCacheVerify
+	}
+	workspace := strings.TrimSpace(o.Workspace)
+	if workspace == "" {
+		workspace = strings.TrimSpace(os.Getenv(model.WorkspaceEnv))
+	}
+	if workspace == model.WorkspaceOff {
+		return ModuleCacheRefresh
+	}
+	return ModuleCacheReuse
+}
+
+// lockMode returns the effective lock mode for the options.
+// TRLC-LINKS: REQ-EMG-064
+func (o ResolutionOptions) lockMode() string {
+	mode := strings.TrimSpace(o.Lock)
+	if mode == "" {
+		mode = strings.TrimSpace(os.Getenv(LockEnv))
+	}
+	if mode == LockModeCheck {
+		return LockModeCheck
+	}
+	return LockModeWrite
+}
+
+// compositionRuns counts composition resolutions; tests use it to prove that a
+// generation call composes once.
+var compositionRuns atomic.Int64
+
+// GenerateCompositionFromFile resolves the system-of-systems rooted at engmod.yml
+// with the workspace and lock modes taken from ENGMOD_WORK and ENGMOD_LOCK.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error) {
+	return GenerateCompositionFromFileWith(manifestPath, ResolutionOptions{})
+}
+
+// GenerateCompositionFromFileWith resolves the system-of-systems rooted at
+// engmod.yml under explicit workspace and lock modes. Lock policy: while
+// workspace replacements are active, engmod.lock.yml is never touched and the
+// resolved lock is written to engmod.lock.local.yml; in check mode nothing is
+// written and, without replacements, the resolved lock is compared with the
+// committed one (composition.lock_missing, lock_invalid, lock_mismatch);
+// otherwise engmod.lock.yml is written.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+func GenerateCompositionFromFileWith(manifestPath string, options ResolutionOptions) (CompositionResult, error) {
+	return generateComposition(manifestPath, nil, options)
+}
+
+// GenerateCompositionForBundle resolves the composition of an already loaded
+// bundle: the dependencies are resolved from bundle.ManifestPath's location
+// (workspace, module cache, lock) as in GenerateCompositionFromFileWith, but
+// the root system - its manifest dependencies, composition, contract and
+// every alias::ID reference - is the given bundle, not the files on disk. A
+// caller validating edited content in memory thus gets the diagnostics of
+// that content.
+// TRLC-LINKS: REQ-EMG-065, REQ-EMG-066, REQ-EMG-069
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
+func GenerateCompositionForBundle(bundle model.Bundle, options ResolutionOptions) (CompositionResult, error) {
+	return generateComposition(bundle.ManifestPath, &bundle, options)
+}
+
+// generateComposition resolves the composition rooted at manifestPath, with
+// rootBundle (when set) as the root system instead of the manifest's files.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
+func generateComposition(manifestPath string, rootBundle *model.Bundle, options ResolutionOptions) (CompositionResult, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
 		return CompositionResult{}, fmt.Errorf("engmod.yml is the only supported composition entry point")
 	}
@@ -117,7 +273,8 @@ func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error)
 	if err != nil {
 		return CompositionResult{}, err
 	}
-	workspaceDocument, workspacePath, err := model.FindWorkspace(absTop)
+	compositionRuns.Add(1)
+	workspaceDocument, workspacePath, err := model.FindWorkspaceWith(absTop, options.Workspace)
 	if err != nil {
 		return CompositionResult{}, fmt.Errorf("load model workspace: %w", err)
 	}
@@ -128,6 +285,10 @@ func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error)
 	resolver := &compositionResolver{
 		workspace:         workspace,
 		workspaceDocument: workspaceDocument,
+		cacheMode:         options.cacheMode(),
+		fetched:           map[string]string{},
+		cacheNames:        map[string]string{},
+		rootBundle:        rootBundle,
 	}
 	ancestry := map[string]bool{}
 	root, provenance, locks, diags := resolver.resolveSystem("", "", "", absTop, ancestry, true)
@@ -135,17 +296,91 @@ func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error)
 		Root: root, Provenance: provenance,
 		Lock:        CompositionLockDocument{SchemaVersion: 1, Dependencies: locks},
 		Diagnostics: diags,
+		Workspace:   workspace, cacheNames: resolver.cacheNames,
 	}
 	if root != nil {
 		res.Allocations = materializeAllocations(root)
-		res.Diagnostics = append(res.Diagnostics, validateComposition(root)...)
+		res.Diagnostics = append(res.Diagnostics, validateComposition(root, true)...)
 	}
-	if !hasCompositionErrors(res.Diagnostics) {
-		if err := WriteCompositionLock(filepath.Join(filepath.Dir(absTop), CompositionLockFileName), res.Lock); err != nil {
+	resolver.nameCachePaths(res.Diagnostics)
+	if hasCompositionErrors(res.Diagnostics) {
+		return res, nil
+	}
+	dir := filepath.Dir(absTop)
+	replaced := len(workspaceDocument.Replacements) > 0
+	switch {
+	case options.lockMode() == LockModeCheck:
+		if !replaced {
+			res.Diagnostics = append(res.Diagnostics, checkCompositionLock(filepath.Join(dir, CompositionLockFileName), res.Lock)...)
+		} else {
+			res.Diagnostics = append(res.Diagnostics, validate.Diagnostic{
+				Code: "composition.lock_check_skipped", Severity: validate.SeverityWarning,
+				Message: fmt.Sprintf("workspace replacements active; the committed %s is checked only with %s=off", CompositionLockFileName, model.WorkspaceEnv),
+				Path:    filepath.Join(dir, CompositionLockFileName),
+			})
+		}
+	case replaced:
+		if err := WriteCompositionLock(filepath.Join(dir, CompositionLocalLockFileName), res.Lock); err != nil {
+			return res, err
+		}
+	default:
+		if err := WriteCompositionLock(filepath.Join(dir, CompositionLockFileName), res.Lock); err != nil {
 			return res, err
 		}
 	}
 	return res, nil
+}
+
+// checkCompositionLock compares the resolved lock with the committed lock and
+// reports every missing, extra, moved or re-published dependency.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY
+func checkCompositionLock(path string, resolved CompositionLockDocument) []validate.Diagnostic {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return []validate.Diagnostic{errDiag("composition.lock_missing", fmt.Sprintf("%s is missing; resolve without %s=check and commit it", filepath.Base(path), LockEnv), path)}
+	}
+	var committed CompositionLockDocument
+	if err := yaml.Unmarshal(data, &committed); err != nil {
+		return []validate.Diagnostic{errDiag("composition.lock_invalid", fmt.Sprintf("%s cannot be read: %v", filepath.Base(path), err), path)}
+	}
+	byAlias := map[string]CompositionLockDependency{}
+	for _, dependency := range committed.Dependencies {
+		byAlias[dependency.Alias] = dependency
+	}
+	var diags []validate.Diagnostic
+	for _, got := range resolved.Dependencies {
+		want, ok := byAlias[got.Alias]
+		delete(byAlias, got.Alias)
+		switch {
+		case !ok:
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q (%s) is missing from the committed lock", got.Alias, moduleAt(got.Path, got.Version)), path))
+		case want.Path != got.Path || want.Version != got.Version:
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q: lock pins %s but the manifest resolves %s", got.Alias, moduleAt(want.Path, want.Version), moduleAt(got.Path, got.Version)), path))
+		case want.Digest != got.Digest:
+			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q %s: content digest %s differs from the locked %s (tag moved or content changed)", got.Alias, moduleAt(got.Path, got.Version), got.Digest, want.Digest), path))
+		}
+	}
+	extra := make([]string, 0, len(byAlias))
+	for alias := range byAlias {
+		extra = append(extra, alias)
+	}
+	sort.Strings(extra)
+	for _, alias := range extra {
+		diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("committed lock lists dependency %q that the manifest no longer resolves", alias), path))
+	}
+	return diags
+}
+
+// moduleAt names a module version for messages: the major-qualified path
+// example.com/m@v0 at v0.1.0 is example.com/m@v0.1.0.
+// TRLC-LINKS: REQ-EMG-064
+func moduleAt(path, version string) string {
+	path, version = strings.TrimSpace(path), strings.TrimSpace(version)
+	if base, major, ok := strings.Cut(path, "@"); ok && (version == major || strings.HasPrefix(version, major+".")) {
+		path = base
+	}
+	return path + "@" + version
 }
 
 // WriteCompositionLock writes deterministic generated dependency state.
@@ -168,7 +403,7 @@ func WriteCompositionLock(path string, lock CompositionLockDocument) error {
 }
 
 // resolveSystem loads the model and recursively resolves manifest dependencies.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-018, REQ-EMG-035, REQ-EMG-036, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-018, REQ-EMG-035, REQ-EMG-036, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-067
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY, DEP-LOCAL-WORKSPACE
 func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, publicationID, manifestPath string, ancestry map[string]bool, root bool) (*ComposedSystem, []ImportedEntityProvenance, []CompositionLockDependency, []validate.Diagnostic) {
 	var diags []validate.Diagnostic
@@ -182,18 +417,28 @@ func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, public
 	ancestry[manifestPath] = true
 	defer delete(ancestry, manifestPath)
 
-	canonical, err := model.LoadCanonicalBundle(manifestPath)
-	if err != nil {
-		return nil, nil, nil, []validate.Diagnostic{{
-			Code: "composition.load_failed", Severity: validate.SeverityError,
-			Message: err.Error(), Path: manifestPath,
-		}}
+	var bundle model.Bundle
+	if root && r.rootBundle != nil {
+		bundle = *r.rootBundle
+	} else {
+		canonical, err := model.LoadCanonicalBundle(manifestPath)
+		if err != nil {
+			return nil, nil, nil, []validate.Diagnostic{{
+				Code: "composition.load_failed", Severity: validate.SeverityError,
+				Message: err.Error(), Path: manifestPath,
+			}}
+		}
+		bundle = canonical.Documents()
 	}
-	bundle := canonical.Documents()
 	sys := &ComposedSystem{
 		SubsystemID: subsystemID, Dependency: dependencyAlias, Publication: publicationID,
 		ModulePath: bundle.Manifest.Module.Path, Version: bundle.Manifest.Module.Version,
 		Dir: filepath.Dir(manifestPath), Bundle: bundle, Requirements: bundle.Requirements,
+	}
+	if !root {
+		// A dependency's code is its own module directory (workspace checkout or
+		// module cache entry), never the consumer's repository around it.
+		sys.Bundle.CodeScopeRoot = sys.Dir
 	}
 
 	dependencies, ddiags := validateDependencies(bundle.Manifest, manifestPath)
@@ -261,6 +506,44 @@ type compositionResolver struct {
 	workspace         string
 	workspaceDocument model.WorkspaceDocument
 	moduleClient      *modregistry.Client
+	cacheMode         string
+	// fetched holds the modules refreshed or verified in this run, so a
+	// module shared by several dependents is fetched once.
+	fetched map[string]string
+	// cacheNames maps each module cache directory used in this run to the
+	// module@version it holds.
+	cacheNames map[string]string
+	// rootBundle, when set, is the root system instead of its files on disk.
+	rootBundle *model.Bundle
+}
+
+// nameCachePaths rewrites diagnostic paths and messages that point into the
+// module cache (.engmod/modules/<entry>/file) to module@version:file, so a
+// reader sees which dependency version is at fault, not a cache hash.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func (r *compositionResolver) nameCachePaths(diags []validate.Diagnostic) {
+	if len(r.cacheNames) == 0 {
+		return
+	}
+	dirs := make([]string, 0, len(r.cacheNames))
+	for dir := range r.cacheNames {
+		dirs = append(dirs, dir)
+	}
+	// Longest first, so no directory is replaced inside a longer one.
+	sort.Slice(dirs, func(i, j int) bool { return len(dirs[i]) > len(dirs[j]) })
+	rename := func(text string) string {
+		for _, dir := range dirs {
+			name := r.cacheNames[dir]
+			text = strings.ReplaceAll(text, dir+string(filepath.Separator), name+":")
+			text = strings.ReplaceAll(text, dir, name)
+		}
+		return text
+	}
+	for i := range diags {
+		diags[i].Path = rename(diags[i].Path)
+		diags[i].Message = rename(diags[i].Message)
+	}
 }
 
 // resolveDependency resolves an exact manifest dependency to its engmod.yml.
@@ -288,6 +571,10 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 		}
 	}
 
+	// Confine the dependency before reading any file it names.
+	if escapes := dependencyPathEscapes(dependency.Alias, moduleRoot, filepath.Join(moduleRoot, "engmod.yml")); len(escapes) > 0 {
+		return "", "", "", escapes
+	}
 	actualModule, err := model.ReadCUEModulePath(moduleRoot)
 	if err != nil {
 		return "", "", "", at("composition.module_identity", fmt.Sprintf("dependency %q: %v", dependency.Alias, err))
@@ -307,16 +594,27 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 }
 
 // fetchModule downloads and atomically materializes a CUE module in the
-// workspace cache. Existing cache entries are reused offline.
-// TRLC-LINKS: REQ-EMG-047
+// workspace cache. A cached entry is reused offline in reuse mode; in verify
+// mode it is reused when the registry's manifest digest equals the one
+// recorded at fetch time (or the registry is unreachable) and replaced
+// otherwise; in refresh mode it is always replaced.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-064
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY
 func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	cacheRoot := filepath.Join(r.workspace, ".engmod", "modules")
 	dest := filepath.Join(cacheRoot, moduleCacheDirName(mv))
+	r.cacheNames[dest] = mv.String()
+	if done, ok := r.fetched[dest]; ok {
+		return done, nil
+	}
+	cached := false
 	if _, err := os.Stat(dest); err == nil {
-		return dest, nil
+		cached = true
 	} else if !os.IsNotExist(err) {
 		return "", err
+	}
+	if cached && r.cacheMode != ModuleCacheRefresh && r.cacheMode != moduleCacheVerify {
+		return dest, nil
 	}
 	if err := os.MkdirAll(cacheRoot, 0o755); err != nil {
 		return "", err
@@ -327,19 +625,37 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	}
 	defer func() { _ = lock.Unlock() }()
 	if _, err := os.Stat(dest); err == nil {
+		cached = true
+	}
+	if cached && r.cacheMode != ModuleCacheRefresh && r.cacheMode != moduleCacheVerify {
 		return dest, nil
 	}
 
 	if r.moduleClient == nil {
 		resolver, err := modconfig.NewResolver(nil)
 		if err != nil {
+			if cached && r.cacheMode == moduleCacheVerify {
+				return dest, nil
+			}
 			return "", err
 		}
 		r.moduleClient = modregistry.NewClientWithResolver(resolver)
 	}
 	remoteModule, err := r.moduleClient.GetModule(context.Background(), mv)
 	if err != nil {
+		if cached && r.cacheMode == moduleCacheVerify {
+			// Offline: the committed lock still guards the cached content.
+			return dest, nil
+		}
 		return "", err
+	}
+	manifestDigest := string(remoteModule.ManifestDigest())
+	digestFile := dest + ".manifest-digest"
+	if cached && r.cacheMode == moduleCacheVerify {
+		if recorded, err := os.ReadFile(digestFile); err == nil && strings.TrimSpace(string(recorded)) == manifestDigest {
+			r.fetched[dest] = dest
+			return dest, nil
+		}
 	}
 	zipReader, err := remoteModule.GetZip(context.Background())
 	if err != nil {
@@ -365,6 +681,9 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 		return "", err
 	}
 
+	if err := checkModuleZipEntries(zipPath); err != nil {
+		return "", err
+	}
 	tempDir, err := os.MkdirTemp(cacheRoot, "."+sanitizeDirName(mv.Path())+"-")
 	if err != nil {
 		return "", err
@@ -373,12 +692,24 @@ func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	if err := modzip.Unzip(tempDir, mv, zipPath); err != nil {
 		return "", err
 	}
-	if err := os.Rename(tempDir, dest); err != nil {
-		if _, statErr := os.Stat(dest); statErr == nil {
-			return dest, nil
+	if cached {
+		// Replace the stale entry: move it aside, then put the new one in.
+		stale, err := os.MkdirTemp(cacheRoot, "."+sanitizeDirName(mv.Path())+"-stale-")
+		if err != nil {
+			return "", err
 		}
-		return "", err
+		defer os.RemoveAll(stale)
+		if err := os.Rename(dest, filepath.Join(stale, "module")); err != nil {
+			return "", err
+		}
 	}
+	if err := os.Rename(tempDir, dest); err != nil {
+		if _, statErr := os.Stat(dest); statErr != nil {
+			return "", err
+		}
+	}
+	_ = os.WriteFile(digestFile, []byte(manifestDigest+"\n"), 0o644)
+	r.fetched[dest] = dest
 	return dest, nil
 }
 
@@ -571,7 +902,7 @@ func publicationProvenance(alias string, dependency model.ManifestDependency, ch
 	return out
 }
 
-// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-064
 func digestModuleDirectory(root string) (string, error) {
 	var paths []string
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
@@ -585,7 +916,7 @@ func digestModuleDirectory(root string) (string, error) {
 		if entry.IsDir() && (entry.Name() == ".git" || entry.Name() == ".engmod") {
 			return filepath.SkipDir
 		}
-		if entry.Type().IsRegular() && filepath.Base(path) != CompositionLockFileName {
+		if entry.Type().IsRegular() && filepath.Base(path) != CompositionLockFileName && filepath.Base(path) != CompositionLocalLockFileName {
 			paths = append(paths, filepath.ToSlash(rel))
 		}
 		return nil
@@ -675,10 +1006,13 @@ func materializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
 
 // validateComposition checks bindings across the composed tree: allocation targets must
 // be public, every subsystem required interface must be satisfied, and allocations must
-// reference real requirements and subsystems.
-// TRLC-LINKS: REQ-EMG-019, REQ-EMG-021, REQ-EMG-022
+// reference real requirements and subsystems. top marks the root of the
+// composition run: an unsatisfied required interface is an error there when
+// the root's module kind is "system" (the composing system answers for its
+// subsystems' needs) and a warning below it, where a parent may still bind it.
+// TRLC-LINKS: REQ-EMG-019, REQ-EMG-021, REQ-EMG-022, REQ-EMG-066
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
-func validateComposition(sys *ComposedSystem) []validate.Diagnostic {
+func validateComposition(sys *ComposedSystem, top bool) []validate.Diagnostic {
 	var diags []validate.Diagnostic
 	childByID := map[string]*ComposedSystem{}
 	for _, c := range sys.Children {
@@ -708,6 +1042,11 @@ func validateComposition(sys *ComposedSystem) []validate.Diagnostic {
 		}
 		entry, provided := contractProvidedEntry(child.Bundle, targetID)
 		if !provided {
+			diags = append(diags, validate.Diagnostic{
+				Code: "composition.allocation_target_not_contract", Severity: validate.SeverityWarning,
+				Message: fmt.Sprintf("allocation of %s in %s targets %q, which is not a contract provides entry of subsystem %q; the delegation names no subsystem requirement", a.Requirement, owner, a.Target, a.To),
+				Path:    loc(),
+			})
 			continue
 		}
 		ref := strings.TrimSpace(entry.Ref)
@@ -750,8 +1089,12 @@ func validateComposition(sys *ComposedSystem) []validate.Diagnostic {
 			}
 			need, _ := model.QualifyReference(c.Dependency, req.ID)
 			if !satisfied[need] {
+				severity := validate.SeverityWarning
+				if top && strings.EqualFold(strings.TrimSpace(sys.Bundle.Manifest.Module.Kind), "system") {
+					severity = validate.SeverityError
+				}
 				diags = append(diags, validate.Diagnostic{
-					Code: "composition.unsatisfied_require", Severity: validate.SeverityWarning,
+					Code: "composition.unsatisfied_require", Severity: severity,
 					Message: fmt.Sprintf("subsystem %q required interface %q is not satisfied by %s", c.SubsystemID, req.ID, owner),
 					Path:    owner,
 				})
@@ -760,7 +1103,7 @@ func validateComposition(sys *ComposedSystem) []validate.Diagnostic {
 	}
 
 	for _, c := range sys.Children {
-		diags = append(diags, validateComposition(c)...)
+		diags = append(diags, validateComposition(c, false)...)
 	}
 	return diags
 }
@@ -777,7 +1120,7 @@ func publishedByAlias(children []*ComposedSystem, alias, id string) bool {
 
 // validateQualifiedReferences applies publication visibility to every typed
 // reference field in the parent bundle, not only composition allocations.
-// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051, REQ-EMG-065
 func validateQualifiedReferences(bundle model.Bundle, children []*ComposedSystem, path string) []validate.Diagnostic {
 	var diags []validate.Diagnostic
 	seen := map[string]bool{}
@@ -838,18 +1181,62 @@ func validateQualifiedReferences(bundle model.Bundle, children []*ComposedSystem
 			}
 		}
 	}
-	for _, document := range []any{
-		bundle.Architecture, bundle.Requirements, bundle.Behavior,
-		bundle.Assurance, bundle.Compliance, bundle.Views,
+	// Walk each authored document once. The aggregate architecture also
+	// carries behavior, assurance, compliance and views content; walking it
+	// whole would report one reference under two field paths.
+	a := bundle.Architecture.AuthoredArchitecture
+	for _, part := range []struct {
+		path  string
+		value any
+	}{
+		{"architecture.functionalGroups", a.FunctionalGroups},
+		{"architecture.functionalUnits", a.FunctionalUnits},
+		{"architecture.actors", a.Actors},
+		{"architecture.referencedElements", a.ReferencedElements},
+		{"architecture.interfaces", a.Interfaces},
+		{"architecture.dataObjects", a.DataObjects},
+		{"architecture.deploymentTargets", a.DeploymentTargets},
+		{"architecture.hardwareItems", a.HardwareItems},
+		{"architecture.hardwareInterfaces", a.HardwareInterfaces},
+		{"architecture.contract", bundle.Architecture.Contract},
+		{"architecture.composition", bundle.Architecture.Composition},
+		{"architecture.semantics", bundle.Architecture.Semantics},
+		{"", bundle.Requirements},
+		{"", bundle.Behavior},
+		{"", bundle.Assurance},
+		{"", bundle.Compliance},
+		{"", bundle.Views},
 	} {
-		walk(reflect.ValueOf(document), "")
+		walk(reflect.ValueOf(part.value), part.path)
 	}
 	return diags
 }
 
-// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+// QualifiedReferenceDiagnostics reports every alias::ID reference in the
+// authored model that no selected dependency publication makes visible, once
+// per field path (composition.unpublished_reference). A model without
+// composition has no visible imports, so each of its qualified references is
+// reported.
+// TRLC-LINKS: REQ-EMG-065
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func QualifiedReferenceDiagnostics(bundle model.Bundle, result CompositionResult) []validate.Diagnostic {
+	var children []*ComposedSystem
+	if result.Root != nil {
+		children = result.Root.Children
+	}
+	return validateQualifiedReferences(bundle, children, bundle.ManifestPath)
+}
+
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051, REQ-EMG-065
 func isReferenceField(tag string) bool {
 	lower := strings.ToLower(tag)
+	switch lower {
+	case "schemaref", "catalogref", "basecatalogref", "href", "cataloghref":
+		// File paths and URLs (an IPv6 URL holds "::"), never model IDs.
+		return false
+	case "group", "owner", "responsiblerole", "responsibleroles", "targets", "triggers", "namespace", "inheritedfrom", "relatedcontrols", "attackvectors", "threatscenarios", "threats":
+		return true
+	}
 	return strings.HasSuffix(lower, "ref") || strings.HasSuffix(lower, "refs") ||
 		lower == "from" || lower == "to" || lower == "target" || lower == "need" ||
 		lower == "by" || lower == "requirement" || lower == "appliesto" ||

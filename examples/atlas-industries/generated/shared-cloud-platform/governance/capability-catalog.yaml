@@ -9,7 +9,7 @@ metadata:
   author:
     id: atlas-industries
     name: Atlas Industries
-    type: Human
+    type: Software
 capabilities:
 - id: CAP-SYSTEM
   title: Atlas Shared Cloud Platform

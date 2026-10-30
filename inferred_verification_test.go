@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-010
@@ -32,8 +33,9 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 
 	testPath := filepath.Join(testsDir, "policy_only_fallback_test.go")
 	testContent := "// ENGMODEL-VERIFICATION-DESCRIPTION: validates policy-only fallback behavior when model inference is unavailable\n" +
+		"package sample\n\n" +
 		"// TRLC-" + "LINKS: REQ-PRR-004\n" +
-		"package sample\n"
+		"func TestPolicyOnlyFallback() {}\n"
 	if err := os.WriteFile(testPath, []byte(testContent), 0o644); err != nil {
 		t.Fatalf("write test fixture: %v", err)
 	}
@@ -235,5 +237,199 @@ func TestVerilogTestbenchPathClassification(t *testing.T) {
 		if isVerificationTestPath(path) {
 			t.Errorf("production source classified as test: %s", path)
 		}
+	}
+}
+
+// verificationFixture writes files under a temp root and runs code and
+// verification inference plus the trace matrix over them.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string) (TraceMatrix, []inferredVerificationCheck, []validate.Diagnostic) {
+	t.Helper()
+	root := t.TempDir()
+	for name, content := range files {
+		writeFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
+	}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
+	reqs := model.RequirementsDocument{}
+	for _, id := range reqIDs {
+		reqs.Requirements = append(reqs.Requirements, model.Requirement{ID: id})
+	}
+	code, codeDiags := inferCodeItems(bundle, root)
+	checks, verDiags := inferVerificationChecks(bundle, reqs, code, root)
+	return buildTraceMatrix(bundle, reqs, code, checks, nil), checks, append(codeDiags, verDiags...)
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func rowsByID(m TraceMatrix) map[string]TraceRow {
+	out := map[string]TraceRow{}
+	for _, r := range m.Requirements {
+		out[r.ID] = r
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func helperLinkPaths(t *testing.T, diags []validate.Diagnostic) map[string]bool {
+	t.Helper()
+	out := map[string]bool{}
+	for _, d := range diags {
+		if d.Code == "verification.helper_link" {
+			if d.Severity != validate.SeverityWarning {
+				t.Fatalf("helper_link must be a warning: %+v", d)
+			}
+			out[d.Path] = true
+		}
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement(t *testing.T) {
+	src := "// ENGMODEL-OWNER-UNIT: FU-SIM\n" +
+		"// TRLC-LINKS: REQ-SIM-001\n" +
+		"pub fn now_ms() -> u64 { 0 }\n" +
+		"\n" +
+		"#[cfg(test)]\n" +
+		"mod tests {\n" +
+		"    struct FakeClock;\n" +
+		"    impl FakeClock {\n" +
+		"        // TRLC-LINKS: REQ-SIM-009\n" +
+		"        fn now(&self) -> u64 { 1 }\n" +
+		"    }\n" +
+		"\n" +
+		"    // TRLC-LINKS: REQ-SIM-001\n" +
+		"    #[test]\n" +
+		"    fn reads_clock() {}\n" +
+		"}\n"
+	m, checks, diags := verificationFixture(t, map[string]string{"src/x.rs": src}, "REQ-SIM-001", "REQ-SIM-009")
+	rows := rowsByID(m)
+	if r := rows["REQ-SIM-001"]; len(r.Code) != 1 || r.Code[0].Line != 3 || len(r.Verifications) != 1 {
+		t.Fatalf("REQ-SIM-001 must be implemented by now_ms only and verified by reads_clock: %+v (checks %+v)", r, checks)
+	}
+	if r := rows["REQ-SIM-009"]; len(r.Code) != 0 || len(r.Verifications) != 0 || r.Status != "orphan" {
+		t.Fatalf("FakeClock::now must neither implement nor verify REQ-SIM-009: %+v", r)
+	}
+	if got := helperLinkPaths(t, diags); !got["src/x.rs:10"] || len(got) != 1 {
+		t.Fatalf("expected one helper_link at src/x.rs:10, got %v (all %+v)", got, diags)
+	}
+	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Verified != 1 || m.Summary.Passed != 0 {
+		t.Fatalf("summary: %+v", m.Summary)
+	}
+	if r := rows["REQ-SIM-001"]; r.Result != "not-run" {
+		t.Fatalf("no result artifact: want not-run, got %q", r.Result)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func TestVerification_GoHelperInTestFileDoesNotVerify(t *testing.T) {
+	src := "package sample\n\nimport \"testing\"\n\n" +
+		"// TRLC-LINKS: REQ-GO-002\n" +
+		"func failingWriter() error { return nil }\n\n" +
+		"// TRLC-LINKS: REQ-GO-001\n" +
+		"func TestWrites(t *testing.T) {}\n"
+	m, _, diags := verificationFixture(t, map[string]string{"writer_test.go": src}, "REQ-GO-001", "REQ-GO-002")
+	rows := rowsByID(m)
+	if len(rows["REQ-GO-001"].Verifications) != 1 || len(rows["REQ-GO-002"].Verifications) != 0 {
+		t.Fatalf("only TestWrites verifies: %+v", rows)
+	}
+	if len(rows["REQ-GO-002"].Code) != 0 {
+		t.Fatalf("test helper must not implement: %+v", rows["REQ-GO-002"])
+	}
+	if got := helperLinkPaths(t, diags); !got["writer_test.go:6"] || len(got) != 1 {
+		t.Fatalf("helper_link: %v", got)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func TestVerification_PythonFixtureDoesNotVerify(t *testing.T) {
+	src := "import pytest\n\n" +
+		"# TRLC-LINKS: REQ-PY-002\n" +
+		"@pytest.fixture\n" +
+		"def fake_clock():\n" +
+		"    return 1\n\n" +
+		"# TRLC-LINKS: REQ-PY-001\n" +
+		"def test_clock(fake_clock):\n" +
+		"    assert fake_clock == 1\n"
+	m, _, diags := verificationFixture(t, map[string]string{"test_clock.py": src}, "REQ-PY-001", "REQ-PY-002")
+	rows := rowsByID(m)
+	if len(rows["REQ-PY-001"].Verifications) != 1 || len(rows["REQ-PY-002"].Verifications) != 0 {
+		t.Fatalf("only test_clock verifies: %+v", rows)
+	}
+	if got := helperLinkPaths(t, diags); !got["test_clock.py:5"] || len(got) != 1 {
+		t.Fatalf("helper_link: %v", got)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func TestVerification_ResultArtifactsDrivePassedAndRowResult(t *testing.T) {
+	test := "package sample\n\nimport \"testing\"\n\n" +
+		"// TRLC-LINKS: REQ-R-001, REQ-R-002, REQ-R-003\n" +
+		"func TestAll(t *testing.T) {}\n"
+	results := `{"results":[{"requirement":"REQ-R-001","status":"pass"},{"requirement":"REQ-R-002","status":"fail"}]}`
+	m, _, _ := verificationFixture(t, map[string]string{"pkg/all_test.go": test, "test-results/all.json": results}, "REQ-R-001", "REQ-R-002", "REQ-R-003")
+	rows := rowsByID(m)
+	for id, want := range map[string]string{"REQ-R-001": "passed", "REQ-R-002": "failed", "REQ-R-003": "not-run"} {
+		if rows[id].Result != want {
+			t.Errorf("%s result = %q, want %q", id, rows[id].Result, want)
+		}
+	}
+	if m.Summary.Tested != 3 || m.Summary.Verified != 3 || m.Summary.Passed != 1 {
+		t.Fatalf("summary: %+v", m.Summary)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestVerification_YamlTestArtifactsKeepFileLevelLinks(t *testing.T) {
+	m, _, diags := verificationFixture(t, map[string]string{"tests/e2e/flow.yaml": "# TRLC-LINKS: REQ-Y-001\nsteps: []\n"}, "REQ-Y-001")
+	if r := rowsByID(m)["REQ-Y-001"]; len(r.Verifications) != 1 {
+		t.Fatalf("yaml test artifacts keep file-level verification: %+v", r)
+	}
+	if len(helperLinkPaths(t, diags)) != 0 {
+		t.Fatalf("no helper_link for undetected languages: %+v", diags)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestVerification_PythonConftestFixturesDoNotVerify(t *testing.T) {
+	files := map[string]string{
+		"tests/conftest.py":   "# TRLC-LINKS: REQ-PY-002\ndef clock():\n    return 1\n",
+		"tests/test_clock.py": "# TRLC-LINKS: REQ-PY-001\ndef test_clock():\n    pass\n",
+	}
+	m, _, diags := verificationFixture(t, files, "REQ-PY-001", "REQ-PY-002")
+	rows := rowsByID(m)
+	if len(rows["REQ-PY-001"].Verifications) != 1 || len(rows["REQ-PY-002"].Verifications) != 0 || len(rows["REQ-PY-002"].Code) != 0 {
+		t.Fatalf("conftest fixture must neither verify nor implement: %+v", rows)
+	}
+	if got := helperLinkPaths(t, diags); !got["tests/conftest.py:2"] || len(got) != 1 {
+		t.Fatalf("helper_link: %v", got)
+	}
+}
+
+// In a Go test file an unmarked helper function or method raises no
+// code.missing_trlc_link, an unmarked Test function does, and a marked helper
+// raises only the verification.helper_link warning.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func TestVerification_GoUnmarkedTestHelpersNeedNoLinks(t *testing.T) {
+	src := "package sample\n\nimport \"testing\"\n\n" +
+		"type fakeClock struct{}\n\n" +
+		"func (fakeClock) Now() int { return 1 }\n\n" +
+		"func newFake() fakeClock { return fakeClock{} }\n\n" +
+		"// TRLC-LINKS: REQ-GO-001\n" +
+		"func markedHelper() {}\n\n" +
+		"func TestUnlinked(t *testing.T) {}\n\n" +
+		"// TRLC-LINKS: REQ-GO-001\n" +
+		"func TestLinked(t *testing.T) {}\n"
+	_, _, diags := verificationFixture(t, map[string]string{"clock_test.go": src}, "REQ-GO-001")
+	missing := map[string]bool{}
+	for _, d := range diags {
+		if d.Code == "code.missing_trlc_link" {
+			missing[d.Path] = true
+		}
+	}
+	if len(missing) != 1 || !missing["clock_test.go:14"] {
+		t.Fatalf("missing_trlc_link = %v, want only the unlinked Test at clock_test.go:14", missing)
+	}
+	if got := helperLinkPaths(t, diags); !got["clock_test.go:12"] || len(got) != 1 {
+		t.Fatalf("helper_link = %v, want only clock_test.go:12", got)
 	}
 }

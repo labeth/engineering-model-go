@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/labeth/engineering-model-go/codemap"
 	"github.com/labeth/engineering-model-go/model"
@@ -442,8 +443,58 @@ func uniqueExistingSources(in []string) []string {
 	return out
 }
 
+// isVerificationCodeItem reports whether a code item is test code rather than
+// production implementation: it lives in a test file, or it is a Rust item
+// compiled only for tests (#[cfg(test)] module or #![cfg(test)] file).
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func isVerificationCodeItem(item inferredCodeItem) bool {
-	path, _ := splitSourceLine(item.Source)
-	return isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path)
+	path, line := splitSourceLine(item.Source)
+	if isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path) {
+		return true
+	}
+	if item.Kind != "symbol" || line <= 0 || !strings.EqualFold(filepath.Ext(item.AbsPath), ".rs") {
+		return false
+	}
+	return rustTestOnlyLines(item.AbsPath)[line]
+}
+
+// rustTestOnlyCache memoizes the test-only declaration lines of Rust files, keyed by
+// absolute path and invalidated by size and modification time.
+var rustTestOnlyCache = struct {
+	sync.Mutex
+	entries map[string]rustTestOnlyEntry
+}{entries: map[string]rustTestOnlyEntry{}}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+type rustTestOnlyEntry struct {
+	size    int64
+	modTime int64
+	lines   map[int]bool
+}
+
+// rustTestOnlyLines returns the declaration lines of a Rust file that codemap marks
+// TestOnly. Unreadable files yield no lines, so their code stays production code.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func rustTestOnlyLines(absPath string) map[int]bool {
+	info, err := os.Stat(absPath)
+	if err != nil || info.IsDir() {
+		return nil
+	}
+	rustTestOnlyCache.Lock()
+	defer rustTestOnlyCache.Unlock()
+	if e, ok := rustTestOnlyCache.entries[absPath]; ok && e.size == info.Size() && e.modTime == info.ModTime().UnixNano() {
+		return e.lines
+	}
+	symbols, _, err := codemap.Scan(absPath)
+	if err != nil {
+		return nil
+	}
+	lines := map[int]bool{}
+	for _, s := range symbols {
+		if s.TestOnly {
+			lines[s.Line] = true
+		}
+	}
+	rustTestOnlyCache.entries[absPath] = rustTestOnlyEntry{size: info.Size(), modTime: info.ModTime().UnixNano(), lines: lines}
+	return lines
 }

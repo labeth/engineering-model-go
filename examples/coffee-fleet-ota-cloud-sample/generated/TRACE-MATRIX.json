@@ -23,10 +23,17 @@
       "verifications": [
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
+      "result": "passed",
       "delegatedTo": {
         "subsystem": "SUB-TELEMETRY",
         "target": "telemetry::CAP-TELEM-REPORT",
         "targetRequirement": "REQ-TELEM-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "status": "implemented"
     },
@@ -52,10 +59,17 @@
       "verifications": [
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
+      "result": "not-run",
       "delegatedTo": {
         "subsystem": "SUB-CLOUD-API",
         "target": "cloud-api::CAP-CLOUD-INGEST",
         "targetRequirement": "REQ-CLOUD-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "status": "implemented"
     },
@@ -82,10 +96,17 @@
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "result": "passed",
       "delegatedTo": {
         "subsystem": "SUB-OTA-AGENT",
         "target": "ota-agent::CAP-OTA-APPLY",
         "targetRequirement": "REQ-OTA-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "status": "implemented"
     },
@@ -111,6 +132,7 @@
       "verifications": [
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -136,6 +158,7 @@
       "verifications": [
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
       ],
+      "result": "not-run",
       "status": "implemented"
     },
     {
@@ -176,6 +199,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -254,6 +278,12 @@
         "target": "cloud-api::CAP-CLOUD-INGEST",
         "targetRequirement": "cloud-api::REQ-CLOUD-001"
       },
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "cloud-api",
         "modulePath": "models.example/coffee-fleet/cloud-api@v0",
@@ -290,6 +320,12 @@
         "subsystem": "SUB-OTA-AGENT",
         "target": "ota-agent::CAP-OTA-APPLY",
         "targetRequirement": "ota-agent::REQ-OTA-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "provenance": {
         "alias": "ota-agent",
@@ -343,6 +379,12 @@
         "subsystem": "SUB-TELEMETRY",
         "target": "telemetry::CAP-TELEM-REPORT",
         "targetRequirement": "telemetry::REQ-TELEM-001"
+      },
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-001",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
       },
       "provenance": {
         "alias": "telemetry",
@@ -398,7 +440,12 @@
     "requirements": 20,
     "implemented": 8,
     "verified": 6,
+    "tested": 6,
+    "testLinked": 6,
+    "passed": 4,
     "delegated": 6,
+    "delegatedImplemented": 3,
+    "delegatedTestLinked": 0,
     "orphan": 4,
     "danglingLinks": 0
   }

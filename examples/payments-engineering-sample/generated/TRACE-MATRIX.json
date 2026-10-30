@@ -38,6 +38,7 @@
       "verifications": [
         "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
       ],
+      "result": "not-run",
       "status": "implemented"
     },
     {
@@ -61,6 +62,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -85,6 +87,7 @@
         "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE",
         "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -119,6 +122,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -152,6 +156,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-AUDIT_RECORD_PERSISTENCE_TEST-B333A2"
       ],
+      "result": "not-run",
       "status": "implemented"
     },
     {
@@ -181,6 +186,7 @@
       "verifications": [
         "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE"
       ],
+      "result": "passed",
       "status": "implemented"
     },
     {
@@ -201,6 +207,7 @@
       "verifications": [
         "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
       ],
+      "result": "not-run",
       "status": "verified"
     },
     {
@@ -222,7 +229,12 @@
     "requirements": 9,
     "implemented": 6,
     "verified": 7,
+    "tested": 7,
+    "testLinked": 7,
+    "passed": 4,
     "delegated": 0,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
     "orphan": 2,
     "danglingLinks": 0
   }

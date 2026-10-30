@@ -1502,6 +1502,12 @@ package 'engineering-model-go' {
     event occurrence 'EVT-VALIDATION-FAILED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-WORKSPACE-SYNC-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-WORKSPACE-SYNC-REQUESTED';
+
+    @EngineeringElement {
         sourceId = "EXTENSION-9AF6071DD4978062";
         conceptKind = "engineering_extension";
     }
@@ -2438,7 +2444,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-049' {
         attribute 'text' : 'String' = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject invalid manifest dependency plus publication plus workspace replacement plus qualified reference declarations.";
-        attribute 'notes' : 'String' = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported.";
+        attribute 'notes' : 'String' = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported. A resolved dependency (registry module or workspace replacement) is confined to its module root: before any of its documents is read, every document reference, inferenceHints runtimeSources entry and inferenceHints exclude glob, engmod.yml and cue.mod/module.cue that is absolute or resolves after symlinks outside the module is rejected as composition.dependency_path_escape naming the dependency alias and field, and no content of the target is read; the root model's own paths are not confined this way. A fetched module zip is checked before extraction (modzip rejects .. and absolute entries, the registry client verifies the blob digest) and an entry that is not a regular file or directory, such as a symlink, fails the fetch.";
     }
 
     @EngineeringElement {
@@ -2538,6 +2544,87 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-060' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.";
         attribute 'notes' : 'String' = "Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-061";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-061' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.";
+        attribute 'notes' : 'String' = "Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-062";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-062' {
+        attribute 'text' : 'String' = "Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status.";
+        attribute 'notes' : 'String' = "Only a completed POA&M item is Enforced and only an accepted one Tolerated; planned, in-progress, deferred and unset items are Undetermined, and so is the log aggregate while any item is unresolved. The policy lists a risk as mitigated only when its status is closed and as accepted only when its status is accepted or its response is accept; open and mitigating risks are left out with a gemara.policy_risks_untreated warning. The generator author is typed Software unless overridden. gemara.validate reports claims the model does not support as modelConsistencyErrors.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-063";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-063' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall select the model workspace from the ENGMOD_WORK setting.";
+        attribute 'notes' : 'String' = "ENGMOD_WORK=off ignores every engmod.work.yml (CI and the pre-push gate); ENGMOD_WORK=<path> uses that file only and skips the parent search; unset searches parent directories as before. A path that does not exist is an error. CLI tools and the MCP server accept --workspace=off|<path> with the same meaning.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-064";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-064' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall write or check the composition lock according to the lock mode.";
+        attribute 'notes' : 'String' = "While workspace replacements are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and composition.lock_missing, composition.lock_invalid or composition.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Exception: while workspace replacements are active the committed lock is not compared (it pins published content, the replacements are local) and the warning composition.lock_check_skipped says that it is checked only with ENGMOD_WORK=off. Otherwise engmod.lock.yml is written as before. A cached registry module is reused offline, except that ENGMOD_MODULE_CACHE=refresh and lock regeneration (write mode with the workspace off) re-fetch every dependency, ENGMOD_MODULE_CACHE=reuse (ResolutionOptions.ModuleCache) reuses the cache offline in every lock mode, and otherwise lock check mode compares each cached module's recorded manifest digest with the registry (one lookup per dependency, cache reused when offline) and re-fetches a moved tag, so a warm cache never masks it. Diagnostics located in a fetched dependency name it as module@version:path instead of the cache directory.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-065";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-065' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall validate each qualified reference against the published entities of the selected dependencies.";
+        attribute 'notes' : 'String' = "Covers relationships, flows and flow steps, appliesTo, interface and data references, ownership (functional unit group, interface owner, trust boundary parent, risk, threat and verification owners), view roots and code ENGMODEL-LINKS. Requirements stay local, so trace counts do not include imported requirements. A qualified reference to an entity the dependency does not publish is reported once as composition.unpublished_reference with its field path, not as a generic broken reference. Only reference-typed fields are checked; prose (descriptions, notes, rationale, flow step actions) and file or URL fields (schemaRef, catalogRef, href) may contain :: freely.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-066";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-066' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall return the composition diagnostics with the generation result.";
+        attribute 'notes' : 'String' = "GenerateAsciiDoc and the trace matrix return every composition diagnostic, so callers need not compose again; composition runs once per call and its result is reused. An unsatisfied required interface is an error for a model of kind system that has no parent and a warning otherwise; an allocation whose target is not a contract provides entry is a warning.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-067";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-067' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall show the trace status of each delegated requirement in its target repository.";
+        attribute 'notes' : 'String' = "For a delegated row the matrix computes the target requirement's own trace status (implemented, test linked, orphan) from the resolved dependency at its pinned or replaced version and reports it as delegatedStatus. The dependency's code scope is its own module directory (the workspace checkout or the module cache entry) minus its inferenceHints exclude globs, never the consumer repository around it; a dependency without code there shows not-available.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-068";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-068' {
+        attribute 'text' : 'String' = "When workspace sync is requested, the engineering model go shall write a local workspace that replaces only changed or pinned checkouts.";
+        attribute 'notes' : 'String' = "engws scans direct child directories with engmod.yml. A checkout is changed when its git tree is dirty, HEAD is not at tag v<module.version>, or that version is not in the registry configured by CUE_REGISTRY; .engws.yml pins force local. The root search stops below $HOME (never $HOME or an ancestor) and refuses a world-writable root unless --root names it; every command prints the root first. sync skips with a warning a checkout whose module.path is not a valid major-qualified CUE module path or whose directory name is outside [A-Za-z0-9._-]. sync writes engmod.work.yml with the local checkouts and a go.work with every checkout that has go.mod (a non-local checkout is at its published tag, so go test and go run work in every checkout; go.work is removed when none has go.mod), and writes nothing inside any checkout. status and skew report SKEW when a local checkout's version differs from a version another checkout pins, or when a consumer's go.mod requires a checkout's Go module at another version than the checkout's version tag, and exit 1. check runs the model check in every local checkout affected by the change (reverse dependencies inside the workspace) and the top system with summary output; a repository's own .github/engmod-check is trusted code (stated in the help and the check output; --in-process is the choice for untrusted checkouts) and runs with an allowlisted environment (PATH, HOME, Go, CUE, proxy, certificate, XDG, DOCKER_CONFIG, CI and ENGMOD_* variables; no API keys or other credentials) and GOWORK set to its .github/engmod-check/go.work when present and off otherwise, never the root go.work; the in-process check relies on the library's qualified-reference validation; --refresh re-fetches dependencies; --all does not warn that engmod.work.yml lacks the unchanged checkouts. bump writes inside the consumer checkout: it updates a dependency version in engmod.yml, the matching go.mod require and go.sum (go get with GOWORK=off, after validating the Go module path) and the lock together, and restores all of them on any failure; pin and unpin write .engws.yml at the root.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-069";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-069' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document.";
+        attribute 'notes' : 'String' = "model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.";
     }
 
     @EngineeringElement {

@@ -282,7 +282,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -365,7 +365,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 		units[u.ID] = true
 		kindByID[u.ID] = "functional_unit"
 		if strings.TrimSpace(u.Group) == "" || !groups[u.Group] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_group", Severity: SeverityError, Message: fmt.Sprintf("functional unit %q must reference a valid functional group", u.ID), Path: path})
+			diags = append(diags, Diagnostic{Code: "model.invalid_group", Severity: SeverityError, Message: fmt.Sprintf("functional unit %q must reference a valid functional group, not %q", u.ID, strings.TrimSpace(u.Group)), Path: path})
 		}
 	}
 	for i, a := range b.Architecture.AuthoredArchitecture.Actors {
@@ -518,6 +518,27 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 		return codeIndex[id] > 0
 	}
+	appliesToTargets := map[string]bool{}
+	for _, group := range [][]model.CatalogEntry{
+		b.Catalog.Catalog.Systems, b.Catalog.Catalog.FunctionalGroups, b.Catalog.Catalog.FunctionalUnits,
+		b.Catalog.Catalog.ReferencedElements, b.Catalog.Catalog.Actors, b.Catalog.Catalog.AttackVectors,
+		b.Catalog.Catalog.Events, b.Catalog.Catalog.States, b.Catalog.Catalog.Features, b.Catalog.Catalog.Modes,
+		b.Catalog.Catalog.Conditions, b.Catalog.Catalog.DataTerms,
+	} {
+		for _, entry := range group {
+			appliesToTargets[strings.TrimSpace(entry.ID)] = true
+		}
+	}
+	// A requirement may also apply to a composition subsystem or a contract
+	// entry of this model.
+	for _, subsystem := range b.Architecture.Composition.Subsystems {
+		appliesToTargets[strings.TrimSpace(subsystem.ID)] = true
+	}
+	for _, entries := range [][]model.ContractEntry{b.Architecture.Contract.Provides, b.Architecture.Contract.Requires} {
+		for _, entry := range entries {
+			appliesToTargets[strings.TrimSpace(entry.ID)] = true
+		}
+	}
 
 	for i, x := range b.Architecture.AuthoredArchitecture.HardwareInterfaces {
 		path := fmt.Sprintf("authoredArchitecture.hardwareInterfaces[%d]", i)
@@ -532,6 +553,15 @@ func Bundle(b model.Bundle) []Diagnostic {
 	}
 	for i, requirement := range b.Requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
+		for j, waiver := range requirement.LintWaivers {
+			wpath := fmt.Sprintf("%s.lintWaivers[%d]", path, j)
+			if !strings.HasPrefix(strings.TrimSpace(waiver.Code), "lint.") {
+				diags = append(diags, Diagnostic{Code: "model.invalid_lint_waiver_code", Severity: SeverityError, Message: fmt.Sprintf("lint waiver code %q must name a lint.* warning", waiver.Code), Path: wpath + ".code"})
+			}
+			if strings.TrimSpace(waiver.Reason) == "" {
+				diags = append(diags, Diagnostic{Code: "model.missing_lint_waiver_reason", Severity: SeverityError, Message: fmt.Sprintf("lint waiver %q on %q needs a reason", waiver.Code, requirement.ID), Path: wpath + ".reason"})
+			}
+		}
 		if requirement.Derived && strings.TrimSpace(requirement.DerivedRationale) == "" {
 			diags = append(diags, Diagnostic{Code: "model.missing_derived_requirement_rationale", Severity: SeverityError, Message: fmt.Sprintf("derived requirement %q must include derivedRationale", requirement.ID), Path: path + ".derivedRationale"})
 		}
@@ -546,6 +576,17 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 		if len(requirement.VerificationMethods) > 0 && strings.TrimSpace(requirement.VerificationCriteria) == "" {
 			diags = append(diags, Diagnostic{Code: "model.missing_requirement_verification_criteria", Severity: SeverityError, Message: fmt.Sprintf("requirement %q with verification methods must include verificationCriteria", requirement.ID), Path: path + ".verificationCriteria"})
+		}
+		for j, rawTarget := range requirement.AppliesTo {
+			// alias::ID entries are checked against the dependencies'
+			// publications by composition (composition.unpublished_reference).
+			target := strings.TrimSpace(rawTarget)
+			if strings.Contains(target, "::") {
+				continue
+			}
+			if target == "" || !(validID(target) || appliesToTargets[target]) {
+				diags = append(diags, Diagnostic{Code: "requirement.invalid_applies_to", Severity: SeverityError, Message: fmt.Sprintf("requirement %q appliesTo unknown id %q", requirement.ID, target), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
 		}
 		for j, sourceRef := range requirement.SourceRefs {
 			sourceRef = strings.TrimSpace(sourceRef)
@@ -1329,6 +1370,100 @@ func validateNAFProfile(architecture model.ArchitectureDocument, actors map[stri
 	return diags
 }
 
+// mappingPairs is the single table of allowed relationship kind pairs; it is
+// read by mappingPairAllowed and exported through AuthoringRules.
+var mappingPairs = map[string]map[string]bool{
+	"contains": {
+		"hardware_item:hardware_item":      true,
+		"hardware_item:hardware_interface": true,
+		"functional_group:functional_unit": true,
+		"functional_unit:interface":        true,
+		"functional_unit:data_object":      true,
+	},
+	"depends_on": {
+		"functional_unit:functional_unit":    true,
+		"functional_unit:referenced_element": true,
+		"functional_unit:interface":          true,
+		"functional_unit:deployment_target":  true,
+	},
+	"interacts_with": {
+		"hardware_item:hardware_item": true,
+		"actor:functional_unit":       true,
+	},
+	"targets": {
+		"attack_vector:functional_unit":    true,
+		"attack_vector:referenced_element": true,
+		"attack_vector:interface":          true,
+		"attack_vector:deployment_target":  true,
+	},
+	"calls": {
+		"functional_unit:functional_unit": true,
+		"functional_unit:interface":       true,
+	},
+	"publishes": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"subscribes": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"reads": {
+		"functional_unit:data_object": true,
+	},
+	"writes": {
+		"functional_unit:data_object": true,
+	},
+	"streams": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"implements": {
+		"functional_unit:interface":   true,
+		"functional_unit:data_object": true,
+	},
+	"satisfies": {
+		"functional_unit:referenced_element": true,
+		"functional_unit:control":            true,
+	},
+	"allocated_to": {
+		"deployment_target:hardware_item":   true,
+		"functional_unit:hardware_item":     true,
+		"functional_unit:deployment_target": true,
+		"interface:deployment_target":       true,
+	},
+	"verified_by": {
+		"functional_unit:referenced_element": true,
+		"control:referenced_element":         true,
+	},
+	"transitions_to": {
+		"state:state": true,
+	},
+	"triggered_by": {
+		"state:event": true,
+	},
+	"guarded_by": {
+		"state:control":            true,
+		"state:trust_boundary":     true,
+		"state:referenced_element": true,
+	},
+	"deployed_to": {
+		"functional_unit:deployment_target": true,
+		"interface:deployment_target":       true,
+	},
+	"mitigated_by": {
+		"attack_vector:control": true,
+	},
+	"bounded_by": {
+		"actor:trust_boundary":             true,
+		"hardware_item:trust_boundary":     true,
+		"data_object:trust_boundary":       true,
+		"functional_unit:trust_boundary":   true,
+		"deployment_target:trust_boundary": true,
+		"interface:trust_boundary":         true,
+	},
+}
+
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
@@ -1338,104 +1473,7 @@ func mappingPairAllowed(mappingType, fromKind, toKind string) bool {
 	if t == "" || from == "" || to == "" {
 		return false
 	}
-	if t == "contains" {
-		if from == "hardware_item" && (to == "hardware_item" || to == "hardware_interface") {
-			return true
-		}
-		if from == "functional_group" && to == "functional_unit" {
-			return true
-		}
-		if from == "functional_unit" {
-			return to == "interface" || to == "data_object"
-		}
-		return false
-	}
-	allowed := map[string]map[string]bool{
-		"depends_on": {
-			"functional_unit:functional_unit":    true,
-			"functional_unit:referenced_element": true,
-			"functional_unit:interface":          true,
-			"functional_unit:deployment_target":  true,
-		},
-		"interacts_with": {
-			"hardware_item:hardware_item": true,
-			"actor:functional_unit":       true,
-		},
-		"targets": {
-			"attack_vector:functional_unit":    true,
-			"attack_vector:referenced_element": true,
-			"attack_vector:interface":          true,
-			"attack_vector:deployment_target":  true,
-		},
-		"calls": {
-			"functional_unit:functional_unit": true,
-			"functional_unit:interface":       true,
-		},
-		"publishes": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"subscribes": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"reads": {
-			"functional_unit:data_object": true,
-		},
-		"writes": {
-			"functional_unit:data_object": true,
-		},
-		"streams": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"implements": {
-			"functional_unit:interface":   true,
-			"functional_unit:data_object": true,
-		},
-		"satisfies": {
-			"functional_unit:referenced_element": true,
-			"functional_unit:control":            true,
-		},
-		"allocated_to": {
-			"deployment_target:hardware_item":   true,
-			"functional_unit:hardware_item":     true,
-			"functional_unit:deployment_target": true,
-			"interface:deployment_target":       true,
-		},
-		"verified_by": {
-			"functional_unit:referenced_element": true,
-			"control:referenced_element":         true,
-		},
-		"transitions_to": {
-			"state:state": true,
-		},
-		"triggered_by": {
-			"state:event": true,
-		},
-		"guarded_by": {
-			"state:control":            true,
-			"state:trust_boundary":     true,
-			"state:referenced_element": true,
-		},
-		"deployed_to": {
-			"functional_unit:deployment_target": true,
-			"interface:deployment_target":       true,
-		},
-		"mitigated_by": {
-			"attack_vector:control": true,
-		},
-		"bounded_by": {
-			"actor:trust_boundary":             true,
-			"hardware_item:trust_boundary":     true,
-			"data_object:trust_boundary":       true,
-			"functional_unit:trust_boundary":   true,
-			"deployment_target:trust_boundary": true,
-			"interface:trust_boundary":         true,
-		},
-	}
-	key := from + ":" + to
-	return allowed[t][key]
+	return mappingPairs[t][from+":"+to]
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE

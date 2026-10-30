@@ -1,4 +1,4 @@
-requirement,status,units,code,verifications,delegatedTo,provenance
-REQ-TELEM-001,implemented,FU-TELEM-REPORT,src/telemetry.rs:12,,,
-REQ-TELEM-002,implemented,FU-TELEM-SAMPLE,src/telemetry.rs:18,,,
-REQ-TELEM-003,implemented,FU-TELEM-REPORT,src/telemetry.rs:27,,,
+requirement,status,units,code,verifications,delegatedTo,provenance,result
+REQ-TELEM-001,implemented,FU-TELEM-REPORT,src/telemetry.rs:12,,,,
+REQ-TELEM-002,implemented,FU-TELEM-SAMPLE,src/telemetry.rs:18,,,,
+REQ-TELEM-003,implemented,FU-TELEM-REPORT,src/telemetry.rs:27,,,,

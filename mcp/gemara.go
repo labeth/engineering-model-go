@@ -9,6 +9,7 @@ package mcp
 
 import (
 	"fmt"
+	"sort"
 
 	gemara "github.com/gemaraproj/go-gemara"
 
@@ -50,6 +51,7 @@ var gemaraArtifactTypes = map[string]string{
 	"control-threat-mapping": "MappingDocument",
 	"audit-log":              "AuditLog",
 	"enforcement-log":        "EnforcementLog",
+	"evaluation-log":         "EvaluationLog",
 }
 
 // gemaraArtifact renders a single Gemara artifact for the given tool name.
@@ -102,8 +104,9 @@ func (s *Server) gemaraArtifact(toolName string) (map[string]any, error) {
 	return out, nil
 }
 
-// gemaraValidate renders every Gemara artifact and confirms the SDK recognizes
-// each one via its metadata.type discriminator.
+// gemaraValidate renders every Gemara artifact, confirms the SDK recognizes
+// each one via its metadata.type discriminator, and checks that every
+// cross-artifact reference resolves within the rendered set.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func (s *Server) gemaraValidate() (map[string]any, error) {
@@ -111,10 +114,40 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
+	docs := map[string]string{}
+	for k, v := range res.YAML {
+		docs[k] = v
+	}
+	var reqs model.RequirementsDocument
+	if s.requirements != nil {
+		reqs = *s.requirements
+	}
+	evalRes, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, reqs, s.repoRoot, engmodel.GemaraExportOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if evalRes.HasContent {
+		docs["evaluation-log"] = evalRes.YAML
+	}
+	return validateGemaraDocuments(s.bundle, docs), nil
+}
+
+// validateGemaraDocuments type-checks each rendered artifact, resolves its
+// cross references and checks its treatment claims (dispositions, mitigated
+// and accepted risks) against the model; valid is false when any check fails.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func validateGemaraDocuments(bundle *model.Bundle, docs map[string]string) map[string]any {
 	artifacts := []map[string]any{}
 	allValid := true
-	for short, expected := range gemaraArtifactTypes {
-		doc, present := res.YAML[short]
+	names := make([]string, 0, len(gemaraArtifactTypes))
+	for short := range gemaraArtifactTypes {
+		names = append(names, short)
+	}
+	sort.Strings(names)
+	for _, short := range names {
+		expected := gemaraArtifactTypes[short]
+		doc, present := docs[short]
 		if !present || doc == "" {
 			continue // conditional artifacts are only produced when the model supports them
 		}
@@ -129,5 +162,20 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 		}
 		artifacts = append(artifacts, entry)
 	}
-	return map[string]any{"allValid": allValid, "artifactCount": len(artifacts), "artifacts": artifacts}, nil
+	xrefErrs := engmodel.CheckGemaraCrossReferences(docs)
+	if xrefErrs == nil {
+		xrefErrs = []engmodel.GemaraCrossReferenceError{}
+	}
+	consistencyErrs := []engmodel.GemaraCrossReferenceError{}
+	if bundle != nil {
+		consistencyErrs = append(consistencyErrs, engmodel.CheckGemaraModelConsistency(*bundle, docs)...)
+	}
+	return map[string]any{
+		"valid":                  len(xrefErrs) == 0 && len(consistencyErrs) == 0 && allValid,
+		"allValid":               allValid,
+		"artifactCount":          len(artifacts),
+		"artifacts":              artifacts,
+		"crossReferenceErrors":   xrefErrs,
+		"modelConsistencyErrors": consistencyErrs,
+	}
 }

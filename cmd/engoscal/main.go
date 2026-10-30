@@ -9,11 +9,12 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/cliflags"
 	"github.com/labeth/engineering-model-go/validate"
 )
 
-// TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: IF-CLI-ENGOSCAL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-063, REQ-EMG-064
+// ENGMODEL-LINKS: IF-CLI-ENGOSCAL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-CLI-ORCHESTRATION
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	outPath := flag.String("out", "", "legacy SSP output path; equivalent to --ssp-out")
@@ -32,7 +33,9 @@ func main() {
 	sspHref := flag.String("ssp-href", "", "optional SSP href for POA&M import-ssp")
 	catalog := flag.String("catalog", "", "optional OSCAL catalog href used with --profile for validation and control selection")
 	lastModified := flag.String("last-modified", "", "optional RFC3339 timestamp for reproducible OSCAL metadata")
+	modelEnv := cliflags.Register(nil)
 	flag.Parse()
+	modelEnv.MustApply()
 
 	if strings.TrimSpace(*modelPath) == "" {
 		fmt.Fprintln(os.Stderr, "usage: engoscal --model <engmod.yml> [--profile-out <profile.json>] [--ssp-out <ssp.json>] [--ap-out <ap.json>] [--ar-out <ar.json>] [--poam-out <poam.json>] [--requirements <model/requirements.yml>] [--code-root <dir>] [--profile <href>] [--import-profile-href <href>] [--catalog <href>] [--system-name <name>] [--system-description <text>] [--ap-href <assessment-plan.json>] [--ssp-href <ssp.json>]")

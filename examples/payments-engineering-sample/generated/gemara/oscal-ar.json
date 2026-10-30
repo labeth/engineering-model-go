@@ -20,7 +20,7 @@
       "parties": [
         {
           "name": "Engineering Model Go Examples",
-          "type": "person",
+          "type": "organization",
           "uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b"
         }
       ],
@@ -109,7 +109,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -141,7 +141,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -170,7 +170,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -224,7 +224,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -260,7 +260,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -296,7 +296,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }
@@ -332,7 +332,7 @@
                   {
                     "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
                     "role-id": "assessor",
-                    "type": "party"
+                    "type": "tool"
                   }
                 ]
               }

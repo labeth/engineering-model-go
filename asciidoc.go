@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/model"
@@ -17,6 +18,11 @@ type AsciiDocOptions struct {
 	ViewIDs          []string
 	CodeRoot         string
 	DecisionsDocPath string
+	// Resolution overrides ENGMOD_WORK / ENGMOD_LOCK for the composition run.
+	Resolution ResolutionOptions
+	// Composition, when set, is a composition already resolved for this
+	// bundle's manifest; GenerateAsciiDoc then does not compose again.
+	Composition *CompositionResult
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -48,8 +54,12 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 	return GenerateAsciiDoc(bundle, requirements, design, options)
 }
 
+// GenerateAsciiDoc validates and renders the model. With composition it
+// resolves the dependencies once, validates against the bundle enriched with
+// their published entities, and returns every composition diagnostic; a
+// composition error fails the call like any other validation error.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066
 func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
 	bundle.Requirements = requirements
 	bundle.Design = design
@@ -57,12 +67,15 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	if err != nil {
 		return AsciiDocResult{}, err
 	}
-	bundle = canonical.Documents()
+	bundle = withCodeIndex(canonical.Documents())
 	requirements = bundle.Requirements
 	design = bundle.Design
-	diags := validate.Bundle(bundle)
+	composition, compositionErr := composeForGeneration(bundle, options.Composition, options.Resolution)
+	validated, compositionDiags := validationBundle(bundle, composition, compositionErr)
+	diags := excludeUnpublishedReferenceEchoes(validate.Bundle(validated), compositionDiags)
+	diags = append(diags, compositionDiags...)
 	diags = append(diags, validateCatalogDescriptions(bundle.Catalog)...)
-	diags = append(diags, lintRequirementsEARS(requirements, bundle.Catalog)...)
+	diags = append(diags, lintModelRequirementsEARS(bundle, requirements)...)
 	diags = append(diags, lintRequirementInternalLinks(requirements)...)
 	if validate.HasErrors(diags) {
 		return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
@@ -81,8 +94,8 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	}
 	for _, viewID := range viewIDs {
 		viewCfg := viewByID[viewID]
-		res, err := Generate(bundle, viewID)
-		diags = append(diags, res.Diagnostics...)
+		res, err := Generate(validated, viewID)
+		diags = append(diags, excludeUnpublishedReferenceEchoes(res.Diagnostics, compositionDiags)...)
 		if err != nil {
 			return AsciiDocResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("generate view %s: %w", viewID, err)
 		}
@@ -142,17 +155,9 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	diags = append(diags, verificationDiags...)
 	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
 
-	delegationsByReq := map[string][]MaterializedAllocation{}
-	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ManifestPath); derr == nil {
-			for _, m := range res.Allocations {
-				rid := strings.TrimSpace(m.Requirement)
-				delegationsByReq[rid] = append(delegationsByReq[rid], m)
-			}
-		}
-	}
+	delegationsByReq := delegationsByRequirement(composition)
 	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), modelRootDir(bundle))
-	diags = append(diags, validateTraceIntegrity(bundle, requirements, scopedCode, inferredVerification, delegationsByReq)...)
+	diags = append(diags, validateTraceIntegrity(validated, requirements, scopedCode, inferredVerification, delegationsByReq)...)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
 	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -669,7 +674,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 
 	// The Reference Index is the closing chapter; insert the Gemara and Composition
 	// chapters before it so it remains last.
-	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapter(bundle)
+	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapterFor(bundle, composition, compositionErr)
 	if trailing != "" {
 		if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
 			doc = doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
@@ -679,4 +684,108 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	}
 
 	return AsciiDocResult{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
+}
+
+// composeForGeneration returns the composition for a bundle: the caller's
+// result when given, otherwise one fresh resolution with the bundle itself as
+// the root system (so in-memory content, not the files on disk, is checked).
+// A model without composition returns an empty result.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION
+func composeForGeneration(bundle model.Bundle, given *CompositionResult, options ResolutionOptions) (CompositionResult, error) {
+	if !HasComposition(bundle) {
+		return CompositionResult{}, nil
+	}
+	if given != nil {
+		return *given, nil
+	}
+	return GenerateCompositionForBundle(bundle, options)
+}
+
+// validationBundle enriches the bundle with the dependencies' published
+// architecture, behavior, assurance and compliance entities, so
+// alias::ID references validate. Requirements are not imported. It returns the
+// composition diagnostics to report: those of the resolution, or, without
+// composition, an unpublished_reference for every alias::ID reference.
+// TRLC-LINKS: REQ-EMG-065, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func validationBundle(bundle model.Bundle, composition CompositionResult, compositionErr error) (model.Bundle, []validate.Diagnostic) {
+	if !HasComposition(bundle) {
+		return bundle, QualifiedReferenceDiagnostics(bundle, CompositionResult{})
+	}
+	if compositionErr != nil {
+		return bundle, []validate.Diagnostic{{
+			Code: "composition.resolve_failed", Severity: validate.SeverityError,
+			Message: fmt.Sprintf("composition could not be resolved: %v", compositionErr),
+			Path:    bundle.ManifestPath,
+		}}
+	}
+	projection := BuildCompositionProjection(composition)
+	enriched := projection.EnrichBundle(bundle, "architecture", "behavior", "assurance", "compliance")
+	return enriched, composition.Diagnostics
+}
+
+// excludeUnpublishedReferenceEchoes drops the generic validation errors that
+// repeat a composition.unpublished_reference (the same alias::ID reported as a
+// broken reference, unknown flow target, unknown owner, ...), so each
+// unpublished reference is reported once with its field path.
+// TRLC-LINKS: REQ-EMG-065
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func excludeUnpublishedReferenceEchoes(diags, compositionDiags []validate.Diagnostic) []validate.Diagnostic {
+	unpublished := map[string]bool{}
+	for _, d := range compositionDiags {
+		if d.Code != "composition.unpublished_reference" {
+			continue
+		}
+		if ref, ok := firstQuoted(d.Message); ok {
+			unpublished[ref] = true
+		}
+	}
+	if len(unpublished) == 0 {
+		return diags
+	}
+	out := diags[:0:0]
+	for _, d := range diags {
+		echo := false
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "composition.") {
+			for ref := range unpublished {
+				if strings.Contains(d.Message, strconv.Quote(ref)) {
+					echo = true
+					break
+				}
+			}
+		}
+		if !echo {
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
+// firstQuoted returns the first Go-quoted string in a diagnostic message.
+// TRLC-LINKS: REQ-EMG-065
+func firstQuoted(message string) (string, bool) {
+	start := strings.Index(message, `"`)
+	if start < 0 {
+		return "", false
+	}
+	for end := start + 1; end < len(message); end++ {
+		if message[end] == '"' && message[end-1] != '\\' {
+			value, err := strconv.Unquote(message[start : end+1])
+			return value, err == nil
+		}
+	}
+	return "", false
+}
+
+// delegationsByRequirement indexes the composition's allocations by requirement.
+// TRLC-LINKS: REQ-EMG-020, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func delegationsByRequirement(composition CompositionResult) map[string][]MaterializedAllocation {
+	out := map[string][]MaterializedAllocation{}
+	for _, m := range composition.Allocations {
+		rid := strings.TrimSpace(m.Requirement)
+		out[rid] = append(out[rid], m)
+	}
+	return out
 }

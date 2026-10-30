@@ -35,14 +35,22 @@ type TraceMatrix struct {
 // TraceRow is one requirement and everything that traces to it.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 type TraceRow struct {
-	ID            string           `json:"id"`
-	Text          string           `json:"text,omitempty"`
-	Units         []string         `json:"units,omitempty"`
-	Code          []TraceCodeRef   `json:"code,omitempty"`
-	Verifications []string         `json:"verifications,omitempty"`
-	DelegatedTo   *TraceDelegation `json:"delegatedTo,omitempty"`
-	Provenance    *TraceProvenance `json:"provenance,omitempty"`
-	Status        string           `json:"status"`
+	ID            string         `json:"id"`
+	Text          string         `json:"text,omitempty"`
+	Units         []string       `json:"units,omitempty"`
+	Code          []TraceCodeRef `json:"code,omitempty"`
+	Verifications []string       `json:"verifications,omitempty"`
+	// Result is the recorded outcome of the linked tests: "passed" when parsed
+	// test-result artifacts report only passes, "failed" when any reports a
+	// failure (or a blocked, partial or flaky run), "not-run" otherwise. It is
+	// empty when no verification is linked.
+	Result      string           `json:"result,omitempty"`
+	DelegatedTo *TraceDelegation `json:"delegatedTo,omitempty"`
+	// DelegatedStatus is the delegated (or imported) requirement's own trace
+	// status in its target repository at the resolved version.
+	DelegatedStatus *TraceDelegatedStatus `json:"delegatedStatus,omitempty"`
+	Provenance      *TraceProvenance      `json:"provenance,omitempty"`
+	Status          string                `json:"status"`
 }
 
 // TraceProvenance identifies the selected dependency publication that supplied
@@ -55,6 +63,20 @@ type TraceProvenance struct {
 	SourceModel string `json:"sourceModel"`
 	Publication string `json:"publication"`
 	SourceID    string `json:"sourceId"`
+}
+
+// TraceDelegatedStatus is the trace status of a delegation's target
+// requirement computed in the dependency itself. Status is "implemented",
+// "test-linked", "delegated" or "orphan" as in that repository's own matrix,
+// "not-available" when the dependency has no code sources, and
+// "unknown-requirement" when the target requirement does not exist there.
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+type TraceDelegatedStatus struct {
+	Requirement string `json:"requirement"`
+	Status      string `json:"status"`
+	Implemented bool   `json:"implemented"`
+	TestLinked  bool   `json:"testLinked"`
+	Result      string `json:"result,omitempty"`
 }
 
 // TraceCodeRef is a code symbol that implements a requirement.
@@ -84,12 +106,29 @@ type DanglingLink struct {
 // TraceSummary is the headline coverage roll-up.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type TraceSummary struct {
-	Requirements  int `json:"requirements"`
-	Implemented   int `json:"implemented"`
-	Verified      int `json:"verified"`
-	Delegated     int `json:"delegated"`
-	Orphan        int `json:"orphan"`
-	DanglingLinks int `json:"danglingLinks"`
+	Requirements int `json:"requirements"`
+	Implemented  int `json:"implemented"`
+	// Verified is deprecated: it counts test-linked requirements and always
+	// equals TestLinked and Tested. A linked test is not a verification; use
+	// TestLinked for links and Passed for requirements with recorded passes.
+	Verified int `json:"verified"`
+	// Tested counts requirements with at least one linked test function (or
+	// verification artifact).
+	Tested int `json:"tested"`
+	// TestLinked equals Tested under the name that says what it counts: a
+	// requirement linked from a test entry point, run or not.
+	TestLinked int `json:"testLinked"`
+	// Passed counts requirements whose linked verification has a recorded pass
+	// and no recorded failure in parsed test-result artifacts.
+	Passed    int `json:"passed"`
+	Delegated int `json:"delegated"`
+	// DelegatedImplemented and DelegatedTestLinked count local delegated rows
+	// whose target requirement is implemented, respectively test linked, in
+	// the target repository.
+	DelegatedImplemented int `json:"delegatedImplemented"`
+	DelegatedTestLinked  int `json:"delegatedTestLinked"`
+	Orphan               int `json:"orphan"`
+	DanglingLinks        int `json:"danglingLinks"`
 }
 
 // requirementIDSet is the set of requirement ids defined by the model.
@@ -305,9 +344,16 @@ func splitSourceLine(source string) (string, int) {
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-029
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func validateTraceIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) []validate.Diagnostic {
+	return validateTraceIntegrityWithIDs(knownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
+}
+
+// validateTraceIntegrityWithIDs is validateTraceIntegrity against an explicit
+// set of model IDs, which may include published alias::ID entities.
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-065
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func validateTraceIntegrityWithIDs(modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) []validate.Diagnostic {
 	var diags []validate.Diagnostic
 	reqIDs := requirementIDSet(requirements)
-	modelIDs := knownModelIDs(bundle, requirements)
 	covered := map[string]bool{}
 	for _, it := range scopedCode {
 		for _, raw := range it.Implements {
@@ -364,8 +410,15 @@ func validateTraceIntegrity(bundle model.Bundle, requirements model.Requirements
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) TraceMatrix {
+	return buildTraceMatrixWithIDs(bundle, knownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
+}
+
+// buildTraceMatrixWithIDs is buildTraceMatrix resolving ENGMODEL-LINKS against
+// an explicit ID set, which may include published alias::ID entities.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) TraceMatrix {
 	reqIDs := requirementIDSet(requirements)
-	modelIDs := knownModelIDs(bundle, requirements)
 	codeByReq := map[string][]TraceCodeRef{}
 	var dangling []DanglingLink
 	for _, it := range scopedCode {
@@ -397,6 +450,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 			verByReq[id] = append(verByReq[id], strings.TrimSpace(v.ID))
 		}
 	}
+	resultByReq := requirementResults(verification)
 
 	matrix := TraceMatrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
 	for _, r := range requirements.Requirements {
@@ -404,6 +458,9 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 		row := TraceRow{ID: id, Text: strings.TrimSpace(r.Text), Units: uniqueSorted(r.AppliesTo)}
 		row.Code = codeByReq[id]
 		row.Verifications = uniqueSorted(verByReq[id])
+		if len(row.Verifications) > 0 {
+			row.Result = resultByReq[id]
+		}
 		if d := delegationsByReq[id]; len(d) > 0 {
 			row.DelegatedTo = &TraceDelegation{Subsystem: d[0].Subsystem, Target: d[0].Target, TargetRequirement: d[0].TargetRef}
 		}
@@ -433,7 +490,10 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 			matrix.Summary.Implemented++
 		}
 		if len(row.Verifications) > 0 {
-			matrix.Summary.Verified++
+			matrix.Summary.Tested++
+		}
+		if row.Result == "passed" {
+			matrix.Summary.Passed++
 		}
 		if row.DelegatedTo != nil {
 			matrix.Summary.Delegated++
@@ -443,7 +503,49 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 	}
 	matrix.Summary.DanglingLinks = len(dangling)
+	matrix.Summary.Verified = matrix.Summary.Tested
+	matrix.Summary.TestLinked = matrix.Summary.Tested
 	return matrix
+}
+
+// requirementResults rolls the per-requirement results of every linked
+// verification into one row result: failed > passed > not-run.
+// TRLC-LINKS: REQ-EMG-030
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func requirementResults(verification []inferredVerificationCheck) map[string]string {
+	out := map[string]string{}
+	rank := map[string]int{"not-run": 0, "passed": 1, "failed": 2}
+	for _, v := range verification {
+		for _, req := range v.Verifies {
+			id := strings.TrimSpace(req)
+			result := "not-run"
+			for _, r := range v.Results {
+				if strings.TrimSpace(r.Requirement) != id {
+					continue
+				}
+				switch normalizeResultStatus(r.Status) {
+				case "pass":
+					result = "passed"
+				case "fail", "blocked", "partial", "flaky":
+					result = "failed"
+				}
+			}
+			if current, ok := out[id]; !ok || rank[result] > rank[current] {
+				out[id] = result
+			}
+		}
+	}
+	return out
+}
+
+// TraceOptions configures BuildTraceMatrixFromFilesWith.
+// TRLC-LINKS: REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
+type TraceOptions struct {
+	// Resolution overrides ENGMOD_WORK / ENGMOD_LOCK for the composition run.
+	Resolution ResolutionOptions
+	// Composition, when set, is a composition already resolved for this
+	// manifest; the trace then does not compose again.
+	Composition *CompositionResult
 }
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
@@ -451,6 +553,17 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
 func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (TraceMatrix, []validate.Diagnostic, error) {
+	return BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot, TraceOptions{})
+}
+
+// BuildTraceMatrixFromFilesWith is BuildTraceMatrixFromFiles with explicit
+// resolution options. With composition it composes once, resolves code
+// ENGMODEL-LINKS alias::ID against the dependencies' published entities
+// (requirements stay local), returns the composition diagnostics, and reports
+// each delegated requirement's own status in its target repository.
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
+func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string, options TraceOptions) (TraceMatrix, []validate.Diagnostic, error) {
 	bundle, err := loadBundle(modelPath)
 	if err != nil {
 		return TraceMatrix{}, nil, err
@@ -475,30 +588,121 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 	diags := append([]validate.Diagnostic(nil), codeDiags...)
 	diags = append(diags, verDiags...)
 
-	delegationsByReq := map[string][]MaterializedAllocation{}
-	var compositionProjection CompositionProjection
-	var compositionResult CompositionResult
-	if HasComposition(bundle) {
-		if res, derr := GenerateCompositionFromFile(bundle.ManifestPath); derr == nil {
-			compositionResult = res
-			compositionProjection = BuildCompositionProjection(res)
-			for _, m := range res.Allocations {
-				rid := strings.TrimSpace(m.Requirement)
-				delegationsByReq[rid] = append(delegationsByReq[rid], m)
-			}
-		} else {
-			diags = append(diags, validate.Diagnostic{
-				Code: "composition.resolve_failed", Severity: validate.SeverityWarning,
-				Message: fmt.Sprintf("composition could not be resolved (delegated requirements may appear orphan): %v", derr),
-				Path:    bundle.ArchitecturePath,
-			})
+	compositionResult, cerr := composeForGeneration(bundle, options.Composition, options.Resolution)
+	if cerr != nil {
+		diags = append(diags, validate.Diagnostic{
+			Code: "composition.resolve_failed", Severity: validate.SeverityWarning,
+			Message: fmt.Sprintf("composition could not be resolved (delegated requirements may appear orphan): %v", cerr),
+			Path:    bundle.ArchitecturePath,
+		})
+	}
+	diags = append(diags, compositionResult.Diagnostics...)
+	compositionProjection := BuildCompositionProjection(compositionResult)
+	delegationsByReq := delegationsByRequirement(compositionResult)
+	// Code links may name published dependency entities; requirements stay
+	// local so the rows and counts below are this model's own.
+	linkBundle := compositionProjection.EnrichBundle(bundle, "architecture", "behavior", "assurance", "compliance")
+	linkIDs := knownModelIDs(linkBundle, requirements)
+
+	scoped := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, resolvedRoot), modelRootDir(bundle))
+	diags = append(diags, validateTraceIntegrityWithIDs(linkIDs, requirements, scoped, inferredVerification, delegationsByReq)...)
+	matrix := buildTraceMatrixWithIDs(bundle, linkIDs, requirements, scoped, inferredVerification, delegationsByReq)
+	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
+	applyDelegatedStatus(&matrix, compositionResult)
+	return matrix, validate.SortDiagnostics(diags), nil
+}
+
+// dependencyTraceRows computes a resolved dependency's own trace matrix rows
+// by requirement id, scanning its module directory (local replacement or
+// module cache entry, minus its exclude globs) the way the root model's module
+// root is scanned. ok is false when that directory holds no source code.
+// TRLC-LINKS: REQ-EMG-067
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
+func dependencyTraceRows(child *ComposedSystem) (map[string]TraceRow, bool) {
+	bundle := child.Bundle
+	code, _ := inferCodeItems(bundle, "")
+	verification, _ := inferVerificationChecks(bundle, bundle.Requirements, code, "")
+	scoped := scopeCodeToModel(code, effectiveCodeRoots(bundle, ""), modelRootDir(bundle))
+	if len(scoped) == 0 && len(verification) == 0 {
+		return nil, false
+	}
+	delegations := map[string][]MaterializedAllocation{}
+	for _, m := range materializeAllocations(&ComposedSystem{Bundle: bundle, Children: child.Children, Requirements: child.Requirements}) {
+		if m.System == strings.TrimSpace(bundle.Architecture.Model.ID) {
+			delegations[strings.TrimSpace(m.Requirement)] = append(delegations[strings.TrimSpace(m.Requirement)], m)
 		}
 	}
-	scoped := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, resolvedRoot), modelRootDir(bundle))
-	diags = append(diags, validateTraceIntegrity(bundle, requirements, scoped, inferredVerification, delegationsByReq)...)
-	matrix := buildTraceMatrix(bundle, requirements, scoped, inferredVerification, delegationsByReq)
-	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
-	return matrix, validate.SortDiagnostics(diags), nil
+	matrix := buildTraceMatrix(bundle, bundle.Requirements, scoped, verification, delegations)
+	rows := make(map[string]TraceRow, len(matrix.Requirements))
+	for _, row := range matrix.Requirements {
+		rows[row.ID] = row
+	}
+	return rows, true
+}
+
+// applyDelegatedStatus fills DelegatedStatus for local delegated rows and
+// imported requirement rows. Each dependency's trace is computed at most once,
+// and only when a row needs it.
+// TRLC-LINKS: REQ-EMG-067
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func applyDelegatedStatus(matrix *TraceMatrix, composition CompositionResult) {
+	if composition.Root == nil {
+		return
+	}
+	bySubsystem := map[string]*ComposedSystem{}
+	byAlias := map[string]*ComposedSystem{}
+	for _, child := range composition.Root.Children {
+		bySubsystem[child.SubsystemID] = child
+		byAlias[child.Dependency] = child
+	}
+	type cached struct {
+		rows map[string]TraceRow
+		ok   bool
+	}
+	cache := map[*ComposedSystem]cached{}
+	status := func(child *ComposedSystem, requirement string) *TraceDelegatedStatus {
+		if child == nil || requirement == "" {
+			return nil
+		}
+		entry, seen := cache[child]
+		if !seen {
+			entry.rows, entry.ok = dependencyTraceRows(child)
+			cache[child] = entry
+		}
+		out := &TraceDelegatedStatus{Requirement: requirement}
+		if !entry.ok {
+			out.Status = "not-available"
+			return out
+		}
+		row, exists := entry.rows[requirement]
+		if !exists {
+			out.Status = "unknown-requirement"
+			return out
+		}
+		out.Implemented, out.TestLinked, out.Result = len(row.Code) > 0, len(row.Verifications) > 0, row.Result
+		out.Status = row.Status
+		if out.Status == "verified" {
+			out.Status = "test-linked"
+		}
+		return out
+	}
+	for i := range matrix.Requirements {
+		row := &matrix.Requirements[i]
+		if row.DelegatedTo == nil {
+			continue
+		}
+		if row.Provenance != nil {
+			row.DelegatedStatus = status(byAlias[row.Provenance.Alias], row.Provenance.SourceID)
+			continue
+		}
+		row.DelegatedStatus = status(bySubsystem[row.DelegatedTo.Subsystem], row.DelegatedTo.TargetRequirement)
+		if row.DelegatedStatus != nil && row.DelegatedStatus.Implemented {
+			matrix.Summary.DelegatedImplemented++
+		}
+		if row.DelegatedStatus != nil && row.DelegatedStatus.TestLinked {
+			matrix.Summary.DelegatedTestLinked++
+		}
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
@@ -550,6 +754,8 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 		matrix.Summary.Requirements++
 		if len(row.Verifications) > 0 {
 			matrix.Summary.Verified++
+			matrix.Summary.Tested++
+			matrix.Summary.TestLinked++
 		}
 		if row.DelegatedTo != nil {
 			matrix.Summary.Delegated++
@@ -566,7 +772,7 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 func (m TraceMatrix) CSV() []byte {
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
-	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo", "provenance"})
+	_ = w.Write([]string{"requirement", "status", "units", "code", "verifications", "delegatedTo", "provenance", "result"})
 	for _, r := range m.Requirements {
 		code := make([]string, 0, len(r.Code))
 		for _, c := range r.Code {
@@ -586,7 +792,7 @@ func (m TraceMatrix) CSV() []byte {
 		}
 		_ = w.Write([]string{
 			r.ID, r.Status, strings.Join(r.Units, " "), strings.Join(code, " "),
-			strings.Join(r.Verifications, " "), delegated, provenance,
+			strings.Join(r.Verifications, " "), delegated, provenance, r.Result,
 		})
 	}
 	w.Flush()

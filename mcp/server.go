@@ -17,6 +17,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/codemap"
 	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/validate"
 )
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
@@ -79,6 +80,8 @@ var toolArgsAllowlist = map[string][]string{
 	"model.list":                   {"query", "q", "kind", "max"},
 	"entities.list":                {"query", "q", "kind", "max"},
 	"model.authoringContract":      {},
+	"model.complete":               {"prefix", "query", "q", "field", "max"},
+	"model.diagnose":               {"document", "path", "content"},
 	"model.entity":                 {"entityId", "id"},
 	"model.implementations":        {"entityId", "id", "groupBy", "max"},
 	"code.contextForTask":          {"query", "q", "requirementId", "reqId", "entityId", "id", "path", "file", "max"},
@@ -87,7 +90,7 @@ var toolArgsAllowlist = map[string][]string{
 	"generation.plan":              {},
 	"generation.status":            {},
 	"composition.resolve":          {},
-	"trace.matrix":                 {},
+	"trace.matrix":                 {"summaryOnly"},
 	"governance.policy":            {},
 	"governance.checkPatch":        {"diff"},
 	"tasks.entryPoints":            {},
@@ -134,7 +137,7 @@ type indexedFile struct {
 	Content string
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-045
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008, REQ-EMG-045, REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func NewServer() *Server {
 	all := []Tool{
@@ -160,6 +163,8 @@ func NewServer() *Server {
 		{Name: "model.list", Description: "List model entities"},
 		{Name: "entities.list", Description: "List model entities"},
 		{Name: "model.authoringContract", Description: "Get the compact canonical YAML authoring contract"},
+		{Name: "model.complete", Description: "Complete a value while editing model YAML: local IDs, imported alias::ID from selected dependency publications (workspace replacement or local module cache; offline), catalog term names, allowed enum values and relationship types with their kind pairs. prefix is matched case-insensitively (empty lists all); field narrows candidates, e.g. appliesTo, owner, interfaceRef, relationship.type, flow.kind, status, risk.status, catalog; max defaults to 50. Returns candidates [{value, kind, source (local, rules or the dependency alias), title}] and a note when imports cannot be resolved"},
+		{Name: "model.diagnose", Description: "Validate the model with one document's content replaced in memory (nothing is written): document is a manifest document key (catalog, requirements, architecture, behavior, assurance, compliance, views, decisions) or its path; content is the full YAML text. Returns valid, that document's diagnostics with line/column where they can be located, a count of other diagnostics and YAML parse errors with line and column"},
 		{Name: "model.entity", Description: "Get model entity detail"},
 		{Name: "model.implementations", Description: "List source declarations linked to any model entity"},
 		{Name: "code.contextForTask", Description: "Assemble compact code and model context for a task"},
@@ -168,7 +173,7 @@ func NewServer() *Server {
 		{Name: "generation.plan", Description: "Plan artifact regeneration"},
 		{Name: "generation.status", Description: "Get artifact freshness status"},
 		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
-		{Name: "trace.matrix", Description: "Traceability matrix: per-requirement implemented/verified/delegated/orphan status, code references, and dangling code trace links"},
+		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling; verified is a deprecated alias of testLinked), per-requirement status, code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
 		{Name: "tasks.entryPoints", Description: "List task entry points"},
@@ -206,7 +211,7 @@ func NewServer() *Server {
 		{Name: "gemara.auditLog", Description: "Render the OpenSSF Gemara L7 Audit Log (YAML) from the model"},
 		{Name: "gemara.enforcementLog", Description: "Render the OpenSSF Gemara L6 Enforcement Log (YAML) from POA&M items"},
 		{Name: "gemara.evaluationLog", Description: "Render the OpenSSF Gemara L5 Evaluation Log (YAML) from the model"},
-		{Name: "gemara.validate", Description: "Validate all generated Gemara artifacts via the go-gemara SDK type discriminator"},
+		{Name: "gemara.validate", Description: "Validate all generated Gemara artifacts: go-gemara SDK type discriminator, cross references within the set, and dispositions and risk treatment against the model"},
 	}
 	m := map[string]Tool{}
 	for _, t := range all {
@@ -254,7 +259,8 @@ func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 		if code == 0 {
 			code = -32602
 		}
-		return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "error": map[string]any{"code": code, "message": rpcErr.Error()}})
+		message := newPathScrubber(s.repoRoot, s.modelPath).scrubString(rpcErr.Error())
+		return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "error": map[string]any{"code": code, "message": message}})
 	}
 	return json.Marshal(map[string]any{"jsonrpc": "2.0", "id": id, "result": result})
 }
@@ -313,6 +319,7 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 			return nil, -32602, err
 		}
 		payload, err := s.callTool(name, args)
+		scrubber := newPathScrubber(s.repoRoot, s.modelPath)
 		if err != nil {
 			errPayload, _ := json.Marshal(map[string]any{
 				"ok":            false,
@@ -320,14 +327,20 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 				"schemaVersion": toolSchemaVersion,
 				"error": map[string]any{
 					"code":    "INVALID_ARGUMENT",
-					"message": err.Error(),
+					"message": scrubber.scrubString(err.Error()),
 					"hint":    "see tools/list.inputSchema for accepted arguments",
 				},
 				"generatedAt": time.Now().UTC().Format(time.RFC3339),
 			})
 			return map[string]any{"content": []map[string]any{{"type": "text", "text": string(errPayload)}}, "isError": true}, 0, nil
 		}
+		// Round-trip through JSON so every string, typed structs included, is
+		// scrubbed of absolute machine paths before it leaves the server.
 		buf, _ := json.Marshal(payload)
+		var generic any
+		if json.Unmarshal(buf, &generic) == nil {
+			buf, _ = json.Marshal(scrubber.scrub(generic))
+		}
 		return map[string]any{"content": []map[string]any{{"type": "text", "text": string(buf)}}, "isError": false}, 0, nil
 	default:
 		return nil, -32601, fmt.Errorf("unsupported method: %s", method)
@@ -428,7 +441,7 @@ func (s *Server) loadContext(params any) error {
 	return nil
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045, REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION, FU-CODEMAP-INFERENCE
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
@@ -512,19 +525,20 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		if path == "" {
 			return nil, fmt.Errorf("files.owner requires path")
 		}
-		ownerFU := ""
 		safePath, ok := s.resolvePathInRepo(path)
 		if !ok {
 			return nil, fmt.Errorf("files.owner path must be inside repoRoot")
 		}
 		content, _ := os.ReadFile(safePath)
+		ownerFU, markerLine := ownerUnitMarker(safePath, content)
+		ownerKnown := false
 		for _, fu := range a.FunctionalUnits {
-			if strings.Contains(string(content), fu.ID) {
-				ownerFU = fu.ID
+			if ownerFU != "" && fu.ID == ownerFU {
+				ownerKnown = true
 				break
 			}
 		}
-		return simple(map[string]any{"path": safePath, "ownerFunctionalUnit": ownerFU})
+		return simple(map[string]any{"path": safePath, "ownerFunctionalUnit": ownerFU, "ownerKnown": ownerKnown, "markerLine": markerLine})
 	case "verification.status":
 		status := []model.ControlVerification{}
 		for _, cv := range a.ControlVerifications {
@@ -621,7 +635,15 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "model.list", "entities.list":
 		return simple(map[string]any{"entities": s.modelEntityNodes(query, firstNonEmptyArg(args, "kind"), maxArg(args, 500))})
 	case "model.authoringContract":
-		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle)})
+		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle), "rules": validate.AuthoringRules()})
+	case "model.complete":
+		return simple(s.modelComplete(args))
+	case "model.diagnose":
+		data, err := s.modelDiagnose(args)
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "model.entity":
 		id := firstNonEmptyArg(args, "entityId", "id")
 		if id == "" {
@@ -677,7 +699,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(data)
 	case "trace.matrix":
-		data, err := s.traceMatrix()
+		data, err := s.traceMatrix(boolArg(args, "summaryOnly"))
 		if err != nil {
 			return nil, err
 		}
@@ -731,13 +753,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 			return nil, fmt.Errorf("interfaces.matchFromCode path must be inside repoRoot")
 		}
 		content, _ := os.ReadFile(safePath)
-		ownerFU := ""
-		for _, fu := range a.FunctionalUnits {
-			if strings.Contains(string(content), fu.ID) {
-				ownerFU = fu.ID
-				break
-			}
-		}
+		ownerFU, _ := ownerUnitMarker(safePath, content)
 		matched := []string{}
 		for _, i := range a.Interfaces {
 			if strings.Contains(string(content), i.ID) || strings.Contains(string(content), i.Endpoint) {
@@ -1818,6 +1834,21 @@ func isTestPath(path string) bool {
 		strings.HasSuffix(base, ".spec.tsx")
 }
 
+// boolArg reads a flag argument sent as a JSON boolean or as the string
+// "true"/"false" (case-insensitive); anything else is false.
+// TRLC-LINKS: REQ-EMG-008
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-STRICT-MCP-INPUT-SCHEMA
+func boolArg(args map[string]any, key string) bool {
+	switch v := args[key].(type) {
+	case bool:
+		return v
+	case string:
+		return strings.EqualFold(strings.TrimSpace(v), "true")
+	default:
+		return false
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 func maxArg(args map[string]any, fallback int) int {
@@ -2425,6 +2456,42 @@ func (s *Server) graphEdges(query string, max int) []map[string]any {
 	return out
 }
 
+// ownerUnitMarker returns the value of the first ENGMODEL-OWNER-UNIT comment
+// marker and its 1-based line, or "" and 0 when the file has none. Mentions of
+// FU IDs elsewhere in the file are ignored; Python markers count only in comments.
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-010
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
+func ownerUnitMarker(path string, content []byte) (string, int) {
+	const marker = "ENGMODEL-OWNER-UNIT:"
+	var pythonComments map[int]bool
+	isPython := strings.EqualFold(filepath.Ext(path), ".py")
+	if isPython {
+		pythonComments, _ = codemap.CommentLines(path, content)
+	}
+	for index, line := range strings.Split(string(content), "\n") {
+		if isPython && !pythonComments[index+1] {
+			continue
+		}
+		x := strings.TrimSpace(line)
+		isComment := false
+		for _, prefix := range []string{"//", "#", "/*", "*", "--", ";", "%"} {
+			if strings.HasPrefix(x, prefix) {
+				x = strings.TrimSpace(strings.TrimPrefix(x, prefix))
+				isComment = true
+				break
+			}
+		}
+		if !isComment || !strings.HasPrefix(strings.ToUpper(x), marker) {
+			continue
+		}
+		value := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(x[len(marker):]), "*/"))
+		if fields := strings.Fields(value); len(fields) > 0 {
+			return fields[0], index + 1
+		}
+	}
+	return "", 0
+}
+
 // TRLC-LINKS: REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func firstNonEmptyArg(args map[string]any, keys ...string) string {
@@ -2484,12 +2551,21 @@ func containsString(in []string, target string) bool {
 	return false
 }
 
+// booleanToolArgs lists the arguments that are flags; their schema accepts a
+// JSON boolean or the strings "true"/"false".
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-STRICT-MCP-INPUT-SCHEMA
+var booleanToolArgs = map[string]bool{"summaryOnly": true}
+
 // TRLC-LINKS: REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func inputSchemaForTool(name string) map[string]any {
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
 	for _, k := range allowed {
+		if booleanToolArgs[k] {
+			props[k] = map[string]any{"type": []string{"boolean", "string"}, "enum": []any{true, false, "true", "false"}}
+			continue
+		}
 		props[k] = map[string]any{"type": "string"}
 	}
 	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}

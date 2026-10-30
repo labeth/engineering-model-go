@@ -107,10 +107,11 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			rel, _ := filepath.Rel(baseDir, path)
 			rel = filepath.ToSlash(rel)
-			if !isVerificationTestPath(rel) {
+			ext := strings.ToLower(filepath.Ext(path))
+			// Rust unit tests live inline in production files (#[cfg(test)] mod tests).
+			if !isVerificationTestPath(rel) && ext != ".rs" {
 				return nil
 			}
-			ext := strings.ToLower(filepath.Ext(path))
 			if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".py" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".java" && ext != ".yaml" && ext != ".yml" && ext != ".v" {
 				return nil
 			}
@@ -126,7 +127,14 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			content := string(data)
 			reqs := extractTRLCLinkedRequirements(content)
-			if ext == ".v" || ext == ".py" {
+			if hasTestFunctionDetection(rel) {
+				testReqs, helperDiags, scanErr := testFunctionRequirements(path, rel)
+				if scanErr != nil {
+					return scanErr
+				}
+				reqs = testReqs
+				diags = append(diags, helperDiags...)
+			} else if ext == ".v" || ext == ".py" {
 				reqs = nil
 				symbols, rtlDiags, scanErr := codemap.Scan(path)
 				if scanErr != nil {
@@ -334,6 +342,61 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		})
 	}
 	return out, validate.SortDiagnostics(diags)
+}
+
+// hasTestFunctionDetection reports whether the scanner can tell test entry points
+// from helpers in this file: Go _test.go files, every Rust file and every Python
+// test-path file (pytest collects tests only from test_*.py / *_test.py, so links in
+// conftest.py or tests/ support modules are helper links). Other test artifacts
+// (YAML, Verilog, JavaScript, TypeScript, Go support files under tests/) keep
+// file-level TRLC-LINKS verification.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-010
+func hasTestFunctionDetection(rel string) bool {
+	base := strings.ToLower(filepath.Base(rel))
+	switch strings.ToLower(filepath.Ext(base)) {
+	case ".rs":
+		return true
+	case ".go":
+		return strings.HasSuffix(base, "_test.go")
+	case ".py":
+		return isVerificationTestPath(rel)
+	}
+	return false
+}
+
+// testFunctionRequirements returns the requirements linked from test entry points
+// (codemap.Symbol.IsTest) in one file. TRLC-LINKS on any other declaration in test
+// code (helpers, fakes, fixtures) verifies nothing and is reported as
+// verification.helper_link. A Rust production file yields only its inline tests.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-010
+func testFunctionRequirements(path, rel string) ([]string, []validate.Diagnostic, error) {
+	symbols, _, err := codemap.Scan(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	testPath := isVerificationTestPath(rel)
+	reqs := []string{}
+	diags := []validate.Diagnostic{}
+	for _, s := range symbols {
+		if len(s.Implements) == 0 {
+			continue
+		}
+		if s.IsTest {
+			reqs = append(reqs, s.Implements...)
+			continue
+		}
+		if s.TestOnly || testPath {
+			diags = append(diags, validate.Diagnostic{
+				Code:     "verification.helper_link",
+				Severity: validate.SeverityWarning,
+				Message:  "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+				Path:     fmt.Sprintf("%s:%d", rel, s.Line),
+			})
+		}
+	}
+	return uniqueStrings(reqs), diags, nil
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -547,7 +610,9 @@ func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(
 				rel = absPath
 			}
 			rel = filepath.ToSlash(rel)
-			if !isVerificationTestPath(rel) {
+			if s.IsTest {
+				// Test entry points, including Rust tests inline in production files.
+			} else if !isVerificationTestPath(rel) || (s.TestOnly && hasTestFunctionDetection(rel)) {
 				continue
 			}
 			if s.Line > 0 {
