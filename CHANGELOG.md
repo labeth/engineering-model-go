@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-10-30: Root package is the public API; focused internal packages
+
 ### Changed (breaking)
 
 - The Go packages `model`, `validate`, `codemap`, `view`, `render/{diagramstyle,mermaid,svg}`
