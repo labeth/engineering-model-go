@@ -290,6 +290,21 @@ Verification metadata is inferred from test artifacts:
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
+- `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
+- a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
+
+### Model warnings
+
+Beyond the hard errors, validation warns about model content that is declared
+but not wired (warnings do not fail `engdoc`):
+
+| Code | Reported at | Rule |
+| --- | --- | --- |
+| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no `triggered_by` relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
+| `behavior.state_unreachable` | `authoredArchitecture.states[i]` | with at least one transition in the model, a state other than the first declared one (the initial state; the schema has no initial marker) that no `transitions_to` or semantic transition enters |
+| `behavior.flow_step_no_onerror` | `authoredArchitecture.flows[i].steps[j].onError` | a step with `boundaryCrossing: true` and no `onError` |
+| `catalog.name_has_operator` | `catalog.<group>[i].name` or `.aliases[j]` | an actor, event, state, feature, mode, condition or data term name or alias with a standalone `and`, `or`, `not`, a comma or a parenthesis, which the EARS clause parser reads as operators |
+| `verification.status_stale` | `…controlVerifications[i].status`, `…threatMitigations[i].status` | the referenced tests exist but the status still says they have not run (see above); reported by `engdoc` and `engtrace` |
 
 ### Code trace markers
 

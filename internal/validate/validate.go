@@ -282,7 +282,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -1128,6 +1128,15 @@ func Bundle(b model.Bundle) []Diagnostic {
 				diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_risk_ref", Severity: SeverityError, Message: fmt.Sprintf("unknown risk ref %q", riskRef), Path: fmt.Sprintf("%s.riskRefs[%d]", path, j)})
 			}
 		}
+		for j, ref := range verification.VerificationRefs {
+			ref = strings.TrimSpace(ref)
+			if strings.Contains(ref, "::") {
+				continue
+			}
+			if ref == "" || !(kindByID[ref] == "requirement" || model.IsCodeID(ref) && validID(ref)) {
+				diags = append(diags, Diagnostic{Code: "model.invalid_control_verification_ref", Severity: SeverityError, Message: fmt.Sprintf("verification ref %q must name a requirement or an inferred CODE identifier of a test declaration", ref), Path: fmt.Sprintf("%s.verificationRefs[%d]", path, j)})
+			}
+		}
 		for j, ev := range verification.Evidence {
 			if strings.TrimSpace(ev.Path) == "" {
 				diags = append(diags, Diagnostic{Code: "model.empty_control_verification_evidence_path", Severity: SeverityError, Message: "control verification evidence path is required", Path: fmt.Sprintf("%s.evidence[%d]", path, j)})
@@ -1247,6 +1256,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 	diags = append(diags, validateNAFProfile(b.Architecture, actors)...)
+	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
+	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)
 	projectionDiagnostics = append(projectionDiagnostics, model.ValidateSemanticModel(semantic)...)
