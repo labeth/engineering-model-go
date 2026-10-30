@@ -2,6 +2,7 @@
 package mcp
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -56,7 +57,9 @@ func TestGemaraValidateRejectsInjectedDanglingRef(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func TestGemaraValidateRejectsEnforcedOpenPOAMItem(t *testing.T) {
-	s := initializedPaymentsServer(t)
+	// The bedrock example has an open POA&M item whose risk is evaluated, so
+	// its enforcement log has an Undetermined action.
+	s := initializedServerAt(t, filepath.Join("..", "examples", "bedrock-pr-review-github-app-sample"))
 	payload := callToolPayload(t, s, "gemara.validate", map[string]any{})
 	if errs, ok := payload["modelConsistencyErrors"].([]any); !ok || len(errs) != 0 {
 		t.Fatalf("expected empty modelConsistencyErrors, got %+v", payload["modelConsistencyErrors"])
@@ -70,7 +73,7 @@ func TestGemaraValidateRejectsEnforcedOpenPOAMItem(t *testing.T) {
 		docs[k] = v
 	}
 	if !strings.Contains(docs["enforcement-log"], "disposition: Undetermined") {
-		t.Fatalf("fixture changed: payments enforcement log has no open POA&M item")
+		t.Fatalf("fixture changed: bedrock enforcement log has no open POA&M item")
 	}
 	docs["enforcement-log"] = strings.ReplaceAll(docs["enforcement-log"], "disposition: Undetermined", "disposition: Enforced")
 	out := validateGemaraDocuments(s.bundle, docs)
