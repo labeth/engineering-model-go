@@ -109,12 +109,33 @@ go get github.com/labeth/engineering-model-go
 
 ## Library API
 
+The root package `engmodel` is the only public Go API; every other package is
+under `internal/`. It re-exports the model and validation types, so callers do
+not import the internal packages:
+
+```go
+bundle, err := engmodel.LoadBundle("engmod.yml") // engmodel.Bundle, engmodel.Requirement, ...
+if err != nil {
+    panic(err)
+}
+diags := engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle))
+if engmodel.HasErrors(diags) {
+    // report []engmodel.Diagnostic
+}
+```
+
+Model: `LoadBundle`, `LoadCanonicalBundle`, `NewCanonicalBundle`,
+`ProjectSemanticModel`, `BuildAuthoringContract`, `LoadWorkspace`,
+`FindWorkspace`, `FindWorkspaceWith`. Validation: `ValidateBundle`,
+`HasErrors`, `SortDiagnostics`, `DedupeDiagnostics`, `AuthoringRules`
+(returns `ValidationRules`).
+
 Primary entry points:
 - `GenerateFromFile(architecturePath, viewID)`
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
-- `model.ProjectSemanticModel(bundle)`
+- `ProjectSemanticModel(bundle)`
 - `GenerateSysMLV2FromFile(architecturePath)`
 - `GenerateSysMLV2(bundle)`
 - `GenerateAirborneAssuranceFromFile(manifestPath, options)`
@@ -465,7 +486,7 @@ published by the aligned official Pilot Implementation tag `2026-04`, commit
 | SysML 2.0 | `org.omg.sysml.model/src/main/resources/model/SysML.ecore` | `be71998ca0d9bb7e6081a25e8ead93ce49d623a47ca414b30ee8c572d6d0d753` |
 
 Exact immutable URLs and authority notes are tracked in
-`tools/sysml/metamodel-sources.json`. Refresh downloads into the ignored
+`internal/export/sysml/metamodel/metamodel-sources.json`. Refresh downloads into the ignored
 `.engmod/cache` tree, verifies both hashes, and regenerates the compact inventory
 and semantic coverage binding:
 
@@ -533,7 +554,7 @@ describes a documented subset/projection rather than claiming complete SysML v2
 semantic conformance.
 
 Every authored YAML document is validated against the embedded modular schemas
-in `model/schema/` before strict Go decoding. CUE is authoritative for document
+in `internal/model/schema/` before strict Go decoding. CUE is authoritative for document
 shape and cross-field constraints, produces path-aware diagnostics, and rejects
 unknown fields recursively. A reflection-based contract test detects drift
 between CUE fields and the Go runtime API representations. The loader aggregates
@@ -825,6 +846,60 @@ Core files:
 - `src` (Go/Rust/TypeScript traced code)
 
 ## Development
+
+### Repository layout
+
+```text
+.
+├── doc.go, model_api.go,       public engmodel facade: type aliases, constants and thin
+│   validate_api.go, api_*.go   wrappers, one api_<area>.go per area (old public names kept)
+├── facade_test.go              every exported implementation name is re-exported at the root
+├── layering_test.go            the package import direction below holds
+├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange,
+│                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
+│                               engtrlc, englobster, engair, engmcp, engws, sysmlmetamodel)
+├── internal/
+│   ├── model/                  model types, loader, canonical bundle, embedded CUE schema (schema/)
+│   ├── validate/               diagnostics and bundle validation rules
+│   ├── codemap/                tree-sitter and lexical source symbol scanner
+│   ├── view/                   view projection of the architecture
+│   ├── render/                 diagramstyle, mermaid and svg renderers of a projected view
+│   ├── composition/            system-of-systems composition (CUE modules, workspace, lock)
+│   ├── codescan/               code, runtime and verification evidence inference
+│   ├── trace/                  traceability matrix
+│   ├── reqlint/                EARS preflight, catalog description and requirement link lint
+│   ├── reqdelta/               requirements delta planning and atomic application
+│   ├── generate/               single-view Mermaid/SVG generation (Generate, GenerateFromFile)
+│   ├── asciidoc/               AsciiDoc publication (templates/asciidoc.tmpl)
+│   ├── export/                 one package per exporter: gemara, oscal, sysml (metamodel/),
+│   │                           structurizr, threatmodel, naf, trlc, lobster, airborne, exportutil
+│   ├── integration/            test-only: end-to-end tests through the facade and across packages
+│   ├── mcp/                    MCP server
+│   ├── engws/                  engmod.work.yml workspace tool
+│   ├── cliflags/               shared command-line flags
+│   ├── sysmlmetamodel/         SysML v2 metamodel inventory tooling
+│   ├── textutil/               shared string helpers
+│   └── testutil/               shared test fixtures and helpers
+├── engmod.yml, model/          this repository's own engineering model (YAML only)
+├── generated/                  this repository's generated artifacts
+├── examples/                   sample models with their generated outputs
+├── docs/                       design notes and format guides
+└── scripts/                    validation and tooling scripts (sysml-toolchain.env pins the SysML tools)
+```
+
+Package layering: imports point down only. `textutil` and `model` import nothing in the
+module; `validate` builds on `model`; `codemap` and `view` on those; `render/*` on `view`;
+`composition` on `model`, `validate` and `textutil`; `codescan` on `composition` and
+`codemap`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
+`reqlint` and `trace`; `generate` on `view`, `render/*` and `codescan`; `export/*` on the
+layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`. Only `cmd/*`,
+`internal/mcp` and `internal/engws` import the root facade (among tests, only
+`internal/integration`), and `mcp` and `engws` do not import each other. `layering_test.go` enforces the rules with `go list`.
+
+The tests of the `internal/...` implementation packages run from the repository root (their `TestMain` changes
+to the directory holding `go.mod`), so they name repository paths such as
+`examples/...` and `engmod.yml` directly:
+`go test ./internal/integration -run TestAtlasIndustriesCompanyExample`.
 
 Unit checks:
 

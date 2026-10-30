@@ -31,7 +31,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-11T00:00:00Z"
     confidence-level: High
@@ -50,7 +50,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-19T00:00:00Z"
     confidence-level: Medium
@@ -76,7 +76,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-21T00:00:00Z"
     confidence-level: Medium

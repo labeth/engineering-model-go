@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/mod/modregistrytest"
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // A clean checkout at its tag whose version is published resolves from OCI.

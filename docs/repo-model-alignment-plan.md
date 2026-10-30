@@ -1,3 +1,5 @@
+> Paths before the v0.5.0 restructure; see README for the current layout.
+
 # Engineering-Model-Go Repository Model Alignment Plan
 
 > Status: historical plan, not a live backlog. The ongoing-alignment quality
@@ -11,7 +13,7 @@ Align root model artifacts with the current repository without changing runtime 
 
 - Inputs: `model/catalog.yml`, `engmod.yml`, `model/requirements.yml`, `model/views.yml`
 - Generated artifacts: maintained files under `generated/`, excluding removed machine-view artifacts.
-- Code scope for alignment: `cmd/`, `mcp/`, root `*.go`, `codemap/`, `validate/`, `view/`, exporters (`*_export.go`)
+- Code scope for alignment: `cmd/`, `internal/mcp/`, root `*.go`, `internal/codemap/`, `internal/validate/`, `internal/view/`, exporters (`*_export.go`)
 
 ## Constraints
 
@@ -24,16 +26,16 @@ Align root model artifacts with the current repository without changing runtime 
 1. Regenerate artifacts from root model and confirm success.
 2. Build an inventory of repository files by ownership candidate path:
    - `cmd/engdoc` -> `FU-ASCIIDOC-GENERATOR`
-   - `cmd/engmcp`, `mcp/` -> `FU-MCP-SERVER`
-   - `cmd/engdragon`, `threat_model_export.go` -> `FU-THREAT-EXPORTER`
-   - `cmd/engstruct`, `structurizr_export.go` -> `FU-STRUCTURIZR-EXPORTER`
-   - `cmd/engtrlc`, `trlc_export.go` -> `FU-TRLC-EXPORTER`
-   - `cmd/englobster`, `lobster_export.go` -> `FU-LOBSTER-EXPORTER`
-   - `cmd/engoscal`, `oscal_*.go` -> `FU-OSCAL-EXPORTER`
-   - `model/` -> `FU-MODEL-LOADER`
-   - `validate/` -> `FU-VALIDATION-ENGINE`
-   - `codemap/`, `inferred_*.go` -> `FU-CODEMAP-INFERENCE`
-   - `view/`, `asciidoc_views.go` -> `FU-VIEW-PROJECTION`
+   - `cmd/engmcp`, `internal/mcp/` -> `FU-MCP-SERVER`
+   - `cmd/engdragon`, `internal/export/threatmodel/threat_model_export.go` -> `FU-THREAT-EXPORTER`
+   - `cmd/engstruct`, `internal/export/structurizr/structurizr_export.go` -> `FU-STRUCTURIZR-EXPORTER`
+   - `cmd/engtrlc`, `internal/export/trlc/trlc_export.go` -> `FU-TRLC-EXPORTER`
+   - `cmd/englobster`, `internal/export/lobster/lobster_export.go` -> `FU-LOBSTER-EXPORTER`
+   - `cmd/engoscal`, `internal/export/oscal/oscal_*.go` -> `FU-OSCAL-EXPORTER`
+   - `internal/model/` -> `FU-MODEL-LOADER`
+   - `internal/validate/` -> `FU-VALIDATION-ENGINE`
+   - `internal/codemap/`, `internal/codescan/` -> `FU-CODEMAP-INFERENCE`
+   - `internal/view/`, `internal/asciidoc/asciidoc_views.go` -> `FU-VIEW-PROJECTION`
 
 Deliverable: checked-in mapping table (path -> FU ID).
 
@@ -45,7 +47,7 @@ Goal: add one file-level owner marker to each owned source file.
 
 - Marker format: `ENGMODEL-OWNER-UNIT: FU-...`
 - Priority order:
-  1. `mcp/` and `cmd/engmcp`
+  1. `internal/mcp/` and `cmd/engmcp`
   2. exporter files (`*_export.go`, export commands)
   3. loader/validate/inference/view files
   4. remaining command wiring files

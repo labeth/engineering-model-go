@@ -1,0 +1,669 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
+package codemap
+
+import (
+	"bufio"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strings"
+
+	sitter "github.com/tree-sitter/go-tree-sitter"
+	tsgo "github.com/tree-sitter/tree-sitter-go/bindings/go"
+	tsjavascript "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
+	tspython "github.com/tree-sitter/tree-sitter-python/bindings/go"
+	tsrust "github.com/tree-sitter/tree-sitter-rust/bindings/go"
+	tstypescript "github.com/tree-sitter/tree-sitter-typescript/bindings/go"
+
+	"github.com/labeth/engineering-model-go/internal/validate"
+)
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type Symbol struct {
+	TraceID    string
+	PartOf     []string
+	Implements []string
+	ModelLinks []string
+	Path       string
+	Line       int
+	Signature  string
+	// IsTest marks a test entry point the language's runner executes (Go TestX/
+	// BenchmarkX/FuzzX/ExampleX in _test.go, Rust #[test]-like functions, Python
+	// test* functions in test files). Only these verify the requirements they link.
+	IsTest bool
+	// TestOnly marks code compiled or collected only for tests: every declaration
+	// in a Go _test.go or Python test file and Rust items under #[cfg(test)]. It
+	// never counts as production implementation.
+	TestOnly bool
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type pendingTrace struct {
+	traceID    string
+	partOf     []string
+	implements []string
+	modelLinks []string
+	firstLine  int
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type declaration struct {
+	Name         string
+	Kind         string
+	Line         int
+	Signature    string
+	RequiresTRLC bool
+	LeadingLine  int
+	IsTest       bool
+	TestOnly     bool
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type languageSpec struct {
+	Language          *sitter.Language
+	DeclarationKind   map[string]bool
+	TraceRequiredKind map[string]bool
+}
+
+var supportedExt = map[string]bool{
+	".js":  true,
+	".mjs": true,
+	".cjs": true,
+	".go":  true,
+	".ts":  true,
+	".tsx": true,
+	".rs":  true,
+	".v":   true,
+	".py":  true,
+}
+
+// ScanOptions controls identifier derivation and path filtering for ScanWithOptions.
+// IDBase is the directory symbol identifiers are made relative to (the module root);
+// it defaults to the scan root. Skip, when set, excludes files and directories.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type ScanOptions struct {
+	IDBase string
+	Skip   func(path string, isDir bool) bool
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
+	return ScanWithOptions(root, ScanOptions{})
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058
+func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagnostic, error) {
+	absRoot, err := filepath.Abs(root)
+	if err != nil {
+		return nil, nil, fmt.Errorf("resolve code root: %w", err)
+	}
+
+	scanBase := absRoot
+	if info, err := os.Stat(absRoot); err == nil && !info.IsDir() {
+		scanBase = filepath.Dir(absRoot)
+	}
+	idBase := scanBase
+	if strings.TrimSpace(opts.IDBase) != "" {
+		if idBase, err = filepath.Abs(opts.IDBase); err != nil {
+			return nil, nil, fmt.Errorf("resolve identifier base: %w", err)
+		}
+	}
+
+	symbols := []Symbol{}
+	diags := []validate.Diagnostic{}
+
+	err = filepath.WalkDir(absRoot, func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() {
+			name := d.Name()
+			// Skip dependency caches and dot-directories (tool caches, .engmod) so the
+			// scan reflects only committed source and is reproducible across environments.
+			if name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.') {
+				return filepath.SkipDir
+			}
+			if path != absRoot && opts.Skip != nil && opts.Skip(path, true) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if !supportedExt[ext] {
+			return nil
+		}
+		if opts.Skip != nil && opts.Skip(path, false) {
+			return nil
+		}
+		fileSymbols, fileDiags, err := scanFile(scanBase, idBase, path)
+		if err != nil {
+			return err
+		}
+		symbols = append(symbols, fileSymbols...)
+		diags = append(diags, fileDiags...)
+		return nil
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("walk code root: %w", err)
+	}
+
+	sort.SliceStable(symbols, func(i, j int) bool {
+		if symbols[i].Path != symbols[j].Path {
+			return symbols[i].Path < symbols[j].Path
+		}
+		if symbols[i].Line != symbols[j].Line {
+			return symbols[i].Line < symbols[j].Line
+		}
+		return symbols[i].TraceID < symbols[j].TraceID
+	})
+	diags = validate.SortDiagnostics(diags)
+	return symbols, diags, nil
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error) {
+	src, err := os.ReadFile(path)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read %s: %w", path, err)
+	}
+
+	relPath, err := filepath.Rel(root, path)
+	if err != nil {
+		relPath = path
+	}
+	relPath = filepath.ToSlash(relPath)
+	// Identifiers are module-relative; files outside the identifier base keep scan-relative ones.
+	idPath := relPath
+	if rel, relErr := filepath.Rel(idBase, path); relErr == nil && !strings.HasPrefix(filepath.ToSlash(rel), "../") {
+		idPath = filepath.ToSlash(rel)
+	}
+
+	decls, commentLines, parseDiags, err := extractDeclarations(path, src)
+	if err != nil {
+		return nil, nil, err
+	}
+	diags := append([]validate.Diagnostic(nil), parseDiags...)
+	decls = markTestContext(relPath, decls)
+
+	declByLine := map[int]declaration{}
+	traceRequiredByLine := map[int]declaration{}
+	leadingLines := map[int]bool{}
+	for _, d := range decls {
+		for line := d.LeadingLine; line > 0 && line < d.Line; line++ {
+			leadingLines[line] = true
+		}
+		if _, exists := declByLine[d.Line]; !exists {
+			declByLine[d.Line] = d
+		}
+		if d.RequiresTRLC {
+			traceRequiredByLine[d.Line] = d
+		}
+	}
+
+	symbols := []Symbol{}
+	linkedLines := map[int]bool{}
+	var pending pendingTrace
+
+	scanner := bufio.NewScanner(strings.NewReader(string(src)))
+	lineNo := 0
+	for scanner.Scan() {
+		lineNo++
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+
+		if commentLines[lineNo] && isCommentLike(trimmed) {
+			if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
+				pending.traceID = strings.TrimSpace(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
+			}
+			if v, ok := markerValue(trimmed, "TRACE-PART-OF:"); ok {
+				pending.partOf = splitCSV(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
+			}
+			if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
+				links := splitCSV(v)
+				// Stacked TRLC-LINKS lines above one declaration accumulate.
+				pending.implements = append(pending.implements, links...)
+				for _, link := range links {
+					if !validRequirementID(link) {
+						diags = append(diags, validate.Diagnostic{
+							Code:     "code.invalid_trlc_link",
+							Severity: validate.SeverityError,
+							Message:  fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link),
+							Path:     fmt.Sprintf("%s:%d", relPath, lineNo),
+						})
+					}
+				}
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
+			}
+			if v, ok := markerValue(trimmed, "ENGMODEL-LINKS:"); ok {
+				pending.modelLinks = splitCSV(v)
+				if pending.firstLine == 0 {
+					pending.firstLine = lineNo
+				}
+				continue
+			}
+		}
+
+		if pending.firstLine == 0 {
+			continue
+		}
+
+		if d, ok := declByLine[lineNo]; ok {
+			implements := append([]string(nil), pending.implements...)
+			modelLinks := append([]string(nil), pending.modelLinks...)
+			symbols = append(symbols, symbolForDeclaration(d, relPath, idPath, lineNo, trimmed, pending.traceID, pending.partOf, implements, modelLinks))
+			if len(implements) > 0 {
+				linkedLines[lineNo] = true
+			}
+			pending = pendingTrace{}
+			continue
+		}
+
+		// Allow blank lines, comments, and annotation/decorator lines between marker and declaration.
+		if trimmed == "" || isCommentLike(trimmed) || isAttributeLike(trimmed) || leadingLines[lineNo] {
+			continue
+		}
+
+		diags = append(diags, validate.Diagnostic{
+			Code:     "code.trace_unattached",
+			Severity: validate.SeverityWarning,
+			Message:  "trace marker block not attached to any declaration",
+			Path:     fmt.Sprintf("%s:%d", relPath, pending.firstLine),
+		})
+		pending = pendingTrace{}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, nil, fmt.Errorf("scan %s: %w", path, err)
+	}
+	if pending.firstLine != 0 {
+		diags = append(diags, validate.Diagnostic{
+			Code:     "code.trace_unattached",
+			Severity: validate.SeverityWarning,
+			Message:  "trace marker block not attached to any declaration",
+			Path:     fmt.Sprintf("%s:%d", relPath, pending.firstLine),
+		})
+	}
+	missingLines := make([]int, 0, len(traceRequiredByLine))
+	for line := range traceRequiredByLine {
+		if !linkedLines[line] {
+			missingLines = append(missingLines, line)
+		}
+	}
+	sort.Ints(missingLines)
+	if len(missingLines) > 0 {
+		lineList := joinLineNumbers(missingLines)
+		label := "functions"
+		if strings.EqualFold(filepath.Ext(path), ".v") {
+			label = "modules"
+		}
+		diags = append(diags, validate.Diagnostic{
+			Code:     "code.missing_trlc_link",
+			Severity: validate.SeverityError,
+			Message:  fmt.Sprintf("%s missing TRLC-LINKS at lines %s", label, strings.ReplaceAll(lineList, ",", ", ")),
+			Path:     fmt.Sprintf("%s:%s", relPath, lineList),
+		})
+	}
+
+	return symbols, diags, nil
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
+	traceID = strings.TrimSpace(traceID)
+	if traceID == "" {
+		traceID = autoTraceID(d.Name, relPath, idPath, lineNo)
+	}
+	signature := strings.TrimSpace(d.Signature)
+	if signature == "" {
+		signature = strings.TrimSpace(line)
+	}
+	return Symbol{
+		TraceID:    traceID,
+		PartOf:     append([]string(nil), partOf...),
+		Implements: append([]string(nil), implements...),
+		ModelLinks: append([]string(nil), modelLinks...),
+		Path:       relPath,
+		Line:       lineNo,
+		Signature:  signature,
+		IsTest:     d.IsTest,
+		TestOnly:   d.TestOnly || d.IsTest,
+	}
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, []validate.Diagnostic, error) {
+	ext := strings.ToLower(filepath.Ext(path))
+	if ext == ".v" {
+		return extractVerilogDeclarations(path, src)
+	}
+	spec, ok := treeSitterSpec(ext)
+	if !ok {
+		return nil, nil, nil, nil
+	}
+
+	parser := sitter.NewParser()
+	defer parser.Close()
+	if err := parser.SetLanguage(spec.Language); err != nil {
+		return nil, nil, nil, fmt.Errorf("set parser language for %s: %w", path, err)
+	}
+	tree := parser.Parse(src, nil)
+	defer tree.Close()
+	root := tree.RootNode()
+	if root == nil {
+		return nil, nil, []validate.Diagnostic{{
+			Code:     "code.parse_error",
+			Severity: validate.SeverityWarning,
+			Message:  "tree-sitter produced no syntax tree",
+			Path:     path,
+		}}, nil
+	}
+
+	out := []declaration{}
+	commentLines := map[int]bool{}
+	var visit func(n *sitter.Node)
+	visit = func(n *sitter.Node) {
+		if n == nil {
+			return
+		}
+		if n.IsNamed() && strings.Contains(n.Kind(), "comment") && (ext != ".py" || pythonStandaloneComment(n, src)) {
+			start := int(n.StartPosition().Row) + 1
+			end := int(n.EndPosition().Row) + 1
+			for line := start; line <= end; line++ {
+				commentLines[line] = true
+			}
+		}
+		if isJavaScript(ext) {
+			if decl, ok := javascriptDeclaration(n, src); ok {
+				out = append(out, decl)
+			}
+		} else if ext == ".py" {
+			if decl, ok := pythonDeclaration(n, src); ok {
+				if isPythonTestFile(path) {
+					decl.TestOnly = true
+					decl.IsTest = pythonTestFunction(n, src)
+				}
+				out = append(out, decl)
+			}
+		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
+			name := declarationName(n, src)
+			line := int(n.StartPosition().Row) + 1
+			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
+			if name != "" {
+				d := declaration{
+					Name:         name,
+					Kind:         n.Kind(),
+					Line:         line,
+					Signature:    signature,
+					RequiresTRLC: spec.TraceRequiredKind[n.Kind()],
+				}
+				switch ext {
+				case ".go":
+					if isGoTestFile(path) {
+						d.TestOnly = true
+						d.IsTest = goTestFunction(n, name)
+					}
+				case ".rs":
+					d.IsTest = rustTestFunction(n, src)
+					d.TestOnly = d.IsTest || rustInTestScope(n, src)
+				}
+				out = append(out, d)
+			}
+		}
+		count := n.NamedChildCount()
+		for i := uint(0); i < count; i++ {
+			child := n.NamedChild(i)
+			visit(child)
+		}
+	}
+	visit(root)
+
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Line != out[j].Line {
+			return out[i].Line < out[j].Line
+		}
+		return out[i].Name < out[j].Name
+	})
+	if isJavaScript(ext) {
+		return out, commentLines, javascriptDiagnostics(path, root, out), nil
+	}
+	if ext == ".py" && root.HasError() {
+		return out, commentLines, []validate.Diagnostic{{Code: "code.parse_error", Severity: validate.SeverityError, Path: path, Message: "Python syntax tree contains errors; declaration coverage is incomplete"}}, nil
+	}
+	return out, commentLines, nil, nil
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func treeSitterSpec(ext string) (languageSpec, bool) {
+	if ext == ".py" {
+		return languageSpec{Language: sitter.NewLanguage(tspython.Language())}, true
+	}
+	switch ext {
+	case ".js", ".mjs", ".cjs":
+		return languageSpec{Language: sitter.NewLanguage(tsjavascript.Language())}, true
+	case ".go":
+		return languageSpec{
+			Language: sitter.NewLanguage(tsgo.Language()),
+			DeclarationKind: map[string]bool{
+				"function_declaration": true,
+				"method_declaration":   true,
+				"type_declaration":     true,
+				"var_declaration":      true,
+				"const_declaration":    true,
+			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_declaration":   true,
+			},
+		}, true
+	case ".ts":
+		return languageSpec{
+			Language: sitter.NewLanguage(tstypescript.LanguageTypescript()),
+			DeclarationKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
+				"class_declaration":    true,
+			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
+			},
+		}, true
+	case ".tsx":
+		return languageSpec{
+			Language: sitter.NewLanguage(tstypescript.LanguageTSX()),
+			DeclarationKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
+				"class_declaration":    true,
+			},
+			TraceRequiredKind: map[string]bool{
+				"function_declaration": true,
+				"method_definition":    true,
+			},
+		}, true
+	case ".rs":
+		return languageSpec{
+			Language: sitter.NewLanguage(tsrust.Language()),
+			DeclarationKind: map[string]bool{
+				"function_item": true,
+				"struct_item":   true,
+				"impl_item":     true,
+			},
+			TraceRequiredKind: map[string]bool{
+				"function_item": true,
+			},
+		}, true
+	default:
+		return languageSpec{}, false
+	}
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func declarationName(n *sitter.Node, src []byte) string {
+	if n == nil {
+		return ""
+	}
+	if name := n.ChildByFieldName("name"); name != nil {
+		return strings.TrimSpace(name.Utf8Text(src))
+	}
+	count := n.NamedChildCount()
+	if n.Kind() == "type_declaration" {
+		for i := uint(0); i < count; i++ {
+			child := n.NamedChild(i)
+			if child == nil {
+				continue
+			}
+			if child.Kind() != "type_spec" && child.Kind() != "type_alias" {
+				continue
+			}
+			if name := child.ChildByFieldName("name"); name != nil {
+				return strings.TrimSpace(name.Utf8Text(src))
+			}
+		}
+	}
+	// Package-level var/const declarations carry their name on a nested spec.
+	// They attach trace/model-link markers (full linking) but do not require them.
+	if n.Kind() == "var_declaration" || n.Kind() == "const_declaration" {
+		for i := uint(0); i < count; i++ {
+			child := n.NamedChild(i)
+			if child == nil {
+				continue
+			}
+			if child.Kind() != "var_spec" && child.Kind() != "const_spec" {
+				continue
+			}
+			if name := child.ChildByFieldName("name"); name != nil {
+				return strings.TrimSpace(name.Utf8Text(src))
+			}
+		}
+	}
+	for i := uint(0); i < count; i++ {
+		child := n.NamedChild(i)
+		if child == nil {
+			continue
+		}
+		k := child.Kind()
+		if k == "identifier" || k == "field_identifier" || k == "type_identifier" || k == "property_identifier" {
+			return strings.TrimSpace(child.Utf8Text(src))
+		}
+	}
+	return ""
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func firstLine(s string) string {
+	if s == "" {
+		return ""
+	}
+	if idx := strings.IndexByte(s, '\n'); idx >= 0 {
+		return strings.TrimSpace(s[:idx])
+	}
+	return strings.TrimSpace(s)
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func markerValue(line, marker string) (string, bool) {
+	idx := strings.Index(line, marker)
+	if idx < 0 {
+		return "", false
+	}
+	return strings.TrimSpace(line[idx+len(marker):]), true
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func splitCSV(v string) []string {
+	parts := strings.Split(v, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func joinLineNumbers(lines []int) string {
+	parts := make([]string, 0, len(lines))
+	for _, line := range lines {
+		parts = append(parts, fmt.Sprintf("%d", line))
+	}
+	return strings.Join(parts, ",")
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func validRequirementID(id string) bool {
+	return requirementIDPattern.MatchString(strings.TrimSpace(id))
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func isCommentLike(trimmed string) bool {
+	return strings.HasPrefix(trimmed, "//") ||
+		strings.HasPrefix(trimmed, "#") ||
+		strings.HasPrefix(trimmed, "/*") ||
+		strings.HasPrefix(trimmed, "*") ||
+		strings.HasPrefix(trimmed, "--")
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func isAttributeLike(trimmed string) bool {
+	return strings.HasPrefix(trimmed, "@") || strings.HasPrefix(trimmed, "#[")
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-058
+func autoTraceID(symbolName, relPath, idPath string, lineNo int) string {
+	name := strings.TrimSpace(symbolName)
+	if name != "" {
+		return FileID(idPath) + "--" + slugUpper(name)
+	}
+	return fmt.Sprintf("AUTO-%s:%d", relPath, lineNo)
+}
+
+// FileID returns the CODE identifier of a module-relative file path: the path upper-cased
+// with each run of non-alphanumeric characters folded to one hyphen.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-058
+func FileID(relPath string) string {
+	return "CODE-" + strings.ToUpper(strings.Trim(nonAlnum.ReplaceAllString(filepath.ToSlash(relPath), "-"), "-"))
+}
+
+var nonAlnum = regexp.MustCompile(`[^A-Za-z0-9]+`)
+var requirementIDPattern = regexp.MustCompile(`^REQ-[A-Z0-9]+-[0-9]+$`)
+
+// TRLC-LINKS: REQ-EMG-010
+func slugUpper(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "SYMBOL"
+	}
+	normalized := nonAlnum.ReplaceAllString(s, "")
+	normalized = strings.ToUpper(normalized)
+	if normalized == "" {
+		return "SYMBOL"
+	}
+	return normalized
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Validate generated Gemara documents against the official OpenSSF Gemara CUE
 # schemas using `cue vet`. Complements the in-repo SDK round-trip test
-# (gemara_export_test.go) with full structural validation.
+# (internal/export/gemara/gemara_export_test.go) with full structural validation.
 #
 # Requirements:
 #   - cue CLI (https://cuelang.org); install: go install cuelang.org/go/cmd/cue@v0.15.4

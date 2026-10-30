@@ -1,3 +1,5 @@
+> Paths before the v0.5.0 restructure; see README for the current layout.
+
 # FU File Instrumentation Checklist
 
 This checklist tracks owner/trace instrumentation by functional unit without behavior changes.
@@ -44,111 +46,112 @@ For each FU batch:
 
 ### FU-MCP-SERVER
 
-- `mcp/server.go`
+- `internal/mcp/server.go`
 - `cmd/engmcp/main.go`
 - `cmd/engmcp/main_test.go`
-- `mcp/server_test.go`
+- `internal/mcp/server_test.go`
 
 ### FU-CODEMAP-INFERENCE
 
-- `codemap/scan.go`
-- `codemap/scan_test.go`
-- `inferred_code.go`
-- `inferred_code_test.go`
-- `inferred_verification.go`
-- `inferred_verification_test.go`
-- `inferred_layers.go`
-- `inferred_layers_test.go`
+- `internal/codemap/scan.go`
+- `internal/codemap/scan_test.go`
+- `internal/codescan/code_scope.go`, `inferred_code.go`, `inferred_layers.go`, `inferred_verification.go`, `code_labels.go`
+- `internal/codescan/*_test.go`
+- `internal/trace/inference_trace_test.go` (inference checked through the trace matrix)
 
 ### FU-MODEL-LOADER
 
-- `model/load.go`
-- `model/load_test.go`
-- `model/types.go`
+- `internal/model/load.go`
+- `internal/model/load_test.go`
+- `internal/model/types.go`
 
 ### FU-VALIDATION-ENGINE
 
-- `validate/validate.go`
-- `validate/validate_test.go`
-- `validate/diagnostic.go`
+- `internal/validate/validate.go`
+- `internal/validate/validate_test.go`
+- `internal/validate/diagnostic.go`
 
 ### FU-ASCIIDOC-GENERATOR
 
-- `asciidoc.go`
-- `asciidoc_template.go`
-- `asciidoc_views.go`
-- `asciidoc_backlinks.go`
-- `asciidoc_design_refs.go`
-- `asciidoc_diagrams_core.go`
-- `asciidoc_diagrams_runtime.go`
-- `asciidoc_linking_units.go`
+- `internal/asciidoc/asciidoc.go`
+- `internal/asciidoc/asciidoc_template.go`
+- `internal/asciidoc/asciidoc_views.go`
+- `internal/asciidoc/asciidoc_backlinks.go`
+- `internal/asciidoc/asciidoc_design_refs.go`
+- `internal/asciidoc/asciidoc_diagrams_core.go`
+- `internal/asciidoc/asciidoc_diagrams_runtime.go`
+- `internal/asciidoc/asciidoc_linking_units.go`
 
 ### FU-VIEW-PROJECTION
 
-- `view/project.go`
-- `view/project_test.go`
-- `view/types.go`
+- `internal/view/project.go`
+- `internal/view/project_test.go`
+- `internal/view/types.go`
 - `cmd/engview/main.go`
 
 ### FU-THREAT-EXPORTER
 
-- `threat_model_export.go`
-- `threat_model_export_test.go`
+- `internal/export/threatmodel/threat_model_export.go`
+- `internal/export/threatmodel/threat_model_export_test.go`
 - `cmd/engdragon/main.go`
 
 ### FU-STRUCTURIZR-EXPORTER
 
-- `structurizr_export.go`
-- `structurizr_export_test.go`
+- `internal/export/structurizr/structurizr_export.go`
+- `internal/export/structurizr/structurizr_export_test.go`
 - `cmd/engstruct/main.go`
 
 ### FU-TRLC-EXPORTER
 
-- `trlc_export.go`
-- `trlc_export_test.go`
+- `internal/export/trlc/trlc_export.go`
+- `internal/export/trlc/trlc_export_test.go`
 - `cmd/engtrlc/main.go`
 
 ### FU-LOBSTER-EXPORTER
 
-- `lobster_export.go`
-- `lobster_export_test.go`
+- `internal/export/lobster/lobster_export.go`
+- `internal/export/lobster/lobster_export_test.go`
 - `cmd/englobster/main.go`
 
 ### FU-OSCAL-EXPORTER
 
-- `oscal_compliance.go`
-- `oscal_ssp.go`
-- `oscal_ar.go`
-- `oscal_poam.go`
-- `oscal_ssp_test.go`
-- `oscal_chain_test.go`
+- `internal/export/oscal/oscal_compliance.go`
+- `internal/export/oscal/oscal_ssp.go`
+- `internal/export/oscal/oscal_ar.go`
+- `internal/export/oscal/oscal_poam.go`
+- `internal/export/oscal/oscal_ssp_test.go`
+- `internal/export/oscal/oscal_chain_test.go`
 - `cmd/engoscal/main.go`
 
 ### FU-GEMARA-EXPORTER
 
-- `gemara_export.go`
-- `gemara_evaluation.go`
-- `gemara_extended.go`
-- `gemara_l1l3.go`
-- `gemara_oscal.go`
-- `gemara_export_test.go`
-- `gemara_oscal_test.go`
+- `internal/export/gemara/gemara_export.go`
+- `internal/export/gemara/gemara_evaluation.go`
+- `internal/export/gemara/gemara_extended.go`
+- `internal/export/gemara/gemara_l1l3.go`
+- `internal/export/gemara/gemara_oscal.go`
+- `internal/export/gemara/gemara_export_test.go`
+- `internal/export/gemara/gemara_oscal_test.go`
 - (the `cmd/enggemara/main.go` entrypoint is owned by FU-CLI-ORCHESTRATION)
 
 ### FU-SYSTEM-COMPOSITION
 
-- `composition.go`
-- `composition_test.go`
-- (composition rendering in `asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
+- `internal/composition/composition.go`, `composition_confinement.go`, `composition_projection.go`
+- `internal/composition/*_test.go`
+- `internal/integration/composition_multirepo_test.go`, `internal/integration/composition_integration_test.go`, `internal/integration/examples_company_test.go` (composition with generators and trace)
+- `internal/testutil/fixtures.go` (shared model-module test fixtures)
+- (composition rendering in `internal/asciidoc/asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
 
 ### FU-ALLOCATION-TRACE
 
-- `trace_matrix.go`
-- `trace_matrix_test.go`
+- `internal/trace/trace_matrix.go`
+- `internal/trace/trace_matrix_test.go`
 - `cmd/engtrace/main.go`
 
 ### FU-CLI-ORCHESTRATION
 
 - `cmd/engdoc/main.go`
 - `cmd/enggemara/main.go`
+- `internal/textutil/textutil.go` (shared string and collection helpers)
+- `internal/testutil/files.go` (shared test file helpers)
 - (cross-cutting command orchestration references in other `cmd/*` entrypoints)

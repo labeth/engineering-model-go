@@ -6238,6 +6238,20 @@ runtime namespace boundary for fraud scoring and review support workloads
 |===
 
 === Inferred Code References
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (checkout_api.go)
+
+Inferred library_external dependency owned by FU-CHECKOUT from src/checkout_api.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-CHECKOUT
+|Source |src/checkout_api.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
 [discrete]
 ==== gopkg.in/yaml.v3 (checkout_api.go)
@@ -6306,20 +6320,6 @@ Inferred library_first_party dependency owned by FU-PAYMENT-AUTHORIZATION from s
 |Kind |Code library_first_party
 |Owner |FU-PAYMENT-AUTHORIZATION
 |Source |src/payment_engine.rs
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_FIRST_PARTY_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO_VALIDATE__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]
-[discrete]
-==== github.com/labeth/engineering-model-go/validate (checkout_api.go)
-
-Inferred library_first_party dependency owned by FU-CHECKOUT from src/checkout_api.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_first_party
-|Owner |FU-CHECKOUT
-|Source |src/checkout_api.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_STDLIB_FMT__CHECKOUT_API_GO__SRC_CHECKOUT_API_GO]]

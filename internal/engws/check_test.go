@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // planOf builds a plan from (name, local, dependency names) without disk.

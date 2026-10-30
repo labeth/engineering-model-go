@@ -60,7 +60,7 @@ jobs:
           path: |
             .engmod/tooling/downloads
             .engmod/cache/m2
-          key: sysml-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/sysml-toolchain.env', 'scripts/install-sysml-toolchain.sh') }}
+          key: sysml-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/sysml-toolchain.env', 'scripts/install-sysml-toolchain.sh') }}
 
       - name: Download dependencies
         run: go mod download

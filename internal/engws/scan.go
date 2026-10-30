@@ -16,7 +16,7 @@ import (
 	"strings"
 
 	cuemodule "cuelang.org/go/mod/module"
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 	"golang.org/x/mod/modfile"
 	"gopkg.in/yaml.v3"
 )

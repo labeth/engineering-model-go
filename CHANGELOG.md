@@ -6,6 +6,44 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- The Go packages `model`, `validate`, `codemap`, `view`, `render/{diagramstyle,mermaid,svg}`
+  and `mcp` moved under `internal/`; the root package `engmodel` is the only public Go API.
+  It re-exports the model types (`engmodel.Bundle`, `engmodel.Requirement`, ...) and loader
+  functions (`LoadBundle`, `LoadCanonicalBundle`, `FindWorkspace`, ...) in `model_api.go`, and
+  the validation types and functions in `validate_api.go`. Renamed on the way:
+  `validate.Bundle` → `engmodel.ValidateBundle`, `validate.Rules` → `engmodel.ValidationRules`.
+  Migrate `model.X` and `validate.X` to `engmodel.X`.
+- `model/` holds only this repository's own engineering model YAML. The embedded CUE schema is
+  now `internal/model/schema/`; the authoring contract reports schema paths as
+  `internal/model/schema/*.cue`.
+- The implementation of the root package moved into focused `internal/` packages; the
+  repository root holds only the public facade (`doc.go`, `model_api.go`, `validate_api.go`
+  and `api_*.go`), which re-exports every previously exported name (types as aliases,
+  constants, error variables and functions with unchanged signatures). Importers of
+  `engmodel.X` need no change; importers of the former `model`, `validate`, `codemap`,
+  `view`, `render/*` and `mcp` package paths must move to `engmodel`. Final layout:
+  `internal/{model,validate,codemap,view,render/*,composition,codescan,trace,reqlint,
+  reqdelta,generate,asciidoc,export/*,mcp,engws,cliflags,sysmlmetamodel,textutil,testutil}`
+  plus the test-only `internal/integration`; `layering_test.go` enforces that imports point
+  down the layers and that only `cmd/*`, `internal/mcp` and `internal/engws` import the root.
+- The exporters moved to one package per format under `internal/export/` (`gemara`, `oscal`,
+  `sysml`, `structurizr`, `threatmodel`, `naf`, `trlc`, `lobster`, `airborne`); the root
+  facade keeps their public names.
+- Assets moved next to their package: `templates/asciidoc.tmpl` → `internal/asciidoc/templates/`,
+  the Structurizr and TRLC templates → `internal/export/{structurizr,trlc}/templates/`,
+  `tools/sysml/metamodel-*.json` → `internal/export/sysml/metamodel/` (the `sysmlmetamodel`
+  defaults follow), `testdata/threat-dragon-schemas/` →
+  `internal/export/threatmodel/testdata/threat-dragon-schemas/`.
+  The SysML toolchain pins moved to `scripts/sysml-toolchain.env`. No top-level `templates/`,
+  `tools/` or `testdata/` remain.
+- Inferred code IDs of the moved files change with their path (`CODE-TRACE-MATRIX-GO--...` →
+  `CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--...`); generated trace outputs change once. The SysML
+  coverage evidence names the new paths. Gemara evaluation-log steps, which go-gemara names
+  after the Go step function, now read
+  `github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep`.
+
 ## [0.4.0] — 2026-10-30: Path-derived code scope, honest trace and Gemara output, local multi-repository models
 
 Code references derived from repository paths, fixes from field use of the trace, MCP and Gemara outputs,

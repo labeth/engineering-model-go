@@ -5,7 +5,7 @@ package sample
 import (
 	"fmt"
 
-	"github.com/labeth/engineering-model-go/validate"
+	engmodel "github.com/labeth/engineering-model-go"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,7 +21,7 @@ func (c *CheckoutController) StartSession(paymentID string, amountCents int) {
 	payload, _ := yaml.Marshal(map[string]any{
 		"paymentId":   paymentID,
 		"amountCents": amountCents,
-		"severity":    validate.SeverityWarning,
+		"severity":    engmodel.SeverityWarning,
 	})
 	fmt.Printf("checkout-controller: start session for %s (%d cents)\n", paymentID, amountCents)
 	fmt.Printf("checkout-controller: telemetry payload %s\n", string(payload))

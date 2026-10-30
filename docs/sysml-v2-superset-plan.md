@@ -115,7 +115,7 @@ documented SysML v2 subset. A semantic-superset claim requires:
 The formal 2026-04 release has no normative metamodel XMI/Ecore. Tasks 1.1-1.3
 therefore use the aligned official Pilot Implementation Ecore as the closest
 machine-readable implementation artifact and label it non-normative. The pinned
-sources and hashes are in `tools/sysml/metamodel-sources.json`; the normalized
+sources and hashes are in `internal/export/sysml/metamodel/metamodel-sources.json`; the normalized
 inventory and strict per-metaclass/per-property binding are checked offline by
 `scripts/check-sysml-metamodel.sh`. The inventory generates both the Go runtime
 binding and CUE property validation. All 175 metaclasses and 415 owned
@@ -130,7 +130,7 @@ official instances or stable `Engineering::` extension metaclasses. Previous
 fields remain input/export migration fields, not a second canonical graph.
 
 The bounded prerequisite before exporter migration is complete: the modular
-schemas under `model/schema/` cover all five authored YAML document types,
+schemas under `internal/model/schema/` cover all five authored YAML document types,
 including the canonical `semantics` section. Loading validates those instances
 against CUE before strict Go decoding, rejects unknown fields with source paths,
 checks multiplicity ordering and typed semantic value/extension invariants, and
@@ -173,7 +173,7 @@ DeciSym/sysmlv2-validator commit
 `-Dsysml.release.tag=2026-04 -Dsysml.artifact.version=0.59.0`. KPAR packaging and
 reopening use Sysand `0.2.1`, commit
 `8430ab04d4d825fb1c196670692d2dafa344e713`, under MIT OR Apache-2.0. Release
-asset checksums are pinned in `tools/sysml-toolchain.env`; source repositories
+asset checksums are pinned in `scripts/sysml-toolchain.env`; source repositories
 without separately published archive checksums are pinned and verified by Git
 commit. Release `2026-08` is intentionally excluded because it targets SysML 2.1
 Beta 2 rather than this formal baseline.

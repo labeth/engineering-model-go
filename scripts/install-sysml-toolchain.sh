@@ -4,8 +4,8 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
-# shellcheck source=../tools/sysml-toolchain.env
-source tools/sysml-toolchain.env
+# shellcheck source=sysml-toolchain.env
+source scripts/sysml-toolchain.env
 
 tool_root="$repo_root/.engmod/tooling"
 download_dir="$tool_root/downloads"

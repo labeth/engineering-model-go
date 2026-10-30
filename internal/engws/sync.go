@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // ErrHandWritten is returned when a work file exists without the engws header.

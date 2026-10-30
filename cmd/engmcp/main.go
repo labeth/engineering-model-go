@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/cliflags"
-	"github.com/labeth/engineering-model-go/mcp"
+	"github.com/labeth/engineering-model-go/internal/mcp"
 )
 
 // ENGMODEL-LINKS: IF-CLI-ENGMCP, FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
