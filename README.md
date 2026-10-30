@@ -290,6 +290,21 @@ Verification metadata is inferred from test artifacts:
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
+- `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
+- a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
+
+### Model warnings
+
+Beyond the hard errors, validation warns about model content that is declared
+but not wired (warnings do not fail `engdoc`):
+
+| Code | Reported at | Rule |
+| --- | --- | --- |
+| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no `triggered_by` relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
+| `behavior.state_unreachable` | `authoredArchitecture.states[i]` | with at least one transition in the model, a state other than the first declared one (the initial state; the schema has no initial marker) that no `transitions_to` or semantic transition enters |
+| `behavior.flow_step_no_onerror` | `authoredArchitecture.flows[i].steps[j].onError` | a step with `boundaryCrossing: true` and no `onError` |
+| `catalog.name_has_operator` | `catalog.<group>[i].name` or `.aliases[j]` | an actor, event, state, feature, mode, condition or data term name or alias with a standalone `and`, `or`, `not`, a comma or a parenthesis, which the EARS clause parser reads as operators |
+| `verification.status_stale` | `…controlVerifications[i].status`, `…threatMitigations[i].status` | the referenced tests exist but the status still says they have not run (see above); reported by `engdoc` and `engtrace` |
 
 ### Code trace markers
 
@@ -334,6 +349,15 @@ Delta version 1 supports requirement `add`, whole-entity `update`, and `remove` 
 Planning and diffing never write canonical files. Apply validates the complete candidate model,
 preserves unchanged YAML nodes and comments, and atomically replaces `model/requirements.yml` only
 when no blocking diagnostics are present.
+
+Render OpenSpec spec delta text from model requirements (also
+`engmodel.RenderSpecDelta`); each `REQ-…:` line starts with the model text, so a
+pasted spec stays consistent with the model:
+
+```bash
+go run ./cmd/engspec --model examples/dal-c-flight-control-sample/engmod.yml \
+  --prefix REQ-YD- --capability yaw-damping
+```
 
 Generate a single Mermaid view:
 
@@ -713,6 +737,24 @@ Replacement paths must remain inside the workspace and their
 invalid versions, path escapes, cycles, missing manifests, unpublished targets,
 and unsatisfied requirements.
 
+To prove a family's release order and run the pre-push gate before anything is
+pushed, stage every checkout under the workspace root (`go run ./cmd/engws help`
+has the details):
+
+```sh
+engws stage --serve          # foreground: loopback OCI registry for the staged CUE modules
+# in another shell, export the printed lines, then in each checkout, dependencies first:
+export CUE_REGISTRY=<printed> GOPROXY=file://<root>/.engmod/staging/goproxy,off
+export GONOPROXY=none GONOSUMDB=<printed> GOWORK=off ENGMOD_WORK=off
+ENGMOD_LOCK=check <pre-push gate>
+```
+
+`engws stage` writes only `<root>/.engmod/staging`: `registry/<module path>/`
+(an OCI image layout per CUE module, the content `cue mod publish` would push:
+committed files for source kind `git`) and `goproxy/` (a GOPROXY file tree for
+each checkout with `go.mod`). CUE has no file-based registry, so `--serve` serves
+the layouts from memory on 127.0.0.1.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
@@ -855,7 +897,7 @@ Core files:
 │   validate_api.go, api_*.go   wrappers, one api_<area>.go per area (old public names kept)
 ├── facade_test.go              every exported implementation name is re-exported at the root
 ├── layering_test.go            the package import direction below holds
-├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange,
+├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange, engspec,
 │                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
 │                               engtrlc, englobster, engair, engmcp, engws, sysmlmetamodel)
 ├── internal/
@@ -868,7 +910,7 @@ Core files:
 │   ├── codescan/               code, runtime and verification evidence inference
 │   ├── trace/                  traceability matrix
 │   ├── reqlint/                EARS preflight, catalog description and requirement link lint
-│   ├── reqdelta/               requirements delta planning and atomic application
+│   ├── reqdelta/               requirements delta planning and atomic application, spec delta rendering
 │   ├── generate/               single-view Mermaid/SVG generation (Generate, GenerateFromFile)
 │   ├── asciidoc/               AsciiDoc publication (templates/asciidoc.tmpl)
 │   ├── export/                 one package per exporter: gemara, oscal, sysml (metamodel/),

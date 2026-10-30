@@ -90,6 +90,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGMCP` |interface |engmcp CLI
 |`IF-CLI-ENGNAF` |interface |engnaf CLI
 |`IF-CLI-ENGOSCAL` |interface |engoscal CLI
+|`IF-CLI-ENGSPEC` |interface |engspec CLI
 |`IF-CLI-ENGSTRUCT` |interface |engstruct CLI
 |`IF-CLI-ENGSYSML` |interface |engsysml CLI
 |`IF-CLI-ENGTRACE` |interface |engtrace CLI
@@ -160,6 +161,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-MODEL-CHANGE` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-MODEL-CHANGE` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
 |`FU-MODEL-CHANGE` |contains |`IF-CLI-ENGCHANGE` |contains
+|`FU-MODEL-CHANGE` |contains |`IF-CLI-ENGSPEC` |contains
 |`FU-MODEL-LOADER` |reads |`DO-ARCHITECTURE-MODEL` |reads
 |`FU-MODEL-LOADER` |writes |`DO-CANONICAL-SEMANTIC-MODEL` |writes
 |`FU-NAF-EXPORTER` |writes |`DO-NAF-V4-ARCHITECTURE` |writes

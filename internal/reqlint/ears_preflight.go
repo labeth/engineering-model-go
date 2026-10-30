@@ -4,6 +4,7 @@ package reqlint
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -156,7 +157,7 @@ func containsPhrase(text, phrase string) bool {
 // lintRequirementsEARSWithUsage runs the EARS lint; catalog terms whose id is in
 // usedIDs are left out of the coverage check.
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072
 func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, catalogDoc model.CatalogDocument, usedIDs map[string]bool) []validate.Diagnostic {
 	items := make([][2]string, 0, len(requirements.Requirements))
 	for _, req := range requirements.Requirements {
@@ -177,10 +178,17 @@ func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, cata
 		CommaAsAnd: requirements.LintRun.CommaAsAnd,
 	})
 
+	textByID := map[string]string{}
+	for _, req := range requirements.Requirements {
+		textByID[req.ID] = req.Text
+	}
 	out := make([]validate.Diagnostic, 0)
 	for _, r := range results {
 		reqPath := requirementPath(r.ID)
 		for _, d := range r.Diagnostics {
+			if d.Code == "lint.multiple_responses" && responseConjunctionsOnlyInFieldList(textByID[r.ID]) {
+				continue
+			}
 			path := reqPath
 			if d.Span != nil {
 				path = fmt.Sprintf("%s@%d:%d", reqPath, d.Span.Start, d.Span.End)
@@ -446,4 +454,55 @@ func requirementIDFromPath(path string) (string, bool) {
 		return "", false
 	}
 	return strings.TrimSpace(id), true
+}
+
+// fieldListPrepositionRe finds the preposition that opens a field list in a
+// response: with, including or of as a whole word.
+var fieldListPrepositionRe = regexp.MustCompile(`\b(with|including|of)\b`)
+
+// fieldListSplitRe splits a field list into its items at commas and at the
+// whole words and and or.
+var fieldListSplitRe = regexp.MustCompile(`\s*,\s*|\s+\b(?:and|or)\b\s+`)
+
+// fieldListDeterminers open a noun phrase. A list item whose second word is
+// one ("notify the operator", "close a valve") reads as a verb with its
+// object, that is a second response.
+var fieldListDeterminers = map[string]bool{"the": true, "a": true, "an": true, "its": true, "their": true, "each": true, "every": true, "all": true}
+
+// responseConjunctionsOnlyInFieldList reports whether every "and", "or" and
+// comma of a requirement's single response sits in a field list after one
+// response verb ("shall publish one message with UTC time, latitude and
+// altitude"), so lint.multiple_responses is a false positive. The rule: the
+// text has exactly one "shall" and no ";"; the response's first with,
+// including or of opens the list; no "and", "or" or comma comes before it;
+// the list holds no "then"; and no list item after the first reads
+// as a verb with its object (second word the, a, an, its, their, each, every
+// or all). "with the timestamp and notify the operator" and "stop all of the
+// motors and close the valve" stay reported.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+// TRLC-LINKS: REQ-EMG-072
+func responseConjunctionsOnlyInFieldList(text string) bool {
+	lower := strings.ToLower(strings.TrimSpace(text))
+	if strings.Count(" "+lower+" ", " shall ") != 1 || strings.Contains(lower, ";") {
+		return false
+	}
+	_, response, _ := strings.Cut(lower, " shall ")
+	response = strings.TrimSuffix(strings.TrimSpace(response), ".")
+	loc := fieldListPrepositionRe.FindStringIndex(response)
+	if loc == nil {
+		return false
+	}
+	before, list := response[:loc[0]], strings.TrimSpace(response[loc[1]:])
+	if strings.Contains(before, ",") || containsPhrase(before, "and") || containsPhrase(before, "or") {
+		return false
+	}
+	if containsPhrase(list, "then") {
+		return false
+	}
+	for i, item := range fieldListSplitRe.Split(list, -1) {
+		if words := strings.Fields(item); i > 0 && len(words) > 1 && fieldListDeterminers[words[1]] {
+			return false
+		}
+	}
+	return true
 }

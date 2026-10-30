@@ -68,6 +68,8 @@ var authoringFieldRules = []string{
 	"Dates (decision.date, poamItem.dueDate, threatOutOfScope.expiresOn, controlVerification.lastTested, document control issueDate) use YYYY-MM-DD.",
 	"A requirement with verificationMethods must set verificationCriteria; a derived requirement must set derivedRationale. decision.status, decision.date, context and decision text are required.",
 	"Authored mappings must not reference inferred RT-* or CODE-* IDs; when both ends are known, the (type, from kind, to kind) triple must appear in relationshipPairs.",
+	"controlVerification.verificationRefs entries name the tests that verify the control: inferred CODE-<PATH>--<NAME> IDs of test declarations or REQ-* IDs whose linked tests verify it. verification.status_stale warns while a referenced test exists and the status is unset or not-run (threatMitigation: unset or planned); the status itself stays authored.",
+	"Warnings: behavior.event_unused (a behavior event in no triggered_by relationship, transition trigger or flow), behavior.state_unreachable (with transitions in the model, a state other than the first declared, initial one that no transitions_to enters), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators).",
 }
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as

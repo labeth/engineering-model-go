@@ -243,6 +243,12 @@ architecture:
     endpoint: cmd/engchange
     schemaRef: internal/reqdelta/requirements_delta.go
     owner: FU-MODEL-CHANGE
+  - id: IF-CLI-ENGSPEC
+    name: engspec CLI
+    protocol: cli
+    endpoint: cmd/engspec
+    schemaRef: internal/reqdelta/spec_delta.go
+    owner: FU-MODEL-CHANGE
   dataObjects:
   - id: DO-ARCHITECTURE-MODEL
     name: Architecture Model

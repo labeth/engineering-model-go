@@ -6,6 +6,53 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Behavior warnings: `behavior.event_unused` (an event in no `triggered_by` relationship,
+  transition trigger or flow), `behavior.state_unreachable` (with transitions in the model, a
+  state other than the first declared, initial one that no transition enters) and
+  `behavior.flow_step_no_onerror` (a `boundaryCrossing: true` step without `onError`), each at
+  the entity's field path (REQ-EMG-070).
+- `catalog.name_has_operator`: one warning at the catalog name or alias that contains a
+  standalone `and`, `or`, `not`, a comma or a parenthesis, instead of the unresolved-term
+  diagnostics on every requirement that uses it (REQ-EMG-071).
+- `controlVerifications[].verificationRefs` names the tests that verify a control (inferred
+  `CODE-<PATH>--<NAME>` IDs of test declarations or requirement IDs);
+  `model.invalid_control_verification_ref` rejects other entries. `verification.status_stale`
+  warns when those tests exist but the control verification status is unset or `not-run`, or a
+  threat mitigation that references it is unset or `planned`; `engdoc`/`GenerateAsciiDoc` and
+  the trace matrix report it (REQ-EMG-073).
+
+### Changed
+
+- `lint.multiple_responses` is no longer reported when the only conjunctions follow a single
+  response verb inside a `with`, `including` or `of` field list ("…shall publish one world
+  state message with UTC time, latitude, longitude and altitude"); genuine double responses
+  are still reported (REQ-EMG-072).
+### Added (multi-repository staging and spec rendering)
+
+- `engws stage [--version-from manifest|tag] [--serve] [--addr]` publishes every checkout
+  under the workspace root, in dependency order, into `<root>/.engmod/staging` without
+  writing inside any checkout: `registry/<module path>/` holds each CUE module as an OCI
+  image layout with the content `cue mod publish` would push (source kind `git`: committed
+  files only, with VCS metadata), and `goproxy/` is a GOPROXY file tree
+  (`<module>/@v/<version>.{info,mod,zip}`, `list`) for each checkout with `go.mod`. A dirty
+  checkout (or, with `--version-from tag`, one whose HEAD lacks tag `v<module.version>`)
+  stops staging; version skew between a consumer pin and the staged version is warned
+  about. CUE has no file-based registry, so `--serve` loads the layouts into an in-memory
+  read-only OCI registry on a loopback address and prints `CUE_REGISTRY` routes for the
+  staged modules (merged with the current value), `GOPROXY=file://…/goproxy,off`,
+  `GONOPROXY=none`, `GONOSUMDB`, `GOWORK=off` and `ENGMOD_WORK=off`, so the pre-push gate can
+  run against the staged family before anything is pushed (REQ-EMG-080).
+- `engmodel.RenderSpecDelta`, `RenderSpecDeltaFromModel` and the `engspec` CLI render
+  OpenSpec spec delta markdown from model requirements (`--ids` or `--prefix`,
+  `--capability`, `--modified`): one `### Requirement:` per requirement with the line
+  `<ID>: <model text>` (shall/must as SHALL/MUST, so it passes `openspec validate --strict`
+  and starts with the model text) and one scenario from `verificationCriteria`, WHEN/THEN
+  shaped when the criteria are (REQ-EMG-081).
+- `cuelabs.dev/go/oci/ociregistry` (already an indirect dependency through `cuelang.org/go`)
+  is now a direct requirement.
+
 ## [0.5.0] — 2026-10-30: Root package is the public API; focused internal packages
 
 ### Changed (breaking)

@@ -560,6 +560,10 @@ type ControlVerification struct {
 	LastTested         string                        `yaml:"lastTested"`
 	Findings           []string                      `yaml:"findings"`
 	Evidence           []ControlVerificationEvidence `yaml:"evidence"`
+	// VerificationRefs names the tests that verify the control: inferred CODE
+	// identifiers of test declarations (CODE-<PATH>--<NAME>) or requirement IDs
+	// whose linked tests verify it.
+	VerificationRefs []string `yaml:"verificationRefs"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL

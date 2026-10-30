@@ -33,3 +33,39 @@ func PlanRequirementsDelta(root, deltaPath string) (RequirementsDeltaResult, err
 func ApplyRequirementsDelta(root, deltaPath string) (result RequirementsDeltaResult, err error) {
 	return reqdelta.ApplyRequirementsDelta(root, deltaPath)
 }
+
+// SpecDeltaOperation names the OpenSpec delta section RenderSpecDelta renders.
+// ENGMODEL-LINKS: FU-MODEL-CHANGE
+type SpecDeltaOperation = reqdelta.SpecDeltaOperation
+
+// SpecDeltaAdded and SpecDeltaModified select "## ADDED Requirements" (default)
+// or "## MODIFIED Requirements".
+const (
+	SpecDeltaAdded    = reqdelta.SpecDeltaAdded
+	SpecDeltaModified = reqdelta.SpecDeltaModified
+)
+
+// SpecDeltaOptions selects the requirements to render (IDs or Prefix) and the
+// optional capability heading and delta operation.
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+type SpecDeltaOptions = reqdelta.SpecDeltaOptions
+
+// SpecDeltaResult is the rendered spec delta markdown, the rendered IDs and warnings.
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+type SpecDeltaResult = reqdelta.SpecDeltaResult
+
+// RenderSpecDelta renders OpenSpec spec delta markdown from model requirements:
+// one requirement per entry whose "<ID>: <text>" line starts with the model
+// text (shall and must capitalized) and one scenario from verificationCriteria.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func RenderSpecDelta(requirements []Requirement, options SpecDeltaOptions) (SpecDeltaResult, error) {
+	return reqdelta.RenderSpecDelta(requirements, options)
+}
+
+// RenderSpecDeltaFromModel loads engmod.yml and renders its selected requirements.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-MODEL-LOADER, DO-REQUIREMENTS-DOCUMENT
+func RenderSpecDeltaFromModel(manifestPath string, options SpecDeltaOptions) (SpecDeltaResult, error) {
+	return reqdelta.RenderSpecDeltaFromModel(manifestPath, options)
+}

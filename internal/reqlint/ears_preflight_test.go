@@ -318,3 +318,42 @@ func TestLintRequirementsEARS_HonorsLintWaiversWithReason(t *testing.T) {
 		t.Fatalf("waiver without reason must be rejected, got %+v", diags)
 	}
 }
+
+// lint.multiple_responses is not reported for one response verb whose
+// conjunctions all sit in a trailing with, of or including field list; a
+// conjunction before the list, a second shall, or a "then" clause in the list
+// is still reported.
+// Mutation: dropping the post-filter, the single-shall check, the
+// before-list check, the then check or the verb-with-object item check fails
+// this test.
+// TRLC-LINKS: REQ-EMG-072
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestLintMultipleResponsesIgnoresFieldListAfterOneVerb(t *testing.T) {
+	catalog := model.CatalogDocument{Catalog: model.CatalogGroups{
+		Systems: []model.CatalogEntry{{ID: "SYS-SIM", Name: "simulator"}},
+	}}
+	cases := map[string]bool{
+		"The simulator shall publish one world state message with UTC time, latitude, longitude and altitude.": false,
+		"The simulator shall return the result including the schema version and the error fields.":             false,
+		"The simulator shall publish a report of errors, warnings and notes.":                                  false,
+		"The simulator shall log the event with the timestamp and notify the operator.":                        true,
+		"The simulator shall log the event and notify the operator.":                                           true,
+		"The simulator shall log the event, then notify the operator with the alarm text.":                     true,
+		"The simulator shall send the message with the time and then flush the queue.":                         true,
+		"The simulator shall send the message with the time and the simulator shall flush the queue.":          true,
+		"The simulator shall send the message with the time and then the simulator shall flush the queue.":     true,
+		"The simulator shall send the message with the time; the simulator shall flush the queue.":             true,
+	}
+	for text, want := range cases {
+		doc := model.RequirementsDocument{LintRun: model.LintRun{Mode: "strict"}, Requirements: []model.Requirement{{ID: "REQ-SIM-001", Text: text}}}
+		got := false
+		for _, d := range lintRequirementsEARS(doc, catalog) {
+			if d.Code == "lint.multiple_responses" {
+				got = true
+			}
+		}
+		if got != want {
+			t.Errorf("%q: lint.multiple_responses reported=%v, want %v", text, got, want)
+		}
+	}
+}

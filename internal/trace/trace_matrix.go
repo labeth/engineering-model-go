@@ -329,10 +329,13 @@ func ScopeCodeToModel(items []codescan.CodeItem, roots []string, modelDir string
 // ValidateIntegrity rejects dangling code trace links (a TRLC-LINKS or ENGMODEL-LINKS
 // that resolves to nothing in the model) and reports orphan requirements (traced by no
 // code, verification, or delegation). The code is assumed already scoped to this model.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029
+// It also reports assurance records whose status lags the tests they name
+// (verification.status_stale).
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
-	return validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
+	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
+	return append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
 }
 
 // validateIntegrityWithIDs is ValidateIntegrity against an explicit
@@ -549,7 +552,7 @@ func BuildFromFiles(modelPath, requirementsPath, codeRoot string) (Matrix, []val
 // ENGMODEL-LINKS alias::ID against the dependencies' published entities
 // (requirements stay local), returns the composition diagnostics, and reports
 // each delegated requirement's own status in its target repository.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-073
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	bundle, err := codescan.LoadBundle(modelPath)
@@ -594,6 +597,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 
 	scoped := ScopeCodeToModel(inferredCode, EffectiveCodeRoots(bundle, resolvedRoot), codescan.ModelRootDir(bundle))
 	diags = append(diags, validateIntegrityWithIDs(linkIDs, requirements, scoped, inferredVerification, delegationsByReq)...)
+	diags = append(diags, staleVerificationStatus(bundle, scoped, inferredVerification)...)
 	matrix := buildTraceMatrixWithIDs(bundle, linkIDs, requirements, scoped, inferredVerification, delegationsByReq)
 	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
 	applyDelegatedStatus(&matrix, compositionResult)

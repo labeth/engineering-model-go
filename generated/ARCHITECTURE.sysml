@@ -1496,10 +1496,22 @@ package 'engineering-model-go' {
     event occurrence 'EVT-REQUIREMENTS-DELTA-RECEIVED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-SPEC-DELTA-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-SPEC-DELTA-REQUESTED';
+
+    @EngineeringElement {
         sourceId = "EVT-VALIDATION-FAILED";
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-VALIDATION-FAILED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-WORKSPACE-STAGING-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-WORKSPACE-STAGING-REQUESTED';
 
     @EngineeringElement {
         sourceId = "EVT-WORKSPACE-SYNC-REQUESTED";
@@ -1869,6 +1881,18 @@ package 'engineering-model-go' {
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engoscal";
         attribute 'schemaRef' : 'String' = "internal/export/oscal/oscal_ssp.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-CLI-ENGSPEC";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-CLI-ENGSPEC' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "cmd/engspec";
+        attribute 'schemaRef' : 'String' = "internal/reqdelta/spec_delta.go";
     }
 
     @EngineeringElement {
@@ -2625,6 +2649,60 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-069' {
         attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document.";
         attribute 'notes' : 'String' = "model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-070";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-070' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn about every unconnected behavior element.";
+        attribute 'notes' : 'String' = "Three warnings. behavior.event_unused names an authored behavior event that no triggered_by relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names, in a model with at least one transitions_to relationship or semantic transition, an authored state other than the first declared one that no transition enters; the schema has no initial marker, so the first declared state is the initial state, and a model without transitions reports nothing. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-071";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-071' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.";
+        attribute 'notes' : 'String' = "catalog.name_has_operator is reported once at the catalog name or alias field (catalog.<group>[i].name or .aliases[j]) of an actor, event, state, feature, mode, condition or data term that contains a standalone and, or, not, a comma or a parenthesis. Such a term cannot match in a requirement clause, because the EARS expression parser splits it at the operator, and the requirement otherwise shows only unresolved-term diagnostics. System, functional group and unit names are matched whole by EARS and are not checked.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-072";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-072' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.";
+        attribute 'notes' : 'String' = "lint.multiple_responses from ears-lint-go is dropped when the text has one shall and no semicolon, no and, or or comma comes before the first with, including or of in the response, that field list holds no then, and no list item after the first reads as a verb with its object (its second word is the, a, an, its, their, each, every or all). \"publish one world state message with UTC time, latitude, longitude and altitude\" is not reported; \"log the event and notify the operator\", \"log the event with the timestamp and notify the operator\" and \"stop all of the motors and close the valve\" still are.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-073";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-073' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall warn about each control verification status that lags its existing tests.";
+        attribute 'notes' : 'String' = "A control verification may name its tests in verificationRefs: inferred CODE identifiers of test declarations (CODE-<PATH>--<NAME>) or requirement IDs whose linked test entry points verify it; any other entry is the error model.invalid_control_verification_ref. verification.status_stale is a warning at the status of a control verification whose status is unset or not-run while a referenced test declaration exists in the scanned code or a referenced requirement is test linked, and at the status of a threat mitigation whose status is unset or planned while a control verification it references has such tests. The status stays authored. The AsciiDoc generation and the trace matrix both report it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-080";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-080' {
+        attribute 'text' : 'String' = "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order.";
+        attribute 'notes' : 'String' = "engws stage [--version-from manifest|tag] [--serve] [--addr] writes only under <root>/.engmod/staging, never inside a checkout. registry/<module path>/ holds each CUE module as an OCI image layout with the content cue mod publish would push (source kind git: the committed files from git ls-files with VCS metadata; kind self: the directory). goproxy/ is a GOPROXY file tree (<module>/@v/<version>.info, .mod, .zip and list) for each checkout with go.mod at its top, zipped from committed files. The version is module.version from engmod.yml; with --version-from tag HEAD must be at tag v<module.version>. A checkout cue mod publish would refuse (dirty tree, no source field, module path mismatch) is reported, and then nothing is staged. A consumer pinning a family module at another version than the staged one is warned about. CUE has no file registry, so --serve loads the layouts into an in-memory read-only OCI registry on a loopback address only and serves it in the foreground until interrupted. stage prints the gate environment: CUE_REGISTRY routes for the staged modules merged with the current CUE_REGISTRY (with --serve), GOPROXY=file://<staging>/goproxy,off, GONOPROXY=none, GONOSUMDB with the staged Go modules plus the current GONOSUMDB or GOPRIVATE, GOWORK=off and ENGMOD_WORK=off; no -mod flag.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-081";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-081' {
+        attribute 'text' : 'String' = "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements.";
+        attribute 'notes' : 'String' = "engmodel.RenderSpecDelta and RenderSpecDeltaFromModel, and the engspec CLI (--model, --ids or --prefix, --capability, --modified, --out), render ## ADDED (or MODIFIED) Requirements and per requirement a ### Requirement heading (title, else ID; a repeated title names its ID), the line <ID>: <model text> with whitespace collapsed and whole-word shall and must upper-cased, so it starts with the model text under the engineering-flow consistency normalization (lower case, collapsed whitespace, no backticks or trailing period), and one #### Scenario from verificationCriteria: GIVEN, WHEN and THEN bullets when the criteria are shaped [given …,] when …, then …; otherwise WHEN the requirement is verified and THEN the criteria. Requirements without shall or must, or without verificationCriteria, are returned as warnings; an unknown ID is an error.";
     }
 
     @EngineeringElement {
