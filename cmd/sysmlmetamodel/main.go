@@ -17,10 +17,10 @@ import (
 func main() {
 	var (
 		mode       = flag.String("mode", "check", "fetch, refresh, bootstrap-coverage, or check")
-		manifest   = flag.String("manifest", "tools/sysml/metamodel-sources.json", "source manifest")
+		manifest   = flag.String("manifest", "internal/engine/sysml/metamodel-sources.json", "source manifest")
 		cacheDir   = flag.String("cache", ".engmod/cache/sysml-v2/2026-04", "download cache")
-		inventory  = flag.String("inventory", "tools/sysml/metamodel-inventory.json", "tracked inventory")
-		coverage   = flag.String("coverage", "tools/sysml/metamodel-coverage.json", "strict coverage binding")
+		inventory  = flag.String("inventory", "internal/engine/sysml/metamodel-inventory.json", "tracked inventory")
+		coverage   = flag.String("coverage", "internal/engine/sysml/metamodel-coverage.json", "strict coverage binding")
 		registry   = flag.String("registry", "internal/model/sysml_metamodel_generated.go", "generated Go registry")
 		cueBinding = flag.String("cue", "internal/model/schema/sysml_metamodel_generated.cue", "generated CUE binding")
 	)

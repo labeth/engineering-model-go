@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT_DIR="${ROOT_DIR}/testdata/threat-dragon-schemas"
+OUT_DIR="${ROOT_DIR}/internal/engine/testdata/threat-dragon-schemas"
 
 mkdir -p "${OUT_DIR}"
 

@@ -1371,7 +1371,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-REQUIREMENTS-DELTA' {
-        attribute 'schemaRef' : 'String' = "requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
         attribute 'classification' : 'String' = "model-change";
     }
 
@@ -1380,7 +1380,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-REQUIREMENTS-DIFF' {
-        attribute 'schemaRef' : 'String' = "requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
         attribute 'classification' : 'String' = "model-change-preview";
     }
 
@@ -1407,7 +1407,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-SYSML-V2-METAMODEL' {
-        attribute 'schemaRef' : 'String' = "tools/sysml/metamodel";
+        attribute 'schemaRef' : 'String' = "internal/engine/sysml/metamodel";
         attribute 'classification' : 'String' = "external-standard";
     }
 
@@ -1436,10 +1436,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-139EC30ED19D5D0E';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-6D1044A6CF45DAA7";
+        sourceId = "EVIDENCE-7B0F3F3E515E85ED";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-6D1044A6CF45DAA7';
+    attribute 'EVIDENCE-7B0F3F3E515E85ED';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-D1A0C0EF613B1206";
@@ -1772,7 +1772,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engair";
-        attribute 'schemaRef' : 'String' = "airborne_assurance.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/airborne_assurance.go";
     }
 
     @EngineeringElement {
@@ -1784,7 +1784,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engchange";
-        attribute 'schemaRef' : 'String' = "requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
     }
 
     @EngineeringElement {
@@ -1808,7 +1808,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engdragon";
-        attribute 'schemaRef' : 'String' = "threat_model_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/threat_model_export.go";
     }
 
     @EngineeringElement {
@@ -1820,7 +1820,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/enggemara";
-        attribute 'schemaRef' : 'String' = "gemara_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/gemara_export.go";
     }
 
     @EngineeringElement {
@@ -1832,7 +1832,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/englobster";
-        attribute 'schemaRef' : 'String' = "lobster_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/lobster_export.go";
     }
 
     @EngineeringElement {
@@ -1856,7 +1856,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engnaf";
-        attribute 'schemaRef' : 'String' = "naf_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/naf_export.go";
     }
 
     @EngineeringElement {
@@ -1868,7 +1868,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engoscal";
-        attribute 'schemaRef' : 'String' = "oscal_ssp.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/oscal_ssp.go";
     }
 
     @EngineeringElement {
@@ -1880,7 +1880,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engstruct";
-        attribute 'schemaRef' : 'String' = "structurizr_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/structurizr_export.go";
     }
 
     @EngineeringElement {
@@ -1892,7 +1892,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engsysml";
-        attribute 'schemaRef' : 'String' = "sysml_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/sysml_export.go";
     }
 
     @EngineeringElement {
@@ -1904,7 +1904,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engtrace";
-        attribute 'schemaRef' : 'String' = "trace_matrix.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/trace_matrix.go";
     }
 
     @EngineeringElement {
@@ -1916,7 +1916,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engtrlc";
-        attribute 'schemaRef' : 'String' = "trlc_export.go";
+        attribute 'schemaRef' : 'String' = "internal/engine/trlc_export.go";
     }
 
     @EngineeringElement {

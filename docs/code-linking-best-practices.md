@@ -85,7 +85,7 @@ Current implementation note:
 
 - Strict code-linking is enforced today, not aspirational.
 - `internal/codemap/scan.go` emits `code.missing_trlc_link` at `SeverityError` for trace-required functions and methods that lack `TRLC-LINKS`.
-- `trace_matrix.go` emits `code.dangling_requirement_link` and `code.dangling_model_link` at `SeverityError` when a `TRLC-LINKS` or `ENGMODEL-LINKS` marker points at a requirement or model element that does not resolve within the nearest enclosing model root.
+- `internal/engine/trace_matrix.go` emits `code.dangling_requirement_link` and `code.dangling_model_link` at `SeverityError` when a `TRLC-LINKS` or `ENGMODEL-LINKS` marker points at a requirement or model element that does not resolve within the nearest enclosing model root.
 - These diagnostics are fatal: engdoc fails its 0-error gate, engtrace exits 1 on any dangling code trace link, and `scripts/validate-all.sh` wires both into CI.
 - Remaining gaps that are not yet fatal: there is no `missing_owner` gate that requires `ENGMODEL-OWNER-UNIT` on first-party files, and model-link enforcement on public APIs and schemas (the Layer 2 checks below) is not yet a hard error.
 

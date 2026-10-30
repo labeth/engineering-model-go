@@ -486,7 +486,7 @@ published by the aligned official Pilot Implementation tag `2026-04`, commit
 | SysML 2.0 | `org.omg.sysml.model/src/main/resources/model/SysML.ecore` | `be71998ca0d9bb7e6081a25e8ead93ce49d623a47ca414b30ee8c572d6d0d753` |
 
 Exact immutable URLs and authority notes are tracked in
-`tools/sysml/metamodel-sources.json`. Refresh downloads into the ignored
+`internal/engine/sysml/metamodel-sources.json`. Refresh downloads into the ignored
 `.engmod/cache` tree, verifies both hashes, and regenerates the compact inventory
 and semantic coverage binding:
 
@@ -849,17 +849,31 @@ Core files:
 
 Repository layout:
 
-- `*.go` at the root: the public `engmodel` package (generators and the
-  model/validation facade in `model_api.go`, `validate_api.go`).
+- `*.go` at the root: only the public `engmodel` facade - `doc.go`, `model_api.go`,
+  `validate_api.go` and one `api_<area>.go` per area (asciidoc, composition, trace,
+  gemara, oscal, sysml, structurizr, threat_model, naf, trlc, lobster, airborne,
+  requirements_delta, generate, preflight). Each is type aliases, constants and thin
+  wrappers; `facade_test.go` checks that every exported name of `internal/engine` is
+  re-exported.
+- `internal/engine`: the implementation behind the facade (document, trace, export and
+  composition generators, one package for now), with its embedded assets next to it:
+  `internal/engine/templates/` (AsciiDoc, Structurizr, TRLC templates),
+  `internal/engine/sysml/` (SysML v2 metamodel sources, inventory and coverage binding)
+  and `internal/engine/testdata/threat-dragon-schemas/` (Threat Dragon and Open Threat
+  Model schemas).
 - `internal/model` (loader, types, embedded CUE schema in `internal/model/schema/`),
   `internal/validate`, `internal/codemap`, `internal/view`,
-  `internal/render/{diagramstyle,mermaid,svg}`, `internal/mcp` and the other
-  internal packages.
-- `cmd/<tool>`: the command-line tools.
+  `internal/render/{diagramstyle,mermaid,svg}`, `internal/mcp`, `internal/engws`,
+  `internal/cliflags`, `internal/sysmlmetamodel`.
+- `cmd/<tool>`: the command-line tools; they use only the root facade.
 - `engmod.yml`, `model/*.yml`: this repository's own engineering model (YAML only);
   `generated/`: its generated artifacts.
-- `scripts/`: validation and tooling scripts (`scripts/sysml-toolchain.env` pins the SysML tools);
-  `testdata/threat-dragon-schemas/`: Threat Dragon and Open Threat Model schemas.
+- `scripts/`: validation and tooling scripts (`scripts/sysml-toolchain.env` pins the SysML tools).
+
+The `internal/engine` tests run from the repository root (their `TestMain` changes
+to the directory holding `go.mod`), so they name repository paths such as
+`examples/...` and `engmod.yml` directly:
+`go test ./internal/engine -run TestAtlasIndustriesCompanyExample`.
 
 Unit checks:
 

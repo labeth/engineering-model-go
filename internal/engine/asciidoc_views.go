@@ -1,0 +1,949 @@
+// ENGMODEL-OWNER-UNIT: FU-ASCIIDOC-GENERATOR
+package engine
+
+import (
+	"fmt"
+	"sort"
+	"strings"
+
+	"github.com/labeth/engineering-model-go/internal/model"
+)
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func renderViewConfig(in []model.View) []asciidocViewConfig {
+	out := make([]asciidocViewConfig, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocViewConfig{
+			ID:    strings.TrimSpace(x.ID),
+			Kind:  strings.TrimSpace(x.Kind),
+			Roots: strings.Join(x.Roots, ", "),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func renderActors(in []model.Actor) []asciidocActorSection {
+	out := make([]asciidocActorSection, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocActorSection{
+			ID:          strings.TrimSpace(x.ID),
+			Name:        strings.TrimSpace(x.Name),
+			Description: strings.TrimSpace(x.Description),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
+// TRLC-LINKS: REQ-EMG-003
+func renderAttackVectors(in []model.AttackVector) []asciidocAttackVectorSection {
+	out := make([]asciidocAttackVectorSection, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocAttackVectorSection{
+			ID:          strings.TrimSpace(x.ID),
+			Name:        strings.TrimSpace(x.Name),
+			Description: strings.TrimSpace(x.Description),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func renderReferencedElements(in []model.ReferencedElement) []asciidocReferencedSection {
+	out := make([]asciidocReferencedSection, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocReferencedSection{
+			ID:    strings.TrimSpace(x.ID),
+			Name:  strings.TrimSpace(x.Name),
+			Kind:  strings.TrimSpace(x.Kind),
+			Layer: strings.TrimSpace(x.Layer),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func renderMappings(in []model.Mapping) []asciidocMappingSection {
+	out := make([]asciidocMappingSection, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocMappingSection{
+			Type:        strings.TrimSpace(x.Type),
+			From:        strings.TrimSpace(x.From),
+			To:          strings.TrimSpace(x.To),
+			Description: strings.TrimSpace(x.Description),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Type != out[j].Type {
+			return out[i].Type < out[j].Type
+		}
+		if out[i].From != out[j].From {
+			return out[i].From < out[j].From
+		}
+		return out[i].To < out[j].To
+	})
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-003
+func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
+	out := make([]asciidocInferredRow, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocInferredRow{Name: x.Name, Kind: x.Kind, Owner: x.Owner, Source: x.Source})
+	}
+	return out
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-003
+func renderInferredCode(in []inferredCodeItem) []asciidocInferredRow {
+	out := make([]asciidocInferredRow, 0, len(in))
+	for _, x := range in {
+		out = append(out, asciidocInferredRow{Name: codeItemDisplayName(x), Kind: x.Kind, Owner: x.Owner, Source: sanitizeSourcePath(x.Source)})
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewHeading(kind string) string {
+	switch kind {
+	case "architecture-intent":
+		return "Architecture Intent View"
+	case "communication":
+		return "Communication View"
+	case "deployment":
+		return "Deployment View"
+	case "security":
+		return "Security View"
+	case "traceability":
+		return "Traceability View"
+	case "state-lifecycle":
+		return "State Lifecycle View"
+	case "interaction-flow":
+		return "Interaction Flow View"
+	default:
+		return strings.Title(kind) + " View"
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func resolveViewIDs(bundle model.Bundle, options AsciiDocOptions) []string {
+	if len(options.ViewIDs) > 0 {
+		return append([]string(nil), options.ViewIDs...)
+	}
+	out := make([]string, 0, len(bundle.Architecture.Views))
+	kindByID := map[string]string{}
+	for _, v := range bundle.Architecture.Views {
+		out = append(out, v.ID)
+		kindByID[v.ID] = strings.TrimSpace(v.Kind)
+	}
+	order := map[string]int{
+		"architecture-intent": 0,
+		"communication":       1,
+		"deployment":          2,
+		"security":            3,
+		"traceability":        4,
+		"state-lifecycle":     5,
+		"interaction-flow":    6,
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		li, ok := order[kindByID[out[i]]]
+		if !ok {
+			li = 100
+		}
+		lj, ok := order[kindByID[out[j]]]
+		if !ok {
+			lj = 100
+		}
+		if li != lj {
+			return li < lj
+		}
+		return out[i] < out[j]
+	})
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func inferredDescription(kind string) string {
+	switch kind {
+	case "architecture-intent":
+		return "Show the stable authored architecture intent: capability areas, unit ownership boundaries, and intentional responsibility split."
+	case "communication":
+		return "Show who communicates with whom across key request paths, including interface edges and dependency handoffs."
+	case "deployment":
+		return "Show inferred deployment artifacts and ownership mapping to authored units. This view emphasizes deployment relationships and platform operations."
+	case "security":
+		return "Show the selected security relationships and boundary context. Interpret this projection within its authored scope; membership alone does not establish authentication, enforcement or complete threat coverage."
+	case "traceability":
+		return "Show requirement-to-unit-to-evidence traceability, including coverage confidence and explicit evidence gaps."
+	case "state-lifecycle":
+		return "Show workflow state transitions, ownership of transitions, and key exceptional paths."
+	case "interaction-flow":
+		return "Show user-intent-to-outcome causal flow, including ordered steps, data movement, and error/async branches."
+	default:
+		return "Show authored architecture scope for this view."
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewQuestions(kind string) []string {
+	switch kind {
+	case "architecture-intent":
+		return []string{
+			"What are the main capability areas?",
+			"What are the stable units of responsibility and what does each unit own?",
+			"How are responsibilities intentionally split?",
+		}
+	case "communication":
+		return []string{
+			"Who talks to whom and over which interfaces?",
+			"Which edges are synchronous, asynchronous, event-driven, or callback-oriented?",
+			"Which communication paths are critical to the main request flow?",
+		}
+	case "deployment":
+		return []string{
+			"How does authored intent become deployed runtime?",
+			"What control-plane objects manage deployable units?",
+			"Where are platform ownership boundaries and missing ownership signals?",
+		}
+	case "traceability":
+		return []string{
+			"Which requirements map to which units?",
+			"Which authored units have runtime/code evidence and which do not?",
+			"Where are confidence or completeness gaps in trace coverage?",
+		}
+	case "security":
+		return []string{
+			"What are the main trust boundaries and attack paths?",
+			"Which units are exposed and what security evidence exists?",
+			"Where is the threat model incomplete?",
+		}
+	case "state-lifecycle":
+		return []string{
+			"What states exist and which events trigger transitions?",
+			"Which unit owns each state transition?",
+			"Where do automatic and manual flows diverge?",
+		}
+	case "interaction-flow":
+		return []string{
+			"What happens from user intent to system outcome, step by step?",
+			"What data enters/exits each step and where are decisions made?",
+			"Where are async and error paths and what completes each path?",
+		}
+	default:
+		return []string{"What does this view show?"}
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func viewCoverageGaps(kind string, units []asciidocUnitSection) []string {
+	gaps := []string{}
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "communication", "deployment":
+			if !strings.Contains(evidence, "runtime:") {
+				gaps = append(gaps, fmt.Sprintf("%s has no direct inferred runtime/deployment evidence yet.", u.Name))
+			}
+		case "traceability":
+			if !strings.Contains(evidence, "code modules:") {
+				gaps = append(gaps, fmt.Sprintf("%s has no direct inferred code evidence yet.", u.Name))
+			}
+			if !strings.Contains(evidence, "runtime:") {
+				gaps = append(gaps, fmt.Sprintf("%s has no direct inferred runtime evidence yet.", u.Name))
+			}
+		case "security":
+			if strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				gaps = append(gaps, fmt.Sprintf("%s has no explicit authored attack-vector mapping yet; document technical and fraud/abuse threats even when mitigated.", u.Name))
+			}
+		}
+	}
+	if len(gaps) == 0 {
+		return []string{"No major coverage gaps detected from current authored and inferred inputs."}
+	}
+	sort.Strings(gaps)
+	return gaps
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
+	if len(units) == 0 {
+		return "No functional units are in scope for this view."
+	}
+	withEvidence := 0
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "communication", "deployment":
+			if strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "traceability":
+			if strings.Contains(evidence, "code modules:") || strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "security":
+			if !strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				withEvidence++
+			}
+		default:
+			withEvidence++
+		}
+	}
+	return fmt.Sprintf("%d/%d units have direct evidence coverage in this view.", withEvidence, len(units))
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, labels map[string]string, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
+	unitByID := map[string]asciidocUnitSection{}
+	for _, u := range units {
+		unitByID[strings.TrimSpace(u.ID)] = u
+	}
+	unitIDsByAttack := map[string]map[string]bool{}
+	for _, m := range a.Mappings {
+		if strings.TrimSpace(m.Type) != "targets" {
+			continue
+		}
+		attackID := strings.TrimSpace(m.From)
+		unitID := strings.TrimSpace(m.To)
+		if attackID == "" || unitID == "" {
+			continue
+		}
+		if !nodeSet[unitID] {
+			continue
+		}
+		if _, ok := unitByID[unitID]; !ok {
+			continue
+		}
+		if unitIDsByAttack[attackID] == nil {
+			unitIDsByAttack[attackID] = map[string]bool{}
+		}
+		unitIDsByAttack[attackID][unitID] = true
+	}
+
+	mitigationsByAttack := map[string][]string{}
+	boundariesByUnit := map[string][]string{}
+	for _, m := range a.Mappings {
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		switch strings.TrimSpace(m.Type) {
+		case "mitigated_by":
+			if strings.HasPrefix(from, "AV-") && to != "" {
+				mitigationsByAttack[from] = append(mitigationsByAttack[from], labelOrID(to, labels))
+			}
+		case "bounded_by":
+			if strings.HasPrefix(from, "FU-") && to != "" {
+				boundariesByUnit[from] = append(boundariesByUnit[from], labelOrID(to, labels))
+			}
+		}
+	}
+	for attackID, items := range mitigationsByAttack {
+		mitigationsByAttack[attackID] = uniqueSorted(items)
+	}
+	for unitID, items := range boundariesByUnit {
+		boundariesByUnit[unitID] = uniqueSorted(items)
+	}
+
+	attackByID := map[string]model.AttackVector{}
+	for _, av := range a.AttackVectors {
+		attackByID[strings.TrimSpace(av.ID)] = av
+	}
+	rowsByAttackID := map[string][]asciidocSecurityPathRow{}
+	for _, row := range securityRows {
+		attackID := strings.TrimSpace(row.AttackVectorID)
+		if attackID == "" {
+			continue
+		}
+		rowsByAttackID[attackID] = append(rowsByAttackID[attackID], row)
+	}
+
+	attackIDs := make([]string, 0, len(unitIDsByAttack))
+	for attackID := range unitIDsByAttack {
+		attackIDs = append(attackIDs, attackID)
+	}
+	sort.SliceStable(attackIDs, func(i, j int) bool {
+		left := attackByID[attackIDs[i]]
+		right := attackByID[attackIDs[j]]
+		leftName := strings.ToLower(nonEmpty(strings.TrimSpace(left.Name), attackIDs[i]))
+		rightName := strings.ToLower(nonEmpty(strings.TrimSpace(right.Name), attackIDs[j]))
+		if leftName != rightName {
+			return leftName < rightName
+		}
+		return attackIDs[i] < attackIDs[j]
+	})
+
+	out := make([]asciidocSecurityAttackChapter, 0, len(attackIDs))
+	for _, attackID := range attackIDs {
+		unitIDs := keysFromSet(unitIDsByAttack[attackID])
+		sort.Strings(unitIDs)
+		chapterUnits := make([]asciidocUnitSection, 0, len(unitIDs))
+		for _, unitID := range unitIDs {
+			chapterUnits = append(chapterUnits, unitByID[unitID])
+		}
+		sort.SliceStable(chapterUnits, func(i, j int) bool {
+			left := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[i].Name), chapterUnits[i].ID))
+			right := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[j].Name), chapterUnits[j].ID))
+			if left != right {
+				return left < right
+			}
+			return chapterUnits[i].ID < chapterUnits[j].ID
+		})
+		av := attackByID[attackID]
+		attackRows := append([]asciidocSecurityPathRow(nil), rowsByAttackID[attackID]...)
+		sort.SliceStable(attackRows, func(i, j int) bool {
+			if attackRows[i].Target != attackRows[j].Target {
+				return attackRows[i].Target < attackRows[j].Target
+			}
+			if attackRows[i].DependsOn != attackRows[j].DependsOn {
+				return attackRows[i].DependsOn < attackRows[j].DependsOn
+			}
+			return attackRows[i].TargetID < attackRows[j].TargetID
+		})
+		boundaries := []string{}
+		for _, unitID := range unitIDs {
+			boundaries = append(boundaries, boundariesByUnit[unitID]...)
+		}
+		out = append(out, asciidocSecurityAttackChapter{
+			ID:              attackID,
+			Name:            nonEmpty(strings.TrimSpace(av.Name), attackID),
+			Description:     strings.TrimSpace(av.Description),
+			MitigatedBy:     joinOrNone(mitigationsByAttack[attackID]),
+			TrustBoundaries: joinOrNone(uniqueSorted(boundaries)),
+			Diagram:         buildSecurityPathMermaid(attackRows, runtime, code),
+			Units:           chapterUnits,
+		})
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewWithEvidenceCount(kind string, units []asciidocUnitSection) int {
+	withEvidence := 0
+	for _, u := range units {
+		evidence := strings.ToLower(strings.TrimSpace(u.Evidence))
+		switch kind {
+		case "communication", "deployment":
+			if strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "traceability":
+			if strings.Contains(evidence, "code modules:") || strings.Contains(evidence, "runtime:") {
+				withEvidence++
+			}
+		case "security":
+			if !strings.Contains(strings.ToLower(u.Threats), "no explicit attack vector") {
+				withEvidence++
+			}
+		default:
+			withEvidence++
+		}
+	}
+	return withEvidence
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func buildHealthRows(views []asciidocViewSection) []asciidocHealthRow {
+	rows := make([]asciidocHealthRow, 0, len(views))
+	for _, v := range views {
+		gapCount := len(v.CoverageGaps)
+		if gapCount == 1 && strings.Contains(strings.ToLower(strings.TrimSpace(v.CoverageGaps[0])), "no major coverage gaps") {
+			gapCount = 0
+		}
+		withEvidence := viewWithEvidenceCount(v.Kind, v.Units)
+		rows = append(rows, asciidocHealthRow{
+			ViewID:                    v.ID,
+			ViewHeading:               v.Heading,
+			AuthoredStatus:            normalizeAuthoredStatus(v.AuthoredStatus),
+			AuthoredStatusExplanation: normalizeAuthoredStatusExplanation(v.AuthoredStatusExplanation),
+			UnitsInScope:              len(v.Units),
+			WithEvidence:              withEvidence,
+			GapCount:                  gapCount,
+			Confidence:                viewCoverageConfidence(len(v.Units), withEvidence),
+			HeuristicBasisExplanation: viewHeuristicBasis(v.Kind),
+		})
+	}
+	return rows
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func normalizeAuthoredStatus(s string) string {
+	x := strings.TrimSpace(strings.ToLower(s))
+	if x == "" {
+		return "unspecified"
+	}
+	return x
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func normalizeAuthoredStatusExplanation(s string) string {
+	x := strings.TrimSpace(s)
+	if x == "" {
+		return "No authored status explanation provided."
+	}
+	return x
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewHeuristicBasis(kind string) string {
+	switch kind {
+	case "communication", "deployment":
+		return "Counts a unit as covered when direct inferred runtime evidence exists."
+	case "traceability":
+		return "Counts a unit as covered when direct inferred runtime or code evidence exists."
+	case "security":
+		return "Counts a unit as covered when explicit authored attack-vector mapping exists."
+	case "architecture-intent":
+		return "Defaults authored units to covered; use authoredStatus as the primary publication signal."
+	case "state-lifecycle":
+		return "Lifecycle heuristic is currently basic; treat authoredStatus as primary signal."
+	case "interaction-flow":
+		return "Flow heuristic is step/branch-oriented; treat authoredStatus plus projection completeness as the primary signal."
+	default:
+		return "Coverage heuristic varies by view kind; interpret with authored status and explanation."
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewCoverageConfidence(total, covered int) string {
+	if total <= 0 {
+		return "n/a"
+	}
+	ratio := float64(covered) / float64(total)
+	switch {
+	case ratio >= 0.80:
+		return "high"
+	case ratio >= 0.50:
+		return "medium"
+	default:
+		return "low"
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func viewNextActions(kind string, gaps []string) []string {
+	if len(gaps) == 0 || (len(gaps) == 1 && strings.Contains(strings.ToLower(gaps[0]), "no major coverage gaps")) {
+		return []string{"No immediate evidence additions are required for this view."}
+	}
+	switch kind {
+	case "communication":
+		return []string{
+			"Add explicit communication metadata (protocol, sync/async/event/callback) to authored mappings where currently implicit.",
+			"Expose service protocol/port metadata in Helm or manifest values to enrich interface-edge inference.",
+			"Capture missing communicating runtime units by adding discoverable workload artifacts under scanned inference roots.",
+		}
+	case "deployment":
+		return []string{
+			"Add owner metadata to Flux/Kustomization/Helm objects for clearer platform ownership mapping.",
+			"Ensure deployment control artifacts (source, kustomization, release) are all included in scanned directories.",
+			"Add deterministic naming conventions for release and namespace objects to improve cross-artifact linking.",
+		}
+	case "traceability":
+		return []string{
+			"Add explicit requirement-to-owner mappings where requirement scope is currently broad or ambiguous.",
+			"Add ownership annotations for runtime and code artifacts where coverage is still unresolved.",
+			"Prioritize closing gaps for units that are authored but lack both runtime and code evidence.",
+		}
+	case "security":
+		return []string{
+			"Add explicit authored attack-vector mappings for units currently marked without threat linkage.",
+			"Add security signal ownership metadata (logs/alerts/events) for unresolved observability evidence.",
+			"Map additional security-relevant dependencies and exposures into authored mappings for traceable coverage.",
+		}
+	case "interaction-flow":
+		return []string{
+			"Add missing step-level data_in/data_out fields for critical path transitions.",
+			"Add explicit error branches for validation/retry/fallback behavior where currently implicit.",
+			"Link each major step to concrete verification evidence in Traceability and Verification sections.",
+		}
+	default:
+		return []string{
+			"Review listed gaps and add missing authored or inferred evidence so this view reflects intended reality.",
+		}
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatScenarioRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	verificationsByScenario := map[string][]asciidocControlVerificationRow{}
+	for _, cv := range a.ControlVerifications {
+		id := strings.TrimSpace(cv.ID)
+		if id == "" {
+			continue
+		}
+		row := asciidocControlVerificationRow{
+			ID:              id,
+			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
+			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
+			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
+			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
+			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+		}
+		for _, scenarioID := range cv.ThreatScenarioRefs {
+			scenarioID = strings.TrimSpace(scenarioID)
+			if !inScopeScenarioIDs[scenarioID] {
+				continue
+			}
+			verificationsByScenario[scenarioID] = append(verificationsByScenario[scenarioID], row)
+		}
+	}
+	for scenarioID := range verificationsByScenario {
+		sort.SliceStable(verificationsByScenario[scenarioID], func(i, j int) bool {
+			return verificationsByScenario[scenarioID][i].ID < verificationsByScenario[scenarioID][j].ID
+		})
+	}
+	rows := make([]asciidocThreatScenarioRow, 0, len(inScopeScenarioIDs))
+	for _, ts := range a.ThreatScenarios {
+		id := strings.TrimSpace(ts.ID)
+		if !inScopeScenarioIDs[id] {
+			continue
+		}
+		rows = append(rows, asciidocThreatScenarioRow{
+			ID:                   id,
+			Title:                nonEmpty(strings.TrimSpace(ts.Title), id),
+			Summary:              nonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
+			AttackVector:         labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
+			Scope:                joinLabeledIDs(ts.AppliesTo, labels),
+			Flows:                joinLabeledIDs(ts.FlowRefs, labels),
+			Likelihood:           nonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
+			Impact:               nonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
+			Severity:             nonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
+			Status:               nonEmpty(strings.TrimSpace(ts.Status), "unknown"),
+			Owner:                labelOrID(strings.TrimSpace(ts.Owner), labels),
+			Risk:                 labelOrID(strings.TrimSpace(ts.RiskRef), labels),
+			Controls:             joinLabeledIDs(ts.RelatedControls, labels),
+			Mitigations:          joinLabeledIDs(ts.MitigationRefs, labels),
+			Verifications:        joinLabeledIDs(ts.VerificationRefs, labels),
+			ControlVerifications: verificationsByScenario[id],
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		if rows[i].Severity != rows[j].Severity {
+			return rows[i].Severity > rows[j].Severity
+		}
+		return rows[i].ID < rows[j].ID
+	})
+	return rows
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatAssumptionRow {
+	inScopeAssumptions := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if !securityScenarioInScope(ts, nodeSet) {
+			continue
+		}
+		for _, x := range ts.AssumptionRefs {
+			x = strings.TrimSpace(x)
+			if x != "" {
+				inScopeAssumptions[x] = true
+			}
+		}
+	}
+	rows := []asciidocThreatAssumptionRow{}
+	for _, x := range a.ThreatAssumptions {
+		id := strings.TrimSpace(x.ID)
+		if !(inScopeAssumptions[id] || securityAppliesToInScope(x.AppliesTo, nodeSet) || nodeSet[id]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatAssumptionRow{
+			ID:        id,
+			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
+			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
+			Rationale: nonEmpty(strings.TrimSpace(x.Rationale), strings.TrimSpace(x.Statement)),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatOutOfScopeRow {
+	inScopeOut := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if !securityScenarioInScope(ts, nodeSet) {
+			continue
+		}
+		for _, x := range ts.OutOfScopeRefs {
+			x = strings.TrimSpace(x)
+			if x != "" {
+				inScopeOut[x] = true
+			}
+		}
+	}
+	rows := []asciidocThreatOutOfScopeRow{}
+	for _, x := range a.ThreatOutOfScope {
+		id := strings.TrimSpace(x.ID)
+		if !(inScopeOut[id] || securityAppliesToInScope(x.AppliesTo, nodeSet) || nodeSet[id]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatOutOfScopeRow{
+			ID:        id,
+			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
+			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
+			ExpiresOn: nonEmpty(strings.TrimSpace(x.ExpiresOn), "none"),
+			Reason:    strings.TrimSpace(x.Reason),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocThreatMitigationRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	rows := []asciidocThreatMitigationRow{}
+	for _, m := range a.ThreatMitigations {
+		if !(inScopeScenarioIDs[strings.TrimSpace(m.ThreatScenarioRef)] || nodeSet[strings.TrimSpace(m.ControlRef)] || nodeSet[strings.TrimSpace(m.ID)]) {
+			continue
+		}
+		rows = append(rows, asciidocThreatMitigationRow{
+			ID:             strings.TrimSpace(m.ID),
+			ThreatScenario: labelOrID(strings.TrimSpace(m.ThreatScenarioRef), labels),
+			Control:        labelOrID(strings.TrimSpace(m.ControlRef), labels),
+			Status:         nonEmpty(strings.TrimSpace(m.Status), "unknown"),
+			Effectiveness:  nonEmpty(strings.TrimSpace(m.Effectiveness), "unknown"),
+			Owner:          labelOrID(strings.TrimSpace(m.Owner), labels),
+			Verifications:  joinLabeledIDs(m.VerificationRefs, labels),
+			Notes:          strings.TrimSpace(m.Notes),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocControlVerificationRow {
+	inScopeScenarioIDs := map[string]bool{}
+	for _, ts := range a.ThreatScenarios {
+		if securityScenarioInScope(ts, nodeSet) {
+			inScopeScenarioIDs[strings.TrimSpace(ts.ID)] = true
+		}
+	}
+	rows := []asciidocControlVerificationRow{}
+	for _, cv := range a.ControlVerifications {
+		if !(nodeSet[strings.TrimSpace(cv.ControlRef)] || nodeSet[strings.TrimSpace(cv.ID)] || anyInSet(cv.ThreatScenarioRefs, inScopeScenarioIDs)) {
+			continue
+		}
+		rows = append(rows, asciidocControlVerificationRow{
+			ID:              strings.TrimSpace(cv.ID),
+			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
+			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
+			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
+			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
+			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool, labels map[string]string) []asciidocSecurityFlowRow {
+	rows := []asciidocSecurityFlowRow{}
+	for _, f := range a.Flows {
+		id := strings.TrimSpace(f.ID)
+		inScope := nodeSet[id] || nodeSet[strings.TrimSpace(f.SourceRef)] || nodeSet[strings.TrimSpace(f.DestinationRef)]
+		if !inScope {
+			continue
+		}
+		boundaryCrossing := "false"
+		boundary := "none"
+		for _, s := range f.Steps {
+			if s.BoundaryCrossing {
+				boundaryCrossing = "true"
+				if strings.TrimSpace(s.TrustBoundaryRef) != "" {
+					boundary = labelOrID(strings.TrimSpace(s.TrustBoundaryRef), labels)
+					break
+				}
+			}
+		}
+		rows = append(rows, asciidocSecurityFlowRow{
+			ID:               id,
+			Title:            nonEmpty(strings.TrimSpace(f.Title), id),
+			Kind:             nonEmpty(strings.TrimSpace(f.Kind), "flow"),
+			Direction:        nonEmpty(strings.TrimSpace(f.Direction), "unknown"),
+			Frequency:        nonEmpty(strings.TrimSpace(f.Frequency), "unknown"),
+			Source:           labelOrID(strings.TrimSpace(f.SourceRef), labels),
+			Destination:      labelOrID(strings.TrimSpace(f.DestinationRef), labels),
+			Protocol:         nonEmpty(strings.TrimSpace(f.Protocol), "n/a"),
+			Authentication:   nonEmpty(strings.TrimSpace(f.Authentication), "n/a"),
+			Encryption:       nonEmpty(strings.TrimSpace(f.EncryptionInTransit), "n/a"),
+			Integrity:        nonEmpty(strings.TrimSpace(f.IntegrityProtection), "n/a"),
+			TrustBoundary:    boundary,
+			BoundaryCrossing: boundaryCrossing,
+			Threats:          joinLabeledIDs(f.Threats, labels),
+			Data:             joinLabeledIDs(f.DataRefs, labels),
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
+	return rows
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func securityScenarioInScope(ts model.ThreatScenario, nodeSet map[string]bool) bool {
+	if nodeSet[strings.TrimSpace(ts.ID)] || nodeSet[strings.TrimSpace(ts.AttackVectorRef)] || nodeSet[strings.TrimSpace(ts.RiskRef)] {
+		return true
+	}
+	if securityAppliesToInScope(ts.AppliesTo, nodeSet) {
+		return true
+	}
+	if anyInSet(ts.FlowRefs, nodeSet) || anyInSet(ts.RelatedControls, nodeSet) {
+		return true
+	}
+	return false
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func securityAppliesToInScope(ids []string, nodeSet map[string]bool) bool {
+	for _, id := range ids {
+		if nodeSet[strings.TrimSpace(id)] {
+			return true
+		}
+	}
+	return false
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func anyInSet(ids []string, set map[string]bool) bool {
+	for _, id := range ids {
+		if set[strings.TrimSpace(id)] {
+			return true
+		}
+	}
+	return false
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func joinLabeledIDs(ids []string, labels map[string]string) string {
+	items := make([]string, 0, len(ids))
+	seen := map[string]bool{}
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" || seen[id] {
+			continue
+		}
+		seen[id] = true
+		items = append(items, labelOrID(id, labels))
+	}
+	if len(items) == 0 {
+		return "none"
+	}
+	sort.Strings(items)
+	return strings.Join(items, ", ")
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func joinOrNone(items []string) string {
+	items = uniqueSorted(items)
+	if len(items) == 0 {
+		return "none"
+	}
+	return strings.Join(items, ", ")
+}
+
+// TRLC-LINKS: REQ-EMG-003
+func labelOrID(id string, labels map[string]string) string {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return "none"
+	}
+	if l := strings.TrimSpace(labels[id]); l != "" {
+		return l
+	}
+	return id
+}
+
+// publicationViewHeading distinguishes multiple views of the same kind in a TOC.
+// TRLC-LINKS: REQ-EMG-003
+func publicationViewHeading(kind, id string, sameKindCount int) string {
+	heading := viewHeading(kind)
+	if sameKindCount > 1 {
+		heading += " (" + strings.TrimSpace(id) + ")"
+	}
+	return heading
+}
+
+// functionalPublicationArchitecture scopes supporting functional diagrams to the
+// selected projection. Parent groups are retained without expanding their sibling
+// units. The complete authored architecture remains in the reference appendix.
+// TRLC-LINKS: REQ-EMG-003
+func functionalPublicationArchitecture(a model.AuthoredArchitecture, selected map[string]bool) model.AuthoredArchitecture {
+	out := model.AuthoredArchitecture{}
+	include := map[string]bool{}
+	for id, chosen := range selected {
+		if chosen {
+			include[id] = true
+		}
+	}
+	for _, unit := range a.FunctionalUnits {
+		if selected[unit.ID] {
+			out.FunctionalUnits = append(out.FunctionalUnits, unit)
+			if unit.Group != "" {
+				include[unit.Group] = true
+			}
+		}
+	}
+	for _, group := range a.FunctionalGroups {
+		if include[group.ID] {
+			out.FunctionalGroups = append(out.FunctionalGroups, group)
+		}
+	}
+	for _, actor := range a.Actors {
+		if selected[actor.ID] {
+			out.Actors = append(out.Actors, actor)
+		}
+	}
+	for _, ref := range a.ReferencedElements {
+		if selected[ref.ID] {
+			out.ReferencedElements = append(out.ReferencedElements, ref)
+		}
+	}
+	for _, mapping := range a.Mappings {
+		if include[mapping.From] && include[mapping.To] {
+			out.Mappings = append(out.Mappings, mapping)
+		}
+	}
+	return out
+}

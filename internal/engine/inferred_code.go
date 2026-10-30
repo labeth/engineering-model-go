@@ -1,0 +1,500 @@
+// ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
+package engine
+
+import (
+	"fmt"
+	"go/parser"
+	"go/token"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strings"
+	"sync"
+
+	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
+)
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057
+func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
+	baseDir := modelRootDir(bundle)
+	roots := []string{}
+	if strings.TrimSpace(codeRootOption) != "" {
+		roots = append(roots, codeRootOption)
+	}
+	roots = withDefaultCodeRoot(bundle, uniqueExistingSources(roots))
+	if len(roots) == 0 {
+		return nil, nil
+	}
+	moduleRoot := moduleCodeRoot(bundle)
+	skip := codeScanSkipper(bundle)
+
+	items := []inferredCodeItem{}
+	diags := []validate.Diagnostic{}
+	seen := map[string]bool{}
+
+	for _, root := range roots {
+		abs := root
+		if !filepath.IsAbs(abs) {
+			abs, _ = filepath.Abs(root)
+		}
+		sourceBase := sourceRootDir(abs)
+		metadata := scanCodeMetadata(abs, skip)
+		owners := map[string]string{}
+		descriptions := map[string]string{}
+		for rel, m := range metadata {
+			owners[rel] = m.Owner
+			if x := strings.TrimSpace(m.Description); x != "" {
+				descriptions[rel] = x
+			}
+		}
+		symbols, sDiags, err := codemap.ScanWithOptions(abs, codemap.ScanOptions{IDBase: moduleRoot, Skip: skip})
+		if err != nil {
+			diags = append(diags, validate.Diagnostic{
+				Code:     "code.scan_failed",
+				Severity: validate.SeverityWarning,
+				Message:  err.Error(),
+				Path:     abs,
+			})
+			continue
+		}
+		diags = append(diags, sDiags...)
+
+		for rel, owner := range owners {
+			desc := strings.TrimSpace(descriptions[rel])
+			key := "source_file|" + filepath.Join(sourceBase, rel) + "|" + owner
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			items = append(items, inferredCodeItem{
+				Element:     rel,
+				Kind:        "source_file",
+				AbsPath:     filepath.Join(sourceBase, rel),
+				Owner:       owner,
+				Description: desc,
+				Source:      rel,
+			})
+
+			deps, depDiags := parseCodeDependencies(sourceBase, rel, owner)
+			diags = append(diags, depDiags...)
+			for _, dep := range deps {
+				dep.AbsPath = filepath.Join(sourceBase, rel)
+				key := dep.Kind + "|" + dep.Element + "|" + dep.Owner + "|" + filepath.Join(sourceBase, dep.Source)
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				items = append(items, dep)
+			}
+		}
+
+		for _, s := range symbols {
+			owner := ownerForPath(s.Path, owners)
+			label := s.TraceID
+			if strings.TrimSpace(label) == "" {
+				label = s.Signature
+			}
+			key := "symbol|" + label + "|" + filepath.Join(sourceBase, s.Path) + fmt.Sprintf("|%d", s.Line)
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			items = append(items, inferredCodeItem{
+				Element:    label,
+				Kind:       "symbol",
+				Owner:      owner,
+				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
+				AbsPath:    filepath.Join(sourceBase, s.Path),
+				Implements: uniqueSorted(s.Implements),
+				ModelLinks: uniqueSorted(s.ModelLinks),
+			})
+		}
+	}
+
+	// Preserve compact scan-relative display paths unless separate roots produce
+	// the same source label for different files. Publication and trace matrices
+	// also use Source as identity, so those collisions must be disambiguated.
+	pathsBySource := map[string]string{}
+	ambiguous := map[string]bool{}
+	for _, item := range items {
+		if previous, ok := pathsBySource[item.Source]; ok && previous != item.AbsPath {
+			ambiguous[item.Source] = true
+		}
+		pathsBySource[item.Source] = item.AbsPath
+	}
+	for i := range items {
+		if items[i].Kind == "symbol" && pathWithin(baseDir, items[i].AbsPath) {
+			relative, err := filepath.Rel(baseDir, items[i].AbsPath)
+			if err != nil {
+				return nil, []validate.Diagnostic{{Code: "code.relative_path_failed", Severity: validate.SeverityError, Message: err.Error(), Path: items[i].AbsPath}}
+			}
+			items[i].EvidencePath = filepath.ToSlash(relative)
+		}
+		if !ambiguous[items[i].Source] {
+			continue
+		}
+		_, line := splitSourceLine(items[i].Source)
+		path, err := filepath.Rel(baseDir, items[i].AbsPath)
+		if err != nil {
+			path = items[i].AbsPath
+		}
+		items[i].Source = filepath.ToSlash(path)
+		if line > 0 {
+			items[i].Source += fmt.Sprintf(":%d", line)
+		}
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].Kind != items[j].Kind {
+			return items[i].Kind < items[j].Kind
+		}
+		if items[i].Element != items[j].Element {
+			return items[i].Element < items[j].Element
+		}
+		return items[i].Source < items[j].Source
+	})
+	return items, validate.SortDiagnostics(diags)
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// skipScanDir reports whether a directory must be excluded from code/metadata walks.
+// Dependency caches and dot-directories (tool caches like .opencode, the .engmod
+// composition cache, .git) are not source; scanning them makes generated artifacts
+// depend on the local environment and breaks reproducibility.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-012
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func skipScanDir(name string) bool {
+	return name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.')
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
+	path := filepath.Join(root, filepath.FromSlash(rel))
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, []validate.Diagnostic{{
+			Code:     "code.dependency_read_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     path,
+		}}
+	}
+	switch strings.ToLower(filepath.Ext(rel)) {
+	case ".go":
+		return parseGoDependencies(rel, data, owner)
+	case ".ts", ".tsx":
+		return parseTypeScriptDependencies(rel, string(data), owner), nil
+	case ".rs":
+		return parseRustDependencies(rel, string(data), owner), nil
+	default:
+		return nil, nil
+	}
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type codeFileMetadata struct {
+	Owner       string
+	Description string
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
+	full := filepath.ToSlash(filepath.Clean(rel))
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, full, src, parser.ImportsOnly)
+	if err != nil {
+		return nil, []validate.Diagnostic{{
+			Code:     "code.go_dependency_parse_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     rel,
+		}}
+	}
+	out := []inferredCodeItem{}
+	for _, im := range f.Imports {
+		path := strings.TrimSpace(strings.Trim(im.Path.Value, "\""))
+		if path == "" {
+			continue
+		}
+		kind := goImportKind(path)
+		out = append(out, inferredCodeItem{
+			Element: path,
+			Kind:    kind,
+			Owner:   owner,
+			Source:  rel,
+		})
+	}
+	return out, nil
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func goImportKind(path string) string {
+	switch {
+	case strings.HasPrefix(path, "github.com/labeth/engineering-model-go/"):
+		return "library_first_party"
+	case strings.Contains(path, "."):
+		return "library_external"
+	default:
+		return "library_stdlib"
+	}
+}
+
+var (
+	tsImportRe  = regexp.MustCompile(`(?m)^\s*import\s+(?:[^'"]+?\s+from\s+)?['"]([^'"]+)['"]`)
+	tsRequireRe = regexp.MustCompile(`(?m)require\(\s*['"]([^'"]+)['"]\s*\)`)
+	rsUseRe     = regexp.MustCompile(`(?m)^\s*use\s+([A-Za-z0-9_:\{\}]+)\s*;`)
+)
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem {
+	out := []inferredCodeItem{}
+	add := func(dep string) {
+		dep = strings.TrimSpace(dep)
+		if dep == "" {
+			return
+		}
+		kind := "library_external"
+		if strings.HasPrefix(dep, ".") || strings.HasPrefix(dep, "/") {
+			kind = "library_first_party"
+		}
+		out = append(out, inferredCodeItem{
+			Element: dep,
+			Kind:    kind,
+			Owner:   owner,
+			Source:  rel,
+		})
+	}
+	for _, m := range tsImportRe.FindAllStringSubmatch(content, -1) {
+		if len(m) > 1 {
+			add(m[1])
+		}
+	}
+	for _, m := range tsRequireRe.FindAllStringSubmatch(content, -1) {
+		if len(m) > 1 {
+			add(m[1])
+		}
+	}
+	return out
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
+	out := []inferredCodeItem{}
+	for _, m := range rsUseRe.FindAllStringSubmatch(content, -1) {
+		if len(m) < 2 {
+			continue
+		}
+		dep := strings.TrimSpace(m[1])
+		if dep == "" {
+			continue
+		}
+		kind := "library_external"
+		if strings.HasPrefix(dep, "crate::") || strings.HasPrefix(dep, "self::") || strings.HasPrefix(dep, "super::") {
+			kind = "library_first_party"
+		}
+		out = append(out, inferredCodeItem{
+			Element: dep,
+			Kind:    kind,
+			Owner:   owner,
+			Source:  rel,
+		})
+	}
+	return out
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[string]codeFileMetadata {
+	out := map[string]codeFileMetadata{}
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if skipScanDir(d.Name()) || (path != root && skip != nil && skip(path, true)) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if skip != nil && skip(path, false) {
+			return nil
+		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
+			return nil
+		}
+		data, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return nil
+		}
+		rel, relErr := filepath.Rel(sourceRootDir(root), path)
+		if relErr != nil {
+			rel = path
+		}
+		rel = filepath.ToSlash(rel)
+		owner := "unresolved"
+		description := ""
+		var pythonComments map[int]bool
+		if ext == ".py" {
+			pythonComments, _ = codemap.CommentLines(path, data)
+		}
+		for index, line := range strings.Split(string(data), "\n") {
+			if ext == ".py" && !pythonComments[index+1] {
+				continue
+			}
+			if v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:"); ok {
+				if x := strings.TrimSpace(v); x != "" {
+					owner = x
+				}
+			}
+			if description == "" {
+				if desc, ok := extractCodeDescriptionMarker(line); ok {
+					description = desc
+				}
+			}
+		}
+		out[rel] = codeFileMetadata{
+			Owner:       owner,
+			Description: description,
+		}
+		return nil
+	})
+	return out
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func extractCodeDescriptionMarker(line string) (string, bool) {
+	markers := []string{
+		"ENGMODEL-CODE-DESCRIPTION:",
+		"engmodel:code-description:",
+		"engmodel:code-description",
+		"engmodel.code.description:",
+		"engmodel.code.description",
+	}
+	for _, marker := range markers {
+		if v, ok := extractMarkerValue(line, marker); ok {
+			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
+			if v != "" {
+				return v, true
+			}
+		}
+	}
+	return "", false
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func ownerForPath(path string, owners map[string]string) string {
+	if x := strings.TrimSpace(owners[path]); x != "" && x != "unresolved" {
+		return x
+	}
+	best := ""
+	for p, owner := range owners {
+		if owner == "" || owner == "unresolved" {
+			continue
+		}
+		if strings.HasPrefix(path, p) {
+			if len(p) > len(best) {
+				best = owner
+			}
+		}
+	}
+	if best != "" {
+		return best
+	}
+	return "unresolved"
+}
+
+// sourceRootDir resolves source paths consistently for directory and single-file roots.
+// TRLC-LINKS: REQ-EMG-010
+func sourceRootDir(root string) string {
+	if info, err := os.Stat(root); err == nil && !info.IsDir() {
+		return filepath.Dir(root)
+	}
+	return root
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func uniqueExistingSources(in []string) []string {
+	out := []string{}
+	seen := map[string]bool{}
+	for _, path := range in {
+		abs, err := filepath.Abs(path)
+		if err != nil || seen[abs] {
+			continue
+		}
+		info, err := os.Stat(abs)
+		if err != nil || (!info.IsDir() && !info.Mode().IsRegular()) {
+			continue
+		}
+		seen[abs] = true
+		out = append(out, abs)
+	}
+	return out
+}
+
+// isVerificationCodeItem reports whether a code item is test code rather than
+// production implementation: it lives in a test file, or it is a Rust item
+// compiled only for tests (#[cfg(test)] module or #![cfg(test)] file).
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func isVerificationCodeItem(item inferredCodeItem) bool {
+	path, line := splitSourceLine(item.Source)
+	if isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path) {
+		return true
+	}
+	if item.Kind != "symbol" || line <= 0 || !strings.EqualFold(filepath.Ext(item.AbsPath), ".rs") {
+		return false
+	}
+	return rustTestOnlyLines(item.AbsPath)[line]
+}
+
+// rustTestOnlyCache memoizes the test-only declaration lines of Rust files, keyed by
+// absolute path and invalidated by size and modification time.
+var rustTestOnlyCache = struct {
+	sync.Mutex
+	entries map[string]rustTestOnlyEntry
+}{entries: map[string]rustTestOnlyEntry{}}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+type rustTestOnlyEntry struct {
+	size    int64
+	modTime int64
+	lines   map[int]bool
+}
+
+// rustTestOnlyLines returns the declaration lines of a Rust file that codemap marks
+// TestOnly. Unreadable files yield no lines, so their code stays production code.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func rustTestOnlyLines(absPath string) map[int]bool {
+	info, err := os.Stat(absPath)
+	if err != nil || info.IsDir() {
+		return nil
+	}
+	rustTestOnlyCache.Lock()
+	defer rustTestOnlyCache.Unlock()
+	if e, ok := rustTestOnlyCache.entries[absPath]; ok && e.size == info.Size() && e.modTime == info.ModTime().UnixNano() {
+		return e.lines
+	}
+	symbols, _, err := codemap.Scan(absPath)
+	if err != nil {
+		return nil
+	}
+	lines := map[int]bool{}
+	for _, s := range symbols {
+		if s.TestOnly {
+			lines[s.Line] = true
+		}
+	}
+	rustTestOnlyCache.entries[absPath] = rustTestOnlyEntry{size: info.Size(), modTime: info.ModTime().UnixNano(), lines: lines}
+	return lines
+}

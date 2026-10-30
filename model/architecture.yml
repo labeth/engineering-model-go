@@ -175,61 +175,61 @@ architecture:
     name: engdragon CLI
     protocol: cli
     endpoint: cmd/engdragon
-    schemaRef: threat_model_export.go
+    schemaRef: internal/engine/threat_model_export.go
     owner: FU-THREAT-EXPORTER
   - id: IF-CLI-ENGSTRUCT
     name: engstruct CLI
     protocol: cli
     endpoint: cmd/engstruct
-    schemaRef: structurizr_export.go
+    schemaRef: internal/engine/structurizr_export.go
     owner: FU-STRUCTURIZR-EXPORTER
   - id: IF-CLI-ENGSYSML
     name: engsysml CLI
     protocol: cli
     endpoint: cmd/engsysml
-    schemaRef: sysml_export.go
+    schemaRef: internal/engine/sysml_export.go
     owner: FU-SYSML-EXPORTER
   - id: IF-CLI-ENGNAF
     name: engnaf CLI
     protocol: cli
     endpoint: cmd/engnaf
-    schemaRef: naf_export.go
+    schemaRef: internal/engine/naf_export.go
     owner: FU-NAF-EXPORTER
   - id: IF-CLI-ENGTRLC
     name: engtrlc CLI
     protocol: cli
     endpoint: cmd/engtrlc
-    schemaRef: trlc_export.go
+    schemaRef: internal/engine/trlc_export.go
     owner: FU-TRLC-EXPORTER
   - id: IF-CLI-ENGTRACE
     name: engtrace CLI
     protocol: cli
     endpoint: cmd/engtrace
-    schemaRef: trace_matrix.go
+    schemaRef: internal/engine/trace_matrix.go
     owner: FU-ALLOCATION-TRACE
   - id: IF-CLI-ENGGEMARA
     name: enggemara CLI
     protocol: cli
     endpoint: cmd/enggemara
-    schemaRef: gemara_export.go
+    schemaRef: internal/engine/gemara_export.go
     owner: FU-GEMARA-EXPORTER
   - id: IF-CLI-ENGLOBSTER
     name: englobster CLI
     protocol: cli
     endpoint: cmd/englobster
-    schemaRef: lobster_export.go
+    schemaRef: internal/engine/lobster_export.go
     owner: FU-LOBSTER-EXPORTER
   - id: IF-CLI-ENGOSCAL
     name: engoscal CLI
     protocol: cli
     endpoint: cmd/engoscal
-    schemaRef: oscal_ssp.go
+    schemaRef: internal/engine/oscal_ssp.go
     owner: FU-OSCAL-EXPORTER
   - id: IF-CLI-ENGAIR
     name: engair CLI
     protocol: cli
     endpoint: cmd/engair
-    schemaRef: airborne_assurance.go
+    schemaRef: internal/engine/airborne_assurance.go
     owner: FU-AIRBORNE-ASSURANCE-EXPORTER
   - id: IF-CLI-ENGVIEW
     name: engview CLI
@@ -241,7 +241,7 @@ architecture:
     name: engchange CLI
     protocol: cli
     endpoint: cmd/engchange
-    schemaRef: requirements_delta.go
+    schemaRef: internal/engine/requirements_delta.go
     owner: FU-MODEL-CHANGE
   dataObjects:
   - id: DO-ARCHITECTURE-MODEL
@@ -257,7 +257,7 @@ architecture:
   - id: DO-REQUIREMENTS-DELTA
     name: Requirements Delta
     termRef: DATA-REQUIREMENTS-DELTA
-    schemaRef: requirements_delta.go
+    schemaRef: internal/engine/requirements_delta.go
     sensitivity: internal
     classification: model-change
     retention: change-lifetime
@@ -277,7 +277,7 @@ architecture:
   - id: DO-REQUIREMENTS-DIFF
     name: Requirements Change Summary
     termRef: DATA-REQUIREMENTS-DIFF
-    schemaRef: requirements_delta.go
+    schemaRef: internal/engine/requirements_delta.go
     sensitivity: internal
     classification: model-change-preview
     retention: ephemeral
@@ -337,7 +337,7 @@ architecture:
   - id: DO-SYSML-V2-METAMODEL
     name: SysML v2 Metamodel
     termRef: DATA-SYSML-V2-METAMODEL
-    schemaRef: tools/sysml/metamodel
+    schemaRef: internal/engine/sysml/metamodel
     sensitivity: public
     classification: external-standard
     retention: pinned-tool-version

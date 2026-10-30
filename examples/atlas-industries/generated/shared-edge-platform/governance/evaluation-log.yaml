@@ -31,7 +31,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 target:
   id: atlas-shared-edge-platform

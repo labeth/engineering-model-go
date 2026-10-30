@@ -46,107 +46,107 @@ For each FU batch:
 
 ### FU-MCP-SERVER
 
-- `mcp/server.go`
+- `internal/mcp/server.go`
 - `cmd/engmcp/main.go`
 - `cmd/engmcp/main_test.go`
-- `mcp/server_test.go`
+- `internal/mcp/server_test.go`
 
 ### FU-CODEMAP-INFERENCE
 
-- `codemap/scan.go`
-- `codemap/scan_test.go`
-- `inferred_code.go`
-- `inferred_code_test.go`
-- `inferred_verification.go`
-- `inferred_verification_test.go`
-- `inferred_layers.go`
-- `inferred_layers_test.go`
+- `internal/codemap/scan.go`
+- `internal/codemap/scan_test.go`
+- `internal/engine/inferred_code.go`
+- `internal/engine/inferred_code_test.go`
+- `internal/engine/inferred_verification.go`
+- `internal/engine/inferred_verification_test.go`
+- `internal/engine/inferred_layers.go`
+- `internal/engine/inferred_layers_test.go`
 
 ### FU-MODEL-LOADER
 
-- `model/load.go`
-- `model/load_test.go`
-- `model/types.go`
+- `internal/model/load.go`
+- `internal/model/load_test.go`
+- `internal/model/types.go`
 
 ### FU-VALIDATION-ENGINE
 
-- `validate/validate.go`
-- `validate/validate_test.go`
-- `validate/diagnostic.go`
+- `internal/validate/validate.go`
+- `internal/validate/validate_test.go`
+- `internal/validate/diagnostic.go`
 
 ### FU-ASCIIDOC-GENERATOR
 
-- `asciidoc.go`
-- `asciidoc_template.go`
-- `asciidoc_views.go`
-- `asciidoc_backlinks.go`
-- `asciidoc_design_refs.go`
-- `asciidoc_diagrams_core.go`
-- `asciidoc_diagrams_runtime.go`
-- `asciidoc_linking_units.go`
+- `internal/engine/asciidoc.go`
+- `internal/engine/asciidoc_template.go`
+- `internal/engine/asciidoc_views.go`
+- `internal/engine/asciidoc_backlinks.go`
+- `internal/engine/asciidoc_design_refs.go`
+- `internal/engine/asciidoc_diagrams_core.go`
+- `internal/engine/asciidoc_diagrams_runtime.go`
+- `internal/engine/asciidoc_linking_units.go`
 
 ### FU-VIEW-PROJECTION
 
-- `view/project.go`
-- `view/project_test.go`
-- `view/types.go`
+- `internal/view/project.go`
+- `internal/view/project_test.go`
+- `internal/view/types.go`
 - `cmd/engview/main.go`
 
 ### FU-THREAT-EXPORTER
 
-- `threat_model_export.go`
-- `threat_model_export_test.go`
+- `internal/engine/threat_model_export.go`
+- `internal/engine/threat_model_export_test.go`
 - `cmd/engdragon/main.go`
 
 ### FU-STRUCTURIZR-EXPORTER
 
-- `structurizr_export.go`
-- `structurizr_export_test.go`
+- `internal/engine/structurizr_export.go`
+- `internal/engine/structurizr_export_test.go`
 - `cmd/engstruct/main.go`
 
 ### FU-TRLC-EXPORTER
 
-- `trlc_export.go`
-- `trlc_export_test.go`
+- `internal/engine/trlc_export.go`
+- `internal/engine/trlc_export_test.go`
 - `cmd/engtrlc/main.go`
 
 ### FU-LOBSTER-EXPORTER
 
-- `lobster_export.go`
-- `lobster_export_test.go`
+- `internal/engine/lobster_export.go`
+- `internal/engine/lobster_export_test.go`
 - `cmd/englobster/main.go`
 
 ### FU-OSCAL-EXPORTER
 
-- `oscal_compliance.go`
-- `oscal_ssp.go`
-- `oscal_ar.go`
-- `oscal_poam.go`
-- `oscal_ssp_test.go`
-- `oscal_chain_test.go`
+- `internal/engine/oscal_compliance.go`
+- `internal/engine/oscal_ssp.go`
+- `internal/engine/oscal_ar.go`
+- `internal/engine/oscal_poam.go`
+- `internal/engine/oscal_ssp_test.go`
+- `internal/engine/oscal_chain_test.go`
 - `cmd/engoscal/main.go`
 
 ### FU-GEMARA-EXPORTER
 
-- `gemara_export.go`
-- `gemara_evaluation.go`
-- `gemara_extended.go`
-- `gemara_l1l3.go`
-- `gemara_oscal.go`
-- `gemara_export_test.go`
-- `gemara_oscal_test.go`
+- `internal/engine/gemara_export.go`
+- `internal/engine/gemara_evaluation.go`
+- `internal/engine/gemara_extended.go`
+- `internal/engine/gemara_l1l3.go`
+- `internal/engine/gemara_oscal.go`
+- `internal/engine/gemara_export_test.go`
+- `internal/engine/gemara_oscal_test.go`
 - (the `cmd/enggemara/main.go` entrypoint is owned by FU-CLI-ORCHESTRATION)
 
 ### FU-SYSTEM-COMPOSITION
 
-- `composition.go`
-- `composition_test.go`
-- (composition rendering in `asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
+- `internal/engine/composition.go`
+- `internal/engine/composition_test.go`
+- (composition rendering in `internal/engine/asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
 
 ### FU-ALLOCATION-TRACE
 
-- `trace_matrix.go`
-- `trace_matrix_test.go`
+- `internal/engine/trace_matrix.go`
+- `internal/engine/trace_matrix_test.go`
 - `cmd/engtrace/main.go`
 
 ### FU-CLI-ORCHESTRATION

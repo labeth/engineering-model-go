@@ -24,5 +24,9 @@
 //     and Open Threat Model, Gemara, OSCAL and airborne assurance packages
 //     (the Generate*, Export* and Validate* functions named after each format).
 //
+// The implementation lives in internal/engine; the files of this package are
+// type aliases, constants and thin wrappers over it, grouped by area
+// (model_api.go, validate_api.go, api_<area>.go).
+//
 // The command-line tools under cmd/ are thin wrappers over this API.
 package engmodel

@@ -18,8 +18,20 @@ semantic versioning.
 - `model/` holds only this repository's own engineering model YAML. The embedded CUE schema is
   now `internal/model/schema/`; the authoring contract reports schema paths as
   `internal/model/schema/*.cue`.
-- The SysML toolchain pins moved to `scripts/sysml-toolchain.env`, the Threat Dragon and Open
-  Threat Model schemas to `testdata/threat-dragon-schemas/`.
+- The implementation of the root package moved to `internal/engine`; the repository root holds
+  only the public facade (`doc.go`, `model_api.go`, `validate_api.go` and `api_*.go`), which
+  re-exports every previously exported name (types as aliases, constants, error variables and
+  functions with unchanged signatures). Importers of `engmodel.X` need no change.
+- Assets moved next to their package: `templates/` → `internal/engine/templates/`,
+  `tools/sysml/metamodel-*.json` → `internal/engine/sysml/` (the `sysmlmetamodel` defaults
+  follow), `testdata/threat-dragon-schemas/` → `internal/engine/testdata/threat-dragon-schemas/`.
+  The SysML toolchain pins moved to `scripts/sysml-toolchain.env`. No top-level `templates/`,
+  `tools/` or `testdata/` remain.
+- Inferred code IDs of the moved files change with their path (`CODE-TRACE-MATRIX-GO--...` →
+  `CODE-INTERNAL-ENGINE-TRACE-MATRIX-GO--...`); generated trace outputs change once. The SysML
+  coverage evidence names the new paths. Gemara evaluation-log steps, which go-gemara names
+  after the Go step function, now read
+  `github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep`.
 
 ## [0.4.0] — 2026-10-30: Path-derived code scope, honest trace and Gemara output, local multi-repository models
 
