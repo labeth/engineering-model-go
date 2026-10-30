@@ -415,6 +415,7 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			value.Owner = entity.qualify(value.Owner)
 			value.ThreatScenarioRefs = entity.QualifyList(value.ThreatScenarioRefs)
 			value.RiskRefs = entity.QualifyList(value.RiskRefs)
+			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
 			bundle.Architecture.AuthoredArchitecture.ControlVerifications = append(bundle.Architecture.AuthoredArchitecture.ControlVerifications, value)
 			bundle.Assurance.Assurance.ControlVerifications = append(bundle.Assurance.Assurance.ControlVerifications, value)
 		case model.ComplianceProfile:

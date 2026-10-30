@@ -6,6 +6,30 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Behavior warnings: `behavior.event_unused` (an event in no `triggered_by` relationship,
+  transition trigger or flow), `behavior.state_unreachable` (with transitions in the model, a
+  state other than the first declared, initial one that no transition enters) and
+  `behavior.flow_step_no_onerror` (a `boundaryCrossing: true` step without `onError`), each at
+  the entity's field path (REQ-EMG-070).
+- `catalog.name_has_operator`: one warning at the catalog name or alias that contains a
+  standalone `and`, `or`, `not`, a comma or a parenthesis, instead of the unresolved-term
+  diagnostics on every requirement that uses it (REQ-EMG-071).
+- `controlVerifications[].verificationRefs` names the tests that verify a control (inferred
+  `CODE-<PATH>--<NAME>` IDs of test declarations or requirement IDs);
+  `model.invalid_control_verification_ref` rejects other entries. `verification.status_stale`
+  warns when those tests exist but the control verification status is unset or `not-run`, or a
+  threat mitigation that references it is unset or `planned`; `engdoc`/`GenerateAsciiDoc` and
+  the trace matrix report it (REQ-EMG-073).
+
+### Changed
+
+- `lint.multiple_responses` is no longer reported when the only conjunctions follow a single
+  response verb inside a `with`, `including` or `of` field list ("…shall publish one world
+  state message with UTC time, latitude, longitude and altitude"); genuine double responses
+  are still reported (REQ-EMG-072).
+
 ## [0.5.0] — 2026-10-30: Root package is the public API; focused internal packages
 
 ### Changed (breaking)

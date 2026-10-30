@@ -306,6 +306,7 @@ package model
 	lastTested?:         string
 	findings?:           #StringList
 	evidence?: [...#Evidence]
+	verificationRefs?: #StringList
 }
 
 #AuthoredArchitecture: {

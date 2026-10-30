@@ -448,3 +448,24 @@ requirements:
     notes: model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.
     appliesTo:
       - FU-MCP-SERVER
+  - id: REQ-EMG-070
+    text: When model updated event is received, the engineering model go shall warn about every unconnected behavior element.
+    notes: 'Three warnings. behavior.event_unused names an authored behavior event that no triggered_by relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names, in a model with at least one transitions_to relationship or semantic transition, an authored state other than the first declared one that no transition enters; the schema has no initial marker, so the first declared state is the initial state, and a model without transitions reports nothing. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-071
+    text: When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.
+    notes: 'catalog.name_has_operator is reported once at the catalog name or alias field (catalog.<group>[i].name or .aliases[j]) of an actor, event, state, feature, mode, condition or data term that contains a standalone and, or, not, a comma or a parenthesis. Such a term cannot match in a requirement clause, because the EARS expression parser splits it at the operator, and the requirement otherwise shows only unresolved-term diagnostics. System, functional group and unit names are matched whole by EARS and are not checked.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-072
+    text: When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.
+    notes: 'lint.multiple_responses from ears-lint-go is dropped when the text has one shall and no semicolon, no and, or or comma comes before the first with, including or of in the response, that field list holds no then, and no list item after the first reads as a verb with its object (its second word is the, a, an, its, their, each, every or all). "publish one world state message with UTC time, latitude, longitude and altitude" is not reported; "log the event and notify the operator", "log the event with the timestamp and notify the operator" and "stop all of the motors and close the valve" still are.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-073
+    text: When generation run is requested, the engineering model go shall warn about each control verification status that lags its existing tests.
+    notes: 'A control verification may name its tests in verificationRefs: inferred CODE identifiers of test declarations (CODE-<PATH>--<NAME>) or requirement IDs whose linked test entry points verify it; any other entry is the error model.invalid_control_verification_ref. verification.status_stale is a warning at the status of a control verification whose status is unset or not-run while a referenced test declaration exists in the scanned code or a referenced requirement is test linked, and at the status of a threat mitigation whose status is unset or planned while a control verification it references has such tests. The status stays authored. The AsciiDoc generation and the trace matrix both report it.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-ALLOCATION-TRACE
