@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-30: Path-derived code scope, honest trace and Gemara output, local multi-repository models
+
 Code references derived from repository paths, fixes from field use of the trace, MCP and Gemara outputs,
 and multi-repository support from a multi-repository spike: everything runs locally (CLIs, `engws`, a
 per-checkout stdio MCP server) and dependencies come from the OCI registry into the local cache.
