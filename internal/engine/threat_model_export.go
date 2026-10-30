@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -37,7 +39,7 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 	if err != nil {
 		return ThreatModelExportResult{}, err
 	}
-	projection, _, err := ResolveCompositionProjection(bundle)
+	projection, _, err := composition.ResolveCompositionProjection(bundle)
 	if err != nil {
 		return ThreatModelExportResult{}, err
 	}
@@ -47,11 +49,11 @@ func GenerateThreatModelExportFromFile(architecturePath string, options ThreatMo
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-004, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions) (ThreatModelExportResult, error) {
-	return generateThreatModelExport(bundle, options, CompositionProjection{})
+	return generateThreatModelExport(bundle, options, composition.CompositionProjection{})
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func generateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions, projection CompositionProjection) (ThreatModelExportResult, error) {
+func generateThreatModelExport(bundle model.Bundle, options ThreatModelExportOptions, projection composition.CompositionProjection) (ThreatModelExportResult, error) {
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return ThreatModelExportResult{}, err
@@ -185,16 +187,16 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			mitigations = append(mitigations, "No mitigation is authored for threat "+strings.TrimSpace(ts.ID)+".")
 		}
 		th := map[string]any{
-			"description": nonEmpty(strings.TrimSpace(ts.Summary), strings.TrimSpace(ts.Title)),
+			"description": textutil.NonEmpty(strings.TrimSpace(ts.Summary), strings.TrimSpace(ts.Title)),
 			"mitigation":  strings.Join(mitigations, " "),
 			"modelType":   "STRIDE",
 			"number":      threatCount,
-			"score":       strings.ToLower(nonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Impact))),
+			"score":       strings.ToLower(textutil.NonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Impact))),
 			"severity":    severity,
 			"status":      status,
-			"threatId":    deterministicUUID("td-threat|" + bundle.Architecture.Model.ID + "|" + ts.ID),
-			"title":       nonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)),
-			"type":        nonEmpty(strings.TrimSpace(ts.Stride), strings.TrimSpace(ts.Category)),
+			"threatId":    textutil.DeterministicUUID("td-threat|" + bundle.Architecture.Model.ID + "|" + ts.ID),
+			"title":       textutil.NonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)),
+			"type":        textutil.NonEmpty(strings.TrimSpace(ts.Stride), strings.TrimSpace(ts.Category)),
 		}
 		for _, id := range ts.AppliesTo {
 			id = strings.TrimSpace(id)
@@ -220,7 +222,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			Kind    string
 			Desc    string
 			Threats []map[string]any
-		}{ID: x.ID, Name: nonEmpty(x.Name, x.ID), Kind: "actor", Desc: strings.TrimSpace(x.Description), Threats: threatsByEntity[x.ID]})
+		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "actor", Desc: strings.TrimSpace(x.Description), Threats: threatsByEntity[x.ID]})
 	}
 	for _, x := range a.FunctionalUnits {
 		nodes = append(nodes, struct {
@@ -229,7 +231,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			Kind    string
 			Desc    string
 			Threats []map[string]any
-		}{ID: x.ID, Name: nonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Prose), Threats: threatsByEntity[x.ID]})
+		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Prose), Threats: threatsByEntity[x.ID]})
 	}
 	for _, x := range a.DataObjects {
 		nodes = append(nodes, struct {
@@ -238,7 +240,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			Kind    string
 			Desc    string
 			Threats []map[string]any
-		}{ID: x.ID, Name: nonEmpty(x.Name, x.ID), Kind: "store", Desc: strings.TrimSpace(x.SchemaRef), Threats: threatsByEntity[x.ID]})
+		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "store", Desc: strings.TrimSpace(x.SchemaRef), Threats: threatsByEntity[x.ID]})
 	}
 	for _, x := range a.Interfaces {
 		nodes = append(nodes, struct {
@@ -247,7 +249,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			Kind    string
 			Desc    string
 			Threats []map[string]any
-		}{ID: x.ID, Name: nonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Protocol + " " + x.Endpoint), Threats: threatsByEntity[x.ID]})
+		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Protocol + " " + x.Endpoint), Threats: threatsByEntity[x.ID]})
 	}
 
 	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].ID < nodes[j].ID })
@@ -255,7 +257,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	cellIDByNode := map[string]string{}
 	cells := []tdv2Cell{}
 	for i, n := range nodes {
-		cellUUID := deterministicUUID("td-cell|" + bundle.Architecture.Model.ID + "|" + n.ID)
+		cellUUID := textutil.DeterministicUUID("td-cell|" + bundle.Architecture.Model.ID + "|" + n.ID)
 		cellIDByNode[n.ID] = cellUUID
 		col := i % 4
 		row := i / 4
@@ -304,13 +306,13 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	tbZ := len(cells) + 1
 	for _, tb := range a.TrustBoundaries {
 		cells = append(cells, tdv2Cell{
-			ID:       deterministicUUID("td-boundary|" + bundle.Architecture.Model.ID + "|" + tb.ID),
+			ID:       textutil.DeterministicUUID("td-boundary|" + bundle.Architecture.Model.ID + "|" + tb.ID),
 			Shape:    "trust-boundary-box",
 			ZIndex:   tbZ,
 			Size:     map[string]float64{"width": 260, "height": 180},
 			Position: map[string]float64{"x": float64(30 + (tbZ%3)*300), "y": float64(30 + (tbZ/3)*220)},
-			Attrs:    map[string]any{"text": map[string]any{"text": nonEmpty(tb.Name, tb.ID)}, "body": map[string]any{"stroke": "#999999", "strokeWidth": 1.0, "strokeDasharray": "3 3"}},
-			Data:     map[string]any{"type": "tm.Boundary", "name": nonEmpty(tb.Name, tb.ID), "description": strings.TrimSpace(tb.Description), "isTrustBoundary": true, "hasOpenThreats": false},
+			Attrs:    map[string]any{"text": map[string]any{"text": textutil.NonEmpty(tb.Name, tb.ID)}, "body": map[string]any{"stroke": "#999999", "strokeWidth": 1.0, "strokeDasharray": "3 3"}},
+			Data:     map[string]any{"type": "tm.Boundary", "name": textutil.NonEmpty(tb.Name, tb.ID), "description": strings.TrimSpace(tb.Description), "isTrustBoundary": true, "hasOpenThreats": false},
 		})
 		tbZ++
 	}
@@ -331,7 +333,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 			name = t
 		}
 		cells = append(cells, tdv2Cell{
-			ID:        deterministicUUID("td-flow|" + bundle.Architecture.Model.ID + "|" + m.Type + "|" + m.From + "|" + m.To),
+			ID:        textutil.DeterministicUUID("td-flow|" + bundle.Architecture.Model.ID + "|" + m.Type + "|" + m.From + "|" + m.To),
 			Shape:     "flow",
 			ZIndex:    flowZ,
 			Connector: "smooth",
@@ -362,9 +364,9 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 		if fromID == "" || toID == "" {
 			continue
 		}
-		name := nonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID))
+		name := textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID))
 		cells = append(cells, tdv2Cell{
-			ID:        deterministicUUID("td-flow-authored|" + bundle.Architecture.Model.ID + "|" + f.ID),
+			ID:        textutil.DeterministicUUID("td-flow-authored|" + bundle.Architecture.Model.ID + "|" + f.ID),
 			Shape:     "flow",
 			ZIndex:    flowZ,
 			Connector: "smooth",
@@ -392,7 +394,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 	return tdv2Document{
 		Version: "2.0",
 		Summary: tdv2Summary{
-			Title:       nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)),
+			Title:       textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)),
 			Owner:       "engineering-model-go",
 			Description: strings.TrimSpace(bundle.Architecture.Model.Introduction),
 			ID:          0,
@@ -405,7 +407,7 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 				ID:          0,
 				Placeholder: "Generated from authored architecture.",
 				Thumbnail:   "./public/content/images/thumbnail.stride.jpg",
-				Title:       nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Threat Model",
+				Title:       textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Threat Model",
 				Version:     "2.0",
 				Cells:       cells,
 			}},
@@ -582,7 +584,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 	doc := otmDocument{
 		OTMVersion: "0.2.0",
 		Project: otmProject{
-			Name:        nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)),
+			Name:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)),
 			ID:          strings.TrimSpace(bundle.Architecture.Model.ID),
 			Description: strings.TrimSpace(bundle.Architecture.Model.Introduction),
 			Owner:       "engineering-model-go",
@@ -609,7 +611,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		doc.TrustZones = append(doc.TrustZones, defaultTZ)
 	}
 	for _, tb := range a.TrustBoundaries {
-		z := otmTrustZone{ID: tb.ID, Name: nonEmpty(tb.Name, tb.ID), Type: strings.TrimSpace(tb.BoundaryType), Description: strings.TrimSpace(tb.Description)}
+		z := otmTrustZone{ID: tb.ID, Name: textutil.NonEmpty(tb.Name, tb.ID), Type: strings.TrimSpace(tb.BoundaryType), Description: strings.TrimSpace(tb.Description)}
 		z.Risk.TrustRating = 50
 		if strings.TrimSpace(tb.ParentRef) != "" {
 			z.Parent = &struct {
@@ -644,7 +646,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 			return
 		}
 		componentIDs[id] = true
-		c := otmComponent{ID: id, Name: nonEmpty(strings.TrimSpace(name), id), Type: strings.TrimSpace(kind), Description: strings.TrimSpace(desc)}
+		c := otmComponent{ID: id, Name: textutil.NonEmpty(strings.TrimSpace(name), id), Type: strings.TrimSpace(kind), Description: strings.TrimSpace(desc)}
 		zone := strings.TrimSpace(zoneForID[id])
 		if zone == "" {
 			zone = "TZ-SYSTEM"
@@ -671,8 +673,8 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 	sort.SliceStable(doc.Components, func(i, j int) bool { return doc.Components[i].ID < doc.Components[j].ID })
 
 	for _, x := range a.DataObjects {
-		asset := otmAsset{ID: x.ID, Name: nonEmpty(x.Name, x.ID), Description: strings.TrimSpace(x.SchemaRef)}
-		asset.Risk.Confidentiality = scoreLevel(nonEmpty(strings.TrimSpace(x.Confidentiality), strings.TrimSpace(x.Sensitivity)))
+		asset := otmAsset{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Description: strings.TrimSpace(x.SchemaRef)}
+		asset.Risk.Confidentiality = scoreLevel(textutil.NonEmpty(strings.TrimSpace(x.Confidentiality), strings.TrimSpace(x.Sensitivity)))
 		asset.Risk.Integrity = scoreLevel(strings.TrimSpace(x.Integrity))
 		asset.Risk.Availability = scoreLevel(strings.TrimSpace(x.Availability))
 		asset.Risk.Comment = strings.Join(x.RegulatoryTags, ",")
@@ -688,8 +690,8 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		}
 		doc.Mitigations = append(doc.Mitigations, otmMitigation{
 			ID:            mid,
-			Name:          nonEmpty(strings.TrimSpace(m.ControlRef), mid),
-			Description:   nonEmpty(strings.TrimSpace(m.Notes), strings.TrimSpace(m.ControlRef)),
+			Name:          textutil.NonEmpty(strings.TrimSpace(m.ControlRef), mid),
+			Description:   textutil.NonEmpty(strings.TrimSpace(m.Notes), strings.TrimSpace(m.ControlRef)),
 			RiskReduction: scoreLevel(strings.TrimSpace(m.Effectiveness)),
 		})
 		sid := strings.TrimSpace(m.ThreatScenarioRef)
@@ -701,7 +703,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 
 	threatByID := map[string]otmThreat{}
 	for _, ts := range a.ThreatScenarios {
-		t := otmThreat{ID: strings.TrimSpace(ts.ID), Name: nonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)), Description: strings.TrimSpace(ts.Summary)}
+		t := otmThreat{ID: strings.TrimSpace(ts.ID), Name: textutil.NonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)), Description: strings.TrimSpace(ts.Summary)}
 		if c := strings.TrimSpace(ts.Category); c != "" {
 			t.Categories = append(t.Categories, c)
 		}
@@ -709,8 +711,8 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		t.Risk.Likelihood = scoreLevel(strings.TrimSpace(ts.Likelihood))
 		t.Risk.LikelihoodComment = strings.TrimSpace(ts.Status)
 		t.Risk.Impact = scoreLevel(strings.TrimSpace(ts.Impact))
-		t.Risk.ImpactComment = nonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Category))
-		t.Tags = []string{nonEmpty(strings.TrimSpace(ts.Stride), "threat")}
+		t.Risk.ImpactComment = textutil.NonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Category))
+		t.Tags = []string{textutil.NonEmpty(strings.TrimSpace(ts.Stride), "threat")}
 		if t.ID != "" {
 			threatByID[t.ID] = t
 			doc.Threats = append(doc.Threats, t)
@@ -742,7 +744,7 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 			}
 		}
 		if len(assets) > 0 {
-			assetByFlowID[strings.TrimSpace(f.ID)] = uniqueSorted(assets)
+			assetByFlowID[strings.TrimSpace(f.ID)] = textutil.UniqueSorted(assets)
 		}
 	}
 
@@ -757,8 +759,8 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 			continue
 		}
 		df := otmDataflow{
-			ID:            deterministicUUID("otm-flow|" + bundle.Architecture.Model.ID + "|" + t + "|" + from + "|" + to),
-			Name:          nonEmpty(strings.TrimSpace(m.Description), t),
+			ID:            textutil.DeterministicUUID("otm-flow|" + bundle.Architecture.Model.ID + "|" + t + "|" + from + "|" + to),
+			Name:          textutil.NonEmpty(strings.TrimSpace(m.Description), t),
 			Description:   strings.TrimSpace(m.Description),
 			Source:        from,
 			Destination:   to,
@@ -776,13 +778,13 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		}
 		df := otmDataflow{
 			ID:            strings.TrimSpace(f.ID),
-			Name:          nonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)),
+			Name:          textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)),
 			Description:   strings.TrimSpace(f.Description),
 			Source:        from,
 			Destination:   to,
 			Bidirectional: strings.EqualFold(strings.TrimSpace(f.Direction), "bidirectional"),
 			Assets:        assetByFlowID[strings.TrimSpace(f.ID)],
-			Tags:          []string{nonEmpty(strings.TrimSpace(f.Kind), "flow")},
+			Tags:          []string{textutil.NonEmpty(strings.TrimSpace(f.Kind), "flow")},
 		}
 		for _, scenarioID := range f.Threats {
 			scenarioID = strings.TrimSpace(scenarioID)

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -399,7 +400,7 @@ func requirementsByUnit(reqs []model.Requirement) map[string]string {
 	}
 	out := map[string]string{}
 	for u, ids := range set {
-		ids = uniqueSorted(ids)
+		ids = textutil.UniqueSorted(ids)
 		out[u] = strings.Join(ids, ", ")
 	}
 	return out
@@ -411,10 +412,10 @@ func unitDependencies(unitID string, mappings []model.Mapping, labels map[string
 	out := []string{}
 	for _, m := range mappings {
 		if m.Type == "depends_on" && m.From == unitID {
-			out = append(out, nonEmpty(labels[m.To], m.To))
+			out = append(out, textutil.NonEmpty(labels[m.To], m.To))
 		}
 	}
-	out = uniqueSorted(out)
+	out = textutil.UniqueSorted(out)
 	if len(out) == 0 {
 		return "none"
 	}
@@ -427,10 +428,10 @@ func unitConsumers(unitID string, mappings []model.Mapping, labels map[string]st
 	out := []string{}
 	for _, m := range mappings {
 		if m.Type == "depends_on" && m.To == unitID {
-			out = append(out, nonEmpty(labels[m.From], m.From))
+			out = append(out, textutil.NonEmpty(labels[m.From], m.From))
 		}
 	}
-	out = uniqueSorted(out)
+	out = textutil.UniqueSorted(out)
 	if len(out) == 0 {
 		return ""
 	}
@@ -443,7 +444,7 @@ func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]stri
 	out := []string{}
 	for _, m := range mappings {
 		if m.From == unitID && m.Type != "contains" {
-			target := nonEmpty(labels[m.To], m.To)
+			target := textutil.NonEmpty(labels[m.To], m.To)
 			rel := strings.TrimSpace(m.Type)
 			if rel == "" || rel == "depends_on" {
 				out = append(out, target)
@@ -452,7 +453,7 @@ func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]stri
 			out = append(out, rel+" -> "+target)
 		}
 	}
-	out = uniqueSorted(out)
+	out = textutil.UniqueSorted(out)
 	if len(out) == 0 {
 		return ""
 	}
@@ -511,7 +512,7 @@ func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labe
 		}
 		switch m.Type {
 		case "depends_on", "interacts_with":
-			source := nonEmpty(labels[m.From], m.From)
+			source := textutil.NonEmpty(labels[m.From], m.From)
 			desc := strings.TrimSpace(m.Description)
 			if desc == "" {
 				if m.Type == "interacts_with" {
@@ -544,7 +545,7 @@ func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, lab
 		case "contains", "targets":
 			continue
 		}
-		target := nonEmpty(labels[m.To], m.To)
+		target := textutil.NonEmpty(labels[m.To], m.To)
 		desc := strings.TrimSpace(m.Description)
 		rel := strings.TrimSpace(m.Type)
 		if desc == "" {
@@ -575,7 +576,7 @@ func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[st
 		switch m.Type {
 		case "depends_on", "interacts_with":
 			// Communication view should show message/event intent, not requirements.
-			source := nonEmpty(labels[m.From], m.From)
+			source := textutil.NonEmpty(labels[m.From], m.From)
 			desc := strings.TrimSpace(m.Description)
 			if desc != "" {
 				out = append(out, source+": "+desc)
@@ -588,7 +589,7 @@ func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[st
 			out = append(out, "input from "+source)
 		}
 	}
-	out = uniqueSorted(out)
+	out = textutil.UniqueSorted(out)
 	if len(out) == 0 {
 		return "none"
 	}
@@ -605,17 +606,17 @@ func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqB
 		}
 		switch m.Type {
 		case "depends_on":
-			areas = append(areas, "decision and orchestration flow to "+nonEmpty(labels[m.To], m.To))
+			areas = append(areas, "decision and orchestration flow to "+textutil.NonEmpty(labels[m.To], m.To))
 		case "interacts_with":
-			areas = append(areas, "interaction handling with "+nonEmpty(labels[m.To], m.To))
+			areas = append(areas, "interaction handling with "+textutil.NonEmpty(labels[m.To], m.To))
 		}
 	}
-	areas = uniqueSorted(areas)
+	areas = textutil.UniqueSorted(areas)
 	if len(areas) > 2 {
 		areas = areas[:2]
 	}
 
-	base := "functional responsibility for " + strings.ToLower(nonEmpty(u.Name, u.ID))
+	base := "functional responsibility for " + strings.ToLower(textutil.NonEmpty(u.Name, u.ID))
 	if len(areas) > 0 {
 		base = base + "; includes " + strings.Join(areas, " and ")
 	}
@@ -631,12 +632,12 @@ func attackVectorsByTarget(mappings []model.Mapping, labels map[string]string) m
 	set := map[string][]string{}
 	for _, m := range mappings {
 		if m.Type == "targets" {
-			set[m.To] = append(set[m.To], nonEmpty(labels[m.From], m.From))
+			set[m.To] = append(set[m.To], textutil.NonEmpty(labels[m.From], m.From))
 		}
 	}
 	out := map[string]string{}
 	for k, v := range set {
-		v = uniqueSorted(v)
+		v = textutil.UniqueSorted(v)
 		out[k] = strings.Join(v, ", ")
 	}
 	return out
@@ -646,7 +647,7 @@ func attackVectorsByTarget(mappings []model.Mapping, labels map[string]string) m
 func listNamesFG(in []model.FunctionalGroup) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
-		out = append(out, nonEmpty(x.Name, x.ID))
+		out = append(out, textutil.NonEmpty(x.Name, x.ID))
 	}
 	sort.Strings(out)
 	return strings.Join(out, ", ")
@@ -656,7 +657,7 @@ func listNamesFG(in []model.FunctionalGroup) string {
 func listNamesFU(in []model.FunctionalUnit) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
-		out = append(out, nonEmpty(x.Name, x.ID))
+		out = append(out, textutil.NonEmpty(x.Name, x.ID))
 	}
 	sort.Strings(out)
 	return strings.Join(out, ", ")
@@ -666,7 +667,7 @@ func listNamesFU(in []model.FunctionalUnit) string {
 func listNamesActors(in []model.Actor) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
-		out = append(out, nonEmpty(x.Name, x.ID))
+		out = append(out, textutil.NonEmpty(x.Name, x.ID))
 	}
 	sort.Strings(out)
 	return strings.Join(out, ", ")
@@ -676,7 +677,7 @@ func listNamesActors(in []model.Actor) string {
 func listNamesVectors(in []model.AttackVector) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
-		out = append(out, nonEmpty(x.Name, x.ID))
+		out = append(out, textutil.NonEmpty(x.Name, x.ID))
 	}
 	sort.Strings(out)
 	return strings.Join(out, ", ")
@@ -686,27 +687,10 @@ func listNamesVectors(in []model.AttackVector) string {
 func listNamesRefs(in []model.ReferencedElement) string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
-		out = append(out, nonEmpty(x.Name, x.ID))
+		out = append(out, textutil.NonEmpty(x.Name, x.ID))
 	}
 	sort.Strings(out)
 	return strings.Join(out, ", ")
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func uniqueSorted(in []string) []string {
-	set := map[string]bool{}
-	for _, s := range in {
-		s = strings.TrimSpace(s)
-		if s != "" {
-			set[s] = true
-		}
-	}
-	out := make([]string, 0, len(set))
-	for s := range set {
-		out = append(out, s)
-	}
-	sort.Strings(out)
-	return out
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -721,7 +705,7 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 		if rtSet[owner] == nil {
 			rtSet[owner] = map[string]bool{}
 		}
-		rtSet[owner][nonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))] = true
+		rtSet[owner][textutil.NonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))] = true
 	}
 	codeSet := map[string]map[string]bool{}
 	for _, c := range code {

@@ -8,7 +8,9 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -174,9 +176,9 @@ func mustWrite(t *testing.T, path, text string) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
 func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
-	t.Setenv(LockEnv, "")
+	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
-	writeInterfaceModule(t, dir)
+	testutil.WriteInterfaceModule(t, dir)
 	mustWrite(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
 	mustWrite(t, filepath.Join(dir, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
 	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))

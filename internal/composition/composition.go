@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-SYSTEM-COMPOSITION
-package engine
+package composition
 
 // System-of-systems composition. A system model may reference subsystem models in
 // local subdirectories; this resolves the parent->child DAG, enforces the
@@ -227,6 +227,14 @@ func (o ResolutionOptions) lockMode() string {
 // generation call composes once.
 var compositionRuns atomic.Int64
 
+// ResolutionCount returns how many composition resolutions this process has
+// run. Engine tests use it to prove that one generation call composes once.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func ResolutionCount() int64 {
+	return compositionRuns.Load()
+}
+
 // GenerateCompositionFromFile resolves the system-of-systems rooted at engmod.yml
 // with the workspace and lock modes taken from ENGMOD_WORK and ENGMOD_LOCK.
 // TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064
@@ -299,7 +307,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 		Workspace:   workspace, cacheNames: resolver.cacheNames,
 	}
 	if root != nil {
-		res.Allocations = materializeAllocations(root)
+		res.Allocations = MaterializeAllocations(root)
 		res.Diagnostics = append(res.Diagnostics, validateComposition(root, true)...)
 	}
 	resolver.nameCachePaths(res.Diagnostics)
@@ -561,7 +569,7 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 	moduleRoot := ""
 	if replacement, ok := r.workspaceDocument.ReplacementPath(mv.Path()); ok {
 		moduleRoot = filepath.Clean(filepath.Join(r.workspace, replacement))
-		if !pathWithin(r.workspace, moduleRoot) {
+		if !PathWithin(r.workspace, moduleRoot) {
 			return "", "", "", at("composition.workspace_path_escape", fmt.Sprintf("dependency %q replacement for %q resolves outside workspace", dependency.Alias, mv.Path()))
 		}
 	} else {
@@ -719,8 +727,10 @@ func moduleCacheDirName(mv module.Version) string {
 	return sanitizeDirName(mv.Path()) + "-" + fmt.Sprintf("%x", sum[:8])
 }
 
+// PathWithin reports whether path, after resolving symlinks where possible,
+// lies inside root (root itself included).
 // TRLC-LINKS: REQ-EMG-017, REQ-EMG-049
-func pathWithin(root, path string) bool {
+func PathWithin(root, path string) bool {
 	if resolved, err := filepath.EvalSymlinks(root); err == nil {
 		root = resolved
 	}
@@ -959,12 +969,12 @@ func hasCompositionErrors(diags []validate.Diagnostic) bool {
 	return false
 }
 
-// materializeAllocations walks the tree and produces the parent->subsystem allocation
+// MaterializeAllocations walks the tree and produces the parent->subsystem allocation
 // trace, resolving each target against the referenced subsystem's published contract.
 // The subsystem models are never modified.
 // TRLC-LINKS: REQ-EMG-020, REQ-EMG-025
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func materializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
+func MaterializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
 	var out []MaterializedAllocation
 	childByID := map[string]*ComposedSystem{}
 	for _, c := range sys.Children {
@@ -999,7 +1009,7 @@ func materializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
 		out = append(out, ma)
 	}
 	for _, c := range sys.Children {
-		out = append(out, materializeAllocations(c)...)
+		out = append(out, MaterializeAllocations(c)...)
 	}
 	return out
 }

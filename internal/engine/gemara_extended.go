@@ -15,6 +15,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -49,8 +50,8 @@ func buildLexicon(bundle model.Bundle, cfg gemaraConfig) (gemara.Lexicon, bool) 
 			seen[e.ID] = true
 			lex.Terms = append(lex.Terms, gemara.LexiconTerm{
 				Id:         e.ID,
-				Title:      fallback(e.Name, e.ID),
-				Definition: fallback(e.Definition, fallback(e.Name, e.ID)),
+				Title:      textutil.Fallback(e.Name, e.ID),
+				Definition: textutil.Fallback(e.Definition, textutil.Fallback(e.Name, e.ID)),
 				Synonyms:   e.Aliases,
 			})
 		}
@@ -87,12 +88,12 @@ func buildControlThreatMapping(bundle model.Bundle, cfg gemaraConfig) (gemara.Ma
 	threatsByControl := map[string][]string{}
 	for _, tm := range a.ThreatMitigations {
 		if tm.ControlRef != "" && threatIDs[tm.ThreatScenarioRef] {
-			threatsByControl[tm.ControlRef] = appendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
+			threatsByControl[tm.ControlRef] = textutil.AppendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
 		}
 	}
 	for _, ts := range a.ThreatScenarios {
 		for _, ctrl := range ts.RelatedControls {
-			threatsByControl[ctrl] = appendUnique(threatsByControl[ctrl], ts.ID)
+			threatsByControl[ctrl] = textutil.AppendUnique(threatsByControl[ctrl], ts.ID)
 		}
 	}
 
@@ -146,8 +147,8 @@ func controlVerificationEvidence(id, collected string, ev model.ControlVerificat
 		Id:          id,
 		Type:        gemara.EvidenceType("ControlVerification"),
 		CollectedAt: gemara.Datetime(collected),
-		Payload:     fallback(ev.Path, ev.Description),
-		Description: fallback(ev.Description, ev.Path),
+		Payload:     textutil.Fallback(ev.Path, ev.Description),
+		Description: textutil.Fallback(ev.Description, ev.Path),
 	}
 }
 
@@ -174,12 +175,12 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.A
 		}
 		ar := &gemara.AuditResult{
 			Id:          "AUD-" + cv.ID,
-			Title:       fmt.Sprintf("Verification of %s", fallback(cv.ControlRef, cv.ID)),
+			Title:       fmt.Sprintf("Verification of %s", textutil.Fallback(cv.ControlRef, cv.ID)),
 			Type:        rt,
-			Description: fmt.Sprintf("Control %s assessed via %s with status %s.", fallback(cv.ControlRef, cv.ID), fallback(cv.Method, "verification"), fallback(cv.Status, "unknown")),
+			Description: fmt.Sprintf("Control %s assessed via %s with status %s.", textutil.Fallback(cv.ControlRef, cv.ID), textutil.Fallback(cv.Method, "verification"), textutil.Fallback(cv.Status, "unknown")),
 			CriteriaReference: gemara.MultiEntryMapping{
 				ReferenceId: gemaraRefControlCatalog,
-				Entries:     []gemara.ArtifactMapping{{ReferenceId: fallback(cv.ControlRef, cv.ID)}},
+				Entries:     []gemara.ArtifactMapping{{ReferenceId: textutil.Fallback(cv.ControlRef, cv.ID)}},
 			},
 		}
 		for i, ev := range cv.Evidence {
@@ -213,7 +214,7 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemara.A
 		}
 		results = append(results, &gemara.AuditResult{
 			Id:                "AUD-" + r.ID,
-			Title:             "Residual risk: " + fallback(r.Title, r.ID),
+			Title:             "Residual risk: " + textutil.Fallback(r.Title, r.ID),
 			Type:              gemara.ResultObservation,
 			Description:       fmt.Sprintf("Residual risk after mitigation: %s", r.ResidualRisk),
 			CriteriaReference: criteria,
@@ -263,10 +264,10 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 		disp := poamDisposition(p.Status)
 		dispositions = append(dispositions, disp)
 		msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
-			fallback(p.RiskRef, p.ID), fallback(p.Milestone, "not set"), fallback(p.DueDate, "not set"), fallback(p.Status, "not set"))
-		steps := []gemara.EnforcementStep{gemara.EnforcementStep(fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
+			textutil.Fallback(p.RiskRef, p.ID), textutil.Fallback(p.Milestone, "not set"), textutil.Fallback(p.DueDate, "not set"), textutil.Fallback(p.Status, "not set"))
+		steps := []gemara.EnforcementStep{gemara.EnforcementStep(textutil.Fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
 		for _, art := range p.Artifacts {
-			steps = append(steps, gemara.EnforcementStep(fallback(art.Path, art.Description)))
+			steps = append(steps, gemara.EnforcementStep(textutil.Fallback(art.Path, art.Description)))
 		}
 		var assessments []gemara.AssessmentFinding
 		for _, f := range findings[strings.TrimSpace(p.RiskRef)] {

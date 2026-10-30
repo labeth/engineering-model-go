@@ -11,7 +11,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -19,10 +21,10 @@ import (
 // TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
-	if !HasComposition(bundle) {
-		return renderCompositionAsciiDocChapterFor(bundle, CompositionResult{}, nil)
+	if !composition.HasComposition(bundle) {
+		return renderCompositionAsciiDocChapterFor(bundle, composition.CompositionResult{}, nil)
 	}
-	res, err := GenerateCompositionFromFile(bundle.ManifestPath)
+	res, err := composition.GenerateCompositionFromFile(bundle.ManifestPath)
 	return renderCompositionAsciiDocChapterFor(bundle, res, err)
 }
 
@@ -30,7 +32,7 @@ func renderCompositionAsciiDocChapter(bundle model.Bundle) string {
 // resolved composition, so a generation call composes once.
 // TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionResult, err error) string {
+func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res composition.CompositionResult, err error) string {
 	a := bundle.Architecture.AuthoredArchitecture
 	hasHW := len(a.HardwareItems) > 0 || len(a.HardwareInterfaces) > 0
 	hasComp := len(bundle.Architecture.Composition.Subsystems) > 0
@@ -48,8 +50,8 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionRes
 		b.WriteString("=== Hardware Items\n\n[cols=\"2,3,1,3,1\",options=\"header\"]\n|===\n|ID |Name |Kind |Hosts |Safety\n")
 		for _, h := range a.HardwareItems {
 			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n",
-				escapeTableCell(h.ID), escapeTableCell(fallback(h.Name, h.ID)), escapeTableCell(h.Kind),
-				escapeTableCell(strings.Join(h.Hosts, ", ")), escapeTableCell(fallback(h.SafetyLevel, "-"))))
+				escapeTableCell(h.ID), escapeTableCell(textutil.Fallback(h.Name, h.ID)), escapeTableCell(h.Kind),
+				escapeTableCell(strings.Join(h.Hosts, ", ")), escapeTableCell(textutil.Fallback(h.SafetyLevel, "-"))))
 		}
 		b.WriteString("|===\n\n")
 	}
@@ -60,7 +62,7 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionRes
 			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s → %s\n|%s\n|%s\n",
 				escapeTableCell(hi.ID), escapeTableCell(hi.BusType),
 				escapeTableCell(hi.From), escapeTableCell(hi.To),
-				escapeTableCell(fallback(hi.Direction, "-")), escapeTableCell(fallback(hi.SoftwareInterfaceRef, "-"))))
+				escapeTableCell(textutil.Fallback(hi.Direction, "-")), escapeTableCell(textutil.Fallback(hi.SoftwareInterfaceRef, "-"))))
 		}
 		b.WriteString("|===\n\n")
 		if mmd := compositionHardwareMermaid(bundle); mmd != "" {
@@ -82,11 +84,11 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionRes
 	b.WriteString("=== Subsystems\n\n[cols=\"2,3,3\",options=\"header\"]\n|===\n|ID |Name |Reference\n")
 	for _, sub := range bundle.Architecture.Composition.Subsystems {
 		reference := sub.Dependency + "::" + sub.Publication
-		b.WriteString(fmt.Sprintf("|%s\n|%s\n|`%s`\n", escapeTableCell(sub.ID), escapeTableCell(fallback(sub.Name, sub.ID)), escapeTableCell(reference)))
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|`%s`\n", escapeTableCell(sub.ID), escapeTableCell(textutil.Fallback(sub.Name, sub.ID)), escapeTableCell(reference)))
 	}
 	b.WriteString("|===\n\n")
 
-	renderPublishedProjectionTables(&b, BuildCompositionProjection(res))
+	renderPublishedProjectionTables(&b, composition.BuildCompositionProjection(res))
 
 	if len(res.Allocations) > 0 {
 		b.WriteString("=== Requirement Allocation Matrix\n\n[cols=\"2,2,2,1\",options=\"header\"]\n|===\n|Requirement |Subsystem |Target |Resolved\n")
@@ -130,7 +132,7 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res CompositionRes
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func renderPublishedProjectionTables(b *strings.Builder, projection CompositionProjection) {
+func renderPublishedProjectionTables(b *strings.Builder, projection composition.CompositionProjection) {
 	if len(projection.Publications) == 0 {
 		return
 	}
@@ -208,7 +210,7 @@ func compositionHardwareMermaid(bundle model.Bundle) string {
 		b.WriteString(fmt.Sprintf("\n  %s[\"%s\"]", mermaidID(h.ID), mermaidLabel(label)))
 	}
 	for _, hi := range a.HardwareInterfaces {
-		b.WriteString(fmt.Sprintf("\n  %s -->|%s| %s", mermaidID(hi.From), mermaidLabel(fallback(hi.BusType, "link")), mermaidID(hi.To)))
+		b.WriteString(fmt.Sprintf("\n  %s -->|%s| %s", mermaidID(hi.From), mermaidLabel(textutil.Fallback(hi.BusType, "link")), mermaidID(hi.To)))
 	}
 	return b.String()
 }
@@ -219,25 +221,25 @@ func compositionHardwareMermaid(bundle model.Bundle) string {
 // table; requirements with no edge are implemented in this system.
 // TRLC-LINKS: REQ-EMG-025, REQ-EMG-026
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, FU-VIEW-PROJECTION
-func compositionDelegationMermaid(bundle model.Bundle, res CompositionResult) string {
+func compositionDelegationMermaid(bundle model.Bundle, res composition.CompositionResult) string {
 	if len(res.Allocations) == 0 {
 		return ""
 	}
 	subName := map[string]string{}
 	for _, sub := range bundle.Architecture.Composition.Subsystems {
-		subName[sub.ID] = fallback(sub.Name, sub.ID)
+		subName[sub.ID] = textutil.Fallback(sub.Name, sub.ID)
 	}
 	// The delegation resolves to the specific subsystem requirement (contract ref)
 	// when one is declared, so the reader sees exactly what satisfies it; otherwise
 	// it falls back to the published contract target.
-	targetKey := func(m MaterializedAllocation) string {
+	targetKey := func(m composition.MaterializedAllocation) string {
 		if m.TargetRef != "" {
 			return m.TargetRef
 		}
 		return m.Target
 	}
-	targetNode := func(m MaterializedAllocation) string { return mermaidID(m.Subsystem + "__" + targetKey(m)) }
-	targetLabel := func(m MaterializedAllocation) string {
+	targetNode := func(m composition.MaterializedAllocation) string { return mermaidID(m.Subsystem + "__" + targetKey(m)) }
+	targetLabel := func(m composition.MaterializedAllocation) string {
 		if m.TargetRef != "" {
 			return m.TargetRef + " (" + m.Target + ")"
 		}
@@ -248,7 +250,7 @@ func compositionDelegationMermaid(bundle model.Bundle, res CompositionResult) st
 	b.WriteString("flowchart LR")
 
 	// This system's delegated requirements.
-	title := fallback(bundle.Architecture.Model.Title, fallback(bundle.Architecture.Model.ID, "This System"))
+	title := textutil.Fallback(bundle.Architecture.Model.Title, textutil.Fallback(bundle.Architecture.Model.ID, "This System"))
 	b.WriteString(fmt.Sprintf("\n  subgraph SYS[\"%s\"]", mermaidLabel(title)))
 	seenReq := map[string]bool{}
 	for _, m := range res.Allocations {
@@ -270,7 +272,7 @@ func compositionDelegationMermaid(bundle model.Bundle, res CompositionResult) st
 	}
 	targetSeen := map[string]bool{}
 	for _, sub := range subOrder {
-		b.WriteString(fmt.Sprintf("\n  subgraph %s[\"%s\"]", mermaidID(sub), mermaidLabel(fallback(subName[sub], sub))))
+		b.WriteString(fmt.Sprintf("\n  subgraph %s[\"%s\"]", mermaidID(sub), mermaidLabel(textutil.Fallback(subName[sub], sub))))
 		for _, m := range res.Allocations {
 			if m.Subsystem != sub {
 				continue

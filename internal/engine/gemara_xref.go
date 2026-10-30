@@ -15,6 +15,7 @@ import (
 	goyaml "github.com/goccy/go-yaml"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // GemaraCrossReferenceError reports one reference that does not resolve within
@@ -49,7 +50,7 @@ func CheckGemaraCrossReferences(docs map[string]string) []GemaraCrossReferenceEr
 	var errs []GemaraCrossReferenceError
 	byID := map[string]*gemaraXrefDoc{}
 	var parsed []*gemaraXrefDoc
-	for _, name := range sortedKeys(docs) {
+	for _, name := range textutil.SortedKeys(docs) {
 		content := docs[name]
 		if strings.TrimSpace(content) == "" {
 			continue
@@ -195,7 +196,7 @@ func checkXrefDoc(d *gemaraXrefDoc, byID map[string]*gemaraXrefDoc) []GemaraCros
 				// A bare artifact mapping (import, criteria) names an artifact.
 				target(path, ref)
 			}
-			for _, k := range sortedKeys(t) {
+			for _, k := range textutil.SortedKeys(t) {
 				if k == "entries" && hasEntries {
 					continue
 				}
@@ -207,7 +208,7 @@ func checkXrefDoc(d *gemaraXrefDoc, byID map[string]*gemaraXrefDoc) []GemaraCros
 			}
 		}
 	}
-	for _, k := range sortedKeys(d.root) {
+	for _, k := range textutil.SortedKeys(d.root) {
 		if k != "metadata" {
 			walk(k, d.root[k])
 		}
@@ -270,7 +271,7 @@ func CheckGemaraModelConsistency(bundle model.Bundle, docs map[string]string) []
 				got := xrefString(xrefMap(actions[i])["disposition"])
 				if got != expected.String() {
 					fail("enforcement-log", fmt.Sprintf("actions[%d].disposition", i), p.ID,
-						fmt.Sprintf("POA&M item %s has status %q, which supports disposition %s, not %s", p.ID, fallback(p.Status, "not set"), expected, got))
+						fmt.Sprintf("POA&M item %s has status %q, which supports disposition %s, not %s", p.ID, textutil.Fallback(p.Status, "not set"), expected, got))
 				}
 			}
 			if got, expected := xrefString(root["disposition"]), aggregateDisposition(want); got != expected.String() {
@@ -299,7 +300,7 @@ func CheckGemaraModelConsistency(bundle model.Bundle, docs map[string]string) []
 				r, known := risksByID[id]
 				if known && !bucket.ok(r) {
 					fail("policy", fmt.Sprintf("risks.%s[%d]", bucket.key, i), id,
-						fmt.Sprintf("risk %s (status %q) is listed as %s", id, fallback(r.Status, "not set"), bucket.claim))
+						fmt.Sprintf("risk %s (status %q) is listed as %s", id, textutil.Fallback(r.Status, "not set"), bucket.claim))
 				}
 			}
 		}

@@ -8,7 +8,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -116,7 +118,7 @@ func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSC
 		}
 		bundle.Requirements = req
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
 	if err != nil {
 		return OSCALARResult{}, err
 	}
@@ -194,13 +196,13 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 			target = strings.TrimSpace(v.Verifies[0])
 		}
 		findings = append(findings, oscalFinding{
-			UUID:        deterministicUUID("finding|" + bundle.Architecture.Model.ID + "|" + v.ID),
-			Title:       nonEmpty(strings.TrimSpace(v.Name), strings.TrimSpace(v.ID)),
-			Description: nonEmpty(strings.TrimSpace(v.Description), fmt.Sprintf("Verification status %s.", nonEmpty(status, "unknown"))),
+			UUID:        textutil.DeterministicUUID("finding|" + bundle.Architecture.Model.ID + "|" + v.ID),
+			Title:       textutil.NonEmpty(strings.TrimSpace(v.Name), strings.TrimSpace(v.ID)),
+			Description: textutil.NonEmpty(strings.TrimSpace(v.Description), fmt.Sprintf("Verification status %s.", textutil.NonEmpty(status, "unknown"))),
 			Target:      oscalFindingTarget{Type: "objective-id", TargetID: target, Status: oscalOperationalStatus{State: "not-satisfied"}},
 			Props: []oscalProperty{
 				engineeringModelOSCALProperty("verification-id", strings.TrimSpace(v.ID)),
-				engineeringModelOSCALProperty("verification-status", nonEmpty(status, "unknown")),
+				engineeringModelOSCALProperty("verification-status", textutil.NonEmpty(status, "unknown")),
 			},
 		})
 	}
@@ -214,27 +216,27 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 		}
 		props := []oscalProperty{}
 		risks = append(risks, oscalARRisk{
-			UUID:        deterministicUUID("ar-risk|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(r.ID)),
-			Title:       nonEmpty(strings.TrimSpace(r.Title), strings.TrimSpace(r.ID)),
-			Description: nonEmpty(strings.TrimSpace(r.Statement), "Authored risk statement."),
+			UUID:        textutil.DeterministicUUID("ar-risk|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(r.ID)),
+			Title:       textutil.NonEmpty(strings.TrimSpace(r.Title), strings.TrimSpace(r.ID)),
+			Description: textutil.NonEmpty(strings.TrimSpace(r.Statement), "Authored risk statement."),
 			Status:      state,
-			Statement:   nonEmpty(strings.TrimSpace(r.Rationale), strings.TrimSpace(r.Statement)),
+			Statement:   textutil.NonEmpty(strings.TrimSpace(r.Rationale), strings.TrimSpace(r.Statement)),
 			Props:       props,
 		})
 	}
 	sort.SliceStable(risks, func(i, j int) bool { return risks[i].UUID < risks[j].UUID })
 
 	doc := OSCALARDocument{AssessmentResults: oscalAssessmentResults{
-		UUID: deterministicUUID("assessment-results|" + bundle.Architecture.Model.ID),
+		UUID: textutil.DeterministicUUID("assessment-results|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{
-			Title:        nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Results",
+			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Results",
 			LastModified: now,
 			Version:      "0.1.0",
 			OSCALVersion: "1.1.2",
 		},
 		ImportAP: oscalImportAP{Href: apHref},
 		Results: []oscalARResult{{
-			UUID:        deterministicUUID("result|" + bundle.Architecture.Model.ID),
+			UUID:        textutil.DeterministicUUID("result|" + bundle.Architecture.Model.ID),
 			Title:       "Automated architecture assessment",
 			Description: "Assessment results generated from verification evidence, authored risks, and compliance mappings.",
 			Start:       now,

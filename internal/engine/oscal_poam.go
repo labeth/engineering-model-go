@@ -8,7 +8,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -78,7 +80,7 @@ func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions
 	if err != nil {
 		return OSCALPOAMResult{}, err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return OSCALPOAMResult{}, err
 	}
@@ -104,7 +106,7 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 	riskUUIDByID := map[string]string{}
 	risks := []oscalPOAMRisk{}
 	for _, r := range bundle.Architecture.AuthoredArchitecture.Risks {
-		riskUUID := deterministicUUID("poam-risk|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(r.ID))
+		riskUUID := textutil.DeterministicUUID("poam-risk|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(r.ID))
 		riskUUIDByID[strings.TrimSpace(r.ID)] = riskUUID
 		state := strings.ToLower(strings.TrimSpace(r.Status))
 		if state == "" {
@@ -112,10 +114,10 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 		}
 		risks = append(risks, oscalPOAMRisk{
 			UUID:        riskUUID,
-			Title:       nonEmpty(strings.TrimSpace(r.Title), strings.TrimSpace(r.ID)),
-			Description: nonEmpty(strings.TrimSpace(r.Statement), "Authored risk statement."),
+			Title:       textutil.NonEmpty(strings.TrimSpace(r.Title), strings.TrimSpace(r.ID)),
+			Description: textutil.NonEmpty(strings.TrimSpace(r.Statement), "Authored risk statement."),
 			Status:      state,
-			Statement:   nonEmpty(strings.TrimSpace(r.Rationale), strings.TrimSpace(r.Statement)),
+			Statement:   textutil.NonEmpty(strings.TrimSpace(r.Rationale), strings.TrimSpace(r.Statement)),
 		})
 	}
 	sort.SliceStable(risks, func(i, j int) bool { return risks[i].UUID < risks[j].UUID })
@@ -148,9 +150,9 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 			remarks = "Artifacts: " + strings.Join(artifacts, ", ")
 		}
 		items = append(items, oscalPOAMItem{
-			UUID:         deterministicUUID("poam-item|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(p.ID)),
-			Title:        nonEmpty(strings.TrimSpace(p.Milestone), strings.TrimSpace(p.ID)),
-			Description:  nonEmpty(strings.TrimSpace(p.Milestone), "POA&M action item."),
+			UUID:         textutil.DeterministicUUID("poam-item|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(p.ID)),
+			Title:        textutil.NonEmpty(strings.TrimSpace(p.Milestone), strings.TrimSpace(p.ID)),
+			Description:  textutil.NonEmpty(strings.TrimSpace(p.Milestone), "POA&M action item."),
 			Props:        props,
 			RelatedRisks: related,
 			Remarks:      remarks,
@@ -166,9 +168,9 @@ func GenerateOSCALPOAM(bundle model.Bundle, options OSCALPOAMOptions) (OSCALPOAM
 		return OSCALPOAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
 	doc := OSCALPOAMDocument{PlanOfActionAndMilestones: oscalPOAMRoot{
-		UUID: deterministicUUID("poam|" + bundle.Architecture.Model.ID),
+		UUID: textutil.DeterministicUUID("poam|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{
-			Title:        nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " POA&M",
+			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " POA&M",
 			LastModified: now,
 			Version:      "0.1.0",
 			OSCALVersion: "1.1.2",

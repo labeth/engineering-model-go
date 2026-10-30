@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -148,10 +149,10 @@ func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow 
 			clusters = append(clusters, n)
 		}
 	}
-	releases = uniqueSorted(releases)
-	workloads = uniqueSorted(workloads)
-	namespaces = uniqueSorted(namespaces)
-	clusters = uniqueSorted(clusters)
+	releases = textutil.UniqueSorted(releases)
+	workloads = textutil.UniqueSorted(workloads)
+	namespaces = textutil.UniqueSorted(namespaces)
+	clusters = textutil.UniqueSorted(clusters)
 
 	if sourceName != "" && kustomName != "" {
 		addRow(sourceName, kustomName, "reconciles")
@@ -532,7 +533,7 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 	for _, u := range a.FunctionalUnits {
 		groupID := strings.TrimSpace(strings.ToUpper(u.Group))
 		if groupID == "FG-PLATFORM" || groupID == "FG-PLATFORM-OPERATIONS" {
-			platformUnits[u.ID] = nonEmpty(u.Name, u.ID)
+			platformUnits[u.ID] = textutil.NonEmpty(u.Name, u.ID)
 		}
 	}
 
@@ -554,7 +555,7 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 		}
 	}
 	for k, v := range unitTargets {
-		unitTargets[k] = uniqueSorted(v)
+		unitTargets[k] = textutil.UniqueSorted(v)
 	}
 
 	out := []asciidocPlatformOpRow{}
@@ -569,7 +570,7 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 		actorName := m.From
 		for _, x := range a.Actors {
 			if x.ID == m.From {
-				actorName = nonEmpty(x.Name, x.ID)
+				actorName = textutil.NonEmpty(x.Name, x.ID)
 				break
 			}
 		}
@@ -616,10 +617,10 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 		if m.Type != "depends_on" {
 			continue
 		}
-		depsByTarget[m.From] = append(depsByTarget[m.From], nonEmpty(labels[m.To], m.To))
+		depsByTarget[m.From] = append(depsByTarget[m.From], textutil.NonEmpty(labels[m.To], m.To))
 	}
 	for k, v := range depsByTarget {
-		depsByTarget[k] = uniqueSorted(v)
+		depsByTarget[k] = textutil.UniqueSorted(v)
 	}
 
 	out := []asciidocSecurityPathRow{}
@@ -628,8 +629,8 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 		if m.Type != "targets" {
 			continue
 		}
-		attack := nonEmpty(labels[m.From], m.From)
-		target := nonEmpty(labels[m.To], m.To)
+		attack := textutil.NonEmpty(labels[m.From], m.From)
+		target := textutil.NonEmpty(labels[m.To], m.To)
 		deps := depsByTarget[m.To]
 		depSummary := "none"
 		if len(deps) > 0 {
@@ -673,7 +674,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		runtimeByOwner[owner] = append(runtimeByOwner[owner], label)
 	}
 	for owner, items := range runtimeByOwner {
-		runtimeByOwner[owner] = uniqueSorted(items)
+		runtimeByOwner[owner] = textutil.UniqueSorted(items)
 	}
 
 	codeRawByOwner := map[string][]string{}
@@ -742,7 +743,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		}
 		// Keep code evidence traced via runtime, even when no direct runtime artifact is inferred.
 		if len(runtimeNodes) == 0 && len(codeByOwner[targetID]) > 0 {
-			rtLabel := nonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
+			rtLabel := textutil.NonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
 			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-runtime")
 			lines = append(lines, mermaidTypedNodeLine(rtNode, rtLabel, "runtime_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
@@ -789,7 +790,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 			continue
 		}
 		n := "CTX_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "interface"))
+		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "interface"))
 	}
 	for _, x := range a.DataObjects {
 		id := strings.TrimSpace(x.ID)
@@ -797,7 +798,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 			continue
 		}
 		n := "CTX_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "data_object"))
+		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "data_object"))
 	}
 	for _, x := range a.TrustBoundaries {
 		id := strings.TrimSpace(x.ID)
@@ -805,7 +806,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 			continue
 		}
 		n := "CTX_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(n, nonEmpty(labels[id], id), "trust_boundary"))
+		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "trust_boundary"))
 	}
 
 	for _, m := range a.Mappings {
@@ -820,8 +821,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		}
 		fn := "CTX_" + sanitizeNode(from)
 		tn := "CTX_" + sanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), securityDFDClassForID(from)))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), securityDFDClassForID(from)))
+		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
 		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
 		markEdge(from, to)
 	}
@@ -846,8 +847,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		}
 		fn := "CTX_" + sanitizeNode(from)
 		tn := "CTX_" + sanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[from], from), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[to], to), securityDFDClassForID(to)))
+		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
 		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
 		markEdge(from, to)
 	}
@@ -861,8 +862,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		}
 		fn := "CTX_" + sanitizeNode(owner)
 		tn := "CTX_" + sanitizeNode(id)
-		add(mermaidTypedNodeLine(fn, nonEmpty(labels[owner], owner), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, nonEmpty(labels[id], id), "interface"))
+		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[owner], owner), "functional_unit"))
+		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[id], id), "interface"))
 		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
 		markEdge(owner, id)
 	}
@@ -941,10 +942,10 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complia
 
 		lines := []string{"flowchart LR"}
 		boxID := "CTXGROUP_" + sanitizeNode(groupID)
-		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(nonEmpty(labels[groupID], nonEmpty(fg.Name, groupID)))))
+		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)))))
 		lines = append(lines, "    direction TB")
 		for _, id := range keysSorted(owned) {
-			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+sanitizeNode(id), nonEmpty(labels[id], id), securityDFDClassForID(id)))
+			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+sanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
 		}
 		lines = append(lines, "  end")
 		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
@@ -956,13 +957,13 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complia
 			}
 		}
 		for _, id := range keysSorted(external) {
-			lines = append(lines, mermaidTypedNodeLine("CTX_"+sanitizeNode(id), nonEmpty(labels[id], id), securityDFDClassForID(id)))
+			lines = append(lines, mermaidTypedNodeLine("CTX_"+sanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
 		}
 		lines = append(lines, edges...)
 		lines = appendMermaidClassDefs(lines)
 		out = append(out, asciidocSecurityContextDiagram{
 			GroupID:   groupID,
-			GroupName: nonEmpty(labels[groupID], nonEmpty(fg.Name, groupID)),
+			GroupName: textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)),
 			Mermaid:   strings.Join(uniquePreserve(lines), "\n"),
 		})
 	}

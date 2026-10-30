@@ -47,18 +47,33 @@ func TestFacadeLoadsAndValidatesWithoutInternalImports(t *testing.T) {
 	}
 }
 
-// Every exported top-level name of internal/engine is re-exported at the root
-// under the same name, so the implementation move kept the public API whole.
+// Every exported top-level name of the implementation packages
+// (internal/engine, internal/composition) is re-exported at the root under the
+// same name, so splitting the implementation kept the public API whole.
+// internalOnly lists the names a package exports only for its sibling
+// internal packages; they are not public API.
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
 func TestFacadeReexportsEngine(t *testing.T) {
-	engine := exportedNames(t, filepath.Join("internal", "engine"))
-	root := exportedNames(t, ".")
-	if len(engine) == 0 {
-		t.Fatal("found no exported names in internal/engine")
+	internalOnly := map[string]bool{
+		// internal/composition, used by internal/engine.
+		"EnrichBundleFromComposition": true, "MaterializeAllocations": true,
+		"PathWithin": true, "ResolutionCount": true,
 	}
-	for name := range engine {
-		if !root[name] {
-			t.Errorf("internal/engine exports %s but the root facade does not", name)
+	root := exportedNames(t, ".")
+	for name := range internalOnly {
+		if root[name] {
+			t.Errorf("%s is listed as internal-only but the root facade exports it", name)
+		}
+	}
+	for _, dir := range []string{filepath.Join("internal", "engine"), filepath.Join("internal", "composition")} {
+		impl := exportedNames(t, dir)
+		if len(impl) == 0 {
+			t.Fatalf("found no exported names in %s", dir)
+		}
+		for name := range impl {
+			if !root[name] && !internalOnly[name] {
+				t.Errorf("%s exports %s but the root facade does not", dir, name)
+			}
 		}
 	}
 }

@@ -2,15 +2,15 @@
 package engine
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -199,7 +199,7 @@ func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) 
 	if err != nil {
 		return OSCALSSPResult{}, err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return OSCALSSPResult{}, err
 	}
@@ -233,7 +233,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 	}
 	systemName := strings.TrimSpace(options.SystemName)
 	if systemName == "" {
-		systemName = nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID))
+		systemName = textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID))
 	}
 	systemDesc := strings.TrimSpace(options.SystemDescription)
 	if systemDesc == "" {
@@ -276,14 +276,14 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 			}
 			if _, ok := componentByID[targetID]; !ok {
 				componentByID[targetID] = oscalComponent{
-					UUID:        deterministicUUID("component|" + bundle.Architecture.Model.ID + "|" + targetID),
+					UUID:        textutil.DeterministicUUID("component|" + bundle.Architecture.Model.ID + "|" + targetID),
 					Type:        componentTypeForKind(kindByID[targetID]),
-					Title:       nonEmpty(labelByID[targetID], targetID),
+					Title:       textutil.NonEmpty(labelByID[targetID], targetID),
 					Description: fmt.Sprintf("Architecture component mapped from %s.", targetID),
 					Status:      oscalOperationalStatus{State: "operational"},
 					Props: []oscalProperty{
 						engineeringModelOSCALProperty("architecture-id", targetID),
-						engineeringModelOSCALProperty("architecture-kind", nonEmpty(kindByID[targetID], "unknown")),
+						engineeringModelOSCALProperty("architecture-kind", textutil.NonEmpty(kindByID[targetID], "unknown")),
 					},
 				}
 			}
@@ -317,7 +317,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 					props = append(props, engineeringModelOSCALProperty("mapping-rationale", r))
 				}
 				requirementsByControl[cid] = append(requirementsByControl[cid], oscalByComponent{
-					UUID:          deterministicUUID("by-component|" + bundle.Architecture.Model.ID + "|" + cid + "|" + targetID + "|" + strings.TrimSpace(alloc.ID)),
+					UUID:          textutil.DeterministicUUID("by-component|" + bundle.Architecture.Model.ID + "|" + cid + "|" + targetID + "|" + strings.TrimSpace(alloc.ID)),
 					ComponentUUID: comp.UUID,
 					Description:   narrative,
 					Props:         props,
@@ -349,7 +349,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 			return entries[i].ComponentUUID < entries[j].ComponentUUID
 		})
 		implemented = append(implemented, oscalImplementedRequirement{
-			UUID:         deterministicUUID("implemented-requirement|" + bundle.Architecture.Model.ID + "|" + cid),
+			UUID:         textutil.DeterministicUUID("implemented-requirement|" + bundle.Architecture.Model.ID + "|" + cid),
 			ControlID:    cid,
 			ByComponents: entries,
 		})
@@ -362,10 +362,10 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 			continue
 		}
 		users = append(users, oscalUser{
-			UUID:        deterministicUUID("user|" + bundle.Architecture.Model.ID + "|" + id),
-			Title:       nonEmpty(strings.TrimSpace(actor.Name), id),
-			Description: nonEmpty(strings.TrimSpace(actor.Description), "Architecture actor mapped as SSP user."),
-			ShortName:   strings.ToLower(strings.ReplaceAll(nonEmpty(strings.TrimSpace(actor.Name), id), " ", "-")),
+			UUID:        textutil.DeterministicUUID("user|" + bundle.Architecture.Model.ID + "|" + id),
+			Title:       textutil.NonEmpty(strings.TrimSpace(actor.Name), id),
+			Description: textutil.NonEmpty(strings.TrimSpace(actor.Description), "Architecture actor mapped as SSP user."),
+			ShortName:   strings.ToLower(strings.ReplaceAll(textutil.NonEmpty(strings.TrimSpace(actor.Name), id), " ", "-")),
 		})
 	}
 	sort.SliceStable(users, func(i, j int) bool {
@@ -373,7 +373,7 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 	})
 	if len(users) == 0 {
 		users = append(users, oscalUser{
-			UUID:        deterministicUUID("user|" + bundle.Architecture.Model.ID + "|default"),
+			UUID:        textutil.DeterministicUUID("user|" + bundle.Architecture.Model.ID + "|default"),
 			Title:       "Architecture Owner",
 			Description: "Default SSP user derived from architecture metadata.",
 			ShortName:   "architecture-owner",
@@ -385,21 +385,21 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 		return OSCALSSPResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
 	doc := OSCALSSPDocument{SystemSecurityPlan: oscalSystemSecurityPlan{
-		UUID: deterministicUUID("ssp|" + bundle.Architecture.Model.ID),
+		UUID: textutil.DeterministicUUID("ssp|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{
-			Title:        nonEmpty(systemName, "Engineering Model SSP"),
+			Title:        textutil.NonEmpty(systemName, "Engineering Model SSP"),
 			LastModified: lastModified,
 			Version:      "0.1.0",
 			OSCALVersion: "1.1.2",
 		},
 		ImportProfile: oscalImportProfile{Href: profile},
 		SystemCharacteristics: oscalSystemCharacteristics{
-			SystemIDs:                []oscalSystemID{{IdentifierType: "https://engineering-model-go/system-id", ID: nonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "engineering-model-system")}},
+			SystemIDs:                []oscalSystemID{{IdentifierType: "https://engineering-model-go/system-id", ID: textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "engineering-model-system")}},
 			SystemName:               systemName,
 			Description:              systemDesc,
 			SecuritySensitivityLevel: "moderate",
 			SystemInformation: oscalSystemInformation{InformationTypes: []oscalInformationType{{
-				UUID:                  deterministicUUID("information-type|" + bundle.Architecture.Model.ID),
+				UUID:                  textutil.DeterministicUUID("information-type|" + bundle.Architecture.Model.ID),
 				Title:                 "Operational Data",
 				Description:           "Application and operational data managed by the engineered system.",
 				ConfidentialityImpact: oscalInformationImpact{Base: "fips-199-moderate"},
@@ -427,54 +427,43 @@ func GenerateOSCALSSP(bundle model.Bundle, options OSCALSSPOptions) (OSCALSSPRes
 
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func deterministicUUID(seed string) string {
-	h := sha1.Sum([]byte(seed))
-	b := h[:16]
-	b[6] = (b[6] & 0x0f) | 0x50
-	b[8] = (b[8] & 0x3f) | 0x80
-	x := hex.EncodeToString(b)
-	return fmt.Sprintf("%s-%s-%s-%s-%s", x[0:8], x[8:12], x[12:16], x[16:20], x[20:32])
-}
-
-// TRLC-LINKS: REQ-EMG-013
-// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.FunctionalUnits {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.Actors {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.AttackVectors {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.ReferencedElements {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.Interfaces {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.DataObjects {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.DeploymentTargets {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.Controls {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.TrustBoundaries {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.States {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.Events {
-		out[x.ID] = nonEmpty(strings.TrimSpace(x.Name), x.ID)
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	return out
 }

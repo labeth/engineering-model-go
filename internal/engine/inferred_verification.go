@@ -15,6 +15,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -86,7 +87,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			checkIdentityByID[id] = map[string]bool{}
 		}
 		for _, key := range keys {
-			checkIDsByIdentity[key] = appendUnique(checkIDsByIdentity[key], id)
+			checkIDsByIdentity[key] = textutil.AppendUnique(checkIDsByIdentity[key], id)
 			checkIdentityByID[id][key] = true
 		}
 	}
@@ -278,13 +279,13 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			bestID = id
 		}
 		c := checkByID[bestID]
-		c.Evidence = appendUnique(c.Evidence, a.Path)
+		c.Evidence = textutil.AppendUnique(c.Evidence, a.Path)
 		for _, ar := range a.Results {
 			if strings.TrimSpace(ar.Requirement) == "" {
 				continue
 			}
-			c.Verifies = appendUnique(c.Verifies, ar.Requirement)
-			c.DerivedOwners = appendUniqueSlice(c.DerivedOwners, ownersForRequirements(reqOwners, []string{ar.Requirement}))
+			c.Verifies = textutil.AppendUnique(c.Verifies, ar.Requirement)
+			c.DerivedOwners = textutil.AppendUniqueSlice(c.DerivedOwners, ownersForRequirements(reqOwners, []string{ar.Requirement}))
 			c.Results = appendOrMergeResult(c.Results, inferredVerificationResult{
 				Requirement: ar.Requirement,
 				Status:      ar.Status,
@@ -565,7 +566,7 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 		ev := byPath[srcPath]
 		switch strings.TrimSpace(it.Kind) {
 		case "symbol":
-			ev.symbols = appendUnique(ev.symbols, codeItemDisplayName(it))
+			ev.symbols = textutil.AppendUnique(ev.symbols, codeItemDisplayName(it))
 		case "source_file":
 			ev.hasSourceFile = true
 		default:
@@ -617,10 +618,10 @@ func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(
 			}
 			if s.Line > 0 {
 				label := codeElementEvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
-				out[rel] = appendUnique(out[rel], label)
+				out[rel] = textutil.AppendUnique(out[rel], label)
 			} else {
 				label := codeElementEvidenceLabel(rel)
-				out[rel] = appendUnique(out[rel], label)
+				out[rel] = textutil.AppendUnique(out[rel], label)
 			}
 		}
 	}
@@ -873,7 +874,7 @@ func verificationIdentityKeysFromPath(path string) []string {
 	keys := []string{}
 	appendKey := func(v string) {
 		if key := normalizeVerificationIdentity(v); key != "" {
-			keys = appendUnique(keys, key)
+			keys = textutil.AppendUnique(keys, key)
 		}
 	}
 	appendKey(base)
@@ -995,29 +996,6 @@ func uniqueStrings(in []string) []string {
 		out = append(out, t)
 	}
 	sort.Strings(out)
-	return out
-}
-
-// TRLC-LINKS: REQ-EMG-010
-func appendUnique(in []string, x string) []string {
-	x = strings.TrimSpace(x)
-	if x == "" {
-		return in
-	}
-	for _, e := range in {
-		if e == x {
-			return in
-		}
-	}
-	return append(in, x)
-}
-
-// TRLC-LINKS: REQ-EMG-010
-func appendUniqueSlice(in []string, items []string) []string {
-	out := append([]string(nil), in...)
-	for _, x := range items {
-		out = appendUnique(out, x)
-	}
 	return out
 }
 

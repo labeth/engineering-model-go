@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -352,10 +353,10 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 		}
 	}
 	for attackID, items := range mitigationsByAttack {
-		mitigationsByAttack[attackID] = uniqueSorted(items)
+		mitigationsByAttack[attackID] = textutil.UniqueSorted(items)
 	}
 	for unitID, items := range boundariesByUnit {
-		boundariesByUnit[unitID] = uniqueSorted(items)
+		boundariesByUnit[unitID] = textutil.UniqueSorted(items)
 	}
 
 	attackByID := map[string]model.AttackVector{}
@@ -378,8 +379,8 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 	sort.SliceStable(attackIDs, func(i, j int) bool {
 		left := attackByID[attackIDs[i]]
 		right := attackByID[attackIDs[j]]
-		leftName := strings.ToLower(nonEmpty(strings.TrimSpace(left.Name), attackIDs[i]))
-		rightName := strings.ToLower(nonEmpty(strings.TrimSpace(right.Name), attackIDs[j]))
+		leftName := strings.ToLower(textutil.NonEmpty(strings.TrimSpace(left.Name), attackIDs[i]))
+		rightName := strings.ToLower(textutil.NonEmpty(strings.TrimSpace(right.Name), attackIDs[j]))
 		if leftName != rightName {
 			return leftName < rightName
 		}
@@ -395,8 +396,8 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 			chapterUnits = append(chapterUnits, unitByID[unitID])
 		}
 		sort.SliceStable(chapterUnits, func(i, j int) bool {
-			left := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[i].Name), chapterUnits[i].ID))
-			right := strings.ToLower(nonEmpty(strings.TrimSpace(chapterUnits[j].Name), chapterUnits[j].ID))
+			left := strings.ToLower(textutil.NonEmpty(strings.TrimSpace(chapterUnits[i].Name), chapterUnits[i].ID))
+			right := strings.ToLower(textutil.NonEmpty(strings.TrimSpace(chapterUnits[j].Name), chapterUnits[j].ID))
 			if left != right {
 				return left < right
 			}
@@ -419,10 +420,10 @@ func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocU
 		}
 		out = append(out, asciidocSecurityAttackChapter{
 			ID:              attackID,
-			Name:            nonEmpty(strings.TrimSpace(av.Name), attackID),
+			Name:            textutil.NonEmpty(strings.TrimSpace(av.Name), attackID),
 			Description:     strings.TrimSpace(av.Description),
 			MitigatedBy:     joinOrNone(mitigationsByAttack[attackID]),
-			TrustBoundaries: joinOrNone(uniqueSorted(boundaries)),
+			TrustBoundaries: joinOrNone(textutil.UniqueSorted(boundaries)),
 			Diagram:         buildSecurityPathMermaid(attackRows, runtime, code),
 			Units:           chapterUnits,
 		})
@@ -597,11 +598,11 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
 			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
 			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
-			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
-			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Method:          textutil.NonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          textutil.NonEmpty(strings.TrimSpace(cv.Status), "unknown"),
 			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
-			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
-			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+			LastTested:      textutil.NonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        textutil.NonEmpty(strings.Join(cv.Findings, "; "), "none"),
 		}
 		for _, scenarioID := range cv.ThreatScenarioRefs {
 			scenarioID = strings.TrimSpace(scenarioID)
@@ -624,15 +625,15 @@ func buildSecurityThreatScenarioRows(a model.AuthoredArchitecture, nodeSet map[s
 		}
 		rows = append(rows, asciidocThreatScenarioRow{
 			ID:                   id,
-			Title:                nonEmpty(strings.TrimSpace(ts.Title), id),
-			Summary:              nonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
+			Title:                textutil.NonEmpty(strings.TrimSpace(ts.Title), id),
+			Summary:              textutil.NonEmpty(strings.TrimSpace(ts.Summary), "No additional scenario narrative was authored."),
 			AttackVector:         labelOrID(strings.TrimSpace(ts.AttackVectorRef), labels),
 			Scope:                joinLabeledIDs(ts.AppliesTo, labels),
 			Flows:                joinLabeledIDs(ts.FlowRefs, labels),
-			Likelihood:           nonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
-			Impact:               nonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
-			Severity:             nonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
-			Status:               nonEmpty(strings.TrimSpace(ts.Status), "unknown"),
+			Likelihood:           textutil.NonEmpty(strings.TrimSpace(ts.Likelihood), "unknown"),
+			Impact:               textutil.NonEmpty(strings.TrimSpace(ts.Impact), "unknown"),
+			Severity:             textutil.NonEmpty(strings.TrimSpace(ts.Severity), "unknown"),
+			Status:               textutil.NonEmpty(strings.TrimSpace(ts.Status), "unknown"),
 			Owner:                labelOrID(strings.TrimSpace(ts.Owner), labels),
 			Risk:                 labelOrID(strings.TrimSpace(ts.RiskRef), labels),
 			Controls:             joinLabeledIDs(ts.RelatedControls, labels),
@@ -673,11 +674,11 @@ func buildSecurityThreatAssumptionRows(a model.AuthoredArchitecture, nodeSet map
 		}
 		rows = append(rows, asciidocThreatAssumptionRow{
 			ID:        id,
-			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
-			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Title:     textutil.NonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    textutil.NonEmpty(strings.TrimSpace(x.Status), "unknown"),
 			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
 			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
-			Rationale: nonEmpty(strings.TrimSpace(x.Rationale), strings.TrimSpace(x.Statement)),
+			Rationale: textutil.NonEmpty(strings.TrimSpace(x.Rationale), strings.TrimSpace(x.Statement)),
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
@@ -707,11 +708,11 @@ func buildSecurityThreatOutOfScopeRows(a model.AuthoredArchitecture, nodeSet map
 		}
 		rows = append(rows, asciidocThreatOutOfScopeRow{
 			ID:        id,
-			Title:     nonEmpty(strings.TrimSpace(x.Title), id),
-			Status:    nonEmpty(strings.TrimSpace(x.Status), "unknown"),
+			Title:     textutil.NonEmpty(strings.TrimSpace(x.Title), id),
+			Status:    textutil.NonEmpty(strings.TrimSpace(x.Status), "unknown"),
 			Owner:     labelOrID(strings.TrimSpace(x.Owner), labels),
 			AppliesTo: joinLabeledIDs(x.AppliesTo, labels),
-			ExpiresOn: nonEmpty(strings.TrimSpace(x.ExpiresOn), "none"),
+			ExpiresOn: textutil.NonEmpty(strings.TrimSpace(x.ExpiresOn), "none"),
 			Reason:    strings.TrimSpace(x.Reason),
 		})
 	}
@@ -737,8 +738,8 @@ func buildSecurityThreatMitigationRows(a model.AuthoredArchitecture, nodeSet map
 			ID:             strings.TrimSpace(m.ID),
 			ThreatScenario: labelOrID(strings.TrimSpace(m.ThreatScenarioRef), labels),
 			Control:        labelOrID(strings.TrimSpace(m.ControlRef), labels),
-			Status:         nonEmpty(strings.TrimSpace(m.Status), "unknown"),
-			Effectiveness:  nonEmpty(strings.TrimSpace(m.Effectiveness), "unknown"),
+			Status:         textutil.NonEmpty(strings.TrimSpace(m.Status), "unknown"),
+			Effectiveness:  textutil.NonEmpty(strings.TrimSpace(m.Effectiveness), "unknown"),
 			Owner:          labelOrID(strings.TrimSpace(m.Owner), labels),
 			Verifications:  joinLabeledIDs(m.VerificationRefs, labels),
 			Notes:          strings.TrimSpace(m.Notes),
@@ -767,11 +768,11 @@ func buildSecurityControlVerificationRows(a model.AuthoredArchitecture, nodeSet 
 			Control:         labelOrID(strings.TrimSpace(cv.ControlRef), labels),
 			ThreatScenarios: joinLabeledIDs(cv.ThreatScenarioRefs, labels),
 			Risks:           joinLabeledIDs(cv.RiskRefs, labels),
-			Method:          nonEmpty(strings.TrimSpace(cv.Method), "unknown"),
-			Status:          nonEmpty(strings.TrimSpace(cv.Status), "unknown"),
+			Method:          textutil.NonEmpty(strings.TrimSpace(cv.Method), "unknown"),
+			Status:          textutil.NonEmpty(strings.TrimSpace(cv.Status), "unknown"),
 			Owner:           labelOrID(strings.TrimSpace(cv.Owner), labels),
-			LastTested:      nonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
-			Findings:        nonEmpty(strings.Join(cv.Findings, "; "), "none"),
+			LastTested:      textutil.NonEmpty(strings.TrimSpace(cv.LastTested), "unknown"),
+			Findings:        textutil.NonEmpty(strings.Join(cv.Findings, "; "), "none"),
 		})
 	}
 	sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
@@ -801,16 +802,16 @@ func buildSecurityFlowRows(a model.AuthoredArchitecture, nodeSet map[string]bool
 		}
 		rows = append(rows, asciidocSecurityFlowRow{
 			ID:               id,
-			Title:            nonEmpty(strings.TrimSpace(f.Title), id),
-			Kind:             nonEmpty(strings.TrimSpace(f.Kind), "flow"),
-			Direction:        nonEmpty(strings.TrimSpace(f.Direction), "unknown"),
-			Frequency:        nonEmpty(strings.TrimSpace(f.Frequency), "unknown"),
+			Title:            textutil.NonEmpty(strings.TrimSpace(f.Title), id),
+			Kind:             textutil.NonEmpty(strings.TrimSpace(f.Kind), "flow"),
+			Direction:        textutil.NonEmpty(strings.TrimSpace(f.Direction), "unknown"),
+			Frequency:        textutil.NonEmpty(strings.TrimSpace(f.Frequency), "unknown"),
 			Source:           labelOrID(strings.TrimSpace(f.SourceRef), labels),
 			Destination:      labelOrID(strings.TrimSpace(f.DestinationRef), labels),
-			Protocol:         nonEmpty(strings.TrimSpace(f.Protocol), "n/a"),
-			Authentication:   nonEmpty(strings.TrimSpace(f.Authentication), "n/a"),
-			Encryption:       nonEmpty(strings.TrimSpace(f.EncryptionInTransit), "n/a"),
-			Integrity:        nonEmpty(strings.TrimSpace(f.IntegrityProtection), "n/a"),
+			Protocol:         textutil.NonEmpty(strings.TrimSpace(f.Protocol), "n/a"),
+			Authentication:   textutil.NonEmpty(strings.TrimSpace(f.Authentication), "n/a"),
+			Encryption:       textutil.NonEmpty(strings.TrimSpace(f.EncryptionInTransit), "n/a"),
+			Integrity:        textutil.NonEmpty(strings.TrimSpace(f.IntegrityProtection), "n/a"),
 			TrustBoundary:    boundary,
 			BoundaryCrossing: boundaryCrossing,
 			Threats:          joinLabeledIDs(f.Threats, labels),
@@ -876,7 +877,7 @@ func joinLabeledIDs(ids []string, labels map[string]string) string {
 
 // TRLC-LINKS: REQ-EMG-003
 func joinOrNone(items []string) string {
-	items = uniqueSorted(items)
+	items = textutil.UniqueSorted(items)
 	if len(items) == 0 {
 		return "none"
 	}

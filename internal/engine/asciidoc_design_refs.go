@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -94,54 +95,46 @@ func detailForView(details []asciidocDesignDetail, viewID string) asciidocDesign
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func nonEmpty(v, fallback string) string {
-	if strings.TrimSpace(v) == "" {
-		return fallback
-	}
-	return v
-}
-
-// TRLC-LINKS: REQ-EMG-003
 func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	out := map[string]string{}
 	for _, x := range a.FunctionalGroups {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.FunctionalUnits {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.Actors {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.AttackVectors {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.ReferencedElements {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.Interfaces {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.DataObjects {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.DeploymentTargets {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.Controls {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.TrustBoundaries {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.States {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.Events {
-		out[x.ID] = nonEmpty(x.Name, x.ID)
+		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, f := range a.Flows {
-		out[f.ID] = nonEmpty(f.Title, f.ID)
+		out[f.ID] = textutil.NonEmpty(f.Title, f.ID)
 		for _, s := range f.Steps {
 			sid := strings.TrimSpace(s.ID)
 			if sid == "" {
@@ -187,55 +180,55 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	}
 
 	for _, x := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
-		addAuthored("idx-fg", "Functional Group", x.ID, nonEmpty(x.Name, x.ID), x.Description)
+		addAuthored("idx-fg", "Functional Group", x.ID, textutil.NonEmpty(x.Name, x.ID), x.Description)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.FunctionalUnits {
-		addAuthored("idx-fu", "Functional Unit", x.ID, nonEmpty(x.Name, x.ID), x.Prose)
+		addAuthored("idx-fu", "Functional Unit", x.ID, textutil.NonEmpty(x.Name, x.ID), x.Prose)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Actors {
-		addAuthored("idx-actor", "Actor", x.ID, nonEmpty(x.Name, x.ID), x.Description)
+		addAuthored("idx-actor", "Actor", x.ID, textutil.NonEmpty(x.Name, x.ID), x.Description)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.AttackVectors {
-		addAuthored("idx-attack", "Attack Vector", x.ID, nonEmpty(x.Name, x.ID), x.Description)
+		addAuthored("idx-attack", "Attack Vector", x.ID, textutil.NonEmpty(x.Name, x.ID), x.Description)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.ReferencedElements {
-		addAuthored("idx-ref", "Referenced Element", x.ID, nonEmpty(x.Name, x.ID), x.Kind+" / "+x.Layer)
+		addAuthored("idx-ref", "Referenced Element", x.ID, textutil.NonEmpty(x.Name, x.ID), x.Kind+" / "+x.Layer)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Interfaces {
-		desc := fmt.Sprintf("protocol=%s; endpoint=%s; schemaRef=%s; owner=%s", nonEmpty(strings.TrimSpace(x.Protocol), "n/a"), nonEmpty(strings.TrimSpace(x.Endpoint), "n/a"), nonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), nonEmpty(strings.TrimSpace(x.Owner), "n/a"))
-		addAuthored("idx-if", "Interface", x.ID, nonEmpty(x.Name, x.ID), desc)
+		desc := fmt.Sprintf("protocol=%s; endpoint=%s; schemaRef=%s; owner=%s", textutil.NonEmpty(strings.TrimSpace(x.Protocol), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Endpoint), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Owner), "n/a"))
+		addAuthored("idx-if", "Interface", x.ID, textutil.NonEmpty(x.Name, x.ID), desc)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.DataObjects {
-		desc := fmt.Sprintf("termRef=%s; schemaRef=%s; sensitivity=%s", nonEmpty(strings.TrimSpace(x.TermRef), "n/a"), nonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), nonEmpty(strings.TrimSpace(x.Sensitivity), "n/a"))
-		addAuthored("idx-do", "Data Object", x.ID, nonEmpty(x.Name, x.ID), desc)
+		desc := fmt.Sprintf("termRef=%s; schemaRef=%s; sensitivity=%s", textutil.NonEmpty(strings.TrimSpace(x.TermRef), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.SchemaRef), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Sensitivity), "n/a"))
+		addAuthored("idx-do", "Data Object", x.ID, textutil.NonEmpty(x.Name, x.ID), desc)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.DeploymentTargets {
-		desc := fmt.Sprintf("environment=%s; region=%s; account=%s; cluster=%s; namespace=%s; trustZone=%s", nonEmpty(strings.TrimSpace(x.Environment), "n/a"), nonEmpty(strings.TrimSpace(x.Region), "n/a"), nonEmpty(strings.TrimSpace(x.Account), "n/a"), nonEmpty(strings.TrimSpace(x.Cluster), "n/a"), nonEmpty(strings.TrimSpace(x.Namespace), "n/a"), nonEmpty(strings.TrimSpace(x.TrustZone), "n/a"))
-		addAuthored("idx-dep", "Deployment Target", x.ID, nonEmpty(x.Name, x.ID), desc)
+		desc := fmt.Sprintf("environment=%s; region=%s; account=%s; cluster=%s; namespace=%s; trustZone=%s", textutil.NonEmpty(strings.TrimSpace(x.Environment), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Region), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Account), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Cluster), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Namespace), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.TrustZone), "n/a"))
+		addAuthored("idx-dep", "Deployment Target", x.ID, textutil.NonEmpty(x.Name, x.ID), desc)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Controls {
-		desc := fmt.Sprintf("category=%s; description=%s", nonEmpty(strings.TrimSpace(x.Category), "n/a"), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
-		addAuthored("idx-ctrl", "Control", x.ID, nonEmpty(x.Name, x.ID), desc)
+		desc := fmt.Sprintf("category=%s; description=%s", textutil.NonEmpty(strings.TrimSpace(x.Category), "n/a"), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
+		addAuthored("idx-ctrl", "Control", x.ID, textutil.NonEmpty(x.Name, x.ID), desc)
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.TrustBoundaries {
-		addAuthored("idx-tb", "Trust Boundary", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+		addAuthored("idx-tb", "Trust Boundary", x.ID, textutil.NonEmpty(x.Name, x.ID), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.States {
-		addAuthored("idx-state", "State", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+		addAuthored("idx-state", "State", x.ID, textutil.NonEmpty(x.Name, x.ID), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Events {
-		addAuthored("idx-evt", "Event", x.ID, nonEmpty(x.Name, x.ID), nonEmpty(strings.TrimSpace(x.Description), "n/a"))
+		addAuthored("idx-evt", "Event", x.ID, textutil.NonEmpty(x.Name, x.ID), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
 	for _, f := range bundle.Architecture.AuthoredArchitecture.Flows {
-		addAuthored("idx-flow", "Flow", f.ID, nonEmpty(f.Title, f.ID), fmt.Sprintf("entry=%s; exits=%s; steps=%d", strings.Join(f.Entry, ", "), strings.Join(f.Exits, ", "), len(f.Steps)))
+		addAuthored("idx-flow", "Flow", f.ID, textutil.NonEmpty(f.Title, f.ID), fmt.Sprintf("entry=%s; exits=%s; steps=%d", strings.Join(f.Entry, ", "), strings.Join(f.Exits, ", "), len(f.Steps)))
 		for _, s := range f.Steps {
 			sid := strings.TrimSpace(s.ID)
 			if sid == "" {
 				continue
 			}
 			id := strings.TrimSpace(f.ID) + "::" + sid
-			desc := fmt.Sprintf("kind=%s; ref=%s; action=%s; dataIn=%s; dataOut=%s; async=%t", nonEmpty(strings.TrimSpace(s.Kind), "n/a"), nonEmpty(strings.TrimSpace(s.Ref), "n/a"), nonEmpty(strings.TrimSpace(s.Action), "n/a"), strings.Join(s.DataIn, ", "), strings.Join(s.DataOut, ", "), s.Async)
-			addAuthored("idx-flow-step", "Flow Step", id, nonEmpty(strings.TrimSpace(s.Action), sid), desc)
+			desc := fmt.Sprintf("kind=%s; ref=%s; action=%s; dataIn=%s; dataOut=%s; async=%t", textutil.NonEmpty(strings.TrimSpace(s.Kind), "n/a"), textutil.NonEmpty(strings.TrimSpace(s.Ref), "n/a"), textutil.NonEmpty(strings.TrimSpace(s.Action), "n/a"), strings.Join(s.DataIn, ", "), strings.Join(s.DataOut, ", "), s.Async)
+			addAuthored("idx-flow-step", "Flow Step", id, textutil.NonEmpty(strings.TrimSpace(s.Action), sid), desc)
 		}
 	}
 	for _, x := range requirements.Requirements {
@@ -309,12 +302,12 @@ func buildCatalogReferences(doc model.CatalogDocument) []asciidocReferenceEntry 
 				Anchor:       referenceAnchor("idx-catalog", e.ID),
 				TargetAnchor: canonical,
 				ID:           id,
-				Name:         nonEmpty(e.Name, e.ID),
+				Name:         textutil.NonEmpty(e.Name, e.ID),
 				Kind:         "Catalog " + strings.TrimSpace(kind),
-				Aliases:      uniqueSorted(e.Aliases),
+				Aliases:      textutil.UniqueSorted(e.Aliases),
 				Description:  strings.TrimSpace(e.Definition),
 			})
-			for _, alias := range uniqueSorted(e.Aliases) {
+			for _, alias := range textutil.UniqueSorted(e.Aliases) {
 				alias = strings.TrimSpace(alias)
 				if alias == "" {
 					continue
@@ -387,7 +380,7 @@ func catalogEntryIDSet(doc model.CatalogDocument) map[string]bool {
 
 // TRLC-LINKS: REQ-EMG-003
 func aliasDescription(e model.CatalogEntry) string {
-	name := nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID))
+	name := textutil.NonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID))
 	def := strings.TrimSpace(e.Definition)
 	if def == "" {
 		return "Same meaning as " + name + "."
@@ -408,11 +401,11 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 			continue
 		}
 		seen[key] = true
-		owner := nonEmpty(strings.TrimSpace(r.Owner), "unresolved")
+		owner := textutil.NonEmpty(strings.TrimSpace(r.Owner), "unresolved")
 		source := sanitizeSourcePath(r.Source)
 		desc := strings.TrimSpace(r.Description)
 		if desc == "" {
-			desc = fmt.Sprintf("Inferred runtime %s owned by %s from %s.", nonEmpty(kind, "element"), owner, nonEmpty(source, "unknown source"))
+			desc = fmt.Sprintf("Inferred runtime %s owned by %s from %s.", textutil.NonEmpty(kind, "element"), owner, textutil.NonEmpty(source, "unknown source"))
 		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:      referenceAnchor("rt", kind+"-"+id),
@@ -448,17 +441,17 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 			continue
 		}
 		seen[key] = true
-		owner := nonEmpty(strings.TrimSpace(c.Owner), "unresolved")
+		owner := textutil.NonEmpty(strings.TrimSpace(c.Owner), "unresolved")
 		source := sanitizeSourcePath(c.Source)
 		desc := strings.TrimSpace(c.Description)
 		if desc == "" {
 			switch strings.TrimSpace(c.Kind) {
 			case "symbol":
-				desc = fmt.Sprintf("Inferred code symbol owned by %s from %s.", owner, nonEmpty(source, "unknown source"))
+				desc = fmt.Sprintf("Inferred code symbol owned by %s from %s.", owner, textutil.NonEmpty(source, "unknown source"))
 			case "source_file":
-				desc = fmt.Sprintf("Inferred source file owned by %s from %s.", owner, nonEmpty(source, "unknown source"))
+				desc = fmt.Sprintf("Inferred source file owned by %s from %s.", owner, textutil.NonEmpty(source, "unknown source"))
 			default:
-				desc = fmt.Sprintf("Inferred %s dependency owned by %s from %s.", nonEmpty(strings.TrimSpace(c.Kind), "code"), owner, nonEmpty(source, "unknown source"))
+				desc = fmt.Sprintf("Inferred %s dependency owned by %s from %s.", textutil.NonEmpty(strings.TrimSpace(c.Kind), "code"), owner, textutil.NonEmpty(source, "unknown source"))
 			}
 		}
 		out = append(out, asciidocReferenceEntry{
@@ -503,15 +496,15 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 		}
 		desc := strings.TrimSpace(v.Description)
 		if desc == "" {
-			desc = fmt.Sprintf("Inferred %s verification check with status %s.", nonEmpty(strings.TrimSpace(v.Kind), "test"), nonEmpty(strings.TrimSpace(v.Status), "not-run"))
+			desc = fmt.Sprintf("Inferred %s verification check with status %s.", textutil.NonEmpty(strings.TrimSpace(v.Kind), "test"), textutil.NonEmpty(strings.TrimSpace(v.Status), "not-run"))
 		}
 		out = append(out, asciidocReferenceEntry{
 			Anchor:       referenceAnchor("idx-ver", id),
 			TargetAnchor: referenceAnchor("verify", id),
 			ID:           id,
-			Name:         nonEmpty(strings.TrimSpace(v.Name), id),
-			Kind:         nonEmpty(strings.TrimSpace(v.Kind), "test"),
-			Status:       nonEmpty(strings.TrimSpace(v.Status), "not-run"),
+			Name:         textutil.NonEmpty(strings.TrimSpace(v.Name), id),
+			Kind:         textutil.NonEmpty(strings.TrimSpace(v.Kind), "test"),
+			Status:       textutil.NonEmpty(strings.TrimSpace(v.Status), "not-run"),
 			Description:  desc,
 			Source:       source,
 		})
@@ -533,9 +526,9 @@ func buildTermsFromCatalog(doc model.CatalogDocument) []asciidocTerm {
 				Anchor:      referenceAnchor("catalog", e.ID),
 				IndexAnchor: referenceAnchor("idx-catalog", e.ID),
 				ID:          strings.TrimSpace(e.ID),
-				Name:        nonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID)),
+				Name:        textutil.NonEmpty(strings.TrimSpace(e.Name), strings.TrimSpace(e.ID)),
 				Definition:  strings.TrimSpace(e.Definition),
-				Aliases:     uniqueSorted(e.Aliases),
+				Aliases:     textutil.UniqueSorted(e.Aliases),
 			})
 		}
 	}

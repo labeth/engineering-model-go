@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-SYSTEM-COMPOSITION
-package engine
+package composition
 
 import (
 	"fmt"
@@ -117,8 +117,11 @@ func ResolveCompositionProjectionWith(bundle model.Bundle, options ResolutionOpt
 	return BuildCompositionProjection(result), result, nil
 }
 
+// EnrichBundleFromComposition resolves the bundle's composition and returns a
+// copy enriched with the published entities of the given domains; a bundle
+// without composition is returned unchanged.
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func enrichBundleFromComposition(bundle model.Bundle, domains ...string) (model.Bundle, error) {
+func EnrichBundleFromComposition(bundle model.Bundle, domains ...string) (model.Bundle, error) {
 	projection, _, err := ResolveCompositionProjection(bundle)
 	if err != nil {
 		return bundle, err
@@ -238,8 +241,10 @@ func (entity PublishedProjectionEntity) qualify(ref string) string {
 	return ""
 }
 
+// QualifyList qualifies each reference that the entity's publication makes
+// visible with its dependency alias and drops the others.
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func (entity PublishedProjectionEntity) qualifyList(refs []string) []string {
+func (entity PublishedProjectionEntity) QualifyList(refs []string) []string {
 	var qualified []string
 	for _, ref := range refs {
 		if value := entity.qualify(ref); value != "" {
@@ -304,7 +309,7 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			value.ID, value.TrustZone = q, entity.qualify(value.TrustZone)
 			bundle.Architecture.AuthoredArchitecture.DeploymentTargets = append(bundle.Architecture.AuthoredArchitecture.DeploymentTargets, value)
 		case model.HardwareItem:
-			value.ID, value.Hosts = q, entity.qualifyList(value.Hosts)
+			value.ID, value.Hosts = q, entity.QualifyList(value.Hosts)
 			bundle.Architecture.AuthoredArchitecture.HardwareItems = append(bundle.Architecture.AuthoredArchitecture.HardwareItems, value)
 		case model.HardwareInterface:
 			value.ID, value.From, value.To = q, entity.qualify(value.From), entity.qualify(value.To)
@@ -330,14 +335,14 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 		case model.Flow:
 			value.ID = q
 			value.SourceRef, value.DestinationRef = entity.qualify(value.SourceRef), entity.qualify(value.DestinationRef)
-			value.DataRefs, value.Threats = entity.qualifyList(value.DataRefs), entity.qualifyList(value.Threats)
+			value.DataRefs, value.Threats = entity.QualifyList(value.DataRefs), entity.QualifyList(value.Threats)
 			for i := range value.Steps {
 				value.Steps[i].Ref = entity.qualify(value.Steps[i].Ref)
 				value.Steps[i].SourceRef = entity.qualify(value.Steps[i].SourceRef)
 				value.Steps[i].DestinationRef = entity.qualify(value.Steps[i].DestinationRef)
-				value.Steps[i].DataIn = entity.qualifyList(value.Steps[i].DataIn)
-				value.Steps[i].DataOut = entity.qualifyList(value.Steps[i].DataOut)
-				value.Steps[i].DataRefs = entity.qualifyList(value.Steps[i].DataRefs)
+				value.Steps[i].DataIn = entity.QualifyList(value.Steps[i].DataIn)
+				value.Steps[i].DataOut = entity.QualifyList(value.Steps[i].DataOut)
+				value.Steps[i].DataRefs = entity.QualifyList(value.Steps[i].DataRefs)
 				value.Steps[i].InterfaceRef = entity.qualify(value.Steps[i].InterfaceRef)
 				value.Steps[i].TrustBoundaryRef = entity.qualify(value.Steps[i].TrustBoundaryRef)
 			}
@@ -359,10 +364,10 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			bundle.Assurance.Assurance.Controls = append(bundle.Assurance.Assurance.Controls, value)
 		case model.Risk:
 			value.ID, value.Owner = q, entity.qualify(value.Owner)
-			value.AppliesTo = entity.qualifyList(value.AppliesTo)
-			value.RelatedControls = entity.qualifyList(value.RelatedControls)
-			value.AttackVectors = entity.qualifyList(value.AttackVectors)
-			value.ThreatScenarios = entity.qualifyList(value.ThreatScenarios)
+			value.AppliesTo = entity.QualifyList(value.AppliesTo)
+			value.RelatedControls = entity.QualifyList(value.RelatedControls)
+			value.AttackVectors = entity.QualifyList(value.AttackVectors)
+			value.ThreatScenarios = entity.QualifyList(value.ThreatScenarios)
 			bundle.Architecture.AuthoredArchitecture.Risks = append(bundle.Architecture.AuthoredArchitecture.Risks, value)
 			bundle.Assurance.Assurance.Risks = append(bundle.Assurance.Assurance.Risks, value)
 		case model.POAMItem:
@@ -372,29 +377,29 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			bundle.Assurance.Assurance.POAMItems = append(bundle.Assurance.Assurance.POAMItems, value)
 		case model.TrustBoundary:
 			value.ID, value.ParentRef = q, entity.qualify(value.ParentRef)
-			value.Members = entity.qualifyList(value.Members)
+			value.Members = entity.QualifyList(value.Members)
 			bundle.Architecture.AuthoredArchitecture.TrustBoundaries = append(bundle.Architecture.AuthoredArchitecture.TrustBoundaries, value)
 			bundle.Assurance.Assurance.TrustBoundaries = append(bundle.Assurance.Assurance.TrustBoundaries, value)
 		case model.ThreatScenario:
 			value.ID = q
 			value.Owner = entity.qualify(value.Owner)
 			value.AttackVectorRef, value.RiskRef = entity.qualify(value.AttackVectorRef), entity.qualify(value.RiskRef)
-			value.AppliesTo = entity.qualifyList(value.AppliesTo)
-			value.FlowRefs = entity.qualifyList(value.FlowRefs)
-			value.RelatedControls = entity.qualifyList(value.RelatedControls)
-			value.AssumptionRefs = entity.qualifyList(value.AssumptionRefs)
-			value.OutOfScopeRefs = entity.qualifyList(value.OutOfScopeRefs)
-			value.MitigationRefs = entity.qualifyList(value.MitigationRefs)
-			value.VerificationRefs = entity.qualifyList(value.VerificationRefs)
+			value.AppliesTo = entity.QualifyList(value.AppliesTo)
+			value.FlowRefs = entity.QualifyList(value.FlowRefs)
+			value.RelatedControls = entity.QualifyList(value.RelatedControls)
+			value.AssumptionRefs = entity.QualifyList(value.AssumptionRefs)
+			value.OutOfScopeRefs = entity.QualifyList(value.OutOfScopeRefs)
+			value.MitigationRefs = entity.QualifyList(value.MitigationRefs)
+			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
 			bundle.Architecture.AuthoredArchitecture.ThreatScenarios = append(bundle.Architecture.AuthoredArchitecture.ThreatScenarios, value)
 			bundle.Assurance.Assurance.ThreatScenarios = append(bundle.Assurance.Assurance.ThreatScenarios, value)
 		case model.ThreatAssumption:
-			value.ID, value.AppliesTo = q, entity.qualifyList(value.AppliesTo)
+			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
 			value.Owner = entity.qualify(value.Owner)
 			bundle.Architecture.AuthoredArchitecture.ThreatAssumptions = append(bundle.Architecture.AuthoredArchitecture.ThreatAssumptions, value)
 			bundle.Assurance.Assurance.ThreatAssumptions = append(bundle.Assurance.Assurance.ThreatAssumptions, value)
 		case model.ThreatOutOfScope:
-			value.ID, value.AppliesTo = q, entity.qualifyList(value.AppliesTo)
+			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
 			value.Owner = entity.qualify(value.Owner)
 			bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope = append(bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope, value)
 			bundle.Assurance.Assurance.ThreatOutOfScope = append(bundle.Assurance.Assurance.ThreatOutOfScope, value)
@@ -402,14 +407,14 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			value.ID = q
 			value.Owner = entity.qualify(value.Owner)
 			value.ThreatScenarioRef, value.ControlRef = entity.qualify(value.ThreatScenarioRef), entity.qualify(value.ControlRef)
-			value.VerificationRefs = entity.qualifyList(value.VerificationRefs)
+			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
 			bundle.Architecture.AuthoredArchitecture.ThreatMitigations = append(bundle.Architecture.AuthoredArchitecture.ThreatMitigations, value)
 			bundle.Assurance.Assurance.ThreatMitigations = append(bundle.Assurance.Assurance.ThreatMitigations, value)
 		case model.ControlVerification:
 			value.ID, value.ControlRef = q, entity.qualify(value.ControlRef)
 			value.Owner = entity.qualify(value.Owner)
-			value.ThreatScenarioRefs = entity.qualifyList(value.ThreatScenarioRefs)
-			value.RiskRefs = entity.qualifyList(value.RiskRefs)
+			value.ThreatScenarioRefs = entity.QualifyList(value.ThreatScenarioRefs)
+			value.RiskRefs = entity.QualifyList(value.RiskRefs)
 			bundle.Architecture.AuthoredArchitecture.ControlVerifications = append(bundle.Architecture.AuthoredArchitecture.ControlVerifications, value)
 			bundle.Assurance.Assurance.ControlVerifications = append(bundle.Assurance.Assurance.ControlVerifications, value)
 		case model.ComplianceProfile:
@@ -421,18 +426,18 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 		case model.ComplianceMapping:
 			value.ID, value.ProfileRef = q, entity.qualify(value.ProfileRef)
 			value.ModelControlRef = entity.qualify(value.ModelControlRef)
-			value.AppliesTo = entity.qualifyList(value.AppliesTo)
-			value.InheritedFrom = entity.qualifyList(value.InheritedFrom)
-			value.ResponsibleRoles = entity.qualifyList(value.ResponsibleRoles)
+			value.AppliesTo = entity.QualifyList(value.AppliesTo)
+			value.InheritedFrom = entity.QualifyList(value.InheritedFrom)
+			value.ResponsibleRoles = entity.QualifyList(value.ResponsibleRoles)
 			if value.ProfileRef != "" && value.ModelControlRef != "" {
 				bundle.Architecture.Compliance.Mappings = append(bundle.Architecture.Compliance.Mappings, value)
 				bundle.Compliance.Compliance.Mappings = append(bundle.Compliance.Compliance.Mappings, value)
 			}
 		case model.Requirement:
-			value.ID, value.AppliesTo = q, entity.qualifyList(value.AppliesTo)
+			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
 			bundle.Requirements.Requirements = append(bundle.Requirements.Requirements, value)
 		case model.View:
-			value.ID, value.Roots = q, entity.qualifyList(value.Roots)
+			value.ID, value.Roots = q, entity.QualifyList(value.Roots)
 			bundle.Architecture.Views = append(bundle.Architecture.Views, value)
 			bundle.Views.Views = append(bundle.Views.Views, value)
 		}

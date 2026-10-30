@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -70,7 +72,7 @@ func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestTraceIntegrityDelegationCoversOrphan(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}}}
-	deleg := map[string][]MaterializedAllocation{"REQ-X-001": {{Requirement: "REQ-X-001", Subsystem: "SUB", Target: "CAP"}}}
+	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-001": {{Requirement: "REQ-X-001", Subsystem: "SUB", Target: "CAP"}}}
 	for _, d := range validateTraceIntegrity(model.Bundle{}, reqs, nil, nil, deleg) {
 		if d.Code == "requirement.orphan" {
 			t.Fatalf("delegated requirement must not be orphan: %s", d.Message)
@@ -88,7 +90,7 @@ func TestBuildTraceMatrixStatusAndDelegation(t *testing.T) {
 		{ID: "REQ-X-002"},
 	}}
 	code := []inferredCodeItem{{Element: "impl", Source: "a.go:5", Implements: []string{"REQ-X-001"}}}
-	deleg := map[string][]MaterializedAllocation{"REQ-X-002": {{Requirement: "REQ-X-002", Subsystem: "SUB-T", Target: "CAP-T", TargetRef: "REQ-T-001"}}}
+	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-002": {{Requirement: "REQ-X-002", Subsystem: "SUB-T", Target: "CAP-T", TargetRef: "REQ-T-001"}}}
 	m := buildTraceMatrix(model.Bundle{}, reqs, code, nil, deleg)
 	if m.Summary.Requirements != 2 || m.Summary.Implemented != 1 || m.Summary.Delegated != 1 {
 		t.Fatalf("unexpected summary: %+v", m.Summary)
@@ -112,13 +114,13 @@ func TestBuildTraceMatrixStatusAndDelegation(t *testing.T) {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func TestScopeCodeExcludesNestedModel(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, filepath.Join(dir, "engmod.yml"), "model:\n  id: TOP\n")
+	testutil.WriteFile(t, filepath.Join(dir, "engmod.yml"), "model:\n  id: TOP\n")
 	if err := os.MkdirAll(filepath.Join(dir, "child"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	writeFile(t, filepath.Join(dir, "child", "engmod.yml"), "model:\n  id: CHILD\n")
-	writeFile(t, filepath.Join(dir, "parent.go"), "package x\n")
-	writeFile(t, filepath.Join(dir, "child", "kid.go"), "package y\n")
+	testutil.WriteFile(t, filepath.Join(dir, "child", "engmod.yml"), "model:\n  id: CHILD\n")
+	testutil.WriteFile(t, filepath.Join(dir, "parent.go"), "package x\n")
+	testutil.WriteFile(t, filepath.Join(dir, "child", "kid.go"), "package y\n")
 	items := []inferredCodeItem{
 		{Element: "p", Source: "parent.go:1", AbsPath: filepath.Join(dir, "parent.go"), Implements: []string{"REQ-TOP-001"}},
 		{Element: "k", Source: "child/kid.go:1", AbsPath: filepath.Join(dir, "child", "kid.go"), Implements: []string{"REQ-CHILD-001"}},

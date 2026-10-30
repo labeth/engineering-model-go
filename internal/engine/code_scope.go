@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
@@ -67,7 +68,7 @@ func moduleCodeRoot(bundle model.Bundle) string {
 	if gitRoot == "" {
 		return manifestDir
 	}
-	for dir := filepath.Dir(manifestDir); pathWithin(gitRoot, dir); dir = filepath.Dir(dir) {
+	for dir := filepath.Dir(manifestDir); composition.PathWithin(gitRoot, dir); dir = filepath.Dir(dir) {
 		if isRegularFile(filepath.Join(dir, "engmod.yml")) {
 			return manifestDir
 		}

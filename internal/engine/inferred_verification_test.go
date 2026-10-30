@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -247,7 +248,7 @@ func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string
 	t.Helper()
 	root := t.TempDir()
 	for name, content := range files {
-		writeFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
+		testutil.WriteFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
 	}
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	reqs := model.RequirementsDocument{}

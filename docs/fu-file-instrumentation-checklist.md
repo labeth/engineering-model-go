@@ -139,8 +139,10 @@ For each FU batch:
 
 ### FU-SYSTEM-COMPOSITION
 
-- `internal/engine/composition.go`
-- `internal/engine/composition_test.go`
+- `internal/composition/composition.go`, `composition_confinement.go`, `composition_projection.go`
+- `internal/composition/*_test.go`
+- `internal/engine/composition_multirepo_test.go`, `internal/engine/composition_integration_test.go` (composition with generators and trace)
+- `internal/testutil/fixtures.go` (shared model-module test fixtures)
 - (composition rendering in `internal/engine/asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
 
 ### FU-ALLOCATION-TRACE
@@ -153,4 +155,6 @@ For each FU batch:
 
 - `cmd/engdoc/main.go`
 - `cmd/enggemara/main.go`
+- `internal/textutil/textutil.go` (shared string and collection helpers)
+- `internal/testutil/files.go` (shared test file helpers)
 - (cross-cutting command orchestration references in other `cmd/*` entrypoints)

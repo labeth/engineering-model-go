@@ -7,8 +7,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // TRLC-LINKS: REQ-EMG-003
@@ -18,14 +20,14 @@ func appendMermaidClassDefs(lines []string) []string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
+func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range reqs {
 		reqNode := "REQ_" + sanitizeNode(r.ID)
 		lines = append(lines, "  "+reqNode+"[\""+escapeMermaidLabel(r.ID)+"\"]:::requirement")
-		for _, u := range uniqueSorted(r.AppliesTo) {
+		for _, u := range textutil.UniqueSorted(r.AppliesTo) {
 			target := "UNIT_" + sanitizeNode(u)
-			label := nonEmpty(labels[u], u)
+			label := textutil.NonEmpty(labels[u], u)
 			lines = append(lines, "  "+target+"[\""+escapeMermaidLabel(label)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" --> "+target)
 		}
@@ -65,7 +67,7 @@ func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
 			continue
 		}
 		seenReq[rid] = true
-		targets := uniqueSorted(r.AppliesTo)
+		targets := textutil.UniqueSorted(r.AppliesTo)
 		for _, fu := range targets {
 			if strings.TrimSpace(fu) == "" {
 				continue
@@ -88,7 +90,7 @@ func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
 			appliesByReq[r.ID][fu] = true
 		}
 	}
-	fuIDs := uniqueSorted(keysFromSet(fuSet))
+	fuIDs := textutil.UniqueSorted(keysFromSet(fuSet))
 	if len(reqIDs) == 0 || len(fuIDs) == 0 {
 		return "No authored requirement-to-unit mappings were found."
 	}
@@ -131,11 +133,11 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart TB"}
 	for _, act := range a.Actors {
 		an := "ACT_" + sanitizeNode(act.ID)
-		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(nonEmpty(act.Name, act.ID))))
+		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(textutil.NonEmpty(act.Name, act.ID))))
 	}
 	for _, ref := range a.ReferencedElements {
 		rn := "REF_" + sanitizeNode(ref.ID)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(nonEmpty(ref.Name, ref.ID))))
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(textutil.NonEmpty(ref.Name, ref.ID))))
 	}
 
 	lines = append(lines, "  subgraph SYSTEM_BOUNDARY[\"System Boundary (Internal)\"]")
@@ -144,7 +146,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	groupOrder := make([]string, 0, len(a.FunctionalGroups))
 	for _, fg := range a.FunctionalGroups {
 		gid := strings.TrimSpace(fg.ID)
-		groupLabelByID[gid] = nonEmpty(fg.Name, fg.ID)
+		groupLabelByID[gid] = textutil.NonEmpty(fg.Name, fg.ID)
 		groupOrder = append(groupOrder, gid)
 	}
 	unitsByGroup := map[string][]model.FunctionalUnit{}
@@ -169,7 +171,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 		lines = append(lines, "      direction LR")
 		for _, fu := range units {
 			un := "FU_" + sanitizeNode(fu.ID)
-			lines = append(lines, fmt.Sprintf("      %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+			lines = append(lines, fmt.Sprintf("      %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		}
 		lines = append(lines, "    end")
 		lines = append(lines, fmt.Sprintf("    style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
@@ -244,12 +246,12 @@ func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
 	lines = append(lines, "  SYS[\"System\"]:::system_boundary")
 	for _, fg := range a.FunctionalGroups {
 		gn := "FG_" + sanitizeNode(fg.ID)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_group", gn, escapeMermaidLabel(nonEmpty(fg.Name, fg.ID))))
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_group", gn, escapeMermaidLabel(textutil.NonEmpty(fg.Name, fg.ID))))
 		lines = append(lines, fmt.Sprintf("  SYS -->|contains| %s", gn))
 	}
 	for _, fu := range a.FunctionalUnits {
 		un := "FU_" + sanitizeNode(fu.ID)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		if strings.TrimSpace(fu.Group) != "" {
 			lines = append(lines, fmt.Sprintf("  FG_%s -->|contains| %s", sanitizeNode(fu.Group), un))
 		}
@@ -270,7 +272,7 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 	for _, fg := range a.FunctionalGroups {
 		cols = append(cols, fgColumn{
 			ID:   strings.TrimSpace(fg.ID),
-			Name: nonEmpty(strings.TrimSpace(fg.Name), strings.TrimSpace(fg.ID)),
+			Name: textutil.NonEmpty(strings.TrimSpace(fg.Name), strings.TrimSpace(fg.ID)),
 		})
 	}
 	indexByFG := map[string]int{}
@@ -287,8 +289,8 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 	}
 	for i := range cols {
 		sort.SliceStable(cols[i].Units, func(left, right int) bool {
-			l := nonEmpty(strings.TrimSpace(cols[i].Units[left].Name), strings.TrimSpace(cols[i].Units[left].ID))
-			r := nonEmpty(strings.TrimSpace(cols[i].Units[right].Name), strings.TrimSpace(cols[i].Units[right].ID))
+			l := textutil.NonEmpty(strings.TrimSpace(cols[i].Units[left].Name), strings.TrimSpace(cols[i].Units[left].ID))
+			r := textutil.NonEmpty(strings.TrimSpace(cols[i].Units[right].Name), strings.TrimSpace(cols[i].Units[right].ID))
 			if l != r {
 				return l < r
 			}
@@ -312,7 +314,7 @@ func buildFunctionalManhattanTable(a model.AuthoredArchitecture) string {
 			}
 			unit := row - (maxRows - len(c.Units))
 			if unit >= 0 {
-				rows[row][col] = nonEmpty(c.Units[unit].Name, c.Units[unit].ID)
+				rows[row][col] = textutil.NonEmpty(c.Units[unit].Name, c.Units[unit].ID)
 			}
 		}
 	}
@@ -326,7 +328,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart LR"}
 	groupLabelByID := map[string]string{}
 	for _, fg := range a.FunctionalGroups {
-		groupLabelByID[fg.ID] = nonEmpty(fg.Name, fg.ID)
+		groupLabelByID[fg.ID] = textutil.NonEmpty(fg.Name, fg.ID)
 	}
 	unitsByGroup := map[string][]model.FunctionalUnit{}
 	groupOrder := make([]string, 0, len(a.FunctionalGroups))
@@ -355,7 +357,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 		lines = append(lines, "    direction TB")
 		for _, fu := range units {
 			un := "FU_" + sanitizeNode(fu.ID)
-			lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+			lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		}
 		lines = append(lines, "  end")
 		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
@@ -363,7 +365,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 
 	for _, ref := range a.ReferencedElements {
 		rn := "REF_" + sanitizeNode(ref.ID)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(nonEmpty(ref.Name, ref.ID))))
+		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(textutil.NonEmpty(ref.Name, ref.ID))))
 	}
 	seenEdges := map[string]bool{}
 	addEdge := func(edge string) {
@@ -399,13 +401,13 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 	unitGroupByID := map[string]string{}
 	refLabelByID := map[string]string{}
 	for _, fg := range a.FunctionalGroups {
-		groupLabelByID[strings.TrimSpace(fg.ID)] = nonEmpty(fg.Name, fg.ID)
+		groupLabelByID[strings.TrimSpace(fg.ID)] = textutil.NonEmpty(fg.Name, fg.ID)
 	}
 	localUnits := []model.FunctionalUnit{}
 	localUnitSet := map[string]bool{}
 	for _, fu := range a.FunctionalUnits {
 		id := strings.TrimSpace(fu.ID)
-		unitLabelByID[id] = nonEmpty(fu.Name, fu.ID)
+		unitLabelByID[id] = textutil.NonEmpty(fu.Name, fu.ID)
 		unitGroupByID[id] = strings.TrimSpace(fu.Group)
 		if strings.TrimSpace(fu.Group) == groupID {
 			localUnits = append(localUnits, fu)
@@ -419,7 +421,7 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		return localUnits[i].ID < localUnits[j].ID
 	})
 	for _, ref := range a.ReferencedElements {
-		refLabelByID[strings.TrimSpace(ref.ID)] = nonEmpty(ref.Name, ref.ID)
+		refLabelByID[strings.TrimSpace(ref.ID)] = textutil.NonEmpty(ref.Name, ref.ID)
 	}
 
 	externalFUs := map[string]bool{}
@@ -467,13 +469,13 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		if !evidenceScopeUnits[owner] {
 			continue
 		}
-		label := nonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))
+		label := textutil.NonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))
 		if label != "" {
 			runtimeByOwner[owner] = append(runtimeByOwner[owner], label)
 		}
 	}
 	for owner, items := range runtimeByOwner {
-		runtimeByOwner[owner] = uniqueSorted(items)
+		runtimeByOwner[owner] = textutil.UniqueSorted(items)
 	}
 	codeRawByOwner := map[string][]string{}
 	allCodeRaw := []string{}
@@ -506,17 +508,17 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 	if groupID == "" {
 		boxID = "FGDEP_UNASSIGNED"
 	}
-	lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(nonEmpty(groupLabelByID[groupID], groupID))))
+	lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(groupLabelByID[groupID], groupID))))
 	lines = append(lines, "    direction TB")
 	for _, fu := range localUnits {
 		un := "FU_" + sanitizeNode(fu.ID)
-		lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(nonEmpty(fu.Name, fu.ID))))
+		lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 	}
 	definedCodeNodes := map[string]bool{}
 	for _, owner := range keysSorted(evidenceScopeUnits) {
 		runtimeLabels := append([]string(nil), runtimeByOwner[owner]...)
 		if len(runtimeLabels) == 0 && len(codeByOwner[owner]) > 0 {
-			runtimeLabels = append(runtimeLabels, nonEmpty(unitLabelByID[owner], owner)+" runtime (inferred)")
+			runtimeLabels = append(runtimeLabels, textutil.NonEmpty(unitLabelByID[owner], owner)+" runtime (inferred)")
 		}
 		for idx, rt := range runtimeLabels {
 			rtBox := "RT_" + sanitizeNode(owner+"-"+rt)
@@ -554,16 +556,16 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		if gid == "" {
 			boxID = "FGDEP_TARGET_UNASSIGNED"
 		}
-		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(nonEmpty(groupLabelByID[gid], "External Functional Units"))))
+		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(groupLabelByID[gid], "External Functional Units"))))
 		lines = append(lines, "    direction TB")
-		for _, id := range uniqueSorted(externalUnitsByGroup[gid]) {
-			lines = append(lines, fmt.Sprintf("    FU_%s[\"%s\"]:::functional_unit", sanitizeNode(id), escapeMermaidLabel(nonEmpty(unitLabelByID[id], id))))
+		for _, id := range textutil.UniqueSorted(externalUnitsByGroup[gid]) {
+			lines = append(lines, fmt.Sprintf("    FU_%s[\"%s\"]:::functional_unit", sanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(unitLabelByID[id], id))))
 		}
 		lines = append(lines, "  end")
 		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
 	}
 	for _, id := range keysSorted(refs) {
-		lines = append(lines, fmt.Sprintf("  REF_%s[\"%s\"]:::referenced_element", sanitizeNode(id), escapeMermaidLabel(nonEmpty(refLabelByID[id], id))))
+		lines = append(lines, fmt.Sprintf("  REF_%s[\"%s\"]:::referenced_element", sanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(refLabelByID[id], id))))
 	}
 	lines = append(lines, edges...)
 	lines = appendMermaidClassDefs(lines)
@@ -592,7 +594,7 @@ func keysSortedStringSlices(m map[string][]string) []string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]MaterializedAllocation) string {
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
 	// Stack the evidence chain to fit portrait publication pages.
 	lines := []string{`%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%`, "flowchart TB"}
 	rtByOwner := map[string][]string{}
@@ -601,7 +603,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		if owner == "" || owner == "unresolved" {
 			continue
 		}
-		rtByOwner[owner] = append(rtByOwner[owner], nonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind)))
+		rtByOwner[owner] = append(rtByOwner[owner], textutil.NonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind)))
 	}
 	codeRawByOwnerReq := map[string]map[string][]string{}
 	allCodeRaw := []string{}
@@ -617,7 +619,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		if strings.TrimSpace(elem) == "" {
 			continue
 		}
-		for _, reqID := range uniqueSorted(c.Implements) {
+		for _, reqID := range textutil.UniqueSorted(c.Implements) {
 			reqID = strings.TrimSpace(reqID)
 			if reqID == "" {
 				continue
@@ -655,7 +657,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		if id == "" {
 			continue
 		}
-		for _, reqID := range uniqueSorted(v.Verifies) {
+		for _, reqID := range textutil.UniqueSorted(v.Verifies) {
 			reqID = strings.TrimSpace(reqID)
 			if reqID == "" {
 				continue
@@ -675,16 +677,16 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	for _, r := range reqs {
 		reqNode := "REQC_" + sanitizeNode(r.ID)
 		lines = append(lines, "  "+reqNode+"[\""+escapeMermaidLabel(r.ID)+"\"]:::requirement")
-		for _, fu := range uniqueSorted(r.AppliesTo) {
+		for _, fu := range textutil.UniqueSorted(r.AppliesTo) {
 			reqID := strings.TrimSpace(r.ID)
 			reqCode := codeByOwnerReq[fu][reqID]
 			fuNode := "FU_" + sanitizeNode(fu)
-			fuLabel := nonEmpty(labels[fu], fu)
+			fuLabel := textutil.NonEmpty(labels[fu], fu)
 			lines = append(lines, "  "+fuNode+"[\""+escapeMermaidLabel(fuLabel)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" -->|applies_to| "+fuNode)
 
 			rtNodes := []string{}
-			for _, rt := range uniqueSorted(rtByOwner[fu]) {
+			for _, rt := range textutil.UniqueSorted(rtByOwner[fu]) {
 				rtNode := "RTC_" + sanitizeNode(fu+"-"+rt)
 				lines = append(lines, "  "+rtNode+"[\""+escapeMermaidLabel(rt)+"\"]:::runtime_element")
 				lines = append(lines, "  "+fuNode+" -->|runtime evidence| "+rtNode)
@@ -702,7 +704,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 			if len(rtNodes) > 0 {
 				primaryRTNode = rtNodes[0]
 			}
-			for _, cm := range uniqueSorted(reqCode) {
+			for _, cm := range textutil.UniqueSorted(reqCode) {
 				cmNode := "CODE_" + sanitizeNode(r.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(cm))
 				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(cm))+"\"]:::code_element")
 				if primaryRTNode != "" {
@@ -790,7 +792,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 				continue
 			}
 			mod := moduleFromPath(path)
-			owner := nonEmpty(strings.TrimSpace(c.Owner), "unresolved")
+			owner := textutil.NonEmpty(strings.TrimSpace(c.Owner), "unresolved")
 			key := owner + "|" + mod
 			b, ok := moduleBuckets[key]
 			if !ok {
@@ -809,7 +811,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 			continue
 		}
 		if strings.HasPrefix(c.Kind, "library_") {
-			owner := nonEmpty(strings.TrimSpace(c.Owner), "unresolved")
+			owner := textutil.NonEmpty(strings.TrimSpace(c.Owner), "unresolved")
 			module := moduleFromPath(codeItemPath(c))
 			libType := strings.TrimPrefix(c.Kind, "library_")
 			kind := "library (" + strings.ReplaceAll(libType, "_", "-") + ")"
@@ -872,7 +874,7 @@ func buildCodeOwnershipMermaid(rows []asciidocInferredRow, a model.AuthoredArchi
 	}
 	fgLabel := map[string]string{}
 	for _, g := range a.FunctionalGroups {
-		fgLabel[g.ID] = nonEmpty(g.Name, g.ID)
+		fgLabel[g.ID] = textutil.NonEmpty(g.Name, g.ID)
 	}
 
 	seenFU := map[string]bool{}
@@ -897,7 +899,7 @@ func buildCodeOwnershipMermaid(rows []asciidocInferredRow, a model.AuthoredArchi
 
 		if fgID := fuToGroup[fu]; strings.TrimSpace(fgID) != "" {
 			fgn := "FG_" + sanitizeNode(fgID)
-			fg := nonEmpty(fgLabel[fgID], fgID)
+			fg := textutil.NonEmpty(fgLabel[fgID], fgID)
 			if !seenFG[fgn] {
 				lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_group", fgn, escapeMermaidLabel(fg)))
 				seenFG[fgn] = true
@@ -965,12 +967,12 @@ func codeItemDisplayName(c inferredCodeItem) string {
 		if label := codeItemEvidenceLabel(c); label != "" {
 			return label
 		}
-		return nonEmpty(elem, "code symbol")
+		return textutil.NonEmpty(elem, "code symbol")
 	case "source_file":
 		if label := codeItemEvidenceLabel(c); label != "" {
 			return label
 		}
-		return nonEmpty(source, elem)
+		return textutil.NonEmpty(source, elem)
 	default:
 		if source == "" {
 			return elem
@@ -1045,7 +1047,7 @@ func groupedCodeElementEvidenceLabels(elems []string, lookup map[string]string) 
 		key := codeElementEvidenceFileKey(elem)
 		if key != "" {
 			if label := strings.TrimSpace(lookup[key]); label != "" {
-				out = appendUnique(out, label)
+				out = textutil.AppendUnique(out, label)
 				continue
 			}
 		}
@@ -1054,10 +1056,10 @@ func groupedCodeElementEvidenceLabels(elems []string, lookup map[string]string) 
 			label = strings.TrimSpace(elem)
 		}
 		if label != "" {
-			out = appendUnique(out, label)
+			out = textutil.AppendUnique(out, label)
 		}
 	}
-	return uniqueSorted(out)
+	return textutil.UniqueSorted(out)
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -1083,10 +1085,10 @@ func groupedCodeElementFileLabels(elems []string, lookup map[string]string) []st
 			label = strings.TrimSpace(strings.Split(codeElementEvidenceLabel(elem), ":")[0])
 		}
 		if label != "" {
-			out = appendUnique(out, label)
+			out = textutil.AppendUnique(out, label)
 		}
 	}
-	return uniqueSorted(out)
+	return textutil.UniqueSorted(out)
 }
 
 // TRLC-LINKS: REQ-EMG-003

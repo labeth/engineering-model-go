@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-SYSTEM-COMPOSITION
-package engine
+package composition
 
 // Confinement of a resolved dependency to its module root. A dependency's
 // manifest is authored by another repository (a registry module or a

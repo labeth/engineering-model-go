@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -42,7 +44,7 @@ func GenerateOSCALAssessmentPlanFromFile(architecturePath string, options OSCALA
 	if err != nil {
 		return OSCALAPResult{}, err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return OSCALAPResult{}, err
 	}
@@ -89,9 +91,9 @@ func GenerateOSCALAssessmentPlan(bundle model.Bundle, options OSCALAPOptions) (O
 	}
 
 	doc := OSCALAPDocument{AssessmentPlan: oscalAssessmentPlan{
-		UUID: deterministicUUID("assessment-plan|" + bundle.Architecture.Model.ID),
+		UUID: textutil.DeterministicUUID("assessment-plan|" + bundle.Architecture.Model.ID),
 		Metadata: oscalMetadata{
-			Title:        nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Plan",
+			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Plan",
 			LastModified: lastModified,
 			Version:      "0.1.0",
 			OSCALVersion: "1.1.2",

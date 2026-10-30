@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -45,13 +47,13 @@ func GenerateSysMLV2FromFile(architecturePath string) (SysMLExportResult, error)
 		return SysMLExportResult{}, err
 	}
 	var compositionDiagnostics []model.SemanticDiagnostic
-	var projection CompositionProjection
-	if HasComposition(bundle) {
-		composition, err := GenerateCompositionFromFile(bundle.ManifestPath)
+	var projection composition.CompositionProjection
+	if composition.HasComposition(bundle) {
+		composed, err := composition.GenerateCompositionFromFile(bundle.ManifestPath)
 		if err != nil {
 			return SysMLExportResult{}, err
 		}
-		for _, diagnostic := range composition.Diagnostics {
+		for _, diagnostic := range composed.Diagnostics {
 			compositionDiagnostics = append(compositionDiagnostics, model.SemanticDiagnostic{
 				Code: diagnostic.Code, Severity: model.SemanticSeverity(diagnostic.Severity),
 				Message: diagnostic.Message, Path: diagnostic.Path,
@@ -60,7 +62,7 @@ func GenerateSysMLV2FromFile(architecturePath string) (SysMLExportResult, error)
 		if semanticDiagnosticsHaveErrors(compositionDiagnostics) {
 			return SysMLExportResult{Diagnostics: sortSemanticDiagnostics(compositionDiagnostics)}, fmt.Errorf("composition validation failed")
 		}
-		projection = BuildCompositionProjection(composition)
+		projection = composition.BuildCompositionProjection(composed)
 	}
 	result, err := GenerateSysMLV2(bundle)
 	if err == nil {
@@ -74,7 +76,7 @@ func GenerateSysMLV2FromFile(architecturePath string) (SysMLExportResult, error)
 // representation. The dependency alias is a package, making each declaration's
 // semantic identity alias::ID without embedding payloads or property bags.
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func enrichSysMLWithPublications(text string, projection CompositionProjection) string {
+func enrichSysMLWithPublications(text string, projection composition.CompositionProjection) string {
 	if len(projection.Publications) == 0 {
 		return text
 	}
@@ -111,7 +113,7 @@ func enrichSysMLWithPublications(text string, projection CompositionProjection) 
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func publishedSysMLKeyword(entity PublishedProjectionEntity) string {
+func publishedSysMLKeyword(entity composition.PublishedProjectionEntity) string {
 	switch entity.Domain {
 	case "requirements":
 		return "requirement def"
@@ -180,7 +182,7 @@ func GenerateSysMLV2Projection(semantic model.SemanticModel) (string, []model.Se
 
 	fmt.Fprintln(&out, "// Generated deterministic SysML v2 project source.")
 	fmt.Fprintln(&out, "// Syntax is validated against SysML 2.0 / KerML 1.0 with the pinned 2026-04 Pilot Implementation.")
-	fmt.Fprintf(&out, "package %s {\n", sysmlName(nonEmpty(strings.TrimSpace(semantic.ID), "EngineeringModel")))
+	fmt.Fprintf(&out, "package %s {\n", sysmlName(textutil.NonEmpty(strings.TrimSpace(semantic.ID), "EngineeringModel")))
 	fmt.Fprintln(&out, "    private import ScalarValues::*;")
 	for _, imported := range semantic.Imports {
 		if strings.TrimSpace(imported.Namespace) != "" && imported.Namespace != semantic.ID {

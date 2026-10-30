@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -17,81 +19,6 @@ import (
 // module that composes it and references its published entities.
 type multiRepoFixture struct {
 	root, iface, service string
-}
-
-// TRLC-LINKS: REQ-EMG-065
-func writeInterfaceModule(t *testing.T, dir string) {
-	t.Helper()
-	writeFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	writeFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
-module:
-  path: example.com/iface@v0
-  version: v0.1.0
-  modelId: iface
-  title: Interface
-  introduction: ""
-  kind: system
-publications:
-  - id: public
-    architecture: [FG-NATS, FU-NATS, IF-WS, DO-WS, ACT-OWNER, CAP-SCHEMA]
-    assurance: [TB-BUS, CTRL-SCHEMA]
-documents:
-  catalog: model/catalog.yml
-  requirements: model/requirements.yml
-  architecture: model/architecture.yml
-  behavior: model/behavior.yml
-  assurance: model/assurance.yml
-  compliance: model/compliance.yml
-  views: model/views.yml
-  decisions: model/decisions.yml
-`)
-	writeFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n")
-	writeFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: 2
-architecture:
-  functionalGroups:
-    - id: FG-NATS
-      name: NATS
-  functionalUnits:
-    - id: FU-NATS
-      name: NATS contract
-      group: FG-NATS
-  actors:
-    - id: ACT-OWNER
-      name: Owner
-  interfaces:
-    - id: IF-WS
-      name: World state
-      protocol: nats
-      endpoint: simfam.ws.v1
-      owner: FU-NATS
-  dataObjects:
-    - id: DO-WS
-      name: World state message
-  contract:
-    provides:
-      - id: CAP-SCHEMA
-        kind: interface
-        ref: REQ-IF-001
-`)
-	writeFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	writeFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: 2
-assurance:
-  controls:
-    - id: CTRL-SCHEMA
-      name: Schema validation
-      category: input-integrity
-      description: Validate payloads.
-  trustBoundaries:
-    - id: TB-BUS
-      name: Bus
-      description: Message bus.
-      boundaryType: network
-      members: [FU-NATS]
-`)
-	writeFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	writeFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	writeFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
 }
 
 // serviceDocs are the service's model documents; tests override single ones.
@@ -151,14 +78,14 @@ func Publish() {}
 func writeMultiRepoFixture(t *testing.T, docs serviceDocs) multiRepoFixture {
 	t.Helper()
 	t.Setenv(model.WorkspaceEnv, "")
-	t.Setenv(LockEnv, "")
+	t.Setenv(composition.LockEnv, "")
 	root := t.TempDir()
 	f := multiRepoFixture{root: root, iface: filepath.Join(root, "iface"), service: filepath.Join(root, "service")}
-	writeInterfaceModule(t, f.iface)
-	writeFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: example.com/iface@v0\n    path: ./iface\n")
+	testutil.WriteInterfaceModule(t, f.iface)
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: example.com/iface@v0\n    path: ./iface\n")
 	dir := f.service
-	writeFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/service@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	writeFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/service@v0\"\nlanguage: version: \"v0.17.0\"\n")
+	testutil.WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
 module:
   path: example.com/service@v0
   version: v0.1.0
@@ -181,15 +108,15 @@ documents:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	writeFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-SVC\n      name: service\n      definition: The service.\n      aliases: [the service]\n")
-	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), docs.requirements)
-	writeFile(t, filepath.Join(dir, "model", "architecture.yml"), docs.architecture)
-	writeFile(t, filepath.Join(dir, "model", "behavior.yml"), docs.behavior)
-	writeFile(t, filepath.Join(dir, "model", "assurance.yml"), docs.assurance)
-	writeFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	writeFile(t, filepath.Join(dir, "model", "views.yml"), docs.views)
-	writeFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
-	writeFile(t, filepath.Join(dir, "src", "svc.go"), docs.code)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-SVC\n      name: service\n      definition: The service.\n      aliases: [the service]\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), docs.requirements)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), docs.architecture)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), docs.behavior)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), docs.assurance)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "views.yml"), docs.views)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	testutil.WriteFile(t, filepath.Join(dir, "src", "svc.go"), docs.code)
 	return f
 }
 
@@ -376,13 +303,13 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
 	// The interface now requires a need, and the service hands down to an
 	// unpublished target.
-	writeFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
-	writeFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
-	writeFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-INTERNAL\n")
+	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
+	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-INTERNAL\n")
 
-	before := compositionRuns.Load()
+	before := composition.ResolutionCount()
 	diags, err := generateService(t, f)
-	if runs := compositionRuns.Load() - before; runs != 1 {
+	if runs := composition.ResolutionCount() - before; runs != 1 {
 		t.Fatalf("GenerateAsciiDoc composed %d times, want 1", runs)
 	}
 	if err == nil {
@@ -401,11 +328,11 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 
 	// A passing model composes once too, including the composition chapter.
 	g := writeMultiRepoFixture(t, defaultServiceDocs())
-	before = compositionRuns.Load()
+	before = composition.ResolutionCount()
 	if _, err := generateService(t, g); err != nil {
 		t.Fatal(err)
 	}
-	if runs := compositionRuns.Load() - before; runs != 1 {
+	if runs := composition.ResolutionCount() - before; runs != 1 {
 		t.Fatalf("GenerateAsciiDoc composed %d times, want 1", runs)
 	}
 }
@@ -417,12 +344,12 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionSeverityRules(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	writeFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
-	writeFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
-	writeFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::FU-NATS\n")
+	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
+	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::FU-NATS\n")
 	manifest := filepath.Join(f.service, "engmod.yml")
 
-	severity := func(res CompositionResult, code string) validate.Severity {
+	severity := func(res composition.CompositionResult, code string) validate.Severity {
 		for _, d := range res.Diagnostics {
 			if d.Code == code {
 				return d.Severity
@@ -430,7 +357,7 @@ func TestCompositionSeverityRules(t *testing.T) {
 		}
 		return ""
 	}
-	res, err := GenerateCompositionFromFile(manifest)
+	res, err := composition.GenerateCompositionFromFile(manifest)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -441,8 +368,8 @@ func TestCompositionSeverityRules(t *testing.T) {
 		t.Fatalf("non-contract allocation target severity %q", got)
 	}
 
-	writeFile(t, manifest, strings.Replace(mustRead(t, manifest), "kind: system", "kind: software", 1))
-	if res, err = GenerateCompositionFromFile(manifest); err != nil {
+	testutil.WriteFile(t, manifest, strings.Replace(mustRead(t, manifest), "kind: system", "kind: software", 1))
+	if res, err = composition.GenerateCompositionFromFile(manifest); err != nil {
 		t.Fatal(err)
 	}
 	if got := severity(res, "composition.unsatisfied_require"); got != validate.SeverityWarning {
@@ -458,10 +385,10 @@ func TestCompositionSeverityRules(t *testing.T) {
 func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
 	// The interface has code and a test for its requirement in its module directory.
-	writeFile(t, filepath.Join(f.iface, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
+	testutil.WriteFile(t, filepath.Join(f.iface, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
 	testFile := filepath.Join(f.iface, "src", "iface_test.go")
-	writeFile(t, testFile, "package iface\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-IF-001\nfunc TestEncode(t *testing.T) { Encode() }\n")
-	writeFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
+	testutil.WriteFile(t, testFile, "package iface\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-IF-001\nfunc TestEncode(t *testing.T) { Encode() }\n")
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
 	manifest := filepath.Join(f.service, "engmod.yml")
 	requirements := filepath.Join(f.service, "model", "requirements.yml")
 
@@ -516,8 +443,8 @@ func TestDelegatedStatusScansOnlyTheDependencyModule(t *testing.T) {
 	if out, err := exec.Command("git", "-C", f.root, "init", "-q").CombinedOutput(); err != nil {
 		t.Fatalf("git init: %v %s", err, out)
 	}
-	writeFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
-	writeFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
+	testutil.WriteFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
 	matrix, _, err := BuildTraceMatrixFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
@@ -555,9 +482,9 @@ func mustRead(t *testing.T, path string) string {
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
 func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
-	t.Setenv(LockEnv, "")
+	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
-	writeV2ModuleFiles(t, dir, "example.com/solo@v0", "v0.1.0", "SOLO", "", `  functionalGroups:
+	testutil.WriteV2ModuleFiles(t, dir, "example.com/solo@v0", "v0.1.0", "SOLO", "", `  functionalGroups:
     - id: FG-CORE
       name: Core
       description: "uses std::vector and a::b"
@@ -574,7 +501,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
       schemaRef: "schemas::v1.json"
       owner: FU-CORE
 `)
-	writeFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 2
 lintRun: {}
 requirements:
   - id: REQ-SOLO-001
@@ -587,7 +514,7 @@ requirements:
 	if err != nil {
 		t.Fatalf("load: %v", err)
 	}
-	if diags := QualifiedReferenceDiagnostics(bundle, CompositionResult{}); len(diags) != 0 {
+	if diags := composition.QualifiedReferenceDiagnostics(bundle, composition.CompositionResult{}); len(diags) != 0 {
 		t.Fatalf("prose with :: reported as qualified references: %+v", diags)
 	}
 	res, _ := GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, AsciiDocOptions{})

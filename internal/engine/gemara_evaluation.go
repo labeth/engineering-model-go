@@ -13,7 +13,9 @@ import (
 
 	gemara "github.com/gemaraproj/go-gemara"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // gemaraDefaultTimestamp is used only for empty documents that contain no
@@ -44,7 +46,7 @@ func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, co
 		}
 		bundle.Requirements = requirements
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
 	if err != nil {
 		return GemaraEvaluationResult{}, err
 	}
@@ -107,7 +109,7 @@ func GenerateGemaraEvaluationLog(bundle model.Bundle, requirements model.Require
 	aggregate := gemara.NotRun
 	for _, ctrl := range a.Controls {
 		verifs := verifsByControl[ctrl.ID]
-		name := fallback(ctrl.Name, ctrl.ID)
+		name := textutil.Fallback(ctrl.Name, ctrl.ID)
 
 		var logs []*gemara.AssessmentLog
 		ceResult := gemara.NotRun
@@ -130,11 +132,11 @@ func GenerateGemaraEvaluationLog(bundle model.Bundle, requirements model.Require
 				res := mapVerificationResult(cv.Status)
 				msg := strings.TrimSpace(strings.Join(cv.Findings, "; "))
 				if msg == "" {
-					msg = "Status: " + fallback(cv.Status, "unknown")
+					msg = "Status: " + textutil.Fallback(cv.Status, "unknown")
 				}
 				al := &gemara.AssessmentLog{
 					Requirement:     gemara.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: cv.ID},
-					Description:     fmt.Sprintf("Assessment of %q via %s.", name, fallback(cv.Method, "verification")),
+					Description:     fmt.Sprintf("Assessment of %q via %s.", name, textutil.Fallback(cv.Method, "verification")),
 					Result:          res,
 					Message:         msg,
 					Applicability:   []string{"all-systems"},

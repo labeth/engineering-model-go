@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ErrNoOSCALProfiles indicates that the model has no compliance profile to
@@ -44,7 +46,7 @@ func GenerateOSCALProfileFromFile(path string, options OSCALProfileOptions) (str
 	if err != nil {
 		return "", err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return "", err
 	}
@@ -95,7 +97,7 @@ func GenerateOSCALProfile(bundle model.Bundle, options OSCALProfileOptions) (str
 		imports = append(imports, oscalAggregateImport{Href: href})
 	}
 	doc := oscalAggregateProfileDocument{Profile: oscalAggregateProfile{
-		UUID: deterministicUUID("oscal-profile|" + bundle.Architecture.Model.ID + "|" + strings.Join(hrefs, "|")),
+		UUID: textutil.DeterministicUUID("oscal-profile|" + bundle.Architecture.Model.ID + "|" + strings.Join(hrefs, "|")),
 		Metadata: oscalMetadata{
 			Title:        title,
 			LastModified: lastModified,

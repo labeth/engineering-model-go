@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-SYSTEM-COMPOSITION
-package engine
+package composition
 
 import (
 	"archive/zip"
@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // rawZipEntry is one crafted entry of a module zip.
@@ -150,7 +151,7 @@ func TestCraftedModuleZipIsRejected(t *testing.T) {
 			root := t.TempDir()
 			serveRawModule(t, append(validModuleEntries(), tc.extra...), tc.corrupt)
 			workspace := filepath.Join(root, "workspace")
-			writeParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+			testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
 			res, err := GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
 			if err != nil {
 				t.Fatal(err)
@@ -177,7 +178,7 @@ func TestCraftedModuleZipIsRejected(t *testing.T) {
 	root := t.TempDir()
 	serveRawModule(t, validModuleEntries(), false)
 	workspace := filepath.Join(root, "workspace")
-	writeParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
 	res, err := GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)

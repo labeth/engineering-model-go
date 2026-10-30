@@ -18,7 +18,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -343,7 +345,7 @@ func splitSourceLine(source string) (string, int) {
 // code, verification, or delegation). The code is assumed already scoped to this model.
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-029
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func validateTraceIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) []validate.Diagnostic {
+func validateTraceIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
 	return validateTraceIntegrityWithIDs(knownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 }
 
@@ -351,7 +353,7 @@ func validateTraceIntegrity(bundle model.Bundle, requirements model.Requirements
 // set of model IDs, which may include published alias::ID entities.
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-065
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func validateTraceIntegrityWithIDs(modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) []validate.Diagnostic {
+func validateTraceIntegrityWithIDs(modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
 	var diags []validate.Diagnostic
 	reqIDs := requirementIDSet(requirements)
 	covered := map[string]bool{}
@@ -409,7 +411,7 @@ func validateTraceIntegrityWithIDs(modelIDs map[string]bool, requirements model.
 // buildTraceMatrix assembles the consolidated traceability matrix for the model.
 // TRLC-LINKS: REQ-EMG-030
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
-func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) TraceMatrix {
+func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) TraceMatrix {
 	return buildTraceMatrixWithIDs(bundle, knownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 }
 
@@ -417,7 +419,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 // an explicit ID set, which may include published alias::ID entities.
 // TRLC-LINKS: REQ-EMG-030, REQ-EMG-065
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
-func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]MaterializedAllocation) TraceMatrix {
+func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []inferredCodeItem, verification []inferredVerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) TraceMatrix {
 	reqIDs := requirementIDSet(requirements)
 	codeByReq := map[string][]TraceCodeRef{}
 	var dangling []DanglingLink
@@ -455,9 +457,9 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 	matrix := TraceMatrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
 	for _, r := range requirements.Requirements {
 		id := strings.TrimSpace(r.ID)
-		row := TraceRow{ID: id, Text: strings.TrimSpace(r.Text), Units: uniqueSorted(r.AppliesTo)}
+		row := TraceRow{ID: id, Text: strings.TrimSpace(r.Text), Units: textutil.UniqueSorted(r.AppliesTo)}
 		row.Code = codeByReq[id]
-		row.Verifications = uniqueSorted(verByReq[id])
+		row.Verifications = textutil.UniqueSorted(verByReq[id])
 		if len(row.Verifications) > 0 {
 			row.Result = resultByReq[id]
 		}
@@ -542,10 +544,10 @@ func requirementResults(verification []inferredVerificationCheck) map[string]str
 // TRLC-LINKS: REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
 type TraceOptions struct {
 	// Resolution overrides ENGMOD_WORK / ENGMOD_LOCK for the composition run.
-	Resolution ResolutionOptions
+	Resolution composition.ResolutionOptions
 	// Composition, when set, is a composition already resolved for this
 	// manifest; the trace then does not compose again.
-	Composition *CompositionResult
+	Composition *composition.CompositionResult
 }
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
@@ -597,7 +599,7 @@ func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string,
 		})
 	}
 	diags = append(diags, compositionResult.Diagnostics...)
-	compositionProjection := BuildCompositionProjection(compositionResult)
+	compositionProjection := composition.BuildCompositionProjection(compositionResult)
 	delegationsByReq := delegationsByRequirement(compositionResult)
 	// Code links may name published dependency entities; requirements stay
 	// local so the rows and counts below are this model's own.
@@ -618,7 +620,7 @@ func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string,
 // root is scanned. ok is false when that directory holds no source code.
 // TRLC-LINKS: REQ-EMG-067
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
-func dependencyTraceRows(child *ComposedSystem) (map[string]TraceRow, bool) {
+func dependencyTraceRows(child *composition.ComposedSystem) (map[string]TraceRow, bool) {
 	bundle := child.Bundle
 	code, _ := inferCodeItems(bundle, "")
 	verification, _ := inferVerificationChecks(bundle, bundle.Requirements, code, "")
@@ -626,8 +628,8 @@ func dependencyTraceRows(child *ComposedSystem) (map[string]TraceRow, bool) {
 	if len(scoped) == 0 && len(verification) == 0 {
 		return nil, false
 	}
-	delegations := map[string][]MaterializedAllocation{}
-	for _, m := range materializeAllocations(&ComposedSystem{Bundle: bundle, Children: child.Children, Requirements: child.Requirements}) {
+	delegations := map[string][]composition.MaterializedAllocation{}
+	for _, m := range composition.MaterializeAllocations(&composition.ComposedSystem{Bundle: bundle, Children: child.Children, Requirements: child.Requirements}) {
 		if m.System == strings.TrimSpace(bundle.Architecture.Model.ID) {
 			delegations[strings.TrimSpace(m.Requirement)] = append(delegations[strings.TrimSpace(m.Requirement)], m)
 		}
@@ -645,13 +647,13 @@ func dependencyTraceRows(child *ComposedSystem) (map[string]TraceRow, bool) {
 // and only when a row needs it.
 // TRLC-LINKS: REQ-EMG-067
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
-func applyDelegatedStatus(matrix *TraceMatrix, composition CompositionResult) {
-	if composition.Root == nil {
+func applyDelegatedStatus(matrix *TraceMatrix, composed composition.CompositionResult) {
+	if composed.Root == nil {
 		return
 	}
-	bySubsystem := map[string]*ComposedSystem{}
-	byAlias := map[string]*ComposedSystem{}
-	for _, child := range composition.Root.Children {
+	bySubsystem := map[string]*composition.ComposedSystem{}
+	byAlias := map[string]*composition.ComposedSystem{}
+	for _, child := range composed.Root.Children {
 		bySubsystem[child.SubsystemID] = child
 		byAlias[child.Dependency] = child
 	}
@@ -659,8 +661,8 @@ func applyDelegatedStatus(matrix *TraceMatrix, composition CompositionResult) {
 		rows map[string]TraceRow
 		ok   bool
 	}
-	cache := map[*ComposedSystem]cached{}
-	status := func(child *ComposedSystem, requirement string) *TraceDelegatedStatus {
+	cache := map[*composition.ComposedSystem]cached{}
+	status := func(child *composition.ComposedSystem, requirement string) *TraceDelegatedStatus {
 		if child == nil || requirement == "" {
 			return nil
 		}
@@ -706,7 +708,7 @@ func applyDelegatedStatus(matrix *TraceMatrix, composition CompositionResult) {
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection CompositionProjection, composition CompositionResult) {
+func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection composition.CompositionProjection, composed composition.CompositionResult) {
 	for _, entity := range projection.Domain("requirements") {
 		requirement, ok := entity.Value.(model.Requirement)
 		if !ok {
@@ -714,14 +716,14 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 		}
 		row := TraceRow{
 			ID: entity.QualifiedID, Text: strings.TrimSpace(requirement.Text),
-			Units: entity.qualifyList(requirement.AppliesTo),
+			Units: entity.QualifyList(requirement.AppliesTo),
 			Provenance: &TraceProvenance{
 				Alias: entity.Provenance.Alias, ModulePath: entity.Provenance.ModulePath,
 				Version: entity.Provenance.Version, SourceModel: entity.Provenance.SourceModel,
 				Publication: entity.Provenance.Publication, SourceID: entity.SourceID,
 			},
 		}
-		for _, allocation := range composition.Allocations {
+		for _, allocation := range composed.Allocations {
 			alias, _, err := model.ParseQualifiedReference(allocation.Target)
 			if err == nil && alias == entity.Provenance.Alias && allocation.TargetRef == entity.SourceID {
 				row.DelegatedTo = &TraceDelegation{
@@ -741,7 +743,7 @@ func appendPublishedRequirementTraceRows(matrix *TraceMatrix, projection Composi
 				row.Verifications = append(row.Verifications, candidate.QualifiedID)
 			}
 		}
-		row.Verifications = uniqueSorted(row.Verifications)
+		row.Verifications = textutil.UniqueSorted(row.Verifications)
 		switch {
 		case len(row.Verifications) > 0:
 			row.Status = "verified"

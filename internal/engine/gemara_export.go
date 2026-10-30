@@ -25,7 +25,9 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 	goyaml "github.com/goccy/go-yaml"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -97,7 +99,7 @@ func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions
 	if err != nil {
 		return GemaraExportResult{}, err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "behavior", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "behavior", "assurance", "compliance")
 	if err != nil {
 		return GemaraExportResult{}, err
 	}
@@ -306,7 +308,7 @@ func (c gemaraConfig) newMetadata(id, description string, t gemara.ArtifactType)
 		Id:            id,
 		Type:          t,
 		GemaraVersion: GemaraVersion,
-		Description:   fallback(description, id),
+		Description:   textutil.Fallback(description, id),
 		Author:        c.author,
 		Version:       strings.TrimSpace(c.options.Version),
 	}
@@ -366,8 +368,8 @@ func buildVectorCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.VectorCata
 	for _, av := range a.AttackVectors {
 		cat.Vectors = append(cat.Vectors, gemara.Vector{
 			Id:            av.ID,
-			Title:         fallback(av.Name, av.ID),
-			Description:   fallback(av.Description, fallback(av.Name, av.ID)),
+			Title:         textutil.Fallback(av.Name, av.ID),
+			Description:   textutil.Fallback(av.Description, textutil.Fallback(av.Name, av.ID)),
 			Group:         group.Id,
 			Applicability: []string{allEnv},
 		})
@@ -389,7 +391,7 @@ func buildCapabilityCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.Capabi
 	// Groups from functional groups, plus a system group for the catch-all capability.
 	groups := newGroupSet()
 	for _, fg := range a.FunctionalGroups {
-		groups.add(fg.ID, fallback(fg.Name, fg.ID), fallback(fg.Description, fallback(fg.Name, fg.ID)))
+		groups.add(fg.ID, textutil.Fallback(fg.Name, fg.ID), textutil.Fallback(fg.Description, textutil.Fallback(fg.Name, fg.ID)))
 	}
 	const sysGroup = "system"
 	groups.add(sysGroup, "System", "Whole-system capability scope.")
@@ -409,8 +411,8 @@ func buildCapabilityCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.Capabi
 		}
 		cat.Capabilities = append(cat.Capabilities, gemara.Capability{
 			Id:          fu.ID,
-			Title:       fallback(fu.Name, fu.ID),
-			Description: fallback(fu.Prose, fallback(fu.Name, fu.ID)),
+			Title:       textutil.Fallback(fu.Name, fu.ID),
+			Description: textutil.Fallback(fu.Prose, textutil.Fallback(fu.Name, fu.ID)),
 			Group:       g,
 		})
 	}
@@ -451,8 +453,8 @@ func buildThreatCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.ThreatCata
 
 		threat := gemara.Threat{
 			Id:          ts.ID,
-			Title:       fallback(ts.Title, ts.ID),
-			Description: fallback(ts.Summary, fallback(ts.Title, ts.ID)),
+			Title:       textutil.Fallback(ts.Title, ts.ID),
+			Description: textutil.Fallback(ts.Summary, textutil.Fallback(ts.Title, ts.ID)),
 			Group:       gid,
 		}
 
@@ -515,24 +517,24 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.ControlCa
 	threatsByControl := map[string][]string{}
 	for _, tm := range a.ThreatMitigations {
 		if tm.ControlRef != "" && tm.ThreatScenarioRef != "" {
-			threatsByControl[tm.ControlRef] = appendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
+			threatsByControl[tm.ControlRef] = textutil.AppendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
 		}
 	}
 	for _, ts := range a.ThreatScenarios {
 		for _, ctrl := range ts.RelatedControls {
-			threatsByControl[ctrl] = appendUnique(threatsByControl[ctrl], ts.ID)
+			threatsByControl[ctrl] = textutil.AppendUnique(threatsByControl[ctrl], ts.ID)
 		}
 	}
 	// Index control -> appliesTo functional units via compliance mappings.
 	appliesByControl := map[string][]string{}
 	for _, m := range bundle.Architecture.Compliance.Mappings {
-		appliesByControl[m.ModelControlRef] = appendUniqueSlice(appliesByControl[m.ModelControlRef], m.AppliesTo)
+		appliesByControl[m.ModelControlRef] = textutil.AppendUniqueSlice(appliesByControl[m.ModelControlRef], m.AppliesTo)
 	}
 
 	// Applicability groups: functional units plus an all-systems catch-all.
 	appGroups := newGroupSet()
 	for _, fu := range a.FunctionalUnits {
-		appGroups.add(fu.ID, fallback(fu.Name, fu.ID), fallback(fu.Prose, fallback(fu.Name, fu.ID)))
+		appGroups.add(fu.ID, textutil.Fallback(fu.Name, fu.ID), textutil.Fallback(fu.Prose, textutil.Fallback(fu.Name, fu.ID)))
 	}
 	const allApplicability = "all-systems"
 	appGroups.add(allApplicability, "All Systems", "Applies across the whole system.")
@@ -553,7 +555,7 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.ControlCa
 		var applicability []string
 		for _, at := range appliesByControl[ctrl.ID] {
 			if appGroups.has(at) {
-				applicability = appendUnique(applicability, at)
+				applicability = textutil.AppendUnique(applicability, at)
 			}
 		}
 		if len(applicability) == 0 {
@@ -562,8 +564,8 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.ControlCa
 
 		c := gemara.Control{
 			Id:        ctrl.ID,
-			Title:     fallback(ctrl.Name, ctrl.ID),
-			Objective: fallback(ctrl.Description, fallback(ctrl.Name, ctrl.ID)),
+			Title:     textutil.Fallback(ctrl.Name, ctrl.ID),
+			Objective: textutil.Fallback(ctrl.Description, textutil.Fallback(ctrl.Name, ctrl.ID)),
 			Group:     gid,
 			State:     gemara.LifecycleActive,
 		}
@@ -605,9 +607,9 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.ControlCa
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func buildAssessmentRequirements(ctrl model.Control, verifs []model.ControlVerification, applicability []string) []gemara.AssessmentRequirement {
 	var reqs []gemara.AssessmentRequirement
-	name := fallback(ctrl.Name, ctrl.ID)
+	name := textutil.Fallback(ctrl.Name, ctrl.ID)
 	for _, cv := range verifs {
-		method := fallback(cv.Method, "verification")
+		method := textutil.Fallback(cv.Method, "verification")
 		text := fmt.Sprintf("The control %q MUST be verified by %s.", name, method)
 		var rec string
 		if len(cv.Findings) > 0 {
@@ -622,7 +624,7 @@ func buildAssessmentRequirements(ctrl model.Control, verifs []model.ControlVerif
 		})
 	}
 	if len(reqs) == 0 {
-		obj := fallback(ctrl.Description, name)
+		obj := textutil.Fallback(ctrl.Description, name)
 		reqs = append(reqs, gemara.AssessmentRequirement{
 			Id:            ctrl.ID + "-AR-1",
 			Text:          fmt.Sprintf("The system MUST implement the control %q: %s", name, obj),
@@ -668,8 +670,8 @@ func buildRiskCatalog(bundle model.Bundle, cfg gemaraConfig) gemara.RiskCatalog 
 	for _, r := range a.Risks {
 		risk := gemara.Risk{
 			Id:          r.ID,
-			Title:       fallback(r.Title, r.ID),
-			Description: fallback(r.Statement, fallback(r.Title, r.ID)),
+			Title:       textutil.Fallback(r.Title, r.ID),
+			Description: textutil.Fallback(r.Statement, textutil.Fallback(r.Title, r.ID)),
 			Group:       defaultCategory,
 			Severity:    deriveSeverity(r.Likelihood, r.Impact),
 			Rank:        int64(rankByID[r.ID]),
@@ -788,7 +790,7 @@ func (g *groupSet) add(id, title, desc string) {
 		return
 	}
 	g.seen[id] = true
-	g.groups = append(g.groups, gemara.Group{Id: id, Title: fallback(title, id), Description: fallback(desc, fallback(title, id))})
+	g.groups = append(g.groups, gemara.Group{Id: id, Title: textutil.Fallback(title, id), Description: textutil.Fallback(desc, textutil.Fallback(title, id))})
 }
 
 // TRLC-LINKS: REQ-EMG-015
@@ -902,25 +904,4 @@ func slug(s string) string {
 		}
 	}
 	return strings.Trim(b.String(), "-")
-}
-
-// TRLC-LINKS: REQ-EMG-015
-// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func fallback(s, def string) string {
-	if strings.TrimSpace(s) == "" {
-		return def
-	}
-	return s
-}
-
-// sortedKeys returns map keys in deterministic order (used by serialization helpers).
-// TRLC-LINKS: REQ-EMG-015
-// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func sortedKeys[V any](m map[string]V) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }

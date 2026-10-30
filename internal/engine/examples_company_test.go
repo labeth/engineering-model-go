@@ -7,6 +7,7 @@ import (
 
 	"cuelang.org/go/mod/module"
 	"cuelang.org/go/mod/modzip"
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
@@ -54,24 +55,24 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 	}
 
 	portfolio := filepath.Join(root, "repos", "company-portfolio", "engmod.yml")
-	composition, err := GenerateCompositionFromFile(portfolio)
+	composed, err := composition.GenerateCompositionFromFile(portfolio)
 	if err != nil {
 		t.Fatalf("compose portfolio: %v", err)
 	}
-	for _, diagnostic := range composition.Diagnostics {
+	for _, diagnostic := range composed.Diagnostics {
 		if diagnostic.Severity == validate.SeverityError {
 			t.Fatalf("composition error: %s %s", diagnostic.Code, diagnostic.Message)
 		}
 	}
-	if composition.Root == nil {
+	if composed.Root == nil {
 		t.Fatal("portfolio composition has no root")
 	}
-	if got := len(composition.Root.Children); got != 2 {
+	if got := len(composed.Root.Children); got != 2 {
 		t.Fatalf("expected two product children, got %d", got)
 	}
 
 	shared := map[string]int{}
-	for _, product := range composition.Root.Children {
+	for _, product := range composed.Root.Children {
 		if got := len(product.Children); got != 4 {
 			t.Fatalf("product %s: expected four shared children, got %d", product.Bundle.Architecture.Model.ID, got)
 		}
@@ -89,7 +90,7 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 			t.Fatalf("expected shared module %s below both products, got %d uses", id, got)
 		}
 	}
-	for _, product := range composition.Root.Children {
+	for _, product := range composed.Root.Children {
 		foundPeopleBaseline := false
 		for _, child := range product.Children {
 			if child.Bundle.Architecture.Model.ID != "atlas-shared-compliance-baseline" {
@@ -106,10 +107,10 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 			t.Fatalf("product %s does not inherit the people compliance baseline", product.Bundle.Architecture.Model.ID)
 		}
 	}
-	if got := len(composition.Allocations); got != 10 {
+	if got := len(composed.Allocations); got != 10 {
 		t.Fatalf("expected ten recursive requirement allocations, got %d", got)
 	}
-	for _, allocation := range composition.Allocations {
+	for _, allocation := range composed.Allocations {
 		if !allocation.Resolved || !allocation.TargetRefResolved {
 			t.Fatalf("unresolved allocation: %+v", allocation)
 		}

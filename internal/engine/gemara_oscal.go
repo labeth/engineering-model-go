@@ -18,7 +18,9 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/gemaraproj/go-gemara/gemaraconv"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // gemaraOSCALControlHrefFormat is the URL template linking OSCAL controls back to
@@ -34,7 +36,7 @@ func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraE
 	if err != nil {
 		return "", err
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance")
 	if err != nil {
 		return "", err
 	}
@@ -94,7 +96,7 @@ func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirement
 		}
 		bundle.Requirements = requirements
 	}
-	bundle, err = enrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
 	if err != nil {
 		return "", err
 	}
@@ -257,7 +259,7 @@ func collectGemaraOSCALUUIDs(value any, path, seed string, replacements map[stri
 			childPath := path + "." + key
 			if key == "uuid" {
 				if old, ok := typed[key].(string); ok && old != "" {
-					replacements[old] = deterministicUUID("gemara-oscal|" + seed + "|" + path)
+					replacements[old] = textutil.DeterministicUUID("gemara-oscal|" + seed + "|" + path)
 				}
 				continue
 			}

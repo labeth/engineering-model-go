@@ -9,7 +9,9 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -131,7 +133,7 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 	if err != nil {
 		return StructurizrExportResult{}, err
 	}
-	projection, _, err := ResolveCompositionProjection(bundle)
+	projection, _, err := composition.ResolveCompositionProjection(bundle)
 	if err != nil {
 		return StructurizrExportResult{}, err
 	}
@@ -141,11 +143,11 @@ func GenerateStructurizrDSLFromFile(architecturePath string) (StructurizrExportR
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-005, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateStructurizrDSL(bundle model.Bundle) (StructurizrExportResult, error) {
-	return generateStructurizrDSL(bundle, CompositionProjection{})
+	return generateStructurizrDSL(bundle, composition.CompositionProjection{})
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
-func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjection) (StructurizrExportResult, error) {
+func generateStructurizrDSL(bundle model.Bundle, projection composition.CompositionProjection) (StructurizrExportResult, error) {
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return StructurizrExportResult{}, err
@@ -167,7 +169,7 @@ func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjectio
 		rootIdentifier = uniqueIdentifier("sys_main", usedIdentifiers)
 	}
 
-	title := safeDSLText(nonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), nonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "Architecture")))
+	title := safeDSLText(textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "Architecture")))
 	description := safeDSLText(strings.TrimSpace(bundle.Architecture.Model.Introduction))
 
 	containers := []structurizrElement{}
@@ -222,25 +224,25 @@ func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjectio
 	for _, x := range sortedControls(a.Controls) {
 		id := registerIdentifier(x.ID, "ctrl", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Control", strings.TrimSpace(x.Category)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Control", strings.TrimSpace(x.Category)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
 	}
 
 	for _, x := range sortedAttackVectors(a.AttackVectors) {
 		id := registerIdentifier(x.ID, "av", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"AttackVector"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"AttackVector"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
 	}
 
 	for _, x := range sortedTrustBoundaries(a.TrustBoundaries) {
 		id := registerIdentifier(x.ID, "tb", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"TrustBoundary", strings.TrimSpace(x.BoundaryType)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "parentRef", Value: strings.TrimSpace(x.ParentRef)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"TrustBoundary", strings.TrimSpace(x.BoundaryType)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "parentRef", Value: strings.TrimSpace(x.ParentRef)}}})
 	}
 
 	for _, x := range sortedThreatScenarios(a.ThreatScenarios) {
 		id := registerIdentifier(x.ID, "ts", usedIdentifiers, elementIDByModelID)
 		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(nonEmpty(strings.TrimSpace(x.Title), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Summary)), Tags: []string{"ThreatScenario", strings.TrimSpace(x.Stride), strings.TrimSpace(x.Status)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "severity", Value: strings.TrimSpace(x.Severity)}, {Name: "likelihood", Value: strings.TrimSpace(x.Likelihood)}, {Name: "impact", Value: strings.TrimSpace(x.Impact)}}})
+		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Title), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Summary)), Tags: []string{"ThreatScenario", strings.TrimSpace(x.Stride), strings.TrimSpace(x.Status)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "severity", Value: strings.TrimSpace(x.Severity)}, {Name: "likelihood", Value: strings.TrimSpace(x.Likelihood)}, {Name: "impact", Value: strings.TrimSpace(x.Impact)}}})
 	}
 
 	containerGroups := buildContainerGroups(containers, a.FunctionalUnits, a.FunctionalGroups)
@@ -255,7 +257,7 @@ func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjectio
 		if from == "" || to == "" {
 			continue
 		}
-		label := nonEmpty(strings.TrimSpace(m.Description), strings.TrimSpace(m.Type))
+		label := textutil.NonEmpty(strings.TrimSpace(m.Description), strings.TrimSpace(m.Type))
 		technology := "Model relationship"
 		if mappingType := strings.TrimSpace(m.Type); mappingType != "" {
 			technology = "Model relationship: " + mappingType
@@ -292,7 +294,7 @@ func generateStructurizrDSL(bundle model.Bundle, projection CompositionProjectio
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
 func projectionDisplayName(id, name string) string {
 	id = strings.TrimSpace(id)
-	name = nonEmpty(strings.TrimSpace(name), id)
+	name = textutil.NonEmpty(strings.TrimSpace(name), id)
 	if strings.Contains(id, "::") {
 		return id + " — " + name
 	}
@@ -308,7 +310,7 @@ func buildContainerGroups(containers []structurizrElement, units []model.Functio
 	}
 	groupNameByID := map[string]string{}
 	for _, g := range groups {
-		groupNameByID[strings.TrimSpace(g.ID)] = nonEmpty(strings.TrimSpace(g.Name), strings.TrimSpace(g.ID))
+		groupNameByID[strings.TrimSpace(g.ID)] = textutil.NonEmpty(strings.TrimSpace(g.Name), strings.TrimSpace(g.ID))
 	}
 	groupItems := map[string][]structurizrElement{}
 	ungrouped := []structurizrElement{}
@@ -319,7 +321,7 @@ func buildContainerGroups(containers []structurizrElement, units []model.Functio
 			ungrouped = append(ungrouped, c)
 			continue
 		}
-		name := nonEmpty(groupNameByID[groupID], groupID)
+		name := textutil.NonEmpty(groupNameByID[groupID], groupID)
 		groupItems[name] = append(groupItems[name], c)
 	}
 	names := make([]string, 0, len(groupItems))
@@ -374,13 +376,13 @@ func buildDeploymentModel(a model.AuthoredArchitecture, elementIDByModelID map[s
 	envNodes := map[string][]structurizrDeploymentNode{}
 	for _, t := range sortedDeploymentTargets(a.DeploymentTargets) {
 		targetID := strings.TrimSpace(t.ID)
-		env := nonEmpty(strings.TrimSpace(t.Environment), "default")
+		env := textutil.NonEmpty(strings.TrimSpace(t.Environment), "default")
 		nodeID := uniqueIdentifier("dn_"+sanitizeIdentifier(targetID), usedIdentifiers)
 		node := structurizrDeploymentNode{
 			Identifier:  nodeID,
-			Name:        safeDSLText(nonEmpty(strings.TrimSpace(t.Name), targetID)),
+			Name:        safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Name), targetID)),
 			Description: safeDSLText(strings.TrimSpace(strings.Join([]string{t.Account, t.Region, t.Namespace}, " "))),
-			Technology:  safeDSLText(nonEmpty(strings.TrimSpace(t.Cluster), "Deployment Target")),
+			Technology:  safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Cluster), "Deployment Target")),
 			Tags:        []string{"DeploymentTarget", env},
 			Properties: []structurizrProperty{
 				{Name: "sourceId", Value: targetID},
@@ -427,7 +429,7 @@ func buildDynamicViews(a model.AuthoredArchitecture, elementIDByModelID map[stri
 		views = append(views, structurizrDynamicView{
 			Scope:       scope,
 			Key:         "dynamic_" + sanitizeIdentifier(strings.TrimSpace(f.ID)),
-			Description: safeDSLText(nonEmpty(strings.TrimSpace(f.Description), nonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)))),
+			Description: safeDSLText(textutil.NonEmpty(strings.TrimSpace(f.Description), textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)))),
 			Steps:       []structurizrRelationship{step},
 		})
 	}

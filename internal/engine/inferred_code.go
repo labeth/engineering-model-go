@@ -14,7 +14,9 @@ import (
 	"sync"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -110,8 +112,8 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				Owner:      owner,
 				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
 				AbsPath:    filepath.Join(sourceBase, s.Path),
-				Implements: uniqueSorted(s.Implements),
-				ModelLinks: uniqueSorted(s.ModelLinks),
+				Implements: textutil.UniqueSorted(s.Implements),
+				ModelLinks: textutil.UniqueSorted(s.ModelLinks),
 			})
 		}
 	}
@@ -128,7 +130,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		pathsBySource[item.Source] = item.AbsPath
 	}
 	for i := range items {
-		if items[i].Kind == "symbol" && pathWithin(baseDir, items[i].AbsPath) {
+		if items[i].Kind == "symbol" && composition.PathWithin(baseDir, items[i].AbsPath) {
 			relative, err := filepath.Rel(baseDir, items[i].AbsPath)
 			if err != nil {
 				return nil, []validate.Diagnostic{{Code: "code.relative_path_failed", Severity: validate.SeverityError, Message: err.Error(), Path: items[i].AbsPath}}

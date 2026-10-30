@@ -14,6 +14,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -206,7 +207,7 @@ func policyTechnologies(a model.AuthoredArchitecture) []string {
 	var out []string
 	for _, i := range a.Interfaces {
 		if p := strings.TrimSpace(i.Protocol); p != "" {
-			out = appendUnique(out, p)
+			out = textutil.AppendUnique(out, p)
 		}
 	}
 	if len(out) == 0 {
@@ -221,9 +222,9 @@ func policySensitivities(a model.AuthoredArchitecture) []string {
 	var out []string
 	for _, d := range a.DataObjects {
 		if c := strings.TrimSpace(d.Classification); c != "" {
-			out = appendUnique(out, c)
+			out = textutil.AppendUnique(out, c)
 		} else if s := strings.TrimSpace(d.Sensitivity); s != "" {
-			out = appendUnique(out, s)
+			out = textutil.AppendUnique(out, s)
 		}
 	}
 	if len(out) == 0 {
@@ -237,7 +238,7 @@ func policySensitivities(a model.AuthoredArchitecture) []string {
 func policyUsers(a model.AuthoredArchitecture) []string {
 	var out []string
 	for _, ac := range a.Actors {
-		out = appendUnique(out, fallback(ac.Name, ac.ID))
+		out = textutil.AppendUnique(out, textutil.Fallback(ac.Name, ac.ID))
 	}
 	if len(out) == 0 {
 		out = []string{"system operators"}
@@ -284,7 +285,7 @@ func policyRisks(a model.AuthoredArchitecture) (gemara.Risks, []string) {
 			risks.Accepted = append(risks.Accepted, gemara.AcceptedRisk{
 				Id:            "ACC-" + r.ID,
 				Risk:          ref,
-				Justification: fallback(r.Rationale, fallback(r.ResidualRisk, "Justification "+gemaraNotSet+".")),
+				Justification: textutil.Fallback(r.Rationale, textutil.Fallback(r.ResidualRisk, "Justification "+gemaraNotSet+".")),
 			})
 		case riskMitigated(r):
 			risks.Mitigated = append(risks.Mitigated, gemara.MitigatedRisk{Id: "MIT-" + r.ID, Risk: ref})
@@ -328,10 +329,10 @@ func policyContacts(bundle model.Bundle) ([]gemara.Contact, bool) {
 	}
 	var owners []string
 	for _, r := range a.Risks {
-		owners = appendUnique(owners, strings.TrimSpace(r.Owner))
+		owners = textutil.AppendUnique(owners, strings.TrimSpace(r.Owner))
 	}
 	for _, cv := range a.ControlVerifications {
-		owners = appendUnique(owners, strings.TrimSpace(cv.Owner))
+		owners = textutil.AppendUnique(owners, strings.TrimSpace(cv.Owner))
 	}
 	var out []gemara.Contact
 	seen := map[string]bool{}
@@ -339,7 +340,7 @@ func policyContacts(bundle model.Bundle) ([]gemara.Contact, bool) {
 		if o == "" {
 			continue
 		}
-		name := fallback(names[o], o)
+		name := textutil.Fallback(names[o], o)
 		if seen[name] {
 			continue
 		}
