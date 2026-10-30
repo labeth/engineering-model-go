@@ -7,7 +7,7 @@ semantic versioning.
 ## [Unreleased]
 
 Code references derived from repository paths, fixes from field use of the trace, MCP and Gemara outputs,
-and multi-repository support from the `test-system` spike: everything runs locally (CLIs, `engws`, a
+and multi-repository support from a multi-repository spike: everything runs locally (CLIs, `engws`, a
 per-checkout stdio MCP server) and dependencies come from the OCI registry into the local cache.
 
 ### Changed (breaking)
