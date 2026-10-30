@@ -43,7 +43,8 @@ var layerRules = map[string][]string{
 	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/codescan",
 		"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view",
 		"internal/render/*"},
-	// Test-only package for cross-package end-to-end tests.
+	// Test-only package for cross-package end-to-end tests; its tests may
+	// also drive the public facade and the MCP server.
 	"internal/integration": {},
 }
 
@@ -52,7 +53,8 @@ var layerRules = map[string][]string{
 var topPackages = map[string]string{"internal/mcp": "internal/engws", "internal/engws": "internal/mcp"}
 
 // Every internal package imports only packages below it, and only cmd/*,
-// internal/mcp and internal/engws import the root facade (tests included).
+// internal/mcp and internal/engws import the root facade; among tests only
+// internal/integration (end-to-end) may use it.
 // TRLC-LINKS: REQ-EMG-001
 func TestPackageLayering(t *testing.T) {
 	out, err := exec.Command("go", "list", "-f", "{{.ImportPath}}|{{join .Imports \" \"}}|{{join .TestImports \" \"}} {{join .XTestImports \" \"}}", "./...").Output()
@@ -73,9 +75,15 @@ func TestPackageLayering(t *testing.T) {
 			continue
 		}
 		checked++
-		for _, imp := range append(append([]string(nil), imports...), testImports...) {
+		for _, imp := range imports {
 			if _, top := topPackages[pkg]; imp == "" && !top {
 				t.Errorf("%s imports the root facade; only cmd/*, internal/mcp and internal/engws may", pkg)
+			}
+		}
+		// Tests may drive the public facade only in the end-to-end package.
+		for _, imp := range testImports {
+			if _, top := topPackages[pkg]; imp == "" && !top && pkg != "internal/integration" {
+				t.Errorf("%s tests import the root facade; put end-to-end tests in internal/integration", pkg)
 			}
 		}
 		if other, top := topPackages[pkg]; top {

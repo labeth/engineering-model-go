@@ -873,7 +873,7 @@ Core files:
 │   ├── asciidoc/               AsciiDoc publication (templates/asciidoc.tmpl)
 │   ├── export/                 one package per exporter: gemara, oscal, sysml (metamodel/),
 │   │                           structurizr, threatmodel, naf, trlc, lobster, airborne, exportutil
-│   ├── integration/            test-only: end-to-end composition → publication/trace/exporters
+│   ├── integration/            test-only: end-to-end tests through the facade and across packages
 │   ├── mcp/                    MCP server
 │   ├── engws/                  engmod.work.yml workspace tool
 │   ├── cliflags/               shared command-line flags
@@ -893,8 +893,8 @@ module; `validate` builds on `model`; `codemap` and `view` on those; `render/*` 
 `codemap`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
 `reqlint` and `trace`; `generate` on `view`, `render/*` and `codescan`; `export/*` on the
 layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`. Only `cmd/*`,
-`internal/mcp` and `internal/engws` import the root facade, and `mcp` and `engws` do not
-import each other. `layering_test.go` enforces the rules with `go list`.
+`internal/mcp` and `internal/engws` import the root facade (among tests, only
+`internal/integration`), and `mcp` and `engws` do not import each other. `layering_test.go` enforces the rules with `go list`.
 
 The tests of the `internal/...` implementation packages run from the repository root (their `TestMain` changes
 to the directory holding `go.mod`), so they name repository paths such as

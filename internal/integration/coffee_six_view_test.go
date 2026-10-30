@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-VIEW-PROJECTION
-package engmodel_test
+package integration
 
 import (
 	"bytes"

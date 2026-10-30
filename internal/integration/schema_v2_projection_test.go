@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
-package engmodel_test
+package integration
 
 import (
 	"encoding/json"
