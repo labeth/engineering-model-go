@@ -8,10 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
 	"github.com/labeth/engineering-model-go/internal/textutil"
+	"github.com/labeth/engineering-model-go/internal/trace"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -37,7 +39,7 @@ type AsciiDocResult struct {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return AsciiDocResult{}, err
 	}
@@ -69,10 +71,10 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	if err != nil {
 		return AsciiDocResult{}, err
 	}
-	bundle = withCodeIndex(canonical.Documents())
+	bundle = codescan.WithCodeIndex(canonical.Documents())
 	requirements = bundle.Requirements
 	design = bundle.Design
-	composed, compositionErr := composeForGeneration(bundle, options.Composition, options.Resolution)
+	composed, compositionErr := composition.ComposeForGeneration(bundle, options.Composition, options.Resolution)
 	validated, compositionDiags := validationBundle(bundle, composed, compositionErr)
 	diags := excludeUnpublishedReferenceEchoes(validate.Bundle(validated), compositionDiags)
 	diags = append(diags, compositionDiags...)
@@ -149,17 +151,17 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 
 	designGroups := mapDesignGroups(design)
 	designUnits := mapDesignUnits(design)
-	inferredRuntime, runtimeDiags := inferRuntimeItems(bundle)
-	inferredCode, codeDiags := inferCodeItems(bundle, options.CodeRoot)
-	inferredVerification, verificationDiags := inferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
+	inferredRuntime, runtimeDiags := codescan.InferRuntimeItems(bundle)
+	inferredCode, codeDiags := codescan.InferCodeItems(bundle, options.CodeRoot)
+	inferredVerification, verificationDiags := codescan.InferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
 	diags = append(diags, runtimeDiags...)
 	diags = append(diags, codeDiags...)
 	diags = append(diags, verificationDiags...)
 	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
 
-	delegationsByReq := delegationsByRequirement(composed)
-	scopedCode := scopeCodeToModel(inferredCode, effectiveCodeRoots(bundle, options.CodeRoot), modelRootDir(bundle))
-	diags = append(diags, validateTraceIntegrity(validated, requirements, scopedCode, inferredVerification, delegationsByReq)...)
+	delegationsByReq := composition.DelegationsByRequirement(composed)
+	scopedCode := trace.ScopeCodeToModel(inferredCode, trace.EffectiveCodeRoots(bundle, options.CodeRoot), codescan.ModelRootDir(bundle))
+	diags = append(diags, trace.ValidateIntegrity(validated, requirements, scopedCode, inferredVerification, delegationsByReq)...)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
 	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -355,7 +357,7 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 		}
 		return strings.Join(parts, ", ")
 	}
-	summarizeResults := func(results []inferredVerificationResult) string {
+	summarizeResults := func(results []codescan.VerificationResult) string {
 		if len(results) == 0 {
 			return "none"
 		}
@@ -688,22 +690,6 @@ func GenerateAsciiDoc(bundle model.Bundle, requirements model.RequirementsDocume
 	return AsciiDocResult{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
 }
 
-// composeForGeneration returns the composition for a bundle: the caller's
-// result when given, otherwise one fresh resolution with the bundle itself as
-// the root system (so in-memory content, not the files on disk, is checked).
-// A model without composition returns an empty result.
-// TRLC-LINKS: REQ-EMG-066
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION
-func composeForGeneration(bundle model.Bundle, given *composition.CompositionResult, options composition.ResolutionOptions) (composition.CompositionResult, error) {
-	if !composition.HasComposition(bundle) {
-		return composition.CompositionResult{}, nil
-	}
-	if given != nil {
-		return *given, nil
-	}
-	return composition.GenerateCompositionForBundle(bundle, options)
-}
-
 // validationBundle enriches the bundle with the dependencies' published
 // architecture, behavior, assurance and compliance entities, so
 // alias::ID references validate. Requirements are not imported. It returns the
@@ -778,16 +764,4 @@ func firstQuoted(message string) (string, bool) {
 		}
 	}
 	return "", false
-}
-
-// delegationsByRequirement indexes the composition's allocations by requirement.
-// TRLC-LINKS: REQ-EMG-020, REQ-EMG-066
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func delegationsByRequirement(composed composition.CompositionResult) map[string][]composition.MaterializedAllocation {
-	out := map[string][]composition.MaterializedAllocation{}
-	for _, m := range composed.Allocations {
-		rid := strings.TrimSpace(m.Requirement)
-		out[rid] = append(out[rid], m)
-	}
-	return out
 }

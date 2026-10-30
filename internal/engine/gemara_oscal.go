@@ -18,6 +18,7 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/gemaraproj/go-gemara/gemaraconv"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -32,7 +33,7 @@ const gemaraOSCALControlHrefFormat = "https://gemara.local/controls/%s#%s"
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraExportOptions) (string, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +85,7 @@ func GenerateGemaraOSCALCatalog(bundle model.Bundle, options GemaraExportOptions
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (string, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return "", err
 	}

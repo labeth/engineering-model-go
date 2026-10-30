@@ -13,6 +13,7 @@ import (
 
 	gemara "github.com/gemaraproj/go-gemara"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -34,7 +35,7 @@ type GemaraEvaluationResult struct {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (GemaraEvaluationResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return GemaraEvaluationResult{}, err
 	}

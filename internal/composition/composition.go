@@ -1306,3 +1306,31 @@ func hardwareItem(bundle model.Bundle, id string) bool {
 func errDiag(code, msg, path string) validate.Diagnostic {
 	return validate.Diagnostic{Code: code, Severity: validate.SeverityError, Message: msg, Path: path}
 }
+
+// ComposeForGeneration returns the composition for a bundle: the caller's
+// result when given, otherwise one fresh resolution with the bundle itself as
+// the root system (so in-memory content, not the files on disk, is checked).
+// A model without composition returns an empty result.
+// TRLC-LINKS: REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION
+func ComposeForGeneration(bundle model.Bundle, given *CompositionResult, options ResolutionOptions) (CompositionResult, error) {
+	if !HasComposition(bundle) {
+		return CompositionResult{}, nil
+	}
+	if given != nil {
+		return *given, nil
+	}
+	return GenerateCompositionForBundle(bundle, options)
+}
+
+// DelegationsByRequirement indexes the composition's allocations by requirement.
+// TRLC-LINKS: REQ-EMG-020, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func DelegationsByRequirement(composed CompositionResult) map[string][]MaterializedAllocation {
+	out := map[string][]MaterializedAllocation{}
+	for _, m := range composed.Allocations {
+		rid := strings.TrimSpace(m.Requirement)
+		out[rid] = append(out[rid], m)
+	}
+	return out
+}

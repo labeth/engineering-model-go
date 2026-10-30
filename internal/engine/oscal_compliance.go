@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
@@ -288,7 +289,7 @@ func resolveOSCALPath(bundle model.Bundle, href, baseDir string) (string, bool) 
 		return filepath.Clean(filepath.Join(baseDir, href)), true
 	}
 	if bundle.ManifestPath != "" || bundle.ArchitecturePath != "" {
-		return filepath.Clean(filepath.Join(modelRootDir(bundle), href)), true
+		return filepath.Clean(filepath.Join(codescan.ModelRootDir(bundle), href)), true
 	}
 	return filepath.Clean(href), true
 }

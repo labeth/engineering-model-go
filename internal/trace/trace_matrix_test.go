@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-ALLOCATION-TRACE
-package engine
+package trace
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/testutil"
@@ -23,12 +24,12 @@ func TestTraceIntegrityFlagsDanglingLinks(t *testing.T) {
 		FunctionalUnits: []model.FunctionalUnit{{ID: "FU-REAL"}},
 	}}}
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}}}
-	code := []inferredCodeItem{
+	code := []codescan.CodeItem{
 		{Element: "good", Source: "a.go:1", Implements: []string{"REQ-X-001"}, ModelLinks: []string{"FU-REAL"}},
 		{Element: "bad", Source: "b.go:2", Implements: []string{"REQ-X-999"}, ModelLinks: []string{"FU-GHOST"}},
 	}
 	gotReq, gotModel := false, false
-	for _, d := range validateTraceIntegrity(bundle, reqs, code, nil, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, code, nil, nil) {
 		if d.Code == "code.dangling_requirement_link" && d.Severity == validate.SeverityError {
 			gotReq = true
 		}
@@ -47,9 +48,9 @@ func TestTraceIntegrityFlagsDanglingLinks(t *testing.T) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE
 func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
-	code := []inferredCodeItem{{Element: "c", Source: "a.go:1", Implements: []string{"REQ-X-001"}}}
+	code := []codescan.CodeItem{{Element: "c", Source: "a.go:1", Implements: []string{"REQ-X-001"}}}
 	orphan := map[string]bool{}
-	for _, d := range validateTraceIntegrity(model.Bundle{}, reqs, code, nil, nil) {
+	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, code, nil, nil) {
 		if d.Code == "requirement.orphan" {
 			for _, r := range []string{"REQ-X-001", "REQ-X-002"} {
 				if strings.Contains(d.Message, r) {
@@ -73,7 +74,7 @@ func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 func TestTraceIntegrityDelegationCoversOrphan(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}}}
 	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-001": {{Requirement: "REQ-X-001", Subsystem: "SUB", Target: "CAP"}}}
-	for _, d := range validateTraceIntegrity(model.Bundle{}, reqs, nil, nil, deleg) {
+	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, nil, deleg) {
 		if d.Code == "requirement.orphan" {
 			t.Fatalf("delegated requirement must not be orphan: %s", d.Message)
 		}
@@ -89,13 +90,13 @@ func TestBuildTraceMatrixStatusAndDelegation(t *testing.T) {
 		{ID: "REQ-X-001", AppliesTo: []string{"FU-A"}},
 		{ID: "REQ-X-002"},
 	}}
-	code := []inferredCodeItem{{Element: "impl", Source: "a.go:5", Implements: []string{"REQ-X-001"}}}
+	code := []codescan.CodeItem{{Element: "impl", Source: "a.go:5", Implements: []string{"REQ-X-001"}}}
 	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-002": {{Requirement: "REQ-X-002", Subsystem: "SUB-T", Target: "CAP-T", TargetRef: "REQ-T-001"}}}
 	m := buildTraceMatrix(model.Bundle{}, reqs, code, nil, deleg)
 	if m.Summary.Requirements != 2 || m.Summary.Implemented != 1 || m.Summary.Delegated != 1 {
 		t.Fatalf("unexpected summary: %+v", m.Summary)
 	}
-	byID := map[string]TraceRow{}
+	byID := map[string]Row{}
 	for _, r := range m.Requirements {
 		byID[r.ID] = r
 	}
@@ -121,11 +122,11 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 	testutil.WriteFile(t, filepath.Join(dir, "child", "engmod.yml"), "model:\n  id: CHILD\n")
 	testutil.WriteFile(t, filepath.Join(dir, "parent.go"), "package x\n")
 	testutil.WriteFile(t, filepath.Join(dir, "child", "kid.go"), "package y\n")
-	items := []inferredCodeItem{
+	items := []codescan.CodeItem{
 		{Element: "p", Source: "parent.go:1", AbsPath: filepath.Join(dir, "parent.go"), Implements: []string{"REQ-TOP-001"}},
 		{Element: "k", Source: "child/kid.go:1", AbsPath: filepath.Join(dir, "child", "kid.go"), Implements: []string{"REQ-CHILD-001"}},
 	}
-	scoped := scopeCodeToModel(items, []string{dir}, dir)
+	scoped := ScopeCodeToModel(items, []string{dir}, dir)
 	if len(scoped) != 1 || scoped[0].Element != "p" {
 		t.Fatalf("expected only parent code attributed to TOP, got %+v", scoped)
 	}
@@ -137,7 +138,7 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
-	checks := []inferredVerificationCheck{{ID: "VC-X", Name: "TestX", Verifies: []string{"REQ-X-001"}}}
+	checks := []codescan.VerificationCheck{{ID: "VC-X", Name: "TestX", Verifies: []string{"REQ-X-001"}}}
 	m := buildTraceMatrix(model.Bundle{}, reqs, nil, checks, nil)
 	raw, err := json.Marshal(m.Summary)
 	if err != nil {

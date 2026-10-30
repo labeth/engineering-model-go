@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 )
@@ -97,7 +98,7 @@ func renderMappings(in []model.Mapping) []asciidocMappingSection {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
+func renderInferredRuntime(in []codescan.RuntimeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
 	for _, x := range in {
 		out = append(out, asciidocInferredRow{Name: x.Name, Kind: x.Kind, Owner: x.Owner, Source: x.Source})
@@ -107,10 +108,10 @@ func renderInferredRuntime(in []inferredRuntimeItem) []asciidocInferredRow {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func renderInferredCode(in []inferredCodeItem) []asciidocInferredRow {
+func renderInferredCode(in []codescan.CodeItem) []asciidocInferredRow {
 	out := make([]asciidocInferredRow, 0, len(in))
 	for _, x := range in {
-		out = append(out, asciidocInferredRow{Name: codeItemDisplayName(x), Kind: x.Kind, Owner: x.Owner, Source: sanitizeSourcePath(x.Source)})
+		out = append(out, asciidocInferredRow{Name: codescan.ItemDisplayName(x), Kind: x.Kind, Owner: x.Owner, Source: codescan.SanitizeSourcePath(x.Source)})
 	}
 	return out
 }
@@ -309,7 +310,7 @@ func viewCoverageSummary(kind string, units []asciidocUnitSection) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-003
-func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, labels map[string]string, runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityAttackChapter {
+func buildSecurityAttackChapters(a model.AuthoredArchitecture, units []asciidocUnitSection, nodeSet map[string]bool, securityRows []asciidocSecurityPathRow, labels map[string]string, runtime []codescan.RuntimeItem, code []codescan.CodeItem) []asciidocSecurityAttackChapter {
 	unitByID := map[string]asciidocUnitSection{}
 	for _, u := range units {
 		unitByID[strings.TrimSpace(u.ID)] = u

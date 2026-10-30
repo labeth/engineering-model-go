@@ -25,6 +25,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 	goyaml "github.com/goccy/go-yaml"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -95,7 +96,7 @@ type GemaraExportResult struct {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions) (GemaraExportResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return GemaraExportResult{}, err
 	}

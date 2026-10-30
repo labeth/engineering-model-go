@@ -14,6 +14,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/testutil"
+	"github.com/labeth/engineering-model-go/internal/trace"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -61,7 +62,7 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 		t.Fatal("AsciiDoc exposed unpublished dependency data")
 	}
 
-	trace, _, err := BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, "")
+	trace, _, err := trace.BuildFromFiles(manifest, bundle.RequirementsPath, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +183,7 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 		t.Fatal("a dependency with escaping paths must not be loaded")
 	}
 	// The trace never reads the rejected dependency either.
-	_, traceDiags, err := BuildTraceMatrixFromFiles(filepath.Join(workspace, "engmod.yml"), filepath.Join(workspace, "model", "requirements.yml"), "")
+	_, traceDiags, err := trace.BuildFromFiles(filepath.Join(workspace, "engmod.yml"), filepath.Join(workspace, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}

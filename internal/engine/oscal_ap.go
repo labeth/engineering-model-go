@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -40,7 +41,7 @@ type oscalAssessmentPlan struct {
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentPlanFromFile(architecturePath string, options OSCALAPOptions) (OSCALAPResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return OSCALAPResult{}, err
 	}

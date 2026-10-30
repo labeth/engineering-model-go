@@ -13,7 +13,9 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/trace"
 	"github.com/labeth/engineering-model-go/internal/validate"
 	"gopkg.in/yaml.v3"
 )
@@ -138,7 +140,7 @@ func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan,
 	if err := decodeStrictYAML(candidateYAML, &candidate); err != nil {
 		return requirementsDeltaPlan{}, fmt.Errorf("decode merged requirements: %w", err)
 	}
-	bundle, err := loadBundle(filepath.Join(filepath.Dir(rootPath), "engmod.yml"))
+	bundle, err := codescan.LoadBundle(filepath.Join(filepath.Dir(rootPath), "engmod.yml"))
 	if err != nil {
 		return requirementsDeltaPlan{}, fmt.Errorf("load model bundle: %w", err)
 	}
@@ -351,7 +353,7 @@ func validateRequirementsCandidate(bundle model.Bundle, requirements model.Requi
 	diags = append(diags, lintRequirementInternalLinks(requirements)...)
 
 	seen := map[string]bool{}
-	validTargets := knownModelIDs(bundle, model.RequirementsDocument{})
+	validTargets := trace.KnownModelIDs(bundle, model.RequirementsDocument{})
 	for i, requirement := range requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
 		id := strings.TrimSpace(requirement.ID)

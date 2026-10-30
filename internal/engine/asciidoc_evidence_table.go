@@ -1,7 +1,11 @@
 // ENGMODEL-OWNER-UNIT: FU-ASCIIDOC-GENERATOR
 package engine
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/labeth/engineering-model-go/internal/codescan"
+)
 
 // publicationTestCode gives grouped line numbers legal table wrap points without
 // changing the canonical evidence labels or punctuation in source filenames.
@@ -53,7 +57,7 @@ func diagramCodeEvidenceLabel(label string) string {
 	if colon < 0 {
 		return label
 	}
-	if _, valid := parseLineNumberList(label[colon+1:]); !valid {
+	if _, valid := codescan.ParseLineNumberList(label[colon+1:]); !valid {
 		return label
 	}
 	parts := strings.Split(label[colon+1:], ",")

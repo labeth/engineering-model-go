@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
@@ -49,7 +50,7 @@ type gapRecord struct {
 // evidence-readiness package. It does not determine compliance or certification.
 // TRLC-LINKS: REQ-EMG-053, REQ-EMG-054, REQ-EMG-055
 func GenerateAirborneAssuranceFromFile(manifestPath string, options AirborneAssuranceOptions) (AirborneAssuranceResult, error) {
-	bundle, err := loadBundle(manifestPath)
+	bundle, err := codescan.LoadBundle(manifestPath)
 	if err != nil {
 		if validation, ok := err.(*model.AviationValidationError); ok {
 			return AirborneAssuranceResult{Diagnostics: validation.Diagnostics}, err

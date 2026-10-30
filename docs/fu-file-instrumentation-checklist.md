@@ -55,12 +55,9 @@ For each FU batch:
 
 - `internal/codemap/scan.go`
 - `internal/codemap/scan_test.go`
-- `internal/engine/inferred_code.go`
-- `internal/engine/inferred_code_test.go`
-- `internal/engine/inferred_verification.go`
-- `internal/engine/inferred_verification_test.go`
-- `internal/engine/inferred_layers.go`
-- `internal/engine/inferred_layers_test.go`
+- `internal/codescan/code_scope.go`, `inferred_code.go`, `inferred_layers.go`, `inferred_verification.go`, `code_labels.go`
+- `internal/codescan/*_test.go`
+- `internal/trace/inference_trace_test.go` (inference checked through the trace matrix)
 
 ### FU-MODEL-LOADER
 
@@ -147,8 +144,8 @@ For each FU batch:
 
 ### FU-ALLOCATION-TRACE
 
-- `internal/engine/trace_matrix.go`
-- `internal/engine/trace_matrix_test.go`
+- `internal/trace/trace_matrix.go`
+- `internal/trace/trace_matrix_test.go`
 - `cmd/engtrace/main.go`
 
 ### FU-CLI-ORCHESTRATION

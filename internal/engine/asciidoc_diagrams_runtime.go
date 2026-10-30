@@ -6,13 +6,14 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildRuntimeAPIRows(runtime []inferredRuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
+func buildRuntimeAPIRows(runtime []codescan.RuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
 	fuToRuntime := map[string]string{}
 	servicePorts := map[string]string{}
 	isRuntimeEndpoint := func(kind string) bool {
@@ -78,8 +79,8 @@ func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
 	}
 	lines := []string{"flowchart LR"}
 	for _, r := range rows {
-		cn := "RT_" + sanitizeNode(r.Consumer)
-		pn := "RT_" + sanitizeNode(r.Provider)
+		cn := "RT_" + codescan.SanitizeNode(r.Consumer)
+		pn := "RT_" + codescan.SanitizeNode(r.Provider)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", cn, escapeMermaidLabel(r.Consumer)))
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", pn, escapeMermaidLabel(r.Provider)))
 		lines = append(lines, fmt.Sprintf("  %s -->|API %s| %s", cn, escapeMermaidLabel(r.Ports), pn))
@@ -103,7 +104,7 @@ func runtimeShortName(s string) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-003
-func buildDeploymentRows(runtime []inferredRuntimeItem) []asciidocDeploymentRow {
+func buildDeploymentRows(runtime []codescan.RuntimeItem) []asciidocDeploymentRow {
 	var sourceName, kustomName string
 	releases := []string{}
 	workloads := []string{}
@@ -357,7 +358,7 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 	}
 
 	nodeID := func(name string) string {
-		return "DP_" + sanitizeNode(name)
+		return "DP_" + codescan.SanitizeNode(name)
 	}
 	nodeLabel := func(name string) string {
 		switch nodeRole[name] {
@@ -419,7 +420,7 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 		sort.Strings(unclusteredNamespaces)
 
 		emitNamespaceSubgraph := func(indent, ns string) {
-			subgraphID := "NS_" + sanitizeNode(ns)
+			subgraphID := "NS_" + codescan.SanitizeNode(ns)
 			lines = append(lines, fmt.Sprintf("%ssubgraph %s[\"Namespace: %s\"]", indent, subgraphID, escapeMermaidLabel(ns)))
 			lines = append(lines, indent+"  direction TB")
 			lines = append(lines, indent+"  "+nodeDecl(ns))
@@ -441,7 +442,7 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 			if len(namesInCluster) == 0 {
 				continue
 			}
-			clusterID := "CLUSTER_" + sanitizeNode(cluster)
+			clusterID := "CLUSTER_" + codescan.SanitizeNode(cluster)
 			lines = append(lines, fmt.Sprintf("  subgraph %s[\"Cluster: %s\"]", clusterID, escapeMermaidLabel(cluster)))
 			lines = append(lines, "    direction TB")
 			for _, ns := range namesInCluster {
@@ -513,7 +514,7 @@ func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func deploymentNodeName(r inferredRuntimeItem) string {
+func deploymentNodeName(r codescan.RuntimeItem) string {
 	name := strings.TrimSpace(strings.ReplaceAll(r.Name, "\\", "/"))
 	if name == "" {
 		return name
@@ -528,7 +529,7 @@ func deploymentNodeName(r inferredRuntimeItem) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-003
-func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntimeItem) []asciidocPlatformOpRow {
+func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []codescan.RuntimeItem) []asciidocPlatformOpRow {
 	platformUnits := map[string]string{}
 	for _, u := range a.FunctionalUnits {
 		groupID := strings.TrimSpace(strings.ToUpper(u.Group))
@@ -591,9 +592,9 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []inferredRuntim
 func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range rows {
-		an := "ACT_" + sanitizeNode(r.Actor)
-		un := "PFU_" + sanitizeNode(r.Unit)
-		tn := "TGT_" + sanitizeNode(r.Target)
+		an := "ACT_" + codescan.SanitizeNode(r.Actor)
+		un := "PFU_" + codescan.SanitizeNode(r.Unit)
+		tn := "TGT_" + codescan.SanitizeNode(r.Target)
 		targetClass := "deployment_element"
 		lowerTarget := strings.ToLower(r.Target)
 		if strings.Contains(lowerTarget, "deployment") || strings.Contains(lowerTarget, "workload") || strings.Contains(lowerTarget, "pod") || strings.Contains(lowerTarget, "service") {
@@ -660,7 +661,7 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
+func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []codescan.RuntimeItem, code []codescan.CodeItem) string {
 	runtimeByOwner := map[string][]string{}
 	for _, r := range runtime {
 		owner := strings.TrimSpace(r.Owner)
@@ -680,7 +681,7 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 	codeRawByOwner := map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
-		if isVerificationCodeItem(c) {
+		if codescan.IsVerificationCodeItem(c) {
 			continue
 		}
 		owner := strings.TrimSpace(c.Owner)
@@ -690,11 +691,11 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		label := ""
 		switch strings.TrimSpace(c.Kind) {
 		case "source_file", "symbol":
-			path := codeItemPath(c)
+			path := codescan.ItemPath(c)
 			if path == "" {
 				continue
 			}
-			label = codeItemEvidenceElement(c)
+			label = codescan.ItemEvidenceElement(c)
 		default:
 			continue
 		}
@@ -705,9 +706,9 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		allCodeRaw = append(allCodeRaw, label)
 	}
 	codeByOwner := map[string][]string{}
-	codeLabelLookup := codeElementEvidenceLabelLookup(allCodeRaw)
+	codeLabelLookup := codescan.EvidenceLabelLookup(allCodeRaw)
 	for owner, items := range codeRawByOwner {
-		codeByOwner[owner] = groupedCodeElementFileLabels(items, codeLabelLookup)
+		codeByOwner[owner] = codescan.GroupedFileLabels(items, codeLabelLookup)
 	}
 
 	lines := []string{"flowchart LR"}
@@ -720,8 +721,8 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		if targetID == "" {
 			targetID = r.Target
 		}
-		avNode := "AV_" + sanitizeNode(attackID)
-		tNode := "SEC_TGT_" + sanitizeNode(targetID)
+		avNode := "AV_" + codescan.SanitizeNode(attackID)
+		tNode := "SEC_TGT_" + codescan.SanitizeNode(targetID)
 		lines = append(lines, mermaidTypedNodeLine(avNode, r.AttackVector, "attack_vector"))
 		lines = append(lines, mermaidTypedNodeLine(tNode, r.Target, "functional_unit"))
 		lines = append(lines, fmt.Sprintf("  %s -->|targets| %s", avNode, tNode))
@@ -730,13 +731,13 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 			if dep == "" || dep == "none" {
 				continue
 			}
-			dNode := "SEC_DEP_" + sanitizeNode(dep)
+			dNode := "SEC_DEP_" + codescan.SanitizeNode(dep)
 			lines = append(lines, mermaidTypedNodeLine(dNode, dep, "referenced_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|depends_on| %s", tNode, dNode))
 		}
 		runtimeNodes := make([]string, 0, len(runtimeByOwner[targetID]))
 		for _, rt := range runtimeByOwner[targetID] {
-			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-"+rt)
+			rtNode := "SEC_RT_" + codescan.SanitizeNode(targetID+"-"+rt)
 			lines = append(lines, mermaidTypedNodeLine(rtNode, rt, "runtime_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
 			runtimeNodes = append(runtimeNodes, rtNode)
@@ -744,13 +745,13 @@ func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []inferred
 		// Keep code evidence traced via runtime, even when no direct runtime artifact is inferred.
 		if len(runtimeNodes) == 0 && len(codeByOwner[targetID]) > 0 {
 			rtLabel := textutil.NonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
-			rtNode := "SEC_RT_" + sanitizeNode(targetID+"-runtime")
+			rtNode := "SEC_RT_" + codescan.SanitizeNode(targetID+"-runtime")
 			lines = append(lines, mermaidTypedNodeLine(rtNode, rtLabel, "runtime_element"))
 			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
 			runtimeNodes = append(runtimeNodes, rtNode)
 		}
 		for _, mod := range codeByOwner[targetID] {
-			codeNode := "CODE_" + sanitizeNode(codeElementEvidenceFileKey(mod))
+			codeNode := "CODE_" + codescan.SanitizeNode(codescan.EvidenceFileKey(mod))
 			lines = append(lines, mermaidTypedNodeLine(codeNode, mod, "code_element"))
 			if len(runtimeNodes) > 0 {
 				lines = append(lines, fmt.Sprintf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode))
@@ -789,7 +790,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if id == "" {
 			continue
 		}
-		n := "CTX_" + sanitizeNode(id)
+		n := "CTX_" + codescan.SanitizeNode(id)
 		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "interface"))
 	}
 	for _, x := range a.DataObjects {
@@ -797,7 +798,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if id == "" {
 			continue
 		}
-		n := "CTX_" + sanitizeNode(id)
+		n := "CTX_" + codescan.SanitizeNode(id)
 		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "data_object"))
 	}
 	for _, x := range a.TrustBoundaries {
@@ -805,7 +806,7 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if id == "" {
 			continue
 		}
-		n := "CTX_" + sanitizeNode(id)
+		n := "CTX_" + codescan.SanitizeNode(id)
 		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "trust_boundary"))
 	}
 
@@ -819,8 +820,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if from == "" || to == "" {
 			continue
 		}
-		fn := "CTX_" + sanitizeNode(from)
-		tn := "CTX_" + sanitizeNode(to)
+		fn := "CTX_" + codescan.SanitizeNode(from)
+		tn := "CTX_" + codescan.SanitizeNode(to)
 		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), securityDFDClassForID(from)))
 		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
 		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
@@ -845,8 +846,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if !strings.HasPrefix(to, "DO-") && !strings.HasPrefix(to, "IF-") && !strings.HasPrefix(to, "TB-") {
 			continue
 		}
-		fn := "CTX_" + sanitizeNode(from)
-		tn := "CTX_" + sanitizeNode(to)
+		fn := "CTX_" + codescan.SanitizeNode(from)
+		tn := "CTX_" + codescan.SanitizeNode(to)
 		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), "functional_unit"))
 		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
 		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
@@ -860,8 +861,8 @@ func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[str
 		if id == "" || owner == "" || connected[id] || !strings.HasPrefix(owner, "FU-") {
 			continue
 		}
-		fn := "CTX_" + sanitizeNode(owner)
-		tn := "CTX_" + sanitizeNode(id)
+		fn := "CTX_" + codescan.SanitizeNode(owner)
+		tn := "CTX_" + codescan.SanitizeNode(id)
 		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[owner], owner), "functional_unit"))
 		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[id], id), "interface"))
 		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
@@ -911,7 +912,7 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complia
 		edges := []string{}
 		edgeSet := map[string]bool{}
 		addEdge := func(from, to, label string) {
-			edge := fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", sanitizeNode(from), escapeMermaidLabel(label), sanitizeNode(to))
+			edge := fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", codescan.SanitizeNode(from), escapeMermaidLabel(label), codescan.SanitizeNode(to))
 			if edgeSet[edge] {
 				return
 			}
@@ -941,11 +942,11 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complia
 		}
 
 		lines := []string{"flowchart LR"}
-		boxID := "CTXGROUP_" + sanitizeNode(groupID)
+		boxID := "CTXGROUP_" + codescan.SanitizeNode(groupID)
 		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)))))
 		lines = append(lines, "    direction TB")
 		for _, id := range keysSorted(owned) {
-			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+sanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
+			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
 		}
 		lines = append(lines, "  end")
 		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
@@ -957,7 +958,7 @@ func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complia
 			}
 		}
 		for _, id := range keysSorted(external) {
-			lines = append(lines, mermaidTypedNodeLine("CTX_"+sanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
+			lines = append(lines, mermaidTypedNodeLine("CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
 		}
 		lines = append(lines, edges...)
 		lines = appendMermaidClassDefs(lines)
@@ -1131,7 +1132,7 @@ func mermaidTypedNodeLineIndented(indent, nodeID, label, className string) strin
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferredCodeItem) []asciidocSecurityObsRow {
+func buildSecurityObservabilityRows(runtime []codescan.RuntimeItem, code []codescan.CodeItem) []asciidocSecurityObsRow {
 	out := []asciidocSecurityObsRow{}
 	seen := map[string]bool{}
 
@@ -1179,19 +1180,19 @@ func buildSecurityObservabilityRows(runtime []inferredRuntimeItem, code []inferr
 	}
 
 	for _, c := range code {
-		if isVerificationCodeItem(c) {
+		if codescan.IsVerificationCodeItem(c) {
 			continue
 		}
-		path := strings.ToLower(codeItemPath(c))
+		path := strings.ToLower(codescan.ItemPath(c))
 		owner := c.Owner
 		if strings.Contains(path, "log") || strings.Contains(path, "audit") || strings.Contains(path, "trace") {
-			add("application security telemetry hooks", "code", owner, "code "+codeItemPath(c))
+			add("application security telemetry hooks", "code", owner, "code "+codescan.ItemPath(c))
 		}
 		if strings.Contains(path, "auth") || strings.Contains(path, "token") {
-			add("authorization and credential handling checks", "code", owner, "code "+codeItemPath(c))
+			add("authorization and credential handling checks", "code", owner, "code "+codescan.ItemPath(c))
 		}
 		if strings.Contains(path, "risk") || strings.Contains(path, "fraud") {
-			add("fraud and abuse detection code paths", "code", owner, "code "+codeItemPath(c))
+			add("fraud and abuse detection code paths", "code", owner, "code "+codescan.ItemPath(c))
 		}
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/testutil"
+	"github.com/labeth/engineering-model-go/internal/trace"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -158,7 +159,7 @@ func TestQualifiedReferencesValidateAgainstPublishedEntities(t *testing.T) {
 		t.Fatalf("expected 0 errors, got err=%v %+v", err, errorsOf(diags))
 	}
 	manifest := filepath.Join(f.service, "engmod.yml")
-	matrix, traceDiags, err := BuildTraceMatrixFromFiles(manifest, filepath.Join(f.service, "model", "requirements.yml"), "")
+	matrix, traceDiags, err := trace.BuildFromFiles(manifest, filepath.Join(f.service, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +216,7 @@ func TestUnpublishedQualifiedReferenceReportedOncePerField(t *testing.T) {
 		docs := defaultServiceDocs()
 		docs.code = strings.Replace(docs.code, "nats::DO-WS", "nats::IF-NOPE", 1)
 		f := writeMultiRepoFixture(t, docs)
-		matrix, _, err := BuildTraceMatrixFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
+		matrix, _, err := trace.BuildFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -392,9 +393,9 @@ func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
 	manifest := filepath.Join(f.service, "engmod.yml")
 	requirements := filepath.Join(f.service, "model", "requirements.yml")
 
-	row := func() TraceRow {
+	row := func() trace.Row {
 		t.Helper()
-		matrix, _, err := BuildTraceMatrixFromFiles(manifest, requirements, "")
+		matrix, _, err := trace.BuildFromFiles(manifest, requirements, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -404,7 +405,7 @@ func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
 			}
 		}
 		t.Fatal("row REQ-SVC-001 missing")
-		return TraceRow{}
+		return trace.Row{}
 	}
 	got := row()
 	if got.DelegatedStatus == nil || got.DelegatedStatus.Requirement != "REQ-IF-001" || !got.DelegatedStatus.Implemented || !got.DelegatedStatus.TestLinked || got.DelegatedStatus.Status != "implemented" {
@@ -445,7 +446,7 @@ func TestDelegatedStatusScansOnlyTheDependencyModule(t *testing.T) {
 	}
 	testutil.WriteFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
 	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
-	matrix, _, err := BuildTraceMatrixFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
+	matrix, _, err := trace.BuildFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}

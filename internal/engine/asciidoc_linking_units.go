@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 )
@@ -695,7 +696,7 @@ func listNamesRefs(in []model.ReferencedElement) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) map[string]string {
+func buildOwnerEvidence(runtime []codescan.RuntimeItem, code []codescan.CodeItem) map[string]string {
 	rtSet := map[string]map[string]bool{}
 	for _, r := range runtime {
 		owner := strings.TrimSpace(r.Owner)
@@ -709,7 +710,7 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 	}
 	codeSet := map[string]map[string]bool{}
 	for _, c := range code {
-		if isVerificationCodeItem(c) {
+		if codescan.IsVerificationCodeItem(c) {
 			continue
 		}
 		owner := strings.TrimSpace(c.Owner)
@@ -722,7 +723,7 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 		if codeSet[owner] == nil {
 			codeSet[owner] = map[string]bool{}
 		}
-		codeSet[owner][moduleFromPath(codeItemPath(c))] = true
+		codeSet[owner][moduleFromPath(codescan.ItemPath(c))] = true
 	}
 
 	out := map[string]string{}
@@ -748,21 +749,4 @@ func buildOwnerEvidence(runtime []inferredRuntimeItem, code []inferredCodeItem) 
 		}
 	}
 	return out
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func sanitizeSourcePath(in string) string {
-	s := filepath.ToSlash(strings.TrimSpace(in))
-	if s == "" {
-		return s
-	}
-	for _, marker := range []string{"/examples/", "/infra/", "/src/", "/tmp/"} {
-		if idx := strings.Index(strings.ToLower(s), marker); idx >= 0 {
-			return s[idx+1:]
-		}
-	}
-	if filepath.IsAbs(s) {
-		return filepath.Base(s)
-	}
-	return s
 }

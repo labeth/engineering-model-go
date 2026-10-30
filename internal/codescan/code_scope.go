@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
 	"bytes"
@@ -17,24 +17,24 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
-// loadBundle loads a model bundle and attaches its lazily built CODE identifier index,
+// LoadBundle loads a model bundle and attaches its lazily built CODE identifier index,
 // so validation can resolve authored references to in-repository files and declarations.
 // TRLC-LINKS: REQ-EMG-059
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
-func loadBundle(manifestPath string) (model.Bundle, error) {
+func LoadBundle(manifestPath string) (model.Bundle, error) {
 	bundle, err := model.LoadBundle(manifestPath)
 	if err != nil {
 		return bundle, err
 	}
-	return withCodeIndex(bundle), nil
+	return WithCodeIndex(bundle), nil
 }
 
-// withCodeIndex attaches the lazily built CODE identifier index unless the bundle has one,
+// WithCodeIndex attaches the lazily built CODE identifier index unless the bundle has one,
 // so bundles loaded by callers with model.LoadBundle resolve CODE references too. An
 // in-memory bundle without a manifest or architecture path has no module root and gets none.
 // TRLC-LINKS: REQ-EMG-059
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
-func withCodeIndex(bundle model.Bundle) model.Bundle {
+func WithCodeIndex(bundle model.Bundle) model.Bundle {
 	if bundle.CodeIndex != nil || (bundle.ManifestPath == "" && bundle.ArchitecturePath == "") {
 		return bundle
 	}
@@ -60,9 +60,9 @@ func moduleCodeRoot(bundle model.Bundle) string {
 		}
 		return root
 	}
-	manifestDir, err := filepath.Abs(modelRootDir(bundle))
+	manifestDir, err := filepath.Abs(ModelRootDir(bundle))
 	if err != nil {
-		return modelRootDir(bundle)
+		return ModelRootDir(bundle)
 	}
 	gitRoot := gitWorkTreeRoot(manifestDir)
 	if gitRoot == "" {
@@ -95,10 +95,10 @@ func gitWorkTreeRoot(dir string) string {
 	}
 }
 
-// withDefaultCodeRoot falls back to the module root when no existing code root is given.
+// WithDefaultCodeRoot falls back to the module root when no existing code root is given.
 // TRLC-LINKS: REQ-EMG-057
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
-func withDefaultCodeRoot(bundle model.Bundle, roots []string) []string {
+func WithDefaultCodeRoot(bundle model.Bundle, roots []string) []string {
 	if len(roots) > 0 {
 		return roots
 	}
@@ -112,7 +112,7 @@ func withDefaultCodeRoot(bundle model.Bundle, roots []string) []string {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func codeScanSkipper(bundle model.Bundle) func(path string, isDir bool) bool {
 	moduleRoot := moduleCodeRoot(bundle)
-	manifestDir, _ := filepath.Abs(modelRootDir(bundle))
+	manifestDir, _ := filepath.Abs(ModelRootDir(bundle))
 	patterns := bundle.Architecture.InferenceHints.Exclude
 	visible := gitVisibleFiles(moduleRoot)
 	return func(p string, isDir bool) bool {
@@ -188,7 +188,7 @@ func gitVisibleFiles(root string) map[string]bool {
 func buildCodeIndex(bundle model.Bundle) map[string]int {
 	moduleRoot := moduleCodeRoot(bundle)
 	skip := codeScanSkipper(bundle)
-	roots := uniqueExistingSources(withDefaultCodeRoot(bundle, nil))
+	roots := UniqueExistingSources(WithDefaultCodeRoot(bundle, nil))
 
 	locations := map[string]map[string]bool{}
 	add := func(id, location string) {
@@ -203,7 +203,7 @@ func buildCodeIndex(bundle model.Bundle) map[string]int {
 				return nil
 			}
 			if d.IsDir() {
-				if p != root && (skipScanDir(d.Name()) || skip(p, true)) {
+				if p != root && (SkipScanDir(d.Name()) || skip(p, true)) {
 					return filepath.SkipDir
 				}
 				return nil

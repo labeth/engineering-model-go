@@ -1,13 +1,16 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
-	"github.com/labeth/engineering-model-go/internal/model"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// The test-only links of these files are checked against the trace matrix in
+// internal/trace (TestJavaScriptTestOnlyLinksDoNotImplement).
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestJavaScriptOwnershipAndTestOnlyTraceInference(t *testing.T) {
 	for _, ext := range []string{"js", "mjs", "cjs"} {
@@ -28,20 +31,16 @@ func TestJavaScriptOwnershipAndTestOnlyTraceInference(t *testing.T) {
 				t.Fatalf("ownership lost: %+v", metadata)
 			}
 			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{impl, test}}}}
-			code, diags := inferCodeItems(bundle, "")
+			code, diags := InferCodeItems(bundle, "")
 			if len(diags) != 0 || len(code) != 4 {
 				t.Fatalf("code inference: %+v %+v", code, diags)
 			}
 			reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-WEB-001"}, {ID: "REQ-WEB-002"}}}
-			checks, diags := inferVerificationChecks(bundle, reqs, code, "")
+			checks, diags := InferVerificationChecks(bundle, reqs, code, "")
 			if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 				t.Fatalf("checks: %+v %+v", checks, diags)
 			}
-			matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
-			if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
-				t.Fatalf("test-only links counted as implementation: %+v", matrix)
-			}
-			if languageFromPath(impl) != "javascript" {
+			if LanguageFromPath(impl) != "javascript" {
 				t.Fatal("publication language missing")
 			}
 		})

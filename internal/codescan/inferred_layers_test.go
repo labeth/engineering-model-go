@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
 	"os"
@@ -25,7 +25,7 @@ func TestResolveRuntimeOwner_ByFunctionalUnitSimilarity(t *testing.T) {
 		{ID: "FU-REVIEW-PUBLICATION", Name: "Review Publication"},
 	}
 
-	item := inferredRuntimeItem{
+	item := RuntimeItem{
 		Name:  "review_orchestrator",
 		Kind:  "lambda_function",
 		Owner: "unresolved",
@@ -43,7 +43,7 @@ func TestResolveRuntimeOwner_PublisherMapsToPublication(t *testing.T) {
 		{ID: "FU-REVIEW-PUBLICATION", Name: "Review Publication"},
 	}
 
-	item := inferredRuntimeItem{
+	item := RuntimeItem{
 		Name:  "review_publisher",
 		Kind:  "lambda_function",
 		Owner: "unresolved",
@@ -121,7 +121,7 @@ func TestResolveRuntimeOwner_PrefersFunctionalUnitFromDeploymentSourcePath(t *te
 		{ID: "FU-MEDIACHESTV-FLUX-DELIVERY", Name: "Flux Delivery"},
 	}
 
-	item := inferredRuntimeItem{
+	item := RuntimeItem{
 		Name:   "flux-system/kustomization",
 		Kind:   "kustomization",
 		Owner:  "FU-GITOPS-OPERATIONS",

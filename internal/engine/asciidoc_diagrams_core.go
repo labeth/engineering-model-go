@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
@@ -23,21 +24,21 @@ func appendMermaidClassDefs(lines []string) []string {
 func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range reqs {
-		reqNode := "REQ_" + sanitizeNode(r.ID)
+		reqNode := "REQ_" + codescan.SanitizeNode(r.ID)
 		lines = append(lines, "  "+reqNode+"[\""+escapeMermaidLabel(r.ID)+"\"]:::requirement")
 		for _, u := range textutil.UniqueSorted(r.AppliesTo) {
-			target := "UNIT_" + sanitizeNode(u)
+			target := "UNIT_" + codescan.SanitizeNode(u)
 			label := textutil.NonEmpty(labels[u], u)
 			lines = append(lines, "  "+target+"[\""+escapeMermaidLabel(label)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" --> "+target)
 		}
 		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
 			if d.TargetRef != "" {
-				node := "SUBREQ_" + sanitizeNode(d.Subsystem+"_"+d.TargetRef)
+				node := "SUBREQ_" + codescan.SanitizeNode(d.Subsystem+"_"+d.TargetRef)
 				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
 				lines = append(lines, "  "+reqNode+" -->|delegates to| "+node)
 			} else if d.Target != "" {
-				node := "SUBCAP_" + sanitizeNode(d.Subsystem+"_"+d.Target)
+				node := "SUBCAP_" + codescan.SanitizeNode(d.Subsystem+"_"+d.Target)
 				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
 				lines = append(lines, "  "+reqNode+" -->|delegates| "+node)
 			}
@@ -132,11 +133,11 @@ func escapeTableCell(s string) string {
 func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart TB"}
 	for _, act := range a.Actors {
-		an := "ACT_" + sanitizeNode(act.ID)
+		an := "ACT_" + codescan.SanitizeNode(act.ID)
 		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(textutil.NonEmpty(act.Name, act.ID))))
 	}
 	for _, ref := range a.ReferencedElements {
-		rn := "REF_" + sanitizeNode(ref.ID)
+		rn := "REF_" + codescan.SanitizeNode(ref.ID)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(textutil.NonEmpty(ref.Name, ref.ID))))
 	}
 
@@ -163,14 +164,14 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 		if len(units) == 0 {
 			continue
 		}
-		boxID := "FGCTX_" + sanitizeNode(gid)
+		boxID := "FGCTX_" + codescan.SanitizeNode(gid)
 		if gid == "" {
 			boxID = "FGCTX_UNASSIGNED"
 		}
 		lines = append(lines, fmt.Sprintf("    subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(groupLabelByID[gid])))
 		lines = append(lines, "      direction LR")
 		for _, fu := range units {
-			un := "FU_" + sanitizeNode(fu.ID)
+			un := "FU_" + codescan.SanitizeNode(fu.ID)
 			lines = append(lines, fmt.Sprintf("      %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		}
 		lines = append(lines, "    end")
@@ -208,7 +209,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 		toInternal := internalNodes[to]
 		switch {
 		case fromExternal && toInternal:
-			fromNode := fromExternalPrefix + sanitizeNode(from)
+			fromNode := fromExternalPrefix + codescan.SanitizeNode(from)
 			toNode := functionalContextInternalNodeID(to)
 			edge := fmt.Sprintf("  %s -->|%s| %s", fromNode, label, toNode)
 			if !seenEdges[edge] {
@@ -217,7 +218,7 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 			}
 		case fromInternal && toExternal:
 			fromNode := functionalContextInternalNodeID(from)
-			toNode := toExternalPrefix + sanitizeNode(to)
+			toNode := toExternalPrefix + codescan.SanitizeNode(to)
 			edge := fmt.Sprintf("  %s -->|%s| %s", fromNode, label, toNode)
 			if !seenEdges[edge] {
 				lines = append(lines, edge)
@@ -233,9 +234,9 @@ func buildFunctionalContextMermaid(a model.AuthoredArchitecture) string {
 func functionalContextInternalNodeID(id string) string {
 	id = strings.TrimSpace(id)
 	if strings.HasPrefix(id, "FG-") {
-		return "FGCTX_" + sanitizeNode(id)
+		return "FGCTX_" + codescan.SanitizeNode(id)
 	}
-	return "FU_" + sanitizeNode(id)
+	return "FU_" + codescan.SanitizeNode(id)
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -245,15 +246,15 @@ func buildFunctionalDecompositionMermaid(a model.AuthoredArchitecture) string {
 	lines := []string{"flowchart LR"}
 	lines = append(lines, "  SYS[\"System\"]:::system_boundary")
 	for _, fg := range a.FunctionalGroups {
-		gn := "FG_" + sanitizeNode(fg.ID)
+		gn := "FG_" + codescan.SanitizeNode(fg.ID)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_group", gn, escapeMermaidLabel(textutil.NonEmpty(fg.Name, fg.ID))))
 		lines = append(lines, fmt.Sprintf("  SYS -->|contains| %s", gn))
 	}
 	for _, fu := range a.FunctionalUnits {
-		un := "FU_" + sanitizeNode(fu.ID)
+		un := "FU_" + codescan.SanitizeNode(fu.ID)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		if strings.TrimSpace(fu.Group) != "" {
-			lines = append(lines, fmt.Sprintf("  FG_%s -->|contains| %s", sanitizeNode(fu.Group), un))
+			lines = append(lines, fmt.Sprintf("  FG_%s -->|contains| %s", codescan.SanitizeNode(fu.Group), un))
 		}
 	}
 	lines = appendMermaidClassDefs(lines)
@@ -349,14 +350,14 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 		if len(units) == 0 {
 			continue
 		}
-		boxID := "FGBOX_" + sanitizeNode(gid)
+		boxID := "FGBOX_" + codescan.SanitizeNode(gid)
 		if gid == "" {
 			boxID = "FGBOX_UNASSIGNED"
 		}
 		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(groupLabelByID[gid])))
 		lines = append(lines, "    direction TB")
 		for _, fu := range units {
-			un := "FU_" + sanitizeNode(fu.ID)
+			un := "FU_" + codescan.SanitizeNode(fu.ID)
 			lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 		}
 		lines = append(lines, "  end")
@@ -364,7 +365,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 	}
 
 	for _, ref := range a.ReferencedElements {
-		rn := "REF_" + sanitizeNode(ref.ID)
+		rn := "REF_" + codescan.SanitizeNode(ref.ID)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::referenced_element", rn, escapeMermaidLabel(textutil.NonEmpty(ref.Name, ref.ID))))
 	}
 	seenEdges := map[string]bool{}
@@ -383,9 +384,9 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 		to := strings.TrimSpace(m.To)
 		switch {
 		case strings.HasPrefix(from, "FU-") && strings.HasPrefix(to, "FU-"):
-			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| FU_%s", sanitizeNode(from), sanitizeNode(to)))
+			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| FU_%s", codescan.SanitizeNode(from), codescan.SanitizeNode(to)))
 		case strings.HasPrefix(from, "FU-") && strings.HasPrefix(to, "REF-"):
-			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| REF_%s", sanitizeNode(from), sanitizeNode(to)))
+			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| REF_%s", codescan.SanitizeNode(from), codescan.SanitizeNode(to)))
 		}
 	}
 	lines = appendMermaidClassDefs(lines)
@@ -394,7 +395,7 @@ func buildFunctionalCollaborationMermaid(a model.AuthoredArchitecture) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID string, runtime []inferredRuntimeItem, code []inferredCodeItem) string {
+func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID string, runtime []codescan.RuntimeItem, code []codescan.CodeItem) string {
 	groupID = strings.TrimSpace(groupID)
 	groupLabelByID := map[string]string{}
 	unitLabelByID := map[string]string{}
@@ -449,10 +450,10 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 			if !localUnitSet[to] {
 				externalFUs[to] = true
 			}
-			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| FU_%s", sanitizeNode(from), sanitizeNode(to)))
+			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| FU_%s", codescan.SanitizeNode(from), codescan.SanitizeNode(to)))
 		case strings.HasPrefix(from, "FU-") && strings.HasPrefix(to, "REF-"):
 			refs[to] = true
-			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| REF_%s", sanitizeNode(from), sanitizeNode(to)))
+			addEdge(fmt.Sprintf("  FU_%s -->|depends_on| REF_%s", codescan.SanitizeNode(from), codescan.SanitizeNode(to)))
 		}
 	}
 	if len(edges) == 0 {
@@ -480,7 +481,7 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 	codeRawByOwner := map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
-		if isVerificationCodeItem(c) {
+		if codescan.IsVerificationCodeItem(c) {
 			continue
 		}
 		owner := strings.TrimSpace(c.Owner)
@@ -489,7 +490,7 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		}
 		switch strings.TrimSpace(c.Kind) {
 		case "source_file", "symbol":
-			elem := codeItemEvidenceElement(c)
+			elem := codescan.ItemEvidenceElement(c)
 			if strings.TrimSpace(elem) == "" {
 				continue
 			}
@@ -498,20 +499,20 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		}
 	}
 	codeByOwner := map[string][]string{}
-	codeLabelLookup := codeElementEvidenceLabelLookup(allCodeRaw)
+	codeLabelLookup := codescan.EvidenceLabelLookup(allCodeRaw)
 	for owner, items := range codeRawByOwner {
-		codeByOwner[owner] = groupedCodeElementFileLabels(items, codeLabelLookup)
+		codeByOwner[owner] = codescan.GroupedFileLabels(items, codeLabelLookup)
 	}
 
 	lines := []string{"flowchart LR"}
-	boxID := "FGDEP_" + sanitizeNode(groupID)
+	boxID := "FGDEP_" + codescan.SanitizeNode(groupID)
 	if groupID == "" {
 		boxID = "FGDEP_UNASSIGNED"
 	}
 	lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(groupLabelByID[groupID], groupID))))
 	lines = append(lines, "    direction TB")
 	for _, fu := range localUnits {
-		un := "FU_" + sanitizeNode(fu.ID)
+		un := "FU_" + codescan.SanitizeNode(fu.ID)
 		lines = append(lines, fmt.Sprintf("    %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(textutil.NonEmpty(fu.Name, fu.ID))))
 	}
 	definedCodeNodes := map[string]bool{}
@@ -521,12 +522,12 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 			runtimeLabels = append(runtimeLabels, textutil.NonEmpty(unitLabelByID[owner], owner)+" runtime (inferred)")
 		}
 		for idx, rt := range runtimeLabels {
-			rtBox := "RT_" + sanitizeNode(owner+"-"+rt)
+			rtBox := "RT_" + codescan.SanitizeNode(owner+"-"+rt)
 			lines = append(lines, fmt.Sprintf("    subgraph %s[\"%s\"]", rtBox, escapeMermaidLabel(rt)))
 			lines = append(lines, "      direction TB")
 			if idx == 0 {
 				for _, label := range codeByOwner[owner] {
-					codeNode := "CODE_" + sanitizeNode(codeElementEvidenceFileKey(label))
+					codeNode := "CODE_" + codescan.SanitizeNode(codescan.EvidenceFileKey(label))
 					if definedCodeNodes[codeNode] {
 						continue
 					}
@@ -535,12 +536,12 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 				}
 			}
 			if idx > 0 || len(codeByOwner[owner]) == 0 {
-				rtNode := "RTNODE_" + sanitizeNode(owner+"-"+rt)
+				rtNode := "RTNODE_" + codescan.SanitizeNode(owner+"-"+rt)
 				lines = append(lines, fmt.Sprintf("      %s[\"runtime evidence\"]:::runtime_element", rtNode))
 			}
 			lines = append(lines, "    end")
 			lines = append(lines, fmt.Sprintf("    style %s fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;", rtBox))
-			lines = append(lines, fmt.Sprintf("    FU_%s -->|runtime evidence| %s", sanitizeNode(owner), rtBox))
+			lines = append(lines, fmt.Sprintf("    FU_%s -->|runtime evidence| %s", codescan.SanitizeNode(owner), rtBox))
 		}
 	}
 	lines = append(lines, "  end")
@@ -552,20 +553,20 @@ func buildFunctionalGroupDependencyMermaid(a model.AuthoredArchitecture, groupID
 		externalUnitsByGroup[gid] = append(externalUnitsByGroup[gid], id)
 	}
 	for _, gid := range keysSortedStringSlices(externalUnitsByGroup) {
-		boxID := "FGDEP_TARGET_" + sanitizeNode(gid)
+		boxID := "FGDEP_TARGET_" + codescan.SanitizeNode(gid)
 		if gid == "" {
 			boxID = "FGDEP_TARGET_UNASSIGNED"
 		}
 		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(groupLabelByID[gid], "External Functional Units"))))
 		lines = append(lines, "    direction TB")
 		for _, id := range textutil.UniqueSorted(externalUnitsByGroup[gid]) {
-			lines = append(lines, fmt.Sprintf("    FU_%s[\"%s\"]:::functional_unit", sanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(unitLabelByID[id], id))))
+			lines = append(lines, fmt.Sprintf("    FU_%s[\"%s\"]:::functional_unit", codescan.SanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(unitLabelByID[id], id))))
 		}
 		lines = append(lines, "  end")
 		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
 	}
 	for _, id := range keysSorted(refs) {
-		lines = append(lines, fmt.Sprintf("  REF_%s[\"%s\"]:::referenced_element", sanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(refLabelByID[id], id))))
+		lines = append(lines, fmt.Sprintf("  REF_%s[\"%s\"]:::referenced_element", codescan.SanitizeNode(id), escapeMermaidLabel(textutil.NonEmpty(refLabelByID[id], id))))
 	}
 	lines = append(lines, edges...)
 	lines = appendMermaidClassDefs(lines)
@@ -594,7 +595,7 @@ func keysSortedStringSlices(m map[string][]string) []string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []codescan.RuntimeItem, code []codescan.CodeItem, verification []codescan.VerificationCheck, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
 	// Stack the evidence chain to fit portrait publication pages.
 	lines := []string{`%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%`, "flowchart TB"}
 	rtByOwner := map[string][]string{}
@@ -608,14 +609,14 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	codeRawByOwnerReq := map[string]map[string][]string{}
 	allCodeRaw := []string{}
 	for _, c := range code {
-		if isVerificationCodeItem(c) {
+		if codescan.IsVerificationCodeItem(c) {
 			continue
 		}
 		owner := strings.TrimSpace(c.Owner)
 		if owner == "" || owner == "unresolved" || strings.TrimSpace(c.Kind) != "symbol" {
 			continue
 		}
-		elem := codeItemEvidenceElement(c)
+		elem := codescan.ItemEvidenceElement(c)
 		if strings.TrimSpace(elem) == "" {
 			continue
 		}
@@ -632,26 +633,26 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		}
 	}
 	codeByOwnerReq := map[string]map[string][]string{}
-	codeLabelLookup := codeElementEvidenceLabelLookup(allCodeRaw)
+	codeLabelLookup := codescan.EvidenceLabelLookup(allCodeRaw)
 	for owner, byReq := range codeRawByOwnerReq {
 		codeByOwnerReq[owner] = map[string][]string{}
 		for reqID, items := range byReq {
 			// Keep globally disambiguated filenames, but only this requirement's lines.
-			localLookup := codeElementEvidenceLabelLookup(items)
+			localLookup := codescan.EvidenceLabelLookup(items)
 			for key, label := range localLookup {
-				path, _, ok := splitCodeEvidencePathLines(codeLabelLookup[key])
-				_, lineNumbers, _ := splitCodeEvidencePathLines(label)
+				path, _, ok := codescan.SplitEvidencePathLines(codeLabelLookup[key])
+				_, lineNumbers, _ := codescan.SplitEvidencePathLines(label)
 				if ok {
 					localLookup[key] = path
 					if len(lineNumbers) > 0 {
-						localLookup[key] += ":" + joinEvidenceLineNumbers(lineNumbers)
+						localLookup[key] += ":" + codescan.JoinLineNumbers(lineNumbers)
 					}
 				}
 			}
-			codeByOwnerReq[owner][reqID] = groupedCodeElementEvidenceLabels(items, localLookup)
+			codeByOwnerReq[owner][reqID] = codescan.GroupedEvidenceLabels(items, localLookup)
 		}
 	}
-	checksByReq := map[string][]inferredVerificationCheck{}
+	checksByReq := map[string][]codescan.VerificationCheck{}
 	for _, v := range verification {
 		id := strings.TrimSpace(v.ID)
 		if id == "" {
@@ -675,26 +676,26 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	}
 
 	for _, r := range reqs {
-		reqNode := "REQC_" + sanitizeNode(r.ID)
+		reqNode := "REQC_" + codescan.SanitizeNode(r.ID)
 		lines = append(lines, "  "+reqNode+"[\""+escapeMermaidLabel(r.ID)+"\"]:::requirement")
 		for _, fu := range textutil.UniqueSorted(r.AppliesTo) {
 			reqID := strings.TrimSpace(r.ID)
 			reqCode := codeByOwnerReq[fu][reqID]
-			fuNode := "FU_" + sanitizeNode(fu)
+			fuNode := "FU_" + codescan.SanitizeNode(fu)
 			fuLabel := textutil.NonEmpty(labels[fu], fu)
 			lines = append(lines, "  "+fuNode+"[\""+escapeMermaidLabel(fuLabel)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" -->|applies_to| "+fuNode)
 
 			rtNodes := []string{}
 			for _, rt := range textutil.UniqueSorted(rtByOwner[fu]) {
-				rtNode := "RTC_" + sanitizeNode(fu+"-"+rt)
+				rtNode := "RTC_" + codescan.SanitizeNode(fu+"-"+rt)
 				lines = append(lines, "  "+rtNode+"[\""+escapeMermaidLabel(rt)+"\"]:::runtime_element")
 				lines = append(lines, "  "+fuNode+" -->|runtime evidence| "+rtNode)
 				rtNodes = append(rtNodes, rtNode)
 			}
 			if len(rtNodes) == 0 && len(reqCode) > 0 {
 				rtLabel := fuLabel + " runtime (inferred)"
-				rtNode := "RTC_" + sanitizeNode(fu+"-runtime")
+				rtNode := "RTC_" + codescan.SanitizeNode(fu+"-runtime")
 				lines = append(lines, "  "+rtNode+"[\""+escapeMermaidLabel(rtLabel)+"\"]:::runtime_element")
 				lines = append(lines, "  "+fuNode+" -->|runtime evidence| "+rtNode)
 				rtNodes = append(rtNodes, rtNode)
@@ -705,7 +706,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 				primaryRTNode = rtNodes[0]
 			}
 			for _, cm := range textutil.UniqueSorted(reqCode) {
-				cmNode := "CODE_" + sanitizeNode(r.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(cm))
+				cmNode := "CODE_" + codescan.SanitizeNode(r.ID) + "_" + codescan.SanitizeNode(codescan.EvidenceFileKey(cm))
 				lines = append(lines, "  "+cmNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(cm))+"\"]:::code_element")
 				if primaryRTNode != "" {
 					lines = append(lines, "  "+primaryRTNode+" --->|implemented_by| "+cmNode)
@@ -717,7 +718,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		}
 		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
 			if d.TargetRef != "" {
-				node := "SUBREQ_" + sanitizeNode(d.Subsystem+"_"+d.TargetRef)
+				node := "SUBREQ_" + codescan.SanitizeNode(d.Subsystem+"_"+d.TargetRef)
 				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
 				edge := "delegates to"
 				if !d.TargetRefResolved {
@@ -725,7 +726,7 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 				}
 				lines = append(lines, "  "+reqNode+" -->|"+edge+"| "+node)
 			} else if d.Target != "" {
-				node := "SUBCAP_" + sanitizeNode(d.Subsystem+"_"+d.Target)
+				node := "SUBCAP_" + codescan.SanitizeNode(d.Subsystem+"_"+d.Target)
 				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
 				lines = append(lines, "  "+reqNode+" -->|delegates (no specific requirement)| "+node)
 			}
@@ -734,18 +735,18 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 		for _, v := range checksByReq[strings.TrimSpace(r.ID)] {
 			allVerificationCode = append(allVerificationCode, v.CodeElements...)
 		}
-		verificationCodeLabelLookup := codeElementEvidenceLabelLookup(allVerificationCode)
+		verificationCodeLabelLookup := codescan.EvidenceLabelLookup(allVerificationCode)
 		for _, v := range checksByReq[strings.TrimSpace(r.ID)] {
 			status := strings.TrimSpace(v.Status)
 			checkLabel := strings.TrimSpace(v.ID)
 			if status != "" {
 				checkLabel = checkLabel + " (" + status + ")"
 			}
-			verNode := "VERC_" + sanitizeNode(v.ID)
+			verNode := "VERC_" + codescan.SanitizeNode(v.ID)
 			lines = append(lines, "  "+verNode+"[\""+escapeMermaidLabel(checkLabel)+"\"]:::verification")
 			lines = append(lines, "  "+verNode+" -->|verifies| "+reqNode)
-			for _, label := range groupedCodeElementEvidenceLabels(v.CodeElements, verificationCodeLabelLookup) {
-				ceNode := "VERCODE_" + sanitizeNode(r.ID+"_"+v.ID) + "_" + sanitizeNode(codeElementEvidenceFileKey(label))
+			for _, label := range codescan.GroupedEvidenceLabels(v.CodeElements, verificationCodeLabelLookup) {
+				ceNode := "VERCODE_" + codescan.SanitizeNode(r.ID+"_"+v.ID) + "_" + codescan.SanitizeNode(codescan.EvidenceFileKey(label))
 				lines = append(lines, "  "+ceNode+"[\""+escapeMermaidLabel(diagramCodeEvidenceLabel(label))+"\"]:::code_element")
 				lines = append(lines, "  "+verNode+" --->|implemented_by| "+ceNode)
 			}
@@ -753,16 +754,6 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []inferre
 	}
 	lines = appendMermaidClassDefs(lines)
 	return strings.Join(uniquePreserve(lines), "\n")
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func sanitizeNode(s string) string {
-	repl := strings.NewReplacer("-", "_", " ", "_", ".", "_", "/", "_", ":", "_", ",", "_", "\\", "_", "(", "_", ")", "_", "[", "_", "]", "_")
-	out := repl.Replace(strings.ToUpper(strings.TrimSpace(s)))
-	if out == "" {
-		out = "NODE"
-	}
-	return out
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -774,7 +765,7 @@ func escapeMermaidLabel(s string) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
+func buildCodeOwnershipRows(in []codescan.CodeItem) []asciidocInferredRow {
 	type moduleBucket struct {
 		owner string
 		mod   string
@@ -787,7 +778,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 
 	for _, c := range in {
 		if c.Kind == "source_file" || c.Kind == "symbol" {
-			path := codeItemPath(c)
+			path := codescan.ItemPath(c)
 			if path == "" {
 				continue
 			}
@@ -804,7 +795,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 				}
 				moduleBuckets[key] = b
 			}
-			if lg := languageFromPath(path); lg != "" {
+			if lg := codescan.LanguageFromPath(path); lg != "" {
 				b.langs[lg] = true
 			}
 			b.files[path] = true
@@ -812,7 +803,7 @@ func buildCodeOwnershipRows(in []inferredCodeItem) []asciidocInferredRow {
 		}
 		if strings.HasPrefix(c.Kind, "library_") {
 			owner := textutil.NonEmpty(strings.TrimSpace(c.Owner), "unresolved")
-			module := moduleFromPath(codeItemPath(c))
+			module := moduleFromPath(codescan.ItemPath(c))
 			libType := strings.TrimPrefix(c.Kind, "library_")
 			kind := "library (" + strings.ReplaceAll(libType, "_", "-") + ")"
 			key := owner + "|" + module + "|" + c.Element + "|" + kind
@@ -891,14 +882,14 @@ func buildCodeOwnershipMermaid(rows []asciidocInferredRow, a model.AuthoredArchi
 			continue
 		}
 
-		fun := "FU_" + sanitizeNode(fu)
+		fun := "FU_" + codescan.SanitizeNode(fu)
 		if !seenFU[fun] {
 			lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", fun, escapeMermaidLabel(fu)))
 			seenFU[fun] = true
 		}
 
 		if fgID := fuToGroup[fu]; strings.TrimSpace(fgID) != "" {
-			fgn := "FG_" + sanitizeNode(fgID)
+			fgn := "FG_" + codescan.SanitizeNode(fgID)
 			fg := textutil.NonEmpty(fgLabel[fgID], fgID)
 			if !seenFG[fgn] {
 				lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_group", fgn, escapeMermaidLabel(fg)))
@@ -911,7 +902,7 @@ func buildCodeOwnershipMermaid(rows []asciidocInferredRow, a model.AuthoredArchi
 			}
 		}
 
-		ln := "LIB_" + sanitizeNode(r.Name)
+		ln := "LIB_" + codescan.SanitizeNode(r.Name)
 		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::code_element", ln, escapeMermaidLabel(shortLibraryLabel(r.Name))))
 		edgeKey := fun + "|" + ln
 		if !seenLibEdge[edgeKey] {
@@ -947,299 +938,6 @@ func shortLibraryLabel(lib string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-003
-func codeItemPath(c inferredCodeItem) string {
-	src := strings.TrimSpace(c.Source)
-	if src == "" {
-		return ""
-	}
-	if idx := strings.Index(src, ":"); idx > 0 {
-		src = src[:idx]
-	}
-	return filepath.ToSlash(strings.TrimSpace(src))
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func codeItemDisplayName(c inferredCodeItem) string {
-	elem := strings.TrimSpace(c.Element)
-	source := sanitizeSourcePath(c.Source)
-	switch strings.TrimSpace(c.Kind) {
-	case "symbol":
-		if label := codeItemEvidenceLabel(c); label != "" {
-			return label
-		}
-		return textutil.NonEmpty(elem, "code symbol")
-	case "source_file":
-		if label := codeItemEvidenceLabel(c); label != "" {
-			return label
-		}
-		return textutil.NonEmpty(source, elem)
-	default:
-		if source == "" {
-			return elem
-		}
-		sourceLabel := codeElementEvidenceLabel(source)
-		if sourceLabel == "" {
-			sourceLabel = source
-		}
-		return elem + " (" + sourceLabel + ")"
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func codeItemEvidenceLabel(c inferredCodeItem) string {
-	return codeElementEvidenceLabel(codeItemEvidenceElement(c))
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func codeItemEvidenceElement(c inferredCodeItem) string {
-	switch strings.TrimSpace(c.Kind) {
-	case "source_file":
-		return codeItemPath(c)
-	case "symbol":
-		if strings.TrimSpace(c.AbsPath) != "" {
-			_, lines, _ := splitCodeEvidencePathLines(c.Source)
-			path := c.AbsPath
-			if c.EvidencePath != "" {
-				path = c.EvidencePath
-			}
-			path = filepath.ToSlash(filepath.Clean(path))
-			if len(lines) > 0 {
-				path += ":" + joinEvidenceLineNumbers(lines)
-			}
-			return path
-		}
-		return filepath.ToSlash(strings.TrimSpace(c.Source))
-	default:
-		return strings.TrimSpace(c.Element)
-	}
-}
-
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-003
-func codeElementEvidenceLabel(elem string) string {
-	elem = sanitizeSourcePath(elem)
-	if elem == "" {
-		return ""
-	}
-	path := elem
-	line := ""
-	if idx := strings.LastIndex(path, ":"); idx > 0 && idx < len(path)-1 {
-		suffix := path[idx+1:]
-		if lines, ok := parseLineNumberList(suffix); ok {
-			path = path[:idx]
-			line = ":" + joinEvidenceLineNumbers(lines)
-		}
-	}
-	if filepath.Ext(path) != "" {
-		return filepath.Base(path) + line
-	}
-	return elem
-}
-
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-003
-func groupedCodeElementEvidenceLabels(elems []string, lookup map[string]string) []string {
-	if lookup == nil {
-		lookup = codeElementEvidenceLabelLookup(elems)
-	}
-	out := []string{}
-	for _, elem := range elems {
-		key := codeElementEvidenceFileKey(elem)
-		if key != "" {
-			if label := strings.TrimSpace(lookup[key]); label != "" {
-				out = textutil.AppendUnique(out, label)
-				continue
-			}
-		}
-		label := codeElementEvidenceLabel(elem)
-		if strings.TrimSpace(label) == "" {
-			label = strings.TrimSpace(elem)
-		}
-		if label != "" {
-			out = textutil.AppendUnique(out, label)
-		}
-	}
-	return textutil.UniqueSorted(out)
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func groupedCodeElementFileLabels(elems []string, lookup map[string]string) []string {
-	if lookup == nil {
-		lookup = codeElementEvidenceLabelLookup(elems)
-	}
-	out := []string{}
-	for _, elem := range elems {
-		label := ""
-		if key := codeElementEvidenceFileKey(elem); key != "" {
-			if full := strings.TrimSpace(lookup[key]); full != "" {
-				label = strings.TrimSpace(strings.Split(full, ":")[0])
-			}
-		}
-		if label == "" {
-			path, _, ok := splitCodeEvidencePathLines(elem)
-			if ok {
-				label = filepath.Base(path)
-			}
-		}
-		if label == "" {
-			label = strings.TrimSpace(strings.Split(codeElementEvidenceLabel(elem), ":")[0])
-		}
-		if label != "" {
-			out = textutil.AppendUnique(out, label)
-		}
-	}
-	return textutil.UniqueSorted(out)
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func codeElementEvidenceLabelLookup(elems []string) map[string]string {
-	type bucket struct {
-		base  string
-		lines map[int]bool
-	}
-	buckets := map[string]*bucket{}
-	baseCounts := map[string]int{}
-	for _, elem := range elems {
-		path, lines, ok := splitCodeEvidencePathLines(elem)
-		if !ok {
-			continue
-		}
-		base := filepath.Base(path)
-		key := filepath.ToSlash(filepath.Clean(path))
-		b, ok := buckets[key]
-		if !ok {
-			b = &bucket{base: base, lines: map[int]bool{}}
-			buckets[key] = b
-			baseCounts[base]++
-		}
-		for _, line := range lines {
-			if line > 0 {
-				b.lines[line] = true
-			}
-		}
-	}
-	out := map[string]string{}
-	for key, b := range buckets {
-		label := b.base
-		if baseCounts[b.base] > 1 {
-			label = key
-			parts := strings.Split(key, "/")
-			for n := 2; n <= len(parts); n++ {
-				candidate := strings.Join(parts[len(parts)-n:], "/")
-				unique := true
-				for other := range buckets {
-					if other != key && (other == candidate || strings.HasSuffix(other, "/"+candidate)) {
-						unique = false
-						break
-					}
-				}
-				if unique {
-					label = candidate
-					break
-				}
-			}
-		}
-		lines := make([]int, 0, len(b.lines))
-		for line := range b.lines {
-			lines = append(lines, line)
-		}
-		sort.Ints(lines)
-		if len(lines) == 0 {
-			out[key] = label
-			continue
-		}
-		parts := make([]string, 0, len(lines))
-		for _, line := range lines {
-			parts = append(parts, fmt.Sprintf("%d", line))
-		}
-		out[key] = label + ":" + strings.Join(parts, ",")
-	}
-	return out
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func codeElementEvidenceFileKey(elem string) string {
-	path, _, ok := splitCodeEvidencePathLines(elem)
-	if !ok {
-		return ""
-	}
-	return filepath.ToSlash(filepath.Clean(path))
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func splitCodeEvidencePathLines(elem string) (string, []int, bool) {
-	elem = filepath.ToSlash(strings.TrimSpace(elem))
-	if elem == "" {
-		return "", nil, false
-	}
-	path := elem
-	lines := []int{}
-	if idx := strings.LastIndex(path, ":"); idx > 0 && idx < len(path)-1 {
-		suffix := path[idx+1:]
-		if parsed, ok := parseLineNumberList(suffix); ok {
-			path = path[:idx]
-			lines = parsed
-		}
-	}
-	if filepath.Ext(path) == "" {
-		return "", nil, false
-	}
-	return filepath.ToSlash(path), lines, true
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func parseLineNumberList(s string) ([]int, bool) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return nil, false
-	}
-	seen := map[int]bool{}
-	out := []int{}
-	for _, part := range strings.Split(s, ",") {
-		part = strings.TrimSpace(part)
-		if !allDigits(part) {
-			return nil, false
-		}
-		n := 0
-		for _, r := range part {
-			n = n*10 + int(r-'0')
-		}
-		if n <= 0 || seen[n] {
-			continue
-		}
-		seen[n] = true
-		out = append(out, n)
-	}
-	if len(out) == 0 {
-		return nil, false
-	}
-	sort.Ints(out)
-	return out, true
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func joinEvidenceLineNumbers(lines []int) string {
-	parts := make([]string, 0, len(lines))
-	for _, line := range lines {
-		parts = append(parts, fmt.Sprintf("%d", line))
-	}
-	return strings.Join(parts, ",")
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func allDigits(s string) bool {
-	if s == "" {
-		return false
-	}
-	for _, r := range s {
-		if r < '0' || r > '9' {
-			return false
-		}
-	}
-	return true
-}
-
-// TRLC-LINKS: REQ-EMG-003
 func moduleFromPath(p string) string {
 	p = filepath.ToSlash(strings.TrimSpace(p))
 	if p == "" {
@@ -1252,24 +950,6 @@ func moduleFromPath(p string) string {
 		return strings.TrimSuffix(base, ext)
 	}
 	return dir
-}
-
-// TRLC-LINKS: REQ-EMG-003
-func languageFromPath(p string) string {
-	switch strings.ToLower(filepath.Ext(p)) {
-	case ".js", ".mjs", ".cjs":
-		return "javascript"
-	case ".go":
-		return "go"
-	case ".ts", ".tsx":
-		return "typescript"
-	case ".rs":
-		return "rust"
-	case ".py":
-		return "python"
-	default:
-		return ""
-	}
 }
 
 // TRLC-LINKS: REQ-EMG-003

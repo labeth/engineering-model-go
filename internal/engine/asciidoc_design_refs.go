@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 )
@@ -154,12 +155,12 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func referenceAnchor(kind, id string) string {
-	return "REF_" + strings.ToUpper(strings.TrimSpace(kind)) + "_" + sanitizeNode(id)
+	return "REF_" + strings.ToUpper(strings.TrimSpace(kind)) + "_" + codescan.SanitizeNode(id)
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDocument, runtime []inferredRuntimeItem, code []inferredCodeItem, verification []inferredVerificationCheck) asciidocReferenceIndex {
+func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDocument, runtime []codescan.RuntimeItem, code []codescan.CodeItem, verification []codescan.VerificationCheck) asciidocReferenceIndex {
 	authored := []asciidocReferenceEntry{}
 	catalogIDs := catalogEntryIDSet(bundle.Catalog)
 	addAuthored := func(anchorKind, kind, id, name, desc string) {
@@ -390,7 +391,7 @@ func aliasDescription(e model.CatalogEntry) string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
+func buildRuntimeReferences(in []codescan.RuntimeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
 	for _, r := range in {
@@ -402,7 +403,7 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 		}
 		seen[key] = true
 		owner := textutil.NonEmpty(strings.TrimSpace(r.Owner), "unresolved")
-		source := sanitizeSourcePath(r.Source)
+		source := codescan.SanitizeSourcePath(r.Source)
 		desc := strings.TrimSpace(r.Description)
 		if desc == "" {
 			desc = fmt.Sprintf("Inferred runtime %s owned by %s from %s.", textutil.NonEmpty(kind, "element"), owner, textutil.NonEmpty(source, "unknown source"))
@@ -431,18 +432,18 @@ func buildRuntimeReferences(in []inferredRuntimeItem) []asciidocReferenceEntry {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
-func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
+func buildCodeReferences(in []codescan.CodeItem) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
 	for _, c := range in {
-		id := codeItemDisplayName(c)
+		id := codescan.ItemDisplayName(c)
 		key := c.Kind + "|" + id + "|" + c.Source
 		if id == "" || seen[key] {
 			continue
 		}
 		seen[key] = true
 		owner := textutil.NonEmpty(strings.TrimSpace(c.Owner), "unresolved")
-		source := sanitizeSourcePath(c.Source)
+		source := codescan.SanitizeSourcePath(c.Source)
 		desc := strings.TrimSpace(c.Description)
 		if desc == "" {
 			switch strings.TrimSpace(c.Kind) {
@@ -478,7 +479,7 @@ func buildCodeReferences(in []inferredCodeItem) []asciidocReferenceEntry {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-003
-func buildVerificationReferences(in []inferredVerificationCheck) []asciidocReferenceEntry {
+func buildVerificationReferences(in []codescan.VerificationCheck) []asciidocReferenceEntry {
 	out := []asciidocReferenceEntry{}
 	seen := map[string]bool{}
 	for _, v := range in {
@@ -489,7 +490,7 @@ func buildVerificationReferences(in []inferredVerificationCheck) []asciidocRefer
 		seen[id] = true
 		source := "n/a"
 		if len(v.Evidence) > 0 {
-			source = sanitizeSourcePath(strings.TrimSpace(v.Evidence[0]))
+			source = codescan.SanitizeSourcePath(strings.TrimSpace(v.Evidence[0]))
 		}
 		if len(v.Evidence) > 1 {
 			source = fmt.Sprintf("%s (+%d)", source, len(v.Evidence)-1)

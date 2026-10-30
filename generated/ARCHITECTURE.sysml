@@ -1436,10 +1436,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-139EC30ED19D5D0E';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-7B0F3F3E515E85ED";
+        sourceId = "EVIDENCE-73A27A3950E0B1C9";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-7B0F3F3E515E85ED';
+    attribute 'EVIDENCE-73A27A3950E0B1C9';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-D1A0C0EF613B1206";
@@ -1904,7 +1904,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engtrace";
-        attribute 'schemaRef' : 'String' = "internal/engine/trace_matrix.go";
+        attribute 'schemaRef' : 'String' = "internal/trace/trace_matrix.go";
     }
 
     @EngineeringElement {

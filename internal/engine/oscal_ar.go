@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -106,7 +107,7 @@ type oscalARRisk struct {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return OSCALARResult{}, err
 	}
@@ -150,9 +151,9 @@ func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.Requ
 		apHref = "./ASSESSMENT-PLAN.json"
 	}
 
-	inferredCode, codeDiags := inferCodeItems(bundle, options.CodeRoot)
+	inferredCode, codeDiags := codescan.InferCodeItems(bundle, options.CodeRoot)
 	diags = append(diags, codeDiags...)
-	inferredVerification, verDiags := inferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
+	inferredVerification, verDiags := codescan.InferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
 	diags = append(diags, verDiags...)
 	compliance, complianceDiags := resolveOSCALCompliance(bundle, oscalResolveOptions{ProfileHref: options.ProfileHref, CatalogHref: options.CatalogHref})
 	diags = append(diags, complianceDiags...)

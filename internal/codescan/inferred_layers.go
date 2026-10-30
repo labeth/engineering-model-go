@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
 	"bufio"
@@ -21,7 +21,7 @@ import (
 )
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-type inferredRuntimeItem struct {
+type RuntimeItem struct {
 	Name        string
 	Kind        string
 	Owner       string
@@ -31,7 +31,7 @@ type inferredRuntimeItem struct {
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-type inferredCodeItem struct {
+type CodeItem struct {
 	Element      string
 	Kind         string
 	Owner        string
@@ -44,7 +44,7 @@ type inferredCodeItem struct {
 }
 
 // TRLC-LINKS: REQ-EMG-010
-func modelRootDir(bundle model.Bundle) string {
+func ModelRootDir(bundle model.Bundle) string {
 	if bundle.ManifestPath != "" {
 		return filepath.Dir(bundle.ManifestPath)
 	}
@@ -53,9 +53,9 @@ func modelRootDir(bundle model.Bundle) string {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.Diagnostic) {
-	baseDir := modelRootDir(bundle)
-	items := []inferredRuntimeItem{}
+func InferRuntimeItems(bundle model.Bundle) ([]RuntimeItem, []validate.Diagnostic) {
+	baseDir := ModelRootDir(bundle)
+	items := []RuntimeItem{}
 	diags := []validate.Diagnostic{}
 	seen := map[string]bool{}
 
@@ -142,7 +142,7 @@ func inferRuntimeItems(bundle model.Bundle) ([]inferredRuntimeItem, []validate.D
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
-func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
+func parseTerraformRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
 	descHints, hintErr := parseTerraformRuntimeDescriptions(path)
 	if hintErr != nil {
 		return nil, []validate.Diagnostic{{
@@ -179,7 +179,7 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 		}}
 	}
 
-	out := []inferredRuntimeItem{}
+	out := []RuntimeItem{}
 	for _, b := range content.Blocks {
 		rtype := ""
 		rname := ""
@@ -197,7 +197,7 @@ func parseTerraformRuntime(path string) ([]inferredRuntimeItem, []validate.Diagn
 		if name == "" {
 			name = rtype
 		}
-		out = append(out, inferredRuntimeItem{
+		out = append(out, RuntimeItem{
 			Name:        name,
 			Kind:        kind,
 			Owner:       inferOwnerByConvention(kind, name),
@@ -298,7 +298,7 @@ func inferOwnerByConvention(kind, name string) string {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func resolveRuntimeOwner(item inferredRuntimeItem, units []model.FunctionalUnit) string {
+func resolveRuntimeOwner(item RuntimeItem, units []model.FunctionalUnit) string {
 	owner := strings.TrimSpace(item.Owner)
 	if owner != "" && owner != "unresolved" && functionalUnitExists(owner, units) {
 		return owner
@@ -338,12 +338,12 @@ func functionalUnitExists(id string, units []model.FunctionalUnit) bool {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
-func inferDeploymentArtifactItems(baseDir, path string) []inferredRuntimeItem {
+func inferDeploymentArtifactItems(baseDir, path string) []RuntimeItem {
 	if !isDeploymentEvidencePath(path) {
 		return nil
 	}
 	rel := deploymentArtifactDisplayPath(baseDir, path)
-	return []inferredRuntimeItem{{
+	return []RuntimeItem{{
 		Name:        rel,
 		Kind:        "deployment_artifact",
 		Owner:       "unresolved",
@@ -500,7 +500,7 @@ type manifestPort struct {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
-func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagnostic) {
+func parseManifestRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
 	raw, readErr := os.ReadFile(path)
 	if readErr == nil {
 		txt := string(raw)
@@ -522,7 +522,7 @@ func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagno
 	defer f.Close()
 
 	dec := yaml.NewDecoder(f)
-	out := []inferredRuntimeItem{}
+	out := []RuntimeItem{}
 	for {
 		var doc manifestObject
 		err := dec.Decode(&doc)
@@ -565,7 +565,7 @@ func parseManifestRuntime(path string) ([]inferredRuntimeItem, []validate.Diagno
 		if owner == "unresolved" {
 			owner = inferOwnerByConvention(strings.ToLower(kind), name)
 		}
-		out = append(out, inferredRuntimeItem{
+		out = append(out, RuntimeItem{
 			Name:        name,
 			Kind:        strings.ToLower(kind),
 			Owner:       owner,

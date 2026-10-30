@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 )
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-type inferredVerificationResult struct {
+type VerificationResult struct {
 	Requirement string
 	Status      string
 	Evidence    string
@@ -28,7 +28,7 @@ type inferredVerificationResult struct {
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-type inferredVerificationCheck struct {
+type VerificationCheck struct {
 	ID            string
 	Name          string
 	Kind          string
@@ -38,7 +38,7 @@ type inferredVerificationCheck struct {
 	CodeElements  []string
 	DerivedOwners []string
 	Evidence      []string
-	Results       []inferredVerificationResult
+	Results       []VerificationResult
 }
 
 var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
@@ -47,8 +47,8 @@ var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-ru
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func inferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []inferredCodeItem, codeRootOption string) ([]inferredVerificationCheck, []validate.Diagnostic) {
-	baseDir := modelRootDir(bundle)
+func InferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []CodeItem, codeRootOption string) ([]VerificationCheck, []validate.Diagnostic) {
+	baseDir := ModelRootDir(bundle)
 	reqOwners := requirementOwners(requirements.Requirements)
 
 	testRoots := uniqueExistingDirs(append(
@@ -57,7 +57,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		},
 		inferredSiblingDirs(baseDir, bundle, codeRootOption, "tests")...,
 	))
-	testRoots = uniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
+	testRoots = UniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
 	resultRoots := uniqueExistingDirs(append(
 		[]string{
 			filepath.Join(baseDir, "test-results"),
@@ -75,7 +75,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			codeBySource[path] = symbols
 		}
 	}
-	checkByID := map[string]*inferredVerificationCheck{}
+	checkByID := map[string]*VerificationCheck{}
 	checkIDsByIdentity := map[string][]string{}
 	checkIdentityByID := map[string]map[string]bool{}
 	registerCheckIdentity := func(id, path string) {
@@ -98,7 +98,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				return nil
 			}
 			if d.IsDir() {
-				if path != root && (skipScanDir(d.Name()) || skip(path, true)) {
+				if path != root && (SkipScanDir(d.Name()) || skip(path, true)) {
 					return filepath.SkipDir
 				}
 				return nil
@@ -155,7 +155,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				desc = "Inferred from test source artifact."
 			}
 			id := verificationIDFromPath(rel)
-			check := &inferredVerificationCheck{
+			check := &VerificationCheck{
 				ID:            id,
 				Name:          verificationNameFromPath(path),
 				Kind:          verificationKindFromPath(rel),
@@ -206,7 +206,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			for _, r := range res {
 				arts = append(arts, artifactResult{
 					Requirement: r.Requirement,
-					Status:      normalizeResultStatus(r.Status),
+					Status:      NormalizeResultStatus(r.Status),
 					Notes:       r.Notes,
 				})
 			}
@@ -264,7 +264,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				reqs = append(reqs, req)
 			}
 			sort.Strings(reqs)
-			checkByID[id] = &inferredVerificationCheck{
+			checkByID[id] = &VerificationCheck{
 				ID:            id,
 				Name:          verificationNameFromPath(a.Path),
 				Kind:          verificationKindFromPath(a.Path),
@@ -286,7 +286,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			c.Verifies = textutil.AppendUnique(c.Verifies, ar.Requirement)
 			c.DerivedOwners = textutil.AppendUniqueSlice(c.DerivedOwners, ownersForRequirements(reqOwners, []string{ar.Requirement}))
-			c.Results = appendOrMergeResult(c.Results, inferredVerificationResult{
+			c.Results = appendOrMergeResult(c.Results, VerificationResult{
 				Requirement: ar.Requirement,
 				Status:      ar.Status,
 				Evidence:    a.Path,
@@ -295,7 +295,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		}
 	}
 
-	out := make([]inferredVerificationCheck, 0, len(checkByID))
+	out := make([]VerificationCheck, 0, len(checkByID))
 	for _, c := range checkByID {
 		for _, req := range c.Verifies {
 			found := false
@@ -306,7 +306,7 @@ func inferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				}
 			}
 			if !found {
-				c.Results = append(c.Results, inferredVerificationResult{
+				c.Results = append(c.Results, VerificationResult{
 					Requirement: req,
 					Status:      "not-run",
 					Evidence:    "none",
@@ -402,7 +402,7 @@ func testFunctionRequirements(path, rel string) ([]string, []validate.Diagnostic
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseVerificationArtifact(path string) ([]inferredVerificationResult, bool) {
+func parseVerificationArtifact(path string) ([]VerificationResult, bool) {
 	ext := strings.ToLower(filepath.Ext(path))
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -439,8 +439,8 @@ type junitSuites struct {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseResultXML(data []byte) []inferredVerificationResult {
-	out := []inferredVerificationResult{}
+func parseResultXML(data []byte) []VerificationResult {
+	out := []VerificationResult{}
 	decoder := junitSuites{}
 	if err := xml.Unmarshal(data, &decoder); err != nil {
 		// fallback: best effort regex extraction
@@ -450,7 +450,7 @@ func parseResultXML(data []byte) []inferredVerificationResult {
 			status = "fail"
 		}
 		for _, req := range reqs {
-			out = append(out, inferredVerificationResult{Requirement: req, Status: status})
+			out = append(out, VerificationResult{Requirement: req, Status: status})
 		}
 		return out
 	}
@@ -468,7 +468,7 @@ func parseResultXML(data []byte) []inferredVerificationResult {
 				status = "not-run"
 			}
 			for _, req := range reqs {
-				out = append(out, inferredVerificationResult{Requirement: req, Status: status})
+				out = append(out, VerificationResult{Requirement: req, Status: status})
 			}
 		}
 	}
@@ -477,8 +477,8 @@ func parseResultXML(data []byte) []inferredVerificationResult {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseResultJSON(data []byte) []inferredVerificationResult {
-	out := []inferredVerificationResult{}
+func parseResultJSON(data []byte) []VerificationResult {
+	out := []VerificationResult{}
 	var v any
 	if err := json.Unmarshal(data, &v); err != nil {
 		return out
@@ -491,9 +491,9 @@ func parseResultJSON(data []byte) []inferredVerificationResult {
 			status, _ := x["status"].(string)
 			notes, _ := x["notes"].(string)
 			if strings.TrimSpace(req) != "" {
-				out = append(out, inferredVerificationResult{
+				out = append(out, VerificationResult{
 					Requirement: strings.TrimSpace(req),
-					Status:      normalizeResultStatus(status),
+					Status:      NormalizeResultStatus(status),
 					Notes:       strings.TrimSpace(notes),
 				})
 			}
@@ -512,18 +512,18 @@ func parseResultJSON(data []byte) []inferredVerificationResult {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseResultText(text string) []inferredVerificationResult {
+func parseResultText(text string) []VerificationResult {
 	reqs := extractTRLCLinkedRequirements(text)
 	if len(reqs) == 0 {
 		return nil
 	}
 	status := "not-run"
 	if m := resultStatusRe.FindStringSubmatch(text); len(m) > 1 {
-		status = normalizeResultStatus(m[1])
+		status = NormalizeResultStatus(m[1])
 	}
-	out := make([]inferredVerificationResult, 0, len(reqs))
+	out := make([]VerificationResult, 0, len(reqs))
 	for _, req := range reqs {
-		out = append(out, inferredVerificationResult{Requirement: req, Status: status})
+		out = append(out, VerificationResult{Requirement: req, Status: status})
 	}
 	return out
 }
@@ -545,7 +545,7 @@ func extractTRLCLinkedRequirements(text string) []string {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]string {
+func buildVerificationCodeElementIndex(items []CodeItem) map[string][]string {
 	type pathEvidence struct {
 		hasSourceFile bool
 		symbols       []string
@@ -566,7 +566,7 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 		ev := byPath[srcPath]
 		switch strings.TrimSpace(it.Kind) {
 		case "symbol":
-			ev.symbols = textutil.AppendUnique(ev.symbols, codeItemDisplayName(it))
+			ev.symbols = textutil.AppendUnique(ev.symbols, ItemDisplayName(it))
 		case "source_file":
 			ev.hasSourceFile = true
 		default:
@@ -577,11 +577,11 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 	out := map[string][]string{}
 	for path, ev := range byPath {
 		if len(ev.symbols) > 0 {
-			out[path] = groupedCodeElementEvidenceLabels(ev.symbols, nil)
+			out[path] = GroupedEvidenceLabels(ev.symbols, nil)
 			continue
 		}
 		if ev.hasSourceFile {
-			out[path] = groupedCodeElementEvidenceLabels([]string{path}, nil)
+			out[path] = GroupedEvidenceLabels([]string{path}, nil)
 		}
 	}
 	return out
@@ -592,7 +592,7 @@ func buildVerificationCodeElementIndex(items []inferredCodeItem) map[string][]st
 func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(path string, isDir bool) bool) (map[string][]string, []validate.Diagnostic) {
 	out := map[string][]string{}
 	diags := []validate.Diagnostic{}
-	for _, root := range uniqueExistingSources(roots) {
+	for _, root := range UniqueExistingSources(roots) {
 		symbols, scanDiags, err := codemap.ScanWithOptions(root, codemap.ScanOptions{Skip: skip})
 		if err != nil {
 			diags = append(diags, validate.Diagnostic{
@@ -617,16 +617,16 @@ func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(
 				continue
 			}
 			if s.Line > 0 {
-				label := codeElementEvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
+				label := EvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
 				out[rel] = textutil.AppendUnique(out[rel], label)
 			} else {
-				label := codeElementEvidenceLabel(rel)
+				label := EvidenceLabel(rel)
 				out[rel] = textutil.AppendUnique(out[rel], label)
 			}
 		}
 	}
 	for path, elems := range out {
-		out[path] = groupedCodeElementEvidenceLabels(elems, nil)
+		out[path] = GroupedEvidenceLabels(elems, nil)
 	}
 	return out, validate.SortDiagnostics(diags)
 }
@@ -680,7 +680,7 @@ func inferredCodeRoots(baseDir string, bundle model.Bundle, codeRootOption strin
 	if strings.TrimSpace(codeRootOption) != "" {
 		out = append(out, resolveSourcePath(baseDir, codeRootOption))
 	}
-	return withDefaultCodeRoot(bundle, uniqueExistingSources(out))
+	return WithDefaultCodeRoot(bundle, UniqueExistingSources(out))
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -789,12 +789,12 @@ func verificationNameFromPath(path string) string {
 // TRLC-LINKS: REQ-EMG-010
 func verificationIDFromPath(rel string) string {
 	rel = filepath.ToSlash(strings.TrimSpace(rel))
-	kind := strings.ToUpper(sanitizeNode(verificationKindFromPath(rel)))
+	kind := strings.ToUpper(SanitizeNode(verificationKindFromPath(rel)))
 	if kind == "" {
 		kind = "TEST"
 	}
 	base := strings.TrimSuffix(filepath.Base(rel), filepath.Ext(rel))
-	base = strings.ToUpper(sanitizeNode(base))
+	base = strings.ToUpper(SanitizeNode(base))
 	if base == "" {
 		base = "CHECK"
 	}
@@ -806,7 +806,7 @@ func verificationIDFromPath(rel string) string {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func normalizeResultStatus(s string) string {
+func NormalizeResultStatus(s string) string {
 	x := strings.ToLower(strings.TrimSpace(s))
 	switch x {
 	case "pass", "passed":
@@ -831,13 +831,13 @@ func normalizeResultStatus(s string) string {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func summarizeCheckStatus(results []inferredVerificationResult) string {
+func summarizeCheckStatus(results []VerificationResult) string {
 	if len(results) == 0 {
 		return "not-run"
 	}
 	has := map[string]bool{}
 	for _, r := range results {
-		has[normalizeResultStatus(r.Status)] = true
+		has[NormalizeResultStatus(r.Status)] = true
 	}
 	switch {
 	case has["fail"]:
@@ -897,7 +897,7 @@ var nonAlnumRe = regexp.MustCompile(`[^a-z0-9]+`)
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func selectBestVerificationCheckID(ids []string, checks map[string]*inferredVerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
+func selectBestVerificationCheckID(ids []string, checks map[string]*VerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
 	bestID := ""
 	bestKeyMatches := -1
 	bestOverlap := -1
@@ -1000,7 +1000,7 @@ func uniqueStrings(in []string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-010
-func appendOrMergeResult(in []inferredVerificationResult, r inferredVerificationResult) []inferredVerificationResult {
+func appendOrMergeResult(in []VerificationResult, r VerificationResult) []VerificationResult {
 	for i := range in {
 		if in[i].Requirement == r.Requirement {
 			in[i] = mergeVerificationResult(in[i], r)
@@ -1011,9 +1011,9 @@ func appendOrMergeResult(in []inferredVerificationResult, r inferredVerification
 }
 
 // TRLC-LINKS: REQ-EMG-010
-func mergeVerificationResult(existing, incoming inferredVerificationResult) inferredVerificationResult {
-	existingStatus := normalizeResultStatus(existing.Status)
-	incomingStatus := normalizeResultStatus(incoming.Status)
+func mergeVerificationResult(existing, incoming VerificationResult) VerificationResult {
+	existingStatus := NormalizeResultStatus(existing.Status)
+	incomingStatus := NormalizeResultStatus(incoming.Status)
 	if verificationStatusRank(incomingStatus) > verificationStatusRank(existingStatus) {
 		existing.Status = incomingStatus
 		existing.Evidence = strings.TrimSpace(incoming.Evidence)
@@ -1031,7 +1031,7 @@ func mergeVerificationResult(existing, incoming inferredVerificationResult) infe
 
 // TRLC-LINKS: REQ-EMG-010
 func verificationStatusRank(status string) int {
-	switch normalizeResultStatus(status) {
+	switch NormalizeResultStatus(status) {
 	case "fail":
 		return 6
 	case "blocked":

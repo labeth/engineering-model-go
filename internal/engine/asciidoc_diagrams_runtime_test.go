@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
@@ -48,7 +49,7 @@ func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) 
 
 // TRLC-LINKS: REQ-EMG-003
 func TestBuildRuntimeAPIRows_UsesLambdaInferenceOwnership(t *testing.T) {
-	runtime := []inferredRuntimeItem{
+	runtime := []codescan.RuntimeItem{
 		{Name: "webhook_ingress", Kind: "lambda_function", Owner: "FU-GITHUB-WEBHOOK-INGRESS"},
 		{Name: "review_orchestrator", Kind: "lambda_function", Owner: "FU-REVIEW-ORCHESTRATION"},
 	}
@@ -76,7 +77,7 @@ func TestBuildSecurityPathMermaid_GroupsCodeNodesByFile(t *testing.T) {
 		TargetID:       "FU-A",
 		Target:         "Unit A",
 	}}
-	code := []inferredCodeItem{
+	code := []codescan.CodeItem{
 		{Kind: "symbol", Owner: "FU-A", Source: "src/payment_engine.rs:25"},
 		{Kind: "symbol", Owner: "FU-A", Source: "src/payment_engine.rs:11"},
 	}

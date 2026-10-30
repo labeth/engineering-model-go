@@ -1,5 +1,5 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
 	"fmt"
@@ -22,20 +22,20 @@ import (
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-057
-func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeItem, []validate.Diagnostic) {
-	baseDir := modelRootDir(bundle)
+func InferCodeItems(bundle model.Bundle, codeRootOption string) ([]CodeItem, []validate.Diagnostic) {
+	baseDir := ModelRootDir(bundle)
 	roots := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
 		roots = append(roots, codeRootOption)
 	}
-	roots = withDefaultCodeRoot(bundle, uniqueExistingSources(roots))
+	roots = WithDefaultCodeRoot(bundle, UniqueExistingSources(roots))
 	if len(roots) == 0 {
 		return nil, nil
 	}
 	moduleRoot := moduleCodeRoot(bundle)
 	skip := codeScanSkipper(bundle)
 
-	items := []inferredCodeItem{}
+	items := []CodeItem{}
 	diags := []validate.Diagnostic{}
 	seen := map[string]bool{}
 
@@ -73,7 +73,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				continue
 			}
 			seen[key] = true
-			items = append(items, inferredCodeItem{
+			items = append(items, CodeItem{
 				Element:     rel,
 				Kind:        "source_file",
 				AbsPath:     filepath.Join(sourceBase, rel),
@@ -106,7 +106,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 				continue
 			}
 			seen[key] = true
-			items = append(items, inferredCodeItem{
+			items = append(items, CodeItem{
 				Element:    label,
 				Kind:       "symbol",
 				Owner:      owner,
@@ -140,7 +140,7 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 		if !ambiguous[items[i].Source] {
 			continue
 		}
-		_, line := splitSourceLine(items[i].Source)
+		_, line := SplitSourceLine(items[i].Source)
 		path, err := filepath.Rel(baseDir, items[i].AbsPath)
 		if err != nil {
 			path = items[i].AbsPath
@@ -164,18 +164,18 @@ func inferCodeItems(bundle model.Bundle, codeRootOption string) ([]inferredCodeI
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// skipScanDir reports whether a directory must be excluded from code/metadata walks.
+// SkipScanDir reports whether a directory must be excluded from code/metadata walks.
 // Dependency caches and dot-directories (tool caches like .opencode, the .engmod
 // composition cache, .git) are not source; scanning them makes generated artifacts
 // depend on the local environment and breaks reproducibility.
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-012
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
-func skipScanDir(name string) bool {
+func SkipScanDir(name string) bool {
 	return name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.')
 }
 
 // TRLC-LINKS: REQ-EMG-010
-func parseCodeDependencies(root, rel, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
+func parseCodeDependencies(root, rel, owner string) ([]CodeItem, []validate.Diagnostic) {
 	path := filepath.Join(root, filepath.FromSlash(rel))
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -206,7 +206,7 @@ type codeFileMetadata struct {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeItem, []validate.Diagnostic) {
+func parseGoDependencies(rel string, src []byte, owner string) ([]CodeItem, []validate.Diagnostic) {
 	full := filepath.ToSlash(filepath.Clean(rel))
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, full, src, parser.ImportsOnly)
@@ -218,14 +218,14 @@ func parseGoDependencies(rel string, src []byte, owner string) ([]inferredCodeIt
 			Path:     rel,
 		}}
 	}
-	out := []inferredCodeItem{}
+	out := []CodeItem{}
 	for _, im := range f.Imports {
 		path := strings.TrimSpace(strings.Trim(im.Path.Value, "\""))
 		if path == "" {
 			continue
 		}
 		kind := goImportKind(path)
-		out = append(out, inferredCodeItem{
+		out = append(out, CodeItem{
 			Element: path,
 			Kind:    kind,
 			Owner:   owner,
@@ -256,8 +256,8 @@ var (
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem {
-	out := []inferredCodeItem{}
+func parseTypeScriptDependencies(rel, content, owner string) []CodeItem {
+	out := []CodeItem{}
 	add := func(dep string) {
 		dep = strings.TrimSpace(dep)
 		if dep == "" {
@@ -267,7 +267,7 @@ func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem 
 		if strings.HasPrefix(dep, ".") || strings.HasPrefix(dep, "/") {
 			kind = "library_first_party"
 		}
-		out = append(out, inferredCodeItem{
+		out = append(out, CodeItem{
 			Element: dep,
 			Kind:    kind,
 			Owner:   owner,
@@ -289,8 +289,8 @@ func parseTypeScriptDependencies(rel, content, owner string) []inferredCodeItem 
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
-	out := []inferredCodeItem{}
+func parseRustDependencies(rel, content, owner string) []CodeItem {
+	out := []CodeItem{}
 	for _, m := range rsUseRe.FindAllStringSubmatch(content, -1) {
 		if len(m) < 2 {
 			continue
@@ -303,7 +303,7 @@ func parseRustDependencies(rel, content, owner string) []inferredCodeItem {
 		if strings.HasPrefix(dep, "crate::") || strings.HasPrefix(dep, "self::") || strings.HasPrefix(dep, "super::") {
 			kind = "library_first_party"
 		}
-		out = append(out, inferredCodeItem{
+		out = append(out, CodeItem{
 			Element: dep,
 			Kind:    kind,
 			Owner:   owner,
@@ -322,7 +322,7 @@ func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[
 			return nil
 		}
 		if d.IsDir() {
-			if skipScanDir(d.Name()) || (path != root && skip != nil && skip(path, true)) {
+			if SkipScanDir(d.Name()) || (path != root && skip != nil && skip(path, true)) {
 				return filepath.SkipDir
 			}
 			return nil
@@ -427,7 +427,7 @@ func sourceRootDir(root string) string {
 }
 
 // TRLC-LINKS: REQ-EMG-010
-func uniqueExistingSources(in []string) []string {
+func UniqueExistingSources(in []string) []string {
 	out := []string{}
 	seen := map[string]bool{}
 	for _, path := range in {
@@ -445,12 +445,12 @@ func uniqueExistingSources(in []string) []string {
 	return out
 }
 
-// isVerificationCodeItem reports whether a code item is test code rather than
+// IsVerificationCodeItem reports whether a code item is test code rather than
 // production implementation: it lives in a test file, or it is a Rust item
 // compiled only for tests (#[cfg(test)] module or #![cfg(test)] file).
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
-func isVerificationCodeItem(item inferredCodeItem) bool {
-	path, line := splitSourceLine(item.Source)
+func IsVerificationCodeItem(item CodeItem) bool {
+	path, line := SplitSourceLine(item.Source)
 	if isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path) {
 		return true
 	}

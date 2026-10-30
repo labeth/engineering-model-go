@@ -202,5 +202,5 @@ assurance:
     findings:
     - Coverage depends on TRLC-LINKS completeness in source and tests.
     evidence:
-    - path: internal/engine/inferred_verification_test.go
+    - path: internal/codescan/inferred_verification_test.go
       description: Verification inference and trace marker coverage tests.

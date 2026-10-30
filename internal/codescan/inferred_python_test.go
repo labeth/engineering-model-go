@@ -1,13 +1,16 @@
 // ENGMODEL-OWNER-UNIT: FU-CODEMAP-INFERENCE
-package engine
+package codescan
 
 import (
-	"github.com/labeth/engineering-model-go/internal/model"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// The test-only links of these files are checked against the trace matrix in
+// internal/trace (TestPythonTestOnlyLinksDoNotImplement).
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestPythonOwnershipAndTestOnlyInference(t *testing.T) {
 	root := t.TempDir()
@@ -24,20 +27,16 @@ func TestPythonOwnershipAndTestOnlyInference(t *testing.T) {
 		t.Fatalf("false ownership: %+v", metadata)
 	}
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"worker.py", "test_worker.py"}}}}
-	code, diags := inferCodeItems(bundle, "")
+	code, diags := InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 4 {
 		t.Fatalf("code: %+v diagnostics: %+v", code, diags)
 	}
 	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-PY-001"}, {ID: "REQ-PY-002"}, {ID: "REQ-PY-003"}}}
-	checks, diags := inferVerificationChecks(bundle, requirements, code, "")
+	checks, diags := InferVerificationChecks(bundle, requirements, code, "")
 	if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 		t.Fatalf("checks: %+v %+v", checks, diags)
 	}
-	matrix := buildTraceMatrix(bundle, requirements, code, checks, nil)
-	if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
-		t.Fatalf("test-only code credited: %+v", matrix)
-	}
-	if languageFromPath("worker.py") != "python" {
+	if LanguageFromPath("worker.py") != "python" {
 		t.Fatal("missing publication language")
 	}
 }

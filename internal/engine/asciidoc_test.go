@@ -8,7 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -282,7 +285,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 
 	bundle.ManifestPath = filepath.Join(root, "engmod.yml")
 
-	checks, _ := inferVerificationChecks(bundle, requirements, nil, "")
+	checks, _ := codescan.InferVerificationChecks(bundle, requirements, nil, "")
 	validationCheck, ok := findCheckByEvidence(checks, filepath.ToSlash(filepath.Join("tests", "validation.test.js")))
 	if !ok {
 		t.Fatalf("missing validation inferred verification check")
@@ -586,4 +589,42 @@ func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
 			t.Fatalf("missing reference index entry for %s", id)
 		}
 	}
+}
+
+// GenerateAsciiDoc resolves CODE references for a bundle a caller loaded with
+// model.LoadBundle (engws check, MCP model.diagnose), not only through the
+// package's own file loaders.
+// Mutation: not attaching the code index in GenerateAsciiDoc fails this test.
+// TRLC-LINKS: REQ-EMG-059, REQ-EMG-068, REQ-EMG-069
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
+	t.Setenv(model.WorkspaceEnv, "")
+	t.Setenv(composition.LockEnv, "")
+	dir := t.TempDir()
+	testutil.WriteInterfaceModule(t, dir)
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
+	testutil.WriteFile(t, filepath.Join(dir, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, _ := GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, AsciiDocOptions{})
+	testutil.AssertDiag(t, result.Diagnostics, "model.invalid_requirement_source_ref", "CODE-SRC-GONE-GO")
+	for _, d := range result.Diagnostics {
+		if strings.Contains(d.Message, "CODE-SRC-IFACE-GO") {
+			t.Fatalf("resolvable CODE reference rejected: %+v", d)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-010
+func findCheckByEvidence(checks []codescan.VerificationCheck, evidence string) (codescan.VerificationCheck, bool) {
+	for _, check := range checks {
+		for _, ev := range check.Evidence {
+			if ev == evidence {
+				return check, true
+			}
+		}
+	}
+	return codescan.VerificationCheck{}, false
 }

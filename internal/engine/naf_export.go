@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
 	"github.com/labeth/engineering-model-go/internal/view"
@@ -22,7 +23,7 @@ type NAFExportResult struct {
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-042, REQ-EMG-043
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, IF-CLI-ENGNAF, DO-NAF-V4-ARCHITECTURE, REF-NAF-V4-1-SPECIFICATION
 func GenerateNAFV41FromFile(architecturePath string) (NAFExportResult, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return NAFExportResult{}, err
 	}

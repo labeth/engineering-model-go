@@ -4,6 +4,7 @@ package engine
 import (
 	"fmt"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	mermaidrenderer "github.com/labeth/engineering-model-go/internal/render/mermaid"
 	svgrenderer "github.com/labeth/engineering-model-go/internal/render/svg"
@@ -23,7 +24,7 @@ type Result struct {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003
 // ENGMODEL-LINKS: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION
 func GenerateFromFile(architecturePath, viewID string) (Result, error) {
-	bundle, err := loadBundle(architecturePath)
+	bundle, err := codescan.LoadBundle(architecturePath)
 	if err != nil {
 		return Result{}, err
 	}

@@ -34,7 +34,7 @@ Align root model artifacts with the current repository without changing runtime 
    - `cmd/engoscal`, `internal/engine/oscal_*.go` -> `FU-OSCAL-EXPORTER`
    - `internal/model/` -> `FU-MODEL-LOADER`
    - `internal/validate/` -> `FU-VALIDATION-ENGINE`
-   - `internal/codemap/`, `internal/engine/inferred_*.go` -> `FU-CODEMAP-INFERENCE`
+   - `internal/codemap/`, `internal/codescan/` -> `FU-CODEMAP-INFERENCE`
    - `internal/view/`, `internal/engine/asciidoc_views.go` -> `FU-VIEW-PROJECTION`
 
 Deliverable: checked-in mapping table (path -> FU ID).

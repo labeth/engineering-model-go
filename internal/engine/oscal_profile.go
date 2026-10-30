@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -42,7 +43,7 @@ type oscalAggregateImport struct {
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateOSCALProfileFromFile(path string, options OSCALProfileOptions) (string, error) {
-	bundle, err := loadBundle(path)
+	bundle, err := codescan.LoadBundle(path)
 	if err != nil {
 		return "", err
 	}

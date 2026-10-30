@@ -205,7 +205,7 @@ architecture:
     name: engtrace CLI
     protocol: cli
     endpoint: cmd/engtrace
-    schemaRef: internal/engine/trace_matrix.go
+    schemaRef: internal/trace/trace_matrix.go
     owner: FU-ALLOCATION-TRACE
   - id: IF-CLI-ENGGEMARA
     name: enggemara CLI

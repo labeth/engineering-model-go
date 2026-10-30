@@ -6,16 +6,17 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // TRLC-LINKS: REQ-EMG-003
 func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
-	var code []inferredCodeItem
-	var checks []inferredVerificationCheck
+	var code []codescan.CodeItem
+	var checks []codescan.VerificationCheck
 	for i := 0; i < 20; i++ {
-		code = append(code, inferredCodeItem{Kind: "symbol", Owner: "FU-A", Source: fmt.Sprintf("src/file%d.go:%d", i, 100+i), Implements: []string{"REQ-A"}})
-		checks = append(checks, inferredVerificationCheck{ID: fmt.Sprintf("VER-%d", i), Status: "partial", Verifies: []string{"REQ-A"}, CodeElements: []string{fmt.Sprintf("tests/file%d_test.go:10", i)}})
+		code = append(code, codescan.CodeItem{Kind: "symbol", Owner: "FU-A", Source: fmt.Sprintf("src/file%d.go:%d", i, 100+i), Implements: []string{"REQ-A"}})
+		checks = append(checks, codescan.VerificationCheck{ID: fmt.Sprintf("VER-%d", i), Status: "partial", Verifies: []string{"REQ-A"}, CodeElements: []string{fmt.Sprintf("tests/file%d_test.go:10", i)}})
 	}
 	graph := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}}, nil, code, checks, nil, nil)
 	for _, kind := range []string{"architecture-intent", "state-lifecycle", "interaction-flow"} {
