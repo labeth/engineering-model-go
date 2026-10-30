@@ -73,14 +73,14 @@ For each FU batch:
 
 ### FU-ASCIIDOC-GENERATOR
 
-- `internal/engine/asciidoc.go`
-- `internal/engine/asciidoc_template.go`
-- `internal/engine/asciidoc_views.go`
-- `internal/engine/asciidoc_backlinks.go`
-- `internal/engine/asciidoc_design_refs.go`
-- `internal/engine/asciidoc_diagrams_core.go`
-- `internal/engine/asciidoc_diagrams_runtime.go`
-- `internal/engine/asciidoc_linking_units.go`
+- `internal/asciidoc/asciidoc.go`
+- `internal/asciidoc/asciidoc_template.go`
+- `internal/asciidoc/asciidoc_views.go`
+- `internal/asciidoc/asciidoc_backlinks.go`
+- `internal/asciidoc/asciidoc_design_refs.go`
+- `internal/asciidoc/asciidoc_diagrams_core.go`
+- `internal/asciidoc/asciidoc_diagrams_runtime.go`
+- `internal/asciidoc/asciidoc_linking_units.go`
 
 ### FU-VIEW-PROJECTION
 
@@ -138,9 +138,9 @@ For each FU batch:
 
 - `internal/composition/composition.go`, `composition_confinement.go`, `composition_projection.go`
 - `internal/composition/*_test.go`
-- `internal/engine/composition_multirepo_test.go`, `internal/engine/composition_integration_test.go` (composition with generators and trace)
+- `internal/integration/composition_multirepo_test.go`, `internal/integration/composition_integration_test.go`, `internal/integration/examples_company_test.go` (composition with generators and trace)
 - `internal/testutil/fixtures.go` (shared model-module test fixtures)
-- (composition rendering in `internal/engine/asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
+- (composition rendering in `internal/asciidoc/asciidoc_composition.go` is owned by FU-ASCIIDOC-GENERATOR)
 
 ### FU-ALLOCATION-TRACE
 

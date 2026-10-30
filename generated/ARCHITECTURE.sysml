@@ -1371,7 +1371,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-REQUIREMENTS-DELTA' {
-        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/reqdelta/requirements_delta.go";
         attribute 'classification' : 'String' = "model-change";
     }
 
@@ -1380,7 +1380,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-REQUIREMENTS-DIFF' {
-        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/reqdelta/requirements_delta.go";
         attribute 'classification' : 'String' = "model-change-preview";
     }
 
@@ -1784,7 +1784,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engchange";
-        attribute 'schemaRef' : 'String' = "internal/engine/requirements_delta.go";
+        attribute 'schemaRef' : 'String' = "internal/reqdelta/requirements_delta.go";
     }
 
     @EngineeringElement {

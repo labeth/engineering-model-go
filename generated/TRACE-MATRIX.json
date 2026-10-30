@@ -115,124 +115,14 @@
           "line": 62
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOCFROMFILES",
-          "path": "internal/engine/asciidoc.go",
-          "line": 41
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-CATALOG-DESCRIPTION-VALIDATION-GO--VALIDATECATALOGDESCRIPTIONS",
-          "path": "internal/engine/catalog_description_validation.go",
-          "line": 14
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ANYPHRASEIN",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 118
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 51
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 133
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 273
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 311
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 403
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 29
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 17
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 160
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 297
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 355
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 439
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 320
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 414
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSCATALOG",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 226
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 244
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSENTRIES",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 259
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--WALKSTRINGS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 371
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
-          "path": "internal/engine/ears_preflight.go",
-          "line": 332
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATE",
-          "path": "internal/engine/generate.go",
-          "line": 40
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATEFROMFILE",
-          "path": "internal/engine/generate.go",
-          "line": 26
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 43
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-OSCAL-OSCAL-AR-GO--GENERATEASSESSMENTRESULTS",
@@ -285,6 +175,16 @@
           "line": 38
         },
         {
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATE",
+          "path": "internal/generate/generate.go",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATEFROMFILE",
+          "path": "internal/generate/generate.go",
+          "line": 26
+        },
+        {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--DECODEYAMLFILE",
           "path": "internal/model/load.go",
           "line": 246
@@ -313,6 +213,106 @@
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CATALOGENTRY",
           "path": "internal/model/types.go",
           "line": 6
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-DESCRIPTION-VALIDATION-GO--VALIDATECATALOGDESCRIPTIONS",
+          "path": "internal/reqlint/catalog_description_validation.go",
+          "line": 14
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ANYPHRASEIN",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 118
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 51
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 133
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 273
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 311
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 403
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 29
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 17
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 160
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 297
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 355
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 439
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 320
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 414
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 226
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 259
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 371
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 332
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--CHDIRREPOROOT",
@@ -388,12 +388,14 @@
       "verifications": [
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
         "VER-INF-TEST-BOUNDARY_TEST-62768B",
-        "VER-INF-TEST-CATALOG_SYSTEMS_TEST-2D8E9E",
+        "VER-INF-TEST-CATALOG_SYSTEMS_TEST-B91E95",
+        "VER-INF-TEST-CATALOG_SYSTEMS_TEST-FCC559",
         "VER-INF-TEST-DEDUPE_TEST-A0BAF9",
-        "VER-INF-TEST-E2E_TEST-FEBE26",
-        "VER-INF-TEST-EARS_PREFLIGHT_TEST-AD645F",
+        "VER-INF-TEST-E2E_TEST-EDDCF4",
+        "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08",
         "VER-INF-TEST-FACADE_TEST-E17700",
         "VER-INF-TEST-HARDWARE_TEST-61BFD1",
+        "VER-INF-TEST-LAYERING_TEST-CCD168",
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
@@ -457,6 +459,621 @@
           "symbol": "CODE-CMD-ENGVIEW-MAIN-GO--RENDERALLVIEWS",
           "path": "cmd/engview/main.go",
           "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-BACKLINKS-GO--APPLYREFERENCEBACKLINKS",
+          "path": "internal/asciidoc/asciidoc_backlinks.go",
+          "line": 18
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--ALIASDESCRIPTION",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 383
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDCATALOGREFERENCES",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDCODEREFERENCES",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 435
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDDESIGNDETAILS",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 57
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDLABELINDEX",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDREFERENCEINDEX",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDRUNTIMEREFERENCES",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 394
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDTERMSFROMCATALOG",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 521
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILDVERIFICATIONREFERENCES",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 482
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--BUILTINENGINEERINGMODELTERMS",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 562
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--CATALOGENTRYIDSET",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 355
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--DETAILFORVIEW",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 86
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--MAPDESIGNGROUPS",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--MAPDESIGNUNITS",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 26
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--REFERENCEANCHOR",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 157
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DESIGN-REFS-GO--VIEWDESIGNKEY",
+          "path": "internal/asciidoc/asciidoc_design_refs.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--APPENDMERMAIDCLASSDEFS",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 18
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 860
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 768
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCOLLABORATIONMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 328
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCONTEXTMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 133
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALDECOMPOSITIONMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALGROUPDEPENDENCYMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 398
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALMANHATTANTABLE",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTCOMPACTTABLE",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 24
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 598
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPEMERMAIDLABEL",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 760
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPETABLECELL",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 125
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--FUNCTIONALCONTEXTINTERNALNODEID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 234
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSFROMSET",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTED",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 577
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTEDSTRINGSLICES",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 587
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--MODULEFROMPATH",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 941
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--SETTOSORTEDSLICE",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 956
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--SHORTLIBRARYLABEL",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 918
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--UNIQUEPRESERVE",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
+          "line": 968
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDDEPLOYMENTMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 217
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDDEPLOYMENTROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 107
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDPLATFORMOPSMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 592
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDPLATFORMOPSROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 532
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDRUNTIMEAPIMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDRUNTIMEAPIROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYCONTEXTDFDMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 767
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYCONTEXTDFDMERMAIDBYGROUP",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 877
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYOBSERVABILITYROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 1135
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYPATHMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 664
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYPATHROWS",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 615
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--DEPLOYMENTNODENAME",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 517
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--MERMAIDTYPEDNODELINE",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 1100
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--MERMAIDTYPEDNODELINEINDENTED",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 1129
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--RUNTIMESHORTNAME",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 93
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYCONTEXTMAPPINGTYPE",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 1055
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYCONTEXTOWNEDIDSBYGROUP",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 975
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYDFDCLASSFORID",
+          "path": "internal/asciidoc/asciidoc_diagrams_runtime.go",
+          "line": 1065
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-EDGE-KEY-GO--PUBLICATIONEDGEKEY",
+          "path": "internal/asciidoc/asciidoc_edge_key.go",
+          "line": 10
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-EVIDENCE-TABLE-GO--DIAGRAMCODEEVIDENCELABEL",
+          "path": "internal/asciidoc/asciidoc_evidence_table.go",
+          "line": 55
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-EVIDENCE-TABLE-GO--PUBLICATIONTESTCODE",
+          "path": "internal/asciidoc/asciidoc_evidence_table.go",
+          "line": 13
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 43
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--ATTACKVECTORSBYTARGET",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 632
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--BUILDLINKTARGETS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 26
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--BUILDOWNEREVIDENCE",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 699
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LINKIFYTEXT",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 102
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LINKTOKENVARIANTS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 211
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESACTORS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 668
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESFG",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 648
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESFU",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 658
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESREFS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 688
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESVECTORS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 678
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--PLURALIZEPHRASE",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 280
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--PLURALIZEWORD",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 290
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--RENDERINTERFACESUBCHAPTERS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 472
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--REQUIREMENTSBYUNIT",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 395
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--SINGLEWORDPLURAL",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 256
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 311
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDSNATURAL",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 330
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDSWITHACRONYMS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 357
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITCONSUMERS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 428
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITDEPENDENCIES",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 412
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITINBOUNDINTERFACESDETAILED",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 507
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITMESSAGESCONSUMED",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 571
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITOUTBOUNDINTERFACESDETAILED",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 538
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITOUTPUTS",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 444
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--UNITOWNERSHIPSUMMARY",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 602
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-MATRIX-SVG-GO--PUBLICATIONMATRIXSVG",
+          "path": "internal/asciidoc/asciidoc_matrix_svg.go",
+          "line": 12
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-TEMPLATE-GO--RENDERASCIIDOCTEMPLATE",
+          "path": "internal/asciidoc/asciidoc_template.go",
+          "line": 453
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--ANYINSET",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 851
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDHEALTHROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 462
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYATTACKCHAPTERS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 313
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYCONTROLVERIFICATIONROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 755
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYFLOWROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 785
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATASSUMPTIONROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 657
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATMITIGATIONROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 726
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATOUTOFSCOPEROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 691
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATSCENARIOROWS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 584
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--FUNCTIONALPUBLICATIONARCHITECTURE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 914
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--INFERREDDESCRIPTION",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 180
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--JOINLABELEDIDS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 861
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--JOINORNONE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 880
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--LABELORID",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 889
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--NORMALIZEAUTHOREDSTATUS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 486
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--NORMALIZEAUTHOREDSTATUSEXPLANATION",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 495
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--PUBLICATIONVIEWHEADING",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 902
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERACTORS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERATTACKVECTORS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 46
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERINFERREDCODE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 111
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERINFERREDRUNTIME",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 101
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERMAPPINGS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 77
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERREFERENCEDELEMENTS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RENDERVIEWCONFIG",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--RESOLVEVIEWIDS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 143
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--SECURITYAPPLIESTOINSCOPE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 841
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--SECURITYSCENARIOINSCOPE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 827
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWCOVERAGECONFIDENCE",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 524
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWCOVERAGEGAPS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 253
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWCOVERAGESUMMARY",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 284
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWHEADING",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 120
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWHEURISTICBASIS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 504
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWNEXTACTIONS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 540
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWQUESTIONS",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 202
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-VIEWS-GO--VIEWWITHEVIDENCECOUNT",
+          "path": "internal/asciidoc/asciidoc_views.go",
+          "line": 436
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-LABELS-GO--ALLDIGITS",
@@ -539,628 +1156,13 @@
           "line": 263
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-BACKLINKS-GO--APPLYREFERENCEBACKLINKS",
-          "path": "internal/engine/asciidoc_backlinks.go",
-          "line": 18
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--ALIASDESCRIPTION",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 383
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDCATALOGREFERENCES",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 268
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDCODEREFERENCES",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 435
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDDESIGNDETAILS",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 57
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDLABELINDEX",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 99
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDREFERENCEINDEX",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 163
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDRUNTIMEREFERENCES",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 394
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDTERMSFROMCATALOG",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 521
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILDVERIFICATIONREFERENCES",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 482
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--BUILTINENGINEERINGMODELTERMS",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 562
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--CATALOGENTRYIDSET",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 355
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--DETAILFORVIEW",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 86
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--MAPDESIGNGROUPS",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 16
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--MAPDESIGNUNITS",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 26
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--REFERENCEANCHOR",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 157
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DESIGN-REFS-GO--VIEWDESIGNKEY",
-          "path": "internal/engine/asciidoc_design_refs.go",
-          "line": 36
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--APPENDMERMAIDCLASSDEFS",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 18
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 860
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPROWS",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 768
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCOLLABORATIONMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 328
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCONTEXTMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 133
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALDECOMPOSITIONMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 244
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALGROUPDEPENDENCYMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 398
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALMANHATTANTABLE",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 266
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTCOMPACTTABLE",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 53
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 24
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 598
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPEMERMAIDLABEL",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 760
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPETABLECELL",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 125
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--FUNCTIONALCONTEXTINTERNALNODEID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 234
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSFROMSET",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 116
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTED",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 577
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTEDSTRINGSLICES",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 587
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--MODULEFROMPATH",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 941
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--SETTOSORTEDSLICE",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 956
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--SHORTLIBRARYLABEL",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 918
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--UNIQUEPRESERVE",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
-          "line": 968
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDDEPLOYMENTMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 217
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDDEPLOYMENTROWS",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 107
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDPLATFORMOPSMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 592
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDPLATFORMOPSROWS",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 532
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDRUNTIMEAPIMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 76
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDRUNTIMEAPIROWS",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 16
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYCONTEXTDFDMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 767
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYCONTEXTDFDMERMAIDBYGROUP",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 877
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYOBSERVABILITYROWS",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 1135
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYPATHMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 664
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDSECURITYPATHROWS",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 615
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--DEPLOYMENTNODENAME",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 517
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--MERMAIDTYPEDNODELINE",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 1100
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--MERMAIDTYPEDNODELINEINDENTED",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 1129
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--RUNTIMESHORTNAME",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 93
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYCONTEXTMAPPINGTYPE",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 1055
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYCONTEXTOWNEDIDSBYGROUP",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 975
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-RUNTIME-GO--SECURITYDFDCLASSFORID",
-          "path": "internal/engine/asciidoc_diagrams_runtime.go",
-          "line": 1065
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-EDGE-KEY-GO--PUBLICATIONEDGEKEY",
-          "path": "internal/engine/asciidoc_edge_key.go",
-          "line": 10
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-EVIDENCE-TABLE-GO--DIAGRAMCODEEVIDENCELABEL",
-          "path": "internal/engine/asciidoc_evidence_table.go",
-          "line": 55
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-EVIDENCE-TABLE-GO--PUBLICATIONTESTCODE",
-          "path": "internal/engine/asciidoc_evidence_table.go",
-          "line": 13
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOCFROMFILES",
-          "path": "internal/engine/asciidoc.go",
-          "line": 41
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--ATTACKVECTORSBYTARGET",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 632
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--BUILDLINKTARGETS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 26
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--BUILDOWNEREVIDENCE",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 699
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LINKIFYTEXT",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 102
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LINKTOKENVARIANTS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 211
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESACTORS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 668
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESFG",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 648
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESFU",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 658
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESREFS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 688
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LISTNAMESVECTORS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 678
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--PLURALIZEPHRASE",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 280
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--PLURALIZEWORD",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 290
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--RENDERINTERFACESUBCHAPTERS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 472
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--REQUIREMENTSBYUNIT",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 395
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--SINGLEWORDPLURAL",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 256
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 311
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDSNATURAL",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 330
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--TITLEWORDSWITHACRONYMS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 357
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITCONSUMERS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 428
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITDEPENDENCIES",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 412
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITINBOUNDINTERFACESDETAILED",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 507
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITMESSAGESCONSUMED",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 571
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITOUTBOUNDINTERFACESDETAILED",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 538
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITOUTPUTS",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 444
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--UNITOWNERSHIPSUMMARY",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 602
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-MATRIX-SVG-GO--PUBLICATIONMATRIXSVG",
-          "path": "internal/engine/asciidoc_matrix_svg.go",
-          "line": 12
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-TEMPLATE-GO--RENDERASCIIDOCTEMPLATE",
-          "path": "internal/engine/asciidoc_template.go",
-          "line": 453
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--ANYINSET",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 851
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDHEALTHROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 462
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYATTACKCHAPTERS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 313
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYCONTROLVERIFICATIONROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 755
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYFLOWROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 785
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATASSUMPTIONROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 657
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATMITIGATIONROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 726
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATOUTOFSCOPEROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 691
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--BUILDSECURITYTHREATSCENARIOROWS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 584
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--FUNCTIONALPUBLICATIONARCHITECTURE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 914
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--INFERREDDESCRIPTION",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 180
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--JOINLABELEDIDS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 861
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--JOINORNONE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 880
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--LABELORID",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 889
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--NORMALIZEAUTHOREDSTATUS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 486
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--NORMALIZEAUTHOREDSTATUSEXPLANATION",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 495
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--PUBLICATIONVIEWHEADING",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 902
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERACTORS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 31
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERATTACKVECTORS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 46
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERINFERREDCODE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 111
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERINFERREDRUNTIME",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 101
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERMAPPINGS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 77
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERREFERENCEDELEMENTS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 61
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RENDERVIEWCONFIG",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 16
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--RESOLVEVIEWIDS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 143
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--SECURITYAPPLIESTOINSCOPE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 841
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--SECURITYSCENARIOINSCOPE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 827
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWCOVERAGECONFIDENCE",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 524
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWCOVERAGEGAPS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 253
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWCOVERAGESUMMARY",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 284
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWHEADING",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 120
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWHEURISTICBASIS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 504
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWNEXTACTIONS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 540
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWQUESTIONS",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 202
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-VIEWS-GO--VIEWWITHEVIDENCECOUNT",
-          "path": "internal/engine/asciidoc_views.go",
-          "line": 436
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATE",
-          "path": "internal/engine/generate.go",
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATE",
+          "path": "internal/generate/generate.go",
           "line": 40
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATEFROMFILE",
-          "path": "internal/engine/generate.go",
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATEFROMFILE",
+          "path": "internal/generate/generate.go",
           "line": 26
         },
         {
@@ -1310,16 +1312,16 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_COMPLETE_DIAGRAM_TEST-15C6AD",
-        "VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-FC6453",
-        "VER-INF-TEST-ASCIIDOC_DIAGRAMS_RUNTIME_TEST-7F5469",
-        "VER-INF-TEST-ASCIIDOC_EDGE_KEY_TEST-4B9CA7",
-        "VER-INF-TEST-ASCIIDOC_EVIDENCE_TABLE_TEST-620347",
-        "VER-INF-TEST-ASCIIDOC_LINKING_UNITS_TEST-CC83E0",
-        "VER-INF-TEST-ASCIIDOC_PUBLICATION_SCOPE_TEST-DB887A",
-        "VER-INF-TEST-ASCIIDOC_TEST-8D79DE",
-        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-85165A",
-        "VER-INF-TEST-ASCIIDOC_VIEWS_TEST-B6551D",
+        "VER-INF-TEST-ASCIIDOC_COMPLETE_DIAGRAM_TEST-A7A14C",
+        "VER-INF-TEST-ASCIIDOC_DIAGRAMS_CORE_TEST-8725B5",
+        "VER-INF-TEST-ASCIIDOC_DIAGRAMS_RUNTIME_TEST-BE9EA0",
+        "VER-INF-TEST-ASCIIDOC_EDGE_KEY_TEST-2D771F",
+        "VER-INF-TEST-ASCIIDOC_EVIDENCE_TABLE_TEST-C2189B",
+        "VER-INF-TEST-ASCIIDOC_LINKING_UNITS_TEST-3FE432",
+        "VER-INF-TEST-ASCIIDOC_PUBLICATION_SCOPE_TEST-AA5D4F",
+        "VER-INF-TEST-ASCIIDOC_TEST-FBEE21",
+        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-4EBD51",
+        "VER-INF-TEST-ASCIIDOC_VIEWS_TEST-FBF8BC",
         "VER-INF-TEST-BOUNDARY_TEST-CD8716",
         "VER-INF-TEST-CODE_LABELS_TEST-DB8E6F",
         "VER-INF-TEST-HARDWARE_TEST-3EE34B",
@@ -2171,103 +2173,103 @@
           "line": 98
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-CATALOG-DESCRIPTION-VALIDATION-GO--VALIDATECATALOGDESCRIPTIONS",
-          "path": "internal/engine/catalog_description_validation.go",
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-DESCRIPTION-VALIDATION-GO--VALIDATECATALOGDESCRIPTIONS",
+          "path": "internal/reqlint/catalog_description_validation.go",
           "line": 14
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ANYPHRASEIN",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ANYPHRASEIN",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 118
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 51
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 133
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 273
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 311
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 403
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 29
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 17
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 160
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 297
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 355
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 439
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 320
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 414
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSCATALOG",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 226
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 244
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--TOEARSENTRIES",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 259
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--WALKSTRINGS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 371
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
-          "path": "internal/engine/ears_preflight.go",
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
+          "path": "internal/reqlint/ears_preflight.go",
           "line": 332
         },
         {
@@ -2335,7 +2337,7 @@
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
         "VER-INF-TEST-BOUNDARY_TEST-62768B",
         "VER-INF-TEST-DEDUPE_TEST-A0BAF9",
-        "VER-INF-TEST-EARS_PREFLIGHT_TEST-AD645F",
+        "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08",
         "VER-INF-TEST-HARDWARE_TEST-61BFD1",
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
@@ -2886,8 +2888,8 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_CODE_REFERENCES_TEST-AF94ED",
-        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-85165A",
+        "VER-INF-TEST-ASCIIDOC_CODE_REFERENCES_TEST-6D3A73",
+        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-4EBD51",
         "VER-INF-TEST-CODE_LABELS_TEST-DB8E6F",
         "VER-INF-TEST-FILES_OWNER_TEST-1C4F5F",
         "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6",
@@ -3073,14 +3075,14 @@
           "line": 55
         },
         {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--LINKIFYTEXT",
+          "path": "internal/asciidoc/asciidoc_linking_units.go",
+          "line": 102
+        },
+        {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--SKIPSCANDIR",
           "path": "internal/codescan/inferred_code.go",
           "line": 173
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-LINKING-UNITS-GO--LINKIFYTEXT",
-          "path": "internal/engine/asciidoc_linking_units.go",
-          "line": 102
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-EXPORTUTIL-GENERATION-TIME-GO--NORMALIZEGENERATEDTIMESTAMP",
@@ -3523,33 +3525,33 @@
           "line": 38
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-BACKLINKS-GO--APPLYREFERENCEBACKLINKS",
-          "path": "internal/engine/asciidoc_backlinks.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-BACKLINKS-GO--APPLYREFERENCEBACKLINKS",
+          "path": "internal/asciidoc/asciidoc_backlinks.go",
           "line": 18
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DECISIONS-GO--BUILDDECISIONSECTIONS",
-          "path": "internal/engine/asciidoc_decisions.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DECISIONS-GO--BUILDDECISIONSECTIONS",
+          "path": "internal/asciidoc/asciidoc_decisions.go",
           "line": 13
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DECISIONS-GO--RENDERDECISIONSDOCUMENT",
-          "path": "internal/engine/asciidoc_decisions.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DECISIONS-GO--RENDERDECISIONSDOCUMENT",
+          "path": "internal/asciidoc/asciidoc_decisions.go",
           "line": 41
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOCFROMFILES",
-          "path": "internal/engine/asciidoc.go",
-          "line": 41
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 43
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_TEST-8D79DE"
+        "VER-INF-TEST-ASCIIDOC_TEST-FBEE21"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -3619,18 +3621,18 @@
           "line": 21
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GEMARA-GO--GEMARAROW",
-          "path": "internal/engine/asciidoc_gemara.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GEMARA-GO--GEMARAROW",
+          "path": "internal/asciidoc/asciidoc_gemara.go",
           "line": 100
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GEMARA-GO--GEMARATRUNCATE",
-          "path": "internal/engine/asciidoc_gemara.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GEMARA-GO--GEMARATRUNCATE",
+          "path": "internal/asciidoc/asciidoc_gemara.go",
           "line": 106
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GEMARA-GO--RENDERGEMARAASCIIDOCCHAPTER",
-          "path": "internal/engine/asciidoc_gemara.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GEMARA-GO--RENDERGEMARAASCIIDOCCHAPTER",
+          "path": "internal/asciidoc/asciidoc_gemara.go",
           "line": 19
         },
         {
@@ -4080,7 +4082,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_GEMARA_TEST-BA58F2",
+        "VER-INF-TEST-ASCIIDOC_GEMARA_TEST-22D5DA",
         "VER-INF-TEST-GEMARA_EXPORT_TEST-2DDFAB",
         "VER-INF-TEST-GEMARA_OSCAL_TEST-72A3A1",
         "VER-INF-TEST-GEMARA_TEST-DD5C1F",
@@ -4179,8 +4181,8 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-A17396",
-        "VER-INF-TEST-COMPOSITION_INTEGRATION_TEST-CB59B8"
+        "VER-INF-INTEGRATION-COMPOSITION_INTEGRATION_TEST-61916A",
+        "VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-A17396"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -4307,9 +4309,9 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--LINTREQUIREMENTINTERNALLINKS",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 313
+          "symbol": "CODE-INTERNAL-REQLINT-INTERNAL-LINKS-GO--LINTREQUIREMENTINTERNALLINKS",
+          "path": "internal/reqlint/internal_links.go",
+          "line": 20
         }
       ],
       "status": "implemented"
@@ -4323,38 +4325,38 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--HARDWAREITEM",
-          "path": "internal/composition/composition.go",
-          "line": 1294
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--COMPOSITIONHARDWAREMERMAID",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONHARDWAREMERMAID",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 197
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--MERMAIDID",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 337
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--MERMAIDID",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 308
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--MERMAIDLABEL",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 356
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--MERMAIDLABEL",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 327
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 23
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--HARDWAREITEM",
+          "path": "internal/composition/composition.go",
+          "line": 1294
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_HARDWARE_LABELS_TEST-D9A917"
+        "VER-INF-TEST-ASCIIDOC_HARDWARE_LABELS_TEST-2AB44B"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -4368,24 +4370,24 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MATERIALIZEALLOCATIONS",
-          "path": "internal/composition/composition.go",
-          "line": 977
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 224
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 23
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MATERIALIZEALLOCATIONS",
+          "path": "internal/composition/composition.go",
+          "line": 977
         }
       ],
       "status": "implemented"
@@ -4400,24 +4402,24 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--REQUIREMENTEXISTS",
-          "path": "internal/composition/composition.go",
-          "line": 1281
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
-          "path": "internal/engine/asciidoc_composition.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
+          "path": "internal/asciidoc/asciidoc_composition.go",
           "line": 224
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
           "line": 24
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
-          "path": "internal/engine/asciidoc_diagrams_core.go",
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
+          "path": "internal/asciidoc/asciidoc_diagrams_core.go",
           "line": 598
+        },
+        {
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--REQUIREMENTEXISTS",
+          "path": "internal/composition/composition.go",
+          "line": 1281
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
@@ -4602,7 +4604,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-85165A",
+        "VER-INF-TEST-ASCIIDOC_TEST_EVIDENCE_TEST-4EBD51",
         "VER-INF-TEST-COMPOSITION_TEST-312837",
         "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6",
         "VER-INF-TEST-INFERRED_JAVASCRIPT_TEST-9BD52A",
@@ -4641,43 +4643,43 @@
           "line": 80
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 79
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 80
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--DECODESTRICTYAML",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 512
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--DECODESTRICTYAML",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 513
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--LOADREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 162
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--LOADREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 163
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTSYAML",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 190
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTSYAML",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 191
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 116
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 117
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 64
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 65
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--VALIDATEREQUIREMENTSDELTAOPERATIONS",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 299
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--VALIDATEREQUIREMENTSDELTAOPERATIONS",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 300
         }
       ],
       "verifications": [
-        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-D17FE5"
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -4711,58 +4713,58 @@
           "line": 68
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 79
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 80
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--DECODESTRICTYAML",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 512
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--DECODESTRICTYAML",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 513
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--ENCODEREQUIREMENTNODE",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 426
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--ENCODEREQUIREMENTNODE",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 427
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTSYAML",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 190
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTSYAML",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 191
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 116
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 117
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 64
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--PLANREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 65
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--RENDERREQUIREMENTSDIFF",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 530
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--RENDERREQUIREMENTSDIFF",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 531
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--REQUIREMENTNODEID",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 408
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--REQUIREMENTNODEID",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 409
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--REQUIREMENTSSEQUENCE",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 388
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--REQUIREMENTSSEQUENCE",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 389
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--VALIDATEREQUIREMENTSCANDIDATE",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 349
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--VALIDATEREQUIREMENTSCANDIDATE",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 350
         }
       ],
       "verifications": [
-        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-D17FE5"
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -4787,38 +4789,38 @@
           "line": 16
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--ACQUIREREQUIREMENTSLOCK",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 611
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--ACQUIREREQUIREMENTSLOCK",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 612
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 79
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 80
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--COPYNODEPRESENTATION",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 471
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--COPYNODEPRESENTATION",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 472
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTNODE",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 436
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--MERGEREQUIREMENTNODE",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 437
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--REQUIREMENTSPATH",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 586
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--REQUIREMENTSPATH",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 587
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--WRITEFILEATOMIC",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 635
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--WRITEFILEATOMIC",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 636
         }
       ],
       "verifications": [
-        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-D17FE5"
+        "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -4832,14 +4834,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--RENDERREQUIREMENTFIELDDIFF",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 566
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--RENDERREQUIREMENTFIELDDIFF",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 567
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-REQUIREMENTS-DELTA-GO--SORTEDREQUIREMENTKEYS",
-          "path": "internal/engine/requirements_delta.go",
-          "line": 575
+          "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--SORTEDREQUIREMENTKEYS",
+          "path": "internal/reqdelta/requirements_delta.go",
+          "line": 576
         }
       ],
       "status": "implemented"
@@ -4929,19 +4931,14 @@
           "line": 23
         },
         {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
+        },
+        {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
           "line": 416
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATE",
-          "path": "internal/engine/generate.go",
-          "line": 40
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
@@ -5032,6 +5029,11 @@
           "symbol": "CODE-INTERNAL-EXPORT-TRLC-TRLC-EXPORT-GO--GENERATEREQUIREMENTS",
           "path": "internal/export/trlc/trlc_export.go",
           "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATE",
+          "path": "internal/generate/generate.go",
+          "line": 40
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
@@ -5421,19 +5423,14 @@
           "line": 125
         },
         {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
+        },
+        {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
           "line": 416
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-GENERATE-GO--GENERATE",
-          "path": "internal/engine/generate.go",
-          "line": 40
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
@@ -5664,6 +5661,11 @@
           "symbol": "CODE-INTERNAL-EXPORT-TRLC-TRLC-EXPORT-GO--GENERATEREQUIREMENTS",
           "path": "internal/export/trlc/trlc_export.go",
           "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-GENERATE-GENERATE-GO--GENERATE",
+          "path": "internal/generate/generate.go",
+          "line": 40
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
@@ -7990,8 +7992,8 @@
         }
       ],
       "verifications": [
+        "VER-INF-INTEGRATION-COMPOSITION_INTEGRATION_TEST-61916A",
         "VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-A17396",
-        "VER-INF-TEST-COMPOSITION_INTEGRATION_TEST-CB59B8",
         "VER-INF-TEST-COMPOSITION_OCI_TEST-CBF9E2",
         "VER-INF-TEST-COMPOSITION_TEST-96C07F",
         "VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-5473B0"
@@ -8060,6 +8062,26 @@
           "symbol": "CODE-API-TRACE-GO--TRACEPROVENANCE",
           "path": "api_trace.go",
           "line": 20
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 178
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 135
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--BUILDCOMPOSITIONPROJECTION",
@@ -8137,26 +8159,6 @@
           "line": 106
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 178
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 23
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 35
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 135
-        },
-        {
           "symbol": "CODE-INTERNAL-EXPORT-OSCAL-OSCAL-SSP-GO--RESOLVEOSCALTIMESTAMP",
           "path": "internal/export/oscal/oscal_ssp.go",
           "line": 63
@@ -8223,11 +8225,11 @@
         }
       ],
       "verifications": [
+        "VER-INF-INTEGRATION-COMPOSITION_INTEGRATION_TEST-61916A",
+        "VER-INF-INTEGRATION-EXAMPLES_COMPANY_TEST-31D77E",
         "VER-INF-TEST-BOUNDARY_TEST-62768B",
         "VER-INF-TEST-BOUNDARY_TEST-CD8716",
-        "VER-INF-TEST-COMPOSITION_INTEGRATION_TEST-CB59B8",
         "VER-INF-TEST-COMPOSITION_PROJECTION_TEST-980A62",
-        "VER-INF-TEST-EXAMPLES_COMPANY_TEST-D25784",
         "VER-INF-TEST-HARDWARE_TEST-3EE34B",
         "VER-INF-TEST-HARDWARE_TEST-5CDAFE",
         "VER-INF-TEST-HARDWARE_TEST-61BFD1",
@@ -8318,6 +8320,26 @@
           "symbol": "CODE-API-TRACE-GO--TRACEPROVENANCE",
           "path": "api_trace.go",
           "line": 20
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 178
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 135
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COLLECTOWNEDIDS",
@@ -8480,26 +8502,6 @@
           "line": 106
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 178
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 23
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 35
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 135
-        },
-        {
           "symbol": "CODE-INTERNAL-EXPORT-STRUCTURIZR-STRUCTURIZR-EXPORT-GO--GENERATESTRUCTURIZRDSL",
           "path": "internal/export/structurizr/structurizr_export.go",
           "line": 151
@@ -8631,7 +8633,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-COMPOSITION_INTEGRATION_TEST-CB59B8",
+        "VER-INF-INTEGRATION-COMPOSITION_INTEGRATION_TEST-61916A",
         "VER-INF-TEST-COMPOSITION_PROJECTION_TEST-980A62",
         "VER-INF-TEST-COMPOSITION_TEST-96C07F",
         "VER-INF-TEST-GEMARA_OSCAL_TEST-72A3A1",
@@ -9084,8 +9086,8 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-CODE_SCOPE_TEST-2A4254",
-        "VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-7CBFF7"
+        "VER-INF-INTEGRATION-COMPOSITION_MULTIREPO_TEST-B91E21",
+        "VER-INF-TEST-CODE_SCOPE_TEST-2A4254"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -9164,7 +9166,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_TEST-8D79DE",
+        "VER-INF-TEST-ASCIIDOC_TEST-FBEE21",
         "VER-INF-TEST-CODE_SCOPE_TEST-2A4254"
       ],
       "result": "not-run",
@@ -9654,6 +9656,26 @@
           "line": 65
         },
         {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--EXCLUDEUNPUBLISHEDREFERENCEECHOES",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 724
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--FIRSTQUOTED",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 757
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 702
+        },
+        {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "internal/composition/composition.go",
           "line": 268
@@ -9677,26 +9699,6 @@
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--ENRICHBUNDLE",
           "path": "internal/composition/composition_projection.go",
           "line": 261
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--EXCLUDEUNPUBLISHEDREFERENCEECHOES",
-          "path": "internal/engine/asciidoc.go",
-          "line": 722
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--FIRSTQUOTED",
-          "path": "internal/engine/asciidoc.go",
-          "line": 755
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--VALIDATIONBUNDLE",
-          "path": "internal/engine/asciidoc.go",
-          "line": 700
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ISQUALIFIEDSEMANTICREFERENCE",
@@ -9735,7 +9737,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-7CBFF7",
+        "VER-INF-INTEGRATION-COMPOSITION_MULTIREPO_TEST-B91E21",
         "VER-INF-TEST-DIAGNOSE_COMPOSITION_TEST-BBA37F",
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
@@ -9774,6 +9776,21 @@
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
           "path": "api_trace.go",
           "line": 48
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
+          "path": "internal/asciidoc/asciidoc_composition.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
+          "path": "internal/asciidoc/asciidoc.go",
+          "line": 702
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSEFORGENERATION",
@@ -9821,21 +9838,6 @@
           "line": 1025
         },
         {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
-          "path": "internal/engine/asciidoc_composition.go",
-          "line": 35
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--GENERATEASCIIDOC",
-          "path": "internal/engine/asciidoc.go",
-          "line": 67
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGINE-ASCIIDOC-GO--VALIDATIONBUNDLE",
-          "path": "internal/engine/asciidoc.go",
-          "line": 700
-        },
-        {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
           "line": 554
@@ -9847,9 +9849,9 @@
         }
       ],
       "verifications": [
+        "VER-INF-INTEGRATION-COMPOSITION_MULTIREPO_TEST-B91E21",
         "VER-INF-TEST-COMPOSITION_GENERATION_TEST-F36487",
-        "VER-INF-TEST-COMPOSITION_LOCK_TEST-BBD437",
-        "VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-7CBFF7"
+        "VER-INF-TEST-COMPOSITION_LOCK_TEST-BBD437"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -9904,7 +9906,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-COMPOSITION_MULTIREPO_TEST-7CBFF7",
+        "VER-INF-INTEGRATION-COMPOSITION_MULTIREPO_TEST-B91E21",
         "VER-INF-TEST-TRACE_DELEGATED_TEST-5F315E"
       ],
       "result": "not-run",
@@ -10240,7 +10242,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_TEST-8D79DE",
+        "VER-INF-TEST-ASCIIDOC_TEST-FBEE21",
         "VER-INF-TEST-BUMP_TEST-638DBA",
         "VER-INF-TEST-CHECK_TEST-72E628",
         "VER-INF-TEST-PLAN_TEST-2CD695",
@@ -10443,7 +10445,7 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASCIIDOC_TEST-8D79DE",
+        "VER-INF-TEST-ASCIIDOC_TEST-FBEE21",
         "VER-INF-TEST-AUTHORING_TEST-425E52",
         "VER-INF-TEST-COMPOSITION_OFFLINE_TEST-661068",
         "VER-INF-TEST-DIAGNOSE_COMPOSITION_TEST-BBA37F"

@@ -35,7 +35,7 @@ Align root model artifacts with the current repository without changing runtime 
    - `internal/model/` -> `FU-MODEL-LOADER`
    - `internal/validate/` -> `FU-VALIDATION-ENGINE`
    - `internal/codemap/`, `internal/codescan/` -> `FU-CODEMAP-INFERENCE`
-   - `internal/view/`, `internal/engine/asciidoc_views.go` -> `FU-VIEW-PROJECTION`
+   - `internal/view/`, `internal/asciidoc/asciidoc_views.go` -> `FU-VIEW-PROJECTION`
 
 Deliverable: checked-in mapping table (path -> FU ID).
 

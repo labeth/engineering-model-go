@@ -39,7 +39,7 @@ section "Build"
 go build ./... && echo "  ok" || fail=1
 
 section "Enterprise OCI workspace"
-if go test ./internal/engine -run '^TestAtlasIndustriesCompanyExample$' -count=1; then
+if go test ./internal/integration -run '^TestAtlasIndustriesCompanyExample$' -count=1; then
   echo "  ok   Atlas Industries multi-repository composition"
 else
   echo "  FAIL Atlas Industries multi-repository composition"

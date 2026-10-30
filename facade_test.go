@@ -61,15 +61,24 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		internalOnly []string
 	}
 	packages := []implPackage{
-		{dir: filepath.Join("internal", "engine")},
+		{dir: filepath.Join("internal", "reqlint"), internalOnly: []string{
+			// requirement lint passes run by internal/asciidoc and internal/reqdelta.
+			"LintModelRequirementsEARS", "LintRequirementInternalLinks", "ValidateCatalogDescriptions",
+		}},
+		{dir: filepath.Join("internal", "reqdelta")},
+		{dir: filepath.Join("internal", "generate")},
+		{dir: filepath.Join("internal", "asciidoc"), rootName: map[string]string{
+			"Options": "AsciiDocOptions", "Result": "AsciiDocResult",
+			"Generate": "GenerateAsciiDoc", "GenerateFromFiles": "GenerateAsciiDocFromFiles",
+		}},
 		{dir: filepath.Join("internal", "composition"), internalOnly: []string{
-			// used by internal/engine and internal/trace.
+			// used by internal/asciidoc and internal/trace.
 			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
 			"MaterializeAllocations", "PathWithin", "ResolutionCount",
 		}},
 		{dir: filepath.Join("internal", "codescan"), internalOnly: []string{
 			// code, runtime and verification inference, used by internal/trace
-			// and internal/engine; none of it is public API.
+			// and internal/asciidoc; none of it is public API.
 			"CodeItem", "EvidenceFileKey", "EvidenceLabel", "EvidenceLabelLookup",
 			"GroupedEvidenceLabels", "GroupedFileLabels", "InferCodeItems",
 			"InferRuntimeItems", "InferVerificationChecks", "IsVerificationCodeItem",
@@ -89,7 +98,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 		}, internalOnly: []string{
-			// used by internal/engine (documents, requirements delta).
+			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",
 		}},
 		{dir: filepath.Join("internal", "export", "gemara"), rootName: map[string]string{

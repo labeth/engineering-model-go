@@ -241,7 +241,7 @@ architecture:
     name: engchange CLI
     protocol: cli
     endpoint: cmd/engchange
-    schemaRef: internal/engine/requirements_delta.go
+    schemaRef: internal/reqdelta/requirements_delta.go
     owner: FU-MODEL-CHANGE
   dataObjects:
   - id: DO-ARCHITECTURE-MODEL
@@ -257,7 +257,7 @@ architecture:
   - id: DO-REQUIREMENTS-DELTA
     name: Requirements Delta
     termRef: DATA-REQUIREMENTS-DELTA
-    schemaRef: internal/engine/requirements_delta.go
+    schemaRef: internal/reqdelta/requirements_delta.go
     sensitivity: internal
     classification: model-change
     retention: change-lifetime
@@ -277,7 +277,7 @@ architecture:
   - id: DO-REQUIREMENTS-DIFF
     name: Requirements Change Summary
     termRef: DATA-REQUIREMENTS-DIFF
-    schemaRef: internal/engine/requirements_delta.go
+    schemaRef: internal/reqdelta/requirements_delta.go
     sensitivity: internal
     classification: model-change-preview
     retention: ephemeral

@@ -2,20 +2,20 @@
 package engmodel
 
 // AsciiDoc architecture document generation.
-// Thin facade over internal/engine; TestFacadeReexportsEngine keeps it complete.
+// Thin facade over internal/asciidoc; TestFacadeReexportsEngine keeps it complete.
 
-import "github.com/labeth/engineering-model-go/internal/engine"
+import "github.com/labeth/engineering-model-go/internal/asciidoc"
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-type AsciiDocOptions = engine.AsciiDocOptions
+type AsciiDocOptions = asciidoc.Options
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-type AsciiDocResult = engine.AsciiDocResult
+type AsciiDocResult = asciidoc.Result
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
-	return engine.GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)
+	return asciidoc.GenerateFromFiles(architecturePath, requirementsPath, designPath, options)
 }
 
 // GenerateAsciiDoc validates and renders the model. With composition it
@@ -25,5 +25,5 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066
 func GenerateAsciiDoc(bundle Bundle, requirements RequirementsDocument, design DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
-	return engine.GenerateAsciiDoc(bundle, requirements, design, options)
+	return asciidoc.Generate(bundle, requirements, design, options)
 }

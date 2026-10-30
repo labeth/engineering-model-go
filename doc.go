@@ -24,8 +24,8 @@
 //     and Open Threat Model, Gemara, OSCAL and airborne assurance packages
 //     (the Generate*, Export* and Validate* functions named after each format).
 //
-// The implementation lives in internal/... packages (internal/engine for
-// documents, internal/export/<format> for the exporters, internal/trace,
+// The implementation lives in internal/... packages (internal/asciidoc for the
+// publication, internal/export/<format> for the exporters, internal/trace,
 // internal/composition and others); the files of this package are type
 // aliases, constants and thin wrappers over them, grouped by area
 // (model_api.go, validate_api.go, api_<area>.go).

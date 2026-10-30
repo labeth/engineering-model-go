@@ -22,7 +22,7 @@ repositories into the maintained `generated/` directory:
 
 ```sh
 ./examples/atlas-industries/generate.sh
-go test ./internal/engine -run TestAtlasIndustriesCompanyExample
+go test ./internal/integration -run TestAtlasIndustriesCompanyExample
 ```
 
 The generation script emits AsciiDoc, decisions, traceability, Structurizr,
