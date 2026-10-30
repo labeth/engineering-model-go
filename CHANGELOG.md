@@ -29,6 +29,29 @@ semantic versioning.
   response verb inside a `with`, `including` or `of` field list ("…shall publish one world
   state message with UTC time, latitude, longitude and altitude"); genuine double responses
   are still reported (REQ-EMG-072).
+### Added (multi-repository staging and spec rendering)
+
+- `engws stage [--version-from manifest|tag] [--serve] [--addr]` publishes every checkout
+  under the workspace root, in dependency order, into `<root>/.engmod/staging` without
+  writing inside any checkout: `registry/<module path>/` holds each CUE module as an OCI
+  image layout with the content `cue mod publish` would push (source kind `git`: committed
+  files only, with VCS metadata), and `goproxy/` is a GOPROXY file tree
+  (`<module>/@v/<version>.{info,mod,zip}`, `list`) for each checkout with `go.mod`. A dirty
+  checkout (or, with `--version-from tag`, one whose HEAD lacks tag `v<module.version>`)
+  stops staging; version skew between a consumer pin and the staged version is warned
+  about. CUE has no file-based registry, so `--serve` loads the layouts into an in-memory
+  read-only OCI registry on a loopback address and prints `CUE_REGISTRY` routes for the
+  staged modules (merged with the current value), `GOPROXY=file://…/goproxy,off`,
+  `GONOPROXY=none`, `GONOSUMDB`, `GOWORK=off` and `ENGMOD_WORK=off`, so the pre-push gate can
+  run against the staged family before anything is pushed (REQ-EMG-080).
+- `engmodel.RenderSpecDelta`, `RenderSpecDeltaFromModel` and the `engspec` CLI render
+  OpenSpec spec delta markdown from model requirements (`--ids` or `--prefix`,
+  `--capability`, `--modified`): one `### Requirement:` per requirement with the line
+  `<ID>: <model text>` (shall/must as SHALL/MUST, so it passes `openspec validate --strict`
+  and starts with the model text) and one scenario from `verificationCriteria`, WHEN/THEN
+  shaped when the criteria are (REQ-EMG-081).
+- `cuelabs.dev/go/oci/ociregistry` (already an indirect dependency through `cuelang.org/go`)
+  is now a direct requirement.
 
 ## [0.5.0] — 2026-10-30: Root package is the public API; focused internal packages
 

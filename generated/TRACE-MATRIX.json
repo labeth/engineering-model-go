@@ -222,97 +222,97 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ANYPHRASEIN",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 119
+          "line": 118
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 52
+          "line": 51
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 134
+          "line": 133
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 281
+          "line": 273
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 319
+          "line": 311
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 411
+          "line": 403
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 30
+          "line": 29
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 18
+          "line": 17
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 161
+          "line": 160
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 305
+          "line": 297
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 363
+          "line": 355
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 447
+          "line": 439
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 328
+          "line": 320
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 422
+          "line": 414
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 234
+          "line": 226
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 252
+          "line": 244
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 267
+          "line": 259
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 379
+          "line": 371
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 340
+          "line": 332
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--CHDIRREPOROOT",
@@ -342,12 +342,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1492
+          "line": 1481
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1480
+          "line": 1469
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -2180,102 +2180,102 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ANYPHRASEIN",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 119
+          "line": 118
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CATALOGTERMSNAMEDINMODEL",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 52
+          "line": 51
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--CONTAINSPHRASE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 134
+          "line": 133
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 281
+          "line": 273
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 319
+          "line": 311
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 411
+          "line": 403
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 30
+          "line": 29
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 18
+          "line": 17
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 161
+          "line": 160
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 305
+          "line": 297
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 363
+          "line": 355
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 447
+          "line": 439
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 328
+          "line": 320
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 422
+          "line": 414
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 234
+          "line": 226
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 252
+          "line": 244
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 267
+          "line": 259
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 379
+          "line": 371
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 340
+          "line": 332
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 79
+          "line": 77
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DEDUPE-GO--DEDUPEDIAGNOSTICS",
@@ -2300,12 +2300,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1492
+          "line": 1481
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1480
+          "line": 1469
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -3011,12 +3011,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1492
+          "line": 1481
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1480
+          "line": 1469
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
@@ -4460,12 +4460,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 546
+          "line": 543
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--KNOWNMODELIDS",
@@ -4480,12 +4480,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 336
+          "line": 334
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 345
+          "line": 342
         }
       ],
       "verifications": [
@@ -4505,12 +4505,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 336
+          "line": 334
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 345
+          "line": 342
         }
       ],
       "verifications": [
@@ -4565,27 +4565,27 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 546
+          "line": 543
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIX",
           "path": "internal/trace/trace_matrix.go",
-          "line": 403
+          "line": 400
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 411
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--CSV",
           "path": "internal/trace/trace_matrix.go",
-          "line": 764
+          "line": 760
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--EFFECTIVECODEROOTS",
@@ -4595,7 +4595,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTRESULTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 506
+          "line": 503
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--SCOPECODETOMODEL",
@@ -6820,27 +6820,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 771
+          "line": 767
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 785
+          "line": 781
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 794
+          "line": 790
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 760
+          "line": 756
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 778
+          "line": 774
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -6850,7 +6850,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1287
+          "line": 1276
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -6917,7 +6917,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 794
+          "line": 790
         }
       ],
       "verifications": [
@@ -6984,7 +6984,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1287
+          "line": 1276
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -7057,32 +7057,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 630
+          "line": 626
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 666
+          "line": 662
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 645
+          "line": 641
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 673
+          "line": 669
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 717
+          "line": 713
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 743
+          "line": 739
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7092,7 +7092,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 734
+          "line": 730
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7107,7 +7107,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 680
+          "line": 676
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7180,12 +7180,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 79
+          "line": 77
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SORTEDKEYS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 107
+          "line": 105
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7249,32 +7249,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 630
+          "line": 626
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 666
+          "line": 662
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 645
+          "line": 641
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 673
+          "line": 669
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 717
+          "line": 713
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 743
+          "line": 739
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7284,7 +7284,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 734
+          "line": 730
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7294,7 +7294,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 680
+          "line": 676
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--SCHEMAV2BUNDLE",
@@ -7496,7 +7496,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 872
+          "line": 868
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -7898,7 +7898,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 899
+          "line": 895
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -7918,12 +7918,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 910
+          "line": 906
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 872
+          "line": 868
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -8116,7 +8116,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONCONTRACTREQUIRES",
           "path": "internal/composition/composition_projection.go",
-          "line": 466
+          "line": 465
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONENTITYBYID",
@@ -8126,7 +8126,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONSOURCEPATH",
           "path": "internal/composition/composition_projection.go",
-          "line": 450
+          "line": 449
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PUBLISHEDPROJECTION",
@@ -8206,17 +8206,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 701
+          "line": 697
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 546
+          "line": 543
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
@@ -8459,7 +8459,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONCONTRACTREQUIRES",
           "path": "internal/composition/composition_projection.go",
-          "line": 466
+          "line": 465
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONENTITYBYID",
@@ -8469,7 +8469,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PROJECTIONSOURCEPATH",
           "path": "internal/composition/composition_projection.go",
-          "line": 450
+          "line": 449
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--PUBLISHEDPROJECTION",
@@ -8549,7 +8549,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 899
+          "line": 895
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8569,12 +8569,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 910
+          "line": 906
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 872
+          "line": 868
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -8599,17 +8599,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 701
+          "line": 697
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 546
+          "line": 543
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
@@ -9162,7 +9162,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--UNREFERENCEABLEINFERREDID",
           "path": "internal/validate/validate.go",
-          "line": 1505
+          "line": 1494
         }
       ],
       "verifications": [
@@ -9182,7 +9182,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--REFERENCEDELEMENTURIDIAGNOSTICS",
           "path": "internal/validate/validate.go",
-          "line": 1517
+          "line": 1506
         }
       ],
       "verifications": [
@@ -9448,7 +9448,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 534
+          "line": 531
         },
         {
           "symbol": "CODE-MODEL-API-GO--FINDWORKSPACEWITH",
@@ -9613,7 +9613,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 534
+          "line": 531
         }
       ],
       "verifications": [
@@ -9713,17 +9713,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 411
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 345
+          "line": 342
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -9840,12 +9840,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 534
+          "line": 531
         }
       ],
       "verifications": [
@@ -9892,17 +9892,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPLYDELEGATEDSTATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 640
+          "line": 636
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 557
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--DEPENDENCYTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 613
+          "line": 609
         }
       ],
       "verifications": [
@@ -9923,7 +9923,7 @@
         {
           "symbol": "CODE-CMD-ENGWS-MAIN-GO--MAIN",
           "path": "cmd/engws/main.go",
-          "line": 13
+          "line": 17
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
@@ -10058,47 +10058,47 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 78
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 214
+          "line": 256
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 184
+          "line": 226
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 328
+          "line": 370
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 289
+          "line": 331
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 252
+          "line": 294
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 276
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 169
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 224
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-PLAN-GO--BUILDPLAN",
@@ -10454,100 +10454,191 @@
       "status": "implemented"
     },
     {
-      "id": "REQ-EMG-070",
-      "text": "When model updated event is received, the engineering model go shall warn about every unconnected behavior element.",
+      "id": "REQ-EMG-080",
+      "text": "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order.",
       "units": [
-        "FU-VALIDATION-ENGINE"
+        "FU-CLI-ORCHESTRATION",
+        "FU-SYSTEM-COMPOSITION"
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-VALIDATE-BEHAVIOR-GO--BEHAVIORDIAGNOSTICS",
-          "path": "internal/validate/behavior.go",
-          "line": 29
+          "symbol": "CODE-CMD-ENGWS-MAIN-GO--MAIN",
+          "path": "cmd/engws/main.go",
+          "line": 17
         },
         {
-          "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
-          "path": "internal/validate/validate.go",
-          "line": 286
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
+          "path": "internal/engws/cli.go",
+          "line": 394
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
+          "path": "internal/engws/stage.go",
+          "line": 134
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LOADLAYOUT",
+          "path": "internal/engws/stage.go",
+          "line": 473
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LSTAT",
+          "path": "internal/engws/stage.go",
+          "line": 589
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LSTAT",
+          "path": "internal/engws/stage.go",
+          "line": 605
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--OPEN",
+          "path": "internal/engws/stage.go",
+          "line": 594
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--OPEN",
+          "path": "internal/engws/stage.go",
+          "line": 610
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PATH",
+          "path": "internal/engws/stage.go",
+          "line": 586
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PATH",
+          "path": "internal/engws/stage.go",
+          "line": 602
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PREPARESTAGE",
+          "path": "internal/engws/stage.go",
+          "line": 206
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--REGISTRY",
+          "path": "internal/engws/stage.go",
+          "line": 523
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--RESOLVETOREGISTRY",
+          "path": "internal/engws/stage.go",
+          "line": 578
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--SERVESTAGING",
+          "path": "internal/engws/stage.go",
+          "line": 430
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGE",
+          "path": "internal/engws/stage.go",
+          "line": 93
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGECANDIDATEMODULE",
+          "path": "internal/engws/stage.go",
+          "line": 275
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGEENV",
+          "path": "internal/engws/stage.go",
+          "line": 387
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGEGOMODULE",
+          "path": "internal/engws/stage.go",
+          "line": 316
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGESKEWS",
+          "path": "internal/engws/stage.go",
+          "line": 178
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEBLOB",
+          "path": "internal/engws/stage.go",
+          "line": 544
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEGOPROXYLISTS",
+          "path": "internal/engws/stage.go",
+          "line": 355
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEINDEX",
+          "path": "internal/engws/stage.go",
+          "line": 562
         }
       ],
       "verifications": [
-        "VER-INF-TEST-BEHAVIOR_TEST-948115"
+        "VER-INF-TEST-STAGE_TEST-4E9FDB"
       ],
       "result": "not-run",
       "status": "implemented"
     },
     {
-      "id": "REQ-EMG-071",
-      "text": "When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.",
+      "id": "REQ-EMG-081",
+      "text": "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements.",
       "units": [
-        "FU-VALIDATION-ENGINE"
+        "FU-MODEL-CHANGE"
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-VALIDATE-CATALOG-NAMES-GO--CATALOGNAMEDIAGNOSTICS",
-          "path": "internal/validate/catalog_names.go",
-          "line": 25
+          "symbol": "CODE-API-REQUIREMENTS-DELTA-GO--RENDERSPECDELTA",
+          "path": "api_requirements_delta.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-API-REQUIREMENTS-DELTA-GO--RENDERSPECDELTAFROMMODEL",
+          "path": "api_requirements_delta.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-CMD-ENGSPEC-MAIN-GO--MAIN",
+          "path": "cmd/engspec/main.go",
+          "line": 27
+        },
+        {
+          "symbol": "CODE-CMD-ENGSPEC-MAIN-GO--RUN",
+          "path": "cmd/engspec/main.go",
+          "line": 34
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--COLLAPSE",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 172
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--LOWERFIRST",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 179
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--RENDERSPECDELTA",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--RENDERSPECDELTAFROMMODEL",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 115
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--REQUIREMENTHEADING",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--SELECTREQUIREMENTS",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 126
         }
       ],
       "verifications": [
-        "VER-INF-TEST-CATALOG_NAMES_TEST-9DFC7E"
-      ],
-      "result": "not-run",
-      "status": "implemented"
-    },
-    {
-      "id": "REQ-EMG-072",
-      "text": "When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.",
-      "units": [
-        "FU-VALIDATION-ENGINE"
-      ],
-      "code": [
-        {
-          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
-          "path": "internal/reqlint/ears_preflight.go",
-          "line": 161
-        },
-        {
-          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--RESPONSECONJUNCTIONSONLYINFIELDLIST",
-          "path": "internal/reqlint/ears_preflight.go",
-          "line": 484
-        }
-      ],
-      "verifications": [
-        "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08"
-      ],
-      "result": "not-run",
-      "status": "implemented"
-    },
-    {
-      "id": "REQ-EMG-073",
-      "text": "When generation run is requested, the engineering model go shall warn about each control verification status that lags its existing tests.",
-      "units": [
-        "FU-ALLOCATION-TRACE",
-        "FU-VALIDATION-ENGINE"
-      ],
-      "code": [
-        {
-          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
-          "path": "internal/trace/trace_matrix.go",
-          "line": 557
-        },
-        {
-          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
-          "path": "internal/trace/trace_matrix.go",
-          "line": 336
-        },
-        {
-          "symbol": "CODE-INTERNAL-TRACE-VERIFICATION-STATUS-GO--STALEVERIFICATIONSTATUS",
-          "path": "internal/trace/verification_status.go",
-          "line": 25
-        }
-      ],
-      "verifications": [
-        "VER-INF-INTEGRATION-VERIFICATION_STATUS_TEST-910746",
-        "VER-INF-TEST-BEHAVIOR_TEST-948115",
-        "VER-INF-TEST-VERIFICATION_STATUS_TEST-CC7606"
+        "VER-INF-TEST-MAIN_TEST-392945",
+        "VER-INF-TEST-SPEC_DELTA_TEST-F60AB7"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -10558,11 +10649,11 @@
     "REQ-EMG-027"
   ],
   "summary": {
-    "requirements": 72,
-    "implemented": 71,
-    "verified": 63,
-    "tested": 63,
-    "testLinked": 63,
+    "requirements": 70,
+    "implemented": 69,
+    "verified": 61,
+    "tested": 61,
+    "testLinked": 61,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

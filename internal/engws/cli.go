@@ -68,6 +68,38 @@ commands:
                              (go get, GOWORK=off), and the lock (composed with
                              ENGMOD_WORK=off, dependencies re-fetched); any
                              failure restores all files
+  stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
+                             publish every checkout, in dependency order, into
+                             <root>/.engmod/staging (see Staging); refuse a
+                             dirty checkout (and with --version-from tag one
+                             whose HEAD lacks tag v<module.version>) and then
+                             write nothing; print the environment for the
+                             gate; --serve then serves the staged CUE modules
+                             on a loopback OCI registry in the foreground
+                             until interrupted; exit 1 on failure
+
+Staging: stage writes only under <root>/.engmod/staging. registry/<module
+path>/ holds each CUE module as an OCI image layout (oci-layout, index.json,
+blobs/), the content cue mod publish would push: source kind git zips the
+committed files (git ls-files) with the commit as metadata, kind self the
+directory. goproxy/ is a GOPROXY file tree, <module>/@v/<version>.{info,mod,
+zip} and list, for each checkout with go.mod, zipped from committed files.
+The version is module.version from engmod.yml (tag v<version>). CUE has no
+file:// registry, so --serve loads the layouts into an in-memory read-only
+registry on 127.0.0.1 and prints CUE_REGISTRY routes for the staged modules
+only (merged with the current CUE_REGISTRY). To prove the release order and
+run the pre-push gate before pushing anything, keep engws stage --serve
+running and, in another shell, export the printed lines and run the gate in
+each checkout, dependencies first:
+  export CUE_REGISTRY=example.com/fam/if=127.0.0.1:PORT+insecure,...
+  export GOPROXY=file://<root>/.engmod/staging/goproxy,off GONOPROXY=none
+  export GONOSUMDB=<staged Go modules> GOWORK=off ENGMOD_WORK=off
+  ENGMOD_LOCK=check <the repo's pre-push gate or engmod check>
+GOPROXY ends in off, so a module that is neither staged nor in the module
+cache fails instead of reaching the network; no -mod flag is set (go.work
+rejects it). Locks written against staging pin the staged digests: delete
+<root>/.engmod/staging and regenerate them after the real publish if the
+published content differs (for example a different commit).
 
 exit codes: 0 ok, 1 skew or failure, 2 usage
 `
@@ -101,13 +133,16 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	summary := sub.Bool("summary", false, "")
 	inProcess := sub.Bool("in-process", false, "")
 	refresh := sub.Bool("refresh", false, "")
+	versionFrom := sub.String("version-from", VersionFromManifest, "")
+	serve := sub.Bool("serve", false, "")
+	addr := sub.String("addr", "127.0.0.1:0", "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
 	if err := sub.Parse(rest); err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n%s", command, err, Usage)
 		return 2
 	}
 	positional := sub.Args()
-	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3}
+	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -115,6 +150,11 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	}
 	if len(positional) != n {
 		fmt.Fprintf(stderr, "engws %s: expected %d argument(s), got %d\n%s", command, n, len(positional), Usage)
+		return 2
+	}
+
+	if command == "stage" && *versionFrom != VersionFromManifest && *versionFrom != VersionFromTag {
+		fmt.Fprintf(stderr, "engws stage: --version-from must be %s or %s\n%s", VersionFromManifest, VersionFromTag, Usage)
 		return 2
 	}
 
@@ -137,7 +177,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	switch command {
 	case "skew":
 		fmt.Fprintf(stderr, "engws: workspace %s\n", root)
-	case "check", "bump":
+	case "check", "bump", "stage":
 		fmt.Fprintf(stdout, "engws: workspace %s\n", root)
 	}
 
@@ -156,6 +196,8 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		code, err = runCheck(ctx, root, registry, *all, *summary, CheckOptions{InProcess: *inProcess, Refresh: *refresh}, stdout, stderr)
 	case "bump":
 		err = runBump(root, positional[0], positional[1], positional[2], stdout)
+	case "stage":
+		code, err = runStage(ctx, root, *versionFrom, *serve, *addr, stdout)
 	}
 	if err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
@@ -343,4 +385,59 @@ func runBump(root, repo, alias, version string, w io.Writer) error {
 		fmt.Fprintf(w, "engws: %s %s regenerated (workspace off)\n", repo, "engmod.lock.yml")
 	}
 	return nil
+}
+
+// runStage stages the family, prints the result and the gate environment
+// and, with serve, serves the staged CUE modules until ctx is done.
+// TRLC-LINKS: REQ-EMG-080
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func runStage(ctx context.Context, root, versionFrom string, serve bool, addr string, w io.Writer) (int, error) {
+	result, err := Stage(ctx, root, versionFrom)
+	for _, warning := range result.Warnings {
+		fmt.Fprintln(w, "engws: warning:", warning)
+	}
+	if err != nil {
+		return 1, err
+	}
+	if len(result.Failures) > 0 {
+		for _, failure := range result.Failures {
+			fmt.Fprintln(w, "FAIL "+failure)
+		}
+		fmt.Fprintf(w, "engws: staged nothing: %d checkout(s) cannot be published\n", len(result.Failures))
+		return 1, nil
+	}
+	for _, m := range result.Modules {
+		base, _, _ := strings.Cut(m.ModulePath, "@")
+		line := fmt.Sprintf("staged %s %s@%s (%d files)", m.Name, base, m.Version, m.CUEFiles)
+		if m.GoModule != "" {
+			line += ", go " + m.GoModule + "@" + m.Version
+		}
+		fmt.Fprintln(w, line)
+		for _, note := range m.Notes {
+			fmt.Fprintln(w, "    note: "+note)
+		}
+	}
+	fmt.Fprintf(w, "engws: staging %s\n", filepath.Join(root, filepath.FromSlash(StagingDir)))
+	current := map[string]string{}
+	for _, key := range []string{"CUE_REGISTRY", "GONOSUMDB", "GOPRIVATE"} {
+		current[key] = os.Getenv(key)
+	}
+	if !serve {
+		fmt.Fprintln(w, "engws: CUE has no file registry; run engws stage --serve for CUE_REGISTRY. Go environment:")
+		for _, line := range StageEnv(result, "", current) {
+			fmt.Fprintln(w, "  "+line)
+		}
+		return 0, nil
+	}
+	err = ServeStaging(ctx, result, addr, func(host string) {
+		fmt.Fprintln(w, "engws: environment for the gate against staging (export in another shell):")
+		for _, line := range StageEnv(result, host, current) {
+			fmt.Fprintln(w, "  "+line)
+		}
+		fmt.Fprintf(w, "engws: serving %d staged CUE module(s) on %s; interrupt to stop\n", len(result.Modules), host)
+	})
+	if err != nil {
+		return 1, err
+	}
+	return 0, nil
 }

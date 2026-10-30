@@ -276,6 +276,16 @@ catalog:
     definition: Event indicating maintained reference workspaces must be loaded, composed, generated, and checked.
     aliases:
     - example check
+  - id: EVT-WORKSPACE-STAGING-REQUESTED
+    name: workspace staging is requested
+    definition: Event indicating a developer asked engws to publish every checkout of the workspace into the local staging area before release.
+    aliases:
+    - engws stage requested
+  - id: EVT-SPEC-DELTA-REQUESTED
+    name: spec delta is requested
+    definition: Event indicating a caller asked for OpenSpec spec delta text rendered from selected model requirements.
+    aliases:
+    - spec from model requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid

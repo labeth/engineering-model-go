@@ -350,6 +350,15 @@ Planning and diffing never write canonical files. Apply validates the complete c
 preserves unchanged YAML nodes and comments, and atomically replaces `model/requirements.yml` only
 when no blocking diagnostics are present.
 
+Render OpenSpec spec delta text from model requirements (also
+`engmodel.RenderSpecDelta`); each `REQ-…:` line starts with the model text, so a
+pasted spec stays consistent with the model:
+
+```bash
+go run ./cmd/engspec --model examples/dal-c-flight-control-sample/engmod.yml \
+  --prefix REQ-YD- --capability yaw-damping
+```
+
 Generate a single Mermaid view:
 
 ```bash
@@ -728,6 +737,24 @@ Replacement paths must remain inside the workspace and their
 invalid versions, path escapes, cycles, missing manifests, unpublished targets,
 and unsatisfied requirements.
 
+To prove a family's release order and run the pre-push gate before anything is
+pushed, stage every checkout under the workspace root (`go run ./cmd/engws help`
+has the details):
+
+```sh
+engws stage --serve          # foreground: loopback OCI registry for the staged CUE modules
+# in another shell, export the printed lines, then in each checkout, dependencies first:
+export CUE_REGISTRY=<printed> GOPROXY=file://<root>/.engmod/staging/goproxy,off
+export GONOPROXY=none GONOSUMDB=<printed> GOWORK=off ENGMOD_WORK=off
+ENGMOD_LOCK=check <pre-push gate>
+```
+
+`engws stage` writes only `<root>/.engmod/staging`: `registry/<module path>/`
+(an OCI image layout per CUE module, the content `cue mod publish` would push:
+committed files for source kind `git`) and `goproxy/` (a GOPROXY file tree for
+each checkout with `go.mod`). CUE has no file-based registry, so `--serve` serves
+the layouts from memory on 127.0.0.1.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
@@ -870,7 +897,7 @@ Core files:
 │   validate_api.go, api_*.go   wrappers, one api_<area>.go per area (old public names kept)
 ├── facade_test.go              every exported implementation name is re-exported at the root
 ├── layering_test.go            the package import direction below holds
-├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange,
+├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange, engspec,
 │                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
 │                               engtrlc, englobster, engair, engmcp, engws, sysmlmetamodel)
 ├── internal/
@@ -883,7 +910,7 @@ Core files:
 │   ├── codescan/               code, runtime and verification evidence inference
 │   ├── trace/                  traceability matrix
 │   ├── reqlint/                EARS preflight, catalog description and requirement link lint
-│   ├── reqdelta/               requirements delta planning and atomic application
+│   ├── reqdelta/               requirements delta planning and atomic application, spec delta rendering
 │   ├── generate/               single-view Mermaid/SVG generation (Generate, GenerateFromFile)
 │   ├── asciidoc/               AsciiDoc publication (templates/asciidoc.tmpl)
 │   ├── export/                 one package per exporter: gemara, oscal, sysml (metamodel/),
