@@ -3,6 +3,7 @@ module github.com/labeth/engineering-model-go
 go 1.25.0
 
 require (
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943
 	cuelang.org/go v0.17.1
 	github.com/defenseunicorns/go-oscal v0.7.0
 	github.com/gemaraproj/go-gemara v0.7.0
@@ -22,7 +23,6 @@ require (
 )
 
 require (
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.3 // indirect

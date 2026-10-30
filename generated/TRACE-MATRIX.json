@@ -9923,7 +9923,7 @@
         {
           "symbol": "CODE-CMD-ENGWS-MAIN-GO--MAIN",
           "path": "cmd/engws/main.go",
-          "line": 13
+          "line": 17
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
@@ -10058,47 +10058,47 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 78
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 214
+          "line": 256
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 184
+          "line": 226
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 328
+          "line": 370
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 289
+          "line": 331
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 252
+          "line": 294
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 276
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 169
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 224
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-PLAN-GO--BUILDPLAN",
@@ -10452,6 +10452,196 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-080",
+      "text": "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order.",
+      "units": [
+        "FU-CLI-ORCHESTRATION",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CMD-ENGWS-MAIN-GO--MAIN",
+          "path": "cmd/engws/main.go",
+          "line": 17
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
+          "path": "internal/engws/cli.go",
+          "line": 394
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
+          "path": "internal/engws/stage.go",
+          "line": 134
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LOADLAYOUT",
+          "path": "internal/engws/stage.go",
+          "line": 473
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LSTAT",
+          "path": "internal/engws/stage.go",
+          "line": 589
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--LSTAT",
+          "path": "internal/engws/stage.go",
+          "line": 605
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--OPEN",
+          "path": "internal/engws/stage.go",
+          "line": 594
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--OPEN",
+          "path": "internal/engws/stage.go",
+          "line": 610
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PATH",
+          "path": "internal/engws/stage.go",
+          "line": 586
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PATH",
+          "path": "internal/engws/stage.go",
+          "line": 602
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--PREPARESTAGE",
+          "path": "internal/engws/stage.go",
+          "line": 206
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--REGISTRY",
+          "path": "internal/engws/stage.go",
+          "line": 523
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--RESOLVETOREGISTRY",
+          "path": "internal/engws/stage.go",
+          "line": 578
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--SERVESTAGING",
+          "path": "internal/engws/stage.go",
+          "line": 430
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGE",
+          "path": "internal/engws/stage.go",
+          "line": 93
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGECANDIDATEMODULE",
+          "path": "internal/engws/stage.go",
+          "line": 275
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGEENV",
+          "path": "internal/engws/stage.go",
+          "line": 387
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGEGOMODULE",
+          "path": "internal/engws/stage.go",
+          "line": 316
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--STAGESKEWS",
+          "path": "internal/engws/stage.go",
+          "line": 178
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEBLOB",
+          "path": "internal/engws/stage.go",
+          "line": 544
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEGOPROXYLISTS",
+          "path": "internal/engws/stage.go",
+          "line": 355
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--WRITEINDEX",
+          "path": "internal/engws/stage.go",
+          "line": 562
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-STAGE_TEST-4E9FDB"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-081",
+      "text": "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements.",
+      "units": [
+        "FU-MODEL-CHANGE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-REQUIREMENTS-DELTA-GO--RENDERSPECDELTA",
+          "path": "api_requirements_delta.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-API-REQUIREMENTS-DELTA-GO--RENDERSPECDELTAFROMMODEL",
+          "path": "api_requirements_delta.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-CMD-ENGSPEC-MAIN-GO--MAIN",
+          "path": "cmd/engspec/main.go",
+          "line": 27
+        },
+        {
+          "symbol": "CODE-CMD-ENGSPEC-MAIN-GO--RUN",
+          "path": "cmd/engspec/main.go",
+          "line": 34
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--COLLAPSE",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 172
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--LOWERFIRST",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 179
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--RENDERSPECDELTA",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--RENDERSPECDELTAFROMMODEL",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 115
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--REQUIREMENTHEADING",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQDELTA-SPEC-DELTA-GO--SELECTREQUIREMENTS",
+          "path": "internal/reqdelta/spec_delta.go",
+          "line": 126
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-MAIN_TEST-392945",
+        "VER-INF-TEST-SPEC_DELTA_TEST-F60AB7"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -10459,11 +10649,11 @@
     "REQ-EMG-027"
   ],
   "summary": {
-    "requirements": 68,
-    "implemented": 67,
-    "verified": 59,
-    "tested": 59,
-    "testLinked": 59,
+    "requirements": 70,
+    "implemented": 69,
+    "verified": 61,
+    "tested": 61,
+    "testLinked": 61,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

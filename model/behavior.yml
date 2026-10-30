@@ -324,6 +324,9 @@ behavior:
   - type: contains
     from: FU-MODEL-CHANGE
     to: IF-CLI-ENGCHANGE
+  - type: contains
+    from: FU-MODEL-CHANGE
+    to: IF-CLI-ENGSPEC
   - type: writes
     from: FU-MCP-SERVER
     to: DO-MCP-TOOL-RESULT

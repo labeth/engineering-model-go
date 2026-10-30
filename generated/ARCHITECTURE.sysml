@@ -1496,10 +1496,22 @@ package 'engineering-model-go' {
     event occurrence 'EVT-REQUIREMENTS-DELTA-RECEIVED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-SPEC-DELTA-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-SPEC-DELTA-REQUESTED';
+
+    @EngineeringElement {
         sourceId = "EVT-VALIDATION-FAILED";
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-VALIDATION-FAILED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-WORKSPACE-STAGING-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-WORKSPACE-STAGING-REQUESTED';
 
     @EngineeringElement {
         sourceId = "EVT-WORKSPACE-SYNC-REQUESTED";
@@ -1869,6 +1881,18 @@ package 'engineering-model-go' {
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engoscal";
         attribute 'schemaRef' : 'String' = "internal/export/oscal/oscal_ssp.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-CLI-ENGSPEC";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-CLI-ENGSPEC' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "cmd/engspec";
+        attribute 'schemaRef' : 'String' = "internal/reqdelta/spec_delta.go";
     }
 
     @EngineeringElement {
@@ -2625,6 +2649,24 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-069' {
         attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document.";
         attribute 'notes' : 'String' = "model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-080";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-080' {
+        attribute 'text' : 'String' = "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order.";
+        attribute 'notes' : 'String' = "engws stage [--version-from manifest|tag] [--serve] [--addr] writes only under <root>/.engmod/staging, never inside a checkout. registry/<module path>/ holds each CUE module as an OCI image layout with the content cue mod publish would push (source kind git: the committed files from git ls-files with VCS metadata; kind self: the directory). goproxy/ is a GOPROXY file tree (<module>/@v/<version>.info, .mod, .zip and list) for each checkout with go.mod at its top, zipped from committed files. The version is module.version from engmod.yml; with --version-from tag HEAD must be at tag v<module.version>. A checkout cue mod publish would refuse (dirty tree, no source field, module path mismatch) is reported, and then nothing is staged. A consumer pinning a family module at another version than the staged one is warned about. CUE has no file registry, so --serve loads the layouts into an in-memory read-only OCI registry on a loopback address only and serves it in the foreground until interrupted. stage prints the gate environment: CUE_REGISTRY routes for the staged modules merged with the current CUE_REGISTRY (with --serve), GOPROXY=file://<staging>/goproxy,off, GONOPROXY=none, GONOSUMDB with the staged Go modules plus the current GONOSUMDB or GOPRIVATE, GOWORK=off and ENGMOD_WORK=off; no -mod flag.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-081";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-081' {
+        attribute 'text' : 'String' = "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements.";
+        attribute 'notes' : 'String' = "engmodel.RenderSpecDelta and RenderSpecDeltaFromModel, and the engspec CLI (--model, --ids or --prefix, --capability, --modified, --out), render ## ADDED (or MODIFIED) Requirements and per requirement a ### Requirement heading (title, else ID; a repeated title names its ID), the line <ID>: <model text> with whitespace collapsed and whole-word shall and must upper-cased, so it starts with the model text under the engineering-flow consistency normalization (lower case, collapsed whitespace, no backticks or trailing period), and one #### Scenario from verificationCriteria: GIVEN, WHEN and THEN bullets when the criteria are shaped [given …,] when …, then …; otherwise WHEN the requirement is verified and THEN the criteria. Requirements without shall or must, or without verificationCriteria, are returned as warnings; an unknown ID is an error.";
     }
 
     @EngineeringElement {
