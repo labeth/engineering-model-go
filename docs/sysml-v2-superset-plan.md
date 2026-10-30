@@ -115,7 +115,7 @@ documented SysML v2 subset. A semantic-superset claim requires:
 The formal 2026-04 release has no normative metamodel XMI/Ecore. Tasks 1.1-1.3
 therefore use the aligned official Pilot Implementation Ecore as the closest
 machine-readable implementation artifact and label it non-normative. The pinned
-sources and hashes are in `internal/engine/sysml/metamodel-sources.json`; the normalized
+sources and hashes are in `internal/export/sysml/metamodel/metamodel-sources.json`; the normalized
 inventory and strict per-metaclass/per-property binding are checked offline by
 `scripts/check-sysml-metamodel.sh`. The inventory generates both the Go runtime
 binding and CUE property validation. All 175 metaclasses and 415 owned

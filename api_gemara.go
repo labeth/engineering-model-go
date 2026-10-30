@@ -2,35 +2,35 @@
 package engmodel
 
 // OpenSSF Gemara artifacts and their OSCAL forms.
-// Thin facade over internal/engine; TestFacadeReexportsEngine keeps it complete.
+// Thin facade over internal/export/gemara; TestFacadeReexportsEngine keeps it complete.
 
-import "github.com/labeth/engineering-model-go/internal/engine"
+import "github.com/labeth/engineering-model-go/internal/export/gemara"
 
 // GemaraEvaluationResult holds the L5 Evaluation Log and its serialization.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type GemaraEvaluationResult = engine.GemaraEvaluationResult
+type GemaraEvaluationResult = gemara.EvaluationResult
 
 // GemaraExportOptions configures the deterministic metadata stamped into artifacts.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type GemaraExportOptions = engine.GemaraExportOptions
+type GemaraExportOptions = gemara.Options
 
 // GemaraExportResult holds the typed Gemara documents and their YAML serializations.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type GemaraExportResult = engine.GemaraExportResult
+type GemaraExportResult = gemara.Result
 
 // GemaraCrossReferenceError reports one reference that does not resolve within
 // the rendered artifact set.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type GemaraCrossReferenceError = engine.GemaraCrossReferenceError
+type GemaraCrossReferenceError = gemara.CrossReferenceError
 
 // GemaraVersion is the Gemara specification version stamped into every artifact's metadata.
-const GemaraVersion = engine.GemaraVersion
+const GemaraVersion = gemara.Version
 
 // GenerateGemaraEvaluationLogFromFiles loads inputs and renders the Evaluation Log.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (GemaraEvaluationResult, error) {
-	return engine.GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot, options)
+	return gemara.GenerateEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot, options)
 }
 
 // GenerateGemaraEvaluationLog builds an L5 Evaluation Log from the model bundle.
@@ -38,21 +38,21 @@ func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, co
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraEvaluationLog(bundle Bundle, requirements RequirementsDocument, codeRoot string, options GemaraExportOptions) (GemaraEvaluationResult, error) {
-	return engine.GenerateGemaraEvaluationLog(bundle, requirements, codeRoot, options)
+	return gemara.GenerateEvaluationLog(bundle, requirements, codeRoot, options)
 }
 
 // GenerateGemaraFromFile loads the model bundle and renders the Gemara catalogs.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraFromFile(architecturePath string, options GemaraExportOptions) (GemaraExportResult, error) {
-	return engine.GenerateGemaraFromFile(architecturePath, options)
+	return gemara.GenerateFromFile(architecturePath, options)
 }
 
 // GenerateGemara renders the engineering model bundle into Gemara L1-L3 documents.
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemara(bundle Bundle, options GemaraExportOptions) (GemaraExportResult, error) {
-	return engine.GenerateGemara(bundle, options)
+	return gemara.Generate(bundle, options)
 }
 
 // GenerateGemaraOSCALCatalogFromFile loads the model and emits an OSCAL Catalog
@@ -60,7 +60,7 @@ func GenerateGemara(bundle Bundle, options GemaraExportOptions) (GemaraExportRes
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraExportOptions) (string, error) {
-	return engine.GenerateGemaraOSCALCatalogFromFile(architecturePath, options)
+	return gemara.GenerateOSCALCatalogFromFile(architecturePath, options)
 }
 
 // GenerateGemaraOSCALCatalog converts the Gemara Control Catalog to an OSCAL
@@ -68,7 +68,7 @@ func GenerateGemaraOSCALCatalogFromFile(architecturePath string, options GemaraE
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALCatalog(bundle Bundle, options GemaraExportOptions) (string, error) {
-	return engine.GenerateGemaraOSCALCatalog(bundle, options)
+	return gemara.GenerateOSCALCatalog(bundle, options)
 }
 
 // GenerateGemaraOSCALAssessmentResultsFromFiles loads inputs and emits OSCAL
@@ -76,7 +76,7 @@ func GenerateGemaraOSCALCatalog(bundle Bundle, options GemaraExportOptions) (str
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (string, error) {
-	return engine.GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot, options)
+	return gemara.GenerateOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot, options)
 }
 
 // GenerateGemaraOSCALAssessmentResults converts the Gemara Evaluation Log to OSCAL
@@ -85,7 +85,7 @@ func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirement
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateGemaraOSCALAssessmentResults(bundle Bundle, requirements RequirementsDocument, codeRoot string, options GemaraExportOptions) (string, error) {
-	return engine.GenerateGemaraOSCALAssessmentResults(bundle, requirements, codeRoot, options)
+	return gemara.GenerateOSCALAssessmentResults(bundle, requirements, codeRoot, options)
 }
 
 // CheckGemaraCrossReferences parses the artifacts (short-name -> YAML) and
@@ -95,7 +95,7 @@ func GenerateGemaraOSCALAssessmentResults(bundle Bundle, requirements Requiremen
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func CheckGemaraCrossReferences(docs map[string]string) []GemaraCrossReferenceError {
-	return engine.CheckGemaraCrossReferences(docs)
+	return gemara.CheckCrossReferences(docs)
 }
 
 // CheckGemaraModelConsistency compares the treatment claims in a rendered
@@ -108,5 +108,5 @@ func CheckGemaraCrossReferences(docs map[string]string) []GemaraCrossReferenceEr
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func CheckGemaraModelConsistency(bundle Bundle, docs map[string]string) []GemaraCrossReferenceError {
-	return engine.CheckGemaraModelConsistency(bundle, docs)
+	return gemara.CheckModelConsistency(bundle, docs)
 }

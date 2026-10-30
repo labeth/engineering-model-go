@@ -1,0 +1,201 @@
+// ENGMODEL-OWNER-UNIT: FU-TRLC-EXPORTER
+package trlc
+
+import (
+	"bytes"
+	_ "embed"
+	"fmt"
+	"path/filepath"
+	"sort"
+	"strings"
+	"text/template"
+
+	"github.com/labeth/engineering-model-go/internal/model"
+)
+
+//go:embed templates/trlc.model.rsl.tmpl
+var trlcModelTemplateText string
+
+//go:embed templates/trlc.requirements.trlc.tmpl
+var trlcRequirementsTemplateText string
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+var trlcModelTemplate = template.Must(template.New("trlc-model").Parse(trlcModelTemplateText))
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+var trlcRequirementsTemplate = template.Must(template.New("trlc-requirements").Parse(trlcRequirementsTemplateText))
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type Options struct {
+	PackageName string
+}
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type Result struct {
+	PackageName      string
+	ModelRSL         string
+	RequirementsTRLC string
+}
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type trlcTemplateData struct {
+	PackageName  string
+	Requirements []trlcRequirementRecord
+}
+
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type trlcRequirementRecord struct {
+	ObjectName string
+	ID         string
+	Text       string
+	Notes      string
+	HasNotes   bool
+	AppliesTo  []string
+}
+
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+func GenerateRequirementsFromFile(requirementsPath string, options Options) (Result, error) {
+	reqDoc, err := model.LoadRequirements(requirementsPath)
+	if err != nil {
+		return Result{}, err
+	}
+	pkg := strings.TrimSpace(options.PackageName)
+	if pkg == "" {
+		base := strings.TrimSuffix(filepath.Base(requirementsPath), filepath.Ext(requirementsPath))
+		pkg = SanitizeIdentifier(base)
+		if pkg == "" {
+			pkg = "Requirements"
+		}
+	}
+	return GenerateRequirements(reqDoc, Options{PackageName: pkg})
+}
+
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+func GenerateRequirements(requirements model.RequirementsDocument, options Options) (Result, error) {
+	canonical, err := model.NewCanonicalRequirements(requirements)
+	if err != nil {
+		return Result{}, err
+	}
+	requirements = canonical.Documents().Requirements
+	pkg := SanitizeIdentifier(strings.TrimSpace(options.PackageName))
+	if pkg == "" {
+		pkg = SanitizeIdentifier(strings.TrimSpace(requirements.LintRun.ID))
+	}
+	if pkg == "" {
+		pkg = "Requirements"
+	}
+
+	used := map[string]bool{}
+	reqs := make([]trlcRequirementRecord, 0, len(requirements.Requirements))
+	for _, r := range requirements.Requirements {
+		obj := uniqueTRLCObjectName(SanitizeIdentifier(strings.TrimSpace(r.ID)), used)
+		if obj == "" {
+			obj = uniqueTRLCObjectName("requirement", used)
+		}
+		applies := append([]string(nil), r.AppliesTo...)
+		sort.Strings(applies)
+		reqs = append(reqs, trlcRequirementRecord{
+			ObjectName: obj,
+			ID:         strings.TrimSpace(r.ID),
+			Text:       sanitizeTRLCString(strings.TrimSpace(r.Text)),
+			Notes:      sanitizeTRLCString(strings.TrimSpace(r.Notes)),
+			HasNotes:   strings.TrimSpace(r.Notes) != "",
+			AppliesTo:  applies,
+		})
+	}
+	sort.SliceStable(reqs, func(i, j int) bool { return reqs[i].ID < reqs[j].ID })
+
+	tplData := trlcTemplateData{PackageName: pkg, Requirements: reqs}
+	modelRSL, err := executeTRLCTemplate(trlcModelTemplate, tplData)
+	if err != nil {
+		return Result{}, err
+	}
+	reqTRLC, err := executeTRLCTemplate(trlcRequirementsTemplate, tplData)
+	if err != nil {
+		return Result{}, err
+	}
+
+	return Result{PackageName: pkg, ModelRSL: modelRSL, RequirementsTRLC: reqTRLC}, nil
+}
+
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func executeTRLCTemplate(t *template.Template, data any) (string, error) {
+	var b bytes.Buffer
+	if err := t.Execute(&b, data); err != nil {
+		return "", fmt.Errorf("execute TRLC template: %w", err)
+	}
+	return b.String(), nil
+}
+
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func SanitizeIdentifier(in string) string {
+	in = strings.TrimSpace(in)
+	if in == "" {
+		return ""
+	}
+	b := strings.Builder{}
+	for i, r := range in {
+		isLetter := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
+		isDigit := r >= '0' && r <= '9'
+		if isLetter || isDigit || r == '_' {
+			if i == 0 && isDigit {
+				b.WriteByte('R')
+				b.WriteByte('_')
+			}
+			if r == '-' {
+				b.WriteByte('_')
+			} else {
+				b.WriteRune(r)
+			}
+			continue
+		}
+		if r == '-' || r == ' ' || r == '.' || r == '/' {
+			b.WriteByte('_')
+			continue
+		}
+	}
+	out := b.String()
+	for strings.Contains(out, "__") {
+		out = strings.ReplaceAll(out, "__", "_")
+	}
+	out = strings.Trim(out, "_")
+	if out == "" {
+		return ""
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func sanitizeTRLCString(in string) string {
+	in = strings.ReplaceAll(in, "\\", "\\\\")
+	in = strings.ReplaceAll(in, "\"", "\\\"")
+	in = strings.ReplaceAll(in, "\r", " ")
+	in = strings.ReplaceAll(in, "\n", " ")
+	in = strings.Join(strings.Fields(in), " ")
+	return strings.TrimSpace(in)
+}
+
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func uniqueTRLCObjectName(base string, used map[string]bool) string {
+	base = strings.TrimSpace(base)
+	if base == "" {
+		base = "requirement"
+	}
+	if !used[base] {
+		used[base] = true
+		return base
+	}
+	for i := 2; ; i++ {
+		cand := fmt.Sprintf("%s_%d", base, i)
+		if !used[cand] {
+			used[cand] = true
+			return cand
+		}
+	}
+}

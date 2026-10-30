@@ -31,7 +31,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-13T00:00:00Z"
     confidence-level: High
@@ -50,7 +50,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-18T00:00:00Z"
     confidence-level: Medium
@@ -69,7 +69,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-20T00:00:00Z"
     confidence-level: Medium
@@ -95,7 +95,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-04-12T00:00:00Z"
     confidence-level: High
@@ -121,7 +121,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     confidence-level: High
 - name: Firmware Signature Verification
@@ -140,7 +140,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     confidence-level: High
 - name: Telemetry Integrity
@@ -159,7 +159,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     confidence-level: High
 target:

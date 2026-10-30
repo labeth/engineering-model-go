@@ -2,88 +2,88 @@
 package engmodel
 
 // OSCAL SSP, assessment plan, assessment results, POA&M and profile export.
-// Thin facade over internal/engine; TestFacadeReexportsEngine keeps it complete.
+// Thin facade over internal/export/oscal; TestFacadeReexportsEngine keeps it complete.
 
-import "github.com/labeth/engineering-model-go/internal/engine"
+import "github.com/labeth/engineering-model-go/internal/export/oscal"
 
-type OSCALAPOptions = engine.OSCALAPOptions
+type OSCALAPOptions = oscal.APOptions
 
-type OSCALAPResult = engine.OSCALAPResult
+type OSCALAPResult = oscal.APResult
 
-type OSCALAPDocument = engine.OSCALAPDocument
+type OSCALAPDocument = oscal.APDocument
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALAROptions = engine.OSCALAROptions
+type OSCALAROptions = oscal.AROptions
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-type OSCALARResult = engine.OSCALARResult
+type OSCALARResult = oscal.ARResult
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALARDocument = engine.OSCALARDocument
+type OSCALARDocument = oscal.ARDocument
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALPOAMOptions = engine.OSCALPOAMOptions
+type OSCALPOAMOptions = oscal.POAMOptions
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-type OSCALPOAMResult = engine.OSCALPOAMResult
+type OSCALPOAMResult = oscal.POAMResult
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALPOAMDocument = engine.OSCALPOAMDocument
+type OSCALPOAMDocument = oscal.POAMDocument
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALProfileOptions = engine.OSCALProfileOptions
+type OSCALProfileOptions = oscal.ProfileOptions
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALSSPOptions = engine.OSCALSSPOptions
+type OSCALSSPOptions = oscal.SSPOptions
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-type OSCALSSPResult = engine.OSCALSSPResult
+type OSCALSSPResult = oscal.SSPResult
 
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-type OSCALSSPDocument = engine.OSCALSSPDocument
+type OSCALSSPDocument = oscal.SSPDocument
 
-var ErrNoPOAMItems = engine.ErrNoPOAMItems
+var ErrNoPOAMItems = oscal.ErrNoPOAMItems
 
 // ErrNoOSCALProfiles indicates that the model has no compliance profile to
 // publish as an aggregate OSCAL profile.
-var ErrNoOSCALProfiles = engine.ErrNoOSCALProfiles
+var ErrNoOSCALProfiles = oscal.ErrNoProfiles
 
-var ErrNoOSCALCompliance = engine.ErrNoOSCALCompliance
+var ErrNoOSCALCompliance = oscal.ErrNoCompliance
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentPlanFromFile(architecturePath string, options OSCALAPOptions) (OSCALAPResult, error) {
-	return engine.GenerateOSCALAssessmentPlanFromFile(architecturePath, options)
+	return oscal.GenerateAssessmentPlanFromFile(architecturePath, options)
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE
 func GenerateOSCALAssessmentPlan(bundle Bundle, options OSCALAPOptions) (OSCALAPResult, error) {
-	return engine.GenerateOSCALAssessmentPlan(bundle, options)
+	return oscal.GenerateAssessmentPlan(bundle, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALAssessmentResultsFromFile(architecturePath string, options OSCALAROptions) (OSCALARResult, error) {
-	return engine.GenerateOSCALAssessmentResultsFromFile(architecturePath, options)
+	return oscal.GenerateAssessmentResultsFromFile(architecturePath, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALAssessmentResults(bundle Bundle, requirements RequirementsDocument, options OSCALAROptions) (OSCALARResult, error) {
-	return engine.GenerateOSCALAssessmentResults(bundle, requirements, options)
+	return oscal.GenerateAssessmentResults(bundle, requirements, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALPOAMFromFile(architecturePath string, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
-	return engine.GenerateOSCALPOAMFromFile(architecturePath, options)
+	return oscal.GeneratePOAMFromFile(architecturePath, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-THREAT-EXPORTER, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALPOAM(bundle Bundle, options OSCALPOAMOptions) (OSCALPOAMResult, error) {
-	return engine.GenerateOSCALPOAM(bundle, options)
+	return oscal.GeneratePOAM(bundle, options)
 }
 
 // GenerateOSCALProfileFromFile loads a model and emits one profile importing
@@ -91,7 +91,7 @@ func GenerateOSCALPOAM(bundle Bundle, options OSCALPOAMOptions) (OSCALPOAMResult
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateOSCALProfileFromFile(path string, options OSCALProfileOptions) (string, error) {
-	return engine.GenerateOSCALProfileFromFile(path, options)
+	return oscal.GenerateProfileFromFile(path, options)
 }
 
 // GenerateOSCALProfile emits a deterministic OSCAL 1.1.2 aggregate profile so
@@ -99,17 +99,17 @@ func GenerateOSCALProfileFromFile(path string, options OSCALProfileOptions) (str
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateOSCALProfile(bundle Bundle, options OSCALProfileOptions) (string, error) {
-	return engine.GenerateOSCALProfile(bundle, options)
+	return oscal.GenerateProfile(bundle, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 func GenerateOSCALSSPFromFile(architecturePath string, options OSCALSSPOptions) (OSCALSSPResult, error) {
-	return engine.GenerateOSCALSSPFromFile(architecturePath, options)
+	return oscal.GenerateSSPFromFile(architecturePath, options)
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-013, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func GenerateOSCALSSP(bundle Bundle, options OSCALSSPOptions) (OSCALSSPResult, error) {
-	return engine.GenerateOSCALSSP(bundle, options)
+	return oscal.GenerateSSP(bundle, options)
 }

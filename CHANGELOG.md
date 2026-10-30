@@ -22,16 +22,21 @@ semantic versioning.
   only the public facade (`doc.go`, `model_api.go`, `validate_api.go` and `api_*.go`), which
   re-exports every previously exported name (types as aliases, constants, error variables and
   functions with unchanged signatures). Importers of `engmodel.X` need no change.
-- Assets moved next to their package: `templates/` → `internal/engine/templates/`,
-  `tools/sysml/metamodel-*.json` → `internal/engine/sysml/` (the `sysmlmetamodel` defaults
-  follow), `testdata/threat-dragon-schemas/` → `internal/engine/testdata/threat-dragon-schemas/`.
+- The exporters moved to one package per format under `internal/export/` (`gemara`, `oscal`,
+  `sysml`, `structurizr`, `threatmodel`, `naf`, `trlc`, `lobster`, `airborne`); the root
+  facade keeps their public names.
+- Assets moved next to their package: `templates/asciidoc.tmpl` → `internal/engine/templates/`,
+  the Structurizr and TRLC templates → `internal/export/{structurizr,trlc}/templates/`,
+  `tools/sysml/metamodel-*.json` → `internal/export/sysml/metamodel/` (the `sysmlmetamodel`
+  defaults follow), `testdata/threat-dragon-schemas/` →
+  `internal/export/threatmodel/testdata/threat-dragon-schemas/`.
   The SysML toolchain pins moved to `scripts/sysml-toolchain.env`. No top-level `templates/`,
   `tools/` or `testdata/` remain.
 - Inferred code IDs of the moved files change with their path (`CODE-TRACE-MATRIX-GO--...` →
   `CODE-INTERNAL-ENGINE-TRACE-MATRIX-GO--...`); generated trace outputs change once. The SysML
   coverage evidence names the new paths. Gemara evaluation-log steps, which go-gemara names
   after the Go step function, now read
-  `github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep`.
+  `github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep`.
 
 ## [0.4.0] — 2026-10-30: Path-derived code scope, honest trace and Gemara output, local multi-repository models
 

@@ -27,11 +27,11 @@ Align root model artifacts with the current repository without changing runtime 
 2. Build an inventory of repository files by ownership candidate path:
    - `cmd/engdoc` -> `FU-ASCIIDOC-GENERATOR`
    - `cmd/engmcp`, `internal/mcp/` -> `FU-MCP-SERVER`
-   - `cmd/engdragon`, `internal/engine/threat_model_export.go` -> `FU-THREAT-EXPORTER`
-   - `cmd/engstruct`, `internal/engine/structurizr_export.go` -> `FU-STRUCTURIZR-EXPORTER`
-   - `cmd/engtrlc`, `internal/engine/trlc_export.go` -> `FU-TRLC-EXPORTER`
-   - `cmd/englobster`, `internal/engine/lobster_export.go` -> `FU-LOBSTER-EXPORTER`
-   - `cmd/engoscal`, `internal/engine/oscal_*.go` -> `FU-OSCAL-EXPORTER`
+   - `cmd/engdragon`, `internal/export/threatmodel/threat_model_export.go` -> `FU-THREAT-EXPORTER`
+   - `cmd/engstruct`, `internal/export/structurizr/structurizr_export.go` -> `FU-STRUCTURIZR-EXPORTER`
+   - `cmd/engtrlc`, `internal/export/trlc/trlc_export.go` -> `FU-TRLC-EXPORTER`
+   - `cmd/englobster`, `internal/export/lobster/lobster_export.go` -> `FU-LOBSTER-EXPORTER`
+   - `cmd/engoscal`, `internal/export/oscal/oscal_*.go` -> `FU-OSCAL-EXPORTER`
    - `internal/model/` -> `FU-MODEL-LOADER`
    - `internal/validate/` -> `FU-VALIDATION-ENGINE`
    - `internal/codemap/`, `internal/codescan/` -> `FU-CODEMAP-INFERENCE`

@@ -12,6 +12,11 @@ import (
 
 	"cuelang.org/go/mod/modregistrytest"
 	"github.com/labeth/engineering-model-go/internal/composition"
+	"github.com/labeth/engineering-model-go/internal/export/gemara"
+	"github.com/labeth/engineering-model-go/internal/export/oscal"
+	"github.com/labeth/engineering-model-go/internal/export/structurizr"
+	"github.com/labeth/engineering-model-go/internal/export/sysml"
+	"github.com/labeth/engineering-model-go/internal/export/threatmodel"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/trace"
@@ -76,32 +81,32 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 		t.Fatal("trace matrix omitted qualified published requirement provenance")
 	}
 
-	sysml, err := GenerateSysMLV2FromFile(manifest)
+	sysmlRes, err := sysml.GenerateV2FromFile(manifest)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(sysml.Text, "package 'security'") ||
-		!strings.Contains(sysml.Text, "requirement def 'REQ-SEC-001'") {
-		t.Fatalf("SysML omitted native published declarations:\n%s", sysml.Text)
+	if !strings.Contains(sysmlRes.Text, "package 'security'") ||
+		!strings.Contains(sysmlRes.Text, "requirement def 'REQ-SEC-001'") {
+		t.Fatalf("SysML omitted native published declarations:\n%s", sysmlRes.Text)
 	}
 	for _, forbidden := range []string{"payload =", "json", "properties {"} {
-		if strings.Contains(strings.ToLower(sysml.Text), forbidden) {
+		if strings.Contains(strings.ToLower(sysmlRes.Text), forbidden) {
 			t.Fatalf("SysML contains forbidden opaque representation %q", forbidden)
 		}
 	}
 
-	structurizr, err := GenerateStructurizrDSLFromFile(manifest)
+	dsl, err := structurizr.GenerateDSLFromFile(manifest)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(structurizr.DSL, "security::FU-SEC-IDENTITY") {
+	if !strings.Contains(dsl.DSL, "security::FU-SEC-IDENTITY") {
 		t.Fatal("Structurizr omitted published structural entity")
 	}
-	if strings.Contains(structurizr.DSL, "properties {") {
+	if strings.Contains(dsl.DSL, "properties {") {
 		t.Fatal("Structurizr output contains a generic property bag")
 	}
 
-	poam, err := GenerateOSCALPOAMFromFile(manifest, OSCALPOAMOptions{LastModified: "2026-09-19T00:00:00Z"})
+	poam, err := oscal.GeneratePOAMFromFile(manifest, oscal.POAMOptions{LastModified: "2026-09-19T00:00:00Z"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,15 +114,15 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 		t.Fatal("OSCAL omitted published dependency POA&M item")
 	}
 
-	gemara, err := GenerateGemaraFromFile(manifest, GemaraExportOptions{Date: "2026-09-19T00:00:00Z"})
+	gemaraRes, err := gemara.GenerateFromFile(manifest, gemara.Options{Date: "2026-09-19T00:00:00Z"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(gemara.YAML["control-catalog"], "security::CTRL-SEC-SHORT-LIVED-IDENTITY") {
+	if !strings.Contains(gemaraRes.YAML["control-catalog"], "security::CTRL-SEC-SHORT-LIVED-IDENTITY") {
 		t.Fatal("Gemara omitted published dependency control")
 	}
 
-	threats, err := GenerateThreatModelExportFromFile(manifest, ThreatModelExportOptions{Format: ThreatModelFormatOpenOTM})
+	threats, err := threatmodel.GenerateFromFile(manifest, threatmodel.Options{Format: threatmodel.FormatOpenOTM})
 	if err != nil {
 		t.Fatal(err)
 	}

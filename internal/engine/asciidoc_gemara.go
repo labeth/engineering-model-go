@@ -10,13 +10,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/export/gemara"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func renderGemaraAsciiDocChapter(bundle model.Bundle) string {
-	res, err := GenerateGemara(bundle, GemaraExportOptions{})
+	res, err := gemara.Generate(bundle, gemara.Options{})
 	if err != nil {
 		return ""
 	}

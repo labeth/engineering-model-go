@@ -31,7 +31,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-09-10T00:00:00Z"
     confidence-level: High
@@ -57,7 +57,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 - name: Quarterly Access Review
   result: Needs Review
@@ -75,7 +75,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-08-31T00:00:00Z"
     confidence-level: Medium
@@ -101,7 +101,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 - name: Personnel Offboarding
   result: Passed
@@ -119,7 +119,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-08-31T00:00:00Z"
     confidence-level: High
@@ -145,7 +145,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-08-31T00:00:00Z"
     confidence-level: High
@@ -171,7 +171,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 - name: Role Change Review
   result: Passed
@@ -189,7 +189,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-08-31T00:00:00Z"
     confidence-level: High
@@ -215,7 +215,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-08-31T00:00:00Z"
     confidence-level: Medium
@@ -241,7 +241,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 - name: Audit Integrity
   result: Needs Review
@@ -259,7 +259,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
 - name: Short-lived Identity
   result: Passed
@@ -277,7 +277,7 @@ evaluations:
     applicability:
     - all-systems
     steps:
-    - github.com/labeth/engineering-model-go/internal/engine.gemaraInferredStep
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraInferredStep
     start: "2026-09-19T00:00:00Z"
     end: "2026-09-01T00:00:00Z"
     confidence-level: High

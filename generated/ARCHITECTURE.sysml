@@ -1407,7 +1407,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-SYSML-V2-METAMODEL' {
-        attribute 'schemaRef' : 'String' = "internal/engine/sysml/metamodel";
+        attribute 'schemaRef' : 'String' = "internal/export/sysml/metamodel";
         attribute 'classification' : 'String' = "external-standard";
     }
 
@@ -1772,7 +1772,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engair";
-        attribute 'schemaRef' : 'String' = "internal/engine/airborne_assurance.go";
+        attribute 'schemaRef' : 'String' = "internal/export/airborne/airborne_assurance.go";
     }
 
     @EngineeringElement {
@@ -1808,7 +1808,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engdragon";
-        attribute 'schemaRef' : 'String' = "internal/engine/threat_model_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/threatmodel/threat_model_export.go";
     }
 
     @EngineeringElement {
@@ -1820,7 +1820,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/enggemara";
-        attribute 'schemaRef' : 'String' = "internal/engine/gemara_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/gemara/gemara_export.go";
     }
 
     @EngineeringElement {
@@ -1832,7 +1832,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/englobster";
-        attribute 'schemaRef' : 'String' = "internal/engine/lobster_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/lobster/lobster_export.go";
     }
 
     @EngineeringElement {
@@ -1856,7 +1856,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engnaf";
-        attribute 'schemaRef' : 'String' = "internal/engine/naf_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/naf/naf_export.go";
     }
 
     @EngineeringElement {
@@ -1868,7 +1868,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engoscal";
-        attribute 'schemaRef' : 'String' = "internal/engine/oscal_ssp.go";
+        attribute 'schemaRef' : 'String' = "internal/export/oscal/oscal_ssp.go";
     }
 
     @EngineeringElement {
@@ -1880,7 +1880,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engstruct";
-        attribute 'schemaRef' : 'String' = "internal/engine/structurizr_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/structurizr/structurizr_export.go";
     }
 
     @EngineeringElement {
@@ -1892,7 +1892,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engsysml";
-        attribute 'schemaRef' : 'String' = "internal/engine/sysml_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/sysml/sysml_export.go";
     }
 
     @EngineeringElement {
@@ -1916,7 +1916,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engtrlc";
-        attribute 'schemaRef' : 'String' = "internal/engine/trlc_export.go";
+        attribute 'schemaRef' : 'String' = "internal/export/trlc/trlc_export.go";
     }
 
     @EngineeringElement {

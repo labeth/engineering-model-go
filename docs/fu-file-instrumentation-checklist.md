@@ -91,47 +91,47 @@ For each FU batch:
 
 ### FU-THREAT-EXPORTER
 
-- `internal/engine/threat_model_export.go`
-- `internal/engine/threat_model_export_test.go`
+- `internal/export/threatmodel/threat_model_export.go`
+- `internal/export/threatmodel/threat_model_export_test.go`
 - `cmd/engdragon/main.go`
 
 ### FU-STRUCTURIZR-EXPORTER
 
-- `internal/engine/structurizr_export.go`
-- `internal/engine/structurizr_export_test.go`
+- `internal/export/structurizr/structurizr_export.go`
+- `internal/export/structurizr/structurizr_export_test.go`
 - `cmd/engstruct/main.go`
 
 ### FU-TRLC-EXPORTER
 
-- `internal/engine/trlc_export.go`
-- `internal/engine/trlc_export_test.go`
+- `internal/export/trlc/trlc_export.go`
+- `internal/export/trlc/trlc_export_test.go`
 - `cmd/engtrlc/main.go`
 
 ### FU-LOBSTER-EXPORTER
 
-- `internal/engine/lobster_export.go`
-- `internal/engine/lobster_export_test.go`
+- `internal/export/lobster/lobster_export.go`
+- `internal/export/lobster/lobster_export_test.go`
 - `cmd/englobster/main.go`
 
 ### FU-OSCAL-EXPORTER
 
-- `internal/engine/oscal_compliance.go`
-- `internal/engine/oscal_ssp.go`
-- `internal/engine/oscal_ar.go`
-- `internal/engine/oscal_poam.go`
-- `internal/engine/oscal_ssp_test.go`
-- `internal/engine/oscal_chain_test.go`
+- `internal/export/oscal/oscal_compliance.go`
+- `internal/export/oscal/oscal_ssp.go`
+- `internal/export/oscal/oscal_ar.go`
+- `internal/export/oscal/oscal_poam.go`
+- `internal/export/oscal/oscal_ssp_test.go`
+- `internal/export/oscal/oscal_chain_test.go`
 - `cmd/engoscal/main.go`
 
 ### FU-GEMARA-EXPORTER
 
-- `internal/engine/gemara_export.go`
-- `internal/engine/gemara_evaluation.go`
-- `internal/engine/gemara_extended.go`
-- `internal/engine/gemara_l1l3.go`
-- `internal/engine/gemara_oscal.go`
-- `internal/engine/gemara_export_test.go`
-- `internal/engine/gemara_oscal_test.go`
+- `internal/export/gemara/gemara_export.go`
+- `internal/export/gemara/gemara_evaluation.go`
+- `internal/export/gemara/gemara_extended.go`
+- `internal/export/gemara/gemara_l1l3.go`
+- `internal/export/gemara/gemara_oscal.go`
+- `internal/export/gemara/gemara_export_test.go`
+- `internal/export/gemara/gemara_oscal_test.go`
 - (the `cmd/enggemara/main.go` entrypoint is owned by FU-CLI-ORCHESTRATION)
 
 ### FU-SYSTEM-COMPOSITION
