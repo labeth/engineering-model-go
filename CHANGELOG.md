@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-10-30: Behavior, catalog and verification diagnostics; engws stage; engspec
+
 ### Added
 
 - Behavior warnings: `behavior.event_unused` (an event in no `triggered_by` relationship,
