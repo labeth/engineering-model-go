@@ -109,12 +109,33 @@ go get github.com/labeth/engineering-model-go
 
 ## Library API
 
+The root package `engmodel` is the only public Go API; every other package is
+under `internal/`. It re-exports the model and validation types, so callers do
+not import the internal packages:
+
+```go
+bundle, err := engmodel.LoadBundle("engmod.yml") // engmodel.Bundle, engmodel.Requirement, ...
+if err != nil {
+    panic(err)
+}
+diags := engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle))
+if engmodel.HasErrors(diags) {
+    // report []engmodel.Diagnostic
+}
+```
+
+Model: `LoadBundle`, `LoadCanonicalBundle`, `NewCanonicalBundle`,
+`ProjectSemanticModel`, `BuildAuthoringContract`, `LoadWorkspace`,
+`FindWorkspace`, `FindWorkspaceWith`. Validation: `ValidateBundle`,
+`HasErrors`, `SortDiagnostics`, `DedupeDiagnostics`, `AuthoringRules`
+(returns `ValidationRules`).
+
 Primary entry points:
 - `GenerateFromFile(architecturePath, viewID)`
 - `Generate(bundle, viewID)`
 - `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
-- `model.ProjectSemanticModel(bundle)`
+- `ProjectSemanticModel(bundle)`
 - `GenerateSysMLV2FromFile(architecturePath)`
 - `GenerateSysMLV2(bundle)`
 - `GenerateAirborneAssuranceFromFile(manifestPath, options)`
@@ -533,7 +554,7 @@ describes a documented subset/projection rather than claiming complete SysML v2
 semantic conformance.
 
 Every authored YAML document is validated against the embedded modular schemas
-in `model/schema/` before strict Go decoding. CUE is authoritative for document
+in `internal/model/schema/` before strict Go decoding. CUE is authoritative for document
 shape and cross-field constraints, produces path-aware diagnostics, and rejects
 unknown fields recursively. A reflection-based contract test detects drift
 between CUE fields and the Go runtime API representations. The loader aggregates
@@ -825,6 +846,20 @@ Core files:
 - `src` (Go/Rust/TypeScript traced code)
 
 ## Development
+
+Repository layout:
+
+- `*.go` at the root: the public `engmodel` package (generators and the
+  model/validation facade in `model_api.go`, `validate_api.go`).
+- `internal/model` (loader, types, embedded CUE schema in `internal/model/schema/`),
+  `internal/validate`, `internal/codemap`, `internal/view`,
+  `internal/render/{diagramstyle,mermaid,svg}`, `internal/mcp` and the other
+  internal packages.
+- `cmd/<tool>`: the command-line tools.
+- `engmod.yml`, `model/*.yml`: this repository's own engineering model (YAML only);
+  `generated/`: its generated artifacts.
+- `scripts/`: validation and tooling scripts (`scripts/sysml-toolchain.env` pins the SysML tools);
+  `testdata/threat-dragon-schemas/`: Threat Dragon and Open Threat Model schemas.
 
 Unit checks:
 

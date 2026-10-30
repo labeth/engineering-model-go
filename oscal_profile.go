@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // ErrNoOSCALProfiles indicates that the model has no compliance profile to

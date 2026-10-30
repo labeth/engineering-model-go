@@ -194,7 +194,7 @@ publications:
 inferenceHints:
   runtimeSources:
   - ./cmd
-  - ./mcp
+  - ./internal/mcp
   - ./scripts
   - ./.github/workflows
   expectedRuntimeKinds:

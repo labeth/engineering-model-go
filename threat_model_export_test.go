@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/validate"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
@@ -52,8 +52,8 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011, REQ-EMG-012
 func TestThreatModelExport_SchemaValidation(t *testing.T) {
-	tdSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "threat-dragon-v2.schema.json")
-	otmSchemaPath := filepath.Join("tools", "threat-dragon-schemas", "open-threat-model.schema.json")
+	tdSchemaPath := filepath.Join("testdata", "threat-dragon-schemas", "threat-dragon-v2.schema.json")
+	otmSchemaPath := filepath.Join("testdata", "threat-dragon-schemas", "open-threat-model.schema.json")
 	if _, err := os.Stat(tdSchemaPath); err != nil {
 		t.Skipf("schema missing: %s", tdSchemaPath)
 	}

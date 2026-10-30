@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	engmodel "github.com/labeth/engineering-model-go"
-	"github.com/labeth/engineering-model-go/mcp"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/mcp"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TestSchemaV2ProjectionContract protects the observable shape of every output

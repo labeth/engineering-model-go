@@ -11,8 +11,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // Usage is the engws command help.

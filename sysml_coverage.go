@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/sysmlmetamodel"
-	"github.com/labeth/engineering-model-go/model"
 )
 
 //go:embed tools/sysml/metamodel-sources.json

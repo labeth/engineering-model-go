@@ -4,11 +4,11 @@ package engmodel
 import (
 	"fmt"
 
-	"github.com/labeth/engineering-model-go/model"
-	mermaidrenderer "github.com/labeth/engineering-model-go/render/mermaid"
-	svgrenderer "github.com/labeth/engineering-model-go/render/svg"
-	"github.com/labeth/engineering-model-go/validate"
-	"github.com/labeth/engineering-model-go/view"
+	"github.com/labeth/engineering-model-go/internal/model"
+	mermaidrenderer "github.com/labeth/engineering-model-go/internal/render/mermaid"
+	svgrenderer "github.com/labeth/engineering-model-go/internal/render/svg"
+	"github.com/labeth/engineering-model-go/internal/validate"
+	"github.com/labeth/engineering-model-go/internal/view"
 )
 
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

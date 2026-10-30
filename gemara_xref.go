@@ -14,7 +14,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 	goyaml "github.com/goccy/go-yaml"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // GemaraCrossReferenceError reports one reference that does not resolve within

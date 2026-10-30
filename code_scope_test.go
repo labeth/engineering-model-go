@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labeth/engineering-model-go/codemap"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-058

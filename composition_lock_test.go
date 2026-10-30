@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"cuelang.org/go/mod/modregistrytest"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // startLockRegistry serves one published shared-edge module whose requirement

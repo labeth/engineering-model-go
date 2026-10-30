@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR

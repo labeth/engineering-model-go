@@ -11,7 +11,7 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 	"github.com/gemaraproj/go-gemara/fetcher"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 var gemaraExampleModels = []string{

@@ -6,6 +6,21 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- The Go packages `model`, `validate`, `codemap`, `view`, `render/{diagramstyle,mermaid,svg}`
+  and `mcp` moved under `internal/`; the root package `engmodel` is the only public Go API.
+  It re-exports the model types (`engmodel.Bundle`, `engmodel.Requirement`, ...) and loader
+  functions (`LoadBundle`, `LoadCanonicalBundle`, `FindWorkspace`, ...) in `model_api.go`, and
+  the validation types and functions in `validate_api.go`. Renamed on the way:
+  `validate.Bundle` → `engmodel.ValidateBundle`, `validate.Rules` → `engmodel.ValidationRules`.
+  Migrate `model.X` and `validate.X` to `engmodel.X`.
+- `model/` holds only this repository's own engineering model YAML. The embedded CUE schema is
+  now `internal/model/schema/`; the authoring contract reports schema paths as
+  `internal/model/schema/*.cue`.
+- The SysML toolchain pins moved to `scripts/sysml-toolchain.env`, the Threat Dragon and Open
+  Threat Model schemas to `testdata/threat-dragon-schemas/`.
+
 ## [0.4.0] — 2026-10-30: Path-derived code scope, honest trace and Gemara output, local multi-repository models
 
 Code references derived from repository paths, fixes from field use of the trace, MCP and Gemara outputs,

@@ -21,8 +21,8 @@ func main() {
 		cacheDir   = flag.String("cache", ".engmod/cache/sysml-v2/2026-04", "download cache")
 		inventory  = flag.String("inventory", "tools/sysml/metamodel-inventory.json", "tracked inventory")
 		coverage   = flag.String("coverage", "tools/sysml/metamodel-coverage.json", "strict coverage binding")
-		registry   = flag.String("registry", "model/sysml_metamodel_generated.go", "generated Go registry")
-		cueBinding = flag.String("cue", "model/schema/sysml_metamodel_generated.cue", "generated CUE binding")
+		registry   = flag.String("registry", "internal/model/sysml_metamodel_generated.go", "generated Go registry")
+		cueBinding = flag.String("cue", "internal/model/schema/sysml_metamodel_generated.cue", "generated CUE binding")
 	)
 	flag.Parse()
 	if err := run(*mode, *manifest, *cacheDir, *inventory, *coverage, *registry, *cueBinding); err != nil {

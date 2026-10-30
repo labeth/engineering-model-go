@@ -2,7 +2,7 @@
 package engmodel
 
 import (
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 	"os"
 	"path/filepath"
 	"testing"

@@ -1326,7 +1326,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-ARCHITECTURE-MODEL' {
-        attribute 'schemaRef' : 'String' = "model/schema/architecture.cue";
+        attribute 'schemaRef' : 'String' = "internal/model/schema/architecture.cue";
         attribute 'classification' : 'String' = "design-source";
     }
 
@@ -1335,7 +1335,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-CANONICAL-SEMANTIC-MODEL' {
-        attribute 'schemaRef' : 'String' = "model/semantic.go";
+        attribute 'schemaRef' : 'String' = "internal/model/semantic.go";
         attribute 'classification' : 'String' = "design-source";
     }
 
@@ -1353,7 +1353,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-MODEL-AUTHORING-CONTRACT' {
-        attribute 'schemaRef' : 'String' = "model/authoring.go";
+        attribute 'schemaRef' : 'String' = "internal/model/authoring.go";
         attribute 'classification' : 'String' = "design-source";
     }
 
@@ -1389,7 +1389,7 @@ package 'engineering-model-go' {
         conceptKind = "item_definition";
     }
     item def 'DO-REQUIREMENTS-DOCUMENT' {
-        attribute 'schemaRef' : 'String' = "model/schema/requirements.cue";
+        attribute 'schemaRef' : 'String' = "internal/model/schema/requirements.cue";
         attribute 'classification' : 'String' = "requirements-source";
     }
 
@@ -1430,16 +1430,10 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-37A4306DDB14C908";
+        sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-37A4306DDB14C908';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-66FF583FE8F855D8";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-66FF583FE8F855D8';
+    attribute 'EVIDENCE-139EC30ED19D5D0E';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-6D1044A6CF45DAA7";
@@ -1448,10 +1442,16 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-6D1044A6CF45DAA7';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-D4BB586A8A328479";
+        sourceId = "EVIDENCE-D1A0C0EF613B1206";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-D4BB586A8A328479';
+    attribute 'EVIDENCE-D1A0C0EF613B1206';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-EF5710F27BBD8EC7";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-EF5710F27BBD8EC7';
 
     @EngineeringElement {
         sourceId = "EVT-ARTIFACT-GENERATED";
@@ -1844,7 +1844,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "stdio-jsonrpc";
         attribute 'endpoint' : 'String' = "cmd/engmcp";
-        attribute 'schemaRef' : 'String' = "mcp/server.go";
+        attribute 'schemaRef' : 'String' = "internal/mcp/server.go";
     }
 
     @EngineeringElement {
@@ -1928,7 +1928,7 @@ package 'engineering-model-go' {
         end port 'target' : EngineeringPort;
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/engview";
-        attribute 'schemaRef' : 'String' = "view/project.go";
+        attribute 'schemaRef' : 'String' = "internal/view/project.go";
     }
 
     @EngineeringElement {

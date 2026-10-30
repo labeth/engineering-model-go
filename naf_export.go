@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
-	"github.com/labeth/engineering-model-go/view"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
+	"github.com/labeth/engineering-model-go/internal/view"
 )
 
 // NAFExportResult is a deterministic NAF v4.1 architecture document and its diagnostics.

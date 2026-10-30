@@ -4,8 +4,8 @@ This repo includes local JSON schemas and scripts to validate Threat Dragon-comp
 
 ## Files
 
-- `tools/threat-dragon-schemas/threat-dragon-v2.schema.json`
-- `tools/threat-dragon-schemas/open-threat-model.schema.json`
+- `testdata/threat-dragon-schemas/threat-dragon-v2.schema.json`
+- `testdata/threat-dragon-schemas/open-threat-model.schema.json`
 - `scripts/fetch-threat-dragon-schemas.sh`
 - `scripts/validate-threat-dragon.sh`
 

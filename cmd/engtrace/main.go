@@ -10,7 +10,7 @@ import (
 
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/internal/cliflags"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-030, REQ-EMG-063, REQ-EMG-064

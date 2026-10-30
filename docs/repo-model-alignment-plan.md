@@ -1,3 +1,5 @@
+> Paths before the v0.5.0 restructure; see README for the current layout.
+
 # Engineering-Model-Go Repository Model Alignment Plan
 
 > Status: historical plan, not a live backlog. The ongoing-alignment quality

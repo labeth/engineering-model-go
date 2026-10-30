@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/labeth/engineering-model-go/codemap"
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // loadBundle loads a model bundle and attaches its lazily built CODE identifier index,

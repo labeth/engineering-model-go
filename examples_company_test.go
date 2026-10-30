@@ -7,8 +7,8 @@ import (
 
 	"cuelang.org/go/mod/module"
 	"cuelang.org/go/mod/modzip"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TestAtlasIndustriesCompanyExample proves that every simulated repository is a

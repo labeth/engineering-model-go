@@ -1,3 +1,5 @@
+> Paths before the v0.5.0 restructure; see README for the current layout.
+
 # FU File Instrumentation Checklist
 
 This checklist tracks owner/trace instrumentation by functional unit without behavior changes.

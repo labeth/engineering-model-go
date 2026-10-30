@@ -169,7 +169,7 @@ architecture:
     name: engmcp CLI
     protocol: stdio-jsonrpc
     endpoint: cmd/engmcp
-    schemaRef: mcp/server.go
+    schemaRef: internal/mcp/server.go
     owner: FU-MCP-SERVER
   - id: IF-CLI-ENGDRAGON
     name: engdragon CLI
@@ -235,7 +235,7 @@ architecture:
     name: engview CLI
     protocol: cli
     endpoint: cmd/engview
-    schemaRef: view/project.go
+    schemaRef: internal/view/project.go
     owner: FU-VIEW-PROJECTION
   - id: IF-CLI-ENGCHANGE
     name: engchange CLI
@@ -247,7 +247,7 @@ architecture:
   - id: DO-ARCHITECTURE-MODEL
     name: Architecture Model
     termRef: DATA-ARCHITECTURE-MODEL
-    schemaRef: model/schema/architecture.cue
+    schemaRef: internal/model/schema/architecture.cue
     sensitivity: internal
     classification: design-source
     retention: repository-history
@@ -267,7 +267,7 @@ architecture:
   - id: DO-REQUIREMENTS-DOCUMENT
     name: Requirements Document
     termRef: DATA-REQUIREMENTS-DOCUMENT
-    schemaRef: model/schema/requirements.cue
+    schemaRef: internal/model/schema/requirements.cue
     sensitivity: internal
     classification: requirements-source
     retention: repository-history
@@ -307,7 +307,7 @@ architecture:
   - id: DO-CANONICAL-SEMANTIC-MODEL
     name: Canonical Semantic Model
     termRef: DATA-CANONICAL-SEMANTIC-MODEL
-    schemaRef: model/semantic.go
+    schemaRef: internal/model/semantic.go
     sensitivity: internal
     classification: design-source
     retention: repository-history
@@ -317,7 +317,7 @@ architecture:
   - id: DO-MODEL-AUTHORING-CONTRACT
     name: Model Authoring Contract
     termRef: DATA-MODEL-AUTHORING-CONTRACT
-    schemaRef: model/authoring.go
+    schemaRef: internal/model/authoring.go
     sensitivity: internal
     classification: design-source
     retention: repository-history

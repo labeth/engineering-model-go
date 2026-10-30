@@ -1,6 +1,6 @@
 package engmodel
 
-import "github.com/labeth/engineering-model-go/model"
+import "github.com/labeth/engineering-model-go/internal/model"
 
 // TRLC-LINKS: REQ-EMG-046
 func schemaV2TestBundle(bundle model.Bundle) model.Bundle {

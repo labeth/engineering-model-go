@@ -99,7 +99,7 @@ assurance:
     status: planned
     responsibleRole: ACT-ARCHITECTURE-AUTHOR
     artifacts:
-    - path: mcp/server_test.go
+    - path: internal/mcp/server_test.go
       description: Path-boundary test coverage to extend with fuzzing.
   - id: POAM-TRACE-COVERAGE-GATE
     riskRef: RISK-TRACEABILITY-DRIFT
@@ -108,7 +108,7 @@ assurance:
     status: in-progress
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
-    - path: codemap/scan.go
+    - path: internal/codemap/scan.go
       description: Strict code-linking scanner backing the coverage gate.
   trustBoundaries:
   - id: TB-REPO-WORKSPACE
@@ -190,7 +190,7 @@ assurance:
     findings:
     - Path traversal rejected and error payload returned in MCP tests.
     evidence:
-    - path: mcp/server_test.go
+    - path: internal/mcp/server_test.go
       description: Traversal rejection tests for MCP path arguments.
   - id: VER-TRACEABILITY-COVERAGE
     controlRef: CTRL-TRACEABILITY-COVERAGE

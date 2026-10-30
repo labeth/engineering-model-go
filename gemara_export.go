@@ -25,8 +25,8 @@ import (
 	gemara "github.com/gemaraproj/go-gemara"
 	goyaml "github.com/goccy/go-yaml"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // GemaraVersion is the Gemara specification version stamped into every artifact's metadata.

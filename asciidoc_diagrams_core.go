@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/render/diagramstyle"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
 )
 
 // TRLC-LINKS: REQ-EMG-003

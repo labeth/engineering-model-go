@@ -10,7 +10,7 @@ import (
 
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/internal/cliflags"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VIEW-PROJECTION

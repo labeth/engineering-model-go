@@ -8,7 +8,7 @@ import (
 
 	gemara "github.com/gemaraproj/go-gemara"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // gemaraTruthBundle is a minimal in-memory model with one control, one

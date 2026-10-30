@@ -18,7 +18,7 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/gemaraproj/go-gemara/gemaraconv"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // gemaraOSCALControlHrefFormat is the URL template linking OSCAL controls back to

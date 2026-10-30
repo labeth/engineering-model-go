@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 //go:embed templates/trlc.model.rsl.tmpl

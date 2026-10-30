@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 	"golang.org/x/mod/modfile"
 	gomodule "golang.org/x/mod/module"
 	"golang.org/x/mod/semver"

@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"cuelang.org/go/mod/modregistrytest"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 const confinementSecret = "TOP-SECRET-CREDENTIAL-7f3a"

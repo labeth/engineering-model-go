@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/mod/modregistrytest"
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // TestCompositionResolvesCUEModule verifies that an exact CUE module version is

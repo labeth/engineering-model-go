@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 	"gopkg.in/yaml.v3"
 )
 

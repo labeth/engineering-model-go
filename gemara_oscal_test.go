@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // TestGemaraOSCALBridge confirms the Gemara->OSCAL SDK bridge emits well-formed

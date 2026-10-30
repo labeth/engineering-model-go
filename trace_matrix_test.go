@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/labeth/engineering-model-go/model"
-	"github.com/labeth/engineering-model-go/validate"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TestTraceIntegrityFlagsDanglingLinks verifies a TRLC-LINKS to a non-existent requirement

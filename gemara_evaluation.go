@@ -13,7 +13,7 @@ import (
 
 	gemara "github.com/gemaraproj/go-gemara"
 
-	"github.com/labeth/engineering-model-go/model"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // gemaraDefaultTimestamp is used only for empty documents that contain no
