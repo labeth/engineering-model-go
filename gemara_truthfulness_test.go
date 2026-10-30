@@ -167,21 +167,48 @@ func TestGemaraRiskCategoryAppetiteMarkedAsDefault(t *testing.T) {
 func TestGemaraEnforcementLogHasNoDanglingReferences(t *testing.T) {
 	b := gemaraTruthBundle("test")
 	res := generateTruth(t, b)
-	if !res.HasEnforcement || len(res.EnforcementLog.Actions) != 2 {
-		t.Fatalf("expected two enforcement actions")
+	// Gemara requires every action to cite at least one assessment: POAM-A
+	// (risk with a verification) becomes an action, POAM-B (no evaluated
+	// risk) is left out and reported, rather than an action citing nothing.
+	if !res.HasEnforcement || len(res.EnforcementLog.Actions) != 1 {
+		t.Fatalf("expected one enforcement action, got %d", len(res.EnforcementLog.Actions))
 	}
-	first, second := res.EnforcementLog.Actions[0], res.EnforcementLog.Actions[1]
+	first := res.EnforcementLog.Actions[0]
 	if len(first.Justification.Assessments) != 1 || first.Justification.Assessments[0].Log.EntryId != "CV-A" {
 		t.Fatalf("POAM-A should cite evaluation entry CV-A, got %+v", first.Justification.Assessments)
 	}
 	if first.Justification.Assessments[0].Result != gemara.Passed {
 		t.Fatalf("finding result should mirror the verification status, got %v", first.Justification.Assessments[0].Result)
 	}
-	if len(second.Justification.Assessments) != 0 {
-		t.Fatalf("POAM-B has no evaluation entry and must not cite one, got %+v", second.Justification.Assessments)
+	if first.Message == nil || strings.Contains(*first.Message, "status: open") {
+		t.Fatalf("unexpected status default in %v", first.Message)
 	}
-	if second.Message == nil || strings.Contains(*second.Message, "status: open") || !strings.Contains(*second.Message, "status: not set") {
-		t.Fatalf("unexpected status default in %v", second.Message)
+	unjustified := false
+	for _, d := range res.Diagnostics {
+		if d.Code == "gemara.enforcement_unjustified" && strings.Contains(d.Message, "POAM-B") {
+			unjustified = true
+		}
+	}
+	if !unjustified {
+		t.Fatalf("POAM-B must be reported as unjustified: %+v", res.Diagnostics)
+	}
+	for _, action := range res.EnforcementLog.Actions {
+		if len(action.Justification.Assessments) == 0 {
+			t.Fatalf("an enforcement action without an assessment violates the Gemara schema: %+v", action)
+		}
+	}
+	// An action for an item without a status says so instead of inventing one.
+	unset := gemaraTruthBundle("test")
+	unset.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-U", RiskRef: "RISK-A"}}
+	if msg := generateTruth(t, unset).EnforcementLog.Actions[0].Message; msg == nil || !strings.Contains(*msg, "status: not set") {
+		t.Fatalf("unexpected status default in %v", msg)
+	}
+	// Without any evaluated risk there is no enforcement log at all (Gemara
+	// requires at least one action).
+	none := gemaraTruthBundle("test")
+	none.Architecture.AuthoredArchitecture.ControlVerifications = nil
+	if generateTruth(t, none).HasEnforcement {
+		t.Fatal("an enforcement log without justified actions must not be rendered")
 	}
 
 	evalRes, err := GenerateGemaraEvaluationLog(b, model.RequirementsDocument{}, "", GemaraExportOptions{Date: "2026-06-26T00:00:00Z"})
@@ -293,6 +320,7 @@ func TestGemaraEnforcementDispositionFollowsPOAMStatus(t *testing.T) {
 		{ID: "POAM-5", RiskRef: "RISK-A", Milestone: "m", Status: "deferred"},
 		{ID: "POAM-6", RiskRef: "RISK-A", Milestone: "m"},
 	}
+	// Each item has an evaluated risk (RISK-A, CV-A), so each is an action.
 	res := generateTruth(t, b)
 	want := []gemara.Disposition{gemara.DispositionEnforced, gemara.DispositionTolerated, gemara.DispositionUndetermined, gemara.DispositionUndetermined, gemara.DispositionUndetermined, gemara.DispositionUndetermined}
 	if len(res.EnforcementLog.Actions) != len(want) {

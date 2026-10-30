@@ -3463,7 +3463,7 @@
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--AGGREGATEDISPOSITION",
           "path": "gemara_extended.go",
-          "line": 363
+          "line": 385
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--BUILDAUDITLOG",
@@ -3493,27 +3493,32 @@
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--EVALUATIONFINDINGSBYRISK",
           "path": "gemara_extended.go",
-          "line": 321
+          "line": 343
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--FIRSTKNOWN",
           "path": "gemara_extended.go",
-          "line": 395
+          "line": 417
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--ISACCEPTEDSTATUS",
           "path": "gemara_extended.go",
-          "line": 383
+          "line": 405
+        },
+        {
+          "symbol": "CODE-GEMARA-EXTENDED-GO--JUSTIFIEDPOAMITEMS",
+          "path": "gemara_extended.go",
+          "line": 322
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--POAMDISPOSITION",
           "path": "gemara_extended.go",
-          "line": 347
+          "line": 369
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--STRPTR",
           "path": "gemara_extended.go",
-          "line": 406
+          "line": 428
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--TARGETRESOURCE",
@@ -8045,12 +8050,17 @@
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--AGGREGATEDISPOSITION",
           "path": "gemara_extended.go",
-          "line": 363
+          "line": 385
+        },
+        {
+          "symbol": "CODE-GEMARA-EXTENDED-GO--JUSTIFIEDPOAMITEMS",
+          "path": "gemara_extended.go",
+          "line": 322
         },
         {
           "symbol": "CODE-GEMARA-EXTENDED-GO--POAMDISPOSITION",
           "path": "gemara_extended.go",
-          "line": 347
+          "line": 369
         },
         {
           "symbol": "CODE-GEMARA-L1L3-GO--POLICYRISKS",

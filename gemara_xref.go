@@ -259,11 +259,12 @@ func CheckGemaraModelConsistency(bundle model.Bundle, docs map[string]string) []
 
 	if root := parse("enforcement-log"); root != nil {
 		actions, _ := root["actions"].([]any)
-		if len(actions) != len(a.POAMItems) {
-			fail("enforcement-log", "actions", "", fmt.Sprintf("%d actions for %d POA&M items in the model", len(actions), len(a.POAMItems)))
+		items := justifiedPOAMItems(a, evaluationFindingsByRisk(a))
+		if len(actions) != len(items) {
+			fail("enforcement-log", "actions", "", fmt.Sprintf("%d actions for %d POA&M items with an evaluated risk in the model", len(actions), len(items)))
 		} else {
-			want := make([]gemara.Disposition, 0, len(a.POAMItems))
-			for i, p := range a.POAMItems {
+			want := make([]gemara.Disposition, 0, len(items))
+			for i, p := range items {
 				expected := poamDisposition(p.Status)
 				want = append(want, expected)
 				got := xrefString(xrefMap(actions[i])["disposition"])

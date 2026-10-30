@@ -7323,7 +7323,7 @@ flowchart TB
   CODE_REQ_EMG_015_GEMARA_EXPORT_GO["gemara_export.go: 95, 110, 208, 230, 252, 262, 267, 271, 304, 323, 343, 382, 425, 499, 606, 640, 704, 723, 753, 779, 783, 796, 800, 806, 818, 832, 848, 857, 866, 875, 888, 909, 919"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME --->|implemented_by| CODE_REQ_EMG_015_GEMARA_EXPORT_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_REQ_EMG_015_GEMARA_EXPORT_GO
-  CODE_REQ_EMG_015_GEMARA_EXTENDED_GO["gemara_extended.go: 23, 37, 80, 144, 157, 248, 321, 347, 363, 383, 395, 406"]:::code_element
+  CODE_REQ_EMG_015_GEMARA_EXTENDED_GO["gemara_extended.go: 23, 37, 80, 144, 157, 248, 322, 343, 369, 385, 405, 417, 428"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME --->|implemented_by| CODE_REQ_EMG_015_GEMARA_EXTENDED_GO
   REQC_REQ_EMG_015 -->|code trace| CODE_REQ_EMG_015_GEMARA_EXTENDED_GO
   CODE_REQ_EMG_015_GEMARA_L1L3_GO["gemara_l1l3.go: 41, 63, 87, 122, 135, 205, 220, 237, 252, 277, 301, 308, 316, 359, 372, 395"]:::code_element
@@ -7356,7 +7356,7 @@ flowchart TB
   VERC_VER_INF_TEST_GEMARA_TEST_9CCAB7 --->|implemented_by| VERCODE_REQ_EMG_015_VER_INF_TEST_GEMARA_TEST_9CCAB7_GEMARA_TEST_GO
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89["VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-B64F89 (not-run)"]:::verification
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89 -->|verifies| REQC_REQ_EMG_015
-  VERCODE_REQ_EMG_015_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO["gemara_truthfulness_test.go: 49, 72, 102, 149, 167, 203, 218, 285, 337, 378, 404"]:::code_element
+  VERCODE_REQ_EMG_015_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO["gemara_truthfulness_test.go: 49, 72, 102, 149, 167, 230, 245, 312, 365, 406, 432"]:::code_element
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89 --->|implemented_by| VERCODE_REQ_EMG_015_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -10404,7 +10404,7 @@ flowchart TB
   REQC_REQ_EMG_062 -->|applies_to| FU_FU_GEMARA_EXPORTER
   RTC_FU_GEMARA_EXPORTER_RUNTIME["Gemara Exporter runtime (inferred)"]:::runtime_element
   FU_FU_GEMARA_EXPORTER -->|runtime evidence| RTC_FU_GEMARA_EXPORTER_RUNTIME
-  CODE_REQ_EMG_062_GEMARA_EXTENDED_GO["gemara_extended.go: 347, 363"]:::code_element
+  CODE_REQ_EMG_062_GEMARA_EXTENDED_GO["gemara_extended.go: 322, 369, 385"]:::code_element
   RTC_FU_GEMARA_EXPORTER_RUNTIME --->|implemented_by| CODE_REQ_EMG_062_GEMARA_EXTENDED_GO
   REQC_REQ_EMG_062 -->|code trace| CODE_REQ_EMG_062_GEMARA_EXTENDED_GO
   CODE_REQ_EMG_062_GEMARA_L1L3_GO["gemara_l1l3.go: 277, 301, 308"]:::code_element
@@ -10426,7 +10426,7 @@ flowchart TB
   VERC_VER_INF_TEST_GEMARA_TEST_9CCAB7 --->|implemented_by| VERCODE_REQ_EMG_062_VER_INF_TEST_GEMARA_TEST_9CCAB7_GEMARA_TEST_GO
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89["VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-B64F89 (not-run)"]:::verification
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89 -->|verifies| REQC_REQ_EMG_062
-  VERCODE_REQ_EMG_062_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO["gemara_truthfulness_test.go: 49, 72, 102, 149, 167, 203, 218, 285, 337, 378, 404"]:::code_element
+  VERCODE_REQ_EMG_062_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO["gemara_truthfulness_test.go: 49, 72, 102, 149, 167, 230, 245, 312, 365, 406, 432"]:::code_element
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89 --->|implemented_by| VERCODE_REQ_EMG_062_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_B64F89_GEMARA_TRUTHFULNESS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -11806,7 +11806,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_IDX-REQ_REQ_EMG_062,REQ-EMG-062>>
-|Test Code Elements |gemara_truthfulness_test.go:49, 72, 102, 149, 167, 203, 218, 285, 337, 378, 404
+|Test Code Elements |gemara_truthfulness_test.go:49, 72, 102, 149, 167, 230, 245, 312, 365, 406, 432
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_GEMARA_EXPORTER,FU-GEMARA-EXPORTER>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>
 |Result Summary |not-run:2
 |Evidence |gemara_truthfulness_test.go
@@ -12778,9 +12778,6 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |L7
 |Audit Log
 |5
-|L6
-|Enforcement Log
-|2
 |===
 
 === Controls (L2)

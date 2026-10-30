@@ -259,7 +259,7 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 	usedEvalRef := false
 	var actions []*gemara.ActionResult
 	dispositions := make([]gemara.Disposition, 0, len(a.POAMItems))
-	for _, p := range a.POAMItems {
+	for _, p := range justifiedPOAMItems(a, findings) {
 		disp := poamDisposition(p.Status)
 		dispositions = append(dispositions, disp)
 		msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
@@ -276,14 +276,6 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 			})
 			usedEvalRef = true
 		}
-		if len(assessments) == 0 {
-			cfg.addDiagnostic(validate.Diagnostic{
-				Code:     "gemara.enforcement_unjustified",
-				Severity: validate.SeverityWarning,
-				Message:  fmt.Sprintf("POA&M item %s has no control verification of risk %q in the evaluation log; the enforcement action cites no assessment", p.ID, p.RiskRef),
-				Path:     "poamItems[" + p.ID + "]",
-			})
-		}
 		actions = append(actions, &gemara.ActionResult{
 			Disposition:   disp,
 			Method:        gemara.EntryMapping{ReferenceId: cfg.policyID(), EntryId: policyRemediationMethodID},
@@ -294,6 +286,20 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 		})
 	}
 
+	for _, p := range a.POAMItems {
+		if len(findings[strings.TrimSpace(p.RiskRef)]) == 0 {
+			cfg.addDiagnostic(validate.Diagnostic{
+				Code:     "gemara.enforcement_unjustified",
+				Severity: validate.SeverityWarning,
+				Message:  fmt.Sprintf("POA&M item %s has no control verification of risk %q in the evaluation log; Gemara requires an assessment for every enforcement action, so the item is left out of the enforcement log", p.ID, p.RiskRef),
+				Path:     "poamItems[" + p.ID + "]",
+			})
+		}
+	}
+	if len(actions) == 0 {
+		// Gemara requires at least one action; with none justified there is no log.
+		return gemara.EnforcementLog{}, false
+	}
 	log := gemara.EnforcementLog{
 		Metadata:    cfg.newMetadata(cfg.modelID+"-ENFORCEMENT-LOG", "Remediation enforcement actions for "+cfg.modelTitle, gemara.EnforcementLogArtifact),
 		Disposition: aggregateDisposition(dispositions),
@@ -305,6 +311,22 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 		mappingRef(true, cfg.policyID(), "Policy"),
 	)
 	return log, true
+}
+
+// justifiedPOAMItems returns the POA&M items whose risk has at least one
+// control verification in the evaluation log. Gemara requires every
+// enforcement action to cite an assessment finding, so only these become
+// actions; the others are reported as gemara.enforcement_unjustified.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+func justifiedPOAMItems(a model.AuthoredArchitecture, findings map[string][]evaluationFinding) []model.POAMItem {
+	out := make([]model.POAMItem, 0, len(a.POAMItems))
+	for _, p := range a.POAMItems {
+		if len(findings[strings.TrimSpace(p.RiskRef)]) > 0 {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 // evaluationFinding is an evaluation-log assessment entry an enforcement action may cite.

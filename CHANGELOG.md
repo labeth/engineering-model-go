@@ -76,6 +76,9 @@ per-checkout stdio MCP server) and dependencies come from the OCI registry into 
 - **Gemara enforcement log:** an action is `Enforced` only for a `completed` POA&M item and `Tolerated` only
   for an accepted one; `planned`, `in-progress`, `deferred` and unset items are `Undetermined`. The aggregate
   is `Undetermined` while any item is unresolved (it was `Enforced` for planned work).
+  An action is rendered only for a POA&M item whose risk has a control verification in the evaluation log
+  (Gemara requires every action to cite an assessment); other items are reported as
+  `gemara.enforcement_unjustified`, and no enforcement log is written when none qualifies.
 - **Gemara policy:** `risks.mitigated` lists only `closed` risks; `risks.accepted` lists risks with status
   `accepted` or response `accept`. Open and mitigating risks are in neither list (Gemara has no other bucket
   or notes field) and the export diagnostic `gemara.policy_risks_untreated` names them.

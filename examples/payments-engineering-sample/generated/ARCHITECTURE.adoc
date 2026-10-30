@@ -3719,9 +3719,6 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |L7
 |Audit Log
 |7
-|L6
-|Enforcement Log
-|1
 |===
 
 === Controls (L2)
