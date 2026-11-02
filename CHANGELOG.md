@@ -54,6 +54,11 @@ semantic versioning.
     unchanged) and states the semver impact: a removed capability, a changed capability text
     ("treated as major"), an added or changed assumption of use are major; a removed
     assumption, an added capability or realizer-only changes are minor; else patch.
+  - `engws release-check [--repo DIR] [--tag vX.Y.Z]` reports `dependency.unreleased_pin` for a
+    pre-release or pseudo-version in `engmod.yml` or `engmod.lock.yml`, and
+    `contract.semver_too_small` when the tag's bump over the previous release tag is smaller
+    than the contract diff requires (in v0.x a breaking change needs a minor bump). Exit 0
+    ok, 1 findings, 2 usage or IO error.
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
 ### Deprecated

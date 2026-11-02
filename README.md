@@ -853,6 +853,17 @@ impact: major
 | assumption removed, capability added, only realizing requirements changed | minor |
 | anything else | patch |
 
+**`engws release-check [--repo DIR] [--tag vX.Y.Z]`** is the release gate (run it in the
+pre-push hook for a tag push and in CI on a tag). It fails (exit 1) with:
+
+- `dependency.unreleased_pin` when a dependency version in `engmod.yml` or
+  `engmod.lock.yml` is a pre-release or a pseudo-version: a release pins release tags only;
+- `contract.semver_too_small` when the bump of the tag (default: the release tag at HEAD)
+  over the highest release tag below it is smaller than `contract-diff` between them
+  requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`).
+
+Exit 2 is a usage, git or model error.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
