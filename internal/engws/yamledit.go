@@ -263,6 +263,47 @@ func appendSequenceItems(data []byte, find func(root *yaml.Node) (*yaml.Node, er
 	return spliceLines(lines, end, end, block...), nil
 }
 
+// removeSequenceItems removes the items at indexes (0-based, any order) of
+// the block sequence under key of the mapping found by find, each with its
+// lines up to the next item; the other items keep their lines.
+// TRLC-LINKS: REQ-EMG-104
+func removeSequenceItems(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key string, indexes []int) ([]byte, error) {
+	root, err := parseYAML(data)
+	if err != nil {
+		return nil, err
+	}
+	mapping, err := find(root)
+	if err != nil {
+		return nil, err
+	}
+	keyNode, value := mappingEntry(mapping, key)
+	if keyNode == nil || value.Kind != yaml.SequenceNode || value.Style&yaml.FlowStyle != 0 {
+		return nil, fmt.Errorf("no %s block sequence", key)
+	}
+	lines := splitLines(data)
+	_, end := keyRange(lines, keyNode, value)
+	remove := map[int]bool{}
+	for _, i := range indexes {
+		remove[i] = true
+	}
+	var out []string
+	cursor := 0
+	for i, item := range value.Content {
+		start := item.Line - 1
+		stop := end
+		if i+1 < len(value.Content) {
+			stop = value.Content[i+1].Line - 1
+		}
+		out = append(out, lines[cursor:start]...)
+		if !remove[i] {
+			out = append(out, lines[start:stop]...)
+		}
+		cursor = stop
+	}
+	out = append(out, lines[cursor:]...)
+	return []byte(strings.Join(out, "")), nil
+}
+
 // findPath returns a function that walks mapping keys from the root.
 // TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-104
 func findPath(keys ...string) func(*yaml.Node) (*yaml.Node, error) {

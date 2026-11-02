@@ -61,8 +61,9 @@ semantic versioning.
     ok, 1 findings, 2 usage or IO error.
   - `engws migrate-links [--repo DIR] [--dry-run]` converts each `composition.allocations` entry
     into a claimed link in `model/req-links.yml` (`LNK-<REQ>-<ALIAS>`, the dependency pin, the
-    current fingerprint, or `""` with a note when the target cannot be fingerprinted), adds
-    `documents.reqLinks`, removes the allocations, turns each capability
+    current fingerprint, or `""` with a note when the dependency cannot be resolved), adds
+    `documents.reqLinks`, removes the converted allocations, keeps (and names) an allocation
+    whose target is an interface or other non-item contract entry (D13), turns each capability
     `contract.provides[].ref` into `realizes` and prints the requirements left with
     `requirement.no_parent`. Other lines are kept; a second run changes nothing.
   - Every `engws` command accepts its flags after the positional arguments.

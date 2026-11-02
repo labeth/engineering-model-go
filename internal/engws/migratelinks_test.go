@@ -8,6 +8,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 const coffeeExample = "../../examples/coffee-fleet-ota-cloud-sample"
@@ -177,5 +178,66 @@ func TestMigrateLinksUnresolvedAndUnique(t *testing.T) {
 	}
 	if reqs := read(t, filepath.Join(child, "model", "requirements.yml")); !strings.Contains(reqs, "  realizes: [CAP-A-2]\n- id: REQ-A-004") || strings.Contains(read(t, filepath.Join(child, "model", "architecture.yml")), "ref:") {
 		t.Fatalf("existing realizes changed or ref kept:\n%s", reqs)
+	}
+}
+
+// D13: an allocation whose target resolves to a contract entry that is not
+// a capability or assumption of use (an interface entry) is not converted:
+// the allocation stays in place, so it keeps reporting
+// composition.allocation_deprecated, and the output says why. The other
+// allocations of the model are converted and removed; a second run changes
+// nothing and still names the kept allocation.
+// Mutation: converting the interface allocation, removing it with the
+// others or dropping the note fails this test.
+// TRLC-LINKS: REQ-EMG-104
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+func TestMigrateLinksKeepsInterfaceAllocation(t *testing.T) {
+	newLinksRegistry(t)
+	root := filepath.Join(t.TempDir(), "links")
+	copyTree(t, linksExample, root)
+	child := filepath.Join(root, "repos", "child-a")
+	replaceIn(t, filepath.Join(child, "model", "architecture.yml"), "    - id: CAP-A-2\n", "    - id: IF-A-OUT\n      kind: interface\n      note: Position sentence output.\n    - id: CAP-A-2\n")
+	replaceIn(t, filepath.Join(child, "engmod.yml"), "  - CAP-A-2\n", "  - CAP-A-2\n  - IF-A-OUT\n")
+	system := filepath.Join(root, "repos", "system")
+	arch := filepath.Join(system, "model", "architecture.yml")
+	replaceIn(t, arch, "      description: Forwards sentences onto the lab bus.\n", `      description: Forwards sentences onto the lab bus.
+    allocations:
+    - requirement: REQ-SYS-002
+      to: SUB-ENCODER
+      target: encoder::IF-A-OUT
+      rationale: The encoder output carries the checksum.
+    - requirement: REQ-SYS-002
+      to: SUB-ENCODER
+      target: encoder::CAP-A-1
+      rationale: The encoder publishes the sentence the checksum protects.
+`)
+	kept := "kept allocation REQ-SYS-002 → encoder::IF-A-OUT: interface entries are not link targets; publish a capability that realizes it and link that"
+	code, out, errOut := runMain(t, fakeRegistry{}, "migrate-links", "--repo", system)
+	if code != 0 || !strings.Contains(out, kept) || !strings.Contains(out, "link LNK-SYS-002-ENCODER-2 REQ-SYS-002 -> encoder::CAP-A-1") || strings.Contains(out, "-> encoder::IF-A-OUT") {
+		t.Fatalf("migrate: %d\n%s\n%s", code, out, errOut)
+	}
+	bundle, err := model.LoadBundle(filepath.Join(system, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := bundle.Architecture.Composition.Allocations; len(got) != 1 || got[0].Target != "encoder::IF-A-OUT" {
+		t.Fatalf("want only the interface allocation kept, got %+v", got)
+	}
+	for _, l := range bundle.ReqLinks.ReqLinks {
+		if strings.Contains(l.Child, "IF-A-OUT") {
+			t.Fatalf("interface allocation converted to %+v", l)
+		}
+	}
+	deprecated := false
+	for _, d := range validate.Bundle(bundle) {
+		deprecated = deprecated || (d.Code == "composition.allocation_deprecated" && strings.Contains(d.Message, "encoder::IF-A-OUT"))
+	}
+	if !deprecated {
+		t.Fatal("kept allocation no longer reports composition.allocation_deprecated")
+	}
+	before := read(t, arch)
+	code, out, errOut = runMain(t, fakeRegistry{}, "migrate-links", "--repo", system)
+	if code != 0 || !strings.Contains(out, "engws: nothing to migrate") || !strings.Contains(out, kept) || read(t, arch) != before {
+		t.Fatalf("second run: %d\n%s\n%s", code, out, errOut)
 	}
 }

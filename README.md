@@ -879,8 +879,11 @@ engws: 12 requirement(s) without an upward trace (requirement.no_parent):
 ```
 
 Each allocation becomes a `status: claimed` link pinned to the dependency version with the
-current fingerprint (`""` and a note when the target cannot be fingerprinted); each
-capability `ref` becomes `realizes` on the requirement it names. Only the touched lines of
+current fingerprint (`""` and a note when the dependency cannot be resolved); each
+capability `ref` becomes `realizes` on the requirement it names. An allocation to an
+interface entry is not a link target and stays in place (`kept allocation REQ-… →
+alias::IF-…: interface entries are not link targets; publish a capability that realizes it
+and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
 each file change, and a second run reports `nothing to migrate`. Then review the claimed
 links and give each listed requirement a `realizes` or mark it `derived`.
 

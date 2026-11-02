@@ -32,12 +32,21 @@ type MigratedRef struct {
 	Note                    string
 }
 
+// KeptAllocation is an allocation migrate-links leaves in place because its
+// target is not a link target (D13), with the reason printed for it.
+// TRLC-LINKS: REQ-EMG-104
+type KeptAllocation struct {
+	Requirement, Target string
+	Reason              string
+}
+
 // MigrateResult is what migrate-links changed (or, in a dry run, would
 // change) and the requirements that report requirement.no_parent after it,
 // sorted by ID, with the severity the model's strictness gives them.
 // TRLC-LINKS: REQ-EMG-104
 type MigrateResult struct {
 	Links            []MigratedLink
+	Kept             []KeptAllocation
 	Refs             []MigratedRef
 	AddedDocument    bool
 	Files            []string // files written (or to write)
@@ -233,38 +242,50 @@ func containsTrimmed(values []string, want string) bool {
 }
 
 // migrateAllocations writes one claimed link per allocation, adds
-// documents.reqLinks when missing and removes the allocations.
+// documents.reqLinks when missing and removes the converted allocations. An
+// allocation whose target resolves to a contract entry that is not a
+// published capability or assumption of use (an interface entry, D13) is
+// kept in place and reported; one whose dependency cannot be resolved is
+// converted with an empty fingerprint.
 // TRLC-LINKS: REQ-EMG-104
 func migrateAllocations(b model.Bundle, manifestPath string, read func(string) ([]byte, error), writes map[string][]byte, result *MigrateResult) error {
 	pins := map[string]string{}
 	for _, d := range b.Manifest.Dependencies {
 		pins[strings.TrimSpace(d.Alias)] = strings.TrimSpace(d.Version)
 	}
-	items, resolveNote := resolveDependencyItems(b)
+	deps, resolveNote := resolveDependencyItems(b)
 	used := map[string]bool{}
 	for _, l := range b.ReqLinks.ReqLinks {
 		used[strings.TrimSpace(l.ID)] = true
 	}
-	for _, a := range b.Architecture.Composition.Allocations {
+	var converted []int
+	for i, a := range b.Architecture.Composition.Allocations {
 		target := strings.TrimSpace(a.Target)
 		alias, itemID, err := model.ParseQualifiedReference(target)
 		if err != nil {
 			return fmt.Errorf("allocation of %s: target %q is not alias::ID: %w", a.Requirement, a.Target, err)
+		}
+		dep, resolved := deps[alias]
+		item, isItem := dep.items[itemID]
+		if resolved && !isItem {
+			result.Kept = append(result.Kept, KeptAllocation{Requirement: strings.TrimSpace(a.Requirement), Target: target, Reason: notLinkTarget(dep.bundle, alias, itemID)})
+			continue
 		}
 		link := model.ReqLink{
 			ID: uniqueLinkID(linkID(a.Requirement, alias), used), Parent: strings.TrimSpace(a.Requirement), Child: target,
 			Pinned: model.ReqLinkPin{Version: pins[alias]}, Status: model.ReqLinkClaimed, Rationale: oneLine(a.Rationale),
 		}
 		migrated := MigratedLink{Link: link}
-		switch item, ok := items[alias][itemID]; {
-		case ok:
+		if isItem {
 			migrated.Link.Pinned.Fingerprint = reqlinks.Fingerprint(item)
-		case items[alias] == nil:
+		} else {
 			migrated.Note = fmt.Sprintf("fingerprint left empty: dependency %s could not be resolved (%s); the check reports the link until engws review-links --accept", alias, resolveNote[alias])
-		default:
-			migrated.Note = fmt.Sprintf("fingerprint left empty: %s is not a published capability or assumption of use of %s", itemID, alias)
 		}
 		result.Links = append(result.Links, migrated)
+		converted = append(converted, i)
+	}
+	if len(converted) == 0 {
+		return nil
 	}
 
 	// The link file: extend the existing one, or create it.
@@ -303,11 +324,42 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 	if err != nil {
 		return err
 	}
-	if archData, _, err = removeKey(archData, findPath("architecture", "composition"), "allocations"); err != nil {
+	if len(converted) == len(b.Architecture.Composition.Allocations) {
+		archData, _, err = removeKey(archData, findPath("architecture", "composition"), "allocations")
+	} else {
+		archData, err = removeSequenceItems(archData, findPath("architecture", "composition"), "allocations", converted)
+	}
+	if err != nil {
 		return fmt.Errorf("%s: %w", b.ArchitecturePath, err)
 	}
 	writes[b.ArchitecturePath] = archData
 	return nil
+}
+
+// notLinkTarget says why alias::id of a resolved dependency is no link
+// target: an interface (or other non-item) contract entry, an unpublished
+// item, or no contract item at all.
+// TRLC-LINKS: REQ-EMG-104
+func notLinkTarget(dep model.Bundle, alias, id string) string {
+	for _, entries := range [][]model.ContractEntry{dep.Architecture.Contract.Provides, dep.Architecture.Contract.Requires} {
+		for _, e := range entries {
+			if strings.TrimSpace(e.ID) != id {
+				continue
+			}
+			kind := strings.ToLower(strings.TrimSpace(e.Kind))
+			if kind == string(reqlinks.KindCapability) {
+				return fmt.Sprintf("%s is not in a selected publication of %s; publish it and link that", id, alias)
+			}
+			if kind == "" {
+				kind = "contract"
+			}
+			return kind + " entries are not link targets; publish a capability that realizes it and link that"
+		}
+	}
+	if _, ok := reqlinks.ItemsFromBundle(dep)[id]; ok {
+		return fmt.Sprintf("%s is not in a selected publication of %s; publish it and link that", id, alias)
+	}
+	return fmt.Sprintf("%s is not a capability or assumption of use of %s; link a published contract item", id, alias)
 }
 
 // linkID is LNK-<requirement without REQ->-<ALIAS>, upper case.
@@ -356,13 +408,20 @@ func linkBlock(l model.ReqLink) string {
 	return b.String()
 }
 
+// resolvedDependency is a resolved dependency's model and published
+// contract items.
+type resolvedDependency struct {
+	bundle model.Bundle
+	items  map[string]reqlinks.Item
+}
+
 // resolveDependencyItems composes the model (lock check, module cache
-// reuse, so no lock is written) and returns the published contract items of
-// each resolved dependency by alias, and a reason per alias that did not
-// resolve.
+// reuse, so no lock is written) and returns each resolved dependency by
+// alias with its published contract items, and a reason per alias that did
+// not resolve.
 // TRLC-LINKS: REQ-EMG-104
-func resolveDependencyItems(b model.Bundle) (map[string]map[string]reqlinks.Item, map[string]string) {
-	items := map[string]map[string]reqlinks.Item{}
+func resolveDependencyItems(b model.Bundle) (map[string]resolvedDependency, map[string]string) {
+	deps := map[string]resolvedDependency{}
 	notes := map[string]string{}
 	for _, d := range b.Manifest.Dependencies {
 		notes[strings.TrimSpace(d.Alias)] = "not composed"
@@ -376,7 +435,7 @@ func resolveDependencyItems(b model.Bundle) (map[string]map[string]reqlinks.Item
 		for alias := range notes {
 			notes[alias] = reason
 		}
-		return items, notes
+		return deps, notes
 	}
 	for _, d := range comp.Diagnostics {
 		if d.Severity == validate.SeverityError && strings.HasPrefix(d.Code, "composition.") {
@@ -388,9 +447,9 @@ func resolveDependencyItems(b model.Bundle) (map[string]map[string]reqlinks.Item
 		}
 	}
 	for _, dep := range engmodel.LinkDependencies(comp.Root) {
-		items[dep.Alias] = reqlinks.PublishedItems(dep.Bundle, dep.Publications...)
+		deps[dep.Alias] = resolvedDependency{bundle: dep.Bundle, items: reqlinks.PublishedItems(dep.Bundle, dep.Publications...)}
 	}
-	return items, notes
+	return deps, notes
 }
 
 // runMigrateLinks prints the migration and the requirements without an
@@ -420,6 +479,9 @@ func runMigrateLinks(repo string, dryRun bool, w io.Writer) (int, error) {
 		if m.Note != "" {
 			fmt.Fprintf(w, "      %s\n", m.Note)
 		}
+	}
+	for _, k := range result.Kept {
+		fmt.Fprintf(w, "  %skept allocation %s → %s: %s\n", prefix, k.Requirement, k.Target, k.Reason)
 	}
 	if result.AddedDocument {
 		fmt.Fprintf(w, "  %sadded documents.reqLinks: %s\n", prefix, DefaultReqLinksPath)
