@@ -1,0 +1,33 @@
+schemaVersion: 2
+module:
+  path: models.example/reqlinks/system@v0
+  version: v0.1.0
+  modelId: REQLINKS-SYSTEM
+  title: Position Simulator
+  introduction: A simulator that publishes ownship position onto an isolated lab bus, composed from a position encoder and a lab bus bridge.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+  reqLinks: model/req-links.yml
+requirementLinks: strict
+dependencies:
+- alias: encoder
+  path: models.example/reqlinks/child-a@v0
+  version: v0.1.0
+  publications:
+  - public
+- alias: bridge
+  path: models.example/reqlinks/child-b@v0
+  version: v0.1.0
+  publications:
+  - public
+publications: []
+inferenceHints:
+  topLevel: true

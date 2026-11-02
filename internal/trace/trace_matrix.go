@@ -341,11 +341,52 @@ func ScopeCodeToModel(items []codescan.CodeItem, roots []string, modelDir string
 // code, verification, or delegation). The code is assumed already scoped to this model.
 // It also reports assurance records whose status lags the tests they name
 // (verification.status_stale).
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
 	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
+	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scopedCode, verification, delegationsByReq)...)
 	return append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
+}
+
+// unsatisfiedRequirements reports requirement.unsatisfied at each requirement
+// of a composing system (a model with composition subsystems) that has no
+// implementing code or test of its own, is the parent of no requirement link
+// or allocation, and is not derived. Severity and applicability follow
+// requirementLinks (validate.RequirementLinkRules).
+// TRLC-LINKS: REQ-EMG-098
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func unsatisfiedRequirements(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
+	severity, applies := validate.RequirementLinkRules(bundle)
+	if !applies || len(bundle.Architecture.Composition.Subsystems) == 0 {
+		return nil
+	}
+	satisfied := map[string]bool{}
+	for _, it := range scopedCode {
+		for _, r := range it.Implements {
+			satisfied[strings.TrimSpace(r)] = true
+		}
+	}
+	for _, v := range verification {
+		for _, r := range v.Verifies {
+			satisfied[strings.TrimSpace(r)] = true
+		}
+	}
+	for _, link := range bundle.ReqLinks.ReqLinks {
+		satisfied[strings.TrimSpace(link.Parent)] = true
+	}
+	var diags []validate.Diagnostic
+	for i, r := range requirements.Requirements {
+		id := strings.TrimSpace(r.ID)
+		if satisfied[id] || len(delegationsByReq[id]) > 0 || r.Derived {
+			continue
+		}
+		diags = append(diags, validate.Diagnostic{
+			Code: "requirement.unsatisfied", Severity: severity, Path: fmt.Sprintf("requirements[%d]", i),
+			Message: fmt.Sprintf("requirement %s is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived", id),
+		})
+	}
+	return diags
 }
 
 // validateIntegrityWithIDs is ValidateIntegrity against an explicit
@@ -578,7 +619,7 @@ func BuildFromFiles(modelPath, requirementsPath, codeRoot string) (Matrix, []val
 // ENGMODEL-LINKS alias::ID against the dependencies' published entities
 // (requirements stay local), returns the composition diagnostics, and reports
 // each delegated requirement's own status in its target repository.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-073
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-073, REQ-EMG-098
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	bundle, err := codescan.LoadBundle(modelPath)
@@ -623,6 +664,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 
 	scoped := ScopeCodeToModel(inferredCode, EffectiveCodeRoots(bundle, resolvedRoot), codescan.ModelRootDir(bundle))
 	diags = append(diags, validateIntegrityWithIDs(linkIDs, requirements, scoped, inferredVerification, delegationsByReq)...)
+	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scoped, inferredVerification, delegationsByReq)...)
 	diags = append(diags, staleVerificationStatus(bundle, scoped, inferredVerification)...)
 	matrix := buildTraceMatrixWithIDs(bundle, linkIDs, requirements, scoped, inferredVerification, delegationsByReq)
 	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)

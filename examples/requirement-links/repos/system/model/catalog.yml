@@ -1,0 +1,26 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-SIMULATOR
+    name: position simulator
+    definition: Publishes simulated ownship position onto the lab bus.
+  functionalGroups:
+  - id: FG-SIMULATION
+    name: simulation
+    definition: Simulation functions.
+  functionalUnits:
+  - id: FU-LAB-NETWORK
+    name: lab network
+    definition: The isolated network that carries the lab bus.
+  events:
+  - id: EVT-SIM-EPOCH
+    name: simulation epoch elapses
+    definition: One simulation epoch has elapsed.
+  dataTerms:
+  - id: DATA-POSITION
+    name: ownship position
+    definition: The simulated position of the own platform.
+  actors:
+  - id: ACT-SYSTEM-OWNER
+    name: system owner
+    definition: Reviews and accepts the simulator's requirement links.

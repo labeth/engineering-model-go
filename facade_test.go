@@ -76,6 +76,17 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
 			"MaterializeAllocations", "PathWithin", "ResolutionCount",
 		}},
+		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
+			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
+			"Realizer": "ContractItemRealizer", "Item": "ContractItem", "State": "LinkState",
+			"StateUnchanged": "LinkStateUnchanged", "StateSuspect": "LinkStateSuspect", "StateBroken": "LinkStateBroken",
+			"StateVersionMismatch": "LinkStateVersionMismatch", "StateChildUnpublished": "LinkStateChildUnpublished",
+			"StateUnresolved": "LinkStateUnresolved", "Dependency": "LinkDependency",
+			"CanonicalItem": "CanonicalContractItem", "Fingerprint": "ContractItemFingerprint",
+			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
+			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
+			"Diagnostics": "RequirementLinkDiagnostics", "SuspectMessage": "SuspectLinkMessage",
+		}},
 		{dir: filepath.Join("internal", "codescan"), internalOnly: []string{
 			// code, runtime and verification inference, used by internal/trace
 			// and internal/asciidoc; none of it is public API.

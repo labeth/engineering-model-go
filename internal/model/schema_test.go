@@ -140,6 +140,7 @@ func TestCanonicalCUESchemaMatchesGoRuntimeRepresentations(t *testing.T) {
 		(*RequirementsDocument)(nil),
 		(*DesignDocument)(nil),
 		(*WorkspaceDocument)(nil),
+		(*ReqLinksDocument)(nil),
 	}
 	for _, document := range documents {
 		schema, err := cueSchemaForDocument(document)

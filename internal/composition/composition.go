@@ -25,6 +25,7 @@ import (
 	"cuelang.org/go/mod/modzip"
 	"github.com/gofrs/flock"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 	"gopkg.in/yaml.v3"
 )
@@ -271,7 +272,7 @@ func GenerateCompositionForBundle(bundle model.Bundle, options ResolutionOptions
 
 // generateComposition resolves the composition rooted at manifestPath, with
 // rootBundle (when set) as the root system instead of the manifest's files.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066, REQ-EMG-097
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
 func generateComposition(manifestPath string, rootBundle *model.Bundle, options ResolutionOptions) (CompositionResult, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
@@ -314,6 +315,12 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	if hasCompositionErrors(res.Diagnostics) {
 		return res, nil
 	}
+	// Requirement link diagnostics need the resolved dependencies but do not
+	// make the resolution itself invalid: a suspect link still writes the lock.
+	var linkDiags []validate.Diagnostic
+	if root != nil {
+		linkDiags = reqlinks.Diagnostics(root.Bundle, LinkDependencies(root))
+	}
 	dir := filepath.Dir(absTop)
 	replaced := len(workspaceDocument.Replacements) > 0
 	switch {
@@ -336,6 +343,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 			return res, err
 		}
 	}
+	res.Diagnostics = append(res.Diagnostics, linkDiags...)
 	return res, nil
 }
 
@@ -957,6 +965,26 @@ func contains(values []string, value string) bool {
 		}
 	}
 	return false
+}
+
+// LinkDependencies returns the resolved direct dependencies of a composed
+// system as requirement link evaluation sees them: alias, resolved version,
+// model and the publication each subsystem selects.
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func LinkDependencies(sys *ComposedSystem) []reqlinks.Dependency {
+	if sys == nil {
+		return nil
+	}
+	deps := make([]reqlinks.Dependency, 0, len(sys.Children))
+	for _, child := range sys.Children {
+		dep := reqlinks.Dependency{Alias: child.Dependency, Version: child.Version, Bundle: child.Bundle}
+		if publication, ok := publicationByID(child.Bundle.Manifest.Publications, child.Publication); ok {
+			dep.Publications = []model.ManifestPublication{publication}
+		}
+		deps = append(deps, dep)
+	}
+	return deps
 }
 
 // TRLC-LINKS: REQ-EMG-049

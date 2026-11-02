@@ -1,0 +1,24 @@
+schemaVersion: 2
+lintRun:
+  id: system-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-SYS-001
+  text: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.
+  verificationMethods: [demonstration]
+  verificationCriteria: A bus monitor shows one position per epoch.
+  appliesTo: [FU-LAB-NETWORK]
+- id: REQ-SYS-002
+  text: The position simulator shall protect each published ownship position against corruption.
+  verificationMethods: [test]
+  verificationCriteria: A corrupted position is detected by its checksum.
+  appliesTo: [FU-LAB-NETWORK]
+- id: REQ-SYS-003
+  text: The lab network shall isolate the lab bus from every other network.
+  verificationMethods: [inspection]
+  verificationCriteria: The network diagram and switch configuration show no other connection.
+  appliesTo: [FU-LAB-NETWORK]
+  derived: true
+  derivedRationale: Holds the bridge's assumption of use that the lab bus is isolated.

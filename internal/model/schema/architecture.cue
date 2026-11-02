@@ -356,6 +356,7 @@ package model
 	exclude?:                  #StringList
 	expectedRuntimeKinds?:     #StringList
 	ownershipResolutionOrder?: #StringList
+	topLevel?:                 bool
 }
 
 #View: {
@@ -415,9 +416,16 @@ package model
 	note?: string
 }
 
+#ContractAssumption: {
+	id:                    #NonEmpty & =~"^AOU-[A-Z0-9][A-Z0-9-]*$"
+	text:                  #NonEmpty
+	verificationCriteria?: string
+}
+
 #ContractModel: {
 	provides?: [...#ContractEntry]
 	requires?: [...#ContractEntry]
+	assumptions?: [...#ContractAssumption]
 }
 
 #Subsystem: {

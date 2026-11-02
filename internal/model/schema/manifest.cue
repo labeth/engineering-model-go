@@ -24,6 +24,7 @@ package model
 	views:        #NonEmpty
 	decisions:    #NonEmpty
 	aviation?:    #NonEmpty
+	reqLinks?:    #NonEmpty
 }
 
 #ManifestDependency: {
@@ -50,4 +51,5 @@ package model
 	dependencies?: [...#ManifestDependency]
 	publications?: [...#ManifestPublication]
 	inferenceHints?: #InferenceHints
+	requirementLinks?: "strict" | "guided"
 }

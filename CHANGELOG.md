@@ -6,6 +6,42 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Requirement links across composed models (REQ-EMG-090 to REQ-EMG-099; design in
+  `docs/requirement-links.md`):
+  - `requirements[].realizes` names the local contract items (`CAP-*` capabilities,
+    `AOU-*` assumptions of use) a requirement exists to deliver; `contract.assumptions`
+    (`id`, `text`, `verificationCriteria`) declares assumptions of use, published and
+    imported (`alias::AOU-*`) like capabilities; `inferenceHints.topLevel` marks a
+    top-level system.
+  - `engmod.yml` `requirementLinks: strict | guided` (default `guided`) and the optional
+    document `documents.reqLinks` (`model/req-links.yml`, CUE schema `reqlinks.cue`) with
+    `reqLinks: [{id, parent, child, evidence, pinned: {version, fingerprint}, status,
+    rationale, reviewedBy, reviewedOn}]`.
+  - Validation: `requirement.no_parent`, `requirement.realizes_unknown`,
+    `contract.unrealized` (warning), `contract.realizer_unpublished`, `contract.ref_deprecated`
+    (warning), `composition.allocation_deprecated` (warning), `link.parent_unknown`,
+    `link.child_unpublished`, `link.version_mismatch`, `link.claimed_only` (warning),
+    `model.invalid_requirement_links`. The composed check adds `link.suspect`,
+    `link.broken`, `link.child_unpublished` and `link.aou_unverified`; trace integrity adds
+    `requirement.unsatisfied`. `requirement.no_parent`, `link.aou_unverified` and
+    `requirement.unsatisfied` are errors in strict mode and warnings in guided mode, where
+    guided applies them only to a model that publishes contract items or has links.
+  - `internal/reqlinks` (root facade: `ContractItemFingerprint`, `CanonicalContractItem`,
+    `ContractItemsFromBundle`, `PublishedContractItems`, `EvaluateRequirementLinks`,
+    `RequirementLinkDiagnostics`, `LinkDependencies`): the deterministic `sha256:` fingerprint
+    of a contract item with its realizing requirements, pinned by a golden test, and link
+    evaluation (unchanged, suspect, broken, version_mismatch, child_unpublished, unresolved).
+  - Example `examples/requirement-links/` with three strict repositories (child-a, child-b,
+    system) resolved offline through `engmod.work.yml`.
+- A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
+
+### Deprecated
+
+- `composition.allocations` and `contract.provides[].ref`: still read for this release; use
+  `reqLinks` and `realizes`.
+
 ## [0.7.0] — 2026-11-02: Assurance and acceptance diagnostics; engws go.work replaces; gated tests; fresh MCP renders
 
 ### Added

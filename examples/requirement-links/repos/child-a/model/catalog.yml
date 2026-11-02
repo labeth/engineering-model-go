@@ -1,0 +1,25 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-ENCODER
+    name: position encoder
+    definition: Encodes ownship position into position sentences.
+  functionalGroups:
+  - id: FG-ENCODER
+    name: encoding
+    definition: Position encoding functions.
+  functionalUnits:
+  - id: FU-ENCODER
+    name: sentence encoder
+    definition: Formats and publishes position sentences.
+  events:
+  - id: EVT-EPOCH
+    name: epoch period elapses
+    definition: The configured publication period has elapsed.
+  - id: EVT-LIFECYCLE
+    name: lifecycle event occurs
+    definition: The encoder starts, stops or fails.
+  dataTerms:
+  - id: DATA-SENTENCE
+    name: position sentence
+    definition: One encoded ownship position record.

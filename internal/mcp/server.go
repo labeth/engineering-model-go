@@ -486,7 +486,7 @@ func (s *Server) modelFileFingerprint() string {
 	if s.bundle != nil {
 		b := s.bundle
 		paths = append(paths, b.ManifestPath, b.ArchitecturePath, b.BehaviorPath, b.AssurancePath, b.CompliancePath,
-			b.ViewsPath, b.CatalogPath, b.DecisionsPath, b.RequirementsPath, b.DesignPath, b.AviationPath)
+			b.ViewsPath, b.CatalogPath, b.DecisionsPath, b.RequirementsPath, b.DesignPath, b.AviationPath, b.ReqLinksPath)
 	}
 	if s.modelPath != "" {
 		dir := filepath.Dir(s.modelPath)

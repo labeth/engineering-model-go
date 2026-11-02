@@ -25,6 +25,7 @@ package model
 	tags?:                 #StringList
 	appliesTo?:            #StringList
 	lintWaivers?: [...#LintWaiver]
+	realizes?:    #StringList
 }
 
 #LintWaiver: {

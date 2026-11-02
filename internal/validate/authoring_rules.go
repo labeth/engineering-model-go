@@ -87,6 +87,10 @@ var authoringFieldRules = []string{
 	"Acceptance: a risk with status accepted or response accept, and a threat scenario with status accepted, needs acceptedBy with actor (an ACT-* actor), date (a YYYY-MM-DD calendar date) and statement (the owner's own words) or decisionRef (a DEC-* decision with status accepted whose context quotes the owner); without it validation reports risk.acceptance_unrecorded (error), and an actor, date or decisionRef that does not resolve is model.invalid_acceptance (error). An acceptedBy actor other than the risk's owner is risk.acceptance_not_owner (warning). response accept with status open is risk.accept_while_open (warning). The Gemara policy lists a risk under risks.accepted only with a complete, resolving acceptedBy and status accepted, or response accept with a status other than open. Authored risk and threat scenario IDs must not contain :: (reserved for imported alias::ID entities). Never record an acceptance the owner did not give.",
 	"lint.multiple_responses exempts a single response with a field list: the text has exactly one shall and no semicolon, the list opens at the response's first with, including or of, no and, or or comma comes before it, the list holds no then, and no list item after the first has the, a, an, its, their, each, every or all as its second word (that reads as a verb with its object). Passes: 'The flight logger shall publish one record with UTC time, latitude and altitude.' Reported: 'The flight logger shall store the record and notify the operator.'",
 	"In strict EARS mode (lintRun.mode: strict) the system term of a requirement (the words before shall) must be the name or an alias of a catalog system, functional group or functional unit, written as in the catalog (for example 'the engineering model go shall ...'); a repository slug such as sim-interface is not a catalog name unless the catalog names it so.",
+	"Requirement links, upward trace: a requirement names in realizes the local contract items it exists to deliver or make true, a contract.provides entry of kind capability (CAP-*) or a contract.assumptions assumption of use (AOU-*); never a requirement, an imported alias::ID or an interface entry (requirement.realizes_unknown, error). A requirement with no realizes, not derived with derivedRationale and without stakeholder sourceRefs is requirement.no_parent; a system with module.kind system and inferenceHints.topLevel true is exempt. Being the parent of a reqLinks entry does not exempt a requirement. A child never names its users or a system requirement.",
+	"Contract items: contract.assumptions entries have id (AOU-*), text and optional verificationCriteria and are published in the architecture list like capabilities, imported as alias::AOU-*. contract.provides ref is deprecated (contract.ref_deprecated, warning): add realizes to the requirement instead. A published capability no requirement realizes is contract.unrealized (warning). Every requirement that realizes a published contract item must be in the requirements list of that publication (contract.realizer_unpublished, error), because a using system fingerprints the item with its realizers.",
+	"Requirement link file (documents.reqLinks, usually model/req-links.yml): reqLinks entries {id (LNK-*), parent (a local requirement), child (alias::CAP-* or alias::AOU-* of a composed dependency), evidence (local requirement, control, verification or test IDs; required for an assumption of use), pinned {version (equal to the dependency version in engmod.yml), fingerprint (sha256:<64 hex>, written by the engine, never by hand)}, status (claimed or accepted), rationale, reviewedBy, reviewedOn (YYYY-MM-DD)}. Validation reports link.parent_unknown, link.child_unpublished, link.version_mismatch (errors) and link.claimed_only (warning); the composed check reports link.suspect (the item or a realizing requirement changed since review; re-stamp only after review), link.broken (the item no longer exists) and link.aou_unverified (a dependency assumption of use with no evidence link). requirement.unsatisfied is a system requirement with no code, test or link and not derived. composition.allocations is deprecated (composition.allocation_deprecated, warning): use reqLinks.",
+	"requirementLinks in engmod.yml is strict or guided (default guided; model.invalid_requirement_links otherwise). strict: requirement.no_parent, link.aou_unverified and requirement.unsatisfied are errors in every model. guided: they are warnings, and only in a model that publishes contract items or has reqLinks. The other link and contract rules have the same severity in both modes. A dependency version is a release tag or a Go-style pseudo-version (v1.2.4-0.20261102103400-abcdef123456).",
 	"Warnings: behavior.event_unused (a behavior event in no triggered_by relationship, transition trigger or flow), behavior.state_unreachable (with transitions in the model, a state other than the first declared, initial one that no transitions_to enters), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators).",
 }
 
@@ -99,6 +103,7 @@ var fieldSetTypes = map[string]any{
 	"catalogEntry":        model.CatalogEntry{},
 	"complianceMapping":   model.ComplianceMapping{},
 	"complianceProfile":   model.ComplianceProfile{},
+	"contractAssumption":  model.ContractAssumption{},
 	"contractEntry":       model.ContractEntry{},
 	"control":             model.Control{},
 	"controlVerification": model.ControlVerification{},
@@ -120,6 +125,8 @@ var fieldSetTypes = map[string]any{
 	"poamItem":            model.POAMItem{},
 	"publication":         model.ManifestPublication{},
 	"referencedElement":   model.ReferencedElement{},
+	"reqLink":             model.ReqLink{},
+	"reqLinkPin":          model.ReqLinkPin{},
 	"requirement":         model.Requirement{},
 	"risk":                model.Risk{},
 	"state":               model.State{},
@@ -173,7 +180,7 @@ func fieldSets() map[string][]string {
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as
 // sorted, deterministic data for the model authoring contract.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-087
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-087, REQ-EMG-099
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func AuthoringRules() Rules {
 	enums := make(map[string][]string, len(enumTables))

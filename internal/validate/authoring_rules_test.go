@@ -182,3 +182,30 @@ func TestPublicationSectionsAreManifestPublicationFields(t *testing.T) {
 		t.Fatalf("publicationSections = %v, want the ManifestPublication fields after id %v", got, fields[1:])
 	}
 }
+
+// The authoring contract describes realizes, assumptions of use, the
+// requirement link file and requirementLinks strictness, and lists the
+// fields of an assumption and a link.
+// TRLC-LINKS: REQ-EMG-099
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
+	rules := AuthoringRules()
+	text := strings.Join(rules.FieldRules, "\n")
+	for _, want := range []string{
+		"realizes", "requirement.no_parent", "inferenceHints.topLevel", "contract.assumptions", "contract.realizer_unpublished",
+		"documents.reqLinks", "link.suspect", "link.aou_unverified", "requirementLinks in engmod.yml is strict or guided", "pseudo-version",
+	} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("authoring field rules must contain %q", want)
+		}
+	}
+	if got := strings.Join(rules.FieldSets["contractAssumption"], ","); got != "id,text,verificationCriteria" {
+		t.Fatalf("contractAssumption fields = %s", got)
+	}
+	if got := strings.Join(rules.FieldSets["reqLink"], ","); got != "id,parent,child,evidence,pinned,status,rationale,reviewedBy,reviewedOn" {
+		t.Fatalf("reqLink fields = %s", got)
+	}
+	if !strings.Contains(strings.Join(rules.FieldSets["requirement"], ","), "realizes") {
+		t.Fatal("requirement fields must list realizes")
+	}
+}
