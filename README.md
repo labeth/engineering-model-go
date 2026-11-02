@@ -864,6 +864,26 @@ pre-push hook for a tag push and in CI on a tag). It fails (exit 1) with:
 
 Exit 2 is a usage, git or model error.
 
+**`engws migrate-links [--repo DIR] [--dry-run]`** converts a model from the deprecated
+`composition.allocations` and `contract.provides[].ref` (run it in the dependencies
+first, then in the system):
+
+```text
+  ref CAP-TELEM-REPORT -> REQ-TELEM-001 realizes [CAP-TELEM-REPORT]
+  link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
+  added documents.reqLinks: model/req-links.yml
+engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
+engws: 12 requirement(s) without an upward trace (requirement.no_parent):
+  requirement.no_parent: REQ-COF-001 [warning]
+  ...
+```
+
+Each allocation becomes a `status: claimed` link pinned to the dependency version with the
+current fingerprint (`""` and a note when the target cannot be fingerprinted); each
+capability `ref` becomes `realizes` on the requirement it names. Only the touched lines of
+each file change, and a second run reports `nothing to migrate`. Then review the claimed
+links and give each listed requirement a `realizes` or mark it `derived`.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud

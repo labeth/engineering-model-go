@@ -59,6 +59,14 @@ semantic versioning.
     `contract.semver_too_small` when the tag's bump over the previous release tag is smaller
     than the contract diff requires (in v0.x a breaking change needs a minor bump). Exit 0
     ok, 1 findings, 2 usage or IO error.
+  - `engws migrate-links [--repo DIR] [--dry-run]` converts each `composition.allocations` entry
+    into a claimed link in `model/req-links.yml` (`LNK-<REQ>-<ALIAS>`, the dependency pin, the
+    current fingerprint, or `""` with a note when the target cannot be fingerprinted), adds
+    `documents.reqLinks`, removes the allocations, turns each capability
+    `contract.provides[].ref` into `realizes` and prints the requirements left with
+    `requirement.no_parent`. Other lines are kept; a second run changes nothing.
+  - Every `engws` command accepts its flags after the positional arguments.
+- `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
 ### Deprecated

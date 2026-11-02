@@ -2,7 +2,9 @@ package model
 
 #ReqLinkPin: {
 	version:     #ExactVersion
-	fingerprint: string & =~"^sha256:[0-9a-f]{64}$"
+	// "" until the item could be resolved (engws migrate-links offline);
+	// the composed check then reports the link as suspect.
+	fingerprint: "" | (string & =~"^sha256:[0-9a-f]{64}$")
 }
 
 #ReqLink: {
