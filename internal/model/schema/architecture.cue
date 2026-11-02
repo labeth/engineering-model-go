@@ -141,7 +141,8 @@ package model
 }
 
 #Risk: {
-	id?:              string
+	// alias::ID is reserved for entities imported by composition.
+	id?:              #LocalID
 	title?:           string
 	statement?:       string
 	status?:          string
@@ -156,6 +157,18 @@ package model
 	evidence?: [...#Evidence]
 	residualRisk?: string
 	rationale?:    string
+	acceptedBy?:   #AcceptanceRecord
+}
+
+// #LocalID is an authored entity ID: alias::ID is reserved for imported
+// entities, so validation can tell them apart.
+#LocalID: string & !~"::"
+
+#AcceptanceRecord: {
+	actor?:       string
+	date?:        string
+	statement?:   string
+	decisionRef?: string
 }
 
 #POAMArtifact: #Evidence
@@ -234,7 +247,7 @@ package model
 }
 
 #ThreatScenario: {
-	id?:               string
+	id?:               #LocalID
 	title?:            string
 	summary?:          string
 	category?:         string
@@ -259,6 +272,7 @@ package model
 	verificationRefs?: #StringList
 	detection?:        #StringList
 	evidence?: [...#Evidence]
+	acceptedBy?: #AcceptanceRecord
 }
 
 #ThreatAssumption: {

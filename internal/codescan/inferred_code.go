@@ -314,7 +314,7 @@ func parseRustDependencies(rel, content, owner string) []CodeItem {
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-010
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
 func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[string]codeFileMetadata {
 	out := map[string]codeFileMetadata{}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -331,7 +331,11 @@ func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
+		artifact := codemap.IsArtifactFile(path)
+		if !artifact && ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
+			return nil
+		}
+		if artifact && !codemap.ReadableArtifact(path) {
 			return nil
 		}
 		data, readErr := os.ReadFile(path)
@@ -343,6 +347,15 @@ func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[
 			rel = path
 		}
 		rel = filepath.ToSlash(rel)
+		if artifact {
+			// A container file or Markdown document is a source file only when
+			// it carries trace markers; its owner comes from its comments.
+			owner, _, links, modelLinks := codemap.ArtifactMarkers(path, data)
+			if owner != "" || links > 0 || modelLinks > 0 {
+				out[rel] = codeFileMetadata{Owner: textutil.NonEmpty(owner, "unresolved")}
+			}
+			return nil
+		}
 		owner := "unresolved"
 		description := ""
 		var pythonComments map[int]bool
@@ -447,10 +460,15 @@ func UniqueExistingSources(in []string) []string {
 
 // IsVerificationCodeItem reports whether a code item is test code rather than
 // production implementation: it lives in a test file, or it is a Rust item
-// compiled only for tests (#[cfg(test)] module or #![cfg(test)] file).
-// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+// compiled only for tests (#[cfg(test)] module or #![cfg(test)] file). A
+// container build file or Markdown document is never test code, even under
+// tests/: its trace markers record implementation evidence.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030, REQ-EMG-084
 func IsVerificationCodeItem(item CodeItem) bool {
 	path, line := SplitSourceLine(item.Source)
+	if codemap.IsArtifactFile(path) || item.AbsPath != "" && codemap.IsArtifactFile(item.AbsPath) {
+		return false
+	}
 	if isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path) {
 		return true
 	}

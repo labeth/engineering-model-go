@@ -49,3 +49,46 @@ func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
 		}
 	}
 }
+
+// trace.matrix reports gatedOnly and gatedOnlyRequirements in its summary,
+// also with summaryOnly, and gated with the gates on a row whose every linked
+// test skips unless an environment variable is set.
+// Mutation: dropping gatedOnly from the summary map fails this test.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func TestTraceMatrixToolReportsGatedOnly(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "solo")
+	writeMCPModule(t, dir, "example.com/solo@v1", "v1.0.0", "SOLO", "", "  contract: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "e2e_test.go"), "package solo\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\n// TRLC-LINKS: REQ-PARENT\nfunc TestE2E(t *testing.T) {\n\tif os.Getenv(\"SOLO_E2E\") == \"\" {\n\t\tt.Skip(\"set SOLO_E2E\")\n\t}\n}\n\n// TRLC-LINKS: REQ-CHILD\nfunc TestUnit(t *testing.T) {}\n")
+	s := NewServer()
+	if resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0", "id": 1, "method": "initialize",
+		"params": map[string]any{"initializationOptions": map[string]any{
+			"modelPath": filepath.Join(dir, "engmod.yml"), "repoRoot": dir,
+		}},
+	}); resp["error"] != nil {
+		t.Fatalf("initialize: %+v", resp["error"])
+	}
+	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
+		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
+		list, _ := summary["gatedOnlyRequirements"].([]any)
+		if summary["gatedOnly"] != float64(1) || len(list) != 1 || list[0] != "REQ-PARENT" || summary["testLinked"] != float64(2) {
+			t.Fatalf("summary %v: want gatedOnly 1 [REQ-PARENT] and testLinked 2, got %+v", args, summary)
+		}
+	}
+	for _, item := range callToolPayload(t, s, "trace.matrix", map[string]any{})["requirements"].([]any) {
+		row := item.(map[string]any)
+		gated, _ := row["gated"].(bool)
+		gates, _ := row["gates"].([]any)
+		switch row["id"] {
+		case "REQ-PARENT":
+			if !gated || len(gates) != 1 || gates[0] != "SOLO_E2E" {
+				t.Fatalf("REQ-PARENT row must be gated by SOLO_E2E: %+v", row)
+			}
+		case "REQ-CHILD":
+			if gated {
+				t.Fatalf("REQ-CHILD row is not gated: %+v", row)
+			}
+		}
+	}
+}

@@ -16,6 +16,7 @@ import (
 
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // CrossReferenceError reports one reference that does not resolve within
@@ -237,9 +238,10 @@ func xrefString(v any) string {
 // enforcement action's disposition must follow its POA&M item's status (only
 // completed is Enforced, only accepted is Tolerated), the log's aggregate must
 // follow the actions, the policy may list a risk as mitigated only when it is
-// closed and as accepted only when it is accepted. It reports each claim the
-// model does not support with the same error shape as the cross-reference check.
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// closed and as accepted only when riskAccepted holds (a resolving owner
+// acceptance record). It reports each claim the model does not support with
+// the same error shape as the cross-reference check.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func CheckModelConsistency(bundle model.Bundle, docs map[string]string) []CrossReferenceError {
 	a := bundle.Architecture.AuthoredArchitecture
@@ -281,6 +283,8 @@ func CheckModelConsistency(bundle model.Bundle, docs map[string]string) []CrossR
 	}
 
 	if root := parse("policy"); root != nil {
+		refs := validate.NewAcceptanceRefs(bundle)
+		accepted := func(r model.Risk) bool { return riskAccepted(r, refs) }
 		risksByID := map[string]model.Risk{}
 		for _, r := range a.Risks {
 			risksByID[strings.TrimSpace(r.ID)] = r
@@ -292,7 +296,7 @@ func CheckModelConsistency(bundle model.Bundle, docs map[string]string) []CrossR
 			claim string
 		}{
 			{"mitigated", riskMitigated, "mitigated, but its status is not closed"},
-			{"accepted", riskAccepted, "accepted, but neither its status nor its response is accept"},
+			{"accepted", accepted, "accepted, but it has no complete, resolving acceptedBy record (existing actor, calendar date, accepted decisionRef if set) with status accepted (or response accept while not open)"},
 		} {
 			entries, _ := risks[bucket.key].([]any)
 			for i, e := range entries {

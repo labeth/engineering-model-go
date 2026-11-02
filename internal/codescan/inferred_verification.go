@@ -39,6 +39,10 @@ type VerificationCheck struct {
 	DerivedOwners []string
 	Evidence      []string
 	Results       []VerificationResult
+	// Gates maps a requirement to the environment gates of its tests in this
+	// check when every test entry point linking it is gated (see
+	// codemap.Symbol.Gates); a requirement with an ungated test is absent.
+	Gates map[string][]string
 }
 
 var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
@@ -128,12 +132,13 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			}
 			content := string(data)
 			reqs := extractTRLCLinkedRequirements(content)
+			var gates map[string][]string
 			if hasTestFunctionDetection(rel) {
-				testReqs, helperDiags, scanErr := testFunctionRequirements(path, rel)
+				testReqs, testGates, helperDiags, scanErr := testFunctionRequirements(path, rel)
 				if scanErr != nil {
 					return scanErr
 				}
-				reqs = testReqs
+				reqs, gates = testReqs, testGates
 				diags = append(diags, helperDiags...)
 			} else if ext == ".v" || ext == ".py" {
 				reqs = nil
@@ -165,6 +170,7 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				CodeElements:  verificationCodeElementsForPath(rel, codeBySource),
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
 				Evidence:      []string{rel},
+				Gates:         gates,
 			}
 			checkByID[id] = check
 			registerCheckIdentity(id, rel)
@@ -370,15 +376,19 @@ func hasTestFunctionDetection(rel string) bool {
 // (codemap.Symbol.IsTest) in one file. TRLC-LINKS on any other declaration in test
 // code (helpers, fakes, fixtures) verifies nothing and is reported as
 // verification.helper_link. A Rust production file yields only its inline tests.
+// The gates map holds each requirement whose every linking test is
+// environment gated, with the union of their gates.
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-010
-func testFunctionRequirements(path, rel string) ([]string, []validate.Diagnostic, error) {
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088
+func testFunctionRequirements(path, rel string) ([]string, map[string][]string, []validate.Diagnostic, error) {
 	symbols, _, err := codemap.Scan(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	testPath := isVerificationTestPath(rel)
 	reqs := []string{}
+	gates := map[string][]string{}
+	ungated := map[string]bool{}
 	diags := []validate.Diagnostic{}
 	for _, s := range symbols {
 		if len(s.Implements) == 0 {
@@ -386,6 +396,13 @@ func testFunctionRequirements(path, rel string) ([]string, []validate.Diagnostic
 		}
 		if s.IsTest {
 			reqs = append(reqs, s.Implements...)
+			for _, req := range s.Implements {
+				if len(s.Gates) == 0 {
+					ungated[req] = true
+					continue
+				}
+				gates[req] = textutil.AppendUniqueSlice(gates[req], s.Gates)
+			}
 			continue
 		}
 		if s.TestOnly || testPath {
@@ -397,7 +414,13 @@ func testFunctionRequirements(path, rel string) ([]string, []validate.Diagnostic
 			})
 		}
 	}
-	return uniqueStrings(reqs), diags, nil
+	for req := range ungated {
+		delete(gates, req)
+	}
+	if len(gates) == 0 {
+		gates = nil
+	}
+	return uniqueStrings(reqs), gates, diags, nil
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE

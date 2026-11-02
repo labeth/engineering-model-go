@@ -3,6 +3,7 @@ package model
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -144,6 +145,32 @@ func TestSchemaV2RejectsUnknownFieldsAndRelationshipKinds(t *testing.T) {
 			t.Fatalf("expected typed relationship error, got %v", err)
 		}
 	})
+}
+
+// An authored risk or threat scenario ID with :: is rejected at load: alias::ID
+// is reserved for entities imported by composition, which validation skips as
+// belonging to another model, so a local alias-looking ID cannot dodge the
+// acceptance check. A plain ID loads.
+// Mutation: dropping the !~"::" constraint from #LocalID loads both bundles.
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-VALIDATION-ENGINE
+func TestSchemaRejectsQualifiedLocalRiskAndThreatIDs(t *testing.T) {
+	for name, entry := range map[string]string{
+		"risk":           "  risks:\n    - id: %s\n      title: R\n      status: accepted\n",
+		"threatScenario": "  threatScenarios:\n    - id: %s\n      title: T\n      status: accepted\n      appliesTo: [FU-A]\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			for _, id := range []string{"dep::RISK-X", "RISK-X"} {
+				dir := writeV2Fixture(t, validManifest)
+				path := filepath.Join(dir, "model", "assurance.yml")
+				writeTestFile(t, path, readTestFile(t, path)+fmt.Sprintf(entry, id))
+				_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+				if qualified := strings.Contains(id, "::"); qualified != (err != nil) {
+					t.Fatalf("%s id %q: load error %v, want rejected only for alias::ID", name, id, err)
+				}
+			}
+		})
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-045

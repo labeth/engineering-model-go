@@ -183,7 +183,7 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemaraproj
 	}
 
 	var untreated []string
-	pol.Risks, untreated = policyRisks(a)
+	pol.Risks, untreated = policyRisks(a, validate.NewAcceptanceRefs(bundle))
 	if len(untreated) > 0 {
 		cfg.addDiagnostic(validate.Diagnostic{
 			Code:     "gemara.policy_risks_untreated",
@@ -269,19 +269,21 @@ func policyAssessmentPlans(a model.AuthoredArchitecture) []gemaraproj.Assessment
 }
 
 // policyRisks lists model risks by their treatment state: mitigated only when
-// the risk status is closed, accepted when the status is accepted or the
-// response is accept. Open and mitigating risks are still being treated;
+// the risk status is closed, accepted when riskAccepted holds (a resolving
+// owner acceptance record and status accepted, or response accept while not
+// open).
+// Open and mitigating risks are still being treated;
 // Gemara Risks has no bucket or notes field for them, so they are left out and
 // returned as untreated for a diagnostic.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
-func policyRisks(a model.AuthoredArchitecture) (gemaraproj.Risks, []string) {
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+func policyRisks(a model.AuthoredArchitecture, refs validate.AcceptanceRefs) (gemaraproj.Risks, []string) {
 	var risks gemaraproj.Risks
 	var untreated []string
 	for _, r := range a.Risks {
 		ref := gemaraproj.EntryMapping{ReferenceId: gemaraRefRiskCatalog, EntryId: r.ID}
 		switch {
-		case riskAccepted(r):
+		case riskAccepted(r, refs):
 			risks.Accepted = append(risks.Accepted, gemaraproj.AcceptedRisk{
 				Id:            "ACC-" + r.ID,
 				Risk:          ref,
@@ -296,11 +298,21 @@ func policyRisks(a model.AuthoredArchitecture) (gemaraproj.Risks, []string) {
 	return risks, untreated
 }
 
-// riskAccepted reports whether the model records the risk as accepted.
+// riskAccepted reports whether the policy may list the risk as accepted: it
+// has an owner acceptance record (acceptedBy) that is complete and resolves
+// (validate.AcceptanceRefs.Resolves: the actor exists, the date is a calendar
+// date, a decisionRef names an accepted decision) and its status is accepted,
+// or its response is accept and its status is not open. Validation reports
+// the other accepted risks (risk.acceptance_unrecorded,
+// model.invalid_acceptance, risk.accept_while_open).
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
-func riskAccepted(r model.Risk) bool {
-	return strings.EqualFold(strings.TrimSpace(r.Status), "accepted") || strings.EqualFold(strings.TrimSpace(r.Response), "accept")
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+func riskAccepted(r model.Risk, refs validate.AcceptanceRefs) bool {
+	if !refs.Resolves(r.AcceptedBy) {
+		return false
+	}
+	status := strings.TrimSpace(r.Status)
+	return strings.EqualFold(status, "accepted") || (strings.EqualFold(strings.TrimSpace(r.Response), "accept") && !strings.EqualFold(status, "open"))
 }
 
 // riskMitigated reports whether the model records the risk as mitigated (closed).

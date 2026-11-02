@@ -39,8 +39,9 @@ commands:
   status [--all]             table of checkouts with state and mode; exit 1 on skew
   sync [--all] [--force]     write engmod.work.yml for the local checkouts
                              (--all: every checkout) and go.work with every
-                             checkout that has go.mod; remove go.work when none
-                             has; a checkout whose module path or directory
+                             checkout that has go.mod, replacing each version
+                             a checkout requires of a workspace module with its
+                             directory; remove go.work when none has; a checkout whose module path or directory
                              name is not safe is skipped with a warning;
                              always exit 0
   pin <repo>                 always resolve <repo> locally (.engws.yml), then sync
@@ -262,7 +263,7 @@ func printSkews(w io.Writer, plan Plan) []Skew {
 }
 
 // runSync writes the work files and reports them.
-// TRLC-LINKS: REQ-EMG-068
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
 func runSync(ctx context.Context, root string, registry Registry, all, force bool, w io.Writer) error {
 	plan, err := BuildPlan(ctx, root, registry, all)
 	if err != nil {
@@ -277,6 +278,9 @@ func runSync(ctx context.Context, root string, registry Registry, all, force boo
 		return err
 	}
 	printTable(w, plan)
+	for _, warning := range result.Warnings {
+		fmt.Fprintln(w, "warning:", warning)
+	}
 	files := model.WorkspaceFileName
 	switch {
 	case result.GoWork != "":

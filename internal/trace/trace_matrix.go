@@ -53,6 +53,11 @@ type Row struct {
 	DelegatedStatus *DelegatedStatus `json:"delegatedStatus,omitempty"`
 	Provenance      *Provenance      `json:"provenance,omitempty"`
 	Status          string           `json:"status"`
+	// Gated is true when every linked test of the requirement is
+	// environment gated: it skips unless a variable is set or under
+	// testing.Short. Gates names the variables (or testing.Short).
+	Gated bool     `json:"gated,omitempty"`
+	Gates []string `json:"gates,omitempty"`
 }
 
 // Provenance identifies the selected dependency publication that supplied
@@ -131,6 +136,11 @@ type Summary struct {
 	DelegatedTestLinked  int `json:"delegatedTestLinked"`
 	Orphan               int `json:"orphan"`
 	DanglingLinks        int `json:"danglingLinks"`
+	// GatedOnly counts the test-linked requirements whose every linked test
+	// is environment gated (Row.Gated); GatedOnlyRequirements lists them.
+	// They are still counted in TestLinked.
+	GatedOnly             int      `json:"gatedOnly"`
+	GatedOnlyRequirements []string `json:"gatedOnlyRequirements,omitempty"`
 }
 
 // requirementIDSet is the set of requirement ids defined by the model.
@@ -405,8 +415,10 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 }
 
 // buildTraceMatrixWithIDs is buildTraceMatrix resolving ENGMODEL-LINKS against
-// an explicit ID set, which may include published alias::ID entities.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065
+// an explicit ID set, which may include published alias::ID entities. A row
+// whose every linked verification is environment gated is Gated and counted
+// in Summary.GatedOnly.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065, REQ-EMG-088
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) Matrix {
 	reqIDs := requirementIDSet(requirements)
@@ -435,10 +447,17 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 		}
 	}
 	verByReq := map[string][]string{}
+	gatesByReq := map[string][]string{}
+	ungatedReq := map[string]bool{}
 	for _, v := range verification {
 		for _, r := range v.Verifies {
 			id := strings.TrimSpace(r)
 			verByReq[id] = append(verByReq[id], strings.TrimSpace(v.ID))
+			if g := v.Gates[r]; len(g) > 0 {
+				gatesByReq[id] = textutil.AppendUniqueSlice(gatesByReq[id], g)
+			} else {
+				ungatedReq[id] = true
+			}
 		}
 	}
 	resultByReq := requirementResults(verification)
@@ -451,6 +470,9 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 		row.Verifications = textutil.UniqueSorted(verByReq[id])
 		if len(row.Verifications) > 0 {
 			row.Result = resultByReq[id]
+			if !ungatedReq[id] && len(gatesByReq[id]) > 0 {
+				row.Gated, row.Gates = true, textutil.UniqueSorted(gatesByReq[id])
+			}
 		}
 		if d := delegationsByReq[id]; len(d) > 0 {
 			row.DelegatedTo = &Delegation{Subsystem: d[0].Subsystem, Target: d[0].Target, TargetRequirement: d[0].TargetRef}
@@ -482,6 +504,10 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 		}
 		if len(row.Verifications) > 0 {
 			matrix.Summary.Tested++
+		}
+		if row.Gated {
+			matrix.Summary.GatedOnly++
+			matrix.Summary.GatedOnlyRequirements = append(matrix.Summary.GatedOnlyRequirements, row.ID)
 		}
 		if row.Result == "passed" {
 			matrix.Summary.Passed++

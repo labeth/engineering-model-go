@@ -249,7 +249,7 @@ func TestQualifiedOwnershipAndViewRoots(t *testing.T) {
 			d.assurance = "schemaVersion: 2\nassurance:\n  trustBoundaries:\n    - id: TB-SVC\n      name: Process\n      description: Process.\n      boundaryType: process\n      parentRef: nats::" + id + "\n      members: [FU-SVC]\n"
 		}},
 		{"risk owner", func(d *serviceDocs, id string) {
-			d.assurance = "schemaVersion: 2\nassurance:\n  risks:\n    - id: RISK-SVC\n      title: Outage\n      statement: Bus unavailable.\n      status: open\n      likelihood: low\n      impact: low\n      response: accept\n      owner: nats::" + id + "\n"
+			d.assurance = "schemaVersion: 2\nassurance:\n  risks:\n    - id: RISK-SVC\n      title: Outage\n      statement: Bus unavailable.\n      status: open\n      likelihood: low\n      impact: low\n      response: mitigate\n      owner: nats::" + id + "\n"
 		}},
 		{"view root", func(d *serviceDocs, id string) {
 			d.views = "schemaVersion: 2\nviews:\n  - id: VIEW-SVC\n    kind: communication\n    roots: [FU-SVC, nats::" + id + "]\n"

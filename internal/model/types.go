@@ -356,6 +356,20 @@ type Risk struct {
 	Evidence        []RiskEvidence `yaml:"evidence"`
 	ResidualRisk    string         `yaml:"residualRisk"`
 	Rationale       string         `yaml:"rationale"`
+	// AcceptedBy records the owner's acceptance; required when the risk is
+	// accepted (status accepted or response accept).
+	AcceptedBy *AcceptanceRecord `yaml:"acceptedBy"`
+}
+
+// AcceptanceRecord is the evidence that an owner accepted a risk or threat
+// scenario: who (an ACT-* actor), when (YYYY-MM-DD) and the owner's own words
+// (statement) or a decision whose context quotes the owner (decisionRef).
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-THREAT-EXPORTER
+type AcceptanceRecord struct {
+	Actor       string `yaml:"actor"`
+	Date        string `yaml:"date"`
+	Statement   string `yaml:"statement"`
+	DecisionRef string `yaml:"decisionRef"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -485,6 +499,8 @@ type ThreatScenario struct {
 	VerificationRefs []string                 `yaml:"verificationRefs"`
 	Detection        []string                 `yaml:"detection"`
 	Evidence         []ThreatScenarioEvidence `yaml:"evidence"`
+	// AcceptedBy records the owner's acceptance; required when status is accepted.
+	AcceptedBy *AcceptanceRecord `yaml:"acceptedBy"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-THREAT-EXPORTER

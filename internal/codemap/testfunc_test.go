@@ -251,3 +251,76 @@ func TestScan_AccumulatesStackedTRLCLinksLines(t *testing.T) {
 		t.Fatalf("stacked TRLC-LINKS lines must accumulate: %+v", s)
 	}
 }
+
+// Gate detection: an if among the first three statements whose initializer or
+// condition reads os.Getenv or os.LookupEnv (also the `_, ok :=
+// os.LookupEnv(...); !ok` form) or testing.Short and whose body skips is a
+// gate. An environment read whose body does not skip, a skip whose condition
+// reads no environment, a gate as the fourth statement and a gate inside a
+// helper the test calls are not.
+// Mutation: dropping the initializer from the searched condition text misses
+// the LookupEnv gate; not requiring a skip in the body gates TestReadsOnly.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func TestGoTestGatesNeedEnvironmentReadAndSkip(t *testing.T) {
+	src := `package sample
+
+import (
+	"os"
+	"testing"
+)
+
+func requireEnv(t *testing.T) {
+	if os.Getenv("HELPER_GATE") == "" {
+		t.Skip("set HELPER_GATE")
+	}
+}
+
+// TRLC-LINKS: REQ-GATE-001
+func TestLookup(t *testing.T) {
+	if _, ok := os.LookupEnv("LOOKUP_GATE"); !ok {
+		t.Skip("set LOOKUP_GATE")
+	}
+}
+
+// TRLC-LINKS: REQ-GATE-002
+func TestReadsOnly(t *testing.T) {
+	if os.Getenv("DEBUG") != "" {
+		t.Log("debug")
+	}
+}
+
+// TRLC-LINKS: REQ-GATE-003
+func TestSkipsOnOther(t *testing.T) {
+	if len(os.Args) > 99 {
+		t.Skip("many args")
+	}
+}
+
+// TRLC-LINKS: REQ-GATE-004
+func TestLateGate(t *testing.T) {
+	a := 1
+	b := 2
+	_ = a + b
+	if os.Getenv("LATE_GATE") == "" {
+		t.Skip("set LATE_GATE")
+	}
+}
+
+// TRLC-LINKS: REQ-GATE-005
+func TestViaHelper(t *testing.T) {
+	requireEnv(t)
+}
+`
+	got := scanFixture(t, "gate_test.go", src)
+	want := map[string]string{"CODE-TESTLOOKUP": "LOOKUP_GATE", "CODE-TESTREADSONLY": "", "CODE-TESTSKIPSONOTHER": "", "CODE-TESTLATEGATE": "", "CODE-TESTVIAHELPER": ""}
+	for name, gates := range want {
+		s, ok := got[name]
+		if !ok {
+			t.Fatalf("missing %s in %v", name, got)
+		}
+		if strings.Join(s.Gates, ",") != gates {
+			t.Fatalf("%s gates = %v, want %q", name, s.Gates, gates)
+		}
+	}
+}

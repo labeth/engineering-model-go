@@ -98,6 +98,7 @@ type (
 	RequirementAssurance        = model.RequirementAssurance
 	RequirementsDocument        = model.RequirementsDocument
 	Risk                        = model.Risk
+	AcceptanceRecord            = model.AcceptanceRecord
 	RiskEvidence                = model.RiskEvidence
 	Satisfaction                = model.Satisfaction
 	SemanticContent             = model.SemanticContent

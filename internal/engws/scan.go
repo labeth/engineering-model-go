@@ -129,7 +129,7 @@ var safeDirName = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 // ScanWithWarnings is Scan that also returns one warning per skipped
 // checkout: a directory name outside [A-Za-z0-9._-] or a module.path that is
 // not a valid CUE module path (host/path@vN). Neither is written into the
-// work files.
+// work files. Go module paths are checked where they are written (Sync).
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func ScanWithWarnings(root string) ([]Checkout, []string, error) {
@@ -199,7 +199,9 @@ func readManifest(path string) (model.ManifestDocument, error) {
 }
 
 // readGoModule returns the module path declared in dir/go.mod and its
-// requires (path to version), or "" and nil without go.mod.
+// requires (path to version), or "" and nil without go.mod. The values are
+// as written: callers that copy them into a file or a command line check
+// them first (goWorkModules, bump).
 // TRLC-LINKS: REQ-EMG-068
 func readGoModule(dir string) (string, map[string]string, error) {
 	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))

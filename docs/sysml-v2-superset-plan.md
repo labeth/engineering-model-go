@@ -110,8 +110,6 @@ documented SysML v2 subset. A semantic-superset claim requires:
 
 ## Current implemented slice
 
-<!-- TRLC-LINKS: REQ-EMG-038, REQ-EMG-039 -->
-
 The formal 2026-04 release has no normative metamodel XMI/Ecore. Tasks 1.1-1.3
 therefore use the aligned official Pilot Implementation Ecore as the closest
 machine-readable implementation artifact and label it non-normative. The pinned

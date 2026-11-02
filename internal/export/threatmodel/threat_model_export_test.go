@@ -2,6 +2,7 @@
 package threatmodel
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -102,9 +103,12 @@ func TestThreatModelExportCLI_EndToEnd(t *testing.T) {
 		format := format
 		t.Run(format, func(t *testing.T) {
 			cmd := exec.Command("go", "run", "./cmd/engdragon", "--model", modelPath, "--format", format)
-			out, err := cmd.CombinedOutput()
+			// Diagnostics (warnings included) go to stderr; stdout is the document.
+			var stderr bytes.Buffer
+			cmd.Stderr = &stderr
+			out, err := cmd.Output()
 			if err != nil {
-				t.Fatalf("cli failed: %v\noutput:\n%s", err, string(out))
+				t.Fatalf("cli failed: %v\noutput:\n%s%s", err, string(out), stderr.String())
 			}
 			var parsed any
 			if err := json.Unmarshal(out, &parsed); err != nil {

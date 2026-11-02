@@ -4,6 +4,7 @@ package validate
 import (
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -142,5 +143,42 @@ func TestAuthoringFieldRuleOutOfScopeRejectsSystemAndNonActorOwner(t *testing.T)
 	}
 	if _, ok := codes["model.invalid_threat_out_of_scope_owner"]; !ok {
 		t.Fatalf("expected non-actor owner rejection, got %+v", codes)
+	}
+}
+
+// The authoring contract gives triggered_by one meaning (an event handled
+// within the state), says that entering a state is a transitions_to, where
+// the causing event goes, and lists the assurance link diagnostics.
+// Mutation: deleting the triggered_by field rule fails this test.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-087
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func TestAuthoringRulesDefineTriggeredByAndAssuranceLinks(t *testing.T) {
+	text := strings.Join(AuthoringRules().FieldRules, "\n")
+	for _, want := range []string{
+		"triggered_by (state -> event) means the event is handled within the state",
+		"Entering a state is a transitions_to",
+		"semantics.relationships transition with triggers",
+		"threat.verification_missing", "mitigation.verification_control_mismatch", "verification.unlinked", "gemara.control_needs_review",
+	} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("authoring field rules must contain %q:\n%s", want, text)
+		}
+	}
+}
+
+// publicationSections are the yaml fields of model.ManifestPublication after
+// id, in declaration order, so a new publication section reaches the
+// authoring contract without a second list.
+// Mutation: returning a fixed list without "views" fails this test.
+// TRLC-LINKS: REQ-EMG-087
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func TestPublicationSectionsAreManifestPublicationFields(t *testing.T) {
+	fields := fieldSets()["publication"]
+	if len(fields) < 2 || fields[0] != "id" {
+		t.Fatalf("publication fields = %v, want id first", fields)
+	}
+	got := AuthoringRules().PublicationSections
+	if strings.Join(got, ",") != strings.Join(fields[1:], ",") || strings.Join(got, ",") != "architecture,behavior,assurance,compliance,requirements,views" {
+		t.Fatalf("publicationSections = %v, want the ManifestPublication fields after id %v", got, fields[1:])
 	}
 }

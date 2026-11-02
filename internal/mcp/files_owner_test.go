@@ -4,6 +4,7 @@ package mcp
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/validate"
@@ -102,5 +103,62 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 	}
 	if fieldRules, _ := rules["fieldRules"].([]any); len(fieldRules) != len(want.FieldRules) {
 		t.Fatalf("fieldRules = %v", fieldRules)
+	}
+}
+
+// The authoring contract rules list the fields each entity kind accepts, the
+// manifest publication sections (decisions cannot be published) and the
+// field rules for boundaryCrossing, behavior.event_unused, the
+// lint.multiple_responses field-list exemption and the strict EARS system term.
+// Mutation: dropping fieldSets from validate.Rules fails this test.
+// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	rules, _ := payload["rules"].(map[string]any)
+	sets, _ := rules["fieldSets"].(map[string]any)
+	fields := func(kind string) string {
+		list, _ := sets[kind].([]any)
+		out := make([]string, 0, len(list))
+		for _, f := range list {
+			out = append(out, f.(string))
+		}
+		return strings.Join(out, ",")
+	}
+	if got := fields("control"); got != "id,name,category,description" {
+		t.Fatalf("fieldSets.control = %q", got)
+	}
+	risk := "," + fields("risk") + ","
+	for _, f := range []string{"id", "status", "response", "owner", "evidence", "residualRisk", "rationale", "acceptedBy"} {
+		if !strings.Contains(risk, ","+f+",") {
+			t.Fatalf("fieldSets.risk lacks %s: %s", f, risk)
+		}
+	}
+	for _, kind := range []string{"threatScenario", "flowStep", "flow", "functionalUnit", "requirement", "decision", "acceptanceRecord", "controlVerification", "publication"} {
+		if fields(kind) == "" {
+			t.Fatalf("fieldSets has no %s: %v", kind, sets)
+		}
+	}
+	if !strings.Contains(","+fields("flowStep")+",", ",trustBoundaryRef,") {
+		t.Fatalf("fieldSets.flowStep = %s", fields("flowStep"))
+	}
+	sections, _ := rules["publicationSections"].([]any)
+	var got []string
+	for _, x := range sections {
+		got = append(got, x.(string))
+	}
+	if strings.Join(got, ",") != "architecture,behavior,assurance,compliance,requirements,views" {
+		t.Fatalf("publicationSections = %v", got)
+	}
+	fieldRules, _ := rules["fieldRules"].([]any)
+	all := ""
+	for _, r := range fieldRules {
+		all += r.(string) + "\n"
+	}
+	for _, want := range []string{"boundaryCrossing: true needs trustBoundaryRef", "behavior.event_unused counts", "properties", "lint.multiple_responses", "with, including or of", "strict EARS", "catalog system", "Decisions cannot be published", "acceptedBy"} {
+		if !strings.Contains(all, want) {
+			t.Fatalf("fieldRules lack %q:\n%s", want, all)
+		}
 	}
 }

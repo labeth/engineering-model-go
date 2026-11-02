@@ -2,6 +2,7 @@
 package gemara
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	gemaraproj "github.com/gemaraproj/go-gemara"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // gemaraTruthBundle is a minimal in-memory model with one control, one
@@ -357,20 +359,29 @@ func TestGemaraEnforcementDispositionFollowsPOAMStatus(t *testing.T) {
 	}
 }
 
-// Policy risks.mitigated lists only closed risks; accepted lists risks with
-// status accepted or response accept; open and mitigating risks are in neither
-// list and a diagnostic says so.
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// Policy risks.mitigated lists only closed risks; accepted lists risks with a
+// resolving owner acceptance record and status accepted, or response accept
+// and a status other than open. Open and mitigating risks, an accepted risk
+// without a record, one whose record names no actor of the model, and
+// response accept while open are in neither list and a diagnostic says so.
+// Mutation: dropping the acceptance record condition lists RISK-UNRECORDED;
+// checking only completeness (AcceptanceMissing) lists RISK-UNRESOLVED.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func TestGemaraPolicyRisksFollowRiskStatus(t *testing.T) {
 	b := gemaraTruthBundle("test")
 	a := &b.Architecture.AuthoredArchitecture
+	rec := &model.AcceptanceRecord{Actor: "ACT-A", Date: "2026-11-01", Statement: "I accept it."}
+	a.Actors = []model.Actor{{ID: "ACT-A", Name: "Owner A"}}
 	a.Risks = []model.Risk{
+		{ID: "RISK-UNRESOLVED", Title: "x", Likelihood: "low", Impact: "low", Status: "accepted", Response: "accept", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-NOBODY", Date: "2026-11-01", Statement: "I accept it."}},
 		{ID: "RISK-OPEN", Title: "o", Likelihood: "low", Impact: "low", Status: "open", Response: "mitigate"},
 		{ID: "RISK-MITIGATING", Title: "m", Likelihood: "low", Impact: "low", Status: "mitigating", Response: "mitigate"},
 		{ID: "RISK-CLOSED", Title: "c", Likelihood: "low", Impact: "low", Status: "closed", Response: "mitigate"},
-		{ID: "RISK-ACCEPTED", Title: "a", Likelihood: "low", Impact: "low", Status: "accepted", Response: "mitigate"},
-		{ID: "RISK-ACCEPT-RESPONSE", Title: "r", Likelihood: "low", Impact: "low", Status: "open", Response: "accept", Rationale: "cheap"},
+		{ID: "RISK-ACCEPTED", Title: "a", Likelihood: "low", Impact: "low", Status: "accepted", Response: "mitigate", AcceptedBy: rec},
+		{ID: "RISK-ACCEPT-RESPONSE", Title: "r", Likelihood: "low", Impact: "low", Status: "mitigating", Response: "accept", Rationale: "cheap", AcceptedBy: rec},
+		{ID: "RISK-UNRECORDED", Title: "u", Likelihood: "low", Impact: "low", Status: "accepted", Response: "accept"},
+		{ID: "RISK-ACCEPT-OPEN", Title: "w", Likelihood: "low", Impact: "low", Status: "open", Response: "accept", AcceptedBy: rec},
 	}
 	a.ControlVerifications[0].RiskRefs = []string{"RISK-OPEN"}
 	a.POAMItems = []model.POAMItem{{ID: "POAM-A", RiskRef: "RISK-OPEN", Milestone: "m", Status: "planned"}}
@@ -390,7 +401,8 @@ func TestGemaraPolicyRisksFollowRiskStatus(t *testing.T) {
 	}
 	found := false
 	for _, d := range res.Diagnostics {
-		if d.Code == "gemara.policy_risks_untreated" && strings.Contains(d.Message, "RISK-OPEN") && strings.Contains(d.Message, "RISK-MITIGATING") {
+		if d.Code == "gemara.policy_risks_untreated" && strings.Contains(d.Message, "RISK-OPEN") && strings.Contains(d.Message, "RISK-MITIGATING") &&
+			strings.Contains(d.Message, "RISK-UNRECORDED") && strings.Contains(d.Message, "RISK-ACCEPT-OPEN") && strings.Contains(d.Message, "RISK-UNRESOLVED") {
 			found = true
 		}
 	}
@@ -461,5 +473,95 @@ func TestGemaraModelConsistencyCatchesOverclaims(t *testing.T) {
 	}
 	if !enforced || !mitigated {
 		t.Fatalf("expected enforcement and policy overclaims, got %+v", errs)
+	}
+}
+
+// The model consistency check rejects a policy that lists under
+// risks.accepted a risk whose status is accepted but that has no acceptedBy
+// record, or whose record does not resolve (an actor the model does not
+// have), and accepts the rendered policy, which lists only the recorded risk.
+// Mutation: making the consistency check's accepted predicate ignore the
+// acceptance record (status only) reports no error for RISK-B.
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func TestGemaraModelConsistencyRejectsUnrecordedAcceptedRisk(t *testing.T) {
+	b := gemaraTruthBundle("test")
+	a := &b.Architecture.AuthoredArchitecture
+	a.Actors = []model.Actor{{ID: "ACT-A", Name: "Owner A"}}
+	a.Risks[0].Status = "accepted"
+	a.Risks[0].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-A", Date: "2026-11-01", Statement: "I accept it."}
+	a.Risks[1].Status = "accepted"
+	res := generateTruth(t, b)
+	docs := map[string]string{}
+	for k, v := range res.YAML {
+		docs[k] = v
+	}
+	if errs := CheckModelConsistency(b, docs); len(errs) != 0 {
+		t.Fatalf("rendered set must be consistent, got %+v", errs)
+	}
+	pol := docs["policy"]
+	if !strings.Contains(pol, "id: ACC-RISK-A") || strings.Contains(pol, "ACC-RISK-B") {
+		t.Fatalf("fixture changed: the policy must accept only RISK-A:\n%s", pol)
+	}
+	// List RISK-B (no record) as accepted, then RISK-A with an unresolved actor.
+	docs["policy"] = strings.Replace(pol, "entry-id: RISK-A", "entry-id: RISK-B", 1)
+	errs := CheckModelConsistency(b, docs)
+	if len(errs) != 1 || errs[0].Artifact != "policy" || errs[0].EntryId != "RISK-B" || !strings.HasPrefix(errs[0].Path, "risks.accepted[") {
+		t.Fatalf("want one policy error for RISK-B under risks.accepted, got %+v", errs)
+	}
+	docs["policy"] = pol
+	a.Risks[0].AcceptedBy.Actor = "ACT-NOBODY"
+	errs = CheckModelConsistency(b, docs)
+	if len(errs) != 1 || errs[0].EntryId != "RISK-A" {
+		t.Fatalf("want one policy error for RISK-A with an unresolved actor, got %+v", errs)
+	}
+}
+
+// validate's gemara.control_needs_review warns at exactly the controls the
+// rendered evaluation log gives Needs Review: no verification, partial only,
+// partial with pass; not partial with fail, pass, or not-run only.
+// Mutation: letting a failed verification not outrank one that needs review
+// in validate.ControlNeedsReview warns at CTRL-FAILED, which the log marks
+// Failed.
+// TRLC-LINKS: REQ-EMG-083, REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-VALIDATION-ENGINE
+func TestGemaraNeedsReviewWarningMatchesEvaluationLog(t *testing.T) {
+	b := gemaraTruthBundle("test")
+	a := &b.Architecture.AuthoredArchitecture
+	a.Controls = nil
+	a.ControlVerifications = nil
+	for _, c := range []struct {
+		id       string
+		statuses []string
+	}{
+		{"CTRL-NONE", nil}, {"CTRL-PARTIAL", []string{"partial"}}, {"CTRL-MIXED", []string{"partial", "pass"}},
+		{"CTRL-FAILED", []string{"partial", "fail"}}, {"CTRL-PASS", []string{"pass"}}, {"CTRL-NOTRUN", []string{"not-run"}},
+	} {
+		a.Controls = append(a.Controls, model.Control{ID: c.id, Name: c.id, Category: "c", Description: "d"})
+		for i, status := range c.statuses {
+			a.ControlVerifications = append(a.ControlVerifications, model.ControlVerification{ID: fmt.Sprintf("CV-%s-%d", c.id, i), ControlRef: c.id, Method: "analysis", Status: status})
+		}
+	}
+	res, err := GenerateEvaluationLog(b, b.Requirements, "", Options{Date: "2026-06-26T00:00:00Z"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var logged []string
+	for _, ev := range res.EvaluationLog.Evaluations {
+		if ev.Result == gemaraproj.NeedsReview {
+			logged = append(logged, ev.Control.EntryId)
+		}
+	}
+	var warned []string
+	for _, d := range validate.Bundle(b) {
+		if d.Code == "gemara.control_needs_review" {
+			idx := strings.TrimSuffix(strings.TrimPrefix(d.Path, "authoredArchitecture.controls["), "]")
+			var i int
+			fmt.Sscanf(idx, "%d", &i)
+			warned = append(warned, a.Controls[i].ID)
+		}
+	}
+	if strings.Join(logged, ",") != "CTRL-NONE,CTRL-PARTIAL,CTRL-MIXED" || strings.Join(warned, ",") != strings.Join(logged, ",") {
+		t.Fatalf("evaluation log Needs Review %v, validation warnings %v; want both CTRL-NONE,CTRL-PARTIAL,CTRL-MIXED", logged, warned)
 	}
 }

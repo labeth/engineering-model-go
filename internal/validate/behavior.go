@@ -67,7 +67,7 @@ func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticC
 			continue
 		}
 		diags = append(diags, Diagnostic{Code: "behavior.event_unused", Severity: SeverityWarning,
-			Message: fmt.Sprintf("event %q is in no triggered_by relationship, transition trigger or flow; add the state it triggers or remove the event", id),
+			Message: fmt.Sprintf("event %q is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event", id),
 			Path:    fmt.Sprintf("authoredArchitecture.events[%d]", i)})
 	}
 

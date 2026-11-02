@@ -45,6 +45,7 @@
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
     "orphan": 0,
-    "danglingLinks": 0
+    "danglingLinks": 0,
+    "gatedOnly": 0
   }
 }

@@ -79,8 +79,10 @@ mandates. `metadata.author` stays the generator identity (`--author`, default
 is never used as a policy contact.
 
 `risks` follows the model risk `status`: `mitigated` lists only risks whose status is `closed`;
-`accepted` lists risks whose status is `accepted` or whose response is `accept`. Open and
-mitigating risks are still being treated. Gemara `Risks` has only these two lists and no notes
+`accepted` lists risks with a complete owner acceptance record (`acceptedBy`) whose actor is
+an actor of the model, whose date is a YYYY-MM-DD calendar date and whose `decisionRef`, if
+set, names an accepted decision, and whose status is `accepted` or whose response is `accept`
+with a status other than `open`. Open and mitigating risks are still being treated. Gemara `Risks` has only these two lists and no notes
 field, so they are left out of both and the export diagnostic `gemara.policy_risks_untreated`
 names them.
 
@@ -130,7 +132,7 @@ L5 Evaluation Log.
 - **Model consistency (in-repo):** `CheckGemaraModelConsistency` compares the rendered claims
   with the model: each enforcement action's disposition and the aggregate must follow the POA&M
   statuses as above, and a risk listed as `mitigated` must be `closed` and one listed as
-  `accepted` must be accepted. `gemara.validate` returns these as `modelConsistencyErrors` and
+  `accepted` must meet the `accepted` rule above (a resolving `acceptedBy` record). `gemara.validate` returns these as `modelConsistencyErrors` and
   sets `valid: false` when there are any.
 - **SDK (in-repo):** `go test -run TestGemara ./...` builds every artifact, loads it back
   through `gemara.Load[T]`, confirms `gemara.DetectType`, and checks structural invariants.
