@@ -335,6 +335,9 @@ func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[
 		if !artifact && ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
 			return nil
 		}
+		if artifact && !codemap.ReadableArtifact(path) {
+			return nil
+		}
 		data, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return nil
@@ -347,9 +350,7 @@ func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[
 		if artifact {
 			// A container file or Markdown document is a source file only when
 			// it carries trace markers; its owner comes from its comments.
-			owner, _ := codemap.ArtifactMarker(path, data, "ENGMODEL-OWNER-UNIT:")
-			_, links := codemap.ArtifactMarker(path, data, "TRLC-LINKS:")
-			_, modelLinks := codemap.ArtifactMarker(path, data, "ENGMODEL-LINKS:")
+			owner, _, links, modelLinks := codemap.ArtifactMarkers(path, data)
 			if owner != "" || links > 0 || modelLinks > 0 {
 				out[rel] = codeFileMetadata{Owner: textutil.NonEmpty(owner, "unresolved")}
 			}

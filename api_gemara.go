@@ -103,9 +103,10 @@ func CheckGemaraCrossReferences(docs map[string]string) []GemaraCrossReferenceEr
 // enforcement action's disposition must follow its POA&M item's status (only
 // completed is Enforced, only accepted is Tolerated), the log's aggregate must
 // follow the actions, the policy may list a risk as mitigated only when it is
-// closed and as accepted only when it is accepted. It reports each claim the
-// model does not support with the same error shape as the cross-reference check.
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// closed and as accepted only when it has a complete owner acceptance record
+// whose actor, date and decisionRef resolve. It reports each claim the model
+// does not support with the same error shape as the cross-reference check.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func CheckGemaraModelConsistency(bundle Bundle, docs map[string]string) []GemaraCrossReferenceError {
 	return gemara.CheckModelConsistency(bundle, docs)

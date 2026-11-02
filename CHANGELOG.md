@@ -29,37 +29,68 @@ semantic versioning.
   decisionRef}` on risks and threat scenarios (Go type `AcceptanceRecord`, CUE schema).
   `risk.acceptance_unrecorded` (error at `acceptedBy`) for a risk with `status: accepted` or
   `response: accept`, or a threat scenario with `status: accepted`, that lacks an actor, a
-  YYYY-MM-DD date, and a statement or decisionRef; `model.invalid_acceptance` (error) for an
-  actor, date or decisionRef that does not resolve; `risk.accept_while_open` (warning) for
-  `response: accept` with `status: open`.
+  date, and a statement or decisionRef; `model.invalid_acceptance` (error) for an actor that is
+  no actor, a date that is no YYYY-MM-DD calendar date, or a decisionRef that is no decision or
+  a decision whose status is not `accepted`; `risk.acceptance_not_owner` (warning) when the
+  accepting actor is not the risk's `owner`; `risk.accept_while_open` (warning) for
+  `response: accept` with `status: open`. The record is an authored claim: the checks make it
+  complete and consistent, and review of the diff that adds it is what shows the owner gave it.
+- Threat scenarios, mitigations and control verifications in the engine's own model for
+  `go.work` generation from untrusted checkouts, artifact parsing of untrusted repository files
+  and false acceptance claims.
 - `engws sync` writes `replace <module> <version> => ./<dir>` into the family `go.work` for each
   version of a workspace Go module that any checkout requires, so unpublished family modules
-  build (REQ-EMG-086).
+  build (REQ-EMG-086). A `go.mod` module path that fails `module.CheckPath` (for example a quoted
+  path with a line break) skips that checkout's Go module, and an invalid require is ignored,
+  each with a warning, so neither reaches `go.work`.
 - The authoring contract rules (`validate.AuthoringRules`, MCP `model.authoringContract`) add
   `fieldSets` (the YAML fields each entity kind accepts, from the strict-decoding types) and
   `publicationSections` (decisions cannot be published), and field rules for
   `boundaryCrossing`/`trustBoundaryRef`, what `behavior.event_unused` counts, the
   `lint.multiple_responses` field-list exemption, the strict EARS system term and acceptance
   records (REQ-EMG-087).
-- Environment-gated tests (REQ-EMG-088): a Go test whose first statements skip unless
-  `os.Getenv`/`os.LookupEnv` returns a value, or under `testing.Short()`, is gated. Trace rows
-  whose every linked test is gated carry `gated` and `gates`; the summary adds `gatedOnly` and
-  `gatedOnlyRequirements` (still counted in `testLinked`), also in MCP `trace.matrix`.
+- Environment-gated tests (REQ-EMG-088): a Go test that skips depending on an environment
+  variable or `testing.Short()` is gated: one of its first three statements is an `if` that
+  reads `os.Getenv`/`os.LookupEnv` or calls `testing.Short()` and whose body calls `t.Skip`,
+  `t.Skipf` or `t.SkipNow`. A gate in a later statement or in a helper is not detected.
+  Trace rows whose every linked test is gated carry `gated` and `gates`; the summary adds
+  `gatedOnly` and `gatedOnlyRequirements` (still counted in `testLinked`), also in MCP
+  `trace.matrix`.
 
 ### Fixed
 
 - The MCP server renders every tool call from the model files on disk (REQ-EMG-089). It
   previously kept the model loaded at `initialize`, so a call right after an edit (for example
   `gemara.policy` after changing a risk) returned the old result until the client initialized
-  again. It now fingerprints the manifest, its documents, lock and workspace files and reloads
-  when they change.
+  again. It now fingerprints this module's model files (the manifest, its documents, and the
+  lock and workspace files next to it) and reloads when they change; a reload that fails is the
+  call's error (-32001). Edits in a sibling checkout that the workspace resolves a dependency
+  from are not detected: re-send `initialize` after them.
 
 ### Changed
 
-- The Gemara policy lists a risk under `risks.accepted` only when it has a complete
-  `acceptedBy` record and status `accepted`, or response `accept` with a status other than
-  `open`; `CheckGemaraModelConsistency` checks the same rule (REQ-EMG-085).
-
+- **Breaking:** `risk.acceptance_unrecorded` is a new error. A model with a risk at
+  `status: accepted` or `response: accept`, or a threat scenario at `status: accepted`, fails
+  validation until it has `acceptedBy` (actor, date, statement or decisionRef) from its owner.
+- **Breaking:** the Gemara policy lists a risk under `risks.accepted` only when it has a
+  complete, resolving `acceptedBy` record and status `accepted`, or response `accept` with a
+  status other than `open`; `CheckGemaraModelConsistency` checks the same rule (REQ-EMG-085).
+- **Breaking:** authored risk and threat scenario IDs must not contain `::` (schema error);
+  `alias::ID` is reserved for entities imported by composition.
+- **Breaking:** existing `TRLC-LINKS` markers in Markdown HTML comments and in Dockerfile `#`
+  comments now count as implementation of the linked requirements, and an invalid or dangling
+  one is now an error (`code.invalid_trlc_link`, `code.dangling_requirement_link`). The engine's
+  own `docs/sysml-v2-superset-plan.md` marker for REQ-EMG-038/039 is removed: a plan document is
+  not their implementation.
+- Markdown marker scanning closes a fence only on a fence of the same character that is at
+  least as long (CommonMark) and ignores lines indented four or more columns; artifact files
+  are split on bytes (a line longer than 1 MiB no longer stops the scan) and only regular files
+  up to 512 KiB are read.
+- `gemara.control_needs_review` also warns at a control whose verifications need review (for
+  example `partial`) and none failed, so it warns at exactly the controls the evaluation log
+  marks Needs Review; both use one status mapping (REQ-EMG-083).
+- `publicationSections` in the authoring contract is derived from the manifest publication
+  type's fields.
 - The authoring contract defines `triggered_by` (state → event) as an event handled within the
   state; the event that enters a state belongs to `transitions_to` (its description, or a
   `semantics.relationships` transition with `triggers`). `behavior.event_unused` says so.

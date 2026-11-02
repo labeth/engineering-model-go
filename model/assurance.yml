@@ -13,6 +13,14 @@ assurance:
   - id: AV-TRACEABILITY-GAP-DRIFT
     name: Traceability Gap Drift
     description: Requirement and verification links diverge from implementation over time.
+  - id: AV-UNTRUSTED-CHECKOUT-CONTENT
+    name: Untrusted Checkout Content
+    description: Crafted files in a scanned repository or sibling checkout (go.mod, Markdown, Dockerfiles, symlinks, FIFOs,
+      oversized files) that the tools read and copy into generated files or the trace.
+  - id: AV-FALSE-ACCEPTANCE-CLAIM
+    name: False Acceptance Claim
+    description: A model edit (by a person or an AI agent) that records a risk or threat as accepted without the owner's
+      acceptance, so exports present the risk as treated.
   controls:
   - id: CTRL-MCP-PATH-BOUNDARY
     name: MCP Path Boundary Enforcement
@@ -36,6 +44,22 @@ assurance:
     category: assurance
     description: Generate artifacts deterministically and fail continuous integration when regenerated documents differ from
       the committed artifacts.
+  - id: CTRL-GO-WORK-INPUT-VALIDATION
+    name: Go Workspace Input Validation
+    category: input-validation
+    description: Write only Go module paths and versions that pass golang.org/x/mod/module checks into go.work; skip the
+      checkout or require otherwise, with a warning.
+  - id: CTRL-ARTIFACT-SCAN-BOUNDS
+    name: Artifact Scan Bounds
+    category: input-validation
+    description: Read trace markers only from regular artifact files up to the size cap, split on bytes without a line
+      limit, and only outside Markdown code blocks (CommonMark fence lengths, indented code).
+  - id: CTRL-ACCEPTANCE-RECORD-CHECK
+    name: Owner Acceptance Record Check
+    category: assurance
+    description: Require a complete, resolving acceptedBy record (existing actor, calendar date, accepted decision) for every
+      accepted risk and threat scenario, warn when the actor is not the risk owner, and list only such risks as accepted in
+      the Gemara policy. Human review of the diff that adds the record remains the control that the owner gave it.
   risks:
   - id: RISK-MCP-PATH-ESCAPE
     title: MCP path traversal exposes non-repository files
@@ -168,6 +192,63 @@ assurance:
     - CTRL-TRACEABILITY-COVERAGE
     verificationRefs:
     - VER-TRACEABILITY-COVERAGE
+  - id: TS-GO-WORK-INJECTION
+    title: Crafted go.mod injects go.work directives
+    summary: A sibling checkout's go.mod declares a quoted module or require path with a line break, so engws sync writes
+      an extra use or replace directive into the generated go.work.
+    category: input-validation
+    stride: tampering
+    attackVectorRef: AV-UNTRUSTED-CHECKOUT-CONTENT
+    appliesTo:
+    - FU-CLI-ORCHESTRATION
+    likelihood: low
+    impact: high
+    severity: medium
+    status: mitigating
+    owner: ACT-ARCHITECTURE-AUTHOR
+    relatedControls:
+    - CTRL-GO-WORK-INPUT-VALIDATION
+    verificationRefs:
+    - VER-GO-WORK-INPUT-VALIDATION
+  - id: TS-ARTIFACT-PARSE-ABUSE
+    title: Crafted repository artifacts mislead or stall the code scan
+    summary: A Markdown or container file in a scanned repository claims implementation through markers inside code
+      blocks, hides markers after an over-long line, or is a symlink, FIFO or very large file that the scan follows or
+      reads without bound.
+    category: input-validation
+    stride: tampering
+    attackVectorRef: AV-UNTRUSTED-CHECKOUT-CONTENT
+    appliesTo:
+    - FU-CODEMAP-INFERENCE
+    - FU-MCP-SERVER
+    likelihood: medium
+    impact: medium
+    severity: medium
+    status: mitigating
+    owner: ACT-COMPLIANCE-ENGINEER
+    relatedControls:
+    - CTRL-ARTIFACT-SCAN-BOUNDS
+    verificationRefs:
+    - VER-ARTIFACT-SCAN-BOUNDS
+  - id: TS-FALSE-RISK-ACCEPTANCE
+    title: Risk recorded as accepted without the owner
+    summary: A model edit sets a risk or threat scenario to accepted with a missing, unresolvable or non-owner acceptance
+      record, and the Gemara policy lists it under risks.accepted.
+    category: assurance
+    stride: repudiation
+    attackVectorRef: AV-FALSE-ACCEPTANCE-CLAIM
+    appliesTo:
+    - FU-VALIDATION-ENGINE
+    - FU-GEMARA-EXPORTER
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-COMPLIANCE-ENGINEER
+    relatedControls:
+    - CTRL-ACCEPTANCE-RECORD-CHECK
+    verificationRefs:
+    - VER-ACCEPTANCE-RECORD-CHECK
   threatMitigations:
   - id: TM-MCP-PATH-BOUNDARY
     threatScenarioRef: TS-MCP-PATH-TRAVERSAL
@@ -183,6 +264,30 @@ assurance:
     status: implemented
     effectiveness: medium
     owner: ACT-COMPLIANCE-ENGINEER
+  - id: TM-GO-WORK-INPUT-VALIDATION
+    threatScenarioRef: TS-GO-WORK-INJECTION
+    controlRef: CTRL-GO-WORK-INPUT-VALIDATION
+    status: implemented
+    effectiveness: high
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - VER-GO-WORK-INPUT-VALIDATION
+  - id: TM-ARTIFACT-SCAN-BOUNDS
+    threatScenarioRef: TS-ARTIFACT-PARSE-ABUSE
+    controlRef: CTRL-ARTIFACT-SCAN-BOUNDS
+    status: implemented
+    effectiveness: medium
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - VER-ARTIFACT-SCAN-BOUNDS
+  - id: TM-ACCEPTANCE-RECORD-CHECK
+    threatScenarioRef: TS-FALSE-RISK-ACCEPTANCE
+    controlRef: CTRL-ACCEPTANCE-RECORD-CHECK
+    status: implemented
+    effectiveness: medium
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - VER-ACCEPTANCE-RECORD-CHECK
   controlVerifications:
   - id: VER-MCP-PATH-BOUNDARY
     controlRef: CTRL-MCP-PATH-BOUNDARY
@@ -210,3 +315,42 @@ assurance:
     evidence:
     - path: internal/codescan/inferred_verification_test.go
       description: Verification inference and trace marker coverage tests.
+  - id: VER-GO-WORK-INPUT-VALIDATION
+    controlRef: CTRL-GO-WORK-INPUT-VALIDATION
+    threatScenarioRefs:
+    - TS-GO-WORK-INJECTION
+    method: test
+    status: pass
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - CODE-INTERNAL-ENGWS-SYNC-TEST-GO--TESTSYNCREJECTSGOMODPATHSWITHLINEBREAKS
+    - CODE-INTERNAL-ENGWS-SYNC-TEST-GO--TESTSYNCSKIPSUNSAFEMODULEPATHSANDDIRECTORYNAMES
+    findings:
+    - A quoted go.mod module or require path with a line break adds no line to go.work.
+  - id: VER-ARTIFACT-SCAN-BOUNDS
+    controlRef: CTRL-ARTIFACT-SCAN-BOUNDS
+    threatScenarioRefs:
+    - TS-ARTIFACT-PARSE-ABUSE
+    method: test
+    status: pass
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - CODE-INTERNAL-CODEMAP-ARTIFACT-TEST-GO--TESTMARKDOWNMARKERSSKIPLONGFENCESANDINDENTEDCODE
+    - CODE-INTERNAL-CODEMAP-ARTIFACT-TEST-GO--TESTARTIFACTMARKERSAFTERLONGLINEAREREAD
+    - CODE-INTERNAL-CODEMAP-ARTIFACT-TEST-GO--TESTSCANSKIPSOVERSIZEDANDNONREGULARARTIFACTS
+    - CODE-INTERNAL-MCP-FINGERPRINT-UNIX-TEST-GO--TESTMODELFINGERPRINTSKIPSNONREGULARFILES
+    findings:
+    - Markers in long fences and indented code are ignored, lines after a 1 MiB line are read, and oversized files,
+      symlinks and FIFOs are not read.
+  - id: VER-ACCEPTANCE-RECORD-CHECK
+    controlRef: CTRL-ACCEPTANCE-RECORD-CHECK
+    threatScenarioRefs:
+    - TS-FALSE-RISK-ACCEPTANCE
+    method: test
+    status: pass
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - REQ-EMG-085
+    findings:
+    - Missing, unresolvable and non-owner acceptance records are reported, and the Gemara policy and its consistency check
+      accept only resolving records. The tests cannot show that the owner gave the acceptance; review of the diff does.

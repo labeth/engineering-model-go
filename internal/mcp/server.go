@@ -50,8 +50,11 @@ type Server struct {
 
 const (
 	maxIndexedFileBytes = 512 * 1024
-	maxIndexedFiles     = 5000
-	toolSchemaVersion   = "mcp.tool-response.v1"
+	// maxFingerprintFileBytes caps how much of one model file the reload
+	// fingerprint reads; larger files are compared by size and mtime.
+	maxFingerprintFileBytes = 16 * 1024 * 1024
+	maxIndexedFiles         = 5000
+	toolSchemaVersion       = "mcp.tool-response.v1"
 )
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -466,10 +469,16 @@ func (s *Server) refreshModel() error {
 	return s.loadContext(nil)
 }
 
-// modelFileFingerprint hashes the path and content of every file the loaded
-// model comes from: the manifest, each document it names, the requirements
-// and design paths, and the lock and workspace files next to the manifest.
-// A missing file hashes as absent, so creating or deleting one also counts.
+// modelFileFingerprint hashes the path and content of every file of this
+// module's model: the manifest, each document it names, the requirements and
+// design paths, and the lock and workspace files next to the manifest. It
+// does not cover the documents of dependencies resolved from sibling
+// checkouts or the module cache; an edit there needs a new initialize. A
+// missing file hashes as absent, so creating or deleting one also counts.
+// Only regular files up to maxFingerprintFileBytes are read; a larger one
+// hashes by size and modification time and a non-regular one (a FIFO or
+// device) by its mode, so the fingerprint never blocks or reads unbounded
+// input.
 // TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (s *Server) modelFileFingerprint() string {
@@ -490,6 +499,18 @@ func (s *Server) modelFileFingerprint() string {
 			continue
 		}
 		seen[p] = true
+		info, err := os.Stat(p)
+		switch {
+		case err != nil:
+			fmt.Fprintf(h, "%s\x00absent\x00", p)
+			continue
+		case !info.Mode().IsRegular():
+			fmt.Fprintf(h, "%s\x00mode %v\x00", p, info.Mode())
+			continue
+		case info.Size() > maxFingerprintFileBytes:
+			fmt.Fprintf(h, "%s\x00large %d %d\x00", p, info.Size(), info.ModTime().UnixNano())
+			continue
+		}
 		data, err := os.ReadFile(p)
 		if err != nil {
 			fmt.Fprintf(h, "%s\x00absent\x00", p)

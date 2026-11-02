@@ -5,18 +5,36 @@ package codemap
 // (Dockerfile, Containerfile, *.Dockerfile, *.Containerfile) or a Markdown
 // document may carry TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT markers
 // in its comments: `#` lines in a container file, HTML comments starting a line
-// outside fenced code blocks in Markdown. The markers apply to the whole file,
+// outside fenced and indented code blocks in Markdown. Only regular files up to
+// MaxArtifactBytes are read. The markers apply to the whole file,
 // which becomes one symbol with the file's CODE identifier. Markers are
 // optional: an artifact without them yields nothing and no missing-link error.
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
+	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
+
+// MaxArtifactBytes is the largest container build file or Markdown document
+// the scanner reads; a larger one, like a non-regular file (symlink, device,
+// FIFO), is skipped, so an untrusted repository cannot make the scan read an
+// unbounded or blocking file. It mirrors the MCP server's file index cap.
+const MaxArtifactBytes = 512 * 1024
+
+// ReadableArtifact reports whether an artifact file may be read: a regular
+// file of at most MaxArtifactBytes. It does not follow symlinks.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, TB-REPO-WORKSPACE
+func ReadableArtifact(path string) bool {
+	info, err := os.Lstat(path)
+	return err == nil && info.Mode().IsRegular() && info.Size() <= MaxArtifactBytes
+}
 
 // IsArtifactFile reports whether a path names a container build file or a
 // Markdown document whose comment markers the scanner reads.
@@ -45,50 +63,113 @@ func isMarkdownFile(path string) bool {
 
 // artifactComments returns the text of each comment line of an artifact by
 // 1-based line number: the text after `#` in a container file; in Markdown the
-// text inside an HTML comment that starts a line, outside fenced code blocks,
-// with the comment delimiters removed.
+// text inside an HTML comment that starts a line (indented at most three
+// columns, so not in an indented code block), outside fenced code blocks, with
+// the comment delimiters removed. The file is split on bytes, so no line length limit
+// drops lines.
 // TRLC-LINKS: REQ-EMG-084
 func artifactComments(path string, src []byte) map[int]string {
 	out := map[int]string{}
 	markdown := isMarkdownFile(path)
 	inComment := false
-	fence := ""
-	scanner := bufio.NewScanner(strings.NewReader(string(src)))
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for lineNo := 1; scanner.Scan(); lineNo++ {
-		line := strings.TrimSpace(scanner.Text())
+	var fence markdownFence
+	for i, raw := range bytes.Split(src, []byte("\n")) {
+		lineNo := i + 1
+		text := strings.TrimSuffix(string(raw), "\r")
+		line := strings.TrimSpace(text)
 		if !markdown {
-			if text, ok := strings.CutPrefix(line, "#"); ok {
-				out[lineNo] = strings.TrimSpace(text)
+			if comment, ok := strings.CutPrefix(line, "#"); ok {
+				out[lineNo] = strings.TrimSpace(comment)
 			}
 			continue
 		}
 		if inComment {
-			text, closed := strings.CutSuffix(line, "-->")
+			body, closed := strings.CutSuffix(line, "-->")
 			if !closed {
-				text, _, closed = strings.Cut(line, "-->")
+				body, _, closed = strings.Cut(line, "-->")
 			}
-			out[lineNo] = strings.TrimSpace(text)
+			out[lineNo] = strings.TrimSpace(body)
 			inComment = !closed
 			continue
 		}
-		if fence != "" {
-			if strings.HasPrefix(line, fence) {
-				fence = ""
+		if fence.char != 0 {
+			if fence.closedBy(text) {
+				fence = markdownFence{}
 			}
 			continue
 		}
-		if strings.HasPrefix(line, "```") || strings.HasPrefix(line, "~~~") {
-			fence = line[:3]
+		if f, ok := openMarkdownFence(text); ok {
+			fence = f
 			continue
 		}
-		if text, ok := strings.CutPrefix(line, "<!--"); ok {
-			body, _, closed := strings.Cut(text, "-->")
-			out[lineNo] = strings.TrimSpace(body)
+		// A line indented four or more columns is an indented code block or
+		// a nested list continuation; neither starts a comment.
+		if markdownIndent(text) >= 4 {
+			continue
+		}
+		if body, ok := strings.CutPrefix(line, "<!--"); ok {
+			comment, _, closed := strings.Cut(body, "-->")
+			out[lineNo] = strings.TrimSpace(comment)
 			inComment = !closed
 		}
 	}
 	return out
+}
+
+// markdownFence is an open CommonMark fenced code block: its fence character
+// (` or ~) and length.
+type markdownFence struct {
+	char byte
+	n    int
+}
+
+// openMarkdownFence reports the fence a line opens: at most three spaces of
+// indentation, then three or more backticks or tildes (a backtick fence's
+// info string has no backtick).
+// TRLC-LINKS: REQ-EMG-084
+func openMarkdownFence(line string) (markdownFence, bool) {
+	if markdownIndent(line) >= 4 {
+		return markdownFence{}, false
+	}
+	t := strings.TrimLeft(line, " ")
+	if t == "" || (t[0] != '`' && t[0] != '~') {
+		return markdownFence{}, false
+	}
+	n := len(t) - len(strings.TrimLeft(t, t[:1]))
+	if n < 3 || (t[0] == '`' && strings.Contains(t[n:], "`")) {
+		return markdownFence{}, false
+	}
+	return markdownFence{char: t[0], n: n}, true
+}
+
+// closedBy reports whether a line closes the fence: at most three spaces of
+// indentation, at least as many of the same fence characters, then only
+// spaces.
+// TRLC-LINKS: REQ-EMG-084
+func (f markdownFence) closedBy(line string) bool {
+	if markdownIndent(line) >= 4 {
+		return false
+	}
+	t := strings.TrimLeft(line, " ")
+	n := len(t) - len(strings.TrimLeft(t, string(f.char)))
+	return n >= f.n && strings.TrimSpace(t[n:]) == ""
+}
+
+// markdownIndent is the indentation width of a line, a tab counting as four.
+// TRLC-LINKS: REQ-EMG-084
+func markdownIndent(line string) int {
+	width := 0
+	for _, r := range line {
+		switch r {
+		case ' ':
+			width++
+		case '\t':
+			width += 4 - width%4
+		default:
+			return width
+		}
+	}
+	return width
 }
 
 // ArtifactMarker returns the value of the first comment marker (for example
@@ -96,20 +177,44 @@ func artifactComments(path string, src []byte) map[int]string {
 // TRLC-LINKS: REQ-EMG-084
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 func ArtifactMarker(path string, src []byte, marker string) (string, int) {
+	return artifactMarker(artifactComments(path, src), marker)
+}
+
+// ArtifactMarkers returns the values and 1-based lines of the
+// ENGMODEL-OWNER-UNIT, TRLC-LINKS and ENGMODEL-LINKS markers of an artifact,
+// parsing it once; an absent marker has value "" and line 0.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func ArtifactMarkers(path string, src []byte) (owner string, ownerLine, linksLine, modelLinksLine int) {
 	comments := artifactComments(path, src)
-	lines := strings.Count(string(src), "\n") + 1
-	for lineNo := 1; lineNo <= lines; lineNo++ {
-		text, ok := comments[lineNo]
-		if !ok {
-			continue
-		}
-		if v, ok := strings.CutPrefix(text, marker); ok {
+	owner, ownerLine = artifactMarker(comments, "ENGMODEL-OWNER-UNIT:")
+	_, linksLine = artifactMarker(comments, "TRLC-LINKS:")
+	_, modelLinksLine = artifactMarker(comments, "ENGMODEL-LINKS:")
+	return owner, ownerLine, linksLine, modelLinksLine
+}
+
+// artifactMarker returns the first value of a marker in parsed comments.
+// TRLC-LINKS: REQ-EMG-084
+func artifactMarker(comments map[int]string, marker string) (string, int) {
+	for _, lineNo := range sortedLines(comments) {
+		if v, ok := strings.CutPrefix(comments[lineNo], marker); ok {
 			if fields := strings.Fields(v); len(fields) > 0 {
 				return fields[0], lineNo
 			}
 		}
 	}
 	return "", 0
+}
+
+// sortedLines returns the line numbers of parsed comments in order.
+// TRLC-LINKS: REQ-EMG-084
+func sortedLines(comments map[int]string) []int {
+	lines := make([]int, 0, len(comments))
+	for lineNo := range comments {
+		lines = append(lines, lineNo)
+	}
+	sort.Ints(lines)
+	return lines
 }
 
 // scanArtifact returns the file-level symbol of an artifact with trace
@@ -121,12 +226,8 @@ func scanArtifact(relPath, idPath string, src []byte) ([]Symbol, []validate.Diag
 	var implements, modelLinks []string
 	var diags []validate.Diagnostic
 	first := 0
-	lines := strings.Count(string(src), "\n") + 1
-	for lineNo := 1; lineNo <= lines; lineNo++ {
-		text, ok := comments[lineNo]
-		if !ok {
-			continue
-		}
+	for _, lineNo := range sortedLines(comments) {
+		text := comments[lineNo]
 		if v, ok := strings.CutPrefix(text, "TRLC-LINKS:"); ok {
 			links := splitCSV(v)
 			implements = append(implements, links...)

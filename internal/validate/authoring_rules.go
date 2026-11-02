@@ -84,7 +84,7 @@ var authoringFieldRules = []string{
 	"Publications: a manifest publications entry has an id and the sections architecture, behavior, assurance, compliance, requirements and views (publicationSections), each a list of stable IDs from that document. Decisions cannot be published, so a consumer cannot reference alias::DEC-*; keep a shared decision in the repository that owns it and quote it in the consumer.",
 	"A flow step with boundaryCrossing: true needs trustBoundaryRef naming an existing trust boundary (error model.missing_flow_boundary_ref), and should name an onError step (warning behavior.flow_step_no_onerror).",
 	"behavior.event_unused counts as a use of an event: the to end of a triggered_by mapping; the source, target or a triggers entry of an architecture.semantics.relationships entry; the sourceRef or destinationRef of a flow; and the ref, sourceRef or destinationRef of a flow step. Flow or step properties, descriptions and other prose do not count.",
-	"Acceptance: a risk with status accepted or response accept, and a threat scenario with status accepted, needs acceptedBy with actor (an ACT-* actor), date (YYYY-MM-DD) and statement (the owner's own words) or decisionRef (a DEC-* decision whose context quotes the owner); without it validation reports risk.acceptance_unrecorded (error). response accept with status open is risk.accept_while_open (warning). The Gemara policy lists a risk under risks.accepted only with a complete acceptedBy and status accepted, or response accept with a status other than open. Never record an acceptance the owner did not give.",
+	"Acceptance: a risk with status accepted or response accept, and a threat scenario with status accepted, needs acceptedBy with actor (an ACT-* actor), date (a YYYY-MM-DD calendar date) and statement (the owner's own words) or decisionRef (a DEC-* decision with status accepted whose context quotes the owner); without it validation reports risk.acceptance_unrecorded (error), and an actor, date or decisionRef that does not resolve is model.invalid_acceptance (error). An acceptedBy actor other than the risk's owner is risk.acceptance_not_owner (warning). response accept with status open is risk.accept_while_open (warning). The Gemara policy lists a risk under risks.accepted only with a complete, resolving acceptedBy and status accepted, or response accept with a status other than open. Authored risk and threat scenario IDs must not contain :: (reserved for imported alias::ID entities). Never record an acceptance the owner did not give.",
 	"lint.multiple_responses exempts a single response with a field list: the text has exactly one shall and no semicolon, the list opens at the response's first with, including or of, no and, or or comma comes before it, the list holds no then, and no list item after the first has the, a, an, its, their, each, every or all as its second word (that reads as a verb with its object). Passes: 'The flight logger shall publish one record with UTC time, latitude and altitude.' Reported: 'The flight logger shall store the record and notify the operator.'",
 	"In strict EARS mode (lintRun.mode: strict) the system term of a requirement (the words before shall) must be the name or an alias of a catalog system, functional group or functional unit, written as in the catalog (for example 'the engineering model go shall ...'); a repository slug such as sim-interface is not a catalog name unless the catalog names it so.",
 	"Warnings: behavior.event_unused (a behavior event in no triggered_by relationship, transition trigger or flow), behavior.state_unreachable (with transitions in the model, a state other than the first declared, initial one that no transitions_to enters), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators).",
@@ -132,9 +132,33 @@ var fieldSetTypes = map[string]any{
 	"view":                model.View{},
 }
 
-// publicationSections are the manifest publication sections in schema order;
-// they are the fields of model.ManifestPublication after id.
-var publicationSections = []string{"architecture", "behavior", "assurance", "compliance", "requirements", "views"}
+// publicationSections returns the manifest publication sections in schema
+// order: the yaml fields of model.ManifestPublication after id.
+// TRLC-LINKS: REQ-EMG-087
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func publicationSections() []string {
+	var out []string
+	for _, field := range yamlFields(reflect.TypeOf(model.ManifestPublication{})) {
+		if field != "id" {
+			out = append(out, field)
+		}
+	}
+	return out
+}
+
+// yamlFields returns the yaml field names of a struct type in declaration
+// order.
+// TRLC-LINKS: REQ-EMG-087
+func yamlFields(t reflect.Type) []string {
+	fields := make([]string, 0, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
+		if name != "" && name != "-" {
+			fields = append(fields, name)
+		}
+	}
+	return fields
+}
 
 // fieldSets returns the yaml field names of every fieldSetTypes entry.
 // TRLC-LINKS: REQ-EMG-087
@@ -142,15 +166,7 @@ var publicationSections = []string{"architecture", "behavior", "assurance", "com
 func fieldSets() map[string][]string {
 	out := make(map[string][]string, len(fieldSetTypes))
 	for kind, value := range fieldSetTypes {
-		t := reflect.TypeOf(value)
-		fields := make([]string, 0, t.NumField())
-		for i := 0; i < t.NumField(); i++ {
-			name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
-			if name != "" && name != "-" {
-				fields = append(fields, name)
-			}
-		}
-		out[kind] = fields
+		out[kind] = yamlFields(reflect.TypeOf(value))
 	}
 	return out
 }
@@ -185,7 +201,7 @@ func AuthoringRules() Rules {
 	})
 	return Rules{
 		Enums: enums, RelationshipPairs: pairs, FieldRules: append([]string(nil), authoringFieldRules...),
-		FieldSets: fieldSets(), PublicationSections: append([]string(nil), publicationSections...),
+		FieldSets: fieldSets(), PublicationSections: publicationSections(),
 	}
 }
 

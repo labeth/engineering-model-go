@@ -122,3 +122,48 @@ func TestGemaraPolicyReflectsEditsBetweenCalls(t *testing.T) {
 		t.Fatalf("second gemara.policy call did not reflect the edit:\n%s", after)
 	}
 }
+
+// A tool call after the model files became invalid returns the reload error
+// (JSON-RPC -32001) instead of a result from the previous model, and keeps
+// returning it while the files stay broken; once the file is fixed, the next
+// call reloads and returns the fixed content.
+// Mutation: ignoring the refreshModel error in dispatch serves the old
+// policy for the broken model.
+// TRLC-LINKS: REQ-EMG-089
+// ENGMODEL-LINKS: FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
+func TestToolCallReturnsReloadErrorForBrokenModel(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "payments")
+	if err := os.CopyFS(dir, os.DirFS(filepath.Join("..", "..", "examples", "payments-engineering-sample"))); err != nil {
+		t.Fatal(err)
+	}
+	s := initializedServerAt(t, dir)
+	callToolPayload(t, s, "gemara.policy", map[string]any{})
+	path := filepath.Join(dir, "model", "assurance.yml")
+	good, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, append(append([]byte(nil), good...), []byte("\n  broken: [unclosed\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	call := map[string]any{"jsonrpc": "2.0", "id": 7, "method": "tools/call", "params": map[string]any{"name": "gemara.policy", "arguments": map[string]any{}}}
+	for attempt := 0; attempt < 2; attempt++ {
+		resp := rpcCall(t, s, call)
+		rpcErr, _ := resp["error"].(map[string]any)
+		if resp["result"] != nil || rpcErr == nil || rpcErr["code"] != float64(-32001) || !strings.Contains(rpcErr["message"].(string), "reload changed model") {
+			t.Fatalf("attempt %d: want a -32001 reload error and no result, got %+v", attempt, resp)
+		}
+	}
+	const accepted = "ACC-RISK-PAYMENTS-SSO-MFA-GAP"
+	old := "    status: mitigating\n    likelihood: medium\n    impact: high\n    response: mitigate\n    owner: ACT-PLATFORM-OPERATOR\n"
+	if !strings.Contains(string(good), old) {
+		t.Fatal("fixture changed: SSO risk block not found")
+	}
+	fixed := strings.Replace(string(good), old, "    status: accepted\n    acceptedBy:\n      actor: ACT-PLATFORM-OPERATOR\n      date: 2026-11-02\n      statement: I accept the SSO gap until the cleanup ends.\n    likelihood: medium\n    impact: high\n    response: accept\n    owner: ACT-PLATFORM-OPERATOR\n", 1)
+	if err := os.WriteFile(path, []byte(fixed), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if after := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string); !strings.Contains(after, accepted) {
+		t.Fatalf("call after the fix did not return the fixed model:\n%s", after)
+	}
+}

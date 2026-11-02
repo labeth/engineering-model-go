@@ -40,8 +40,8 @@ func TestAcceptedRecordsNeedAnOwnerAcceptance(t *testing.T) {
 	got := behaviorDiags(b, "risk.acceptance_unrecorded")
 	paths := []string{}
 	for _, d := range got {
-		if d.Severity != SeverityError || !strings.Contains(d.Message, "acceptedBy") || !strings.Contains(d.Message, "actor") || !strings.Contains(d.Message, "statement") {
-			t.Fatalf("diagnostic must be an error naming acceptedBy actor, date and statement: %+v", d)
+		if d.Severity != SeverityError || !strings.Contains(d.Message, "add acceptedBy with actor, date, statement or decisionRef (") {
+			t.Fatalf("diagnostic must be an error naming the missing actor, date, statement or decisionRef: %+v", d)
 		}
 		paths = append(paths, d.Path)
 	}
@@ -66,10 +66,11 @@ func TestAcceptedRecordsNeedAnOwnerAcceptance(t *testing.T) {
 	}
 }
 
-// A partial record names the missing parts, and an acceptedBy actor, date or
-// decisionRef that does not resolve is model.invalid_acceptance.
+// A partial record names exactly the missing parts, and an acceptedBy actor,
+// date or decisionRef that does not resolve is model.invalid_acceptance.
 // Mutation: not checking the actor against the actors reports no
-// model.invalid_acceptance for ACT-NOBODY.
+// model.invalid_acceptance for ACT-NOBODY; dropping the actor check from
+// AcceptanceMissing changes the missing-parts list.
 // TRLC-LINKS: REQ-EMG-085
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestAcceptanceRecordFieldsResolve(t *testing.T) {
@@ -79,8 +80,17 @@ func TestAcceptanceRecordFieldsResolve(t *testing.T) {
 			{ID: "RISK-BAD", Title: "b", Statement: "b", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-NOBODY", Date: "1 Nov", DecisionRef: "DEC-NONE"}},
 		}, nil)
 	unrecorded := behaviorDiags(b, "risk.acceptance_unrecorded")
-	if len(unrecorded) != 1 || unrecorded[0].Path != "authoredArchitecture.risks[0].acceptedBy" || !strings.Contains(unrecorded[0].Message, "date") || strings.Contains(unrecorded[0].Message, "actor,") {
-		t.Fatalf("want one risk.acceptance_unrecorded naming date and statement for RISK-PARTIAL, got %+v", unrecorded)
+	if len(unrecorded) != 1 || unrecorded[0].Path != "authoredArchitecture.risks[0].acceptedBy" || !strings.Contains(unrecorded[0].Message, "add acceptedBy with date, statement or decisionRef (") {
+		t.Fatalf("want one risk.acceptance_unrecorded naming only date, statement or decisionRef for RISK-PARTIAL, got %+v", unrecorded)
+	}
+	if got := AcceptanceMissing(&model.AcceptanceRecord{Actor: "ACT-OWNER"}); strings.Join(got, "|") != "date|statement or decisionRef" {
+		t.Fatalf("AcceptanceMissing = %v", got)
+	}
+	if got := AcceptanceMissing(&model.AcceptanceRecord{Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}); strings.Join(got, "|") != "actor" {
+		t.Fatalf("AcceptanceMissing without actor = %v, want [actor]", got)
+	}
+	if got := AcceptanceMissing(nil); strings.Join(got, "|") != "actor|date|statement or decisionRef" {
+		t.Fatalf("AcceptanceMissing(nil) = %v", got)
 	}
 	invalid := behaviorDiags(b, "model.invalid_acceptance")
 	paths := []string{}
@@ -93,5 +103,56 @@ func TestAcceptanceRecordFieldsResolve(t *testing.T) {
 	want := "authoredArchitecture.risks[1].acceptedBy.actor,authoredArchitecture.risks[1].acceptedBy.date,authoredArchitecture.risks[1].acceptedBy.decisionRef"
 	if strings.Join(paths, ",") != want {
 		t.Fatalf("model.invalid_acceptance paths = %v, want %s", paths, want)
+	}
+}
+
+// A record resolves only when the date is a real calendar date (2026-13-45 is
+// not), and a decisionRef names a decision with status accepted; a proposed
+// decision is model.invalid_acceptance. A risk accepted by another actor than
+// its owner is the warning risk.acceptance_not_owner at the actor; a risk
+// without an owner, or accepted by its owner, is not. Resolves agrees.
+// Mutation: matching the date with the YYYY-MM-DD pattern instead of
+// time.Parse accepts 2026-13-45; not checking the decision status accepts
+// DEC-PROPOSED; dropping the owner comparison reports no
+// risk.acceptance_not_owner.
+// TRLC-LINKS: REQ-EMG-085
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-GEMARA-EXPORTER
+func TestAcceptanceRecordNeedsCalendarDateAcceptedDecisionAndOwner(t *testing.T) {
+	b := acceptanceTestBundle(
+		[]model.Risk{
+			{ID: "RISK-DATE", Title: "d", Statement: "d", Status: "accepted", Owner: "ACT-OWNER", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-13-45", Statement: "ok"}},
+			{ID: "RISK-PROPOSED", Title: "p", Statement: "p", Status: "accepted", Owner: "ACT-OWNER", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-PROPOSED"}},
+			{ID: "RISK-OTHER", Title: "o", Statement: "o", Status: "accepted", Owner: "ACT-OWNER", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OTHER", Date: "2026-11-01", Statement: "I accept it."}},
+			{ID: "RISK-NO-OWNER", Title: "n", Statement: "n", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OTHER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}},
+		}, nil)
+	a := &b.Architecture.AuthoredArchitecture
+	a.Actors = append(a.Actors, model.Actor{ID: "ACT-OTHER", Name: "Other"})
+	b.Architecture.Decisions = append(b.Architecture.Decisions, model.Decision{ID: "DEC-PROPOSED", Title: "Maybe", Status: "proposed", Date: "2026-11-01", Context: "c", Decision: "d", Consequences: []string{"c"}})
+	invalid := behaviorDiags(b, "model.invalid_acceptance")
+	paths := []string{}
+	for _, d := range invalid {
+		paths = append(paths, d.Path)
+	}
+	want := "authoredArchitecture.risks[0].acceptedBy.date,authoredArchitecture.risks[1].acceptedBy.decisionRef"
+	if strings.Join(paths, ",") != want {
+		t.Fatalf("model.invalid_acceptance paths = %v, want %s (%+v)", paths, want, invalid)
+	}
+	if !strings.Contains(invalid[1].Message, `status "proposed"`) {
+		t.Fatalf("decisionRef message must name the status: %+v", invalid[1])
+	}
+	notOwner := behaviorDiags(b, "risk.acceptance_not_owner")
+	if len(notOwner) != 1 || notOwner[0].Severity != SeverityWarning || notOwner[0].Path != "authoredArchitecture.risks[2].acceptedBy.actor" ||
+		!strings.Contains(notOwner[0].Message, "ACT-OTHER") || !strings.Contains(notOwner[0].Message, "ACT-OWNER") {
+		t.Fatalf("want one risk.acceptance_not_owner warning at risks[2].acceptedBy.actor, got %+v", notOwner)
+	}
+	refs := NewAcceptanceRefs(b)
+	var resolving []string
+	for _, r := range a.Risks {
+		if refs.Resolves(r.AcceptedBy) {
+			resolving = append(resolving, r.ID)
+		}
+	}
+	if strings.Join(resolving, ",") != "RISK-OTHER,RISK-NO-OWNER" {
+		t.Fatalf("Resolves = %v, want RISK-OTHER,RISK-NO-OWNER", resolving)
 	}
 }

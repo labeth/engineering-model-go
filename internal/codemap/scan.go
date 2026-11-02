@@ -149,6 +149,9 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 		}
 		scan := scanFile
 		if artifact {
+			if !ReadableArtifact(path) {
+				return nil
+			}
 			scan = scanArtifactFile
 		}
 		fileSymbols, fileDiags, err := scan(scanBase, idBase, path)

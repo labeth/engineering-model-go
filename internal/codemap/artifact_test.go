@@ -90,3 +90,77 @@ func TestArtifactOwnerUnitIsReadFromComments(t *testing.T) {
 		}
 	}
 }
+
+// A Markdown code fence closes only on a fence of the same character that is
+// at least as long (CommonMark): inside a ```` fence a ``` line does not end
+// it, so a marker after it is still code. A line indented four or more
+// columns (spaces or a tab: an indented code block or a nested list line) is
+// not read either; a comment indented up to three spaces still counts.
+// Mutation: closing a fence on any line starting with three backticks reads
+// REQ-DOC-091 from the ```` fence.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, TB-REPO-WORKSPACE
+func TestMarkdownMarkersSkipLongFencesAndIndentedCode(t *testing.T) {
+	src := "````md\n```\n<!-- TRLC-LINKS: REQ-DOC-091 -->\n```\n````\n" +
+		"~~~\n<!-- TRLC-LINKS: REQ-DOC-092 -->\n```\n~~~~\n" +
+		"Text\n\n    <!-- TRLC-LINKS: REQ-DOC-093 -->\n\n\t<!-- TRLC-LINKS: REQ-DOC-094 -->\n\n" +
+		"   <!-- TRLC-LINKS: REQ-DOC-001 -->\n" +
+		"- item\n    <!-- TRLC-LINKS: REQ-DOC-095 -->\n"
+	symbols, diags := scanArtifact("doc.md", "doc.md", []byte(src))
+	if len(diags) != 0 || len(symbols) != 1 {
+		t.Fatalf("want one symbol and no diagnostics, got %+v %+v", symbols, diags)
+	}
+	if got := strings.Join(symbols[0].Implements, ","); got != "REQ-DOC-001" {
+		t.Fatalf("Implements = %s, want only REQ-DOC-001 (fenced and indented markers are code)", got)
+	}
+}
+
+// A marker on a line after a line longer than 1 MiB is still read: the file
+// is split on bytes, not with a line-length-limited scanner that would stop.
+// Mutation: reading lines with bufio.Scanner's 1 MiB buffer without checking
+// Err drops REQ-IMG-007.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func TestArtifactMarkersAfterLongLineAreRead(t *testing.T) {
+	src := "# " + strings.Repeat("x", 1100*1024) + "\n# TRLC-LINKS: REQ-IMG-007\nFROM scratch\n"
+	symbols, _ := scanArtifact("Dockerfile", "Dockerfile", []byte(src))
+	if len(symbols) != 1 || strings.Join(symbols[0].Implements, ",") != "REQ-IMG-007" {
+		t.Fatalf("want REQ-IMG-007 after a long line, got %+v", symbols)
+	}
+}
+
+// The scan reads only regular artifact files up to MaxArtifactBytes: a
+// Markdown file over the cap and a symlinked Dockerfile are skipped, a small
+// regular one is read.
+// Mutation: dropping the ReadableArtifact check in ScanWithOptions links
+// REQ-DOC-081 and REQ-IMG-082.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, TB-REPO-WORKSPACE
+func TestScanSkipsOversizedAndNonRegularArtifacts(t *testing.T) {
+	root := t.TempDir()
+	write := func(name, content string) {
+		if err := os.WriteFile(filepath.Join(root, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("small.md", "<!-- TRLC-LINKS: REQ-DOC-001 -->\n")
+	write("big.md", "<!-- TRLC-LINKS: REQ-DOC-081 -->\n"+strings.Repeat("x", MaxArtifactBytes))
+	outside := filepath.Join(t.TempDir(), "Dockerfile")
+	if err := os.WriteFile(outside, []byte("# TRLC-LINKS: REQ-IMG-082\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(root, "Dockerfile")); err != nil {
+		t.Skipf("symlinks unsupported: %v", err)
+	}
+	symbols, _, err := Scan(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var links []string
+	for _, s := range symbols {
+		links = append(links, s.Implements...)
+	}
+	if strings.Join(links, ",") != "REQ-DOC-001" {
+		t.Fatalf("links = %v, want only REQ-DOC-001 from small.md", links)
+	}
+}

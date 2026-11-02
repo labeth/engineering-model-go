@@ -109,3 +109,35 @@ func TestGemaraControlNeedsReviewWarnsAtUnverifiedControl(t *testing.T) {
 		t.Fatalf("want one gemara.control_needs_review for CTRL-B naming CV-A of CTRL-A, got %+v", got)
 	}
 }
+
+// A control whose only verifications need review (partial) is reported like
+// an unverified control, naming the verification; a control with a partial
+// and a failed verification (the log says Failed) and one with a passing
+// verification are not.
+// Mutation: keeping the old rule (a control is reported only without any
+// verification) misses CTRL-A.
+// TRLC-LINKS: REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-GEMARA-EXPORTER
+func TestGemaraControlNeedsReviewWarnsForPartialOnlyControl(t *testing.T) {
+	ts := model.ThreatScenario{ID: "TS-A", Title: "T", AppliesTo: []string{"FU-A"}}
+	b := assuranceTestBundle(ts, nil, []model.ControlVerification{
+		{ID: "CV-A", ControlRef: "CTRL-A", Method: "analysis", Status: "partial"},
+		{ID: "CV-B1", ControlRef: "CTRL-B", Method: "analysis", Status: "partial"},
+		{ID: "CV-B2", ControlRef: "CTRL-B", Method: "analysis", Status: "fail"},
+	})
+	b.Architecture.AuthoredArchitecture.Controls = append(b.Architecture.AuthoredArchitecture.Controls, model.Control{ID: "CTRL-C", Name: "C", Category: "c", Description: "c"})
+	b.Architecture.AuthoredArchitecture.ControlVerifications = append(b.Architecture.AuthoredArchitecture.ControlVerifications, model.ControlVerification{ID: "CV-C", ControlRef: "CTRL-C", Method: "analysis", Status: "pass"})
+	got := behaviorDiags(b, "gemara.control_needs_review")
+	if len(got) != 1 || got[0].Path != "authoredArchitecture.controls[0]" || !strings.Contains(got[0].Message, "CV-A (partial)") {
+		t.Fatalf("want one gemara.control_needs_review at CTRL-A naming CV-A (partial), got %+v", got)
+	}
+	for statuses, want := range map[string]bool{"": true, "pass": false, "partial": true, "partial,pass": true, "partial,fail": false, "partial,weird": false, "not-run": false} {
+		var list []string
+		if statuses != "" {
+			list = strings.Split(statuses, ",")
+		}
+		if ControlNeedsReview(list) != want {
+			t.Fatalf("ControlNeedsReview(%v) = %v, want %v", list, !want, want)
+		}
+	}
+}

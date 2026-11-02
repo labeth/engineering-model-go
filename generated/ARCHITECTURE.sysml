@@ -194,6 +194,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-021';
 
     @EngineeringElement {
+        sourceId = "AV-FALSE-ACCEPTANCE-CLAIM";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'AV-FALSE-ACCEPTANCE-CLAIM';
+
+    @EngineeringElement {
         sourceId = "AV-MALFORMED-MODEL-INPUT";
         conceptKind = "engineering_extension";
     }
@@ -216,6 +222,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'AV-TRACEABILITY-GAP-DRIFT';
+
+    @EngineeringElement {
+        sourceId = "AV-UNTRUSTED-CHECKOUT-CONTENT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'AV-UNTRUSTED-CHECKOUT-CONTENT';
 
     @EngineeringElement {
         sourceId = "CONCERN-01977FA76B0309BF";
@@ -1156,10 +1168,28 @@ package 'engineering-model-go' {
     attribute 'COND-REQUIREMENT-TRACE-COMPLETE';
 
     @EngineeringElement {
+        sourceId = "CTRL-ACCEPTANCE-RECORD-CHECK";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-ACCEPTANCE-RECORD-CHECK';
+
+    @EngineeringElement {
         sourceId = "CTRL-ARTIFACT-FRESHNESS-GATE";
         conceptKind = "engineering_extension";
     }
     attribute 'CTRL-ARTIFACT-FRESHNESS-GATE';
+
+    @EngineeringElement {
+        sourceId = "CTRL-ARTIFACT-SCAN-BOUNDS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-ARTIFACT-SCAN-BOUNDS';
+
+    @EngineeringElement {
+        sourceId = "CTRL-GO-WORK-INPUT-VALIDATION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-GO-WORK-INPUT-VALIDATION';
 
     @EngineeringElement {
         sourceId = "CTRL-MCP-PATH-BOUNDARY";
@@ -2720,7 +2750,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-083' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.";
-        attribute 'notes' : 'String' = "gemara.control_needs_review is a warning at a control that no control verification names in controlRef; the Gemara L5 evaluation log gives such a control the result Needs Review. When a threat mitigation of that control references another control's verification, the message names it (\"<CV> verifies <other control>\"), the case where a control's only evidence is another control's verification. A partial control verification also maps to Needs Review in the log; that is an authored status and is not reported. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.";
+        attribute 'notes' : 'String' = "gemara.control_needs_review is a warning at a control that the Gemara L5 evaluation log gives the result Needs Review: no control verification names it in controlRef, or at least one of its control verifications has a status that needs review (partial, planned, in-progress, review, needs-review) and none failed or has an unrecognized status, since Failed and Unknown outrank Needs Review in the log's aggregate. validate.ClassifyVerificationStatus and validate.ControlNeedsReview are the one status mapping the evaluation log and the warning share. When a control without verification has a threat mitigation that references another control's verification, the message names it (\"<CV> verifies <other control>\"); for a control whose verifications need review it names them with their status. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.";
     }
 
     @EngineeringElement {
@@ -2738,7 +2768,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-085' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.";
-        attribute 'notes' : 'String' = "A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (YYYY-MM-DD) and statement (the owner's own words) or decisionRef (an existing decision whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve is model.invalid_acceptance (error). risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when it has a complete acceptance record and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped.";
+        attribute 'notes' : 'String' = "A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (a YYYY-MM-DD calendar date, parsed, so 2026-13-45 is rejected) and statement (the owner's own words) or decisionRef (an existing decision with status accepted whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve, or a decisionRef to a decision that is not accepted, is model.invalid_acceptance (error). risk.acceptance_not_owner is a warning at the acceptedBy actor of a risk whose owner is set and differs from the actor. risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when its acceptance record is complete and resolves (validate.AcceptanceRefs, shared with validation) and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped; the schema rejects :: in authored risk and threat scenario IDs, so a local ID cannot pose as imported. The record is an authored claim: these checks make it complete and consistent, and human review of the diff that adds it is the actual control that the owner gave it.";
     }
 
     @EngineeringElement {
@@ -2773,8 +2803,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-089' {
-        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the model files on disk at call time.";
-        attribute 'notes' : 'String' = "The server fingerprints the content of the manifest, every document it names, the requirements and design paths, engmod.lock.yml, engmod.lock.local.yml and engmod.work.yml next to the manifest at load. Before each tools/call it recomputes the fingerprint and reloads the model when it differs; a reload that fails is returned as the call error instead of the previous model. It no longer depends on the client re-sending initialize.";
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the module model files on disk at call time.";
+        attribute 'notes' : 'String' = "The server fingerprints this module's model files at load: the manifest, every document it names, the requirements and design paths, and the lock and workspace files next to the manifest (engmod.lock.yml, engmod.lock.local.yml, engmod.work.yml). Before each tools/call it recomputes the fingerprint and reloads the model when it differs; a reload that fails is returned as the call error (-32001) instead of the previous model, and the next call retries. Documents of dependencies resolved from sibling checkouts or the module cache are not fingerprinted: after editing a sibling checkout the client re-sends initialize. Only regular files up to 16 MiB are hashed; a larger file is compared by size and modification time and a non-regular file by its mode.";
     }
 
     @EngineeringElement {
@@ -2832,6 +2862,24 @@ package 'engineering-model-go' {
     attribute 'TB-REPO-WORKSPACE';
 
     @EngineeringElement {
+        sourceId = "TM-ACCEPTANCE-RECORD-CHECK";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-ACCEPTANCE-RECORD-CHECK';
+
+    @EngineeringElement {
+        sourceId = "TM-ARTIFACT-SCAN-BOUNDS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-ARTIFACT-SCAN-BOUNDS';
+
+    @EngineeringElement {
+        sourceId = "TM-GO-WORK-INPUT-VALIDATION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-GO-WORK-INPUT-VALIDATION';
+
+    @EngineeringElement {
         sourceId = "TM-MCP-PATH-BOUNDARY";
         conceptKind = "engineering_extension";
     }
@@ -2844,6 +2892,24 @@ package 'engineering-model-go' {
     attribute 'TM-TRACE-COVERAGE';
 
     @EngineeringElement {
+        sourceId = "TS-ARTIFACT-PARSE-ABUSE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-ARTIFACT-PARSE-ABUSE';
+
+    @EngineeringElement {
+        sourceId = "TS-FALSE-RISK-ACCEPTANCE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-FALSE-RISK-ACCEPTANCE';
+
+    @EngineeringElement {
+        sourceId = "TS-GO-WORK-INJECTION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-GO-WORK-INJECTION';
+
+    @EngineeringElement {
         sourceId = "TS-MCP-PATH-TRAVERSAL";
         conceptKind = "engineering_extension";
     }
@@ -2854,6 +2920,24 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'TS-TRACEABILITY-DRIFT';
+
+    @EngineeringElement {
+        sourceId = "VER-ACCEPTANCE-RECORD-CHECK";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-ACCEPTANCE-RECORD-CHECK' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-ARTIFACT-SCAN-BOUNDS";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-ARTIFACT-SCAN-BOUNDS' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-GO-WORK-INPUT-VALIDATION";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-GO-WORK-INPUT-VALIDATION' : EngineeringVerification;
 
     @EngineeringElement {
         sourceId = "VER-MCP-PATH-BOUNDARY";
@@ -3177,6 +3261,16 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-44F1CC1DBF28232F";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-44F1CC1DBF28232F' : EngineeringVerification {
+        subject 'VER-ARTIFACT-SCAN-BOUNDS' : EngineeringItem;
+        objective 'CTRL-ARTIFACT-SCAN-BOUNDS' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-4672CF188E6130EB";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -3393,11 +3487,31 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-A5F08BB76981DB0A";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-A5F08BB76981DB0A' : EngineeringVerification {
+        subject 'VER-ACCEPTANCE-RECORD-CHECK' : EngineeringItem;
+        objective 'CTRL-ACCEPTANCE-RECORD-CHECK' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-A6BE9BBEB4A2E9CD";
         conceptKind = "dependency";
         relationshipKind = "targets";
     }
     dependency 'REL-A6BE9BBEB4A2E9CD' from 'AV-TRACEABILITY-GAP-DRIFT' to 'FU-CODEMAP-INFERENCE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A9A59951D996EDE9";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-A9A59951D996EDE9' : EngineeringVerification {
+        subject 'VER-GO-WORK-INPUT-VALIDATION' : EngineeringItem;
+        objective 'CTRL-GO-WORK-INPUT-VALIDATION' : EngineeringRequirement;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-A9A6ADD0BC7DA4E2";

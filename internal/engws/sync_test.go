@@ -20,6 +20,7 @@ import (
 // Mutation: writing the work file into a checkout, listing every checkout in
 // engmod.work.yml, or listing only local checkouts in go.work fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	root := t.TempDir()
 	a := checkout(t, root, "if-a")
@@ -65,6 +66,7 @@ func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 // lists no replacements.
 // Mutation: leaving a stale go.work fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncRemovesGoWorkWithoutLocalGoModules(t *testing.T) {
 	root := t.TempDir()
 	checkout(t, root, "if-a")
@@ -84,6 +86,7 @@ func TestSyncRemovesGoWorkWithoutLocalGoModules(t *testing.T) {
 // --all lists every checkout.
 // Mutation: ignoring --all fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncAllListsEveryCheckout(t *testing.T) {
 	root := t.TempDir()
 	checkout(t, root, "if-a")
@@ -100,6 +103,7 @@ func TestSyncAllListsEveryCheckout(t *testing.T) {
 // A hand-written engmod.work.yml or go.work is not overwritten without --force.
 // Mutation: removing checkOwned fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 	for _, name := range []string{model.WorkspaceFileName, GoWorkFileName} {
 		t.Run(name, func(t *testing.T) {
@@ -132,6 +136,7 @@ func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 // Mutation: comparing pins with the registry instead of the local version, or
 // returning 0 from status on skew, fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSkewReportsConsumerAliasPinnedLocal(t *testing.T) {
 	root := t.TempDir()
 	checkout(t, root, "if-a")
@@ -159,6 +164,7 @@ func TestSkewReportsConsumerAliasPinnedLocal(t *testing.T) {
 // The go directive comes from GOVERSION without the go prefix or suffix.
 // Mutation: writing GOVERSION verbatim fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestParseGoVersion(t *testing.T) {
 	for in, want := range map[string]string{"go1.27.3": "1.27.3", "go1.26": "1.26", "go1.27rc1": "1.27", "go1.27.3 X:boringcrypto": "1.27.3"} {
 		if got, err := parseGoVersion(in); err != nil || got != want {
@@ -173,6 +179,7 @@ func TestParseGoVersion(t *testing.T) {
 // Usage errors exit 2 and unknown commands are rejected.
 // Mutation: returning 0 or 1 for usage errors fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestMainUsageErrors(t *testing.T) {
 	for _, args := range [][]string{{}, {"frob"}, {"pin"}, {"bump", "a"}, {"sync", "--nope"}} {
 		if code, _, errOut := runMain(t, fakeRegistry{}, args...); code != 2 || !strings.Contains(errOut, "usage: engws") {
@@ -190,6 +197,7 @@ func TestMainUsageErrors(t *testing.T) {
 // Mutation: comparing only engmod.yml pins (no Go requires), or reporting a
 // require that equals the checkout's tag, fails this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSkewReportsGoRequireAgainstCheckoutVersion(t *testing.T) {
 	root := t.TempDir()
 	ifA := checkout(t, root, "if-a")
@@ -215,6 +223,7 @@ func TestSkewReportsGoRequireAgainstCheckoutVersion(t *testing.T) {
 // Mutation: dropping the module path or directory name check in Scan fails
 // this test.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
 	root := t.TempDir()
 	good := filepath.Join(root, "if-a")
@@ -251,6 +260,7 @@ func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
 // Mutation: writing no replace directives makes go build fail resolving
 // example.com/go/if-a@v0.1.0.
 // TRLC-LINKS: REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func TestSyncReplacesRequiredVersionsOfWorkspaceModules(t *testing.T) {
 	goProxy(t, "example.com/third@v1.0.0")
 	root := t.TempDir()
@@ -285,5 +295,61 @@ func TestSyncReplacesRequiredVersionsOfWorkspaceModules(t *testing.T) {
 	build.Dir = svcB
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("go build under the generated go.work: %v\n%s\ngo.work:\n%s", err, out, text)
+	}
+}
+
+// go.work gets one replace per distinct required version: two consumers
+// requiring a workspace module at v0.1.0 and v0.2.0 give two replace lines to
+// the same checkout, sorted by version.
+// Mutation: keying the seen set by module only writes one replace.
+// TRLC-LINKS: REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestSyncReplacesEachRequiredVersionOnce(t *testing.T) {
+	root := t.TempDir()
+	ifA := checkout(t, root, "if-a")
+	write(t, filepath.Join(ifA, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
+	svcB := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcB, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n\nrequire example.com/go/if-a v0.2.0\n")
+	svcC := checkout(t, root, "svc-c", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcC, "go.mod"), "module example.com/go/svc-c\n\ngo 1.25\n\nrequire example.com/go/if-a v0.1.0\n")
+	if code, out, errOut := runMain(t, allPublished("if-a", "svc-b", "svc-c"), "--root", root, "sync"); code != 0 {
+		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
+	}
+	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "replace example.com/go/if-a v0.1.0 => ./if-a\nreplace example.com/go/if-a v0.2.0 => ./if-a\n"
+	if !strings.HasSuffix(string(goWork), "\n\n"+want) || strings.Count(string(goWork), "=>") != 2 {
+		t.Fatalf("go.work:\n%s\nwant replaces:\n%s", goWork, want)
+	}
+}
+
+// A go.mod whose quoted module path or require path carries a line break
+// cannot add a line to go.work: sync skips that checkout (module path) or
+// that require with a warning, and go.work keeps only the safe entries.
+// Mutation: dropping the module.CheckPath check in goWorkModules writes the
+// injected "use /etc" line into go.work.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestSyncRejectsGoModPathsWithLineBreaks(t *testing.T) {
+	root := t.TempDir()
+	ifA := checkout(t, root, "if-a")
+	write(t, filepath.Join(ifA, "go.mod"), "module \"example.com/go/if-a\\nuse /etc\"\n\ngo 1.25\n")
+	svcB := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcB, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n\nrequire \"example.com/go/svc-b\\nuse /etc\" v0.1.0\n")
+	code, out, errOut := runMain(t, allPublished("if-a", "svc-b"), "--root", root, "sync", "--all")
+	if code != 0 {
+		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
+	}
+	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(goWork), "/etc") || strings.Contains(string(goWork), "./if-a") || !strings.Contains(string(goWork), "\t./svc-b\n") {
+		t.Fatalf("go.work carries an unsafe go.mod path:\n%s", goWork)
+	}
+	if !strings.Contains(out+errOut, "warning: if-a: go.mod module path") || !strings.Contains(out+errOut, "warning: svc-b: go.mod require") {
+		t.Fatalf("missing warnings:\n%s\n%s", out, errOut)
 	}
 }

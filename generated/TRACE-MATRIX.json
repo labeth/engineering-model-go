@@ -342,12 +342,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1498
+          "line": 1494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1486
+          "line": 1482
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -1714,302 +1714,302 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 506
+          "line": 527
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONFIDENCEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1630
+          "line": 1651
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTEXTFORTASK",
           "path": "internal/mcp/server.go",
-          "line": 2117
+          "line": 2138
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIAGNOSTICFILEPATH",
           "path": "internal/mcp/server.go",
-          "line": 2240
+          "line": 2261
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIFFSCHEMAREFS",
           "path": "internal/mcp/server.go",
-          "line": 2266
+          "line": 2287
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DISPATCH",
           "path": "internal/mcp/server.go",
-          "line": 274
+          "line": 277
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENSUREREPOINDEX",
           "path": "internal/mcp/server.go",
-          "line": 1109
+          "line": 1130
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESCONTAINING",
           "path": "internal/mcp/server.go",
-          "line": 1086
+          "line": 1107
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1077
+          "line": 1098
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1490
+          "line": 1511
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDFLOW",
           "path": "internal/mcp/server.go",
-          "line": 2102
+          "line": 2123
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 1151
+          "line": 1172
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 985
+          "line": 1006
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1250
+          "line": 1271
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1013
+          "line": 1034
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSTEPSBYID",
           "path": "internal/mcp/server.go",
-          "line": 1321
+          "line": 1342
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATEDDIR",
           "path": "internal/mcp/server.go",
-          "line": 1444
+          "line": 1465
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTS",
           "path": "internal/mcp/server.go",
-          "line": 1453
+          "line": 1474
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTSTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1475
+          "line": 1496
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONCOMMANDS",
           "path": "internal/mcp/server.go",
-          "line": 1405
+          "line": 1426
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GOVERNANCEPOLICY",
           "path": "internal/mcp/server.go",
-          "line": 1503
+          "line": 1524
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GROUPIMPLEMENTATIONSBYFILE",
           "path": "internal/mcp/server.go",
-          "line": 1800
+          "line": 1821
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--HANDLE",
           "path": "internal/mcp/server.go",
-          "line": 240
+          "line": 243
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ILINE",
           "path": "internal/mcp/server.go",
-          "line": 1869
+          "line": 1890
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONFILESFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1726
+          "line": 1747
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1717
+          "line": 1738
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ISTESTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1885
+          "line": 1906
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--JOINLINENUMBERS",
           "path": "internal/mcp/server.go",
-          "line": 1859
+          "line": 1880
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LIMITROWS",
           "path": "internal/mcp/server.go",
-          "line": 1876
+          "line": 1897
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 359
+          "line": 362
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAPKEYS",
           "path": "internal/mcp/server.go",
-          "line": 1366
+          "line": 1387
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAXARG",
           "path": "internal/mcp/server.go",
-          "line": 1914
+          "line": 1935
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1928
+          "line": 1949
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYKIND",
           "path": "internal/mcp/server.go",
-          "line": 2059
+          "line": 2080
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYNODES",
           "path": "internal/mcp/server.go",
-          "line": 2066
+          "line": 2087
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 146
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEXTBESTACTIONS",
           "path": "internal/mcp/server.go",
-          "line": 1537
+          "line": 1558
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2524
+          "line": 2545
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--POLICYFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1566
+          "line": 1587
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RECOMMENDEDVIEWS",
           "path": "internal/mcp/server.go",
-          "line": 1377
+          "line": 1398
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTEDITPLAN",
           "path": "internal/mcp/server.go",
-          "line": 1191
+          "line": 1212
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTIDS",
           "path": "internal/mcp/server.go",
-          "line": 999
+          "line": 1020
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1673
+          "line": 1694
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSUPPORTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1167
+          "line": 1188
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RUNTIMEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1604
+          "line": 1625
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCANCODESYMBOLS",
           "path": "internal/mcp/server.go",
-          "line": 1751
+          "line": 1772
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAFILEMETA",
           "path": "internal/mcp/server.go",
-          "line": 2286
+          "line": 2307
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAREFFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2256
+          "line": 2277
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SHELLPATH",
           "path": "internal/mcp/server.go",
-          "line": 1431
+          "line": 1452
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SLICESETDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1331
+          "line": 1352
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STALENESSFORPATH",
           "path": "internal/mcp/server.go",
-          "line": 1689
+          "line": 1710
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STRICTCOVERAGESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 2189
+          "line": 2210
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SYMBOLROWS",
           "path": "internal/mcp/server.go",
-          "line": 1768
+          "line": 1789
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TASKENTRYPOINTS",
           "path": "internal/mcp/server.go",
-          "line": 1523
+          "line": 1544
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1742
+          "line": 1763
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1733
+          "line": 1754
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--THREATSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1047
+          "line": 1068
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 229
+          "line": 232
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUEDIAGNOSTICROWS",
           "path": "internal/mcp/server.go",
-          "line": 2224
+          "line": 2245
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VERIFICATIONRECOMMENDATIONS",
           "path": "internal/mcp/server.go",
-          "line": 1220
+          "line": 1241
         }
       ],
       "verifications": [
@@ -2052,92 +2052,92 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--AUTHHINTSFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2359
+          "line": 2380
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--BOOLARG",
           "path": "internal/mcp/server.go",
-          "line": 1901
+          "line": 1922
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTAINSSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2604
+          "line": 2625
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENDPOINTFORENV",
           "path": "internal/mcp/server.go",
-          "line": 2347
+          "line": 2368
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FIRSTNONEMPTYARG",
           "path": "internal/mcp/server.go",
-          "line": 2557
+          "line": 2578
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHEDGES",
           "path": "internal/mcp/server.go",
-          "line": 2499
+          "line": 2520
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHNODES",
           "path": "internal/mcp/server.go",
-          "line": 2409
+          "line": 2430
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--INPUTSCHEMAFORTOOL",
           "path": "internal/mcp/server.go",
-          "line": 2621
+          "line": 2642
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 146
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NONEMPTYSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2571
+          "line": 2592
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERFOR",
           "path": "internal/mcp/server.go",
-          "line": 2379
+          "line": 2400
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIRESTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2656
+          "line": 2677
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREWELLFORMEDSTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2671
+          "line": 2692
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RESOLVEPATHINREPO",
           "path": "internal/mcp/server.go",
-          "line": 2320
+          "line": 2341
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 229
+          "line": 232
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2581
+          "line": 2602
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUESTRINGS",
           "path": "internal/mcp/server.go",
-          "line": 2588
+          "line": 2609
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VALIDATETOOLARGUMENTS",
           "path": "internal/mcp/server.go",
-          "line": 2636
+          "line": 2657
         }
       ],
       "verifications": [
@@ -2275,7 +2275,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DEDUPE-GO--DEDUPEDIAGNOSTICS",
@@ -2300,12 +2300,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1498
+          "line": 1494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1486
+          "line": 1482
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -2389,47 +2389,47 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 676
+          "line": 679
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--DECLARATIONNAME",
           "path": "internal/codemap/scan.go",
-          "line": 560
+          "line": 563
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--EXTRACTDECLARATIONS",
           "path": "internal/codemap/scan.go",
-          "line": 387
+          "line": 390
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FIRSTLINE",
           "path": "internal/codemap/scan.go",
-          "line": 612
+          "line": 615
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISATTRIBUTELIKE",
           "path": "internal/codemap/scan.go",
-          "line": 670
+          "line": 673
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISCOMMENTLIKE",
           "path": "internal/codemap/scan.go",
-          "line": 661
+          "line": 664
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--JOINLINENUMBERS",
           "path": "internal/codemap/scan.go",
-          "line": 646
+          "line": 649
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--MARKERVALUE",
           "path": "internal/codemap/scan.go",
-          "line": 624
+          "line": 627
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 182
+          "line": 185
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCAN",
@@ -2439,7 +2439,7 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 215
+          "line": 218
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
@@ -2449,27 +2449,27 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SLUGUPPER",
           "path": "internal/codemap/scan.go",
-          "line": 696
+          "line": 699
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SPLITCSV",
           "path": "internal/codemap/scan.go",
-          "line": 633
+          "line": 636
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SYMBOLFORDECLARATION",
           "path": "internal/codemap/scan.go",
-          "line": 362
+          "line": 365
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--TREESITTERSPEC",
           "path": "internal/codemap/scan.go",
-          "line": 493
+          "line": 496
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--VALIDREQUIREMENTID",
           "path": "internal/codemap/scan.go",
-          "line": 656
+          "line": 659
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--GOTESTFUNCTION",
@@ -2544,7 +2544,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--EXTRACTCODEDESCRIPTIONMARKER",
           "path": "internal/codescan/inferred_code.go",
-          "line": 390
+          "line": 391
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--GOIMPORTKIND",
@@ -2559,12 +2559,12 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--ISVERIFICATIONCODEITEM",
           "path": "internal/codescan/inferred_code.go",
-          "line": 466
+          "line": 467
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--OWNERFORPATH",
           "path": "internal/codescan/inferred_code.go",
-          "line": 411
+          "line": 412
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--PARSECODEDEPENDENCIES",
@@ -2589,7 +2589,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--RUSTTESTONLYLINES",
           "path": "internal/codescan/inferred_code.go",
-          "line": 497
+          "line": 498
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--SCANCODEMETADATA",
@@ -2604,12 +2604,12 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--SOURCEROOTDIR",
           "path": "internal/codescan/inferred_code.go",
-          "line": 434
+          "line": 435
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--UNIQUEEXISTINGSOURCES",
           "path": "internal/codescan/inferred_code.go",
-          "line": 442
+          "line": 443
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-LAYERS-GO--DEPLOYMENTARTIFACTDISPLAYPATH",
@@ -2879,7 +2879,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2524
+          "line": 2545
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--APPENDUNIQUE",
@@ -3016,12 +3016,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1498
+          "line": 1494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1486
+          "line": 1482
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
@@ -3578,7 +3578,7 @@
         {
           "symbol": "CODE-API-GEMARA-GO--CHECKGEMARAMODELCONSISTENCY",
           "path": "api_gemara.go",
-          "line": 110
+          "line": 111
         },
         {
           "symbol": "CODE-API-GEMARA-GO--GENERATEGEMARA",
@@ -3648,27 +3648,27 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--CONFIDENCEFORRESULT",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 193
+          "line": 194
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GEMARAINFERREDSTEP",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 62
+          "line": 63
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 70
+          "line": 71
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOGFROMFILES",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 37
+          "line": 38
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--MAPVERIFICATIONRESULT",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 207
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EXPORT-GO--ADD",
@@ -3918,7 +3918,7 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--ISAUTOMATEDVERIFICATIONMETHOD",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 369
+          "line": 372
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYASSESSMENTPLANS",
@@ -3928,22 +3928,22 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYCONTACTS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 326
+          "line": 329
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYENFORCEMENTMETHODS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 405
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYEVALUATIONMETHODS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 382
+          "line": 385
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYRISKS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 279
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYSENSITIVITIES",
@@ -3963,12 +3963,12 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--RISKACCEPTED",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 307
+          "line": 310
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--RISKMITIGATED",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 318
+          "line": 321
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-OSCAL-GO--COLLECTGEMARAOSCALUUIDS",
@@ -4033,32 +4033,32 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--CHECKCROSSREFERENCES",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 49
+          "line": 50
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--CHECKMODELCONSISTENCY",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 244
+          "line": 246
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--CHECKXREFDOC",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 134
+          "line": 135
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--COLLECTXREFENTRIES",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 90
+          "line": 91
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--XREFMAP",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 221
+          "line": 222
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--XREFSTRING",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 228
+          "line": 229
         },
         {
           "symbol": "CODE-INTERNAL-MCP-GEMARA-GO--GEMARAARTIFACT",
@@ -4084,6 +4084,11 @@
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--SORTEDKEYS",
           "path": "internal/textutil/textutil.go",
           "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--CLASSIFYVERIFICATIONSTATUS",
+          "path": "internal/validate/assurance.go",
+          "line": 161
         }
       ],
       "verifications": [
@@ -4555,12 +4560,12 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--ISVERIFICATIONCODEITEM",
           "path": "internal/codescan/inferred_code.go",
-          "line": 466
+          "line": 467
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--RUSTTESTONLYLINES",
           "path": "internal/codescan/inferred_code.go",
-          "line": 497
+          "line": 498
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
@@ -4948,7 +4953,7 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 70
+          "line": 71
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EXPORT-GO--GENERATE",
@@ -5043,7 +5048,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 359
+          "line": 362
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -5440,7 +5445,7 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
           "path": "internal/export/gemara/gemara_evaluation.go",
-          "line": 70
+          "line": 71
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EXPORT-GO--GENERATE",
@@ -5675,7 +5680,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 359
+          "line": 362
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -6036,11 +6041,6 @@
           "line": 35
         },
         {
-          "symbol": "CODE-DOCS-SYSML-V2-SUPERSET-PLAN-MD",
-          "path": "docs/sysml-v2-superset-plan.md",
-          "line": 113
-        },
-        {
           "symbol": "CODE-INTERNAL-MODEL-METAMODEL-INSTANCE-GO--ADDOFFICIALPROPERTY",
           "path": "internal/model/metamodel_instance.go",
           "line": 233
@@ -6331,11 +6331,6 @@
           "symbol": "CODE-CMD-SYSMLMETAMODEL-MAIN-GO--RUN",
           "path": "cmd/sysmlmetamodel/main.go",
           "line": 35
-        },
-        {
-          "symbol": "CODE-DOCS-SYSML-V2-SUPERSET-PLAN-MD",
-          "path": "docs/sysml-v2-superset-plan.md",
-          "line": 113
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-SYSML-SYSML-COVERAGE-GO--APPENDMETACLASSANDPROPERTYSTATUSES",
@@ -6865,7 +6860,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1293
+          "line": 1289
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -6999,7 +6994,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1293
+          "line": 1289
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -7027,7 +7022,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 359
+          "line": 362
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -7170,12 +7165,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 506
+          "line": 527
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 146
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -7195,12 +7190,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SORTEDKEYS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 193
+          "line": 209
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -9117,12 +9112,12 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 676
+          "line": 679
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FILEID",
           "path": "internal/codemap/scan.go",
-          "line": 688
+          "line": 691
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
@@ -9177,7 +9172,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--UNREFERENCEABLEINFERREDID",
           "path": "internal/validate/validate.go",
-          "line": 1511
+          "line": 1507
         }
       ],
       "verifications": [
@@ -9197,7 +9192,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--REFERENCEDELEMENTURIDIAGNOSTICS",
           "path": "internal/validate/validate.go",
-          "line": 1523
+          "line": 1519
         }
       ],
       "verifications": [
@@ -9296,7 +9291,7 @@
         {
           "symbol": "CODE-API-GEMARA-GO--CHECKGEMARAMODELCONSISTENCY",
           "path": "api_gemara.go",
-          "line": 110
+          "line": 111
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EXTENDED-GO--AGGREGATEDISPOSITION",
@@ -9316,22 +9311,22 @@
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYRISKS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 279
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--RISKACCEPTED",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 307
+          "line": 310
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--RISKMITIGATED",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 318
+          "line": 321
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--CHECKMODELCONSISTENCY",
           "path": "internal/export/gemara/gemara_xref.go",
-          "line": 244
+          "line": 246
         },
         {
           "symbol": "CODE-INTERNAL-MCP-GEMARA-GO--VALIDATEGEMARADOCUMENTS",
@@ -10088,22 +10083,22 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 371
+          "line": 374
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 332
+          "line": 335
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 295
+          "line": 298
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 319
+          "line": 322
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
@@ -10183,12 +10178,12 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--LOADPINS",
           "path": "internal/engws/scan.go",
-          "line": 241
+          "line": 243
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--READGOMODULE",
           "path": "internal/engws/scan.go",
-          "line": 204
+          "line": 206
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--READMANIFEST",
@@ -10198,7 +10193,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--SAVEPINS",
           "path": "internal/engws/scan.go",
-          "line": 265
+          "line": 267
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--SCAN",
@@ -10213,47 +10208,52 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--TAGFOR",
           "path": "internal/engws/scan.go",
-          "line": 229
+          "line": 231
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--WRITEFILEATOMIC",
           "path": "internal/engws/scan.go",
-          "line": 286
+          "line": 288
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--CHECKOWNED",
           "path": "internal/engws/sync.go",
-          "line": 76
+          "line": 119
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--FIRSTLINE",
           "path": "internal/engws/sync.go",
-          "line": 92
+          "line": 135
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOVERSION",
           "path": "internal/engws/sync.go",
-          "line": 169
+          "line": 212
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOWORKMODULES",
+          "path": "internal/engws/sync.go",
+          "line": 90
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--PARSEGOVERSION",
           "path": "internal/engws/sync.go",
-          "line": 179
+          "line": 222
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--RENDERGOWORK",
           "path": "internal/engws/sync.go",
-          "line": 148
+          "line": 191
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--RENDERWORKFILE",
           "path": "internal/engws/sync.go",
-          "line": 99
+          "line": 142
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--SYNC",
           "path": "internal/engws/sync.go",
-          "line": 38
+          "line": 45
         }
       ],
       "verifications": [
@@ -10451,12 +10451,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 506
+          "line": 527
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 146
+          "line": 149
         }
       ],
       "verifications": [
@@ -10484,6 +10484,11 @@
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
           "line": 286
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
+          "path": "validate_api.go",
+          "line": 31
         }
       ],
       "verifications": [
@@ -10583,7 +10588,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 395
+          "line": 398
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -10767,22 +10772,31 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--ASSURANCELINKDIAGNOSTICS",
           "path": "internal/validate/assurance.go",
-          "line": 33
+          "line": 35
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
           "line": 286
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
+          "path": "validate_api.go",
+          "line": 63
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
+          "path": "validate_api.go",
+          "line": 31
         }
       ],
       "verifications": [
-        "VER-INF-TEST-ASSURANCE_TEST-EE1618",
-        "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F"
+        "VER-INF-TEST-ASSURANCE_TEST-EE1618"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -10796,24 +10810,49 @@
       ],
       "code": [
         {
+          "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--MAPVERIFICATIONRESULT",
+          "path": "internal/export/gemara/gemara_evaluation.go",
+          "line": 210
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--ASSURANCELINKDIAGNOSTICS",
           "path": "internal/validate/assurance.go",
-          "line": 33
+          "line": 35
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--CLASSIFYVERIFICATIONSTATUS",
+          "path": "internal/validate/assurance.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--CONTROLNEEDSREVIEW",
+          "path": "internal/validate/assurance.go",
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
           "line": 286
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
+          "path": "validate_api.go",
+          "line": 63
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
+          "path": "validate_api.go",
+          "line": 31
         }
       ],
       "verifications": [
         "VER-INF-TEST-ASSURANCE_TEST-EE1618",
-        "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F"
+        "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-F6F279"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -10829,42 +10868,77 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ARTIFACTCOMMENTS",
           "path": "internal/codemap/artifact.go",
-          "line": 51
+          "line": 71
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ARTIFACTMARKER",
           "path": "internal/codemap/artifact.go",
-          "line": 98
+          "line": 179
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ARTIFACTMARKER",
+          "path": "internal/codemap/artifact.go",
+          "line": 198
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ARTIFACTMARKERS",
+          "path": "internal/codemap/artifact.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--CLOSEDBY",
+          "path": "internal/codemap/artifact.go",
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ISARTIFACTFILE",
           "path": "internal/codemap/artifact.go",
-          "line": 25
+          "line": 43
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ISCONTAINERFILE",
           "path": "internal/codemap/artifact.go",
-          "line": 30
+          "line": 48
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--ISMARKDOWNFILE",
           "path": "internal/codemap/artifact.go",
-          "line": 41
+          "line": 59
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--MARKDOWNINDENT",
+          "path": "internal/codemap/artifact.go",
+          "line": 160
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--OPENMARKDOWNFENCE",
+          "path": "internal/codemap/artifact.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--READABLEARTIFACT",
+          "path": "internal/codemap/artifact.go",
+          "line": 34
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--SCANARTIFACT",
           "path": "internal/codemap/artifact.go",
-          "line": 119
+          "line": 224
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-ARTIFACT-GO--SORTEDLINES",
+          "path": "internal/codemap/artifact.go",
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 182
+          "line": 185
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANARTIFACTFILE",
           "path": "internal/codemap/scan.go",
-          "line": 204
+          "line": 207
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
@@ -10879,7 +10953,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--ISVERIFICATIONCODEITEM",
           "path": "internal/codescan/inferred_code.go",
-          "line": 466
+          "line": 467
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--SCANCODEMETADATA",
@@ -10904,44 +10978,80 @@
       ],
       "code": [
         {
+          "symbol": "CODE-API-GEMARA-GO--CHECKGEMARAMODELCONSISTENCY",
+          "path": "api_gemara.go",
+          "line": 111
+        },
+        {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--POLICYRISKS",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 279
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-L1L3-GO--RISKACCEPTED",
           "path": "internal/export/gemara/gemara_l1l3.go",
-          "line": 307
+          "line": 310
+        },
+        {
+          "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-XREF-GO--CHECKMODELCONSISTENCY",
+          "path": "internal/export/gemara/gemara_xref.go",
+          "line": 246
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--ACCEPTANCEDIAGNOSTICS",
           "path": "internal/validate/acceptance.go",
-          "line": 56
+          "line": 131
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--ACCEPTANCEMISSING",
           "path": "internal/validate/acceptance.go",
-          "line": 23
+          "line": 24
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--NEWACCEPTANCEREFS",
+          "path": "internal/validate/acceptance.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--PROBLEMS",
+          "path": "internal/validate/acceptance.go",
+          "line": 78
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--RESOLVES",
+          "path": "internal/validate/acceptance.go",
+          "line": 107
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-ACCEPTANCE-GO--RISKRECORDEDACCEPTED",
           "path": "internal/validate/acceptance.go",
-          "line": 15
+          "line": 16
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
           "line": 286
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
+          "path": "validate_api.go",
+          "line": 63
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
+          "path": "validate_api.go",
+          "line": 31
         }
       ],
       "verifications": [
         "VER-INF-TEST-ACCEPTANCE_TEST-71CB24",
-        "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-F6F279"
+        "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-F6F279",
+        "VER-INF-TEST-LOAD_TEST-E1FF39"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -10954,19 +11064,29 @@
       ],
       "code": [
         {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
+          "path": "internal/engws/cli.go",
+          "line": 267
+        },
+        {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
           "path": "internal/engws/sync.go",
-          "line": 123
+          "line": 166
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOWORKMODULES",
+          "path": "internal/engws/sync.go",
+          "line": 90
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--RENDERGOWORK",
           "path": "internal/engws/sync.go",
-          "line": 148
+          "line": 191
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--SYNC",
           "path": "internal/engws/sync.go",
-          "line": 38
+          "line": 45
         }
       ],
       "verifications": [
@@ -10986,15 +11106,31 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 162
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDSETS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 142
+          "line": 166
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--PUBLICATIONSECTIONS",
+          "path": "internal/validate/authoring_rules.go",
+          "line": 139
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLFIELDS",
+          "path": "internal/validate/authoring_rules.go",
+          "line": 152
+        },
+        {
+          "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
+          "path": "validate_api.go",
+          "line": 63
         }
       ],
       "verifications": [
+        "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
         "VER-INF-TEST-FILES_OWNER_TEST-1C4F5F"
       ],
       "result": "not-run",
@@ -11042,6 +11178,7 @@
       ],
       "verifications": [
         "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6",
+        "VER-INF-TEST-TESTFUNC_TEST-612CDF",
         "VER-INF-TEST-TRACE_DELEGATED_TEST-5F315E"
       ],
       "result": "not-run",
@@ -11049,7 +11186,7 @@
     },
     {
       "id": "REQ-EMG-089",
-      "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the model files on disk at call time.",
+      "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the module model files on disk at call time.",
       "units": [
         "FU-MCP-SERVER"
       ],
@@ -11057,15 +11194,16 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELFILEFINGERPRINT",
           "path": "internal/mcp/server.go",
-          "line": 475
+          "line": 484
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REFRESHMODEL",
           "path": "internal/mcp/server.go",
-          "line": 459
+          "line": 462
         }
       ],
       "verifications": [
+        "VER-INF-TEST-FINGERPRINT_UNIX_TEST-560DC2",
         "VER-INF-TEST-GEMARA_TEST-DD5C1F"
       ],
       "result": "not-run",

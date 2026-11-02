@@ -17,6 +17,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/textutil"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // gemaraDefaultTimestamp is used only for empty documents that contain no
@@ -201,20 +202,22 @@ func confidenceForResult(res gemaraproj.Result) gemaraproj.ConfidenceLevel {
 	}
 }
 
-// mapVerificationResult maps an engmod verification status to a Gemara Result.
-// TRLC-LINKS: REQ-EMG-015
+// mapVerificationResult maps an engmod verification status to a Gemara Result
+// through validate.ClassifyVerificationStatus, the classification
+// gemara.control_needs_review uses.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-083
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func mapVerificationResult(status string) gemaraproj.Result {
-	switch strings.ToLower(strings.TrimSpace(status)) {
-	case "pass", "passed", "satisfied", "implemented", "ok", "success":
+	switch validate.ClassifyVerificationStatus(status) {
+	case validate.OutcomePassed:
 		return gemaraproj.Passed
-	case "fail", "failed", "not-satisfied", "notsatisfied", "error":
+	case validate.OutcomeFailed:
 		return gemaraproj.Failed
-	case "partial", "needs-review", "review", "in-progress", "planned":
+	case validate.OutcomeNeedsReview:
 		return gemaraproj.NeedsReview
-	case "n/a", "na", "not-applicable", "notapplicable":
+	case validate.OutcomeNotApplicable:
 		return gemaraproj.NotApplicable
-	case "", "unknown", "not-run", "notrun":
+	case validate.OutcomeNotRun:
 		return gemaraproj.NotRun
 	default:
 		return gemaraproj.Unknown

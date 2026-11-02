@@ -1259,11 +1259,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
-	decisionIDs := map[string]bool{}
-	for _, d := range b.Architecture.Decisions {
-		decisionIDs[strings.TrimSpace(d.ID)] = true
-	}
-	diags = append(diags, acceptanceDiagnostics(b.Architecture.AuthoredArchitecture, actors, decisionIDs)...)
+	diags = append(diags, acceptanceDiagnostics(b)...)
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)
 	projectionDiagnostics = append(projectionDiagnostics, model.ValidateSemanticModel(semantic)...)

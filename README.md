@@ -300,13 +300,13 @@ Verification metadata is inferred from test artifacts:
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
 - `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
-- a risk with `status: accepted` or `response: accept`, and a threat scenario with `status: accepted`, carries the owner's acceptance record `acceptedBy: {actor: ACT-…, date: YYYY-MM-DD, statement: "<the owner's words>"}` (or `decisionRef: DEC-…` instead of `statement`, naming a decision whose context quotes the owner); without it `risk.acceptance_unrecorded` is an error at `acceptedBy`, and an actor, date or decisionRef that does not resolve is `model.invalid_acceptance`. The Gemara policy lists a risk under `risks.accepted` only with a complete record and status `accepted`, or response `accept` with a status other than `open`
+- a risk with `status: accepted` or `response: accept`, and a threat scenario with `status: accepted`, carries the owner's acceptance record `acceptedBy: {actor: ACT-…, date: YYYY-MM-DD, statement: "<the owner's words>"}` (or `decisionRef: DEC-…` instead of `statement`, naming an accepted decision whose context quotes the owner); without it `risk.acceptance_unrecorded` is an error at `acceptedBy`, and an actor, date or decisionRef that does not resolve is `model.invalid_acceptance`. The Gemara policy lists a risk under `risks.accepted` only with a complete, resolving record and status `accepted`, or response `accept` with a status other than `open`. The record is a claim in the model: the review of the change that adds it is what shows the owner gave it. Authored risk and threat scenario IDs must not contain `::`, which is reserved for imported `alias::ID` entities
 - a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
 
-### Model warnings
+### Model link and acceptance diagnostics
 
-Beyond the hard errors, validation warns about model content that is declared
-but not wired (warnings do not fail `engdoc`):
+Beyond the schema and reference errors, validation reports model content that is declared
+but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 
 | Code | Reported at | Rule |
 | --- | --- | --- |
@@ -318,8 +318,11 @@ but not wired (warnings do not fail `engdoc`):
 | `threat.verification_missing` | `…threatScenarios[i].verificationRefs` | the threat does not list a control verification that one of its mitigations references or that names the threat in `threatScenarioRefs` |
 | `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
 | `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
+| `risk.acceptance_unrecorded` (error) | `…risks[i].acceptedBy`, `…threatScenarios[i].acceptedBy` | an accepted risk or threat scenario without a complete `acceptedBy` record (the message lists the missing parts) |
+| `model.invalid_acceptance` (error) | `…acceptedBy.actor`, `.date`, `.decisionRef` | the actor is no actor, the date is not a YYYY-MM-DD calendar date, or the decisionRef is no decision or a decision whose status is not `accepted` |
+| `risk.acceptance_not_owner` | `…risks[i].acceptedBy.actor` | the accepting actor is not the risk's `owner` (only when an owner is set) |
 | `risk.accept_while_open` | `…risks[i].status` | `response: accept` with `status: open`: the risk still waits for a decision, so the Gemara policy does not list it as accepted |
-| `gemara.control_needs_review` | `…controls[i]` | no control verification names the control, so the Gemara evaluation log marks it Needs Review; names another control's verification when that is its only evidence |
+| `gemara.control_needs_review` | `…controls[i]` | the Gemara evaluation log marks the control Needs Review: no control verification names it (the message names another control's verification when that is its only evidence), or its verifications need review (for example `partial`) and none failed |
 
 `triggered_by` (state → event) means the event is handled within the state. The event that
 enters a state belongs to a `transitions_to`, in its description or structurally as an
@@ -339,9 +342,17 @@ Both markers are validated against the loaded model. Unresolved IDs are hard err
 Container build files (`Dockerfile`, `Containerfile`, `*.Dockerfile`, `*.Containerfile`) may
 carry `# TRLC-LINKS:`, `# ENGMODEL-LINKS:` and `# ENGMODEL-OWNER-UNIT:` comment lines, and
 Markdown files the same markers in HTML comments (`<!-- TRLC-LINKS: REQ-… -->`) outside code
-fences. The markers apply to the whole file, which implements (never verifies) the linked
-requirements under its `CODE-<PATH>` identifier; they are optional, so an unmarked Dockerfile
-or README raises nothing.
+fences (a fence closes only on one at least as long, CommonMark) and outside lines indented four
+or more columns. The markers apply to the whole file, which implements (never verifies) the
+linked requirements under its `CODE-<PATH>` identifier; they are optional, so an unmarked
+Dockerfile or README raises nothing. Only regular files up to 512 KiB are read; larger files and
+symlinks are skipped.
+
+A Go test is *environment gated* when it skips depending on an environment variable or
+`testing.Short()`: one of its first three statements is an `if` whose condition or initializer
+calls `os.Getenv`, `os.LookupEnv` or `testing.Short()` and whose body calls `t.Skip`, `t.Skipf`
+or `t.SkipNow`. A gate in a later statement or in a helper the test calls is not detected, so
+such a test counts as ungated.
 Code is scoped to its nearest enclosing model root, so links resolve against the closest model
 rather than the whole tree. Requirements with no implementing or delegating code surface a
 `requirement.orphan` warning, and a requirement linked from code that does not exist raises
@@ -686,7 +697,7 @@ It exposes 50+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, and RSL export
 - `interfaces.*`: software and HW/SW interface resolution and code matching
 - `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
-- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips unless an environment variable is set or under `testing.Short`, with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
+- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:
