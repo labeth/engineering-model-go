@@ -67,6 +67,14 @@ semantic versioning.
     `contract.provides[].ref` into `realizes` and prints the requirements left with
     `requirement.no_parent`. Other lines are kept; a second run changes nothing.
   - Every `engws` command accepts its flags after the positional arguments.
+- Requirement links in the trace (REQ-EMG-105): trace matrix rows carry `parents` (realized
+  contract items, qualified on published rows, or stakeholder `sourceRefs`), `children` (a
+  system requirement's linked child items and their realizing requirements), `links` with their
+  state and `satisfiedBy: links`: a system requirement without code or tests of its own is
+  implemented (and test linked) when every realizing requirement of every linked item is, in
+  its own repository, and is no longer an orphan. The summary counts `linksSuspect`,
+  `linksBroken`, `linksClaimed` and `unparented`; MCP `trace.matrix` returns them, also with
+  `summaryOnly`. Root facade: `TraceLinkRef`.
 - `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 

@@ -35,7 +35,7 @@ var layerRules = map[string][]string{
 	"internal/reqlinks":            {"internal/model", "internal/validate"},
 	"internal/composition":         {"internal/model", "internal/validate", "internal/textutil", "internal/reqlinks"},
 	"internal/codescan":            {"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
-	"internal/trace":               {"internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
+	"internal/trace":               {"internal/codescan", "internal/composition", "internal/reqlinks", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	"internal/reqlint":             {"internal/model", "internal/validate", "internal/textutil"},
 	"internal/reqdelta":            {"internal/reqlint", "internal/trace", "internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	"internal/generate":            {"internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view", "internal/render/*"},

@@ -180,7 +180,7 @@ func NewServer() *Server {
 		{Name: "generation.plan", Description: "Plan artifact regeneration"},
 		{Name: "generation.status", Description: "Get artifact freshness status"},
 		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
-		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling, gatedOnly and gatedOnlyRequirements: test-linked requirements whose every test is environment gated; verified is a deprecated alias of testLinked), per-requirement status, code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
+		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling, gatedOnly and gatedOnlyRequirements: test-linked requirements whose every test is environment gated; verified is a deprecated alias of testLinked; linksSuspect, linksBroken, linksClaimed and unparented for requirement links), per-requirement status, parents, children, links and satisfiedBy (links: satisfied through linked child items), code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
 		{Name: "tasks.entryPoints", Description: "List task entry points"},

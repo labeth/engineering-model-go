@@ -54,7 +54,7 @@ REQ-EMG-090 onward in `model/requirements.yml`.
 - `engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]`: added, removed or changed contract items with the semver impact (D10). `engws release-check` fails when the tag's bump is smaller than the diff requires or a pin is unreleased (D11).
 - `engws migrate-links [--repo DIR] [--dry-run]`: allocations → `model/req-links.yml` (`status: claimed`, current fingerprints); `contract.provides[].ref` → `realizes`; prints the requirements left with `requirement.no_parent` (D12).
 - MCP: `links.list`, `links.suspect`, `links.review`, `requirements.parents`; `requirements.get` shows parents and children.
-- Trace: rows get `parents` and `children`; summary counts `suspect`, `broken`, `claimed`, `unparented`.
+- Trace (REQ-EMG-105): rows get `parents` (realized items or stakeholder `sourceRefs`), `children` (linked `alias::CAP-…` then its realizing `alias::REQ-…`), `links` and `satisfiedBy: links` (rolled up from the child trace: implemented when every realizer is implemented, test linked when every realizer is test linked); summary counts `linksSuspect`, `linksBroken`, `linksClaimed`, `unparented`.
 - Renderers: the system view shows the requirement tree through links; a child rendered alone shows no users; a child rendered in a workspace with a using system shows "used by", computed at render time.
 
 ## Out of scope

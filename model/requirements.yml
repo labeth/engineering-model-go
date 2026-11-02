@@ -653,3 +653,11 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-105
+    text: Where system composition is enabled, when generation run is requested, the engineering model go shall report the parents and children of each requirement and roll each linked system requirement up from its realizing child requirements.
+    notes: 'trace.Matrix rows carry parents (the contract items a requirement realizes through realizes or a deprecated ref, qualified alias::ID on a published requirement row, then its stakeholder sourceRefs; none for a system requirement without either) and children (for a requirement that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing requirements alias::REQ-* at the resolved version; none for a child requirement), links (id, child, evaluated state, review status) and satisfiedBy. A requirement with no code or test of its own whose every link resolves to an item with realizing requirements that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links, linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksSuspect (also a suspect item behind a stale pin), linksBroken, linksClaimed and unparented (local requirements that trace upward to nothing where the requirement link rules apply). MCP trace.matrix returns the four counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.'
+    verificationMethods: [test]
+    verificationCriteria: When every realizing requirement of the items linked to a system requirement has code and a test in its child repository, then the system requirement row lists the linked items and their realizers as children and is implemented and test linked through links; when a realizer loses its test, then the system requirement is implemented but not test linked; a child requirement row lists the item it realizes as parent; a suspect, a broken and a claimed link are each counted once in the summary.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-MCP-SERVER

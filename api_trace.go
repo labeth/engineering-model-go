@@ -39,6 +39,10 @@ type TraceDelegation = trace.Delegation
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 type DanglingLink = trace.DanglingLink
 
+// TraceLinkRef is one requirement link of a trace row with its evaluated state.
+// TRLC-LINKS: REQ-EMG-105
+type TraceLinkRef = trace.LinkRef
+
 // TraceSummary is the headline coverage roll-up.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type TraceSummary = trace.Summary
