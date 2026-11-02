@@ -2733,6 +2733,51 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-085";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-085' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.";
+        attribute 'notes' : 'String' = "A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (YYYY-MM-DD) and statement (the owner's own words) or decisionRef (an existing decision whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve is model.invalid_acceptance (error). risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when it has a complete acceptance record and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-086";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-086' {
+        attribute 'text' : 'String' = "When workspace sync is requested, the engineering model go shall write a go workspace replace directive for each required version of a workspace go module.";
+        attribute 'notes' : 'String' = "engws sync writes, next to the use entries of the family go.work, one line replace <module> <version> => ./<dir> for every Go module of a checkout listed in use and every distinct version at which any checkout's go.mod requires that module; a module no checkout requires gets no replace. go resolves the go.mod of a required version even when the module is in use, so an unpublished family module fails to build without it; an unversioned replace is rejected for a workspace module. The generated-file header and the hand-written file check are unchanged. A repository's .github/engmod-check uses its own go.work or GOWORK=off and is not affected.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-087";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-087' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the allowed fields of each entity kind with the model authoring contract.";
+        attribute 'notes' : 'String' = "validate.AuthoringRules (model.authoringContract rules) adds fieldSets, the YAML field names each entity kind accepts (risk, control, threatScenario, flowStep and the others), derived from the strict-decoding Go types, and publicationSections, the manifest publication sections (architecture, behavior, assurance, compliance, requirements, views; decisions cannot be published). fieldRules state that boundaryCrossing true needs trustBoundaryRef (model.missing_flow_boundary_ref), what behavior.event_unused counts as a use (triggered_by targets, semantic relationship sources, targets and triggers, flow and flow step sourceRef and destinationRef, flow step ref; not properties or prose), the lint.multiple_responses field-list exemption (one shall, the list opens with with, including or of, no list item after the first starts a verb with a determiner) and that in strict EARS mode the system term is a catalog system, functional group or functional unit name or alias.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-088";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-088' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement whose linked tests are all environment gated.";
+        attribute 'notes' : 'String' = "A Go test entry point whose first statements include an if whose condition calls os.Getenv, os.LookupEnv or testing.Short and whose body calls t.Skip, t.Skipf or t.SkipNow is gated (the variable name, or testing.Short). A requirement linked from a test file only by gated tests carries that gate in the verification check; a trace row whose every verification is gated for it has gated true and its gates, and the summary counts it in gatedOnly and lists it in gatedOnlyRequirements. testLinked still counts it. The MCP trace.matrix summary returns gatedOnly and gatedOnlyRequirements and its rows gated.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-089";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-089' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the model files on disk at call time.";
+        attribute 'notes' : 'String' = "The server fingerprints the content of the manifest, every document it names, the requirements and design paths, engmod.lock.yml, engmod.lock.local.yml and engmod.work.yml next to the manifest at load. Before each tools/call it recomputes the fingerprint and reloads the model when it differs; a reload that fails is returned as the call error instead of the previous model. It no longer depends on the client re-sending initialize.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }

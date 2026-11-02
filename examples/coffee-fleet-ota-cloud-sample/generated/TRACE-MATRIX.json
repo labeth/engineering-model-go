@@ -447,6 +447,7 @@
     "delegatedImplemented": 3,
     "delegatedTestLinked": 0,
     "orphan": 4,
-    "danglingLinks": 0
+    "danglingLinks": 0,
+    "gatedOnly": 0
   }
 }

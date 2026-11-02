@@ -370,6 +370,7 @@
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
     "orphan": 1,
-    "danglingLinks": 0
+    "danglingLinks": 0,
+    "gatedOnly": 0
   }
 }
