@@ -1,0 +1,31 @@
+{
+  "model": "REQLINKS-CHILD-B",
+  "requirements": [
+    {
+      "id": "REQ-B-001",
+      "text": "When a position sentence is received, the lab bus bridge shall forward one bus frame.",
+      "units": [
+        "FU-BRIDGE"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-B-001"
+  ],
+  "summary": {
+    "requirements": 1,
+    "implemented": 0,
+    "verified": 0,
+    "tested": 0,
+    "testLinked": 0,
+    "passed": 0,
+    "delegated": 0,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
+    "orphan": 1,
+    "danglingLinks": 0,
+    "gatedOnly": 0
+  }
+}

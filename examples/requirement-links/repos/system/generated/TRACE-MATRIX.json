@@ -1,0 +1,113 @@
+{
+  "model": "REQLINKS-SYSTEM",
+  "requirements": [
+    {
+      "id": "REQ-SYS-001",
+      "text": "When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.",
+      "units": [
+        "FU-LAB-NETWORK"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-SYS-002",
+      "text": "The position simulator shall protect each published ownship position against corruption.",
+      "units": [
+        "FU-LAB-NETWORK"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "REQ-SYS-003",
+      "text": "The lab network shall isolate the lab bus from every other network.",
+      "units": [
+        "FU-LAB-NETWORK"
+      ],
+      "status": "orphan"
+    },
+    {
+      "id": "bridge::REQ-B-001",
+      "text": "When a position sentence is received, the lab bus bridge shall forward one bus frame.",
+      "units": [
+        "bridge::FU-BRIDGE"
+      ],
+      "provenance": {
+        "alias": "bridge",
+        "modulePath": "models.example/reqlinks/child-b@v0",
+        "version": "v0.1.0",
+        "sourceModel": "REQLINKS-CHILD-B",
+        "publication": "public",
+        "sourceId": "REQ-B-001"
+      },
+      "status": "published"
+    },
+    {
+      "id": "encoder::REQ-A-001",
+      "text": "When epoch period elapses, the position encoder shall publish one position sentence.",
+      "units": [
+        "encoder::FU-ENCODER"
+      ],
+      "provenance": {
+        "alias": "encoder",
+        "modulePath": "models.example/reqlinks/child-a@v0",
+        "version": "v0.1.0",
+        "sourceModel": "REQLINKS-CHILD-A",
+        "publication": "public",
+        "sourceId": "REQ-A-001"
+      },
+      "status": "published"
+    },
+    {
+      "id": "encoder::REQ-A-002",
+      "text": "The sentence encoder shall format each position sentence with latitude and longitude.",
+      "units": [
+        "encoder::FU-ENCODER"
+      ],
+      "provenance": {
+        "alias": "encoder",
+        "modulePath": "models.example/reqlinks/child-a@v0",
+        "version": "v0.1.0",
+        "sourceModel": "REQLINKS-CHILD-A",
+        "publication": "public",
+        "sourceId": "REQ-A-002"
+      },
+      "status": "published"
+    },
+    {
+      "id": "encoder::REQ-A-003",
+      "text": "The sentence encoder shall append a checksum to each position sentence.",
+      "units": [
+        "encoder::FU-ENCODER"
+      ],
+      "provenance": {
+        "alias": "encoder",
+        "modulePath": "models.example/reqlinks/child-a@v0",
+        "version": "v0.1.0",
+        "sourceModel": "REQLINKS-CHILD-A",
+        "publication": "public",
+        "sourceId": "REQ-A-003"
+      },
+      "status": "published"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-SYS-001",
+    "REQ-SYS-002",
+    "REQ-SYS-003"
+  ],
+  "summary": {
+    "requirements": 7,
+    "implemented": 0,
+    "verified": 0,
+    "tested": 0,
+    "testLinked": 0,
+    "passed": 0,
+    "delegated": 0,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
+    "orphan": 3,
+    "danglingLinks": 0,
+    "gatedOnly": 0
+  }
+}

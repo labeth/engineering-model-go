@@ -2808,6 +2808,96 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-090";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-090' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement without an upward trace.";
+        attribute 'notes' : 'String' = "A requirement traces upward through realizes (local contract items), derived with derivedRationale, or stakeholder sourceRefs; a model with module.kind system and inferenceHints.topLevel true is exempt. Being the parent of a reqLinks entry does not exempt it. Otherwise requirement.no_parent is reported at the requirement: an error with requirementLinks strict in every model; a warning with guided (the default) only in a model that publishes a contract item or has reqLinks; nothing in a guided standalone model. A realizes target that is a requirement, an imported alias::ID, an interface entry or unknown is requirement.realizes_unknown (error). requirementLinks other than strict or guided is model.invalid_requirement_links (error). The rule needs only the child repository.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-091";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-091' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements.";
+        attribute 'notes' : 'String' = "contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and they have a fingerprint. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-092";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-092' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself.";
+        attribute 'notes' : 'String' = "contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system computes the fingerprint from the published content alone, so every realizer must be visible to it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-093";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-093' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.";
+        attribute 'notes' : 'String' = "contract.unrealized (warning) names a published capability with no realizing requirement. contract.ref_deprecated (warning) is reported at each contract.provides ref; the ref still counts as a realizer for one release.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-094";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-094' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins.";
+        attribute 'notes' : 'String' = "The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version, fingerprint}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema. A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-095";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-095' {
+        attribute 'text' : 'String' = "The engineering model go shall compute a deterministic fingerprint of each contract item with its realizing requirements.";
+        attribute 'notes' : 'String' = "reqlinks.Fingerprint is sha256: over compact JSON {\"item\":{id,kind,text,verificationCriteria},\"realizers\":[{id,text,verificationCriteria,status}...]} with realizers sorted by id, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline (reqlinks.CanonicalItem). The text of a capability is its note. A using system computes it from the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item does not change it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-096";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-096' {
+        attribute 'text' : 'String' = "Where system composition is enabled, the engineering model go shall accept a dependency version that is a release tag or a pseudo-version carrying a commit.";
+        attribute 'notes' : 'String' = "The CUE #ExactVersion and ParseExactModuleVersion accept a canonical semantic version, including Go-style pseudo-versions v1.2.4-0.20261102103400-abcdef123456. A release only uses tags; engws release-check rejects pseudo-versions (later work).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-097";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-097' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose contract item changed or disappeared at the pinned dependency version.";
+        attribute 'notes' : 'String' = "Composition evaluates each reqLinks entry against the resolved dependency (reqlinks.EvaluateLinks): unchanged, suspect (fingerprint differs; link.suspect error naming both fingerprints and the current item and realizing requirement texts), broken (the item no longer exists; link.broken error), child_unpublished (it exists but is not a published capability or assumption of use; link.child_unpublished error), version_mismatch or unresolved. The diagnostics join the composition diagnostics, so engdoc, engmod-check and model.diagnose report them; they do not stop the lock from being written. The before text is not part of the pinned dependency; engws review-links resolves it for a diff.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-098";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-098' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each dependency assumption of use without an evidence link and each system requirement satisfied by nothing.";
+        attribute 'notes' : 'String' = "link.aou_unverified is reported for every published assumption of use of a composed dependency that no reqLinks entry with evidence names as child. requirement.unsatisfied is reported by the trace integrity check at a requirement of a model with composition subsystems that no code or test of the model links, no reqLinks entry names as parent, no allocation delegates and that is not derived. Both are errors with requirementLinks strict and warnings with guided where links apply (validate.RequirementLinkRules).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-099";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-099' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall describe requirement links in the model authoring contract.";
+        attribute 'notes' : 'String' = "The authoring contract field rules describe realizes, contract.assumptions, the reqLinks document and the requirementLinks strictness, and fieldSets list contractAssumption, reqLink and reqLinkPin; the reqLinks document is listed when the manifest names it. Each composition.allocations entry is composition.allocation_deprecated (warning) and still materializes as before for one release.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
