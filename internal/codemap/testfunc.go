@@ -9,6 +9,7 @@ package codemap
 
 import (
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -209,4 +210,78 @@ func rustAttribute(item *sitter.Node) *sitter.Node {
 		}
 	}
 	return nil
+}
+
+// goTestGateStatements is how many leading statements of a Go test body are
+// searched for an environment gate.
+const goTestGateStatements = 3
+
+var (
+	goEnvReadRe   = regexp.MustCompile(`\bos\.(?:Getenv|LookupEnv)\(\s*([^)]*?)\s*\)`)
+	goShortRe     = regexp.MustCompile(`\btesting\.Short\(\s*\)`)
+	goTestSkipRe  = regexp.MustCompile(`\.\s*Skip(?:f|Now)?\s*\(`)
+	goStringLitRe = regexp.MustCompile("^(?:\"([^\"]*)\"|`([^`]*)`)$")
+)
+
+// goTestGates returns what a Go test function waits for before it runs: for
+// each if statement among the first goTestGateStatements statements of its
+// body whose initializer or condition reads os.Getenv / os.LookupEnv or calls
+// testing.Short and whose consequence calls Skip, Skipf or SkipNow, the
+// variable names (the argument text when it is not a string literal) and
+// "testing.Short". It is empty for an ungated test.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func goTestGates(n *sitter.Node, src []byte) []string {
+	body := n.ChildByFieldName("body")
+	if body == nil {
+		return nil
+	}
+	list := body
+	if body.NamedChildCount() == 1 && body.NamedChild(0).Kind() == "statement_list" {
+		list = body.NamedChild(0)
+	}
+	var gates []string
+	count := list.NamedChildCount()
+	statements := 0
+	for i := uint(0); i < count && statements < goTestGateStatements; i++ {
+		stmt := list.NamedChild(i)
+		if stmt == nil || strings.Contains(stmt.Kind(), "comment") {
+			continue
+		}
+		statements++
+		if stmt.Kind() != "if_statement" {
+			continue
+		}
+		consequence := stmt.ChildByFieldName("consequence")
+		if consequence == nil || !goTestSkipRe.MatchString(consequence.Utf8Text(src)) {
+			continue
+		}
+		cond := ""
+		for _, field := range []string{"initializer", "condition"} {
+			if part := stmt.ChildByFieldName(field); part != nil {
+				cond += part.Utf8Text(src) + "\n"
+			}
+		}
+		for _, m := range goEnvReadRe.FindAllStringSubmatch(cond, -1) {
+			name := m[1]
+			if lit := goStringLitRe.FindStringSubmatch(name); lit != nil {
+				name = lit[1] + lit[2]
+			}
+			gates = appendGate(gates, name)
+		}
+		if goShortRe.MatchString(cond) {
+			gates = appendGate(gates, "testing.Short")
+		}
+	}
+	return gates
+}
+
+// TRLC-LINKS: REQ-EMG-088
+func appendGate(gates []string, gate string) []string {
+	for _, g := range gates {
+		if g == gate {
+			return gates
+		}
+	}
+	return append(gates, gate)
 }

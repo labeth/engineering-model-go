@@ -357,20 +357,26 @@ func TestGemaraEnforcementDispositionFollowsPOAMStatus(t *testing.T) {
 	}
 }
 
-// Policy risks.mitigated lists only closed risks; accepted lists risks with
-// status accepted or response accept; open and mitigating risks are in neither
-// list and a diagnostic says so.
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// Policy risks.mitigated lists only closed risks; accepted lists risks with an
+// owner acceptance record and status accepted, or response accept and a status
+// other than open. Open and mitigating risks, an accepted risk without a
+// record and response accept while open are in neither list and a diagnostic
+// says so.
+// Mutation: dropping the acceptance record condition lists RISK-UNRECORDED.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func TestGemaraPolicyRisksFollowRiskStatus(t *testing.T) {
 	b := gemaraTruthBundle("test")
 	a := &b.Architecture.AuthoredArchitecture
+	rec := &model.AcceptanceRecord{Actor: "ACT-A", Date: "2026-11-01", Statement: "I accept it."}
 	a.Risks = []model.Risk{
 		{ID: "RISK-OPEN", Title: "o", Likelihood: "low", Impact: "low", Status: "open", Response: "mitigate"},
 		{ID: "RISK-MITIGATING", Title: "m", Likelihood: "low", Impact: "low", Status: "mitigating", Response: "mitigate"},
 		{ID: "RISK-CLOSED", Title: "c", Likelihood: "low", Impact: "low", Status: "closed", Response: "mitigate"},
-		{ID: "RISK-ACCEPTED", Title: "a", Likelihood: "low", Impact: "low", Status: "accepted", Response: "mitigate"},
-		{ID: "RISK-ACCEPT-RESPONSE", Title: "r", Likelihood: "low", Impact: "low", Status: "open", Response: "accept", Rationale: "cheap"},
+		{ID: "RISK-ACCEPTED", Title: "a", Likelihood: "low", Impact: "low", Status: "accepted", Response: "mitigate", AcceptedBy: rec},
+		{ID: "RISK-ACCEPT-RESPONSE", Title: "r", Likelihood: "low", Impact: "low", Status: "mitigating", Response: "accept", Rationale: "cheap", AcceptedBy: rec},
+		{ID: "RISK-UNRECORDED", Title: "u", Likelihood: "low", Impact: "low", Status: "accepted", Response: "accept"},
+		{ID: "RISK-ACCEPT-OPEN", Title: "w", Likelihood: "low", Impact: "low", Status: "open", Response: "accept", AcceptedBy: rec},
 	}
 	a.ControlVerifications[0].RiskRefs = []string{"RISK-OPEN"}
 	a.POAMItems = []model.POAMItem{{ID: "POAM-A", RiskRef: "RISK-OPEN", Milestone: "m", Status: "planned"}}
@@ -390,7 +396,8 @@ func TestGemaraPolicyRisksFollowRiskStatus(t *testing.T) {
 	}
 	found := false
 	for _, d := range res.Diagnostics {
-		if d.Code == "gemara.policy_risks_untreated" && strings.Contains(d.Message, "RISK-OPEN") && strings.Contains(d.Message, "RISK-MITIGATING") {
+		if d.Code == "gemara.policy_risks_untreated" && strings.Contains(d.Message, "RISK-OPEN") && strings.Contains(d.Message, "RISK-MITIGATING") &&
+			strings.Contains(d.Message, "RISK-UNRECORDED") && strings.Contains(d.Message, "RISK-ACCEPT-OPEN") {
 			found = true
 		}
 	}

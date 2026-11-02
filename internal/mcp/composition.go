@@ -126,7 +126,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 // implementation, verification, and delegation status, with orphans and dangling links.
 // Delegated rows carry the target requirement's own trace status
 // (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
@@ -149,6 +149,10 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"delegatedTestLinked":  matrix.Summary.DelegatedTestLinked,
 			"orphan":               matrix.Summary.Orphan,
 			"dangling":             matrix.Summary.DanglingLinks,
+			// Test-linked requirements whose every linked test is
+			// environment gated (skips unless a variable is set).
+			"gatedOnly":             matrix.Summary.GatedOnly,
+			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
 		},
 		"diagnostics": diagRows(diags),
 	}
@@ -182,6 +186,10 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 		if r.DelegatedStatus != nil {
 			row["delegatedStatus"] = r.DelegatedStatus
 		}
+		if r.Gated {
+			row["gated"] = true
+			row["gates"] = r.Gates
+		}
 		rows = append(rows, row)
 	}
 	dangling := make([]map[string]any, 0, len(matrix.DanglingLinks))
@@ -208,4 +216,13 @@ func diagRows(diags []validate.Diagnostic) []map[string]any {
 		})
 	}
 	return out
+}
+
+// nonNilStrings returns list, or an empty list for nil, so JSON renders [].
+// TRLC-LINKS: REQ-EMG-088
+func nonNilStrings(list []string) []string {
+	if list == nil {
+		return []string{}
+	}
+	return list
 }

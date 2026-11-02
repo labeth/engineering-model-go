@@ -300,6 +300,7 @@ Verification metadata is inferred from test artifacts:
 - functional ownership in verification tables is shown as derived context from requirement ownership
 - strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
 - `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
+- a risk with `status: accepted` or `response: accept`, and a threat scenario with `status: accepted`, carries the owner's acceptance record `acceptedBy: {actor: ACT-…, date: YYYY-MM-DD, statement: "<the owner's words>"}` (or `decisionRef: DEC-…` instead of `statement`, naming a decision whose context quotes the owner); without it `risk.acceptance_unrecorded` is an error at `acceptedBy`, and an actor, date or decisionRef that does not resolve is `model.invalid_acceptance`. The Gemara policy lists a risk under `risks.accepted` only with a complete record and status `accepted`, or response `accept` with a status other than `open`
 - a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
 
 ### Model warnings
@@ -317,6 +318,7 @@ but not wired (warnings do not fail `engdoc`):
 | `threat.verification_missing` | `…threatScenarios[i].verificationRefs` | the threat does not list a control verification that one of its mitigations references or that names the threat in `threatScenarioRefs` |
 | `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
 | `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
+| `risk.accept_while_open` | `…risks[i].status` | `response: accept` with `status: open`: the risk still waits for a decision, so the Gemara policy does not list it as accepted |
 | `gemara.control_needs_review` | `…controls[i]` | no control verification names the control, so the Gemara evaluation log marks it Needs Review; names another control's verification when that is its only evidence |
 
 `triggered_by` (state → event) means the event is handled within the state. The event that
@@ -684,7 +686,7 @@ It exposes 50+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, and RSL export
 - `interfaces.*`: software and HW/SW interface resolution and code matching
 - `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
-- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
+- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips unless an environment variable is set or under `testing.Short`, with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:

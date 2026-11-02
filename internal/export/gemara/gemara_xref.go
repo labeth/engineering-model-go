@@ -292,7 +292,7 @@ func CheckModelConsistency(bundle model.Bundle, docs map[string]string) []CrossR
 			claim string
 		}{
 			{"mitigated", riskMitigated, "mitigated, but its status is not closed"},
-			{"accepted", riskAccepted, "accepted, but neither its status nor its response is accept"},
+			{"accepted", riskAccepted, "accepted, but it has no complete acceptedBy record with status accepted (or response accept while not open)"},
 		} {
 			entries, _ := risks[bucket.key].([]any)
 			for i, e := range entries {

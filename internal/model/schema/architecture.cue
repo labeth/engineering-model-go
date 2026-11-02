@@ -156,6 +156,14 @@ package model
 	evidence?: [...#Evidence]
 	residualRisk?: string
 	rationale?:    string
+	acceptedBy?:   #AcceptanceRecord
+}
+
+#AcceptanceRecord: {
+	actor?:       string
+	date?:        string
+	statement?:   string
+	decisionRef?: string
 }
 
 #POAMArtifact: #Evidence
@@ -259,6 +267,7 @@ package model
 	verificationRefs?: #StringList
 	detection?:        #StringList
 	evidence?: [...#Evidence]
+	acceptedBy?: #AcceptanceRecord
 }
 
 #ThreatAssumption: {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -240,5 +241,49 @@ func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
 	}
 	if !strings.Contains(out+errOut, "warning: if-b: module.path") || !strings.Contains(out+errOut, `warning: skipping "if c"`) {
 		t.Fatalf("missing warnings:\n%s\n%s", out, errOut)
+	}
+}
+
+// go.work replaces every workspace Go module at each version a checkout
+// requires, so a consumer builds against an unpublished family module whose
+// own third-party requirement comes from the proxy: GOPROXY serves only the
+// third-party module, never the family one.
+// Mutation: writing no replace directives makes go build fail resolving
+// example.com/go/if-a@v0.1.0.
+// TRLC-LINKS: REQ-EMG-086
+func TestSyncReplacesRequiredVersionsOfWorkspaceModules(t *testing.T) {
+	goProxy(t, "example.com/third@v1.0.0")
+	root := t.TempDir()
+	ifA := checkout(t, root, "if-a")
+	write(t, filepath.Join(ifA, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n\nrequire example.com/third v1.0.0\n")
+	write(t, filepath.Join(ifA, "a.go"), "package a\n\nimport _ \"example.com/third\"\n\nfunc A() string { return \"a\" }\n")
+	svcB := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcB, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n\nrequire example.com/go/if-a v0.1.0\n")
+	write(t, filepath.Join(svcB, "main.go"), "package main\n\nimport a \"example.com/go/if-a\"\n\nfunc main() { println(a.A()) }\n")
+	// A second consumer at the same version adds no second replace; a
+	// module nobody requires (svc-b) gets none.
+	svcC := checkout(t, root, "svc-c", dep{"ia", "if-a", "v0.1.0"})
+	write(t, filepath.Join(svcC, "go.mod"), "module example.com/go/svc-c\n\ngo 1.25\n\nrequire example.com/go/if-a v0.1.0\n")
+	for _, dir := range []string{ifA, svcB, svcC} {
+		runGit(t, dir, "add", ".")
+		runGit(t, dir, "commit", "-q", "-m", "go")
+	}
+	if code, out, errOut := runMain(t, allPublished("if-a", "svc-b", "svc-c"), "--root", root, "sync"); code != 0 {
+		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
+	}
+	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(goWork)
+	if !strings.HasPrefix(text, "// "+generatedHeader+"\n") || strings.Count(text, "=>") != 1 ||
+		!strings.Contains(text, "replace example.com/go/if-a v0.1.0 => ./if-a\n") {
+		t.Fatalf("go.work:\n%s", text)
+	}
+	t.Setenv("GOWORK", filepath.Join(root, GoWorkFileName))
+	build := exec.Command("go", "build", "-o", os.DevNull, ".")
+	build.Dir = svcB
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("go build under the generated go.work: %v\n%s\ngo.work:\n%s", err, out, text)
 	}
 }

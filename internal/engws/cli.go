@@ -39,8 +39,9 @@ commands:
   status [--all]             table of checkouts with state and mode; exit 1 on skew
   sync [--all] [--force]     write engmod.work.yml for the local checkouts
                              (--all: every checkout) and go.work with every
-                             checkout that has go.mod; remove go.work when none
-                             has; a checkout whose module path or directory
+                             checkout that has go.mod, replacing each version
+                             a checkout requires of a workspace module with its
+                             directory; remove go.work when none has; a checkout whose module path or directory
                              name is not safe is skipped with a warning;
                              always exit 0
   pin <repo>                 always resolve <repo> locally (.engws.yml), then sync

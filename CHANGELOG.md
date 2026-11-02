@@ -25,8 +25,40 @@ semantic versioning.
   markers are optional and never raise `code.missing_trlc_link`.
 - README: building needs cgo (tree-sitter); static-link recipe
   `-tags netgo,osusergo -ldflags '-linkmode external -extldflags -static'`.
+- Owner acceptance records (REQ-EMG-085): optional `acceptedBy: {actor, date, statement,
+  decisionRef}` on risks and threat scenarios (Go type `AcceptanceRecord`, CUE schema).
+  `risk.acceptance_unrecorded` (error at `acceptedBy`) for a risk with `status: accepted` or
+  `response: accept`, or a threat scenario with `status: accepted`, that lacks an actor, a
+  YYYY-MM-DD date, and a statement or decisionRef; `model.invalid_acceptance` (error) for an
+  actor, date or decisionRef that does not resolve; `risk.accept_while_open` (warning) for
+  `response: accept` with `status: open`.
+- `engws sync` writes `replace <module> <version> => ./<dir>` into the family `go.work` for each
+  version of a workspace Go module that any checkout requires, so unpublished family modules
+  build (REQ-EMG-086).
+- The authoring contract rules (`validate.AuthoringRules`, MCP `model.authoringContract`) add
+  `fieldSets` (the YAML fields each entity kind accepts, from the strict-decoding types) and
+  `publicationSections` (decisions cannot be published), and field rules for
+  `boundaryCrossing`/`trustBoundaryRef`, what `behavior.event_unused` counts, the
+  `lint.multiple_responses` field-list exemption, the strict EARS system term and acceptance
+  records (REQ-EMG-087).
+- Environment-gated tests (REQ-EMG-088): a Go test whose first statements skip unless
+  `os.Getenv`/`os.LookupEnv` returns a value, or under `testing.Short()`, is gated. Trace rows
+  whose every linked test is gated carry `gated` and `gates`; the summary adds `gatedOnly` and
+  `gatedOnlyRequirements` (still counted in `testLinked`), also in MCP `trace.matrix`.
+
+### Fixed
+
+- The MCP server renders every tool call from the model files on disk (REQ-EMG-089). It
+  previously kept the model loaded at `initialize`, so a call right after an edit (for example
+  `gemara.policy` after changing a risk) returned the old result until the client initialized
+  again. It now fingerprints the manifest, its documents, lock and workspace files and reloads
+  when they change.
 
 ### Changed
+
+- The Gemara policy lists a risk under `risks.accepted` only when it has a complete
+  `acceptedBy` record and status `accepted`, or response `accept` with a status other than
+  `open`; `CheckGemaraModelConsistency` checks the same rule (REQ-EMG-085).
 
 - The authoring contract defines `triggered_by` (state → event) as an event handled within the
   state; the event that enters a state belongs to `transitions_to` (its description, or a

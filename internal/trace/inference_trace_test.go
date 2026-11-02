@@ -407,3 +407,79 @@ func TestArtifactTraceMarkersImplementRequirements(t *testing.T) {
 		}
 	}
 }
+
+// A Go test whose first statements skip unless an environment variable is set
+// (or under testing.Short) is gated. A requirement linked only from gated
+// tests is gatedOnly in the summary and its row is gated with the variable
+// name; a requirement that an ungated test also links, in the same file or in
+// another test file, is not. All stay test linked.
+// Mutation: not marking os.Getenv-gated tests leaves gatedOnly at 0; ignoring
+// ungated tests of other files marks REQ-G-004 gated.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE
+func TestGatedOnlyRequirementsReportedSeparately(t *testing.T) {
+	root := t.TempDir()
+	src := `package sim
+
+import (
+	"os"
+	"testing"
+)
+
+// TRLC-LINKS: REQ-G-001, REQ-G-002, REQ-G-004
+func TestComposeUp(t *testing.T) {
+	t.Helper()
+	if os.Getenv("SIMFAM_COMPOSE_TEST") != "1" {
+		t.Skip("set SIMFAM_COMPOSE_TEST=1")
+	}
+}
+
+// TRLC-LINKS: REQ-G-002
+func TestUnit(t *testing.T) {
+	if 1+1 != 2 {
+		t.Fatal("math")
+	}
+}
+
+// TRLC-LINKS: REQ-G-003
+func TestLong(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+}
+`
+	if err := os.WriteFile(filepath.Join(root, "sim_test.go"), []byte(src), 0600); err != nil {
+		t.Fatal(err)
+	}
+	other := "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-G-004\nfunc TestOther(t *testing.T) {}\n"
+	if err := os.WriteFile(filepath.Join(root, "other_test.go"), []byte(other), 0600); err != nil {
+		t.Fatal(err)
+	}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "other_test.go"}}}}
+	code, _ := codescan.InferCodeItems(bundle, "")
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-G-001"}, {ID: "REQ-G-002"}, {ID: "REQ-G-003"}, {ID: "REQ-G-004"}}}
+	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
+	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	if matrix.Summary.TestLinked != 4 {
+		t.Fatalf("testLinked = %d, want 4 (gated tests stay test linked)", matrix.Summary.TestLinked)
+	}
+	if matrix.Summary.GatedOnly != 2 || strings.Join(matrix.Summary.GatedOnlyRequirements, ",") != "REQ-G-001,REQ-G-003" {
+		t.Fatalf("gatedOnly = %d %v, want 2 [REQ-G-001 REQ-G-003]", matrix.Summary.GatedOnly, matrix.Summary.GatedOnlyRequirements)
+	}
+	rows := map[string]Row{}
+	for _, r := range matrix.Requirements {
+		rows[r.ID] = r
+	}
+	if r := rows["REQ-G-001"]; !r.Gated || strings.Join(r.Gates, ",") != "SIMFAM_COMPOSE_TEST" {
+		t.Fatalf("REQ-G-001 row = %+v, want gated by SIMFAM_COMPOSE_TEST", r)
+	}
+	if r := rows["REQ-G-003"]; !r.Gated || strings.Join(r.Gates, ",") != "testing.Short" {
+		t.Fatalf("REQ-G-003 row = %+v, want gated by testing.Short", r)
+	}
+	if r := rows["REQ-G-002"]; r.Gated || len(r.Gates) != 0 {
+		t.Fatalf("REQ-G-002 also has an ungated test: %+v", r)
+	}
+	if r := rows["REQ-G-004"]; r.Gated || len(r.Gates) != 0 {
+		t.Fatalf("REQ-G-004 also has an ungated test in other_test.go: %+v", r)
+	}
+}

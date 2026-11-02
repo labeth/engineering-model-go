@@ -38,6 +38,11 @@ type Symbol struct {
 	// in a Go _test.go or Python test file and Rust items under #[cfg(test)]. It
 	// never counts as production implementation.
 	TestOnly bool
+	// Gates names what an environment-gated Go test waits for: each
+	// variable read by os.Getenv or os.LookupEnv, or testing.Short, in an if
+	// among its first statements whose body calls t.Skip, t.Skipf or
+	// t.SkipNow. It is empty for an ungated test and for non-tests.
+	Gates []string
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -59,6 +64,7 @@ type declaration struct {
 	LeadingLine  int
 	IsTest       bool
 	TestOnly     bool
+	Gates        []string
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -372,6 +378,7 @@ func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, lin
 		Signature:  signature,
 		IsTest:     d.IsTest,
 		TestOnly:   d.TestOnly || d.IsTest,
+		Gates:      append([]string(nil), d.Gates...),
 	}
 }
 
@@ -447,6 +454,9 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 					if isGoTestFile(path) {
 						d.TestOnly = true
 						d.IsTest = goTestFunction(n, name)
+						if d.IsTest {
+							d.Gates = goTestGates(n, src)
+						}
 					}
 				case ".rs":
 					d.IsTest = rustTestFunction(n, src)

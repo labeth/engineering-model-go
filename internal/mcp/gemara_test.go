@@ -2,6 +2,7 @@
 package mcp
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -83,5 +84,41 @@ func TestGemaraValidateRejectsEnforcedOpenPOAMItem(t *testing.T) {
 	errs, _ := out["modelConsistencyErrors"].([]engmodel.GemaraCrossReferenceError)
 	if len(errs) == 0 || errs[0].Artifact != "enforcement-log" {
 		t.Fatalf("unexpected modelConsistencyErrors: %+v", errs)
+	}
+}
+
+// A tool call renders the model files on disk at call time: editing a risk
+// between two gemara.policy calls, without a new initialize, changes the
+// second result.
+// Mutation: removing the refresh before tools/call returns the old policy.
+// TRLC-LINKS: REQ-EMG-089, REQ-EMG-015
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func TestGemaraPolicyReflectsEditsBetweenCalls(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "payments")
+	if err := os.CopyFS(dir, os.DirFS(filepath.Join("..", "..", "examples", "payments-engineering-sample"))); err != nil {
+		t.Fatal(err)
+	}
+	s := initializedServerAt(t, dir)
+	const accepted = "ACC-RISK-PAYMENTS-SSO-MFA-GAP"
+	before := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string)
+	if strings.Contains(before, accepted) {
+		t.Fatalf("fixture changed: the SSO risk is already accepted:\n%s", before)
+	}
+	path := filepath.Join(dir, "model", "assurance.yml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := "    status: mitigating\n    likelihood: medium\n    impact: high\n    response: mitigate\n    owner: ACT-PLATFORM-OPERATOR\n"
+	if !strings.Contains(string(data), old) {
+		t.Fatal("fixture changed: SSO risk block not found")
+	}
+	edited := strings.Replace(string(data), old, "    status: accepted\n    acceptedBy:\n      actor: ACT-PLATFORM-OPERATOR\n      date: 2026-11-02\n      statement: I accept the SSO gap until the cleanup ends.\n    likelihood: medium\n    impact: high\n    response: accept\n    owner: ACT-PLATFORM-OPERATOR\n", 1)
+	if err := os.WriteFile(path, []byte(edited), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	after := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string)
+	if !strings.Contains(after, accepted) {
+		t.Fatalf("second gemara.policy call did not reflect the edit:\n%s", after)
 	}
 }

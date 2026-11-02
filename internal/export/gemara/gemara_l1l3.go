@@ -269,12 +269,13 @@ func policyAssessmentPlans(a model.AuthoredArchitecture) []gemaraproj.Assessment
 }
 
 // policyRisks lists model risks by their treatment state: mitigated only when
-// the risk status is closed, accepted when the status is accepted or the
-// response is accept. Open and mitigating risks are still being treated;
+// the risk status is closed, accepted when riskAccepted holds (an owner
+// acceptance record and status accepted, or response accept while not open).
+// Open and mitigating risks are still being treated;
 // Gemara Risks has no bucket or notes field for them, so they are left out and
 // returned as untreated for a diagnostic.
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 func policyRisks(a model.AuthoredArchitecture) (gemaraproj.Risks, []string) {
 	var risks gemaraproj.Risks
 	var untreated []string
@@ -296,11 +297,19 @@ func policyRisks(a model.AuthoredArchitecture) (gemaraproj.Risks, []string) {
 	return risks, untreated
 }
 
-// riskAccepted reports whether the model records the risk as accepted.
+// riskAccepted reports whether the policy may list the risk as accepted: it
+// has a complete owner acceptance record (acceptedBy) and its status is
+// accepted, or its response is accept and its status is not open. Validation
+// reports the other accepted risks (risk.acceptance_unrecorded,
+// risk.accept_while_open).
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 func riskAccepted(r model.Risk) bool {
-	return strings.EqualFold(strings.TrimSpace(r.Status), "accepted") || strings.EqualFold(strings.TrimSpace(r.Response), "accept")
+	if len(validate.AcceptanceMissing(r.AcceptedBy)) > 0 {
+		return false
+	}
+	status := strings.TrimSpace(r.Status)
+	return strings.EqualFold(status, "accepted") || (strings.EqualFold(strings.TrimSpace(r.Response), "accept") && !strings.EqualFold(status, "open"))
 }
 
 // riskMitigated reports whether the model records the risk as mitigated (closed).

@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -30,7 +31,9 @@ type SyncResult struct {
 // Listing every Go checkout lets go test and go run work in each of them.
 // It writes nothing inside a checkout. A work file that engws did not
 // generate is kept unless force is set.
-// TRLC-LINKS: REQ-EMG-068
+// It replaces each required version of a workspace Go module with its
+// checkout, so unpublished modules build.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 	workPath := filepath.Join(plan.Root, model.WorkspaceFileName)
@@ -46,9 +49,11 @@ func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 	}
 	result := SyncResult{WorkFile: workPath}
 	var goDirs []string
+	dirByModule := map[string]string{}
 	for _, entry := range plan.Entries {
 		if entry.GoModule != "" {
 			goDirs = append(goDirs, entry.Name)
+			dirByModule[entry.GoModule] = entry.Name
 		}
 	}
 	if len(goDirs) == 0 {
@@ -59,7 +64,7 @@ func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 		}
 		return result, nil
 	}
-	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs))); err != nil {
+	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs, goReplaces(plan.Entries, dirByModule)))); err != nil {
 		return result, err
 	}
 	result.GoWork = goWorkPath
@@ -105,15 +110,54 @@ func renderWorkFile(local []Entry) string {
 	return b.String()
 }
 
-// renderGoWork renders go.work using each listed directory.
-// TRLC-LINKS: REQ-EMG-068
-func renderGoWork(goVersion string, dirs []string) string {
+// goReplace is one go.work replace directive: module at version => ./dir.
+type goReplace struct{ module, version, dir string }
+
+// goReplaces returns one replace per workspace Go module and distinct version
+// at which any checkout's go.mod requires it, sorted by module and version.
+// The go command resolves the go.mod of a required version even for a module
+// in use, so an unpublished family module needs it; an unversioned replace is
+// rejected for a workspace module.
+// TRLC-LINKS: REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func goReplaces(entries []Entry, dirByModule map[string]string) []goReplace {
+	seen := map[string]bool{}
+	var out []goReplace
+	for _, entry := range entries {
+		for module, version := range entry.GoRequires {
+			dir, ok := dirByModule[module]
+			if !ok || version == "" || seen[module+" "+version] {
+				continue
+			}
+			seen[module+" "+version] = true
+			out = append(out, goReplace{module: module, version: version, dir: dir})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].module != out[j].module {
+			return out[i].module < out[j].module
+		}
+		return out[i].version < out[j].version
+	})
+	return out
+}
+
+// renderGoWork renders go.work using each listed directory and replacing each
+// required version of a workspace module with its directory.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+func renderGoWork(goVersion string, dirs []string, replaces []goReplace) string {
 	var b strings.Builder
 	b.WriteString("// " + generatedHeader + "\n\ngo " + goVersion + "\n\nuse (\n")
 	for _, dir := range dirs {
 		b.WriteString("\t./" + dir + "\n")
 	}
 	b.WriteString(")\n")
+	if len(replaces) > 0 {
+		b.WriteString("\n")
+	}
+	for _, r := range replaces {
+		fmt.Fprintf(&b, "replace %s %s => ./%s\n", r.module, r.version, r.dir)
+	}
 	return b.String()
 }
 
