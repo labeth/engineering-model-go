@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-11-02: Assurance and acceptance diagnostics; engws go.work replaces; gated tests; fresh MCP renders
+
 ### Added
 
 - Assurance link diagnostics (REQ-EMG-082): `threat.verification_missing` (warning at a threat
