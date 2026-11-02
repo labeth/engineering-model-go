@@ -77,6 +77,21 @@ commands:
                              bump unless --allow-suspect (then the model check
                              fails until review-links); any failure or abort
                              restores all files
+  review-links [--repo DIR] [--json]
+                             list the requirement links of the model in DIR
+                             (default .) that are suspect, broken or pinned to
+                             another version than the dependency: the parent
+                             requirement and the child item with its realizing
+                             requirements before (at the link's pinned
+                             version, from the module cache or registry) and
+                             after (at the dependency pin); exit 1 if any
+  review-links [--repo DIR] --accept LNK-ID --by ACT-ID --rationale TEXT
+                             record the review in the requirement link file:
+                             current fingerprint, the dependency pin,
+                             reviewedBy, reviewedOn (today), rationale and
+                             status accepted; only those lines change; refuse
+                             an actor the model does not define or a broken
+                             link
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -146,13 +161,19 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
 	allowSuspect := sub.Bool("allow-suspect", false, "")
+	repoFlag := sub.String("repo", ".", "")
+	asJSON := sub.Bool("json", false, "")
+	accept := sub.String("accept", "", "")
+	by := sub.String("by", "", "")
+	rationale := sub.String("rationale", "", "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
 	positional, err := parseInterspersed(sub, rest)
 	if err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n%s", command, err, Usage)
 		return 2
 	}
-	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0}
+	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
+		"review-links": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -166,6 +187,21 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	if command == "stage" && *versionFrom != VersionFromManifest && *versionFrom != VersionFromTag {
 		fmt.Fprintf(stderr, "engws stage: --version-from must be %s or %s\n%s", VersionFromManifest, VersionFromTag, Usage)
 		return 2
+	}
+
+	// Repository commands work on one model (--repo, default the current
+	// directory) and need no workspace root.
+	if command == "review-links" {
+		if *accept != "" && (strings.TrimSpace(*by) == "" || strings.TrimSpace(*rationale) == "") {
+			fmt.Fprintf(stderr, "engws review-links: --accept needs --by ACT-ID and --rationale TEXT\n%s", Usage)
+			return 2
+		}
+		code, err := runReviewLinks(*repoFlag, *asJSON, *accept, strings.TrimSpace(*by), *rationale, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+			return 1
+		}
+		return code
 	}
 
 	root := *rootFlag

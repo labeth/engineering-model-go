@@ -42,6 +42,13 @@ semantic versioning.
     links move `pinned.version` to the new version; suspect and broken links keep their pin
     and fingerprint (never re-stamped). A suspect or broken link aborts the bump with every
     file restored, the requirement link file and the lock included, unless `--allow-suspect`.
+  - `engws review-links [--repo DIR] [--json]` lists suspect, broken and version-mismatched
+    links with the parent requirement text and the child item and its realizing requirements
+    before (at the link's pinned version, from the module cache or registry; "not available
+    offline" otherwise) and after (exit 1 when any). `--accept LNK-ID --by ACT-ID --rationale
+    TEXT` writes the current fingerprint, the dependency pin, `reviewedBy`, `reviewedOn`, the
+    rationale and `status: accepted`, editing only those lines; an unknown actor or a broken
+    link is refused.
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
 ### Deprecated

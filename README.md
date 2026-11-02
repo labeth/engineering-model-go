@@ -811,6 +811,32 @@ aborts the bump with no file changed (exit 1) unless `--allow-suspect` is given;
 bump is written and the model check fails with `link.version_mismatch` and `link.suspect`
 until the link is reviewed.
 
+**`engws review-links [--repo DIR] [--json]`** lists the links of the model in `DIR`
+(default `.`) that are suspect, broken or pinned to another version than the dependency,
+with the parent requirement and the child item before (at the link's `pinned.version`,
+resolved from the module cache or registry, never from a workspace checkout) and after:
+
+```text
+LNK-SYS-001-ENCODER encoder::CAP-A-1: suspect, version_mismatch (pinned v0.2.0, dependency v0.3.0)
+  parent REQ-SYS-001: When simulation epoch elapses, the position simulator shall publish ...
+  before (v0.2.0): sha256:9471...
+  after (v0.3.0): sha256:7216...
+    capability CAP-A-1: Publish ownship position sentences at the configured rate.
+  - REQ-A-001 [status -]: ... shall publish one position sentence. ...
+  + REQ-A-001 [status -]: ... shall publish two position sentences. ...
+```
+
+After the review, record it (the actor must be in `architecture.actors`; a broken link
+cannot be accepted):
+
+```sh
+engws review-links --accept LNK-SYS-001-ENCODER --by ACT-SYSTEM-OWNER \
+  --rationale "Two sentences per epoch still give one position per epoch."
+```
+
+This writes the current fingerprint, the dependency pin, `reviewedBy`, `reviewedOn`, the
+rationale and `status: accepted` into `model/req-links.yml`, changing only those lines.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud

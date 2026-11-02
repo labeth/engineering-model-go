@@ -115,11 +115,12 @@ func setKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 	if err != nil {
 		return nil, err
 	}
-	if mapping.Kind != yaml.MappingNode || mapping.Style&yaml.FlowStyle != 0 || len(mapping.Content) == 0 {
-		return nil, fmt.Errorf("line %d: %s can only be set in a non-empty block mapping", mapping.Line, key)
+	if mapping.Kind != yaml.MappingNode || len(mapping.Content) == 0 {
+		return nil, fmt.Errorf("line %d: %s can only be set in a non-empty mapping", mapping.Line, key)
 	}
 	lines := splitLines(data)
 	keyNode, value := mappingEntry(mapping, key)
+	flow := mapping.Style&yaml.FlowStyle != 0
 	indent := strings.Repeat(" ", mapping.Content[0].Column-1)
 	if keyNode != nil {
 		// Keep a "- " item prefix when the key is the first of a list item.
@@ -130,6 +131,9 @@ func setKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 			return append([]string{indent + key + ":"}, strings.Split(strings.TrimPrefix(raw, "\n"), "\n")...)
 		}
 		return []string{indent + key + ": " + raw}
+	}
+	if flow && (keyNode == nil || value.Kind != yaml.ScalarNode || strings.HasPrefix(raw, "\n")) {
+		return nil, fmt.Errorf("line %d: %s cannot be set in a flow mapping; rewrite it as a block mapping first", mapping.Line, key)
 	}
 	if keyNode == nil {
 		lastKey := mapping.Content[len(mapping.Content)-2]
@@ -144,6 +148,9 @@ func setKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 			lines[value.Line-1] = line[:startCol] + raw + line[endCol:]
 			return []byte(strings.Join(lines, "")), nil
 		}
+	}
+	if flow {
+		return nil, fmt.Errorf("line %d: %s cannot be set in place in a flow mapping", mapping.Line, key)
 	}
 	start, end := keyRange(lines, keyNode, value)
 	return spliceLines(lines, start, end, entry()...), nil
