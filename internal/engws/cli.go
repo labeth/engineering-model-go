@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -63,12 +64,19 @@ commands:
                              checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
-  bump <repo> <alias> <version>
+  bump <repo> <alias> <version> [--allow-suspect]
                              set dependency <alias> of <repo> to <version> in
                              engmod.yml, the matching go.mod require and go.sum
                              (go get, GOWORK=off), and the lock (composed with
-                             ENGMOD_WORK=off, dependencies re-fetched); any
-                             failure restores all files
+                             ENGMOD_WORK=off, dependencies re-fetched), then
+                             print each requirement link on <alias> as
+                             unchanged, suspect or broken at <version>;
+                             unchanged links move pinned.version to <version>,
+                             the others keep their pin and fingerprint (never
+                             re-stamped); a suspect or broken link aborts the
+                             bump unless --allow-suspect (then the model check
+                             fails until review-links); any failure or abort
+                             restores all files
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -137,12 +145,13 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	versionFrom := sub.String("version-from", VersionFromManifest, "")
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
+	allowSuspect := sub.Bool("allow-suspect", false, "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
-	if err := sub.Parse(rest); err != nil {
+	positional, err := parseInterspersed(sub, rest)
+	if err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n%s", command, err, Usage)
 		return 2
 	}
-	positional := sub.Args()
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0}
 	n, known := wantArgs[command]
 	if !known {
@@ -182,7 +191,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		fmt.Fprintf(stdout, "engws: workspace %s\n", root)
 	}
 
-	var err error
 	code := 0
 	switch command {
 	case "status":
@@ -196,7 +204,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	case "check":
 		code, err = runCheck(ctx, root, registry, *all, *summary, CheckOptions{InProcess: *inProcess, Refresh: *refresh}, stdout, stderr)
 	case "bump":
-		err = runBump(root, positional[0], positional[1], positional[2], stdout)
+		err = runBump(root, positional[0], positional[1], positional[2], BumpOptions{AllowSuspect: *allowSuspect}, stdout)
 	case "stage":
 		code, err = runStage(ctx, root, *versionFrom, *serve, *addr, stdout)
 	}
@@ -205,6 +213,24 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 1
 	}
 	return code
+}
+
+// parseInterspersed parses flags anywhere among the arguments (flag stops at
+// the first positional) and returns the positionals.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+func parseInterspersed(fs *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	for {
+		if err := fs.Parse(args); err != nil {
+			return nil, err
+		}
+		args = fs.Args()
+		if len(args) == 0 {
+			return positional, nil
+		}
+		positional = append(positional, args[0])
+		args = args[1:]
+	}
 }
 
 // runStatus prints the checkout table and the skew lines.
@@ -369,14 +395,18 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 	return code, nil
 }
 
-// runBump applies a dependency version bump.
-// TRLC-LINKS: REQ-EMG-068
-func runBump(root, repo, alias, version string, w io.Writer) error {
-	result, err := Bump(root, repo, alias, version)
+// runBump applies a dependency version bump and prints the evaluation of
+// each requirement link on the bumped alias.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+func runBump(root, repo, alias, version string, opts BumpOptions, w io.Writer) error {
+	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {
-		if d.Severity == validate.SeverityError {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			fmt.Fprintf(w, "    %s [error] %s (%s)\n", d.Code, d.Message, d.Path)
 		}
+	}
+	for _, s := range result.Links {
+		printBumpLink(w, s, version)
 	}
 	if err != nil {
 		return err
@@ -388,7 +418,32 @@ func runBump(root, repo, alias, version string, w io.Writer) error {
 	if result.LockWritten {
 		fmt.Fprintf(w, "engws: %s %s regenerated (workspace off)\n", repo, "engmod.lock.yml")
 	}
+	if len(result.Repinned) > 0 {
+		fmt.Fprintf(w, "engws: %s re-pinned %d unchanged link(s) to %s: %s\n", repo, len(result.Repinned), version, strings.Join(result.Repinned, ", "))
+	}
+	if result.Blocked {
+		fmt.Fprintf(w, "engws: --allow-suspect: links that need review keep their pin and fingerprint; the model check fails until engws review-links accepts them\n")
+	}
 	return nil
+}
+
+// printBumpLink prints one evaluated link: state, ID, child and, for a
+// suspect or broken link, what changed.
+// TRLC-LINKS: REQ-EMG-100
+func printBumpLink(w io.Writer, s reqlinks.LinkStatus, version string) {
+	state := string(s.Content)
+	fmt.Fprintf(w, "  %s %s %s (%s -> %s)\n", state, s.ID, s.Child, s.Pinned, version)
+	switch s.Content {
+	case reqlinks.StateSuspect:
+		fmt.Fprintf(w, "      %s\n", reqlinks.SuspectMessage(s))
+	case reqlinks.StateUnchanged:
+	default:
+		detail := s.Detail
+		if detail == "" {
+			detail = "the item no longer exists at " + version
+		}
+		fmt.Fprintf(w, "      %s\n", detail)
+	}
 }
 
 // runStage stages the family, prints the result and the gate environment

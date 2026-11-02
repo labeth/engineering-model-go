@@ -791,6 +791,26 @@ committed files for source kind `git`) and `goproxy/` (a GOPROXY file tree for
 each checkout with `go.mod`). CUE has no file-based registry, so `--serve` serves
 the layouts from memory on 127.0.0.1.
 
+### Requirement link commands
+
+`engws` maintains the requirement links of `model/req-links.yml` (design and decisions:
+`docs/requirement-links.md`; fixture: `examples/requirement-links`).
+
+**`engws bump <repo> <alias> <version> [--allow-suspect]`** moves a dependency pin (see
+`engws help`) and then evaluates every link of `<repo>` on `<alias>` at the new version:
+
+```text
+  suspect LNK-SYS-001-ENCODER encoder::CAP-A-1 (v0.2.0 -> v0.3.0)
+      link LNK-SYS-001-ENCODER: encoder::CAP-A-1 at v0.3.0 changed since review (...); now capability "...", realized by REQ-A-001: ...
+  unchanged LNK-SYS-002-ENCODER encoder::CAP-A-2 (v0.2.0 -> v0.3.0)
+```
+
+An unchanged link (same fingerprint) moves its `pinned.version` to the new version. A
+suspect or broken link keeps its pin and fingerprint: bump never re-stamps. Such a link
+aborts the bump with no file changed (exit 1) unless `--allow-suspect` is given; then the
+bump is written and the model check fails with `link.version_mismatch` and `link.suspect`
+until the link is reviewed.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud

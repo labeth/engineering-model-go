@@ -11,6 +11,7 @@ import (
 
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 	"golang.org/x/mod/modfile"
 	gomodule "golang.org/x/mod/module"
@@ -25,17 +26,44 @@ type BumpResult struct {
 	GoModule    string // Go module required, empty when not changed
 	LockWritten bool
 	Diagnostics []validate.Diagnostic
+	// Links is the evaluation of every requirement link of the consumer on
+	// the bumped alias at the new version (Content: unchanged, suspect or
+	// broken; empty when the item is not a published contract item).
+	Links []reqlinks.LinkStatus
+	// Repinned lists the unchanged links whose pinned.version moved to the
+	// new version (decision D8).
+	Repinned []string
+	// Blocked reports that a suspect or broken link aborted the bump.
+	Blocked bool
+}
+
+// BumpOptions modify Bump. AllowSuspect writes the bump although a link is
+// suspect or broken; the model check then fails until engws review-links.
+// TRLC-LINKS: REQ-EMG-100
+type BumpOptions struct {
+	AllowSuspect bool
+}
+
+// NeedsReview reports whether a link evaluated by bump needs a review: its
+// item changed (suspect), is gone (broken) or is no published contract item.
+// TRLC-LINKS: REQ-EMG-100
+func NeedsReview(s reqlinks.LinkStatus) bool {
+	return s.Content != reqlinks.StateUnchanged
 }
 
 // Bump sets the version of dependency alias in root/<repo>/engmod.yml by
 // editing only that YAML line, updates the go.mod require and go.sum of the
 // Go module of the same repository family (go get with GOWORK=off) when the
 // dependency's checkout has go.mod, and regenerates engmod.lock.yml with the
-// workspace off and the module cache refreshed. Any failure restores
-// engmod.yml, go.mod and go.sum.
-// TRLC-LINKS: REQ-EMG-068
+// workspace off and the module cache refreshed. It then evaluates the
+// consumer's requirement links on the alias at the new version: unchanged
+// links move pinned.version to the new version, suspect and broken ones keep
+// their pin and fingerprint (decision D8), and without opts.AllowSuspect a
+// suspect or broken link aborts the bump. Any failure or abort restores
+// engmod.yml, go.mod, go.sum, the lock and the requirement link file.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
-func Bump(root, repo, alias, version string) (BumpResult, error) {
+func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, error) {
 	if !semver.IsValid(version) || semver.Canonical(version) != version {
 		return BumpResult{}, fmt.Errorf("version %q must be an exact semantic version such as v1.2.3", version)
 	}
@@ -98,6 +126,8 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 		}
 	}
 
+	lockPath := filepath.Join(consumer.Dir, engmodel.CompositionLockFileName)
+	lockBefore, lockErr := os.ReadFile(lockPath)
 	goModPath := filepath.Join(consumer.Dir, "go.mod")
 	goSumPath := filepath.Join(consumer.Dir, "go.sum")
 	goModBefore, goModErr := os.ReadFile(goModPath)
@@ -121,8 +151,19 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 				return result, fmt.Errorf("%w; restoring go.sum also failed: %v", cause, err)
 			}
 		}
+		if result.LockWritten {
+			var err error
+			if lockErr == nil {
+				err = writeFileAtomic(lockPath, lockBefore)
+			} else if rmErr := os.Remove(lockPath); rmErr != nil && !os.IsNotExist(rmErr) {
+				err = rmErr
+			}
+			if err != nil {
+				return result, fmt.Errorf("%w; restoring %s also failed: %v", cause, engmodel.CompositionLockFileName, err)
+			}
+		}
 		result.LockWritten = false
-		return result, fmt.Errorf("%w; engmod.yml, go.mod and go.sum left unchanged", cause)
+		return result, fmt.Errorf("%w; engmod.yml, go.mod, go.sum and the lock left unchanged", cause)
 	}
 	if err := writeFileAtomic(manifestPath, edited); err != nil {
 		return result, err
@@ -142,7 +183,6 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 	// Lock: compose against the registry only, so the lock pins published
 	// content. GenerateCompositionFromFile writes engmod.lock.yml when the
 	// composition has no errors.
-	lockBefore, lockErr := os.ReadFile(filepath.Join(consumer.Dir, engmodel.CompositionLockFileName))
 	restore := setEnv("ENGMOD_WORK", "off")
 	defer restore()
 	comp, err := engmodel.GenerateCompositionFromFile(manifestPath)
@@ -150,7 +190,7 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 	if err != nil {
 		return rollback(fmt.Errorf("regenerate lock: %w", err))
 	}
-	if validate.HasErrors(comp.Diagnostics) {
+	if hasCompositionErrors(comp.Diagnostics) {
 		return rollback(fmt.Errorf("regenerate lock: %s does not compose against %s (%d errors above); adapt it to that version first, then bump again",
 			repo, depModuleAt(dep.Path, version), countErrors(comp.Diagnostics)))
 	}
@@ -160,16 +200,85 @@ func Bump(root, repo, alias, version string) (BumpResult, error) {
 				// The engine applied a workspace replacement despite
 				// ENGMOD_WORK=off (an engine without REQ-EMG-063): the lock
 				// would pin local content.
-				_ = os.Remove(filepath.Join(consumer.Dir, engmodel.CompositionLockFileName))
-				if lockErr == nil {
-					_ = writeFileAtomic(filepath.Join(consumer.Dir, engmodel.CompositionLockFileName), lockBefore)
-				}
+				result.LockWritten = true
 				return rollback(fmt.Errorf("regenerate lock: %s resolved from local %s, not the registry; this engine ignores ENGMOD_WORK=off, run engws sync without that checkout local and retry", alias, child.Dir))
 			}
 		}
 	}
 	result.LockWritten = true
+
+	// Requirement links on the alias, evaluated at the new version.
+	if comp.Root == nil || len(comp.Root.Bundle.ReqLinks.ReqLinks) == 0 {
+		return result, nil
+	}
+	result.Links = bumpLinkStatuses(comp.Root.Bundle, engmodel.LinkDependencies(comp.Root), alias, version)
+	for _, s := range result.Links {
+		if NeedsReview(s) {
+			result.Blocked = true
+		} else if s.Pinned != version {
+			result.Repinned = append(result.Repinned, s.ID)
+		}
+	}
+	if result.Blocked && !opts.AllowSuspect {
+		result.Repinned = nil
+		return rollback(fmt.Errorf("%s has requirement links that need review at %s (above); review them first, or bump with --allow-suspect and run engws review-links", repo, depModuleAt(dep.Path, version)))
+	}
+	if len(result.Repinned) > 0 {
+		linksPath := comp.Root.Bundle.ReqLinksPath
+		data, err := os.ReadFile(linksPath)
+		if err != nil {
+			return rollback(err)
+		}
+		edited := data
+		for _, id := range result.Repinned {
+			if edited, err = setKey(edited, findListItem([]string{"reqLinks"}, "id", id, "pinned"), "version", yamlScalar(version)); err != nil {
+				return rollback(fmt.Errorf("%s: link %s: %w", linksPath, id, err))
+			}
+		}
+		if err := writeFileAtomic(linksPath, edited); err != nil {
+			return rollback(err)
+		}
+	}
 	return result, nil
+}
+
+// bumpLinkStatuses evaluates the consumer's links on alias as if each were
+// pinned to version, so Content tells whether the item changed against the
+// recorded fingerprint.
+// TRLC-LINKS: REQ-EMG-100
+func bumpLinkStatuses(consumer model.Bundle, deps []reqlinks.Dependency, alias, version string) []reqlinks.LinkStatus {
+	moved := consumer
+	moved.ReqLinks.ReqLinks = nil
+	pinned := map[string]string{}
+	for _, link := range consumer.ReqLinks.ReqLinks {
+		if a, _, err := model.ParseQualifiedReference(strings.TrimSpace(link.Child)); err != nil || a != alias {
+			continue
+		}
+		pinned[strings.TrimSpace(link.ID)] = strings.TrimSpace(link.Pinned.Version)
+		link.Pinned.Version = version
+		moved.ReqLinks.ReqLinks = append(moved.ReqLinks.ReqLinks, link)
+	}
+	statuses := reqlinks.EvaluateLinks(moved, deps)
+	for i := range statuses {
+		statuses[i].Pinned = pinned[statuses[i].ID]
+		if statuses[i].Content == "" {
+			statuses[i].Content = statuses[i].State
+		}
+	}
+	return statuses
+}
+
+// hasCompositionErrors reports composition errors other than the link.*
+// diagnostics: a suspect or broken link does not stop the lock (bump
+// evaluates the links itself).
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+func hasCompositionErrors(diags []validate.Diagnostic) bool {
+	for _, d := range diags {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
+			return true
+		}
+	}
+	return false
 }
 
 // underModuleCache reports whether dir lies in an .engmod/modules cache,
@@ -300,7 +409,7 @@ func depModuleAt(path, version string) string {
 func countErrors(diags []validate.Diagnostic) int {
 	n := 0
 	for _, d := range diags {
-		if d.Severity == validate.SeverityError {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			n++
 		}
 	}

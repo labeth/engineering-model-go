@@ -16,6 +16,7 @@ REQ-EMG-090 onward in `model/requirements.yml`.
 | D5 | `composition.allocations` is deprecated: still read for one release, reported as `composition.allocation_deprecated` (warning), converted by `engws migrate-links`. `composition.satisfactions` stays: it wires a published need to a provider (architecture), not a requirement trace. | Keep architecture wiring separate from requirement links. |
 | D6 | `contract.provides[].ref` is deprecated the same way (`contract.ref_deprecated`, warning); `migrate-links` moves each `ref` to `realizes` on the referenced requirement. | Direction stays child-to-parent inside the repository too. |
 | D7 | Contract items are `contract.provides` entries of `kind: capability` and the new `contract.assumptions` (`AOU-*`). `kind: interface` entries are not link targets. | Links are about behaviour and conditions, not wiring. |
+| D8 | `engws bump` moves `pinned.version` to the new version only for links whose fingerprint is unchanged at that version (no content change, so nothing to review); suspect and broken links keep their old pin and recorded fingerprint, and bump never re-stamps a fingerprint. Without `--allow-suspect`, a suspect or broken link aborts the bump with every file restored (exit 1, the links printed). With `--allow-suspect` the bump is written (exit 0) and the model check fails with `link.version_mismatch` and `link.suspect` (or `link.broken`) until `engws review-links --accept`. The composed check evaluates a link with a stale pin at the resolved version too, so its content change is reported next to the mismatch. | A pin records what was reviewed; moving it is safe only when the content is the same. |
 
 ## Model
 
@@ -43,7 +44,7 @@ REQ-EMG-090 onward in `model/requirements.yml`.
 
 ## Tools
 
-- `engws bump`: after pinning, prints each link as unchanged, suspect or broken; exits non-zero when any is suspect or broken; never re-stamps.
+- `engws bump [--allow-suspect]`: after pinning, prints each link on the bumped alias as unchanged, suspect or broken; re-pins the unchanged ones; aborts with no change on a suspect or broken link unless `--allow-suspect` (D8); never re-stamps.
 - `engws review-links [--accept LNK-… --rationale … --by ACT-…]`: shows suspect links with diffs; `--accept` writes the new fingerprint, `reviewedBy`, `reviewedOn`, the rationale and `status: accepted`.
 - `engws contract-diff <from> <to>`: added, removed or changed contract items with the semver impact. `engws release-check` fails when the tag's bump is smaller than the diff requires.
 - `engws migrate-links`: allocations → `model/req-links.yml` (`status: claimed`, current fingerprints); `contract.provides[].ref` → `realizes`.

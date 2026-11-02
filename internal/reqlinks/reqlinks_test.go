@@ -283,3 +283,45 @@ func TestDiagnostics(t *testing.T) {
 		t.Fatalf("guided model without links or contract: %+v", d)
 	}
 }
+
+// A link whose pin is stale (version_mismatch) is still evaluated against
+// the item at the resolved version: Content is unchanged, suspect or broken
+// and Current is that version's fingerprint, and the composed diagnostics
+// report link.suspect (with the current text) or link.broken for it, so a
+// bump that kept the old pin shows what changed.
+// Mutation: skipping the content evaluation of a version_mismatch link, or
+// not reporting its suspect or broken content, fails this test.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-100
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestEvaluateStaleLinkContent(t *testing.T) {
+	child := childBundle()
+	current := Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
+	zero := "sha256:" + strings.Repeat("0", 64)
+	stale := func(id, target, fingerprint string) model.ReqLink {
+		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.0.9", Fingerprint: fingerprint}}
+	}
+	system := systemWith(stale("LNK-SAME", "dep::CAP-A", current), stale("LNK-CHANGED", "dep::CAP-A", zero), stale("LNK-GONE", "dep::CAP-GONE", current))
+	got := map[string]LinkStatus{}
+	for _, s := range EvaluateLinks(system, []Dependency{dependency(child)}) {
+		got[s.ID] = s
+	}
+	want := map[string]State{"LNK-SAME": StateUnchanged, "LNK-CHANGED": StateSuspect, "LNK-GONE": StateBroken}
+	for id, content := range want {
+		if s := got[id]; s.State != StateVersionMismatch || s.Content != content {
+			t.Errorf("%s = %s/%s, want version_mismatch/%s", id, s.State, s.Content, content)
+		}
+	}
+	if s := got["LNK-CHANGED"]; s.Current != current || s.Item == nil {
+		t.Fatalf("stale suspect link lacks the current fingerprint and item: %+v", s)
+	}
+	codes := map[string]string{}
+	for _, d := range Diagnostics(system, []Dependency{dependency(child)}) {
+		codes[d.Code] += d.Message + "\n"
+	}
+	if !strings.Contains(codes["link.suspect"], "LNK-CHANGED") || !strings.Contains(codes["link.suspect"], "REQ-A1: The child shall do A1.") || strings.Contains(codes["link.suspect"], "LNK-SAME") {
+		t.Fatalf("link.suspect = %q", codes["link.suspect"])
+	}
+	if !strings.Contains(codes["link.broken"], "LNK-GONE") {
+		t.Fatalf("link.broken = %q", codes["link.broken"])
+	}
+}

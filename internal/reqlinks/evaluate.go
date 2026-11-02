@@ -47,12 +47,17 @@ type Dependency struct {
 // TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type LinkStatus struct {
-	ID       string
-	Parent   string
-	Child    string
-	Alias    string
-	ItemID   string
-	State    State
+	ID     string
+	Parent string
+	Child  string
+	Alias  string
+	ItemID string
+	State  State
+	// Content is the state of the item content alone: unchanged, suspect or
+	// broken, also for a version_mismatch link (evaluated at the resolved
+	// version against the recorded fingerprint); empty when the item cannot
+	// be evaluated.
+	Content  State
 	Pinned   string // pinned.version
 	Version  string // the dependency pin of the alias
 	Recorded string
@@ -65,7 +70,8 @@ type LinkStatus struct {
 // resolved dependencies, in link order. A link whose alias is not a declared
 // dependency is child_unpublished; a declared but unresolved one is
 // unresolved; a pin that differs from the manifest dependency version or
-// the resolved version is version_mismatch; an item missing from the dependency is broken; an item
+// the resolved version is version_mismatch (Content still holds the content
+// state at the resolved version); an item missing from the dependency is broken; an item
 // that is not a published capability or assumption of use is
 // child_unpublished; otherwise the fingerprints decide unchanged or suspect.
 // TRLC-LINKS: REQ-EMG-097
@@ -102,10 +108,6 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 			status.State, status.Detail = StateChildUnpublished, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
 		case !resolved:
 			status.State, status.Detail = StateUnresolved, fmt.Sprintf("dependency %q was not resolved", alias)
-		case status.Pinned != pin || (dep.Version != "" && status.Pinned != dep.Version):
-			// The fingerprint is computed from the resolved version; a pin
-			// that differs from the manifest or the resolved module is stale.
-			status.State = StateVersionMismatch
 		default:
 			if allItems[alias] == nil {
 				allItems[alias] = ItemsFromBundle(dep.Bundle)
@@ -126,6 +128,15 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 				status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
 			default:
 				status.State = StateBroken
+			}
+			if status.State != StateChildUnpublished {
+				status.Content = status.State
+			}
+			if status.Pinned != pin || (dep.Version != "" && status.Pinned != dep.Version) {
+				// The fingerprint is computed from the resolved version; a pin
+				// that differs from the manifest or the resolved module is
+				// stale, whatever its content state.
+				status.State = StateVersionMismatch
 			}
 		}
 		out = append(out, status)
@@ -169,6 +180,15 @@ func Diagnostics(system model.Bundle, deps []Dependency) []validate.Diagnostic {
 		switch s.State {
 		case StateSuspect:
 			errAt("link.suspect", SuspectMessage(s))
+		case StateVersionMismatch:
+			// Validation reports the stale pin; the content state tells the
+			// reviewer what changed at the pinned dependency version.
+			switch s.Content {
+			case StateSuspect:
+				errAt("link.suspect", SuspectMessage(s))
+			case StateBroken:
+				errAt("link.broken", fmt.Sprintf("link %s: %s no longer exists in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
+			}
 		case StateBroken:
 			errAt("link.broken", fmt.Sprintf("link %s: %s no longer exists in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
 		case StateChildUnpublished:

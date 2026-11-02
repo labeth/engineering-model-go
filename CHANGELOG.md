@@ -35,6 +35,13 @@ semantic versioning.
     evaluation (unchanged, suspect, broken, version_mismatch, child_unpublished, unresolved).
   - Example `examples/requirement-links/` with three strict repositories (child-a, child-b,
     system) resolved offline through `engmod.work.yml`.
+- Requirement link tooling in `engws` (REQ-EMG-100 to REQ-EMG-104; decisions D8 and on in
+  `docs/requirement-links.md`):
+  - `engws bump <repo> <alias> <version> [--allow-suspect]` evaluates the consumer's links on
+    the alias at the new version and prints each as unchanged, suspect or broken. Unchanged
+    links move `pinned.version` to the new version; suspect and broken links keep their pin
+    and fingerprint (never re-stamped). A suspect or broken link aborts the bump with every
+    file restored, the requirement link file and the lock included, unless `--allow-suspect`.
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
 ### Deprecated
