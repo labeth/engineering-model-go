@@ -107,7 +107,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Matrix": "TraceMatrix", "Row": "TraceRow", "Provenance": "TraceProvenance",
 			"DelegatedStatus": "TraceDelegatedStatus", "CodeRef": "TraceCodeRef",
 			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
-			"LinkRef": "TraceLinkRef",
+			"LinkRef":        "TraceLinkRef",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
