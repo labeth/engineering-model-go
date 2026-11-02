@@ -669,3 +669,12 @@ requirements:
     appliesTo:
       - FU-MCP-SERVER
       - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-107
+    text: When generation run is requested, the engineering model go shall render the requirement link tree of a using model and the contract items of a child model without disclosing the users of the child.
+    notes: 'A model with reqLinks gets an AsciiDoc chapter "Requirement Links": for each requirement a list item, then each link it is the parent of with its state (unchanged, or marked *SUSPECT*, *BROKEN*, *VERSION MISMATCH*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and "Assumptions of Use" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets "Contract Items": each published capability and assumption of use with its text, verification criteria, realizing published requirements and fingerprint. Only when the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a "Used By" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model. Rendered without a workspace a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings are reported but do not stop the render (D15).'
+    verificationMethods: [test]
+    verificationCriteria: When the system of the three-repository fixture is rendered, then its Requirement Links chapter lists each system requirement with its links, linked items and realizing requirements with their status, and the assumption of use with its evidence; when a realizing requirement changes in a copy, then the link is marked suspect; when child-a is rendered with the workspace off, then its AsciiDoc, every Gemara artifact and the MCP requirements.get, requirements.parents and links.list outputs name no system requirement, model id, title or parent text, and with the workspace active it shows Used By with the system's links.
+    appliesTo:
+      - FU-ASCIIDOC-GENERATOR
+      - FU-SYSTEM-COMPOSITION
+      - FU-ALLOCATION-TRACE

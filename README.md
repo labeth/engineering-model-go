@@ -888,6 +888,16 @@ and link that`), still reported as `composition.allocation_deprecated`. Only the
 each file change, and a second run reports `nothing to migrate`. Then review the claimed
 links and give each listed requirement a `realizes` or mark it `derived`.
 
+The architecture document shows the links in both directions. A system with `reqLinks`
+gets a **Requirement Links** chapter: each requirement, its links with their state (suspect,
+broken and claimed links are marked), the linked child items and the child requirements that
+realize them with their implementation and test status. A child that publishes contract
+items gets a **Contract Items** chapter (each item, its realizing requirements and its
+fingerprint) and no list of users. Only when it is rendered in a workspace whose other
+checkouts link its items does it get a **Used By** section, computed at render time; set
+`ENGMOD_WORK=off` to render a child as its users' readers cannot see them. The trace matrix
+and the MCP `links.*` and `requirements.parents` tools carry the same information.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud

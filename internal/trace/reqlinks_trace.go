@@ -217,3 +217,22 @@ func orphanRequirement(message string) string {
 	id, _, _ := strings.Cut(rest, " ")
 	return id
 }
+
+// DependencyRequirementStatus returns a lookup of the trace status of a
+// requirement of a resolved dependency in its own repository (by dependency
+// alias and local requirement ID), each dependency's trace computed at most
+// once; nil when the alias is not a resolved dependency.
+// TRLC-LINKS: REQ-EMG-105, REQ-EMG-107
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func DependencyRequirementStatus(composed composition.CompositionResult) func(alias, requirement string) *DelegatedStatus {
+	byAlias := map[string]*composition.ComposedSystem{}
+	if composed.Root != nil {
+		for _, child := range composed.Root.Children {
+			byAlias[child.Dependency] = child
+		}
+	}
+	traces := dependencyTraces{}
+	return func(alias, requirement string) *DelegatedStatus {
+		return traces.status(byAlias[alias], requirement)
+	}
+}

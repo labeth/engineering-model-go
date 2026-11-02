@@ -65,7 +65,7 @@ func GenerateFromFiles(architecturePath, requirementsPath, designPath string, op
 // their published entities, and returns every composition diagnostic; a
 // composition error fails the call like any other validation error.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107
 func Generate(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options Options) (Result, error) {
 	bundle.Requirements = requirements
 	bundle.Design = design
@@ -83,7 +83,7 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	diags = append(diags, reqlint.ValidateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, reqlint.LintModelRequirementsEARS(bundle, requirements)...)
 	diags = append(diags, reqlint.LintRequirementInternalLinks(requirements)...)
-	if validate.HasErrors(diags) {
+	if hasBlockingErrors(diags) {
 		return Result{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
 
@@ -680,7 +680,8 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 
 	// The Reference Index is the closing chapter; insert the Gemara and Composition
 	// chapters before it so it remains last.
-	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapterFor(bundle, composed, compositionErr)
+	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapterFor(bundle, composed, compositionErr) +
+		renderRequirementLinksChapter(bundle, composed) + renderContractItemsChapter(bundle, options.Resolution.Workspace)
 	if trailing != "" {
 		if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
 			doc = doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
@@ -690,6 +691,20 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	}
 
 	return Result{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
+}
+
+// hasBlockingErrors reports an error that stops the render. Requirement link
+// findings (link.*) are errors of the model check but do not stop the
+// render: the document shows the marked links a reviewer needs (D15).
+// TRLC-LINKS: REQ-EMG-107
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE
+func hasBlockingErrors(diags []validate.Diagnostic) bool {
+	for _, d := range diags {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
+			return true
+		}
+	}
+	return false
 }
 
 // validationBundle enriches the bundle with the dependencies' published

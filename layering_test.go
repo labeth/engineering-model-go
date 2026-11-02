@@ -43,7 +43,7 @@ var layerRules = map[string][]string{
 	"internal/generate":            {"internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view", "internal/render/*"},
 	"internal/export/*": {"internal/export/*", "internal/codescan", "internal/composition", "internal/codemap", "internal/model",
 		"internal/validate", "internal/textutil", "internal/view", "internal/sysmlmetamodel"},
-	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/codescan",
+	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/reqlinks", "internal/codescan",
 		"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view",
 		"internal/render/*"},
 	// Test-only package for cross-package end-to-end tests; its tests may

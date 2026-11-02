@@ -80,6 +80,14 @@ semantic versioning.
   and `requirements.parents`; `requirements.get` adds `parents`, `links` and `children`.
   The review logic of `engws review-links` moved to `internal/linkreview` and the
   line-preserving YAML edits to `internal/yamledit`, shared by engws and the MCP server.
+- AsciiDoc requirement link chapters (REQ-EMG-107): "Requirement Links" in a model with links
+  (requirement → link with state and review status → child item → realizing requirements
+  with their implementation and test status in the child; assumptions of use with their
+  evidence; suspect, broken and claimed links marked) and "Contract Items" in a model that
+  publishes items (text, realizing requirements, fingerprint). "Used By" is added only when
+  the render resolves an active workspace whose sibling checkouts link the items
+  (`WorkspaceLinkUsers`, computed at render time). `link.*` findings no longer stop the
+  render; `engdoc` still exits 1 on them.
 - `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 

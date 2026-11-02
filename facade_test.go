@@ -112,6 +112,8 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",
+			// used by internal/asciidoc for the requirement link tree.
+			"DependencyRequirementStatus",
 		}},
 		{dir: filepath.Join("internal", "export", "gemara"), rootName: map[string]string{
 			"Version": "GemaraVersion", "Options": "GemaraExportOptions",
