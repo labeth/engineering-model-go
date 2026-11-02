@@ -155,3 +155,48 @@ func mustWrite(t *testing.T, path, text string) {
 		t.Fatal(err)
 	}
 }
+
+// A Dockerfile and a README.md with trace markers become code items owned by
+// the unit their ENGMODEL-OWNER-UNIT comment names, with their file CODE
+// identifier counted once; inferenceHints.exclude removes an excluded
+// Dockerfile from both.
+// Mutation: dropping the artifact owner lookup leaves the Dockerfile unresolved.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func TestArtifactFilesAreOwnedIndexedAndExcluded(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "Dockerfile"), "# ENGMODEL-OWNER-UNIT: FU-IMAGE\n# TRLC-LINKS: REQ-IMG-001\nFROM scratch\n")
+	mustWrite(t, filepath.Join(root, "docs", "RUN.md"), "<!-- ENGMODEL-OWNER-UNIT: FU-DOCS -->\n<!-- TRLC-LINKS: REQ-DOC-001 -->\n# Run\n")
+	mustWrite(t, filepath.Join(root, "build", "Dockerfile"), "# ENGMODEL-OWNER-UNIT: FU-IMAGE\n# TRLC-LINKS: REQ-IMG-009\nFROM scratch\n")
+	bundle := model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}
+	bundle.Architecture.InferenceHints.Exclude = []string{"build/**"}
+
+	items, diags := InferCodeItems(bundle, "")
+	for _, d := range diags {
+		if d.Severity == validate.SeverityError {
+			t.Fatalf("unexpected error %+v", d)
+		}
+	}
+	owners := map[string]string{}
+	for _, it := range items {
+		owners[it.Kind+" "+it.Source] = it.Owner + " " + strings.Join(it.Implements, ",")
+	}
+	want := map[string]string{
+		"source_file Dockerfile":  "FU-IMAGE ",
+		"symbol Dockerfile:2":     "FU-IMAGE REQ-IMG-001",
+		"source_file docs/RUN.md": "FU-DOCS ",
+		"symbol docs/RUN.md:2":    "FU-DOCS REQ-DOC-001",
+	}
+	if len(owners) != len(want) {
+		t.Fatalf("want items %v, got %v", want, owners)
+	}
+	for k, v := range want {
+		if owners[k] != v {
+			t.Fatalf("%s: want %q, got %q (all %v)", k, v, owners[k], owners)
+		}
+	}
+	index := buildCodeIndex(bundle)
+	if index["CODE-DOCKERFILE"] != 1 || index["CODE-DOCS-RUN-MD"] != 1 || index["CODE-BUILD-DOCKERFILE"] != 0 {
+		t.Fatalf("artifact CODE ids must be indexed once and excluded ones not at all: %v", index)
+	}
+}

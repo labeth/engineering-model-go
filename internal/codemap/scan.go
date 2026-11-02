@@ -96,7 +96,7 @@ func Scan(root string) ([]Symbol, []validate.Diagnostic, error) {
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
 func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagnostic, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {
@@ -134,13 +134,18 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 			return nil
 		}
 		ext := strings.ToLower(filepath.Ext(path))
-		if !supportedExt[ext] {
+		artifact := IsArtifactFile(path)
+		if !supportedExt[ext] && !artifact {
 			return nil
 		}
 		if opts.Skip != nil && opts.Skip(path, false) {
 			return nil
 		}
-		fileSymbols, fileDiags, err := scanFile(scanBase, idBase, path)
+		scan := scanFile
+		if artifact {
+			scan = scanArtifactFile
+		}
+		fileSymbols, fileDiags, err := scan(scanBase, idBase, path)
 		if err != nil {
 			return err
 		}
@@ -165,23 +170,46 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 	return symbols, diags, nil
 }
 
-// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-// TRLC-LINKS: REQ-EMG-010
-func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error) {
-	src, err := os.ReadFile(path)
+// readScanFile reads a scanned file and returns its scan-relative path and
+// its module-relative identifier path.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+func readScanFile(root, idBase, path string) (src []byte, relPath, idPath string, err error) {
+	src, err = os.ReadFile(path)
 	if err != nil {
-		return nil, nil, fmt.Errorf("read %s: %w", path, err)
+		return nil, "", "", fmt.Errorf("read %s: %w", path, err)
 	}
-
-	relPath, err := filepath.Rel(root, path)
+	relPath, err = filepath.Rel(root, path)
 	if err != nil {
 		relPath = path
 	}
 	relPath = filepath.ToSlash(relPath)
 	// Identifiers are module-relative; files outside the identifier base keep scan-relative ones.
-	idPath := relPath
+	idPath = relPath
 	if rel, relErr := filepath.Rel(idBase, path); relErr == nil && !strings.HasPrefix(filepath.ToSlash(rel), "../") {
 		idPath = filepath.ToSlash(rel)
+	}
+	return src, relPath, idPath, nil
+}
+
+// scanArtifactFile scans a container build file or Markdown document for
+// file-level trace markers.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func scanArtifactFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error) {
+	src, relPath, idPath, err := readScanFile(root, idBase, path)
+	if err != nil {
+		return nil, nil, err
+	}
+	symbols, diags := scanArtifact(relPath, idPath, src)
+	return symbols, diags, nil
+}
+
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error) {
+	src, relPath, idPath, err := readScanFile(root, idBase, path)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	decls, commentLines, parseDiags, err := extractDeclarations(path, src)

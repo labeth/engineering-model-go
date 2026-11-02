@@ -6,6 +6,34 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Assurance link diagnostics (REQ-EMG-082): `threat.verification_missing` (warning at a threat
+  scenario's `verificationRefs` that omit a control verification its mitigations reference or
+  that names it in `threatScenarioRefs`), `mitigation.verification_control_mismatch` (error at a
+  mitigation `verificationRefs` entry whose control verification verifies another control) and
+  `verification.unlinked` (warning at a `method: test` control verification with status `pass`
+  or `partial` and no `verificationRefs`).
+- `gemara.control_needs_review` (REQ-EMG-083): a warning at each control without a control
+  verification, which the Gemara evaluation log marks Needs Review, naming another control's
+  verification when that is its only evidence. Validation reports it, so `engdoc`, `engtrace`
+  and `model.diagnose` show it without rendering Gemara.
+- Trace markers in non-code artifacts (REQ-EMG-084): `# TRLC-LINKS:`, `# ENGMODEL-LINKS:` and
+  `# ENGMODEL-OWNER-UNIT:` in `Dockerfile`, `Containerfile`, `*.Dockerfile` and `*.Containerfile`,
+  and the same markers in Markdown HTML comments (`<!-- TRLC-LINKS: REQ-… -->`) outside code
+  fences. The file implements the linked requirements under its `CODE-<PATH>` identifier; the
+  markers are optional and never raise `code.missing_trlc_link`.
+- README: building needs cgo (tree-sitter); static-link recipe
+  `-tags netgo,osusergo -ldflags '-linkmode external -extldflags -static'`.
+
+### Changed
+
+- The authoring contract defines `triggered_by` (state → event) as an event handled within the
+  state; the event that enters a state belongs to `transitions_to` (its description, or a
+  `semantics.relationships` transition with `triggers`). `behavior.event_unused` says so.
+- The engine's own model lists its threat scenarios' control verifications and links
+  `VER-MCP-PATH-BOUNDARY` to REQ-EMG-008.
+
 ## [0.6.0] — 2026-10-30: Behavior, catalog and verification diagnostics; engws stage; engspec
 
 ### Added

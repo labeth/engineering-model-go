@@ -107,6 +107,15 @@ It is not a runtime observability or incident/compliance runtime system.
 go get github.com/labeth/engineering-model-go
 ```
 
+The code scanner parses source with tree-sitter, so building the library or its
+commands needs cgo and a C compiler: `CGO_ENABLED=0` does not build. For a static
+binary (for example a `distroless/static` image), link externally:
+
+```bash
+CGO_ENABLED=1 go build -tags netgo,osusergo \
+  -ldflags '-linkmode external -extldflags -static' ./cmd/engdoc
+```
+
 ## Library API
 
 The root package `engmodel` is the only public Go API; every other package is
@@ -305,6 +314,14 @@ but not wired (warnings do not fail `engdoc`):
 | `behavior.flow_step_no_onerror` | `authoredArchitecture.flows[i].steps[j].onError` | a step with `boundaryCrossing: true` and no `onError` |
 | `catalog.name_has_operator` | `catalog.<group>[i].name` or `.aliases[j]` | an actor, event, state, feature, mode, condition or data term name or alias with a standalone `and`, `or`, `not`, a comma or a parenthesis, which the EARS clause parser reads as operators |
 | `verification.status_stale` | `…controlVerifications[i].status`, `…threatMitigations[i].status` | the referenced tests exist but the status still says they have not run (see above); reported by `engdoc` and `engtrace` |
+| `threat.verification_missing` | `…threatScenarios[i].verificationRefs` | the threat does not list a control verification that one of its mitigations references or that names the threat in `threatScenarioRefs` |
+| `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
+| `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
+| `gemara.control_needs_review` | `…controls[i]` | no control verification names the control, so the Gemara evaluation log marks it Needs Review; names another control's verification when that is its only evidence |
+
+`triggered_by` (state → event) means the event is handled within the state. The event that
+enters a state belongs to a `transitions_to`, in its description or structurally as an
+`architecture.semantics.relationships` entry with `kind: transition` and `triggers: [EVT-…]`.
 
 ### Code trace markers
 
@@ -317,6 +334,12 @@ Source files link back to the model with two comment markers, scanned under `--c
 Both markers are validated against the loaded model. Unresolved IDs are hard errors
 (`code.dangling_requirement_link` for `TRLC-LINKS`, `code.dangling_model_link` for
 `ENGMODEL-LINKS`), enforced by the `engdoc` zero-error gate and by `engtrace` (non-zero exit).
+Container build files (`Dockerfile`, `Containerfile`, `*.Dockerfile`, `*.Containerfile`) may
+carry `# TRLC-LINKS:`, `# ENGMODEL-LINKS:` and `# ENGMODEL-OWNER-UNIT:` comment lines, and
+Markdown files the same markers in HTML comments (`<!-- TRLC-LINKS: REQ-… -->`) outside code
+fences. The markers apply to the whole file, which implements (never verifies) the linked
+requirements under its `CODE-<PATH>` identifier; they are optional, so an unmarked Dockerfile
+or README raises nothing.
 Code is scoped to its nearest enclosing model root, so links resolve against the closest model
 rather than the whole tree. Requirements with no implementing or delegating code surface a
 `requirement.orphan` warning, and a requirement linked from code that does not exist raises

@@ -69,12 +69,14 @@ var authoringFieldRules = []string{
 	"A requirement with verificationMethods must set verificationCriteria; a derived requirement must set derivedRationale. decision.status, decision.date, context and decision text are required.",
 	"Authored mappings must not reference inferred RT-* or CODE-* IDs; when both ends are known, the (type, from kind, to kind) triple must appear in relationshipPairs.",
 	"controlVerification.verificationRefs entries name the tests that verify the control: inferred CODE-<PATH>--<NAME> IDs of test declarations or REQ-* IDs whose linked tests verify it. verification.status_stale warns while a referenced test exists and the status is unset or not-run (threatMitigation: unset or planned); the status itself stays authored.",
+	"triggered_by (state -> event) means the event is handled within the state: the state accepts or reacts to it without being entered by it. Entering a state is a transitions_to (state -> state); name the causing event in that relationship's description, or, to record it structurally, author an architecture.semantics.relationships transition with triggers: kind transition, source and target states and triggers listing the event. Do not use triggered_by for the event that enters a state; the SysML export renders it as an accept within the source state.",
+	"Assurance links: a threat scenario's verificationRefs list every control verification that its mitigations reference or that names it in threatScenarioRefs (warning threat.verification_missing); a threatMitigation verificationRefs entry names a control verification of the mitigation's own controlRef (error mitigation.verification_control_mismatch); a controlVerification with method test and status pass or partial names its tests in verificationRefs (warning verification.unlinked); every control has a control verification with its controlRef, else the Gemara evaluation log marks it Needs Review (warning gemara.control_needs_review).",
 	"Warnings: behavior.event_unused (a behavior event in no triggered_by relationship, transition trigger or flow), behavior.state_unreachable (with transitions in the model, a state other than the first declared, initial one that no transitions_to enters), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators).",
 }
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as
 // sorted, deterministic data for the model authoring contract.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func AuthoringRules() Rules {
 	enums := make(map[string][]string, len(enumTables))

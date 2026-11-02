@@ -183,7 +183,7 @@ func gitVisibleFiles(root string) map[string]bool {
 
 // buildCodeIndex counts the distinct files and declarations producing each CODE identifier
 // in the model's code scope. Only paths inside the module root get file identifiers.
-// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
 func buildCodeIndex(bundle model.Bundle) map[string]int {
 	moduleRoot := moduleCodeRoot(bundle)
@@ -222,7 +222,12 @@ func buildCodeIndex(bundle model.Bundle) map[string]int {
 		}
 		for _, s := range symbols {
 			if strings.HasPrefix(s.TraceID, "CODE-") {
-				add(s.TraceID, filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))+":"+strconv.Itoa(s.Line))
+				location := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
+				// An artifact's symbol is the file itself, not a second declaration.
+				if !codemap.IsArtifactFile(s.Path) {
+					location += ":" + strconv.Itoa(s.Line)
+				}
+				add(s.TraceID, location)
 			}
 		}
 	}

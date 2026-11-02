@@ -147,6 +147,8 @@ assurance:
     relatedControls:
     - CTRL-MCP-PATH-BOUNDARY
     - CTRL-STRICT-MCP-INPUT-SCHEMA
+    verificationRefs:
+    - VER-MCP-PATH-BOUNDARY
   - id: TS-TRACEABILITY-DRIFT
     title: Requirement traceability drifts from implementation
     summary: Code and tests change without corresponding requirement trace updates.
@@ -164,6 +166,8 @@ assurance:
     owner: ACT-COMPLIANCE-ENGINEER
     relatedControls:
     - CTRL-TRACEABILITY-COVERAGE
+    verificationRefs:
+    - VER-TRACEABILITY-COVERAGE
   threatMitigations:
   - id: TM-MCP-PATH-BOUNDARY
     threatScenarioRef: TS-MCP-PATH-TRAVERSAL
@@ -187,6 +191,8 @@ assurance:
     method: test
     status: pass
     owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - REQ-EMG-008
     findings:
     - Path traversal rejected and error payload returned in MCP tests.
     evidence:

@@ -2706,6 +2706,33 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-082";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-082' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree.";
+        attribute 'notes' : 'String' = "threat.verification_missing is a warning at a threat scenario's verificationRefs when it omits a control verification that one of its threat mitigations (threatScenarioRef) lists in verificationRefs or that names the threat in threatScenarioRefs. mitigation.verification_control_mismatch is an error at a threat mitigation verificationRefs entry naming a control verification whose controlRef is another control than the mitigation's controlRef. verification.unlinked is a warning at the verificationRefs of a control verification with method test and status pass or partial that has no verificationRefs, so no test declaration or requirement evidences it; analysis, inspection and other methods are evidenced by their evidence entries and are not reported. Imported alias::ID records are skipped. The AsciiDoc generation, the trace and model.diagnose report them through validation.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-083";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-083' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.";
+        attribute 'notes' : 'String' = "gemara.control_needs_review is a warning at a control that no control verification names in controlRef; the Gemara L5 evaluation log gives such a control the result Needs Review. When a threat mitigation of that control references another control's verification, the message names it (\"<CV> verifies <other control>\"), the case where a control's only evidence is another control's verification. A partial control verification also maps to Needs Review in the log; that is an authored status and is not reported. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-084";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-084' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.";
+        attribute 'notes' : 'String' = "The code scanner reads TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT in # comment lines of files named Dockerfile or Containerfile or ending in .Dockerfile or .Containerfile, and in HTML comments (<!-- TRLC-LINKS: REQ-… -->, also spanning lines) that start a line outside fenced code blocks of .md and .markdown files. The markers apply to the whole file: it becomes one symbol with its file CODE identifier (CODE-<PATH>) that implements the linked requirements, never verifies them, also under tests/. Markers are optional: such a file without them yields no item and no code.missing_trlc_link. The module code scope applies, including git-ignored files and inferenceHints.exclude; an invalid requirement ID is code.invalid_trlc_link.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }

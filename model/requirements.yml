@@ -482,3 +482,23 @@ requirements:
     verificationCriteria: Golden tests render a fixture and check SHALL capitalization and criteria shaping, and the engspec output for a sample model starts each REQ line with the model text and passes openspec validate --strict when the openspec CLI is available.
     appliesTo:
       - FU-MODEL-CHANGE
+  - id: REQ-EMG-082
+    text: When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree.
+    notes: 'threat.verification_missing is a warning at a threat scenario''s verificationRefs when it omits a control verification that one of its threat mitigations (threatScenarioRef) lists in verificationRefs or that names the threat in threatScenarioRefs. mitigation.verification_control_mismatch is an error at a threat mitigation verificationRefs entry naming a control verification whose controlRef is another control than the mitigation''s controlRef. verification.unlinked is a warning at the verificationRefs of a control verification with method test and status pass or partial that has no verificationRefs, so no test declaration or requirement evidences it; analysis, inspection and other methods are evidenced by their evidence entries and are not reported. Imported alias::ID records are skipped. The AsciiDoc generation, the trace and model.diagnose report them through validation.'
+    verificationCriteria: When a threat scenario omits a control verification its mitigation references, a mitigation references a control verification of another control, and a passing test control verification has no verificationRefs, then validation reports one warning, one error and one warning at those fields, and none once the links agree.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-083
+    text: When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.
+    notes: 'gemara.control_needs_review is a warning at a control that no control verification names in controlRef; the Gemara L5 evaluation log gives such a control the result Needs Review. When a threat mitigation of that control references another control''s verification, the message names it ("<CV> verifies <other control>"), the case where a control''s only evidence is another control''s verification. A partial control verification also maps to Needs Review in the log; that is an authored status and is not reported. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.'
+    verificationCriteria: When a control has no control verification and its mitigation references a verification of another control, then validation warns at that control and names the other control's verification.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-GEMARA-EXPORTER
+  - id: REQ-EMG-084
+    text: When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.
+    notes: 'The code scanner reads TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT in # comment lines of files named Dockerfile or Containerfile or ending in .Dockerfile or .Containerfile, and in HTML comments (<!-- TRLC-LINKS: REQ-… -->, also spanning lines) that start a line outside fenced code blocks of .md and .markdown files. The markers apply to the whole file: it becomes one symbol with its file CODE identifier (CODE-<PATH>) that implements the linked requirements, never verifies them, also under tests/. Markers are optional: such a file without them yields no item and no code.missing_trlc_link. The module code scope applies, including git-ignored files and inferenceHints.exclude; an invalid requirement ID is code.invalid_trlc_link.'
+    verificationCriteria: When a Dockerfile and a README.md carry TRLC-LINKS comments, then the trace matrix lists each as implementing code of the linked requirement, and a Dockerfile without markers adds no diagnostic.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FU-ALLOCATION-TRACE
