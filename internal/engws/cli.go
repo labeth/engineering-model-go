@@ -92,6 +92,16 @@ commands:
                              status accepted; only those lines change; refuse
                              an actor the model does not define or a broken
                              link
+  contract-diff <from-ref> <to-ref> [--repo DIR] [--json]
+                             compare the published contract items (capabilities
+                             and assumptions of use, with their realizing
+                             requirements) of the model in DIR at two git refs:
+                             added, removed, changed (text, realizers) or
+                             unchanged, and the semver impact: capability
+                             removed or text changed, assumption added or
+                             changed: major; assumption removed, capability
+                             added, realizers only: minor; else patch; exit 2
+                             on a git or model error
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -173,7 +183,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0}
+		"review-links": 0, "contract-diff": 2}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -200,6 +210,13 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 			return 1
+		}
+		return code
+	}
+	if command == "contract-diff" {
+		code, err := runContractDiff(*repoFlag, positional[0], positional[1], *asJSON, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}
 		return code
 	}

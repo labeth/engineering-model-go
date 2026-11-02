@@ -837,6 +837,22 @@ engws review-links --accept LNK-SYS-001-ENCODER --by ACT-SYSTEM-OWNER \
 This writes the current fingerprint, the dependency pin, `reviewedBy`, `reviewedOn`, the
 rationale and `status: accepted` into `model/req-links.yml`, changing only those lines.
 
+**`engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]`** compares the
+published contract items of the model as committed at two git refs:
+
+```text
+contract v1.0.0..v1.1.0
+  changed   capability CAP-A-1 (text): text changed: treated as major [major]
+  removed   capability CAP-A-2: Protect each position sentence with a checksum. [major]
+impact: major
+```
+
+| Change | Impact |
+|---|---|
+| capability removed, capability text changed, assumption of use added, assumption text or `verificationCriteria` changed, item kind changed | major |
+| assumption removed, capability added, only realizing requirements changed | minor |
+| anything else | patch |
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud

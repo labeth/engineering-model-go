@@ -49,6 +49,11 @@ semantic versioning.
     TEXT` writes the current fingerprint, the dependency pin, `reviewedBy`, `reviewedOn`, the
     rationale and `status: accepted`, editing only those lines; an unknown actor or a broken
     link is refused.
+  - `engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]` compares the published
+    contract items of the model at two git refs (added, removed, changed text or realizers,
+    unchanged) and states the semver impact: a removed capability, a changed capability text
+    ("treated as major"), an added or changed assumption of use are major; a removed
+    assumption, an added capability or realizer-only changes are minor; else patch.
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
 ### Deprecated
