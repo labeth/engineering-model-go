@@ -75,6 +75,11 @@ semantic versioning.
   its own repository, and is no longer an orphan. The summary counts `linksSuspect`,
   `linksBroken`, `linksClaimed` and `unparented`; MCP `trace.matrix` returns them, also with
   `summaryOnly`. Root facade: `TraceLinkRef`.
+- MCP requirement link tools (REQ-EMG-106): `links.list`, `links.suspect`, `links.review`
+  (returns the `engws review-links --accept` command and the link file patch; writes nothing)
+  and `requirements.parents`; `requirements.get` adds `parents`, `links` and `children`.
+  The review logic of `engws review-links` moved to `internal/linkreview` and the
+  line-preserving YAML edits to `internal/yamledit`, shared by engws and the MCP server.
 - `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 

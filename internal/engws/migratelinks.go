@@ -3,6 +3,7 @@ package engws
 
 import (
 	"fmt"
+	"github.com/labeth/engineering-model-go/internal/yamledit"
 	"io"
 	"os"
 	"path/filepath"
@@ -200,7 +201,7 @@ func migrateRefs(b model.Bundle, read func(string) ([]byte, error), writes map[s
 	sort.Strings(ids)
 	for _, id := range ids {
 		values := append(append([]string(nil), requirements[id].Realizes...), realizes[id]...)
-		if reqData, err = setKey(reqData, findListItem([]string{"requirements"}, "id", id), "realizes", flowList(values)); err != nil {
+		if reqData, err = yamledit.SetKey(reqData, yamledit.FindListItem([]string{"requirements"}, "id", id), "realizes", flowList(values)); err != nil {
 			return fmt.Errorf("%s: requirement %s: %w", b.RequirementsPath, id, err)
 		}
 	}
@@ -212,7 +213,7 @@ func migrateRefs(b model.Bundle, read func(string) ([]byte, error), writes map[s
 		return err
 	}
 	for _, id := range drop {
-		if archData, _, err = removeKey(archData, findListItem([]string{"architecture", "contract", "provides"}, "id", id), "ref"); err != nil {
+		if archData, _, err = yamledit.RemoveKey(archData, yamledit.FindListItem([]string{"architecture", "contract", "provides"}, "id", id), "ref"); err != nil {
 			return fmt.Errorf("%s: contract entry %s: %w", b.ArchitecturePath, id, err)
 		}
 	}
@@ -225,7 +226,7 @@ func migrateRefs(b model.Bundle, read func(string) ([]byte, error), writes map[s
 func flowList(values []string) string {
 	quoted := make([]string, 0, len(values))
 	for _, v := range values {
-		quoted = append(quoted, yamlScalar(strings.TrimSpace(v)))
+		quoted = append(quoted, yamledit.Scalar(strings.TrimSpace(v)))
 	}
 	return "[" + strings.Join(quoted, ", ") + "]"
 }
@@ -296,7 +297,7 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 		if err != nil {
 			return err
 		}
-		if manifest, err = setKey(manifest, findPath("documents"), "reqLinks", yamlScalar(linksRel)); err != nil {
+		if manifest, err = yamledit.SetKey(manifest, yamledit.FindPath("documents"), "reqLinks", yamledit.Scalar(linksRel)); err != nil {
 			return fmt.Errorf("%s: %w", manifestPath, err)
 		}
 		writes[manifestPath] = manifest
@@ -314,7 +315,7 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 	case err != nil:
 		return err
 	default:
-		if existing, err = appendSequenceItems(existing, findPath(), "reqLinks", blocks); err != nil {
+		if existing, err = yamledit.AppendSequenceItems(existing, yamledit.FindPath(), "reqLinks", blocks); err != nil {
 			return fmt.Errorf("%s: %w", linksPath, err)
 		}
 		writes[linksPath] = existing
@@ -325,9 +326,9 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 		return err
 	}
 	if len(converted) == len(b.Architecture.Composition.Allocations) {
-		archData, _, err = removeKey(archData, findPath("architecture", "composition"), "allocations")
+		archData, _, err = yamledit.RemoveKey(archData, yamledit.FindPath("architecture", "composition"), "allocations")
 	} else {
-		archData, err = removeSequenceItems(archData, findPath("architecture", "composition"), "allocations", converted)
+		archData, err = yamledit.RemoveSequenceItems(archData, yamledit.FindPath("architecture", "composition"), "allocations", converted)
 	}
 	if err != nil {
 		return fmt.Errorf("%s: %w", b.ArchitecturePath, err)
@@ -395,15 +396,15 @@ func uniqueLinkID(id string, used map[string]bool) string {
 // TRLC-LINKS: REQ-EMG-104
 func linkBlock(l model.ReqLink) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "- id: %s\n", yamlScalar(l.ID))
-	fmt.Fprintf(&b, "  parent: %s\n", yamlScalar(l.Parent))
-	fmt.Fprintf(&b, "  child: %s\n", yamlScalar(l.Child))
+	fmt.Fprintf(&b, "- id: %s\n", yamledit.Scalar(l.ID))
+	fmt.Fprintf(&b, "  parent: %s\n", yamledit.Scalar(l.Parent))
+	fmt.Fprintf(&b, "  child: %s\n", yamledit.Scalar(l.Child))
 	b.WriteString("  pinned:\n")
-	fmt.Fprintf(&b, "    version: %s\n", yamlScalar(l.Pinned.Version))
-	fmt.Fprintf(&b, "    fingerprint: %s\n", yamlScalar(l.Pinned.Fingerprint))
+	fmt.Fprintf(&b, "    version: %s\n", yamledit.Scalar(l.Pinned.Version))
+	fmt.Fprintf(&b, "    fingerprint: %s\n", yamledit.Scalar(l.Pinned.Fingerprint))
 	fmt.Fprintf(&b, "  status: %s\n", l.Status)
 	if l.Rationale != "" {
-		fmt.Fprintf(&b, "  rationale: %s\n", yamlScalar(l.Rationale))
+		fmt.Fprintf(&b, "  rationale: %s\n", yamledit.Scalar(l.Rationale))
 	}
 	return b.String()
 }

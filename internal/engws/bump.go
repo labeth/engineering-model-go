@@ -4,6 +4,7 @@ package engws
 import (
 	"bytes"
 	"fmt"
+	"github.com/labeth/engineering-model-go/internal/yamledit"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -231,7 +232,7 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 		}
 		edited := data
 		for _, id := range result.Repinned {
-			if edited, err = setKey(edited, findListItem([]string{"reqLinks"}, "id", id, "pinned"), "version", yamlScalar(version)); err != nil {
+			if edited, err = yamledit.SetKey(edited, yamledit.FindListItem([]string{"reqLinks"}, "id", id, "pinned"), "version", yamledit.Scalar(version)); err != nil {
 				return rollback(fmt.Errorf("%s: link %s: %w", linksPath, id, err))
 			}
 		}
@@ -331,7 +332,7 @@ func setDependencyVersion(data []byte, alias, version string) ([]byte, error) {
 	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
 		return nil, fmt.Errorf("manifest is not a mapping")
 	}
-	deps := mappingValue(doc.Content[0], "dependencies")
+	deps := yamledit.MappingValue(doc.Content[0], "dependencies")
 	if deps == nil || deps.Kind != yaml.SequenceNode {
 		return nil, fmt.Errorf("no dependencies list")
 	}
@@ -339,11 +340,11 @@ func setDependencyVersion(data []byte, alias, version string) ([]byte, error) {
 		if item.Kind != yaml.MappingNode {
 			continue
 		}
-		a := mappingValue(item, "alias")
+		a := yamledit.MappingValue(item, "alias")
 		if a == nil || a.Value != alias {
 			continue
 		}
-		key, value := mappingEntry(item, "version")
+		key, value := yamledit.MappingEntry(item, "version")
 		if value == nil {
 			return nil, fmt.Errorf("dependency %q has no version", alias)
 		}
@@ -376,24 +377,6 @@ func replaceScalarOnLine(data []byte, line, column int, old, new string) ([]byte
 	}
 	lines[line-1] = []byte(text[:start] + new + text[start+len(old):])
 	return bytes.Join(lines, nil), nil
-}
-
-// mappingValue returns the value node for key in a mapping node.
-// TRLC-LINKS: REQ-EMG-068
-func mappingValue(node *yaml.Node, key string) *yaml.Node {
-	_, value := mappingEntry(node, key)
-	return value
-}
-
-// mappingEntry returns the key and value nodes for key in a mapping node.
-// TRLC-LINKS: REQ-EMG-068
-func mappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		if node.Content[i].Value == key {
-			return node.Content[i], node.Content[i+1]
-		}
-	}
-	return nil, nil
 }
 
 // depModuleAt names a module version without repeating the major suffix.

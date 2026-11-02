@@ -686,9 +686,10 @@ messages on stdin/stdout):
 go run ./cmd/engmcp
 ```
 
-It exposes 50+ tools grouped into families, including:
+It exposes 60+ tools grouped into families, including:
 
-- `requirements.*`: requirement details, impact, support paths, and edit-plan suggestions
+- `requirements.*`: requirement details (`requirements.get` with `parents`, `links` and `children`), impact, support paths, edit-plan suggestions, and `requirements.parents` (`requirementId`: the contract items it realizes, its `sourceRefs` or derivation, and the requirement links it is the parent of with each linked child item and its realizing requirements)
+- `links.*`: requirement links of the loaded model. `links.list` (no arguments): every link with its state, review status, pinned and dependency version, and recorded and current fingerprint. `links.suspect` (no arguments): the suspect, broken and version-mismatched links with the parent text and the child item after and, when the pinned version resolves offline, before the change (as `engws review-links --json`). `links.review` (`linkId`, `by`, optional `rationale`): writes nothing; it checks the review like `engws review-links --accept` and returns that command and the patch of `model/req-links.yml` it writes. The MCP server has no writing tool: recording a review stays a CLI action.
 - `files.*`: files and ownership for a requirement, control, or threat
 - `verification.*`: inferred verification status, gaps, and recommendations
 - `threats.*`: threat coverage, per-requirement threats, and unmitigated threats

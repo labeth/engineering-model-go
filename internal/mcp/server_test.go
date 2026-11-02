@@ -55,6 +55,11 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 
 	for i, name := range s.ToolNames() {
+		if name == "links.review" {
+			// Needs a model with requirement links; the payments sample has
+			// none (TestLinksReviewToolReturnsCommandAndPatch covers it).
+			continue
+		}
 		args := argsForTool(name)
 		resp := rpcCall(t, s, map[string]any{
 			"jsonrpc": "2.0",
@@ -280,7 +285,7 @@ func TestToolMissingRequiredArgument(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func argsForTool(name string) map[string]any {
 	switch name {
-	case "requirements.get", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight":
+	case "requirements.get", "requirements.parents", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight":
 		return map[string]any{"requirementId": "REQ-PAY-001"}
 	case "files.forControl":
 		return map[string]any{"controlId": "CTRL-PAYMENTS-SSO-MFA"}
