@@ -9938,52 +9938,57 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
           "path": "internal/engws/bump.go",
-          "line": 38
+          "line": 66
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--COUNTERRORS",
           "path": "internal/engws/bump.go",
-          "line": 300
+          "line": 409
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--DEPMODULEAT",
           "path": "internal/engws/bump.go",
-          "line": 292
+          "line": 401
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--HASCOMPOSITIONERRORS",
+          "path": "internal/engws/bump.go",
+          "line": 275
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--MAPPINGENTRY",
           "path": "internal/engws/bump.go",
-          "line": 281
+          "line": 390
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--MAPPINGVALUE",
           "path": "internal/engws/bump.go",
-          "line": 274
+          "line": 383
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--REPLACESCALARONLINE",
           "path": "internal/engws/bump.go",
-          "line": 252
+          "line": 361
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--REQUIRES",
           "path": "internal/engws/bump.go",
-          "line": 185
+          "line": 294
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--SETDEPENDENCYVERSION",
           "path": "internal/engws/bump.go",
-          "line": 217
+          "line": 326
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--SETENV",
           "path": "internal/engws/bump.go",
-          "line": 200
+          "line": 309
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--UNDERMODULECACHE",
           "path": "internal/engws/bump.go",
-          "line": 178
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CHECK-GO--CHECKALLDRIFT",
@@ -10068,47 +10073,52 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 111
+          "line": 168
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
+          "path": "internal/engws/cli.go",
+          "line": 314
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 257
+          "line": 376
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 227
+          "line": 346
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 374
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 335
+          "line": 454
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 298
+          "line": 417
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 322
+          "line": 441
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 212
+          "line": 331
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 267
+          "line": 386
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-PLAN-GO--BUILDPLAN",
@@ -10588,7 +10598,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 398
+          "line": 546
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -11066,7 +11076,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 267
+          "line": 386
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
@@ -11528,6 +11538,7 @@
         "FU-SYSTEM-COMPOSITION"
       ],
       "verifications": [
+        "VER-INF-TEST-RELEASECHECK_TEST-A300F7",
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
       ],
       "result": "not-run",
@@ -11584,7 +11595,7 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DECLAREDELSEWHERE",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 139
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DEPENDENCY",
@@ -11594,12 +11605,12 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DIAGNOSTICS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 159
+          "line": 170
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--EVALUATELINKS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 73
+          "line": 79
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--LINKSTATUS",
@@ -11609,12 +11620,12 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--SORTEDREALIZERS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 238
+          "line": 258
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--SUSPECTMESSAGE",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 218
+          "line": 238
         }
       ],
       "verifications": [
@@ -11640,7 +11651,7 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DIAGNOSTICS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 159
+          "line": 170
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
@@ -11695,6 +11706,499 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-100",
+      "text": "When dependency bump is requested, the engineering model go shall report each requirement link of the bumping model as unchanged, suspect or broken at the new version.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
+          "path": "internal/engws/bump.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMPLINKSTATUSES",
+          "path": "internal/engws/bump.go",
+          "line": 249
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMPOPTIONS",
+          "path": "internal/engws/bump.go",
+          "line": 43
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--HASCOMPOSITIONERRORS",
+          "path": "internal/engws/bump.go",
+          "line": 275
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--NEEDSREVIEW",
+          "path": "internal/engws/bump.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
+          "path": "internal/engws/cli.go",
+          "line": 314
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
+          "path": "internal/engws/cli.go",
+          "line": 526
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
+          "path": "internal/engws/cli.go",
+          "line": 494
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDLISTITEM",
+          "path": "internal/engws/yamledit.go",
+          "line": 284
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDPATH",
+          "path": "internal/engws/yamledit.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--PARSEYAML",
+          "path": "internal/engws/yamledit.go",
+          "line": 19
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SCALAREND",
+          "path": "internal/engws/yamledit.go",
+          "line": 162
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SETKEY",
+          "path": "internal/engws/yamledit.go",
+          "line": 109
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BUMP_LINKS_TEST-FEBA3E",
+        "VER-INF-TEST-REQLINKS_TEST-76AA55",
+        "VER-INF-TEST-REVIEWLINKS_TEST-39A109"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-101",
+      "text": "When link review is requested, the engineering model go shall show the child item change of each requirement link that needs review.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ACCEPTLINK",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 321
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--DIFFLINES",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 274
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--EVALUATEREPOLINKS",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 127
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--FIRSTERROR",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 148
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ITEMSATVERSION",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 208
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ITEMVIEW",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 27
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ITEMVIEW",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--LINES",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 87
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--LINKREVIEW",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--NEEDSREVIEW",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 109
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ONELINE",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--PRINTREVIEWS",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 232
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--REALIZERVIEW",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--REVIEWLINKS",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--RUNREVIEWLINKS",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 407
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--SCALARAT",
+          "path": "internal/engws/reviewlinks.go",
+          "line": 388
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDLISTITEM",
+          "path": "internal/engws/yamledit.go",
+          "line": 284
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDPATH",
+          "path": "internal/engws/yamledit.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--KEYRANGE",
+          "path": "internal/engws/yamledit.go",
+          "line": 48
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--PARSEYAML",
+          "path": "internal/engws/yamledit.go",
+          "line": 19
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SCALAREND",
+          "path": "internal/engws/yamledit.go",
+          "line": 162
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SETKEY",
+          "path": "internal/engws/yamledit.go",
+          "line": 109
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SPLICELINES",
+          "path": "internal/engws/yamledit.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SPLITLINES",
+          "path": "internal/engws/yamledit.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--YAMLSCALAR",
+          "path": "internal/engws/yamledit.go",
+          "line": 33
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REVIEWLINKS_TEST-39A109"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-102",
+      "text": "When contract diff is requested, the engineering model go shall classify each contract item change between two git refs with its semantic version impact.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFF",
+          "path": "internal/engws/contractdiff.go",
+          "line": 274
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFFRESULT",
+          "path": "internal/engws/contractdiff.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFCONTRACTS",
+          "path": "internal/engws/contractdiff.go",
+          "line": 85
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFITEM",
+          "path": "internal/engws/contractdiff.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFREALIZERS",
+          "path": "internal/engws/contractdiff.go",
+          "line": 164
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--GITOUTPUT",
+          "path": "internal/engws/contractdiff.go",
+          "line": 203
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--ITEMCHANGE",
+          "path": "internal/engws/contractdiff.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
+          "path": "internal/engws/contractdiff.go",
+          "line": 219
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--PRINTCONTRACTDIFF",
+          "path": "internal/engws/contractdiff.go",
+          "line": 290
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RANK",
+          "path": "internal/engws/contractdiff.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RUNCONTRACTDIFF",
+          "path": "internal/engws/contractdiff.go",
+          "line": 314
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CONTRACTDIFF_TEST-1D9C3E",
+        "VER-INF-TEST-RELEASECHECK_TEST-A300F7"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-103",
+      "text": "When release check is requested, the engineering model go shall reject a release that pins an unreleased dependency or whose tag bump is smaller than its contract diff requires.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--GITOUTPUT",
+          "path": "internal/engws/contractdiff.go",
+          "line": 203
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
+          "path": "internal/engws/contractdiff.go",
+          "line": 219
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--BUMPOF",
+          "path": "internal/engws/releasecheck.go",
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--ISRELEASE",
+          "path": "internal/engws/releasecheck.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RELEASECHECK",
+          "path": "internal/engws/releasecheck.go",
+          "line": 120
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RELEASECHECKRESULT",
+          "path": "internal/engws/releasecheck.go",
+          "line": 22
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RELEASETAGS",
+          "path": "internal/engws/releasecheck.go",
+          "line": 97
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RUNRELEASECHECK",
+          "path": "internal/engws/releasecheck.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--UNRELEASEDPINS",
+          "path": "internal/engws/releasecheck.go",
+          "line": 63
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-RELEASECHECK_TEST-A300F7"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-104",
+      "text": "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--APPLYINMEMORY",
+          "path": "internal/engws/migratelinks.go",
+          "line": 127
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--CHANGED",
+          "path": "internal/engws/migratelinks.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--CONTAINSTRIMMED",
+          "path": "internal/engws/migratelinks.go",
+          "line": 226
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--FLOWLIST",
+          "path": "internal/engws/migratelinks.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKBLOCK",
+          "path": "internal/engws/migratelinks.go",
+          "line": 344
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKID",
+          "path": "internal/engws/migratelinks.go",
+          "line": 315
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEALLOCATIONS",
+          "path": "internal/engws/migratelinks.go",
+          "line": 238
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEDLINK",
+          "path": "internal/engws/migratelinks.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEDREF",
+          "path": "internal/engws/migratelinks.go",
+          "line": 30
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATELINKS",
+          "path": "internal/engws/migratelinks.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEREFS",
+          "path": "internal/engws/migratelinks.go",
+          "line": 153
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATERESULT",
+          "path": "internal/engws/migratelinks.go",
+          "line": 39
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RESOLVEDEPENDENCYITEMS",
+          "path": "internal/engws/migratelinks.go",
+          "line": 364
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RUNMIGRATELINKS",
+          "path": "internal/engws/migratelinks.go",
+          "line": 399
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--UNIQUELINKID",
+          "path": "internal/engws/migratelinks.go",
+          "line": 333
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--APPENDSEQUENCEITEMS",
+          "path": "internal/engws/yamledit.go",
+          "line": 227
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDLISTITEM",
+          "path": "internal/engws/yamledit.go",
+          "line": 284
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--FINDPATH",
+          "path": "internal/engws/yamledit.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--KEYRANGE",
+          "path": "internal/engws/yamledit.go",
+          "line": 48
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--PARSEYAML",
+          "path": "internal/engws/yamledit.go",
+          "line": 19
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--REMOVEKEY",
+          "path": "internal/engws/yamledit.go",
+          "line": 197
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SETKEY",
+          "path": "internal/engws/yamledit.go",
+          "line": 109
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SPLICELINES",
+          "path": "internal/engws/yamledit.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--SPLITLINES",
+          "path": "internal/engws/yamledit.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-YAMLEDIT-GO--YAMLSCALAR",
+          "path": "internal/engws/yamledit.go",
+          "line": 33
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-MIGRATELINKS_TEST-36D479"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -11702,11 +12206,11 @@
     "REQ-EMG-027"
   ],
   "summary": {
-    "requirements": 92,
-    "implemented": 90,
-    "verified": 83,
-    "tested": 83,
-    "testLinked": 83,
+    "requirements": 97,
+    "implemented": 95,
+    "verified": 88,
+    "tested": 88,
+    "testLinked": 88,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

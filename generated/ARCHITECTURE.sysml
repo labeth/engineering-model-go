@@ -1490,6 +1490,18 @@ package 'engineering-model-go' {
     event occurrence 'EVT-ARTIFACT-GENERATED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-CONTRACT-DIFF-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-CONTRACT-DIFF-REQUESTED';
+
+    @EngineeringElement {
+        sourceId = "EVT-DEPENDENCY-BUMP-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-DEPENDENCY-BUMP-REQUESTED';
+
+    @EngineeringElement {
         sourceId = "EVT-EXAMPLE-VALIDATION-REQUESTED";
         conceptKind = "engineering_extension";
     }
@@ -1502,6 +1514,18 @@ package 'engineering-model-go' {
     event occurrence 'EVT-GENERATION-RUN-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-LINK-MIGRATION-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-LINK-MIGRATION-REQUESTED';
+
+    @EngineeringElement {
+        sourceId = "EVT-LINK-REVIEW-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-LINK-REVIEW-REQUESTED';
+
+    @EngineeringElement {
         sourceId = "EVT-MCP-TOOL-CALL-RECEIVED";
         conceptKind = "event_definition";
     }
@@ -1512,6 +1536,12 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-MODEL-UPDATED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-RELEASE-CHECK-REQUESTED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-RELEASE-CHECK-REQUESTED';
 
     @EngineeringElement {
         sourceId = "EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED";
@@ -2895,6 +2925,51 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-099' {
         attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall describe requirement links in the model authoring contract.";
         attribute 'notes' : 'String' = "The authoring contract field rules describe realizes, contract.assumptions, the reqLinks document and the requirementLinks strictness, and fieldSets list contractAssumption, reqLink and reqLinkPin; the reqLinks document is listed when the manifest names it. Each composition.allocations entry is composition.allocation_deprecated (warning) and still materializes as before for one release.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-100";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-100' {
+        attribute 'text' : 'String' = "When dependency bump is requested, the engineering model go shall report each requirement link of the bumping model as unchanged, suspect or broken at the new version.";
+        attribute 'notes' : 'String' = "engws bump <repo> <alias> <version> [--allow-suspect] evaluates, after the pin, go.mod and lock update, every reqLinks entry of the consumer on the bumped alias that was pinned to the old version against the re-resolved composition (reqlinks.EvaluateLinks with the pin moved to the new version) and prints one line per link: unchanged, suspect (with the current item and realizer texts) or broken (also an item that is no longer a published contract item). Decision D8: bump moves pinned.version to the new version only for unchanged links (same fingerprint, nothing to review); suspect and broken links keep their old pin and fingerprint, and the fingerprint is never re-stamped. Without --allow-suspect a suspect or broken link aborts the bump with every file restored (engmod.yml, go.mod, go.sum, engmod.lock.yml, model/req-links.yml) and exit 1; with it the bump is written, exit 0, and the model check fails with link.version_mismatch on the kept pins until engws review-links accepts them. link.* diagnostics do not block lock regeneration.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-101";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-101' {
+        attribute 'text' : 'String' = "When link review is requested, the engineering model go shall show the child item change of each requirement link that needs review.";
+        attribute 'notes' : 'String' = "engws review-links [--repo DIR] [--json] lists every suspect, broken and version_mismatch link of the model with the parent requirement text and the canonical child item (item text, verification criteria and realizing requirements) at the current dependency pin (after) and at the link's pinned.version (before), the latter resolved through the same resolver (module cache or registry, lock check mode, nothing written); a version a workspace replacement or an offline registry cannot provide prints \"before: version vX not available offline\". Exit 0 when nothing needs review, 1 otherwise. --accept LNK-ID --by ACT-ID --rationale TEXT writes into the requirement link file, editing only the touched lines (yaml.v3 node positions, comments and order kept): pinned.fingerprint (current), pinned.version (the dependency pin), reviewedBy, reviewedOn (today), rationale and status accepted; it refuses an actor the model does not define, an unknown link and a broken link (or one whose item cannot be resolved).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-102";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-102' {
+        attribute 'text' : 'String' = "When contract diff is requested, the engineering model go shall classify each contract item change between two git refs with its semantic version impact.";
+        attribute 'notes' : 'String' = "engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json] reads engmod.yml and every document it names at each ref (git show ref:path, relative to the repository prefix), loads them with the model loader from a temporary directory, and compares the published contract items (reqlinks.PublishedItems): added, removed, changed (text, realizers) or unchanged. Impact: capability removed, capability text changed (printed as \"text changed: treated as major\"), assumption added, assumption text or verificationCriteria changed, or an item kind changed are major; assumption removed, capability added and changes of realizing requirements only are minor; anything else is patch. Exit 0, or 2 on a usage or IO error.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-103";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-103' {
+        attribute 'text' : 'String' = "When release check is requested, the engineering model go shall reject a release that pins an unreleased dependency or whose tag bump is smaller than its contract diff requires.";
+        attribute 'notes' : 'String' = "engws release-check [--repo DIR] [--tag vX.Y.Z] reports dependency.unreleased_pin (error) for every engmod.yml dependency or engmod.lock.yml version that is a pre-release or pseudo-version, and contract.semver_too_small (error) when the bump of the tag (--tag, else the highest release tag at HEAD) over the previous release tag (the highest release semver tag below it in git tag) is smaller than contract-diff(previous, the tag if it exists, else HEAD) requires. In v0.x (previous and tag major 0) a minor bump is major-capable and a patch bump minor-capable, so a breaking change needs a minor bump. Without a tag or a previous release tag the semver gate is skipped with a note. Exit 0 ok, 1 findings, 2 usage or IO error.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-104";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-104' {
+        attribute 'text' : 'String' = "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.";
+        attribute 'notes' : 'String' = "engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; parent the requirement; child the target; pinned.version the dependency pin; fingerprint the current one from the resolved dependency, or \"\" when the item cannot be resolved, which the output names and the check reports as link.suspect until review; status claimed; rationale from the allocation), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the allocations, appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported. Every edit keeps the other lines of the files. It prints the requirements that then report requirement.no_parent. A second run changes nothing; --dry-run writes nothing.";
     }
 
     @EngineeringElement {
