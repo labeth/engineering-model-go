@@ -212,3 +212,67 @@ func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 		t.Fatal("requirement fields must list realizes")
 	}
 }
+
+// fieldTypes gives every field of every fieldSets kind its YAML type, derived
+// from the strict-decoding Go types: stride is one string while
+// preconditions, exploitPath, detection and findings are lists of strings,
+// steps a list of objects of kind flowStep, acceptedBy an object of kind
+// acceptanceRecord, boundaryCrossing a bool. The field rules state the flow
+// step ref and unique step ID rules, the catalog.term_unreferenced rule and
+// the exclude forms.
+// Mutation: typing every slice as list<string>, dropping the of kind, or
+// removing one of the stated rules fails this test.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
+	rules := AuthoringRules()
+	typeOf := func(kind, field string) string {
+		for _, f := range rules.FieldTypes[kind] {
+			if f.Name == field {
+				if f.Of != "" {
+					return f.Type + " of " + f.Of
+				}
+				return f.Type
+			}
+		}
+		return "missing"
+	}
+	for _, c := range []struct{ kind, field, want string }{
+		{"threatScenario", "stride", "string"},
+		{"threatScenario", "preconditions", "list<string>"},
+		{"threatScenario", "exploitPath", "list<string>"},
+		{"threatScenario", "detection", "list<string>"},
+		{"threatScenario", "evidence", "list<object> of evidence"},
+		{"threatScenario", "acceptedBy", "object of acceptanceRecord"},
+		{"controlVerification", "findings", "list<string>"},
+		{"flow", "steps", "list<object> of flowStep"},
+		{"flowStep", "boundaryCrossing", "bool"},
+		{"flowStep", "ref", "string"},
+		{"reqLink", "pinned", "object of reqLinkPin"},
+	} {
+		if got := typeOf(c.kind, c.field); got != c.want {
+			t.Errorf("fieldTypes.%s.%s = %s, want %s", c.kind, c.field, got, c.want)
+		}
+	}
+	for kind, names := range rules.FieldSets {
+		if len(rules.FieldTypes[kind]) != len(names) {
+			t.Errorf("fieldTypes.%s has %d fields, fieldSets %d", kind, len(rules.FieldTypes[kind]), len(names))
+			continue
+		}
+		for i, f := range rules.FieldTypes[kind] {
+			if f.Name != names[i] || f.Type == "" {
+				t.Errorf("fieldTypes.%s[%d] = %+v, want %s with a type", kind, i, f, names[i])
+			}
+		}
+	}
+	text := strings.Join(rules.FieldRules, "\n")
+	for _, want := range []string{
+		"every flow step needs ref", "model.missing_flow_step_ref", "step IDs are unique across all flows",
+		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced",
+		"lintRun.mode: strict", "dir, dir/, dir/* or dir/**", "model.invalid_exclude_pattern", "fieldTypes",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("authoring field rules must contain %q", want)
+		}
+	}
+}

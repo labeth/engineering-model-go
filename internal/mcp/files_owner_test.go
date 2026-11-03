@@ -110,8 +110,9 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 // manifest publication sections (decisions cannot be published) and the
 // field rules for boundaryCrossing, behavior.event_unused, the
 // lint.multiple_responses field-list exemption and the strict EARS system term.
-// Mutation: dropping fieldSets from validate.Rules fails this test.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045
+// fieldTypes reaches the MCP contract with each field's type.
+// Mutation: dropping fieldSets or fieldTypes from validate.Rules fails this test.
+// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T) {
 	s := initializedPaymentsServer(t)
@@ -142,6 +143,16 @@ func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T
 	}
 	if !strings.Contains(","+fields("flowStep")+",", ",trustBoundaryRef,") {
 		t.Fatalf("fieldSets.flowStep = %s", fields("flowStep"))
+	}
+	types, _ := rules["fieldTypes"].(map[string]any)
+	stride := ""
+	for _, f := range types["threatScenario"].([]any) {
+		if row := f.(map[string]any); row["name"] == "stride" || row["name"] == "preconditions" {
+			stride += toString(row["name"]) + ":" + toString(row["type"]) + " "
+		}
+	}
+	if stride != "stride:string preconditions:list<string> " {
+		t.Fatalf("fieldTypes.threatScenario must type stride and preconditions: %q", stride)
 	}
 	sections, _ := rules["publicationSections"].([]any)
 	var got []string

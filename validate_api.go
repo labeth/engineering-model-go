@@ -15,6 +15,9 @@ type (
 	ValidationRules = validate.Rules
 	// RelationshipPair is one allowed mapping type with its end kinds.
 	RelationshipPair = validate.RelationshipPair
+	// FieldType is the YAML type of one field of an entity kind
+	// (ValidationRules.FieldTypes).
+	FieldType = validate.FieldType
 )
 
 // Diagnostic severities.

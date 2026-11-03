@@ -732,3 +732,11 @@ requirements:
       - FU-MCP-SERVER
       - FU-CODEMAP-INFERENCE
       - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-115
+    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the type of every authorable field with the authoring rules.
+    notes: 'validate.Rules.fieldTypes (model.authoringContract rules) gives, per fieldSets kind and in the same order, each field as {name, type, of?}: type string, bool, int, list<string>, list<object>, object or map<string,string>, derived by reflection from the strict-decoding Go types (fieldSetTypes); of names the fieldSets kind of an object or list<object> field (flow steps: flowStep; acceptedBy: acceptanceRecord; every *Evidence and *Artifact struct: evidence). fieldSets stays the list of names. The field rules also state: every flow step needs ref (model.missing_flow_step_ref) and step IDs are unique across all flows (model.duplicate_flow_step_id within a flow, semantic.duplicate_identity across flows); threatScenario stride is one string while preconditions, exploitPath, detection and controlVerification findings are lists; catalog.term_unreferenced is reported only with lintRun.mode strict and only for a term no requirement text names, whose ID no architecture, behavior, assurance, compliance, views, decisions, design or aviation string contains and whose name no other authored text contains (so a state referenced by a flow step ref is in use); and the exclude forms of REQ-EMG-114.'
+    verificationMethods: [test]
+    verificationCriteria: When the authoring rules are requested, then fieldTypes types threatScenario stride as string, preconditions, exploitPath, detection and findings as list<string>, flow steps as list<object> of flowStep, acceptedBy as object of acceptanceRecord and boundaryCrossing as bool, lists exactly the fieldSets fields in order, and the field rules name model.missing_flow_step_ref, unique step IDs across all flows with semantic.duplicate_identity, the catalog.term_unreferenced rule and the exclude forms.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-MCP-SERVER

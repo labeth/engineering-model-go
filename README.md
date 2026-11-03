@@ -61,7 +61,11 @@ inferred. AI agents should call the no-argument MCP tool
 `model.authoringContract` first; it returns the resolved
 document set, schema files, top-level YAML fields, stable-ID conventions,
 dependency/source rules, and recommended editing order without requiring a broad
-repository scan.
+repository scan, plus `rules`: enum values, relationship pairs, field rules, the
+fields each entity kind accepts (`fieldSets`) and their YAML types (`fieldTypes`,
+for example `threatScenario.stride: string`, `preconditions: list<string>`,
+`flow.steps: list<object> of flowStep`). Validate each edited document with
+`model.diagnose`, or edit one entity with `model.patch`.
 
 ## Scope
 

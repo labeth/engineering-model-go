@@ -16,6 +16,11 @@ semantic versioning.
   requirement link file), atomically keeping the file mode. `internal/yamledit` gains
   `FindByID`, `SetPath`, `UnsetPath`, `AppendPath`, `RemovePath`, `UnifiedDiff` and
   `WriteFileAtomic`.
+- Authoring contract field types (REQ-EMG-115): `rules.fieldTypes` gives each field of every
+  `fieldSets` kind as `{name, type, of?}` (`string`, `bool`, `int`, `list<string>`,
+  `list<object>`, `object`, `map<string,string>`; `of` names the kind of an object field),
+  derived from the strict-decoding types. New field rules state the flow step `ref` and
+  unique-step-ID rules, the exact `catalog.term_unreferenced` rule and the exclude forms.
 
 ### Fixed
 
