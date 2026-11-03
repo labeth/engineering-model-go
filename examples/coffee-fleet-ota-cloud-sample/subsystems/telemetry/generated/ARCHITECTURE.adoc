@@ -458,6 +458,20 @@ Realized by:
 
 Fingerprint: `sha256:0ad9a171238a041155b3f1b4e37db8a027f7683c585346496e1495ddd738c651`
 
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|CAP-TELEM-REPORT
+|sample-coffee-fleet-ota-cloud-model
+|LNK-COF-001-TELEMETRY
+|REQ-COF-001
+|claimed
+|===
+
 <<<
 == Reference Index
 

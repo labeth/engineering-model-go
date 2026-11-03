@@ -12591,12 +12591,12 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-WORKSPACE-USERS-GO--LINKUSE",
           "path": "internal/composition/workspace_users.go",
-          "line": 22
+          "line": 23
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-WORKSPACE-USERS-GO--WORKSPACELINKUSERS",
           "path": "internal/composition/workspace_users.go",
-          "line": 38
+          "line": 39
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--DEPENDENCYREQUIREMENTSTATUS",

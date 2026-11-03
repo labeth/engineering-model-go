@@ -458,6 +458,20 @@ Realized by:
 
 Fingerprint: `sha256:9afe0495ee83dab4a2646be755762baefc2bf7117251c873d3e52c377052873d`
 
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|CAP-OTA-APPLY
+|sample-coffee-fleet-ota-cloud-model
+|LNK-COF-003-OTA-AGENT
+|REQ-COF-003
+|claimed
+|===
+
 <<<
 == Reference Index
 
