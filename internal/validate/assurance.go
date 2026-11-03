@@ -196,3 +196,103 @@ func ControlNeedsReview(statuses []string) bool {
 	}
 	return review
 }
+
+// assuranceConsistencyDiagnostics reports assurance records that disagree
+// with the rest of the model (REQ-EMG-117):
+//
+//   - risk.severity_inconsistent (warning) at the severity of each threat
+//     scenario whose (likelihood, impact) pair, compared case-insensitively,
+//     maps to more than one severity among the model's threat scenarios. Only
+//     threat scenarios carry likelihood, impact and severity together (a
+//     risk has residualRisk, not a severity).
+//   - controlVerification.risk_control_unlinked (warning) at a riskRefs entry
+//     of a control verification naming a local risk whose relatedControls
+//     omit the verification's controlRef: the trace must hold both ways.
+//   - threat.attack_vector_missing (warning) at the attackVectorRef of a
+//     threat scenario without one, when another local threat scenario names
+//     its attack vector.
+//
+// Imported alias::ID records are skipped.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func assuranceConsistencyDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
+	var diags []Diagnostic
+	imported := func(id string) bool { return strings.Contains(id, "::") }
+	norm := func(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
+
+	type pair struct{ likelihood, impact string }
+	severities := map[pair]map[string][]string{}
+	for _, ts := range a.ThreatScenarios {
+		p := pair{norm(ts.Likelihood), norm(ts.Impact)}
+		sev := norm(ts.Severity)
+		if imported(ts.ID) || p.likelihood == "" || p.impact == "" || sev == "" {
+			continue
+		}
+		if severities[p] == nil {
+			severities[p] = map[string][]string{}
+		}
+		severities[p][sev] = append(severities[p][sev], strings.TrimSpace(ts.ID))
+	}
+	withVector := 0
+	for _, ts := range a.ThreatScenarios {
+		if !imported(ts.ID) && strings.TrimSpace(ts.AttackVectorRef) != "" {
+			withVector++
+		}
+	}
+	for i, ts := range a.ThreatScenarios {
+		id := strings.TrimSpace(ts.ID)
+		if imported(id) {
+			continue
+		}
+		p := pair{norm(ts.Likelihood), norm(ts.Impact)}
+		if bySeverity := severities[p]; len(bySeverity) > 1 && norm(ts.Severity) != "" {
+			var others []string
+			for sev, ids := range bySeverity {
+				if sev != norm(ts.Severity) {
+					others = append(others, fmt.Sprintf("%s (%s)", sev, strings.Join(ids, ", ")))
+				}
+			}
+			sort.Strings(others)
+			diags = append(diags, Diagnostic{
+				Code: "risk.severity_inconsistent", Severity: SeverityWarning,
+				Message: fmt.Sprintf("threat scenario %s rates likelihood %s and impact %s as severity %s, but the same pair is rated %s elsewhere; apply one scoring method (record it as a decision) and use the severity it gives", id, p.likelihood, p.impact, norm(ts.Severity), strings.Join(others, "; ")),
+				Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].severity", i),
+			})
+		}
+		if withVector > 0 && strings.TrimSpace(ts.AttackVectorRef) == "" {
+			diags = append(diags, Diagnostic{
+				Code: "threat.attack_vector_missing", Severity: SeverityWarning,
+				Message: fmt.Sprintf("threat scenario %s names no attackVectorRef while %d other threat scenarios name theirs; add the attack vector (AV-*) it uses", id, withVector),
+				Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].attackVectorRef", i),
+			})
+		}
+	}
+
+	riskControls := map[string]map[string]bool{}
+	for _, r := range a.Risks {
+		controls := map[string]bool{}
+		for _, c := range r.RelatedControls {
+			controls[strings.TrimSpace(c)] = true
+		}
+		riskControls[strings.TrimSpace(r.ID)] = controls
+	}
+	for i, cv := range a.ControlVerifications {
+		ctrl := strings.TrimSpace(cv.ControlRef)
+		if imported(cv.ID) || ctrl == "" {
+			continue
+		}
+		for j, ref := range cv.RiskRefs {
+			ref = strings.TrimSpace(ref)
+			controls, ok := riskControls[ref]
+			if !ok || imported(ref) || controls[ctrl] {
+				continue
+			}
+			diags = append(diags, Diagnostic{
+				Code: "controlVerification.risk_control_unlinked", Severity: SeverityWarning,
+				Message: fmt.Sprintf("control verification %s verifies control %s for risk %s, but %s does not list %s in relatedControls; add it there, or drop the risk from riskRefs", cv.ID, ctrl, ref, ref, ctrl),
+				Path:    fmt.Sprintf("authoredArchitecture.controlVerifications[%d].riskRefs[%d]", i, j),
+			})
+		}
+	}
+	return diags
+}

@@ -141,3 +141,77 @@ func TestGemaraControlNeedsReviewWarnsForPartialOnlyControl(t *testing.T) {
 		}
 	}
 }
+
+// One (likelihood, impact) pair must map to one severity across the model's
+// threat scenarios, compared case-insensitively: each scenario of a pair that
+// maps to two severities is a warning at its severity naming the others.
+// Scenarios without all three values and imported ones are skipped.
+// Mutation: comparing case-sensitively, or reporting only the first
+// scenario of a conflicting pair, fails this test.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestSeverityInconsistentWarnsPerScenario(t *testing.T) {
+	b := assuranceTestBundle(model.ThreatScenario{ID: "TS-XSS", Title: "x", AppliesTo: []string{"FU-A"}, Likelihood: "low", Impact: "medium", Severity: "low"}, nil, nil)
+	a := &b.Architecture.AuthoredArchitecture
+	a.ThreatScenarios = append(a.ThreatScenarios,
+		model.ThreatScenario{ID: "TS-REMOTE", Title: "r", AppliesTo: []string{"FU-A"}, Likelihood: "Low", Impact: "medium", Severity: "medium"},
+		model.ThreatScenario{ID: "TS-SAME", Title: "s", AppliesTo: []string{"FU-A"}, Likelihood: "low", Impact: "MEDIUM", Severity: "Low"},
+		model.ThreatScenario{ID: "TS-OTHER", Title: "o", AppliesTo: []string{"FU-A"}, Likelihood: "high", Impact: "high", Severity: "high"},
+		model.ThreatScenario{ID: "TS-PARTIAL", Title: "p", AppliesTo: []string{"FU-A"}, Likelihood: "low", Impact: "medium"},
+	)
+	var paths []string
+	for _, d := range behaviorDiags(b, "risk.severity_inconsistent") {
+		if d.Severity != SeverityWarning || !strings.Contains(d.Message, "likelihood low and impact medium") {
+			t.Fatalf("must be a warning naming the pair: %+v", d)
+		}
+		paths = append(paths, d.Path)
+	}
+	want := "authoredArchitecture.threatScenarios[0].severity,authoredArchitecture.threatScenarios[1].severity,authoredArchitecture.threatScenarios[2].severity"
+	if strings.Join(paths, ",") != want {
+		t.Fatalf("risk.severity_inconsistent paths = %v, want %s", paths, want)
+	}
+}
+
+// A control verification that names a risk in riskRefs whose
+// relatedControls omit the verification's control is a warning at that
+// riskRefs entry; a risk that lists the control, an unknown risk and an
+// imported one are not reported.
+// Mutation: checking the risk's relatedControls against the wrong control,
+// or skipping the riskRefs loop, fails this test.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func TestRiskControlUnlinkedWarnsAtTheVerification(t *testing.T) {
+	b := assuranceTestBundle(model.ThreatScenario{ID: "TS-A", Title: "t", AppliesTo: []string{"FU-A"}}, nil, []model.ControlVerification{
+		{ID: "CV-A", ControlRef: "CTRL-A", RiskRefs: []string{"RISK-LISTS", "RISK-OMITS", "dep::RISK-X"}, Method: "analysis", Status: "not-run"},
+	})
+	b.Architecture.AuthoredArchitecture.Risks = []model.Risk{
+		{ID: "RISK-LISTS", Title: "l", Statement: "l", Status: "open", RelatedControls: []string{"CTRL-A"}},
+		{ID: "RISK-OMITS", Title: "o", Statement: "o", Status: "open", RelatedControls: []string{"CTRL-B"}},
+	}
+	got := behaviorDiags(b, "controlVerification.risk_control_unlinked")
+	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.controlVerifications[0].riskRefs[1]" ||
+		!strings.Contains(got[0].Message, "RISK-OMITS") || !strings.Contains(got[0].Message, "CTRL-A") {
+		t.Fatalf("want one warning at riskRefs[1] naming RISK-OMITS and CTRL-A, got %+v", got)
+	}
+}
+
+// Where at least one local threat scenario names its attackVectorRef, each
+// one without it is a warning at attackVectorRef; a model where none names
+// one reports nothing.
+// Mutation: reporting regardless of the other scenarios, or never, fails
+// this test.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestAttackVectorMissingWhenOthersHaveOne(t *testing.T) {
+	b := assuranceTestBundle(model.ThreatScenario{ID: "TS-NONE", Title: "n", AppliesTo: []string{"FU-A"}}, nil, nil)
+	if got := behaviorDiags(b, "threat.attack_vector_missing"); len(got) != 0 {
+		t.Fatalf("no scenario names a vector, so none is missing: %+v", got)
+	}
+	a := &b.Architecture.AuthoredArchitecture
+	a.AttackVectors = []model.AttackVector{{ID: "AV-A", Name: "A"}}
+	a.ThreatScenarios = append(a.ThreatScenarios, model.ThreatScenario{ID: "TS-WITH", Title: "w", AppliesTo: []string{"FU-A"}, AttackVectorRef: "AV-A"})
+	got := behaviorDiags(b, "threat.attack_vector_missing")
+	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.threatScenarios[0].attackVectorRef" || !strings.Contains(got[0].Message, "TS-NONE") {
+		t.Fatalf("want one warning at TS-NONE attackVectorRef, got %+v", got)
+	}
+}

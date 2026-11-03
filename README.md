@@ -327,6 +327,9 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `risk.acceptance_not_owner` | `…risks[i].acceptedBy.actor` | the accepting actor is not the risk's `owner` (only when an owner is set) |
 | `risk.acceptance_by_decision_only` | `…risks[i].acceptedBy.statement`, `…threatScenarios[i].acceptedBy.statement` | the record names a `decisionRef` but has no `statement`: add the owner's own words accepting this risk (a decision can bundle the acceptance with other choices) |
 | `risk.accept_while_open` | `…risks[i].status` | `response: accept` with `status: open`: the risk still waits for a decision, so the Gemara policy does not list it as accepted |
+| `risk.severity_inconsistent` | `…threatScenarios[i].severity` | the scenario's (likelihood, impact) pair is rated with another severity by another threat scenario of the model; apply one scoring method |
+| `controlVerification.risk_control_unlinked` | `…controlVerifications[i].riskRefs[j]` | the verification names a risk whose `relatedControls` omit the verification's `controlRef` (trace both ways) |
+| `threat.attack_vector_missing` | `…threatScenarios[i].attackVectorRef` | the scenario names no attack vector while other threat scenarios of the model name theirs |
 | `gemara.control_needs_review` | `…controls[i]` | the Gemara evaluation log marks the control Needs Review: no control verification names it (the message names another control's verification when that is its only evidence), or its verifications need review (for example `partial`) and none failed |
 
 `triggered_by` (state → event) means the event is handled within the state. The event that

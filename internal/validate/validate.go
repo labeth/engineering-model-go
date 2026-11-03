@@ -1263,6 +1263,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
+	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
 

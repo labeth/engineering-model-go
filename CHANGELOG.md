@@ -23,6 +23,12 @@ semantic versioning.
   unique-step-ID rules, the exact `catalog.term_unreferenced` rule and the exclude forms.
 - `risk.acceptance_by_decision_only` (warning, REQ-EMG-116): an `acceptedBy` of a risk or threat
   scenario with a `decisionRef` but no `statement`; record the owner's own words on the risk.
+- Assurance consistency warnings (REQ-EMG-117): `risk.severity_inconsistent` (one
+  likelihood × impact pair rated with two severities across threat scenarios),
+  `controlVerification.risk_control_unlinked` (a verification's risk does not list its control)
+  and `threat.attack_vector_missing` (a threat scenario without `attackVectorRef` while others
+  have one). The Atlas `shared-compliance-baseline` example now lists
+  `CTRL-COMP-PERSONNEL-SCREENING` on `RISK-COMP-RETAINED-ACCESS`.
 
 ### Fixed
 
