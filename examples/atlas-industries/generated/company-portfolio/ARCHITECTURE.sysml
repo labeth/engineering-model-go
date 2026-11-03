@@ -88,12 +88,6 @@ package 'atlas-industries-portfolio' {
     }
 
     @EngineeringElement {
-        sourceId = "EXTENSION-DB299AD389C81400";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EXTENSION-DB299AD389C81400';
-
-    @EngineeringElement {
         sourceId = "FG-PORT";
         conceptKind = "part_definition";
     }

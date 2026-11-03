@@ -128,8 +128,8 @@ func shellQuote(s string) string {
 }
 
 // requirementTrace is the upward and downward trace of one local
-// requirement: the contract items it realizes and its stakeholder
-// sourceRefs (parents), and for each requirement link it is the parent of,
+// requirement: the contract items it realizes (parents; D22: sourceRefs
+// are no upward trace), and for each requirement link it is the parent of,
 // the link with its state and the linked child item with its realizing
 // requirements (children: the item, then each realizer, qualified).
 // TRLC-LINKS: REQ-EMG-106
@@ -143,11 +143,6 @@ func (s *Server) requirementTrace(r model.Requirement) (realizes []string, paren
 	}
 	realizes = nonNilStrings(reqlinks.RealizedItems(r, refs))
 	parents = append([]string{}, realizes...)
-	for _, ref := range r.SourceRefs {
-		if ref = strings.TrimSpace(ref); ref != "" {
-			parents = append(parents, ref)
-		}
-	}
 	links, children = []map[string]any{}, []string{}
 	if s.bundle.ReqLinksPath == "" {
 		return realizes, parents, links, children, nil

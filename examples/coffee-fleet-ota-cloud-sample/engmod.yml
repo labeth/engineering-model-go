@@ -76,6 +76,9 @@ publications:
   - HWIF-CAN
   - HWIF-CELLULAR
   - HWIF-INTERNET
+  - CAP-COFFEE-FLEET-TELEMETRY
+  - CAP-COFFEE-FLEET-OTA
+  - CAP-COFFEE-FLEET-AUDIT
   behavior:
   - STATE-COFFEE-OTA-SCHEDULED
   - STATE-COFFEE-OTA-APPLIED
@@ -137,7 +140,6 @@ publications:
   - VIEW-INTERACTION-FLOW
   - VIEW-STATE-LIFECYCLE
 inferenceHints:
-  topLevel: true
   runtimeSources:
   - ./infra/terraform
   expectedRuntimeKinds:

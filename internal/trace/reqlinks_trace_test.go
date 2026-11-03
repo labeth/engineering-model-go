@@ -54,3 +54,33 @@ func TestRequirementUnsatisfied(t *testing.T) {
 		t.Fatalf("model without subsystems: want none, got %+v", got)
 	}
 }
+
+// The trace follows the upward-trace rule (D22): unparented counts the
+// requirements that fail all of (a) realizes a local contract item, (b) the
+// parent of a link to a dependency capability and (c) derived with
+// derivedRationale; a requirement with only stakeholder sourceRefs is
+// unparented. parents is the upward trace only: the realized items, none
+// for a link parent (its links are its children) or a sourceRefs entry.
+// TRLC-LINKS: REQ-EMG-105
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestUnparentedFollowsUpwardTraceRule(t *testing.T) {
+	var bundle model.Bundle
+	bundle.Manifest.RequirementLinks = model.RequirementLinksStrict
+	bundle.Architecture.Contract.Provides = []model.ContractEntry{{ID: "CAP-A", Kind: "capability"}}
+	bundle.ReqLinks.ReqLinks = []model.ReqLink{{ID: "LNK-1", Parent: "REQ-LINKED", Child: "dep::CAP-Z"}}
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
+		{ID: "REQ-REALIZES", Realizes: []string{"CAP-A"}}, {ID: "REQ-LINKED"}, {ID: "REQ-DERIVED", Derived: true, DerivedRationale: "Ops."},
+		{ID: "REQ-SOURCE", SourceRefs: []string{"REF-STAKE"}}, {ID: "REQ-NONE"},
+	}}
+	m := buildTraceMatrix(bundle, reqs, nil, nil, nil)
+	if m.Summary.Unparented != 2 {
+		t.Fatalf("want REQ-SOURCE and REQ-NONE unparented, got %d", m.Summary.Unparented)
+	}
+	parents := map[string][]string{}
+	for _, r := range m.Requirements {
+		parents[r.ID] = r.Parents
+	}
+	if len(parents["REQ-REALIZES"]) != 1 || parents["REQ-REALIZES"][0] != "CAP-A" || len(parents["REQ-LINKED"]) != 0 || len(parents["REQ-SOURCE"]) != 0 {
+		t.Fatalf("parents %v", parents)
+	}
+}

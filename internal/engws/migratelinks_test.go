@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -33,7 +34,8 @@ func coffeeCopy(t *testing.T) string {
 		write(t, reqs, strings.ReplaceAll(read(t, reqs), "  realizes: ["+refs[0]+"]\n", ""))
 	}
 	replaceIn(t, filepath.Join(dir, "engmod.yml"), "  reqLinks: model/req-links.yml\n", "")
-	replaceIn(t, filepath.Join(dir, "engmod.yml"), "  topLevel: true\n", "")
+	sysReqs := filepath.Join(dir, "model", "requirements.yml")
+	write(t, sysReqs, regexp.MustCompile(`(?m)^  realizes: \[CAP-COFFEE-FLEET-[A-Z]+\]\n`).ReplaceAllString(read(t, sysReqs), ""))
 	if err := os.Remove(filepath.Join(dir, "model", "req-links.yml")); err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +60,8 @@ func coffeeCopy(t *testing.T) string {
 // Acceptance 9: migrate-links converts the three allocations of the coffee
 // fleet system into claimed links with the current fingerprints, adds
 // documents.reqLinks, removes the allocations (satisfactions stay) and
-// prints the requirements that report requirement.no_parent; in each
+// prints the requirements that report requirement.no_parent (not the link
+// parents, which trace upward through their links); in each
 // subsystem it turns the contract ref into realizes on the referenced
 // requirement. A second run changes nothing; --dry-run writes nothing.
 // Mutation: dropping the ref conversion, writing an empty fingerprint for a
@@ -107,11 +110,18 @@ func TestMigrateLinksCoffeeFleet(t *testing.T) {
 		"link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)",
 		"link LNK-COF-003-OTA-AGENT REQ-COF-003 -> ota-agent::CAP-OTA-APPLY (v0.1.0, claimed)",
 		"link LNK-COF-002-CLOUD-API REQ-COF-002 -> cloud-api::CAP-CLOUD-INGEST (v0.1.0, claimed)",
-		"requirement.no_parent: REQ-COF-001", "requirement.no_parent: REQ-COF-012",
+		"engws: 9 requirement(s) without an upward trace", "requirement.no_parent: REQ-COF-004", "requirement.no_parent: REQ-COF-012",
 		"added documents.reqLinks: model/req-links.yml",
 	} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("migrate output lacks %q:\n%s", want, out)
+		}
+	}
+	// D22 (b): a requirement that became the parent of a capability link
+	// traces upward and is not listed.
+	for _, linked := range []string{"REQ-COF-001", "REQ-COF-002", "REQ-COF-003"} {
+		if strings.Contains(out, "requirement.no_parent: "+linked) {
+			t.Fatalf("migrate output lists link parent %s as without an upward trace:\n%s", linked, out)
 		}
 	}
 	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))

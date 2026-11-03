@@ -39,5 +39,4 @@ publications:
   - REQ-PORT-001
   - REQ-PORT-002
   - REQ-PORT-003
-inferenceHints:
-  topLevel: true
+inferenceHints: {}

@@ -29,5 +29,4 @@ dependencies:
   publications:
   - public
 publications: []
-inferenceHints:
-  topLevel: true
+inferenceHints: {}

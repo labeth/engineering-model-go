@@ -24,6 +24,36 @@ func RequirementLinkRules(b model.Bundle) (Severity, bool) {
 	return SeverityWarning, len(b.ReqLinks.ReqLinks) > 0 || len(publishedContractItems(b)) > 0
 }
 
+// CapabilityLinkParents returns the local requirements that are the parent
+// of a reqLinks entry whose child is a dependency capability (alias::CAP-*):
+// upward trace (b) of D22. A link to an assumption of use is evidence, not
+// an upward trace.
+// TRLC-LINKS: REQ-EMG-090, REQ-EMG-105
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func CapabilityLinkParents(b model.Bundle) map[string]bool {
+	parents := map[string]bool{}
+	for _, link := range b.ReqLinks.ReqLinks {
+		parent := strings.TrimSpace(link.Parent)
+		if _, child, err := model.ParseQualifiedReference(strings.TrimSpace(link.Child)); err == nil && parent != "" && strings.HasPrefix(child, "CAP-") {
+			parents[parent] = true
+		}
+	}
+	return parents
+}
+
+// TracesUpward reports whether a requirement satisfies the upward-trace
+// rule (D22), given the contract items it realizes (realizes and a
+// deprecated ref, valid or not: an invalid target is reported as
+// requirement.realizes_unknown instead) and the capability link parents:
+// (a) it realizes a local capability or assumption of use, (b) it is the
+// parent of a link to a dependency capability, or (c) it is derived with a
+// derivedRationale. Stakeholder sourceRefs do not count.
+// TRLC-LINKS: REQ-EMG-090, REQ-EMG-105
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TracesUpward(r model.Requirement, realized []string, linkParents map[string]bool) bool {
+	return len(realized) > 0 || linkParents[strings.TrimSpace(r.ID)] || (r.Derived && strings.TrimSpace(r.DerivedRationale) != "")
+}
+
 // contractItemKinds maps each local contract item ID (a contract.provides
 // capability or a contract.assumptions assumption of use) to its kind.
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-091
@@ -109,7 +139,7 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 
 	// Requirements: realizes targets, realizers in the publication, upward trace.
 	severity, applies := RequirementLinkRules(b)
-	topLevel := strings.EqualFold(strings.TrimSpace(b.Manifest.Module.Kind), "system") && b.Manifest.InferenceHints.TopLevel
+	linkParents := CapabilityLinkParents(b)
 	for i, r := range b.Requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
 		id := strings.TrimSpace(r.ID)
@@ -145,11 +175,11 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 				}
 			}
 		}
-		if !applies || len(targets) > 0 || (r.Derived && strings.TrimSpace(r.DerivedRationale) != "") || len(r.SourceRefs) > 0 || topLevel {
+		if !applies || TracesUpward(r, targets, linkParents) {
 			continue
 		}
 		add("requirement.no_parent", severity, path,
-			"requirement %s traces upward to nothing: add realizes naming the contract item it serves, mark it derived with derivedRationale, name its stakeholder sourceRefs, or (in a top-level system) set inferenceHints.topLevel", id)
+			"requirement %s traces upward to nothing: (a) add realizes naming a local capability or assumption of use it delivers (publish your own capabilities so a system above can link to them), (b) make it the parent of a reqLinks entry to a dependency's capability, or (c) mark it derived: true with derivedRationale", id)
 	}
 	for id, publications := range published {
 		if items[id] == "capability" && !realized[id] {

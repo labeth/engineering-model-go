@@ -7,10 +7,7 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan",
-      "parents": [
-        "REF-SYSTEM-SAFETY-ASSESSMENT"
-      ]
+      "status": "orphan"
     },
     {
       "id": "REQ-YD-LLR-001",
@@ -18,10 +15,7 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan",
-      "parents": [
-        "REF-SYSTEM-SAFETY-ASSESSMENT"
-      ]
+      "status": "orphan"
     },
     {
       "id": "REQ-YD-SYS-001",
@@ -29,10 +23,7 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan",
-      "parents": [
-        "REF-SYSTEM-SAFETY-ASSESSMENT"
-      ]
+      "status": "orphan"
     }
   ],
   "danglingLinks": null,

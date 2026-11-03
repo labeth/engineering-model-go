@@ -565,6 +565,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Users upgrade the engine before a child adopts realizes or assumptions of use
 |accepted
 |2026-11-03
+|xref:DECISIONS.adoc#ADR-EMG-028[ADR-EMG-028]
+|Every requirement traces upward through a capability; no model is top level
+|accepted
+|2026-11-03
 |===
 
 === Diagram Color and Shape Legend
@@ -7596,6 +7600,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_LOAD_TEST_E1FF39,VER-INF-TEST-LOAD_TEST-E1FF39>>
+|<<REF_IDX-REQ_REQ_EMG_090,REQ-EMG-090>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_REQLINKS_TEST_493BCD,VER-INF-TEST-REQLINKS_TEST-493BCD>>
 |<<REF_IDX-REQ_REQ_EMG_090,REQ-EMG-090>>
 |not-run
@@ -7807,6 +7816,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_REQLINKS_TEST_98C2BD,VER-INF-TEST-REQLINKS_TEST-98C2BD>>
+|<<REF_IDX-REQ_REQ_EMG_105,REQ-EMG-105>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C>>
 |<<REF_IDX-REQ_REQ_EMG_105,REQ-EMG-105>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
@@ -10055,7 +10069,7 @@ flowchart TB
   CODE_REQ_EMG_030_ENGTRACE_MAIN_GO["engtrace/main.go: 18"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_030_ENGTRACE_MAIN_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_REQ_EMG_030_ENGTRACE_MAIN_GO
-  CODE_REQ_EMG_030_REQLINKS_TRACE_GO["reqlinks_trace.go: 193"]:::code_element
+  CODE_REQ_EMG_030_REQLINKS_TRACE_GO["reqlinks_trace.go: 184"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_030_REQLINKS_TRACE_GO
   REQC_REQ_EMG_030 -->|code trace| CODE_REQ_EMG_030_REQLINKS_TRACE_GO
   CODE_REQ_EMG_030_TRACE_MATRIX_GO["trace_matrix.go: 300, 313, 496, 506, 617, 657, 668, 896"]:::code_element
@@ -10410,7 +10424,7 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05 --->|implemented_by| VERCODE_REQ_EMG_035_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05_SCHEMA_V2_PROJECTION_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_035
-  VERCODE_REQ_EMG_035_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_035_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_035_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_PROJECTION_TEST_56667B["VER-INF-TEST-PROJECTION_TEST-56667B (not-run)"]:::verification
   VERC_VER_INF_TEST_PROJECTION_TEST_56667B -->|verifies| REQC_REQ_EMG_035
@@ -10515,7 +10529,7 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05 --->|implemented_by| VERCODE_REQ_EMG_036_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05_SCHEMA_V2_PROJECTION_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_036
-  VERCODE_REQ_EMG_036_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_036_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_036_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_MAIN_TEST_AAEB3C["VER-INF-TEST-MAIN_TEST-AAEB3C (not-run)"]:::verification
   VERC_VER_INF_TEST_MAIN_TEST_AAEB3C -->|verifies| REQC_REQ_EMG_036
@@ -10905,7 +10919,7 @@ flowchart TB
   REQC_REQ_EMG_041 -->|applies_to| FU_FU_MODEL_LOADER
   RTC_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   FU_FU_MODEL_LOADER -->|runtime evidence| RTC_FU_MODEL_LOADER_RUNTIME
-  CODE_REQ_EMG_041_MODEL_TYPES_GO["model/types.go: 789, 800, 807, 814, 823"]:::code_element
+  CODE_REQ_EMG_041_MODEL_TYPES_GO["model/types.go: 786, 797, 804, 811, 820"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_041_MODEL_TYPES_GO
   REQC_REQ_EMG_041 -->|code trace| CODE_REQ_EMG_041_MODEL_TYPES_GO
   CODE_REQ_EMG_041_NAF_GO["naf.go: 11, 63"]:::code_element
@@ -11136,7 +11150,7 @@ flowchart TB
   CODE_REQ_EMG_044_MODEL_AUTHORING_GO["model/authoring.go: 52, 119"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_044_MODEL_AUTHORING_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_REQ_EMG_044_MODEL_AUTHORING_GO
-  CODE_REQ_EMG_044_MODEL_TYPES_GO["model/types.go: 131, 148, 180, 656, 671, 692, 699, 706, 746, 763, 772"]:::code_element
+  CODE_REQ_EMG_044_MODEL_TYPES_GO["model/types.go: 131, 148, 180, 656, 671, 692, 699, 706, 743, 760, 769"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_044_MODEL_TYPES_GO
   REQC_REQ_EMG_044 -->|code trace| CODE_REQ_EMG_044_MODEL_TYPES_GO
   CODE_REQ_EMG_044_MODEL_API_GO["model_api.go: 181, 188, 195, 203, 242"]:::code_element
@@ -11153,7 +11167,7 @@ flowchart TB
   VERC_VER_INF_TEST_FACADE_TEST_E17700 --->|implemented_by| VERCODE_REQ_EMG_044_VER_INF_TEST_FACADE_TEST_E17700_FACADE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_044
-  VERCODE_REQ_EMG_044_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_044_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_044_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_SCHEMA_TEST_21FC79["VER-INF-TEST-SCHEMA_TEST-21FC79 (not-run)"]:::verification
   VERC_VER_INF_TEST_SCHEMA_TEST_21FC79 -->|verifies| REQC_REQ_EMG_044
@@ -11231,7 +11245,7 @@ flowchart TB
   VERC_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F --->|implemented_by| VERCODE_REQ_EMG_045_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F_FILES_OWNER_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_045
-  VERCODE_REQ_EMG_045_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_045_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_045_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_SERVER_TEST_79BF84["VER-INF-TEST-SERVER_TEST-79BF84 (not-run)"]:::verification
   VERC_VER_INF_TEST_SERVER_TEST_79BF84 -->|verifies| REQC_REQ_EMG_045
@@ -11287,7 +11301,7 @@ flowchart TB
   CODE_REQ_EMG_046_LOAD_GO["load.go: 18, 34, 43, 225, 243"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_046_LOAD_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_REQ_EMG_046_LOAD_GO
-  CODE_REQ_EMG_046_MODEL_TYPES_GO["model/types.go: 131, 180, 656, 671, 692, 699, 706, 746, 763, 772"]:::code_element
+  CODE_REQ_EMG_046_MODEL_TYPES_GO["model/types.go: 131, 180, 656, 671, 692, 699, 706, 743, 760, 769"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_046_MODEL_TYPES_GO
   REQC_REQ_EMG_046 -->|code trace| CODE_REQ_EMG_046_MODEL_TYPES_GO
   CODE_REQ_EMG_046_MODEL_API_GO["model_api.go: 181, 188, 195, 203"]:::code_element
@@ -11303,7 +11317,7 @@ flowchart TB
   REQC_REQ_EMG_046 -->|applies_to| FU_FU_VALIDATION_ENGINE
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_046
-  VERCODE_REQ_EMG_046_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_046_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_046_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_SCHEMA_TEST_21FC79["VER-INF-TEST-SCHEMA_TEST-21FC79 (not-run)"]:::verification
   VERC_VER_INF_TEST_SCHEMA_TEST_21FC79 -->|verifies| REQC_REQ_EMG_046
@@ -11364,7 +11378,7 @@ flowchart TB
   CODE_REQ_EMG_047_MODEL_AUTHORING_GO["model/authoring.go: 52"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_MODEL_AUTHORING_GO
   REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_MODEL_AUTHORING_GO
-  CODE_REQ_EMG_047_MODEL_TYPES_GO["model/types.go: 148, 159, 168, 180, 914"]:::code_element
+  CODE_REQ_EMG_047_MODEL_TYPES_GO["model/types.go: 148, 159, 168, 180, 911"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_047_MODEL_TYPES_GO
   REQC_REQ_EMG_047 -->|code trace| CODE_REQ_EMG_047_MODEL_TYPES_GO
   CODE_REQ_EMG_047_MODEL_API_GO["model_api.go: 242"]:::code_element
@@ -11767,7 +11781,7 @@ flowchart TB
   CODE_REQ_EMG_051_LOAD_GO["load.go: 43, 212"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_LOAD_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_LOAD_GO
-  CODE_REQ_EMG_051_MODEL_TYPES_GO["model/types.go: 159, 168, 180, 914, 941, 952"]:::code_element
+  CODE_REQ_EMG_051_MODEL_TYPES_GO["model/types.go: 159, 168, 180, 911, 938, 949"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_051_MODEL_TYPES_GO
   REQC_REQ_EMG_051 -->|code trace| CODE_REQ_EMG_051_MODEL_TYPES_GO
   CODE_REQ_EMG_051_MODEL_API_GO["model_api.go: 181, 272, 279"]:::code_element
@@ -11812,7 +11826,7 @@ flowchart TB
   VERC_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1 --->|implemented_by| VERCODE_REQ_EMG_051_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1_GEMARA_OSCAL_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_051
-  VERCODE_REQ_EMG_051_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_051_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_051_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -11880,7 +11894,7 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808 --->|implemented_by| VERCODE_REQ_EMG_052_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808_COFFEE_SIX_VIEW_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_052
-  VERCODE_REQ_EMG_052_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_052_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_052_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_RENDER_TEST_644703["VER-INF-TEST-RENDER_TEST-644703 (not-run)"]:::verification
   VERC_VER_INF_TEST_RENDER_TEST_644703 -->|verifies| REQC_REQ_EMG_052
@@ -11972,7 +11986,7 @@ flowchart TB
   VERC_VER_INF_TEST_AVIATION_TEST_ED811A --->|implemented_by| VERCODE_REQ_EMG_053_VER_INF_TEST_AVIATION_TEST_ED811A_AVIATION_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_053
-  VERCODE_REQ_EMG_053_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_053_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_053_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -12155,7 +12169,7 @@ flowchart TB
   VERC_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C --->|implemented_by| VERCODE_REQ_EMG_056_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C_AIRBORNE_ASSURANCE_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_056
-  VERCODE_REQ_EMG_056_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_056_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_056_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -13729,7 +13743,7 @@ flowchart TB
   VERC_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279 --->|implemented_by| VERCODE_REQ_EMG_085_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279_GEMARA_TRUTHFULNESS_TEST_GO
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_085
-  VERCODE_REQ_EMG_085_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398"]:::code_element
+  VERCODE_REQ_EMG_085_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
   VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_085_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14008,7 +14022,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_MODEL_UPDATED,model updated event is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall report each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> without an upward trace.
 
 
-NOTE: A <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> traces upward through realizes (local contract items), derived with derivedRationale, or stakeholder sourceRefs; a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with module.kind system and inferenceHints.topLevel true is exempt. Being the parent of a reqLinks entry does not exempt it. Otherwise <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.no_parent is reported at the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>: an error with requirementLinks strict in every <<REF_IDX-ENGMODEL_TERM_MODEL,model>>; a warning with guided (the default) only in a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> that publishes a contract item or has reqLinks; nothing in a guided standalone <<REF_IDX-ENGMODEL_TERM_MODEL,model>>. A realizes target that is a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>, an imported alias::ID, an <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> entry or unknown is <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.realizes_unknown (error). requirementLinks other than strict or guided is <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.invalid_requirement_links (error). The rule needs only the child repository.
+NOTE: No <<REF_IDX-ENGMODEL_TERM_MODEL,model>> can know it is top level, because any system may later be used by one above (decision D22, ADR-EMG-028), so every <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> traces through a capability. A <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> traces upward iff (a) it realizes a local capability or assumption of use (or is named by a deprecated capability ref), (b) it is the parent of a reqLinks entry whose child is a dependency capability (alias::CAP-*), or (c) it is derived: true with derivedRationale. Stakeholder sourceRefs do not count, and no <<REF_IDX-ENGMODEL_TERM_MODEL,model>> is exempt (inferenceHints.topLevel does not exist; the strict schema rejects it). Otherwise <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.no_parent is reported at the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> with a message naming exactly these three options: an error with requirementLinks strict in every <<REF_IDX-ENGMODEL_TERM_MODEL,model>>; a warning with guided (the default) only in a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> that publishes a contract item or has reqLinks; nothing in a guided standalone <<REF_IDX-ENGMODEL_TERM_MODEL,model>>. A realizes target that is a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>, an imported alias::ID, an <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> entry or unknown is <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.realizes_unknown (error). requirementLinks other than strict or guided is <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.invalid_requirement_links (error). The rule needs only the child repository.
 
 
 
@@ -14038,7 +14052,7 @@ flowchart TB
   CODE_REQ_EMG_090_VALIDATE_GO["validate.go: 286"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_090_VALIDATE_GO
   REQC_REQ_EMG_090 -->|code trace| CODE_REQ_EMG_090_VALIDATE_GO
-  CODE_REQ_EMG_090_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 20, 30, 50, 70"]:::code_element
+  CODE_REQ_EMG_090_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 20, 33, 53, 60, 80, 100"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_090_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_090 -->|code trace| CODE_REQ_EMG_090_VALIDATE_REQLINKS_GO
   VERC_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550["VER-INF-INTEGRATION-REQUIREMENT_LINKS_RENDER_TEST-BB7550 (not-run)"]:::verification
@@ -14049,13 +14063,17 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7 -->|verifies| REQC_REQ_EMG_090
   VERCODE_REQ_EMG_090_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7_REQUIREMENT_LINKS_TEST_GO["requirement_links_test.go: 109, 144, 163, 185, 201, 234"]:::code_element
   VERC_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7 --->|implemented_by| VERCODE_REQ_EMG_090_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7_REQUIREMENT_LINKS_TEST_GO
+  VERC_VER_INF_TEST_LOAD_TEST_E1FF39["VER-INF-TEST-LOAD_TEST-E1FF39 (not-run)"]:::verification
+  VERC_VER_INF_TEST_LOAD_TEST_E1FF39 -->|verifies| REQC_REQ_EMG_090
+  VERCODE_REQ_EMG_090_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO["load_test.go: 38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419"]:::code_element
+  VERC_VER_INF_TEST_LOAD_TEST_E1FF39 --->|implemented_by| VERCODE_REQ_EMG_090_VER_INF_TEST_LOAD_TEST_E1FF39_LOAD_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_090
-  VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 50, 51, 80, 82, 104, 107, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 50, 53, 82, 85, 107, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67["VER-INF-TEST-REQLINKS_TEST-EB8F67 (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 -->|verifies| REQC_REQ_EMG_090
-  VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 50, 51, 80, 82, 104, 107, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 50, 53, 82, 85, 107, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 --->|implemented_by| VERCODE_REQ_EMG_090_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14102,7 +14120,7 @@ flowchart TB
   REQC_REQ_EMG_091 -->|applies_to| FU_FU_MODEL_LOADER
   RTC_FU_MODEL_LOADER_RUNTIME["Model Loader runtime (inferred)"]:::runtime_element
   FU_FU_MODEL_LOADER -->|runtime evidence| RTC_FU_MODEL_LOADER_RUNTIME
-  CODE_REQ_EMG_091_MODEL_TYPES_GO["model/types.go: 886"]:::code_element
+  CODE_REQ_EMG_091_MODEL_TYPES_GO["model/types.go: 883"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_091_MODEL_TYPES_GO
   REQC_REQ_EMG_091 -->|code trace| CODE_REQ_EMG_091_MODEL_TYPES_GO
   FU_FU_SYSTEM_COMPOSITION["System Composition"]:::functional_unit
@@ -14126,11 +14144,11 @@ flowchart TB
   VERC_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62 --->|implemented_by| VERCODE_REQ_EMG_091_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62_COMPOSITION_PROJECTION_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_091
-  VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 50, 51, 80, 82, 104, 107, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 50, 53, 82, 85, 107, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67["VER-INF-TEST-REQLINKS_TEST-EB8F67 (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 -->|verifies| REQC_REQ_EMG_091
-  VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 50, 51, 80, 82, 104, 107, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 50, 53, 82, 85, 107, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 --->|implemented_by| VERCODE_REQ_EMG_091_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14177,12 +14195,12 @@ flowchart TB
   REQC_REQ_EMG_092 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_REQ_EMG_092_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 50, 70, 252"]:::code_element
+  CODE_REQ_EMG_092_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 80, 100, 282"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_092_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_092 -->|code trace| CODE_REQ_EMG_092_VALIDATE_REQLINKS_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_092
-  VERCODE_REQ_EMG_092_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 51, 80, 104, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_092_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 53, 85, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_092_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14229,12 +14247,12 @@ flowchart TB
   REQC_REQ_EMG_093 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_REQ_EMG_093_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 70"]:::code_element
+  CODE_REQ_EMG_093_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 100"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_093_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_093 -->|code trace| CODE_REQ_EMG_093_VALIDATE_REQLINKS_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_093
-  VERCODE_REQ_EMG_093_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 51, 80, 104, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_093_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 53, 85, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_093_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14297,7 +14315,7 @@ flowchart TB
   CODE_REQ_EMG_094_VALIDATE_GO["validate.go: 286"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_094_VALIDATE_GO
   REQC_REQ_EMG_094 -->|code trace| CODE_REQ_EMG_094_VALIDATE_GO
-  CODE_REQ_EMG_094_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 70, 178"]:::code_element
+  CODE_REQ_EMG_094_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 100, 208"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_094_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_094 -->|code trace| CODE_REQ_EMG_094_VALIDATE_REQLINKS_GO
   VERC_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7["VER-INF-INTEGRATION-REQUIREMENT_LINKS_TEST-C095F7 (not-run)"]:::verification
@@ -14310,15 +14328,15 @@ flowchart TB
   VERC_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F --->|implemented_by| VERCODE_REQ_EMG_094_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F_COMPOSITION_REQLINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_094
-  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 51, 58, 80, 82, 104, 107, 111, 137, 162, 200, 215, 234, 253, 267, 292"]:::code_element
+  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 53, 58, 82, 85, 107, 111, 118, 144, 162, 177, 215, 240, 267, 274, 292, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_76AA55["VER-INF-TEST-REQLINKS_TEST-76AA55 (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_76AA55 -->|verifies| REQC_REQ_EMG_094
-  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_76AA55_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 51, 58, 80, 82, 104, 107, 111, 137, 162, 200, 215, 234, 253, 267, 292"]:::code_element
+  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_76AA55_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 53, 58, 82, 85, 107, 111, 118, 144, 162, 177, 215, 240, 267, 274, 292, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_76AA55 --->|implemented_by| VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_76AA55_REQLINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67["VER-INF-TEST-REQLINKS_TEST-EB8F67 (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 -->|verifies| REQC_REQ_EMG_094
-  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 51, 58, 80, 82, 104, 107, 111, 137, 162, 200, 215, 234, 253, 267, 292"]:::code_element
+  VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO["reqlinks_test.go: 34, 50, 53, 58, 82, 85, 107, 111, 118, 144, 162, 177, 215, 240, 267, 274, 292, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_EB8F67 --->|implemented_by| VERCODE_REQ_EMG_094_VER_INF_TEST_REQLINKS_TEST_EB8F67_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14584,7 +14602,7 @@ flowchart TB
   VERC_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7 --->|implemented_by| VERCODE_REQ_EMG_098_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7_REQUIREMENT_LINKS_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C["VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C -->|verifies| REQC_REQ_EMG_098
-  VERCODE_REQ_EMG_098_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C_REQLINKS_TRACE_TEST_GO["reqlinks_trace_test.go: 19"]:::code_element
+  VERCODE_REQ_EMG_098_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C_REQLINKS_TRACE_TEST_GO["reqlinks_trace_test.go: 19, 66"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C --->|implemented_by| VERCODE_REQ_EMG_098_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C_REQLINKS_TRACE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14636,7 +14654,7 @@ flowchart TB
   CODE_REQ_EMG_099_AUTHORING_RULES_GO["authoring_rules.go: 185"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_099_AUTHORING_RULES_GO
   REQC_REQ_EMG_099 -->|code trace| CODE_REQ_EMG_099_AUTHORING_RULES_GO
-  CODE_REQ_EMG_099_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 70"]:::code_element
+  CODE_REQ_EMG_099_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 100"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_099_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_099 -->|code trace| CODE_REQ_EMG_099_VALIDATE_REQLINKS_GO
   VERC_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F["VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F (not-run)"]:::verification
@@ -14645,7 +14663,7 @@ flowchart TB
   VERC_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F --->|implemented_by| VERCODE_REQ_EMG_099_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F_AUTHORING_RULES_TEST_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_099
-  VERCODE_REQ_EMG_099_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 51, 80, 104, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_099_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 53, 85, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_099_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -14933,7 +14951,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_LINK_MIGRATION_REQUESTED,link migration is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall convert each deprecated <<REF_IDX-CATALOG_ALLOCATION,allocation>> or contract ref into the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link <<REF_IDX-ENGMODEL_TERM_MODEL,model>>.
 
 
-NOTE: engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per <<REF_IDX-CATALOG_COMPOSITION,composition>>.allocations entry (id LNK-<<<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; parent the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>; child the target; pinned.version the dependency pin; fingerprint the current one from the resolved dependency, or "" when the dependency cannot be resolved, which the output names and the check reports as link.suspect until review; status claimed; rationale from the <<REF_IDX-CATALOG_ALLOCATION,allocation>>), creates or extends the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link file, adds documents.reqLinks: <<REF_IDX-ENGMODEL_TERM_MODEL,model>>/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an <<REF_IDX-CATALOG_ALLOCATION,allocation>> whose resolvable target is an <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting <<REF_IDX-CATALOG_COMPOSITION,composition>>.allocation_deprecated and is printed as kept <<REF_IDX-CATALOG_ALLOCATION,allocation>> REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> is kept and reported. Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that then report <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.no_parent. A second run changes nothing; --dry-run writes nothing.
+NOTE: engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per <<REF_IDX-CATALOG_COMPOSITION,composition>>.allocations entry (id LNK-<<<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; parent the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>; child the target; pinned.version the dependency pin; fingerprint the current one from the resolved dependency, or "" when the dependency cannot be resolved, which the output names and the check reports as link.suspect until review; status claimed; rationale from the <<REF_IDX-CATALOG_ALLOCATION,allocation>>), creates or extends the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link file, adds documents.reqLinks: <<REF_IDX-ENGMODEL_TERM_MODEL,model>>/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an <<REF_IDX-CATALOG_ALLOCATION,allocation>> whose resolvable target is an <<REF_IDX-ENGMODEL_TERM_INTERFACE,interface>> or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting <<REF_IDX-CATALOG_COMPOSITION,composition>>.allocation_deprecated and is printed as kept <<REF_IDX-CATALOG_ALLOCATION,allocation>> REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> is kept and reported. Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that then report <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.no_parent (a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing.
 
 
 
@@ -14962,7 +14980,7 @@ flowchart TB
   REQC_REQ_EMG_104 -->|code trace| CODE_REQ_EMG_104_MIGRATELINKS_GO
   VERC_VER_INF_TEST_MIGRATELINKS_TEST_36D479["VER-INF-TEST-MIGRATELINKS_TEST-36D479 (not-run)"]:::verification
   VERC_VER_INF_TEST_MIGRATELINKS_TEST_36D479 -->|verifies| REQC_REQ_EMG_104
-  VERCODE_REQ_EMG_104_VER_INF_TEST_MIGRATELINKS_TEST_36D479_MIGRATELINKS_TEST_GO["migratelinks_test.go: 69, 172, 226, 285, 324"]:::code_element
+  VERCODE_REQ_EMG_104_VER_INF_TEST_MIGRATELINKS_TEST_36D479_MIGRATELINKS_TEST_GO["migratelinks_test.go: 72, 182, 236, 295, 334"]:::code_element
   VERC_VER_INF_TEST_MIGRATELINKS_TEST_36D479 --->|implemented_by| VERCODE_REQ_EMG_104_VER_INF_TEST_MIGRATELINKS_TEST_36D479_MIGRATELINKS_TEST_GO
   VERC_VER_INF_TEST_YAMLEDIT_TEST_8FA671["VER-INF-TEST-YAMLEDIT_TEST-8FA671 (not-run)"]:::verification
   VERC_VER_INF_TEST_YAMLEDIT_TEST_8FA671 -->|verifies| REQC_REQ_EMG_104
@@ -14996,7 +15014,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_SYSTEM_COMPOSITION,system composition is enabled>>, when <<REF_IDX-CATALOG_EVT_GENERATION_RUN_REQUESTED,generation run is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall report the parents and children of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> and roll each linked system <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> up from its realizing child <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>.
 
 
-NOTE: trace.Matrix rows carry parents (the contract items a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> realizes through realizes or a deprecated ref, qualified alias::ID on a published <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> row, then its stakeholder sourceRefs; none for a system <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> without either) and children (for a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> alias::REQ-* at the resolved version; none for a child <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>), links (id, child, evaluated <<REF_IDX-ENGMODEL_TERM_STATE,state>>, review status) and satisfiedBy. A <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, suspect, broken, version-mismatched or outdated link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksSuspect (also a suspect item behind a stale pin), linksBroken, linksClaimed and unparented (local <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that trace upward to nothing where the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link rules apply). MCP trace.matrix returns the four counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.
+NOTE: trace.Matrix rows carry parents (the contract items a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> realizes through realizes or a deprecated ref, qualified alias::ID on a published <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> row, none for a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> traced only by its links or derivation; stakeholder sourceRefs are not parents, D22) and children (for a <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> alias::REQ-* at the resolved version; none for a child <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>), links (id, child, evaluated <<REF_IDX-ENGMODEL_TERM_STATE,state>>, review status) and satisfiedBy. A <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, suspect, broken, version-mismatched or outdated link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksSuspect (also a suspect item behind a stale pin), linksBroken, linksClaimed and unparented (local <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that fail the upward-trace rule of <<REF_IDX-REQ_REQ_EMG_090,REQ-EMG-090>> where the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link rules apply: no realizes, not the parent of a capability link, not derived with derivedRationale). MCP trace.matrix returns the four counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.
 
 
 
@@ -15019,7 +15037,7 @@ flowchart TB
   CODE_REQ_EMG_105_REQLINKS_REQLINKS_GO["reqlinks/reqlinks.go: 180, 191"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_105_REQLINKS_REQLINKS_GO
   REQC_REQ_EMG_105 -->|code trace| CODE_REQ_EMG_105_REQLINKS_REQLINKS_GO
-  CODE_REQ_EMG_105_REQLINKS_TRACE_GO["reqlinks_trace.go: 20, 35, 51, 80, 170, 181, 193, 198, 216"]:::code_element
+  CODE_REQ_EMG_105_REQLINKS_TRACE_GO["reqlinks_trace.go: 20, 36, 44, 71, 161, 172, 184, 189, 207"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_105_REQLINKS_TRACE_GO
   REQC_REQ_EMG_105 -->|code trace| CODE_REQ_EMG_105_REQLINKS_TRACE_GO
   CODE_REQ_EMG_105_TRACE_MATRIX_GO["trace_matrix.go: 89, 506, 668, 770, 832"]:::code_element
@@ -15040,6 +15058,10 @@ flowchart TB
   VERC_VER_INF_TEST_REQLINKS_TEST_98C2BD -->|verifies| REQC_REQ_EMG_105
   VERCODE_REQ_EMG_105_VER_INF_TEST_REQLINKS_TEST_98C2BD_REQLINKS_TEST_GO["reqlinks_test.go: 133, 195, 248, 296"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_98C2BD --->|implemented_by| VERCODE_REQ_EMG_105_VER_INF_TEST_REQLINKS_TEST_98C2BD_REQLINKS_TEST_GO
+  VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C["VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C (not-run)"]:::verification
+  VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C -->|verifies| REQC_REQ_EMG_105
+  VERCODE_REQ_EMG_105_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C_REQLINKS_TRACE_TEST_GO["reqlinks_trace_test.go: 19, 66"]:::code_element
+  VERC_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C --->|implemented_by| VERCODE_REQ_EMG_105_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C_REQLINKS_TRACE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -15068,7 +15090,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 While <<REF_IDX-CATALOG_FEAT_MCP_SERVER,mcp server is enabled>>, when <<REF_IDX-CATALOG_EVT_MCP_TOOL_CALL_RECEIVED,mcp tool call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links of the loaded <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with their <<REF_IDX-ENGMODEL_TERM_STATE,state>> and the trace of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> through them.
 
 
-NOTE: links.list returns every reqLinks entry with id, parent, child, <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>, <<REF_IDX-ENGMODEL_TERM_STATE,state>> and content (reqlinks.EvaluateLinks at the composed pins), review status, pinnedVersion, dependencyVersion, recordedFingerprint, currentFingerprint, reviewedBy and reviewedOn. links.suspect returns the links that need review (suspect, broken, version_mismatch) as engws review-links --json does: parent text, the child item and its realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> after (at the dependency pin) and before (at the pinned version, workspace off, offline: else beforeNote). links.review {linkId, by, rationale?} writes nothing (the <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP server>> has no writing tool), composes like engws review-links --accept with the workspace off and takes reviewedOn from the server clock: it refuses an <<REF_IDX-ENGMODEL_TERM_ACTOR,actor>> the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> does not define, an unknown and a <<REF_IDX-CATALOG_BROKEN_LINK,broken link>> like engws review-links --accept, and returns the command engws review-links --accept LNK --by ACT --rationale '...', the link file path relative to the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> and the line patch the command writes (pinned version and fingerprint, status, rationale, reviewedBy, reviewedOn). <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>.parents {requirementId} returns realizes, parents (realizes then sourceRefs), sourceRefs, derived, derivedRationale, the links the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> is parent of with <<REF_IDX-ENGMODEL_TERM_STATE,state>>, status and the linked item (id, kind, text, qualified realizers) and children (each linked item then its realizers). <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>.get adds parents, links and children. Every tool reads only the loaded <<REF_IDX-ENGMODEL_TERM_MODEL,model>> and the dependencies it composes, with the lock checked and the module cache reused.
+NOTE: links.list returns every reqLinks entry with id, parent, child, <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>>, <<REF_IDX-ENGMODEL_TERM_STATE,state>> and content (reqlinks.EvaluateLinks at the composed pins), review status, pinnedVersion, dependencyVersion, recordedFingerprint, currentFingerprint, reviewedBy and reviewedOn. links.suspect returns the links that need review (suspect, broken, version_mismatch) as engws review-links --json does: parent text, the child item and its realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> after (at the dependency pin) and before (at the pinned version, workspace off, offline: else beforeNote). links.review {linkId, by, rationale?} writes nothing (the <<REF_IDX-ENGMODEL_TERM_MCP_SERVER,MCP server>> has no writing tool), composes like engws review-links --accept with the workspace off and takes reviewedOn from the server clock: it refuses an <<REF_IDX-ENGMODEL_TERM_ACTOR,actor>> the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> does not define, an unknown and a <<REF_IDX-CATALOG_BROKEN_LINK,broken link>> like engws review-links --accept, and returns the command engws review-links --accept LNK --by ACT --rationale '...', the link file path relative to the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> and the line patch the command writes (pinned version and fingerprint, status, rationale, reviewedBy, reviewedOn). <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>.parents {requirementId} returns realizes, parents (the realized items; sourceRefs are no upward trace, D22), sourceRefs, derived, derivedRationale, the links the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> is parent of with <<REF_IDX-ENGMODEL_TERM_STATE,state>>, status and the linked item (id, kind, text, qualified realizers) and children (each linked item then its realizers). <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>>.get adds parents, links and children. Every tool reads only the loaded <<REF_IDX-ENGMODEL_TERM_MODEL,model>> and the dependencies it composes, with the lock checked and the module cache reused.
 
 
 
@@ -15092,7 +15114,7 @@ flowchart TB
   REQC_REQ_EMG_106 -->|applies_to| FU_FU_MCP_SERVER
   RTC_FU_MCP_SERVER_RUNTIME["MCP Server runtime (inferred)"]:::runtime_element
   FU_FU_MCP_SERVER -->|runtime evidence| RTC_FU_MCP_SERVER_RUNTIME
-  CODE_REQ_EMG_106_MCP_REQLINKS_GO["mcp/reqlinks.go: 26, 37, 69, 83, 126, 137, 196"]:::code_element
+  CODE_REQ_EMG_106_MCP_REQLINKS_GO["mcp/reqlinks.go: 26, 37, 69, 83, 126, 137, 191"]:::code_element
   RTC_FU_MCP_SERVER_RUNTIME --->|implemented_by| CODE_REQ_EMG_106_MCP_REQLINKS_GO
   REQC_REQ_EMG_106 -->|code trace| CODE_REQ_EMG_106_MCP_REQLINKS_GO
   CODE_REQ_EMG_106_SERVER_GO["server.go: 57, 166, 548"]:::code_element
@@ -15154,7 +15176,7 @@ flowchart TB
   CODE_REQ_EMG_107_REQLINKS_REQLINKS_GO["reqlinks/reqlinks.go: 180"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_107_REQLINKS_REQLINKS_GO
   REQC_REQ_EMG_107 -->|code trace| CODE_REQ_EMG_107_REQLINKS_REQLINKS_GO
-  CODE_REQ_EMG_107_REQLINKS_TRACE_GO["reqlinks_trace.go: 216"]:::code_element
+  CODE_REQ_EMG_107_REQLINKS_TRACE_GO["reqlinks_trace.go: 207"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_107_REQLINKS_TRACE_GO
   REQC_REQ_EMG_107 -->|code trace| CODE_REQ_EMG_107_REQLINKS_TRACE_GO
   FU_FU_ASCIIDOC_GENERATOR["AsciiDoc Generator"]:::functional_unit
@@ -15423,12 +15445,12 @@ flowchart TB
   REQC_REQ_EMG_111 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_REQ_EMG_111_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 178"]:::code_element
+  CODE_REQ_EMG_111_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 208"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_111_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_111 -->|code trace| CODE_REQ_EMG_111_VALIDATE_REQLINKS_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_111
-  VERCODE_REQ_EMG_111_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 51, 80, 104, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_111_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 53, 85, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_111_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -15475,12 +15497,12 @@ flowchart TB
   REQC_REQ_EMG_112 -->|applies_to| FU_FU_VALIDATION_ENGINE
   RTC_FU_VALIDATION_ENGINE_RUNTIME["Validation Engine runtime (inferred)"]:::runtime_element
   FU_FU_VALIDATION_ENGINE -->|runtime evidence| RTC_FU_VALIDATION_ENGINE_RUNTIME
-  CODE_REQ_EMG_112_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 178"]:::code_element
+  CODE_REQ_EMG_112_VALIDATE_REQLINKS_GO["validate/reqlinks.go: 208"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_112_VALIDATE_REQLINKS_GO
   REQC_REQ_EMG_112 -->|code trace| CODE_REQ_EMG_112_VALIDATE_REQLINKS_GO
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD["VER-INF-TEST-REQLINKS_TEST-493BCD (not-run)"]:::verification
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD -->|verifies| REQC_REQ_EMG_112
-  VERCODE_REQ_EMG_112_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 51, 80, 104, 137, 200, 234, 253"]:::code_element
+  VERCODE_REQ_EMG_112_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO["reqlinks_test.go: 53, 85, 118, 144, 177, 240, 274, 293"]:::code_element
   VERC_VER_INF_TEST_REQLINKS_TEST_493BCD --->|implemented_by| VERCODE_REQ_EMG_112_VER_INF_TEST_REQLINKS_TEST_493BCD_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -17099,10 +17121,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_LOAD_TEST_E1FF39,VER-INF-TEST-LOAD_TEST-E1FF39>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_IDX-REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_IDX-REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_IDX-REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_IDX-REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_IDX-REQ_REQ_EMG_085,REQ-EMG-085>>
-|Test Code Elements |load_test.go:38, 74, 87, 96, 111, 127, 157, 178, 198, 264, 332, 398
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_IDX-REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_IDX-REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_IDX-REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_IDX-REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_IDX-REQ_REQ_EMG_085,REQ-EMG-085>>, <<REF_IDX-REQ_REQ_EMG_090,REQ-EMG-090>>
+|Test Code Elements |load_test.go:38, 74, 87, 96, 111, 130, 148, 178, 199, 219, 285, 353, 419
 |Derived Functional Owners |<<REF_IDX-FU_FU_AIRBORNE_ASSURANCE_EXPORTER,FU-AIRBORNE-ASSURANCE-EXPORTER>>, <<REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR,FU-ASCIIDOC-GENERATOR>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_GEMARA_EXPORTER,FU-GEMARA-EXPORTER>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSML_EXPORTER,FU-SYSML-EXPORTER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>, <<REF_IDX-CATALOG_FU_VIEW_PROJECTION,FU-VIEW-PROJECTION>>
-|Result Summary |not-run:10
+|Result Summary |not-run:11
 |Evidence |internal/<<REF_IDX-ENGMODEL_TERM_MODEL,model>>/load_test.go
 
 |Notes |Inferred from test source artifact.
@@ -17260,7 +17282,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_104,REQ-EMG-104>>
-|Test Code Elements |migratelinks_test.go:69, 172, 226, 285, 324
+|Test Code Elements |migratelinks_test.go:72, 182, 236, 295, 334
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
 |Result Summary |not-run:1
 |Evidence |internal/engws/migratelinks_test.go
@@ -17500,7 +17522,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_IDX-REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_IDX-REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_IDX-REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_IDX-REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_IDX-REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_IDX-REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_IDX-REQ_REQ_EMG_112,REQ-EMG-112>>
-|Test Code Elements |reqlinks_test.go:51, 80, 104, 137, 200, 234, 253
+|Test Code Elements |reqlinks_test.go:53, 85, 118, 144, 177, 240, 274, 293
 |Derived Functional Owners |<<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
 |Result Summary |not-run:8
 |Evidence |internal/validate/reqlinks_test.go
@@ -17579,10 +17601,10 @@ What this section shows: verification checks inferred from test artifacts, linke
 |ID |<<REF_IDX-VER_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C>>
 |Kind |test
 |Status |not-run
-|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_098,REQ-EMG-098>>
-|Test Code Elements |reqlinks_trace_test.go:19
-|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
-|Result Summary |not-run:1
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_IDX-REQ_REQ_EMG_105,REQ-EMG-105>>
+|Test Code Elements |reqlinks_trace_test.go:19, 66
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_MCP_SERVER,FU-MCP-SERVER>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
+|Result Summary |not-run:2
 |Evidence |internal/trace/reqlinks_trace_test.go
 
 |Notes |Inferred from test source artifact.
@@ -20224,7 +20246,7 @@ When model updated event is received, the engineering model go shall report each
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-090
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_091]]
 [discrete]
@@ -20419,7 +20441,7 @@ Where system composition is enabled, when generation run is requested, the engin
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-105
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_106]]
 [discrete]
@@ -23034,7 +23056,7 @@ Serves model-backed MCP tools with validated inputs and structured responses.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |mcp server
-|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_425E52,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_661068,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FINGERPRINT_UNIX_TEST_560DC2,Fingerprint Unix Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_TEST_425E52,Authoring Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_661068,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FINGERPRINT_UNIX_TEST_560DC2,Fingerprint Unix Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_6B61AE,Main Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>
 |===
 [[REF_IDX-CATALOG_FU_MODEL_CHANGE]]
 [discrete]

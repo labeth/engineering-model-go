@@ -29,36 +29,27 @@ func publishedCapabilityRefs(composed composition.CompositionResult, alias strin
 }
 
 // requirementParents is the upward trace of a requirement: the contract
-// items it realizes, then its stakeholder sourceRefs.
+// items it realizes (D22: stakeholder sourceRefs are no upward trace, and a
+// requirement that is the parent of links has them as children).
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func requirementParents(r model.Requirement, refs map[string]string) []string {
-	parents := reqlinks.RealizedItems(r, refs)
-	for _, ref := range r.SourceRefs {
-		if ref = strings.TrimSpace(ref); ref != "" {
-			parents = append(parents, ref)
-		}
-	}
-	return parents
+	return reqlinks.RealizedItems(r, refs)
 }
 
-// countUnparented counts the requirements that trace upward to nothing
-// where the requirement link rules apply: no realizes (or deprecated ref),
-// not derived with a rationale, no sourceRefs, in a model that is not a
-// top-level system.
+// countUnparented counts the requirements that fail the upward-trace rule
+// (validate.TracesUpward) where the requirement link rules apply.
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func countUnparented(bundle model.Bundle, requirements model.RequirementsDocument) int {
 	if _, applies := validate.RequirementLinkRules(bundle); !applies {
 		return 0
 	}
-	if strings.EqualFold(strings.TrimSpace(bundle.Manifest.Module.Kind), "system") && bundle.Manifest.InferenceHints.TopLevel {
-		return 0
-	}
 	refs := reqlinks.CapabilityRefs(bundle)
+	linkParents := validate.CapabilityLinkParents(bundle)
 	n := 0
 	for _, r := range requirements.Requirements {
-		if len(reqlinks.RealizedItems(r, refs)) == 0 && !(r.Derived && strings.TrimSpace(r.DerivedRationale) != "") && len(r.SourceRefs) == 0 {
+		if !validate.TracesUpward(r, reqlinks.RealizedItems(r, refs), linkParents) {
 			n++
 		}
 	}

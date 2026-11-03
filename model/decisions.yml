@@ -605,6 +605,7 @@ decisions:
   consequences:
   - Existing models keep 0 errors on upgrade; new projects get the strict rules from engflow init.
   - The direction stays child to parent; no child names a user.
+  - Amended by ADR-EMG-028; no model is exempt from the upward trace as top level.
 - id: ADR-EMG-023
   title: The using system fingerprints the child item from the content it resolved
   status: accepted
@@ -722,3 +723,32 @@ decisions:
   consequences:
   - The schema additions stay additive for an upgraded engine; an old engine fails loudly instead of misreading a child.
   - Release notes of a child that adopts requirement links name v0.8.0 as the minimum engine of its users.
+- id: ADR-EMG-028
+  title: Every requirement traces upward through a capability; no model is top level
+  status: accepted
+  date: 2026-11-03
+  context: 'The first requirement link rules exempted a system marked inferenceHints.topLevel and any requirement with
+
+    stakeholder sourceRefs from requirement.no_parent. No model can know it is top level, because any system may later
+
+    be used by one above, and a stakeholder reference is not a contract item a user can link to.
+
+    '
+  decision: 'In both requirementLinks modes (severity per ADR-EMG-022), a requirement satisfies the upward-trace rule
+
+    requirement.no_parent iff it realizes a local capability or assumption of use, it is the parent of a reqLinks entry
+
+    to a dependency capability, or it is derived with derivedRationale. inferenceHints.topLevel is removed from the
+
+    schema, and sourceRefs stays a field but no longer exempts. The diagnostic names exactly these three options. The
+
+    trace unparented count follows the same rule; trace parents stays the upward trace (realized items) and a link
+
+    parent''s links are its children. (docs/requirement-links.md D22.)
+
+    '
+  consequences:
+  - A system publishes its own capabilities so a system above can link to them; its requirements realize them, link
+    below, or are derived.
+  - A manifest that sets inferenceHints.topLevel no longer loads (strict schema); the field was never released.
+  - Guided mode still applies the rule only where the model publishes contract items or has reqLinks.

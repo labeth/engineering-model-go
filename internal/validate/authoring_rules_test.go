@@ -192,12 +192,15 @@ func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 	rules := AuthoringRules()
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
-		"realizes", "requirement.no_parent", "inferenceHints.topLevel", "contract.assumptions", "contract.realizer_unpublished",
+		"realizes", "requirement.no_parent", "parent of a reqLinks entry to a dependency's capability", "A system publishes its own capabilities so a system above can link to them", "contract.assumptions", "contract.realizer_unpublished",
 		"documents.reqLinks", "link.suspect", "link.aou_unverified", "requirementLinks in engmod.yml is strict or guided", "pseudo-version",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("authoring field rules must contain %q", want)
 		}
+	}
+	if strings.Contains(text, "topLevel") {
+		t.Fatal("authoring field rules must not mention the removed inferenceHints.topLevel")
 	}
 	if got := strings.Join(rules.FieldSets["contractAssumption"], ","); got != "id,text,verificationCriteria" {
 		t.Fatalf("contractAssumption fields = %s", got)

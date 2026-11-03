@@ -98,6 +98,30 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     attribute 'AV-TELEMETRY-REPLAY-ABUSE';
 
     @EngineeringElement {
+        sourceId = "CAP-COFFEE-FLEET-AUDIT";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-COFFEE-FLEET-AUDIT' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-COFFEE-FLEET-OTA";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-COFFEE-FLEET-OTA' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-COFFEE-FLEET-TELEMETRY";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-COFFEE-FLEET-TELEMETRY' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
         sourceId = "CONCERN-074A3EB00B5374A6";
         conceptKind = "concern_usage";
     }

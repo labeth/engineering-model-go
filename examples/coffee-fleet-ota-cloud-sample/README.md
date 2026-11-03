@@ -44,8 +44,10 @@ former `composition.allocations` and contract `ref`s):
 
 The links are left `status: claimed`, as the migration writes them, so the check reports
 `link.claimed_only` (a warning) until someone reviews them with `engws review-links --accept`.
-The parent is a top-level system (`inferenceHints.topLevel: true`), so its own requirements need no
-upward trace. Subsystem needs are bound to providers via `composition.satisfactions` (for example
+No model can know it is top level, so the parent's own requirements trace upward too: the three
+linked ones through their links, the others by realizing a capability the fleet system publishes
+for a system above it (`CAP-COFFEE-FLEET-TELEMETRY`, `CAP-COFFEE-FLEET-OTA`,
+`CAP-COFFEE-FLEET-AUDIT`). Subsystem needs are bound to providers via `composition.satisfactions` (for example
 `SUB-OTA-AGENT/NEED-TELEMETRY-FEED` satisfied by `SUB-TELEMETRY/CAP-TELEM-REPORT`, and hardware
 needs satisfied by hosting hardware items).
 

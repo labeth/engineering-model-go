@@ -720,9 +720,6 @@ type InferenceHints struct {
 	Exclude                  []string `yaml:"exclude"`
 	ExpectedRuntimeKinds     []string `yaml:"expectedRuntimeKinds"`
 	OwnershipResolutionOrder []string `yaml:"ownershipResolutionOrder"`
-	// TopLevel marks a system model that no published contract sits above:
-	// with module.kind system its requirements need no upward trace.
-	TopLevel bool `yaml:"topLevel,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-VIEW-PROJECTION

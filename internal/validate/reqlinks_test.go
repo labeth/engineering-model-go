@@ -10,7 +10,7 @@ import (
 
 // linkTestBundle is a child model with a published capability CAP-A, an
 // assumption of use AOU-A and requirements: REQ-A realizes CAP-A, REQ-D is
-// derived, REQ-S has a stakeholder source and REQ-N traces to nothing.
+// derived, REQ-S has only a stakeholder source and REQ-N has nothing.
 func linkTestBundle(mode string) model.Bundle {
 	b := behaviorTestBundle(nil, nil)
 	b.Manifest.RequirementLinks = mode
@@ -41,35 +41,73 @@ func codesOf(diags []Diagnostic, code string) []Diagnostic {
 	return out
 }
 
-// requirement.no_parent: in strict mode a requirement without realizes, not
-// derived with derivedRationale and without sourceRefs is an error, with
-// only the child repository present; guided mode makes it a warning where
-// the model publishes contract items and drops it in a standalone model; a
-// top-level system (module.kind system, inferenceHints.topLevel) is exempt.
+// requirement.no_parent (D22): in strict mode a requirement that does not
+// realize a local contract item (a), is not the parent of a link to a
+// dependency capability (b) and is not derived with derivedRationale (c) is
+// an error, with only the child repository present; guided mode makes it a
+// warning where the model publishes contract items or has links and drops it
+// in a standalone model. Stakeholder sourceRefs alone do not trace upward.
+// The message names exactly the three options.
 // TRLC-LINKS: REQ-EMG-090
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func TestRequirementNoParent(t *testing.T) {
 	got := codesOf(Bundle(linkTestBundle("strict")), "requirement.no_parent")
-	if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "requirements[3]" || !strings.Contains(got[0].Message, "REQ-N") {
-		t.Fatalf("strict: want one error for REQ-N, got %+v", got)
+	if len(got) != 2 || got[0].Severity != SeverityError || got[0].Path != "requirements[2]" || !strings.Contains(got[0].Message, "REQ-S") ||
+		got[1].Path != "requirements[3]" || !strings.Contains(got[1].Message, "REQ-N") {
+		t.Fatalf("strict: want errors for REQ-S (sourceRefs only) and REQ-N, got %+v", got)
+	}
+	for _, want := range []string{"realizes", "parent of a reqLinks entry", "derived: true with derivedRationale"} {
+		if !strings.Contains(got[1].Message, want) {
+			t.Fatalf("message %q must name %q", got[1].Message, want)
+		}
+	}
+	if strings.Contains(got[1].Message, "sourceRefs") || strings.Contains(got[1].Message, "topLevel") {
+		t.Fatalf("message %q names an option that no longer exists", got[1].Message)
 	}
 	got = codesOf(Bundle(linkTestBundle("")), "requirement.no_parent")
-	if len(got) != 1 || got[0].Severity != SeverityWarning {
-		t.Fatalf("guided with contract: want one warning, got %+v", got)
+	if len(got) != 2 || got[0].Severity != SeverityWarning {
+		t.Fatalf("guided with contract: want two warnings, got %+v", got)
 	}
 	standalone := linkTestBundle("")
 	standalone.Manifest.Publications = nil
 	if got := codesOf(Bundle(standalone), "requirement.no_parent"); len(got) != 0 {
 		t.Fatalf("guided standalone: want none, got %+v", got)
 	}
-	top := linkTestBundle("strict")
-	top.Manifest.InferenceHints.TopLevel = true
-	if got := codesOf(Bundle(top), "requirement.no_parent"); len(got) != 0 {
-		t.Fatalf("top-level system: want none, got %+v", got)
+}
+
+// The three upward traces of D22 each satisfy requirement.no_parent on
+// their own: (a) realizes a local capability or assumption of use, (b) the
+// parent of a reqLinks entry to a dependency capability, (c) derived with
+// derivedRationale. A link to an assumption of use with the requirement as
+// evidence, or derived without a rationale, is no upward trace.
+// TRLC-LINKS: REQ-EMG-090
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func TestRequirementUpwardTraceOptions(t *testing.T) {
+	only := func(r model.Requirement, links ...model.ReqLink) []Diagnostic {
+		b := linkTestBundle("strict")
+		b.Requirements.Requirements = []model.Requirement{b.Requirements.Requirements[0], r}
+		b.ReqLinks.ReqLinks = links
+		return codesOf(Bundle(b), "requirement.no_parent")
 	}
-	top.Manifest.Module.Kind = "subsystem"
-	if got := codesOf(Bundle(top), "requirement.no_parent"); len(got) != 1 {
-		t.Fatalf("topLevel without kind system is not exempt, got %+v", got)
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Realizes: []string{"AOU-A"}}); len(got) != 0 {
+		t.Fatalf("(a) realizes an assumption of use: want none, got %+v", got)
+	}
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}},
+		model.ReqLink{ID: "LNK-X", Parent: "REQ-X", Child: "dep::CAP-Z"}); len(got) != 0 {
+		t.Fatalf("(b) parent of a capability link: want none, got %+v", got)
+	}
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Derived: true, DerivedRationale: "Operability."}); len(got) != 0 {
+		t.Fatalf("(c) derived with rationale: want none, got %+v", got)
+	}
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}},
+		model.ReqLink{ID: "LNK-X", Parent: "REQ-X", Child: "dep::AOU-Z"}, model.ReqLink{ID: "LNK-Y", Child: "dep::AOU-Z", Evidence: []string{"REQ-X"}}); len(got) != 1 {
+		t.Fatalf("a link to an assumption of use is no upward trace: want one, got %+v", got)
+	}
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Derived: true}); len(got) != 1 {
+		t.Fatalf("derived without derivedRationale: want one, got %+v", got)
+	}
+	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, SourceRefs: []string{"REF-STAKE"}}); len(got) != 1 {
+		t.Fatalf("sourceRefs only: want one, got %+v", got)
 	}
 }
 
@@ -90,8 +128,10 @@ func TestRequirementRealizesUnknown(t *testing.T) {
 			t.Fatalf("diagnostic %d = %+v, want %q", i, got[i], want)
 		}
 	}
-	if n := codesOf(Bundle(b), "requirement.no_parent"); len(n) != 0 {
-		t.Fatalf("invalid targets are reported once, as realizes_unknown, not also as no_parent; got %+v", n)
+	for _, n := range codesOf(Bundle(b), "requirement.no_parent") {
+		if n.Path == "requirements[3]" {
+			t.Fatalf("invalid targets are reported once, as realizes_unknown, not also as no_parent; got %+v", n)
+		}
 	}
 }
 

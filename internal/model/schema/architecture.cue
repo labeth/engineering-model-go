@@ -356,7 +356,6 @@ package model
 	exclude?:                  #StringList
 	expectedRuntimeKinds?:     #StringList
 	ownershipResolutionOrder?: #StringList
-	topLevel?:                 bool
 }
 
 #View: {

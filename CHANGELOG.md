@@ -9,17 +9,24 @@ semantic versioning.
 ### Added
 
 - Requirement links across composed models (REQ-EMG-090 to REQ-EMG-099, REQ-EMG-108 to
-  REQ-EMG-112; ADR-EMG-022 to ADR-EMG-027; design in
+  REQ-EMG-112; ADR-EMG-022 to ADR-EMG-028; design in
   `docs/requirement-links.md`):
   - `requirements[].realizes` names the local contract items (`CAP-*` capabilities,
     `AOU-*` assumptions of use) a requirement exists to deliver; `contract.assumptions`
     (`id`, `text`, `verificationCriteria`) declares assumptions of use, published and
-    imported (`alias::AOU-*`) like capabilities; `inferenceHints.topLevel` marks a
-    top-level system.
+    imported (`alias::AOU-*`) like capabilities.
   - `engmod.yml` `requirementLinks: strict | guided` (default `guided`) and the optional
     document `documents.reqLinks` (`model/req-links.yml`, CUE schema `reqlinks.cue`) with
     `reqLinks: [{id, parent, child, evidence, pinned: {version, fingerprint}, status,
     rationale, reviewedBy, reviewedOn}]`.
+  - Upward trace (D22, ADR-EMG-028): no model can know it is top level, so every
+    requirement traces through a capability. `requirement.no_parent` is reported unless the
+    requirement (a) `realizes` a local capability or assumption of use, (b) is the `parent`
+    of a link to a dependency's capability, or (c) is `derived: true` with
+    `derivedRationale`; the message names these three options. Stakeholder `sourceRefs` do
+    not count and there is no top-level exemption. The trace `unparented` count follows the
+    rule, and `parents` lists only the realized items. A system publishes its own
+    capabilities so a system above can link to them.
   - Validation: `requirement.no_parent`, `requirement.realizes_unknown`,
     `contract.unrealized` (warning), `contract.realizer_unpublished`, `contract.ref_deprecated`
     (warning), `composition.allocation_deprecated` (warning), `link.parent_unknown`,
@@ -129,7 +136,8 @@ semantic versioning.
 - Examples: `coffee-fleet-ota-cloud-sample` (with its subsystems) and every
   `atlas-industries` repository are migrated to requirement links (`engws migrate-links`):
   no `composition.allocations` or contract `ref` remain, every child requirement realizes a
-  capability or is derived, the composing top systems set `inferenceHints.topLevel`. The
+  capability or is derived; the coffee fleet system publishes its own capabilities
+  (`CAP-COFFEE-FLEET-TELEMETRY`, `-OTA`, `-AUDIT`) that its unlinked requirements realize. The
   Atlas links are accepted; the coffee fleet links stay `claimed` as the migration writes them.
 
 ### Deprecated

@@ -60,8 +60,8 @@ type Row struct {
 	Gated bool     `json:"gated,omitempty"`
 	Gates []string `json:"gates,omitempty"`
 	// Parents are the upward trace of the requirement: the contract items
-	// it realizes (alias::ID on a published requirement row) and its
-	// stakeholder sourceRefs. Children are the downward trace of a
+	// it realizes (alias::ID on a published requirement row); none for a
+	// requirement traced by its links or derivation (D22). Children are the downward trace of a
 	// requirement of a composing system: each linked child contract item
 	// (alias::CAP-*) followed by its realizing requirements (alias::REQ-*).
 	Parents  []string `json:"parents,omitempty"`

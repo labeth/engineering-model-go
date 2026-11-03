@@ -4575,7 +4575,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANPATH",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 193
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
@@ -6835,27 +6835,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 800
+          "line": 797
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 814
+          "line": 811
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 823
+          "line": 820
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 789
+          "line": 786
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 807
+          "line": 804
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -6932,7 +6932,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 823
+          "line": 820
         }
       ],
       "verifications": [
@@ -7092,12 +7092,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 746
+          "line": 743
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 772
+          "line": 769
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7107,7 +7107,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 763
+          "line": 760
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7284,12 +7284,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 746
+          "line": 743
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 772
+          "line": 769
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7299,7 +7299,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 763
+          "line": 760
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7511,7 +7511,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 914
+          "line": 911
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -7913,7 +7913,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 941
+          "line": 938
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -7933,12 +7933,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 952
+          "line": 949
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 914
+          "line": 911
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -8564,7 +8564,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 941
+          "line": 938
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8584,12 +8584,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 952
+          "line": 949
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 914
+          "line": 911
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -11255,24 +11255,34 @@
           "line": 243
         },
         {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CAPABILITYLINKPARENTS",
+          "path": "internal/validate/reqlinks.go",
+          "line": 33
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTRACTITEMKINDS",
           "path": "internal/validate/reqlinks.go",
-          "line": 30
+          "line": 60
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "internal/validate/reqlinks.go",
-          "line": 50
+          "line": 80
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
           "path": "internal/validate/reqlinks.go",
           "line": 20
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--TRACESUPWARD",
+          "path": "internal/validate/reqlinks.go",
+          "line": 53
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11288,6 +11298,7 @@
       "verifications": [
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_RENDER_TEST-BB7550",
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_TEST-C095F7",
+        "VER-INF-TEST-LOAD_TEST-E1FF39",
         "VER-INF-TEST-REQLINKS_TEST-493BCD",
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
       ],
@@ -11315,7 +11326,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CONTRACTASSUMPTION",
           "path": "internal/model/types.go",
-          "line": 886
+          "line": 883
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
@@ -11335,12 +11346,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTRACTITEMKINDS",
           "path": "internal/validate/reqlinks.go",
-          "line": 30
+          "line": 60
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         }
       ],
       "verifications": [
@@ -11373,17 +11384,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTAINSTRIMMED",
           "path": "internal/validate/reqlinks.go",
-          "line": 252
+          "line": 282
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "internal/validate/reqlinks.go",
-          "line": 50
+          "line": 80
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         }
       ],
       "verifications": [
@@ -11402,7 +11413,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         }
       ],
       "verifications": [
@@ -11447,12 +11458,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 178
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11746,7 +11757,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 70
+          "line": 100
         }
       ],
       "verifications": [
@@ -12395,32 +12406,32 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--APPENDUNIQUE",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 170
+          "line": 161
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--APPLYREQUIREMENTLINKS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 80
+          "line": 71
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--COUNTUNPARENTED",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 51
+          "line": 44
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--DEPENDENCYREQUIREMENTSTATUS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 216
+          "line": 207
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANPATH",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 193
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANREQUIREMENT",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 198
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--PUBLISHEDCAPABILITYREFS",
@@ -12430,12 +12441,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--REMOVESTRING",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 181
+          "line": 172
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--REQUIREMENTPARENTS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 35
+          "line": 36
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
@@ -12461,11 +12472,22 @@
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
           "line": 770
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CAPABILITYLINKPARENTS",
+          "path": "internal/validate/reqlinks.go",
+          "line": 33
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--TRACESUPWARD",
+          "path": "internal/validate/reqlinks.go",
+          "line": 53
         }
       ],
       "verifications": [
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_TRACE_TEST-344A0D",
-        "VER-INF-TEST-REQLINKS_TEST-98C2BD"
+        "VER-INF-TEST-REQLINKS_TEST-98C2BD",
+        "VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -12581,7 +12603,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--REQUIREMENTSPARENTS",
           "path": "internal/mcp/reqlinks.go",
-          "line": 196
+          "line": 191
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--REQUIREMENTTRACE",
@@ -12698,7 +12720,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--DEPENDENCYREQUIREMENTSTATUS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 216
+          "line": 207
         }
       ],
       "verifications": [
@@ -12839,7 +12861,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 178
+          "line": 208
         }
       ],
       "verifications": [
@@ -12858,7 +12880,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 178
+          "line": 208
         }
       ],
       "verifications": [

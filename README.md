@@ -800,6 +800,14 @@ the layouts from memory on 127.0.0.1.
 `engws` maintains the requirement links of `model/req-links.yml` (design and decisions:
 `docs/requirement-links.md`; fixture: `examples/requirement-links`).
 
+Every requirement traces upward through a capability, because no model can know it is top
+level: any system may later be used by one above. A requirement satisfies the upward trace
+(`requirement.no_parent` otherwise; an error with `requirementLinks: strict`, a warning in
+`guided` mode where the model publishes contract items or has links) iff (a) it `realizes` a
+local capability or assumption of use, (b) it is the `parent` of a link to a dependency's
+capability, or (c) it is `derived: true` with a `derivedRationale`. Stakeholder `sourceRefs`
+do not count. A system publishes its own capabilities so a system above can link to them.
+
 **`engws bump <repo> <alias> <version> [--allow-suspect]`** moves a dependency pin (see
 `engws help`) and then evaluates every link of `<repo>` on `<alias>` at the new version:
 
@@ -890,8 +898,8 @@ first, then in the system):
   link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
   added documents.reqLinks: model/req-links.yml
 engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
-engws: 12 requirement(s) without an upward trace (requirement.no_parent):
-  requirement.no_parent: REQ-COF-001 [warning]
+engws: 9 requirement(s) without an upward trace (requirement.no_parent):
+  requirement.no_parent: REQ-COF-004 [warning]
   ...
 ```
 
@@ -902,7 +910,9 @@ interface entry is not a link target and stays in place (`kept allocation REQ-â€
 alias::IF-â€¦: interface entries are not link targets; publish a capability that realizes it
 and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
 each file change, and a second run reports `nothing to migrate`. Then review the claimed
-links and give each listed requirement a `realizes` or mark it `derived`.
+links and give each listed requirement a `realizes` on a capability the model publishes, a
+link to a dependency capability, or mark it `derived` (the link parents written by the migration
+are already traced).
 
 The architecture document shows the links in both directions. A system with `reqLinks`
 gets a **Requirement Links** chapter: each requirement, its links with their state (suspect,

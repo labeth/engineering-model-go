@@ -141,7 +141,10 @@
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
       "result": "passed",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-COFFEE-FLEET-OTA"
+      ]
     },
     {
       "id": "REQ-COF-005",
@@ -167,7 +170,10 @@
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-COFFEE-FLEET-OTA"
+      ]
     },
     {
       "id": "REQ-COF-006",
@@ -183,7 +189,10 @@
           "line": 18
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-COFFEE-FLEET-TELEMETRY"
+      ]
     },
     {
       "id": "REQ-COF-007",
@@ -208,7 +217,10 @@
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
       "result": "passed",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-COFFEE-FLEET-AUDIT"
+      ]
     },
     {
       "id": "REQ-COF-008",
@@ -235,7 +247,10 @@
           "line": 18
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-COFFEE-FLEET-TELEMETRY"
+      ]
     },
     {
       "id": "REQ-COF-009",
@@ -244,7 +259,10 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-COFFEE-FLEET-AUDIT"
+      ]
     },
     {
       "id": "REQ-COF-010",
@@ -254,7 +272,10 @@
         "FU-OTA-UPDATE-AGENT",
         "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-COFFEE-FLEET-OTA"
+      ]
     },
     {
       "id": "REQ-COF-011",
@@ -263,7 +284,10 @@
         "FU-FLEET-INGESTION-API",
         "FU-MACHINE-TELEMETRY-COLLECTION"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-COFFEE-FLEET-TELEMETRY"
+      ]
     },
     {
       "id": "REQ-COF-012",
@@ -273,7 +297,10 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-COFFEE-FLEET-AUDIT"
+      ]
     },
     {
       "id": "cloud-api::REQ-CLOUD-001",
