@@ -211,11 +211,16 @@ func TestAcceptedLinkReviewIsRecorded(t *testing.T) {
 	)
 	var got []string
 	for _, d := range codesOf(Bundle(b), "link.review_unrecorded") {
-		got = append(got, string(d.Severity)+" "+d.Path)
+		got = append(got, string(d.Severity)+" "+d.Path+" "+d.Message)
 	}
-	want := "error reqLinks[1].reviewedBy,error reqLinks[2].reviewedOn,error reqLinks[3].reviewedBy,error reqLinks[4].reviewedOn"
-	if strings.Join(got, ",") != want {
-		t.Fatalf("link.review_unrecorded = %q, want %q", strings.Join(got, ","), want)
+	want := []string{
+		"error reqLinks[1].reviewedBy link LNK-NO-BY is accepted but names no reviewedBy; record the review with engws review-links --accept LNK-NO-BY --by ACT-... (or set status claimed)",
+		"error reqLinks[2].reviewedOn link LNK-NO-ON is accepted but names no reviewedOn; record the review with engws review-links --accept LNK-NO-ON (or set status claimed)",
+		`error reqLinks[3].reviewedBy link LNK-ACTOR reviewedBy "ACT-NOBODY" is not an actor of this model (architecture.actors)`,
+		`error reqLinks[4].reviewedOn link LNK-DATE reviewedOn "2026-02-30" is not a YYYY-MM-DD calendar date`,
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("link.review_unrecorded =\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
 }
 

@@ -314,3 +314,35 @@ func TestMigrateLinksRestoresEveryFileOnWriteFailure(t *testing.T) {
 		t.Fatalf("the created link file was not removed: %v", err)
 	}
 }
+
+// writeAllOrNothing restores an existing file and removes a file it
+// created when a later write fails, and leaves an untouched file alone.
+// Mutation: not removing a created file, or not restoring an existing one,
+// fails this test.
+// TRLC-LINKS: REQ-EMG-104
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestWriteAllOrNothingRemovesCreatedFiles(t *testing.T) {
+	dir := t.TempDir()
+	created, existing, failing := filepath.Join(dir, "a-new.yml"), filepath.Join(dir, "b-old.yml"), filepath.Join(dir, "c-fail.yml")
+	write(t, existing, "old\n")
+	write(t, failing, "keep\n")
+	old := writeFile
+	t.Cleanup(func() { writeFile = old })
+	writeFile = func(path string, data []byte) error {
+		if path == failing {
+			return fmt.Errorf("injected")
+		}
+		return old(path, data)
+	}
+	paths := []string{created, existing, failing}
+	err := writeAllOrNothing(paths, map[string][]byte{created: []byte("new\n"), existing: []byte("changed\n"), failing: []byte("x\n")})
+	if err == nil || !strings.Contains(err.Error(), "every file restored") {
+		t.Fatalf("writeAllOrNothing: %v", err)
+	}
+	if _, err := os.Stat(created); !os.IsNotExist(err) {
+		t.Fatalf("created file kept: %v", err)
+	}
+	if read(t, existing) != "old\n" || read(t, failing) != "keep\n" {
+		t.Fatalf("existing %q, failing %q", read(t, existing), read(t, failing))
+	}
+}
