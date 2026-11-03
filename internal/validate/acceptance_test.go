@@ -156,3 +156,35 @@ func TestAcceptanceRecordNeedsCalendarDateAcceptedDecisionAndOwner(t *testing.T)
 		t.Fatalf("Resolves = %v, want RISK-OTHER,RISK-NO-OWNER", resolving)
 	}
 }
+
+// An acceptance record with a decisionRef but no statement is a warning at
+// its statement, for a risk and for a threat scenario: the owner's words
+// belong on the risk itself. A record with both, and one with a statement
+// only, report nothing.
+// Mutation: checking only risks misses TS-DEC; reporting a record that also
+// has a statement reports RISK-BOTH.
+// TRLC-LINKS: REQ-EMG-116
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestAcceptanceByDecisionOnlyWarns(t *testing.T) {
+	b := acceptanceTestBundle(
+		[]model.Risk{
+			{ID: "RISK-DEC", Title: "d", Statement: "d", Status: "accepted", Owner: "ACT-OWNER", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}},
+			{ID: "RISK-BOTH", Title: "b", Statement: "b", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT", Statement: "I accept it."}},
+			{ID: "RISK-WORDS", Title: "w", Statement: "w", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", Statement: "I accept it."}},
+		},
+		[]model.ThreatScenario{{ID: "TS-DEC", Title: "t", AppliesTo: []string{"FU-A"}, Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}}},
+	)
+	var paths []string
+	for _, d := range behaviorDiags(b, "risk.acceptance_by_decision_only") {
+		if d.Severity != SeverityWarning || !strings.Contains(d.Message, "DEC-ACCEPT") || !strings.Contains(d.Message, "statement") {
+			t.Fatalf("must be a warning naming the decision and statement: %+v", d)
+		}
+		paths = append(paths, d.Path)
+	}
+	if want := "authoredArchitecture.risks[0].acceptedBy.statement,authoredArchitecture.threatScenarios[0].acceptedBy.statement"; strings.Join(paths, ",") != want {
+		t.Fatalf("risk.acceptance_by_decision_only paths = %v, want %s", paths, want)
+	}
+	if HasErrors(Bundle(b)) {
+		t.Fatalf("decision-only acceptance must stay a warning: %+v", Bundle(b))
+	}
+}

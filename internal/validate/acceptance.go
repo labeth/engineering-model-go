@@ -122,11 +122,14 @@ func (r AcceptanceRefs) Resolves(rec *model.AcceptanceRecord) bool {
 //     with an owner when the actor is another actor than the owner.
 //   - risk.accept_while_open (warning) at the status of a risk with response
 //     accept and status open.
+//   - risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a
+//     risk or threat scenario whose record has a decisionRef but no
+//     statement: the owner's own words belong on the risk (REQ-EMG-116).
 //
 // Imported alias::ID records belong to their own model and are skipped; the
 // schema rejects :: in authored risk and threat scenario IDs, so only
 // composition enrichment produces them.
-// TRLC-LINKS: REQ-EMG-085
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-116
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func acceptanceDiagnostics(b model.Bundle) []Diagnostic {
 	a := b.Architecture.AuthoredArchitecture
@@ -142,6 +145,13 @@ func acceptanceDiagnostics(b model.Bundle) []Diagnostic {
 		}
 		for _, p := range refs.Problems(rec) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_acceptance", Severity: SeverityError, Message: p.Message, Path: path + ".acceptedBy." + p.Field})
+		}
+		if rec != nil && strings.TrimSpace(rec.DecisionRef) != "" && strings.TrimSpace(rec.Statement) == "" {
+			diags = append(diags, Diagnostic{
+				Code: "risk.acceptance_by_decision_only", Severity: SeverityWarning,
+				Message: fmt.Sprintf("%s %s is accepted through decision %s without a statement; add acceptedBy.statement with the owner's own words accepting this %s (ask the owner about this %s by name, not bundled with other choices)", kind, id, strings.TrimSpace(rec.DecisionRef), kind, kind),
+				Path:    path + ".acceptedBy.statement",
+			})
 		}
 	}
 	for i, r := range a.Risks {

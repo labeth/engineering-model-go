@@ -21,6 +21,8 @@ semantic versioning.
   `list<object>`, `object`, `map<string,string>`; `of` names the kind of an object field),
   derived from the strict-decoding types. New field rules state the flow step `ref` and
   unique-step-ID rules, the exact `catalog.term_unreferenced` rule and the exclude forms.
+- `risk.acceptance_by_decision_only` (warning, REQ-EMG-116): an `acceptedBy` of a risk or threat
+  scenario with a `decisionRef` but no `statement`; record the owner's own words on the risk.
 
 ### Fixed
 

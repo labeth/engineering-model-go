@@ -740,3 +740,10 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MCP-SERVER
+  - id: REQ-EMG-116
+    text: When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.
+    notes: 'risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner''s own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped.'
+    verificationMethods: [test]
+    verificationCriteria: When a risk and a threat scenario are accepted with a decisionRef and no statement, then each has a risk.acceptance_by_decision_only warning at acceptedBy.statement naming the decision, and a record with both a decisionRef and a statement or with a statement only reports none.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
