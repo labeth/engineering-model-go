@@ -747,3 +747,30 @@ parent's links are its children. (docs/requirement-links.md D22.)
 - A system publishes its own capabilities so a system above can link to them; its requirements realize them, link below, or are derived.
 - A manifest that sets inferenceHints.topLevel no longer loads (strict schema); the field was never released.
 - Guided mode still applies the rule only where the model publishes contract items or has reqLinks.
+
+[[ADR-EMG-029]]
+== ADR-EMG-029: model.patch is the one MCP tool that writes, confined to the model's own documents and valid results
+
+Status:: accepted
+Date:: 2026-11-03
+
+=== Context
+
+Agents edited model YAML with ad-hoc string replacement scripts: about 25 edits in one session, one of which
+corrupted a document, each followed by a full check. The MCP server had no writing tool (D14), so an agent could
+validate an edit with model.diagnose but had to write it by other means.
+
+=== Decision
+
+model.patch edits one entity by stable ID with line-preserving YAML edits, validates the whole model with the
+edited document like model.diagnose and returns the diagnostics and a unified diff. It writes only when called with
+write true, only a valid result (no validation error anywhere in the model and no parse error), only a document the
+manifest lists (never engmod.yml, and not the requirement link file, whose write path stays engws review-links, D14),
+only when every manifest document resolves inside the model root after symlinks, and through an atomic replace that
+keeps the file mode. It is the only MCP tool that writes; every other tool stays read-only.
+
+=== Consequences
+
+- Model edits by agents go through one validated, diffable path instead of hand-written scripts.
+- A write by model.patch is visible as a file change in the working tree; review of the diff stays the control that it was intended.
+- links.review still writes nothing; recording a link review stays a CLI action.

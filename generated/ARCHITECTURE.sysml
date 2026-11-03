@@ -236,6 +236,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-028';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-029";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-029';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -3136,6 +3142,51 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-112' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.";
         attribute 'notes' : 'String' = "A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-113";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-113' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall write an edit of one model entity only when the edited model is valid.";
+        attribute 'notes' : 'String' = "model.patch {document, id, set?: {field: value}, unset?: [field], append?: {listField: item or [items]}, remove?: {listField: value or [values]}, write?: bool} finds the one list item with that id anywhere in the document (yamledit.FindByID: top-level entities and nested ones such as flow steps; no match or two matches are errors), applies set, unset, append and remove in that order with line-preserving edits (yamledit.SetPath, UnsetPath, AppendPath, RemovePath: dotted field paths such as acceptedBy.statement, a missing field or intermediate mapping is added, a flow list stays a flow list, an object item is removed by its id, comments and every untouched line are kept), validates the whole model with the edited document exactly like model.diagnose, and returns valid, diagnostics, otherDiagnostics, parseErrors, patch (unified diff with three lines of context, git apply format) and written. The input schema is strict (additionalProperties false; field paths ^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)*$; write a JSON boolean); setting or unsetting id is refused. Decision ADR-EMG-029: it is the one MCP tool that writes, and only with write true, only a valid result, only a manifest-listed document other than the manifest and the requirement link file (whose write path is engws review-links, D14), only when every manifest document resolves inside the model root after symlinks, only when the file did not change during the call, through an atomic replace that keeps the file mode.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-114";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-114' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall scan the same code scope as the model check.";
+        attribute 'notes' : 'String' = "The MCP code tools (coverage.strictStatus, files.forRequirement, files.forControl, files.forThreat, model.implementations, tests.*, interfaces.implementations, code.contextForTask) scan through codescan.ScanCodeScope and codescan.CodeScopeSkip, the skip function the check and the trace use (codeScanSkipper): files git does not track or would ignore (git ls-files --cached --others --exclude-standard), paths matching inferenceHints.exclude and directories of nested modules are left out. Before, the MCP scanner walked repoRoot with only a fixed list of skipped directories, so git-ignored build output (viewer/dist/assets/*.js) failed coverage.strictStatus while the check passed. inferenceHints.exclude accepts dir, dir/, dir/* and dir/** (each leaves the whole directory out), ./dir, a file path and a glob with * ? [...] within one path segment (*.gen.go), relative to the module root; a pattern matches a path and every ancestor directory of it. A pattern the scan cannot apply (empty, absolute, with .., ** other than a trailing /**, a malformed glob) is model.invalid_exclude_pattern (error) at inferenceHints.exclude[i], naming the accepted forms.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-115";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-115' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the type of every authorable field with the authoring rules.";
+        attribute 'notes' : 'String' = "validate.Rules.fieldTypes (model.authoringContract rules) gives, per fieldSets kind and in the same order, each field as {name, type, of?}: type string, bool, int, list<string>, list<object>, object or map<string,string>, derived by reflection from the strict-decoding Go types (fieldSetTypes); of names the fieldSets kind of an object or list<object> field (flow steps: flowStep; acceptedBy: acceptanceRecord; every *Evidence and *Artifact struct: evidence). fieldSets stays the list of names. The field rules also state: every flow step needs ref (model.missing_flow_step_ref) and step IDs are unique across all flows (model.duplicate_flow_step_id within a flow, semantic.duplicate_identity across flows); threatScenario stride is one string while preconditions, exploitPath, detection and controlVerification findings are lists; catalog.term_unreferenced is reported only with lintRun.mode strict and only for a term no requirement text names, whose ID no architecture, behavior, assurance, compliance, views, decisions, design or aviation string contains and whose name no other authored text contains (so a state referenced by a flow step ref is in use); and the exclude forms of REQ-EMG-114.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-116";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-116' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.";
+        attribute 'notes' : 'String' = "risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner's own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-117";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-117' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.";
+        attribute 'notes' : 'String' = "Three warnings (validate.assuranceConsistencyDiagnostics). risk.severity_inconsistent at the severity of each threat scenario whose (likelihood, impact) pair, compared case-insensitively, maps to more than one severity among the model's threat scenarios; the message names the other severities and their scenarios and asks for one scoring method recorded as a decision. Only threat scenarios carry likelihood, impact and severity together: a risk has likelihood, impact and residualRisk but no severity, so risks are not compared. controlVerification.risk_control_unlinked at a riskRefs entry of a control verification that names a local risk whose relatedControls omit the verification's controlRef (risk-to-control trace in both directions). threat.attack_vector_missing at the attackVectorRef of a threat scenario without one when another local threat scenario names its attack vector. Imported alias::ID records and unknown risks (reported elsewhere) are skipped.";
     }
 
     @EngineeringElement {
