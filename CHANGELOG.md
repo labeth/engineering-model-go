@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-11-03: Child-to-parent requirement links across composed models
+
 ### Added
 
 - Requirement links across composed models (REQ-EMG-090 to REQ-EMG-099, REQ-EMG-108 to
