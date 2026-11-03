@@ -456,21 +456,7 @@ Realized by:
 * `REQ-OTA-002`: Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.
 * `REQ-OTA-003`: When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
 
-Fingerprint: `sha256:9afe0495ee83dab4a2646be755762baefc2bf7117251c873d3e52c377052873d`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-OTA-APPLY
-|sample-coffee-fleet-ota-cloud-model
-|LNK-COF-003-OTA-AGENT
-|REQ-COF-003
-|claimed
-|===
+Fingerprint: `sha256:v1:056844ad6d24fa1b4ee47d0bd128e0cad08ced668bfbaef937967dbc57da9dd9`
 
 <<<
 == Reference Index

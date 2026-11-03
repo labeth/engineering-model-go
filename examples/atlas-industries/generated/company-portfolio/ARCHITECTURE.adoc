@@ -727,7 +727,7 @@ Realized by:
 
 * `REQ-PORT-001`: The atlas industries portfolio shall report portfolio status to the portfolio executive.
 
-Fingerprint: `sha256:a67013963ec67bdb6899a58f8f7059389be7db84ebb359ce55edc16ffbea9bb3`
+Fingerprint: `sha256:v1:cf9a18acef2be84e51d85be6e21d0d4ac541ec9bf035064fcfdc8f702f4c9f80`
 
 <<<
 == Reference Index

@@ -760,26 +760,7 @@ Realized by:
 * `REQ-COMP-007`: The people security and awareness shall revoke employee access following employment termination.
 * `REQ-COMP-008`: The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
 
-Fingerprint: `sha256:a83d44e3b037279253478a225904085e57f81f9f65e348d6a47e652e4bf06e25`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-CONTROL-BASELINE
-|atlas-aegis-sentinel
-|LNK-AEG-005-COMPLIANCE
-|REQ-AEG-005
-|accepted
-|CAP-CONTROL-BASELINE
-|atlas-orion-relay
-|LNK-ORI-005-COMPLIANCE
-|REQ-ORI-005
-|accepted
-|===
+Fingerprint: `sha256:v1:a6a021ac4665f1e4766f9453beeb5171d9909ac829be2a7b525ae07ed91a36c0`
 
 <<<
 == Reference Index

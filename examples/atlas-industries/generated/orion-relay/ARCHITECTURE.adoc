@@ -1075,21 +1075,7 @@ Realized by:
 * `REQ-ORI-003`: The orion relay system shall retain relay configuration using managed cloud operations.
 * `REQ-ORI-004`: The orion relay system shall authenticate product services using shared security services.
 
-Fingerprint: `sha256:6c3369b48d1b3b77202bdab0600e3012c916a06a80f9fb2c2460e1dc48be9f80`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-ORION-MISSION
-|atlas-industries-portfolio
-|LNK-PORT-003-ORION
-|REQ-PORT-003
-|accepted
-|===
+Fingerprint: `sha256:v1:94d795377ec77f634e76ab75773f4f087514689950bac50f72203327968d01dc`
 
 <<<
 == Reference Index

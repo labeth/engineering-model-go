@@ -194,6 +194,48 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-021';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-022";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-022';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-023";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-023';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-024";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-024';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-025";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-025';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-026";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-026';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-027";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-027';
+
+    @EngineeringElement {
+        sourceId = "AV-COMPOSED-MODEL-CONTENT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'AV-COMPOSED-MODEL-CONTENT';
+
+    @EngineeringElement {
         sourceId = "AV-FALSE-ACCEPTANCE-CLAIM";
         conceptKind = "engineering_extension";
     }
@@ -1186,16 +1228,46 @@ package 'engineering-model-go' {
     attribute 'CTRL-ARTIFACT-SCAN-BOUNDS';
 
     @EngineeringElement {
+        sourceId = "CTRL-CHILD-USER-NONDISCLOSURE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-CHILD-USER-NONDISCLOSURE';
+
+    @EngineeringElement {
+        sourceId = "CTRL-FINGERPRINT-COVERAGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-FINGERPRINT-COVERAGE';
+
+    @EngineeringElement {
+        sourceId = "CTRL-GIT-REF-VALIDATION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-GIT-REF-VALIDATION';
+
+    @EngineeringElement {
         sourceId = "CTRL-GO-WORK-INPUT-VALIDATION";
         conceptKind = "engineering_extension";
     }
     attribute 'CTRL-GO-WORK-INPUT-VALIDATION';
 
     @EngineeringElement {
+        sourceId = "CTRL-LINK-REVIEW-RECORD";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-LINK-REVIEW-RECORD';
+
+    @EngineeringElement {
         sourceId = "CTRL-MCP-PATH-BOUNDARY";
         conceptKind = "engineering_extension";
     }
     attribute 'CTRL-MCP-PATH-BOUNDARY';
+
+    @EngineeringElement {
+        sourceId = "CTRL-REPO-LOCAL-WRITES";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'CTRL-REPO-LOCAL-WRITES';
 
     @EngineeringElement {
         sourceId = "CTRL-STRICT-MCP-INPUT-SCHEMA";
@@ -1491,15 +1563,15 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-CONTRACT-DIFF-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-CONTRACT-DIFF-REQUESTED';
+    event occurrence 'EVT-CONTRACT-DIFF-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-DEPENDENCY-BUMP-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-DEPENDENCY-BUMP-REQUESTED';
+    event occurrence 'EVT-DEPENDENCY-BUMP-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-EXAMPLE-VALIDATION-REQUESTED";
@@ -1515,15 +1587,15 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-LINK-MIGRATION-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-LINK-MIGRATION-REQUESTED';
+    event occurrence 'EVT-LINK-MIGRATION-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-LINK-REVIEW-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-LINK-REVIEW-REQUESTED';
+    event occurrence 'EVT-LINK-REVIEW-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-MCP-TOOL-CALL-RECEIVED";
@@ -1539,9 +1611,9 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-RELEASE-CHECK-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-RELEASE-CHECK-REQUESTED';
+    event occurrence 'EVT-RELEASE-CHECK-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED";
@@ -1698,6 +1770,22 @@ package 'engineering-model-go' {
         conceptKind = "part_definition";
     }
     part def 'FG-VALIDATION-ANALYSIS';
+
+    @EngineeringElement {
+        sourceId = "FLOW-DEPENDENCY-BUMP";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-DEPENDENCY-BUMP' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-LINK-REVIEW";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-LINK-REVIEW' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
 
     @EngineeringElement {
         sourceId = "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS";
@@ -2888,7 +2976,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-095' {
         attribute 'text' : 'String' = "The engineering model go shall compute a deterministic fingerprint of each contract item with its realizing requirements.";
-        attribute 'notes' : 'String' = "reqlinks.Fingerprint is sha256: over compact JSON {\"item\":{id,kind,text,verificationCriteria},\"realizers\":[{id,text,verificationCriteria,status}...]} with realizers sorted by id, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline (reqlinks.CanonicalItem). The text of a capability is its note. A using system computes it from the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item does not change it.";
+        attribute 'notes' : 'String' = "reqlinks.Fingerprint is sha256:v1:<hex> (v1 the canonical-form version, decision D17) of compact JSON {\"item\":{id,kind,text,verificationCriteria},\"realizers\":[{id,text,notes,verificationCriteria,verificationMethods,criticality,status}...]} with realizers sorted by id, verificationMethods sorted, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline (reqlinks.CanonicalItem). The text of a capability is its note. Requirement title, rationale, appliesTo, priority and tags are not covered: they name, explain, allocate or rank the requirement without changing what it obliges. A using system computes it from the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item does not change it.";
     }
 
     @EngineeringElement {
@@ -2897,7 +2985,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-096' {
         attribute 'text' : 'String' = "Where system composition is enabled, the engineering model go shall accept a dependency version that is a release tag or a pseudo-version carrying a commit.";
-        attribute 'notes' : 'String' = "The CUE #ExactVersion and ParseExactModuleVersion accept a canonical semantic version, including Go-style pseudo-versions v1.2.4-0.20261102103400-abcdef123456. A release only uses tags; engws release-check rejects pseudo-versions (later work).";
+        attribute 'notes' : 'String' = "The CUE #ExactVersion and ParseExactModuleVersion accept a canonical semantic version, including Go-style pseudo-versions v1.2.4-0.20261102103400-abcdef123456. A release only uses tags; engws release-check rejects pseudo-versions (REQ-EMG-103).";
     }
 
     @EngineeringElement {
@@ -2960,7 +3048,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-103' {
         attribute 'text' : 'String' = "When release check is requested, the engineering model go shall reject a release that pins an unreleased dependency or whose tag bump is smaller than its contract diff requires.";
-        attribute 'notes' : 'String' = "engws release-check [--repo DIR] [--tag vX.Y.Z] reports dependency.unreleased_pin (error) for every engmod.yml dependency or engmod.lock.yml version that is a pre-release or pseudo-version, and contract.semver_too_small (error) when the bump of the tag (--tag, else the highest release tag at HEAD) over the previous release tag (the highest release semver tag below it in git tag) is smaller than contract-diff(previous, the tag if it exists, else HEAD) requires. In v0.x (previous and tag major 0) a minor bump is major-capable and a patch bump minor-capable, so a breaking change needs a minor bump. Without a tag or a previous release tag the semver gate is skipped with a note. Exit 0 ok, 1 findings, 2 usage or IO error.";
+        attribute 'notes' : 'String' = "engws release-check [--repo DIR] [--tag vX.Y.Z] reports dependency.unreleased_pin (error) for every engmod.yml dependency or engmod.lock.yml version that is a pre-release or pseudo-version, and contract.semver_too_small (error) when the bump of the tag (--tag, else the highest release tag at HEAD) over the previous release tag (the highest release semver tag below it among the tags merged into the released commit, git tag --merged: the nearest ancestor release) is smaller than contract-diff(previous, the tag if it exists, else HEAD) requires. In v0.x (previous and tag major 0) a minor bump is major-capable and a patch bump minor-capable, so a breaking change needs a minor bump. Without a tag or a previous release tag the semver gate is skipped with a note. Exit 0 ok, 1 findings, 2 usage or IO error.";
     }
 
     @EngineeringElement {
@@ -2996,7 +3084,52 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-107' {
         attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render the requirement link tree of a using model and the contract items of a child model without disclosing the users of the child.";
-        attribute 'notes' : 'String' = "A model with reqLinks gets an AsciiDoc chapter \"Requirement Links\": for each requirement a list item, then each link it is the parent of with its state (unchanged, or marked *SUSPECT*, *BROKEN*, *VERSION MISMATCH*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and \"Assumptions of Use\" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets \"Contract Items\": each published capability and assumption of use with its text, verification criteria, realizing published requirements and fingerprint. Only when the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a \"Used By\" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model. Rendered without a workspace a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings are reported but do not stop the render (D15).";
+        attribute 'notes' : 'String' = "A model with reqLinks gets an AsciiDoc chapter \"Requirement Links\": for each requirement a list item, then each link it is the parent of with its state (unchanged, or marked *SUSPECT*, *BROKEN*, *VERSION MISMATCH*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and \"Assumptions of Use\" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets \"Contract Items\": each published capability and assumption of use with its text, verification criteria, realizing published requirements and fingerprint. Only when the caller opts in (AsciiDocOptions.UsedBy, engdoc --used-by; off by default, also when a workspace is found), the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a \"Used By\" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model; a document rendered with it must not be committed into the child (D16). By default a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings and the strict-mode trace findings requirement.no_parent, requirement.unsatisfied and contract.realizer_unpublished are reported but do not stop the render (D15).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-108";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-108' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace.";
+        attribute 'notes' : 'String' = "The upward search for engmod.work.yml (FindWorkspaceWith with an empty mode and ENGMOD_WORK unset) refuses a world-writable file and, where the platform has file owners, a file owned by neither the current user nor root, with an error naming ENGMOD_WORK=<path> as the way to use it anyway; an explicit path is used as given. The Used By scan (composition.WorkspaceLinkUsers) reads only replacement directories inside the workspace directory (composition.PathWithin) whose manifest names no path outside its own directory (the dependency confinement, composition.dependency_path_escape), so a crafted workspace or sibling manifest cannot make a render read files elsewhere. The upward search does not stop at a git top-level: a workspace sits above sibling repositories by design.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-109";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-109' {
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.";
+        attribute 'notes' : 'String' = "A fingerprint is sha256:v<N>:<hex>, N the canonical-form version (reqlinks.CanonicalVersion, 1). Decision D17: any change to the canonical form is a new version. A recorded fingerprint of another version, or the unversioned sha256:<hex> of the v0.8.0 pre-releases, is not compared: the link is fingerprint_outdated and the composed check reports link.fingerprint_outdated (error, distinct from link.suspect) with the message to check that nothing in the item changed (engws review-links) and re-stamp it with engws review-links --accept, or use an engine that migrates the form. The CUE schema accepts sha256:(vN:)?<64 hex>; engws review-links lists the link and --accept re-stamps it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-110";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-110' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough.";
+        attribute 'notes' : 'String' = "Text in the Requirement Links, Assumptions of Use, Contract Items and Used By sections comes partly from dependency models (another repository). Every such string is whitespace-collapsed and its passthrough forms (+++...+++, ++...++, $$...$$, pass:[...] and other pass macros) are broken with {empty}, so it renders literally and cannot emit raw HTML into the document.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-111";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-111' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date.";
+        attribute 'notes' : 'String' = "A reqLinks entry with status accepted and no reviewedBy or no reviewedOn is link.review_unrecorded (error); a reviewedBy that is not an actor of the model and a reviewedOn that is not a YYYY-MM-DD calendar date are link.review_unrecorded too, at that field. A claimed link may carry neither. engws review-links --accept writes both; the check shows only that a modeled role and a date are recorded, review of the diff shows that the role gave it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-112";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-112' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.";
+        attribute 'notes' : 'String' = "A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent.";
     }
 
     @EngineeringElement {
@@ -3024,6 +3157,30 @@ package 'engineering-model-go' {
     state def 'STATE-ARTIFACTS-FRESH';
 
     @EngineeringElement {
+        sourceId = "STATE-LINK-ACCEPTED";
+        conceptKind = "state_definition";
+    }
+    state def 'STATE-LINK-ACCEPTED';
+
+    @EngineeringElement {
+        sourceId = "STATE-LINK-BROKEN";
+        conceptKind = "state_definition";
+    }
+    state def 'STATE-LINK-BROKEN';
+
+    @EngineeringElement {
+        sourceId = "STATE-LINK-CLAIMED";
+        conceptKind = "state_definition";
+    }
+    state def 'STATE-LINK-CLAIMED';
+
+    @EngineeringElement {
+        sourceId = "STATE-LINK-SUSPECT";
+        conceptKind = "state_definition";
+    }
+    state def 'STATE-LINK-SUSPECT';
+
+    @EngineeringElement {
         sourceId = "STATE-MODEL-INVALID";
         conceptKind = "state_definition";
     }
@@ -3040,6 +3197,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'SYS-ENGINEERING-MODEL-GO';
+
+    @EngineeringElement {
+        sourceId = "TB-CHILD-USING-SYSTEM";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TB-CHILD-USING-SYSTEM';
 
     @EngineeringElement {
         sourceId = "TB-EXTERNAL-VALIDATION-TOOLS";
@@ -3066,16 +3229,46 @@ package 'engineering-model-go' {
     attribute 'TM-ARTIFACT-SCAN-BOUNDS';
 
     @EngineeringElement {
+        sourceId = "TM-CHILD-USER-NONDISCLOSURE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-CHILD-USER-NONDISCLOSURE';
+
+    @EngineeringElement {
+        sourceId = "TM-FINGERPRINT-COVERAGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-FINGERPRINT-COVERAGE';
+
+    @EngineeringElement {
+        sourceId = "TM-GIT-REF-VALIDATION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-GIT-REF-VALIDATION';
+
+    @EngineeringElement {
         sourceId = "TM-GO-WORK-INPUT-VALIDATION";
         conceptKind = "engineering_extension";
     }
     attribute 'TM-GO-WORK-INPUT-VALIDATION';
 
     @EngineeringElement {
+        sourceId = "TM-LINK-REVIEW-RECORD";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-LINK-REVIEW-RECORD';
+
+    @EngineeringElement {
         sourceId = "TM-MCP-PATH-BOUNDARY";
         conceptKind = "engineering_extension";
     }
     attribute 'TM-MCP-PATH-BOUNDARY';
+
+    @EngineeringElement {
+        sourceId = "TM-REPO-LOCAL-WRITES";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TM-REPO-LOCAL-WRITES';
 
     @EngineeringElement {
         sourceId = "TM-TRACE-COVERAGE";
@@ -3090,16 +3283,46 @@ package 'engineering-model-go' {
     attribute 'TS-ARTIFACT-PARSE-ABUSE';
 
     @EngineeringElement {
+        sourceId = "TS-CHILD-USER-DISCLOSURE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-CHILD-USER-DISCLOSURE';
+
+    @EngineeringElement {
+        sourceId = "TS-FALSE-LINK-ACCEPTANCE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-FALSE-LINK-ACCEPTANCE';
+
+    @EngineeringElement {
         sourceId = "TS-FALSE-RISK-ACCEPTANCE";
         conceptKind = "engineering_extension";
     }
     attribute 'TS-FALSE-RISK-ACCEPTANCE';
 
     @EngineeringElement {
+        sourceId = "TS-GIT-REF-OPTION-INJECTION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-GIT-REF-OPTION-INJECTION';
+
+    @EngineeringElement {
         sourceId = "TS-GO-WORK-INJECTION";
         conceptKind = "engineering_extension";
     }
     attribute 'TS-GO-WORK-INJECTION';
+
+    @EngineeringElement {
+        sourceId = "TS-HIDDEN-CHILD-CHANGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-HIDDEN-CHILD-CHANGE';
+
+    @EngineeringElement {
+        sourceId = "TS-LINK-WRITE-OUTSIDE-REPO";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'TS-LINK-WRITE-OUTSIDE-REPO';
 
     @EngineeringElement {
         sourceId = "TS-MCP-PATH-TRAVERSAL";
@@ -3126,16 +3349,46 @@ package 'engineering-model-go' {
     verification 'VER-ARTIFACT-SCAN-BOUNDS' : EngineeringVerification;
 
     @EngineeringElement {
+        sourceId = "VER-CHILD-USER-NONDISCLOSURE";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-CHILD-USER-NONDISCLOSURE' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-FINGERPRINT-COVERAGE";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-FINGERPRINT-COVERAGE' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-GIT-REF-VALIDATION";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-GIT-REF-VALIDATION' : EngineeringVerification;
+
+    @EngineeringElement {
         sourceId = "VER-GO-WORK-INPUT-VALIDATION";
         conceptKind = "verification_case_usage";
     }
     verification 'VER-GO-WORK-INPUT-VALIDATION' : EngineeringVerification;
 
     @EngineeringElement {
+        sourceId = "VER-LINK-REVIEW-RECORD";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-LINK-REVIEW-RECORD' : EngineeringVerification;
+
+    @EngineeringElement {
         sourceId = "VER-MCP-PATH-BOUNDARY";
         conceptKind = "verification_case_usage";
     }
     verification 'VER-MCP-PATH-BOUNDARY' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-REPO-LOCAL-WRITES";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-REPO-LOCAL-WRITES' : EngineeringVerification;
 
     @EngineeringElement {
         sourceId = "VER-TRACEABILITY-COVERAGE";
@@ -3174,12 +3427,24 @@ package 'engineering-model-go' {
     view 'VIEW-TRACEABILITY' : EngineeringView;
 
     @EngineeringElement {
+        sourceId = "check-acceptance";
+        conceptKind = "action_usage";
+    }
+    action 'check-acceptance' : EngineeringAction;
+
+    @EngineeringElement {
         sourceId = "edit-model";
         conceptKind = "action_usage";
     }
     action 'edit-model' : EngineeringAction {
         out item 'output_architecture_update' : EngineeringItem;
     }
+
+    @EngineeringElement {
+        sourceId = "evaluate-bumped-links";
+        conceptKind = "action_usage";
+    }
+    action 'evaluate-bumped-links' : EngineeringAction;
 
     @EngineeringElement {
         sourceId = "fail-validation";
@@ -3214,10 +3479,34 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "pin-version";
+        conceptKind = "action_usage";
+    }
+    action 'pin-version' : EngineeringAction;
+
+    @EngineeringElement {
         sourceId = "publish-artifacts";
         conceptKind = "action_usage";
     }
     action 'publish-artifacts' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "record-acceptance";
+        conceptKind = "action_usage";
+    }
+    action 'record-acceptance' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "refuse-acceptance";
+        conceptKind = "action_usage";
+    }
+    action 'refuse-acceptance' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "regenerate-lock";
+        conceptKind = "action_usage";
+    }
+    action 'regenerate-lock' : EngineeringAction;
 
     @EngineeringElement {
         sourceId = "reject-requirements-delta";
@@ -3228,12 +3517,30 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "repin-unchanged-links";
+        conceptKind = "action_usage";
+    }
+    action 'repin-unchanged-links' : EngineeringAction;
+
+    @EngineeringElement {
         sourceId = "replace-requirements";
         conceptKind = "action_usage";
     }
     action 'replace-requirements' : EngineeringAction {
         in item 'input_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
     }
+
+    @EngineeringElement {
+        sourceId = "restore-bump-files";
+        conceptKind = "action_usage";
+    }
+    action 'restore-bump-files' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "show-links";
+        conceptKind = "action_usage";
+    }
+    action 'show-links' : EngineeringAction;
 
     @EngineeringElement {
         sourceId = "validate-model";
@@ -3253,11 +3560,32 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-0093A8DE75632A1B";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-0093A8DE75632A1B-context' : EngineeringState {
+        state 'STATE-LINK-ACCEPTED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-0093A8DE75632A1B' first 'STATE-LINK-ACCEPTED' accept 'EVT-CONTRACT-DIFF-REQUESTED' : EngineeringItem then transitionEffect;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-016B944849F917F9";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
     dependency 'REL-016B944849F917F9' from 'FU-STRUCTURIZR-EXPORTER' to 'REF-STRUCTURIZR-VALIDATOR';
+
+    @EngineeringRelationship {
+        sourceId = "REL-01A907C5186262EC";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-01A907C5186262EC' : EngineeringVerification {
+        subject 'VER-LINK-REVIEW-RECORD' : EngineeringItem;
+        objective 'CTRL-LINK-REVIEW-RECORD' : EngineeringRequirement;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-04F4A20F9A87A948";
@@ -3274,11 +3602,36 @@ package 'engineering-model-go' {
     dependency 'REL-080A42488B0FD5AB' from 'FU-TRLC-EXPORTER' to 'REF-TRLC-TOOLCHAIN';
 
     @EngineeringRelationship {
+        sourceId = "REL-0893DE78A51F8BA1";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-0893DE78A51F8BA1' first 'show-links' then 'check-acceptance';
+
+    @EngineeringRelationship {
         sourceId = "REL-09DA914374D48456";
         conceptKind = "dependency";
         relationshipKind = "interacts_with";
     }
     dependency 'REL-09DA914374D48456' from 'ACT-CI-PIPELINE' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0BC01C9171549ED5";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-0BC01C9171549ED5' first 'regenerate-lock' then 'evaluate-bumped-links';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0D4880EAA06B6537";
+        conceptKind = "transition";
+        relationshipKind = "transitions_to";
+    }
+    state 'REL-0D4880EAA06B6537-context' : EngineeringState {
+        action 'STATE-LINK-CLAIMED' : EngineeringAction;
+        action 'STATE-LINK-ACCEPTED' : EngineeringAction;
+        transition 'REL-0D4880EAA06B6537' first 'STATE-LINK-CLAIMED' then 'STATE-LINK-ACCEPTED';
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-0E9AC4B59A88F112";
@@ -3306,6 +3659,17 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-11EBC1A0720CA807";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-11EBC1A0720CA807-context' : EngineeringState {
+        state 'STATE-LINK-CLAIMED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-11EBC1A0720CA807' first 'STATE-LINK-CLAIMED' accept 'EVT-LINK-MIGRATION-REQUESTED' : EngineeringItem then transitionEffect;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-14A8527C3C1658DF";
         conceptKind = "transfer";
         relationshipKind = "flow_transfer";
@@ -3328,6 +3692,23 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-1A999986F017F7E0";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-1A999986F017F7E0' : EngineeringVerification {
+        subject 'VER-FINGERPRINT-COVERAGE' : EngineeringItem;
+        objective 'CTRL-FINGERPRINT-COVERAGE' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-1B448352F7DFCECA";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-1B448352F7DFCECA' from 'refuse-acceptance' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
         sourceId = "REL-1D6B10631D0F5925";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -3340,6 +3721,13 @@ package 'engineering-model-go' {
         relationshipKind = "bounded_by";
     }
     dependency 'REL-1DF7B8675269FA1B' from 'FU-MCP-SERVER' to 'TB-REPO-WORKSPACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1F66CE721C2ED103";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-1F66CE721C2ED103' from 'record-acceptance' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
         sourceId = "REL-2180C452E7CCA478";
@@ -3385,11 +3773,28 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-2AEB188DC97B1888";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-2AEB188DC97B1888' : EngineeringVerification {
+        subject 'VER-CHILD-USER-NONDISCLOSURE' : EngineeringItem;
+        objective 'CTRL-CHILD-USER-NONDISCLOSURE' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-2EAD296790C31C25";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-2EAD296790C31C25' from 'load-requirements-delta' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-2FA99E391022B5E4";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-2FA99E391022B5E4' first 'pin-version' then 'restore-bump-files';
 
     @EngineeringRelationship {
         sourceId = "REL-2FBD45E16902772F";
@@ -3406,6 +3811,17 @@ package 'engineering-model-go' {
     dependency 'REL-30E5FCA45681E4F3' from 'FU-VALIDATION-ENGINE' to 'REF-GO-TOOLCHAIN';
 
     @EngineeringRelationship {
+        sourceId = "REL-316A24455E4139E3";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-316A24455E4139E3-context' : EngineeringState {
+        state 'STATE-LINK-ACCEPTED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-316A24455E4139E3' first 'STATE-LINK-ACCEPTED' accept 'EVT-RELEASE-CHECK-REQUESTED' : EngineeringItem then transitionEffect;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-33A257E5FF509B55";
         conceptKind = "transfer";
         relationshipKind = "reads";
@@ -3417,6 +3833,13 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-3605D7D6ACD767E9";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-3605D7D6ACD767E9' from 'regenerate-lock' to 'FU-SYSTEM-COMPOSITION';
+
+    @EngineeringRelationship {
         sourceId = "REL-368CF829865A81D5";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -3424,11 +3847,53 @@ package 'engineering-model-go' {
     dependency 'REL-368CF829865A81D5' from 'FU-SYSTEM-COMPOSITION' to 'REF-CUE-OCI-MODULE-REGISTRY';
 
     @EngineeringRelationship {
+        sourceId = "REL-38D2B6208B0DBBA9";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-38D2B6208B0DBBA9' from 'pin-version' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3A30D7C94E6939CE";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-3A30D7C94E6939CE' first 'record-acceptance' then 'refuse-acceptance';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3A9F16464C64A59F";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-3A9F16464C64A59F' : EngineeringVerification {
+        subject 'VER-REPO-LOCAL-WRITES' : EngineeringItem;
+        objective 'CTRL-REPO-LOCAL-WRITES' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-3E33EA7E80D13835";
         conceptKind = "succession";
         relationshipKind = "flow_next";
     }
     succession 'REL-3E33EA7E80D13835' first 'validate-requirements-candidate' then 'replace-requirements';
+
+    @EngineeringRelationship {
+        sourceId = "REL-40C4FE61C6053FE7";
+        conceptKind = "transition";
+        relationshipKind = "transitions_to";
+    }
+    state 'REL-40C4FE61C6053FE7-context' : EngineeringState {
+        action 'STATE-LINK-ACCEPTED' : EngineeringAction;
+        action 'STATE-LINK-SUSPECT' : EngineeringAction;
+        transition 'REL-40C4FE61C6053FE7' first 'STATE-LINK-ACCEPTED' then 'STATE-LINK-SUSPECT';
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-41611DCF8363B2A8";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-41611DCF8363B2A8' from 'check-acceptance' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
         sourceId = "REL-421CC0B05DC0502A";
@@ -3477,6 +3942,13 @@ package 'engineering-model-go' {
     succession 'REL-48089B20C8B08D3E' first 'validate-model' then 'generate-artifacts';
 
     @EngineeringRelationship {
+        sourceId = "REL-49A4B6D2D8B373AD";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-49A4B6D2D8B373AD' first 'pin-version' then 'regenerate-lock';
+
+    @EngineeringRelationship {
         sourceId = "REL-4B995420ADBC7581";
         conceptKind = "transfer";
         relationshipKind = "reads";
@@ -3486,6 +3958,20 @@ package 'engineering-model-go' {
         part 'DO-SYSML-V2-METAMODEL' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-4B995420ADBC7581' from 'FU-SYSML-EXPORTER'.pOut to 'DO-SYSML-V2-METAMODEL'.pIn;
     }
+
+    @EngineeringRelationship {
+        sourceId = "REL-4E21742D2FB84467";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-4E21742D2FB84467' first 'regenerate-lock' then 'restore-bump-files';
+
+    @EngineeringRelationship {
+        sourceId = "REL-4E93BAD6FCDAC1E2";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-4E93BAD6FCDAC1E2' first 'evaluate-bumped-links' then 'restore-bump-files';
 
     @EngineeringRelationship {
         sourceId = "REL-4F1A97CB3EA472DC";
@@ -3506,6 +3992,17 @@ package 'engineering-model-go' {
     dependency 'REL-4FF77277CA72D599' from 'FU-CODEMAP-INFERENCE' to 'TB-REPO-WORKSPACE';
 
     @EngineeringRelationship {
+        sourceId = "REL-51B543A60F0122B0";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-51B543A60F0122B0-context' {
+        part 'ACT-ARCHITECTURE-AUTHOR' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-51B543A60F0122B0' from 'ACT-ARCHITECTURE-AUTHOR'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-52FC381077B14D5A";
         conceptKind = "succession";
         relationshipKind = "flow_error";
@@ -3513,11 +4010,28 @@ package 'engineering-model-go' {
     succession 'REL-52FC381077B14D5A' first 'validate-requirements-candidate' then 'reject-requirements-delta';
 
     @EngineeringRelationship {
+        sourceId = "REL-533FBA1058B9E95C";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-533FBA1058B9E95C' first 'check-acceptance' then 'record-acceptance';
+
+    @EngineeringRelationship {
         sourceId = "REL-53DF7944D31ADC40";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
     dependency 'REL-53DF7944D31ADC40' from 'FU-NAF-EXPORTER' to 'REF-NAF-V4-1-SPECIFICATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-56D94B0E429D076D";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-56D94B0E429D076D' : EngineeringVerification {
+        subject 'VER-GIT-REF-VALIDATION' : EngineeringItem;
+        objective 'CTRL-GIT-REF-VALIDATION' : EngineeringRequirement;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-582D7DDAB1367C4D";
@@ -3539,6 +4053,17 @@ package 'engineering-model-go' {
         relationshipKind = "mitigated_by";
     }
     dependency 'REL-5C9C6EE212E4FD1D' from 'AV-TRACEABILITY-GAP-DRIFT' to 'CTRL-TRACEABILITY-COVERAGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5FFB43CE4B5786F2";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-5FFB43CE4B5786F2-context' : EngineeringState {
+        state 'STATE-LINK-BROKEN' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-5FFB43CE4B5786F2' first 'STATE-LINK-BROKEN' accept 'EVT-LINK-REVIEW-REQUESTED' : EngineeringItem then transitionEffect;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-6088122D54F9887C";
@@ -3594,6 +4119,13 @@ package 'engineering-model-go' {
     dependency 'REL-6E736D47074A3CEA' from 'FU-TRLC-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
+        sourceId = "REL-7AA33DA291EB7A90";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-7AA33DA291EB7A90' first 'check-acceptance' then 'refuse-acceptance';
+
+    @EngineeringRelationship {
         sourceId = "REL-7C6B59DFA5F97922";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -3637,6 +4169,17 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-82A111E1D914A0F9";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-82A111E1D914A0F9-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-82A111E1D914A0F9' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-8359402B3B322449";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -3654,11 +4197,43 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-85EF5D66A73D662E";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-85EF5D66A73D662E' from 'evaluate-bumped-links' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-87B612D71D6265B1";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-87B612D71D6265B1-context' : EngineeringState {
+        state 'STATE-LINK-CLAIMED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-87B612D71D6265B1' first 'STATE-LINK-CLAIMED' accept 'EVT-LINK-REVIEW-REQUESTED' : EngineeringItem then transitionEffect;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-8AAA646D9D1CF563";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-8AAA646D9D1CF563' first 'repin-unchanged-links' then 'restore-bump-files';
+
+    @EngineeringRelationship {
         sourceId = "REL-99640AD91A774667";
         conceptKind = "dependency";
         relationshipKind = "targets";
     }
     dependency 'REL-99640AD91A774667' from 'AV-SCHEMA-SUPPLY-CHAIN-TAMPER' to 'REF-OPEN-OTM-SCHEMA';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9F9D0BFE4684AB66";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-9F9D0BFE4684AB66' from 'repin-unchanged-links' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
         sourceId = "REL-A02740CF7074A233";
@@ -3696,6 +4271,28 @@ package 'engineering-model-go' {
     dependency 'REL-A6BE9BBEB4A2E9CD' from 'AV-TRACEABILITY-GAP-DRIFT' to 'FU-CODEMAP-INFERENCE';
 
     @EngineeringRelationship {
+        sourceId = "REL-A7B68DAFAC2CF94B";
+        conceptKind = "transition";
+        relationshipKind = "transitions_to";
+    }
+    state 'REL-A7B68DAFAC2CF94B-context' : EngineeringState {
+        action 'STATE-LINK-SUSPECT' : EngineeringAction;
+        action 'STATE-LINK-ACCEPTED' : EngineeringAction;
+        transition 'REL-A7B68DAFAC2CF94B' first 'STATE-LINK-SUSPECT' then 'STATE-LINK-ACCEPTED';
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-A8B1B31ABBE97299";
+        conceptKind = "transition";
+        relationshipKind = "transitions_to";
+    }
+    state 'REL-A8B1B31ABBE97299-context' : EngineeringState {
+        action 'STATE-LINK-ACCEPTED' : EngineeringAction;
+        action 'STATE-LINK-BROKEN' : EngineeringAction;
+        transition 'REL-A8B1B31ABBE97299' first 'STATE-LINK-ACCEPTED' then 'STATE-LINK-BROKEN';
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-A9A59951D996EDE9";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -3711,6 +4308,17 @@ package 'engineering-model-go' {
         relationshipKind = "depends_on";
     }
     dependency 'REL-A9A6ADD0BC7DA4E2' from 'FU-MCP-SERVER' to 'FU-VALIDATION-ENGINE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A9D8D80AF01E0E73";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-A9D8D80AF01E0E73-context' : EngineeringState {
+        state 'STATE-LINK-ACCEPTED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-A9D8D80AF01E0E73' first 'STATE-LINK-ACCEPTED' accept 'EVT-DEPENDENCY-BUMP-REQUESTED' : EngineeringItem then transitionEffect;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-B1CEFDE3267D1A07";
@@ -3765,6 +4373,13 @@ package 'engineering-model-go' {
     dependency 'REL-C14D1E0A5A7D260D' from 'FU-THREAT-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
+        sourceId = "REL-C5462A84B5B762E0";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C5462A84B5B762E0' from 'restore-bump-files' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
         sourceId = "REL-C95225800FC7BD46";
         conceptKind = "event_trigger";
         relationshipKind = "triggered_by";
@@ -3799,6 +4414,13 @@ package 'engineering-model-go' {
         relationshipKind = "bounded_by";
     }
     dependency 'REL-CC26ADB229638ACA' from 'FU-STRUCTURIZR-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-CDF33573A9ECBCE7";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-CDF33573A9ECBCE7' first 'evaluate-bumped-links' then 'repin-unchanged-links';
 
     @EngineeringRelationship {
         sourceId = "REL-CE24A4335AEBEDD2";
@@ -3839,6 +4461,24 @@ package 'engineering-model-go' {
         relationshipKind = "flow_next";
     }
     succession 'REL-E6134BEEFB9A3A7B' first 'merge-requirements-candidate' then 'validate-requirements-candidate';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E75B93B894A74F66";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-E75B93B894A74F66' from 'show-links' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E801A87C05EDBF10";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-E801A87C05EDBF10-context' : EngineeringState {
+        state 'STATE-LINK-SUSPECT' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-E801A87C05EDBF10' first 'STATE-LINK-SUSPECT' accept 'EVT-LINK-REVIEW-REQUESTED' : EngineeringItem then transitionEffect;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-EC073BE26257DD9C";

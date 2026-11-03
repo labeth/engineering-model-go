@@ -97,7 +97,7 @@
         {
           "symbol": "CODE-CMD-ENGDOC-MAIN-GO--PRINTDIAGNOSTICS",
           "path": "cmd/engdoc/main.go",
-          "line": 98
+          "line": 100
         },
         {
           "symbol": "CODE-CMD-ENGVIEW-MAIN-GO--MAIN",
@@ -117,12 +117,12 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 43
+          "line": 49
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-OSCAL-OSCAL-AR-GO--GENERATEASSESSMENTRESULTS",
@@ -758,12 +758,12 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 43
+          "line": 49
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-LINKING-UNITS-GO--ATTACKVECTORSBYTARGET",
@@ -1223,12 +1223,12 @@
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--NONEMPTY",
           "path": "internal/textutil/textutil.go",
-          "line": 18
+          "line": 25
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--UNIQUESORTED",
           "path": "internal/textutil/textutil.go",
-          "line": 38
+          "line": 45
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -1714,302 +1714,302 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 535
+          "line": 548
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONFIDENCEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1701
+          "line": 1714
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTEXTFORTASK",
           "path": "internal/mcp/server.go",
-          "line": 2188
+          "line": 2201
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIAGNOSTICFILEPATH",
           "path": "internal/mcp/server.go",
-          "line": 2311
+          "line": 2324
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIFFSCHEMAREFS",
           "path": "internal/mcp/server.go",
-          "line": 2337
+          "line": 2350
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DISPATCH",
           "path": "internal/mcp/server.go",
-          "line": 285
+          "line": 298
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENSUREREPOINDEX",
           "path": "internal/mcp/server.go",
-          "line": 1180
+          "line": 1193
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESCONTAINING",
           "path": "internal/mcp/server.go",
-          "line": 1157
+          "line": 1170
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1148
+          "line": 1161
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1561
+          "line": 1574
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDFLOW",
           "path": "internal/mcp/server.go",
-          "line": 2173
+          "line": 2186
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 1222
+          "line": 1235
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1056
+          "line": 1069
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1321
+          "line": 1334
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1084
+          "line": 1097
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSTEPSBYID",
           "path": "internal/mcp/server.go",
-          "line": 1392
+          "line": 1405
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATEDDIR",
           "path": "internal/mcp/server.go",
-          "line": 1515
+          "line": 1528
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTS",
           "path": "internal/mcp/server.go",
-          "line": 1524
+          "line": 1537
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTSTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1546
+          "line": 1559
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONCOMMANDS",
           "path": "internal/mcp/server.go",
-          "line": 1476
+          "line": 1489
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GOVERNANCEPOLICY",
           "path": "internal/mcp/server.go",
-          "line": 1574
+          "line": 1587
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GROUPIMPLEMENTATIONSBYFILE",
           "path": "internal/mcp/server.go",
-          "line": 1871
+          "line": 1884
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--HANDLE",
           "path": "internal/mcp/server.go",
-          "line": 251
+          "line": 264
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ILINE",
           "path": "internal/mcp/server.go",
-          "line": 1940
+          "line": 1953
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONFILESFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1797
+          "line": 1810
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1788
+          "line": 1801
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ISTESTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1956
+          "line": 1969
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--JOINLINENUMBERS",
           "path": "internal/mcp/server.go",
-          "line": 1930
+          "line": 1943
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LIMITROWS",
           "path": "internal/mcp/server.go",
-          "line": 1947
+          "line": 1960
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 370
+          "line": 383
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAPKEYS",
           "path": "internal/mcp/server.go",
-          "line": 1437
+          "line": 1450
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAXARG",
           "path": "internal/mcp/server.go",
-          "line": 1985
+          "line": 1998
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1999
+          "line": 2012
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYKIND",
           "path": "internal/mcp/server.go",
-          "line": 2130
+          "line": 2143
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYNODES",
           "path": "internal/mcp/server.go",
-          "line": 2137
+          "line": 2150
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 153
+          "line": 166
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEXTBESTACTIONS",
           "path": "internal/mcp/server.go",
-          "line": 1608
+          "line": 1621
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2595
+          "line": 2608
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--POLICYFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1637
+          "line": 1650
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RECOMMENDEDVIEWS",
           "path": "internal/mcp/server.go",
-          "line": 1448
+          "line": 1461
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTEDITPLAN",
           "path": "internal/mcp/server.go",
-          "line": 1262
+          "line": 1275
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTIDS",
           "path": "internal/mcp/server.go",
-          "line": 1070
+          "line": 1083
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1744
+          "line": 1757
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSUPPORTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1238
+          "line": 1251
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RUNTIMEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1675
+          "line": 1688
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCANCODESYMBOLS",
           "path": "internal/mcp/server.go",
-          "line": 1822
+          "line": 1835
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAFILEMETA",
           "path": "internal/mcp/server.go",
-          "line": 2357
+          "line": 2370
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAREFFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2327
+          "line": 2340
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SHELLPATH",
           "path": "internal/mcp/server.go",
-          "line": 1502
+          "line": 1515
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SLICESETDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1402
+          "line": 1415
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STALENESSFORPATH",
           "path": "internal/mcp/server.go",
-          "line": 1760
+          "line": 1773
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STRICTCOVERAGESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 2260
+          "line": 2273
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SYMBOLROWS",
           "path": "internal/mcp/server.go",
-          "line": 1839
+          "line": 1852
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TASKENTRYPOINTS",
           "path": "internal/mcp/server.go",
-          "line": 1594
+          "line": 1607
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1813
+          "line": 1826
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1804
+          "line": 1817
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--THREATSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1118
+          "line": 1131
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 240
+          "line": 253
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUEDIAGNOSTICROWS",
           "path": "internal/mcp/server.go",
-          "line": 2295
+          "line": 2308
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VERIFICATIONRECOMMENDATIONS",
           "path": "internal/mcp/server.go",
-          "line": 1291
+          "line": 1304
         }
       ],
       "verifications": [
@@ -2052,92 +2052,92 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--AUTHHINTSFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2430
+          "line": 2443
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--BOOLARG",
           "path": "internal/mcp/server.go",
-          "line": 1972
+          "line": 1985
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTAINSSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2675
+          "line": 2688
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENDPOINTFORENV",
           "path": "internal/mcp/server.go",
-          "line": 2418
+          "line": 2431
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FIRSTNONEMPTYARG",
           "path": "internal/mcp/server.go",
-          "line": 2628
+          "line": 2641
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHEDGES",
           "path": "internal/mcp/server.go",
-          "line": 2570
+          "line": 2583
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHNODES",
           "path": "internal/mcp/server.go",
-          "line": 2480
+          "line": 2493
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--INPUTSCHEMAFORTOOL",
           "path": "internal/mcp/server.go",
-          "line": 2692
+          "line": 2705
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 153
+          "line": 166
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NONEMPTYSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2642
+          "line": 2655
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERFOR",
           "path": "internal/mcp/server.go",
-          "line": 2450
+          "line": 2463
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIRESTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2727
+          "line": 2740
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREWELLFORMEDSTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2742
+          "line": 2755
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RESOLVEPATHINREPO",
           "path": "internal/mcp/server.go",
-          "line": 2391
+          "line": 2404
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 240
+          "line": 253
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2652
+          "line": 2665
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUESTRINGS",
           "path": "internal/mcp/server.go",
-          "line": 2659
+          "line": 2672
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VALIDATETOOLARGUMENTS",
           "path": "internal/mcp/server.go",
-          "line": 2707
+          "line": 2720
         }
       ],
       "verifications": [
@@ -2170,7 +2170,7 @@
         {
           "symbol": "CODE-CMD-ENGDOC-MAIN-GO--PRINTDIAGNOSTICS",
           "path": "cmd/engdoc/main.go",
-          "line": 98
+          "line": 100
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-CATALOG-DESCRIPTION-VALIDATION-GO--VALIDATECATALOGDESCRIPTIONS",
@@ -2879,17 +2879,17 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2595
+          "line": 2608
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--APPENDUNIQUE",
           "path": "internal/textutil/textutil.go",
-          "line": 57
+          "line": 64
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--APPENDUNIQUESLICE",
           "path": "internal/textutil/textutil.go",
-          "line": 72
+          "line": 79
         }
       ],
       "verifications": [
@@ -3494,7 +3494,7 @@
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--DETERMINISTICUUID",
           "path": "internal/textutil/textutil.go",
-          "line": 95
+          "line": 102
         }
       ],
       "verifications": [
@@ -3547,12 +3547,12 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATEFROMFILES",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 43
+          "line": 49
         }
       ],
       "verifications": [
@@ -4078,12 +4078,12 @@
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--FALLBACK",
           "path": "internal/textutil/textutil.go",
-          "line": 28
+          "line": 35
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--SORTEDKEYS",
           "path": "internal/textutil/textutil.go",
-          "line": 83
+          "line": 90
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-ASSURANCE-GO--CLASSIFYVERIFICATIONSTATUS",
@@ -4470,32 +4470,32 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 653
+          "line": 657
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--KNOWNMODELIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 199
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTIDSET",
           "path": "internal/trace/trace_matrix.go",
-          "line": 187
+          "line": 191
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 384
+          "line": 388
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 434
+          "line": 438
         }
       ],
       "verifications": [
@@ -4515,12 +4515,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 384
+          "line": 388
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 434
+          "line": 438
         }
       ],
       "verifications": [
@@ -4573,44 +4573,49 @@
           "line": 131
         },
         {
+          "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANPATH",
+          "path": "internal/trace/reqlinks_trace.go",
+          "line": 193
+        },
+        {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 653
+          "line": 657
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIX",
           "path": "internal/trace/trace_matrix.go",
-          "line": 492
+          "line": 496
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 502
+          "line": 506
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--CSV",
           "path": "internal/trace/trace_matrix.go",
-          "line": 892
+          "line": 896
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--EFFECTIVECODEROOTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 296
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTRESULTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 613
+          "line": 617
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--SCOPECODETOMODEL",
           "path": "internal/trace/trace_matrix.go",
-          "line": 309
+          "line": 313
         }
       ],
       "verifications": [
@@ -4943,7 +4948,7 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
@@ -5048,7 +5053,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 370
+          "line": 383
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -5435,7 +5440,7 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
@@ -5680,7 +5685,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 370
+          "line": 383
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -7022,7 +7027,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 370
+          "line": 383
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -7165,12 +7170,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 535
+          "line": 548
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 153
+          "line": 166
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -7511,7 +7516,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
           "path": "internal/model/workspace.go",
-          "line": 129
+          "line": 154
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -7640,7 +7645,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--FINDWORKSPACEWITH",
           "path": "internal/model/workspace.go",
-          "line": 70
+          "line": 74
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -7650,12 +7655,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
           "path": "internal/model/workspace.go",
-          "line": 129
+          "line": 154
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--REPLACEMENTPATH",
           "path": "internal/model/workspace.go",
-          "line": 117
+          "line": 142
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -7943,7 +7948,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
           "path": "internal/model/workspace.go",
-          "line": 129
+          "line": 154
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -8216,22 +8221,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 828
+          "line": 832
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 653
+          "line": 657
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 95
+          "line": 99
         }
       ],
       "verifications": [
@@ -8609,22 +8614,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 828
+          "line": 832
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 653
+          "line": 657
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 95
+          "line": 99
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -9453,12 +9458,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--FINDWORKSPACEWITH",
           "path": "internal/model/workspace.go",
-          "line": 70
+          "line": 74
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 641
+          "line": 645
         },
         {
           "symbol": "CODE-MODEL-API-GO--FINDWORKSPACEWITH",
@@ -9623,7 +9628,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 641
+          "line": 645
         }
       ],
       "verifications": [
@@ -9668,22 +9673,22 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--EXCLUDEUNPUBLISHEDREFERENCEECHOES",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 739
+          "line": 753
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--FIRSTQUOTED",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 772
+          "line": 786
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 717
+          "line": 731
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
@@ -9723,17 +9728,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 502
+          "line": 506
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 434
+          "line": 438
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -9795,12 +9800,12 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 717
+          "line": 731
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSEFORGENERATION",
@@ -9850,12 +9855,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 641
+          "line": 645
         }
       ],
       "verifications": [
@@ -9902,22 +9907,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPLYDELEGATEDSTATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 798
+          "line": 802
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--DEPENDENCYTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 732
+          "line": 736
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 766
+          "line": 770
         }
       ],
       "verifications": [
@@ -9948,22 +9953,17 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--COUNTERRORS",
           "path": "internal/engws/bump.go",
-          "line": 392
+          "line": 346
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--DEPMODULEAT",
           "path": "internal/engws/bump.go",
-          "line": 384
+          "line": 338
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--HASCOMPOSITIONERRORS",
           "path": "internal/engws/bump.go",
           "line": 276
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--REPLACESCALARONLINE",
-          "path": "internal/engws/bump.go",
-          "line": 362
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--REQUIRES",
@@ -9973,7 +9973,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--SETDEPENDENCYVERSION",
           "path": "internal/engws/bump.go",
-          "line": 327
+          "line": 328
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--SETENV",
@@ -10068,52 +10068,52 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 168
+          "line": 176
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 314
+          "line": 322
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 376
+          "line": 384
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 346
+          "line": 354
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 494
+          "line": 502
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 454
+          "line": 462
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 417
+          "line": 425
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 441
+          "line": 449
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 331
+          "line": 339
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 386
+          "line": 394
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-PLAN-GO--BUILDPLAN",
@@ -10218,7 +10218,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--WRITEFILEATOMIC",
           "path": "internal/engws/scan.go",
-          "line": 288
+          "line": 293
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--CHECKOWNED",
@@ -10263,12 +10263,17 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGENTRY",
           "path": "internal/yamledit/yamledit.go",
-          "line": 355
+          "line": 405
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGVALUE",
           "path": "internal/yamledit/yamledit.go",
-          "line": 348
+          "line": 398
+        },
+        {
+          "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SETSCALARINPLACE",
+          "path": "internal/yamledit/yamledit.go",
+          "line": 167
         }
       ],
       "verifications": [
@@ -10276,7 +10281,9 @@
         "VER-INF-TEST-BUMP_TEST-638DBA",
         "VER-INF-TEST-CHECK_TEST-72E628",
         "VER-INF-TEST-PLAN_TEST-2CD695",
-        "VER-INF-TEST-SYNC_TEST-864483"
+        "VER-INF-TEST-SYNC_TEST-864483",
+        "VER-INF-TEST-WRITEFILE_TEST-7BF459",
+        "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -10466,12 +10473,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 535
+          "line": 548
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 153
+          "line": 166
         }
       ],
       "verifications": [
@@ -10566,12 +10573,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 384
+          "line": 388
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-VERIFICATION-STATUS-GO--STALEVERIFICATIONSTATUS",
@@ -10603,7 +10610,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 546
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -11081,7 +11088,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 386
+          "line": 394
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
@@ -11188,7 +11195,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 502
+          "line": 506
         }
       ],
       "verifications": [
@@ -11209,12 +11216,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELFILEFINGERPRINT",
           "path": "internal/mcp/server.go",
-          "line": 492
+          "line": 505
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REFRESHMODEL",
           "path": "internal/mcp/server.go",
-          "line": 470
+          "line": 483
         }
       ],
       "verifications": [
@@ -11235,7 +11242,7 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--REALIZEDCONTRACTITEMS",
           "path": "api_reqlinks.go",
-          "line": 71
+          "line": 116
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-REQLINKS-GO--REQUIREMENTLINKMODE",
@@ -11245,27 +11252,27 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--REALIZEDITEMS",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 163
+          "line": 243
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTRACTITEMKINDS",
           "path": "internal/validate/reqlinks.go",
-          "line": 29
+          "line": 30
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "internal/validate/reqlinks.go",
-          "line": 49
+          "line": 50
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
           "path": "internal/validate/reqlinks.go",
-          "line": 19
+          "line": 20
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11296,6 +11303,11 @@
       ],
       "code": [
         {
+          "symbol": "CODE-API-REQLINKS-GO--CONTRACTCAPABILITYREFS",
+          "path": "api_reqlinks.go",
+          "line": 81
+        },
+        {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--ENRICHBUNDLE",
           "path": "internal/composition/composition_projection.go",
           "line": 261
@@ -11306,24 +11318,29 @@
           "line": 886
         },
         {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 191
+        },
+        {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--ITEMSFROMBUNDLE",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 127
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--REALIZEDITEMS",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 163
+          "line": 243
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTRACTITEMKINDS",
           "path": "internal/validate/reqlinks.go",
-          "line": 29
+          "line": 30
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         }
       ],
       "verifications": [
@@ -11346,27 +11363,27 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "api_reqlinks.go",
-          "line": 78
+          "line": 123
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--PUBLISHEDITEMS",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 186
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTAINSTRIMMED",
           "path": "internal/validate/reqlinks.go",
-          "line": 230
+          "line": 252
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "internal/validate/reqlinks.go",
-          "line": 49
+          "line": 50
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         }
       ],
       "verifications": [
@@ -11385,7 +11402,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         }
       ],
       "verifications": [
@@ -11430,12 +11447,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 175
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11445,6 +11462,7 @@
       ],
       "verifications": [
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_TEST-C095F7",
+        "VER-INF-TEST-COMPOSITION_REQLINKS_TEST-749C5F",
         "VER-INF-TEST-REQLINKS_TEST-493BCD",
         "VER-INF-TEST-REQLINKS_TEST-76AA55",
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
@@ -11462,7 +11480,7 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--CANONICALCONTRACTITEM",
           "path": "api_reqlinks.go",
-          "line": 54
+          "line": 99
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEM",
@@ -11472,7 +11490,7 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEMFINGERPRINT",
           "path": "api_reqlinks.go",
-          "line": 59
+          "line": 104
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEMREALIZER",
@@ -11482,12 +11500,12 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEMSFROMBUNDLE",
           "path": "api_reqlinks.go",
-          "line": 64
+          "line": 109
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
           "path": "api_reqlinks.go",
-          "line": 78
+          "line": 123
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-REQLINKS-GO--REQLINKPIN",
@@ -11497,42 +11515,54 @@
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CANONICALITEM",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 91
+          "line": 124
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--FINGERPRINT",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 116
+          "line": 151
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--ITEM",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 48
+          "line": 56
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--ITEMSFROMBUNDLE",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 127
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--NORMALIZE",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 80
+          "line": 98
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--NORMALIZEDMETHODS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 103
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--PUBLISHEDITEMS",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 186
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--REALIZER",
           "path": "internal/reqlinks/reqlinks.go",
-          "line": 37
+          "line": 42
+        },
+        {
+          "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--COLLAPSESPACE",
+          "path": "internal/textutil/textutil.go",
+          "line": 18
         }
       ],
       "verifications": [
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_TEST-C095F7",
-        "VER-INF-TEST-REQLINKS_TEST-76AA55"
+        "VER-INF-TEST-COMPOSITION_REQLINKS_TEST-749C5F",
+        "VER-INF-TEST-REQLINKS_TEST-76AA55",
+        "VER-INF-TEST-TEXTUTIL_TEST-33792B"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -11560,34 +11590,44 @@
       ],
       "code": [
         {
+          "symbol": "CODE-API-REQLINKS-GO--CONTRACTNONITEMREASON",
+          "path": "api_reqlinks.go",
+          "line": 70
+        },
+        {
           "symbol": "CODE-API-REQLINKS-GO--EVALUATEREQUIREMENTLINKS",
           "path": "api_reqlinks.go",
-          "line": 86
+          "line": 131
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--LINKDEPENDENCIES",
           "path": "api_reqlinks.go",
-          "line": 105
+          "line": 150
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--LINKDEPENDENCY",
           "path": "api_reqlinks.go",
-          "line": 45
+          "line": 90
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--LINKSTATUS",
           "path": "api_reqlinks.go",
-          "line": 49
+          "line": 94
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "api_reqlinks.go",
-          "line": 93
+          "line": 138
+        },
+        {
+          "symbol": "CODE-API-REQLINKS-GO--SORTEDCONTRACTITEMREALIZERS",
+          "path": "api_reqlinks.go",
+          "line": 74
         },
         {
           "symbol": "CODE-API-REQLINKS-GO--SUSPECTLINKMESSAGE",
           "path": "api_reqlinks.go",
-          "line": 100
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
@@ -11600,44 +11640,45 @@
           "line": 975
         },
         {
-          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DECLAREDELSEWHERE",
-          "path": "internal/reqlinks/evaluate.go",
-          "line": 150
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-REQLINKS-GO--LINKDIAGNOSTICS",
+          "path": "internal/composition/composition_reqlinks.go",
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DEPENDENCY",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 37
-        },
-        {
-          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DIAGNOSTICS",
-          "path": "internal/reqlinks/evaluate.go",
-          "line": 170
+          "line": 59
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--EVALUATELINKS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 79
+          "line": 104
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--LINKSTATUS",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 49
+          "line": 71
         },
         {
-          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--SORTEDREALIZERS",
+          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--NONITEMREASON",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 258
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--SUSPECTMESSAGE",
           "path": "internal/reqlinks/evaluate.go",
-          "line": 238
+          "line": 204
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--SORTEDREALIZERS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 180
         }
       ],
       "verifications": [
         "VER-INF-INTEGRATION-EXAMPLES_COMPANY_TEST-31D77E",
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_TEST-C095F7",
+        "VER-INF-TEST-COMPOSITION_REQLINKS_TEST-749C5F",
         "VER-INF-TEST-REQLINKS_TEST-76AA55"
       ],
       "result": "not-run",
@@ -11654,32 +11695,32 @@
         {
           "symbol": "CODE-API-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "api_reqlinks.go",
-          "line": 93
+          "line": 138
         },
         {
-          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--DIAGNOSTICS",
-          "path": "internal/reqlinks/evaluate.go",
-          "line": 170
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-REQLINKS-GO--LINKDIAGNOSTICS",
+          "path": "internal/composition/composition_reqlinks.go",
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--UNSATISFIEDREQUIREMENTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 397
+          "line": 401
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 384
+          "line": 388
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
           "path": "internal/validate/reqlinks.go",
-          "line": 19
+          "line": 20
         }
       ],
       "verifications": [
@@ -11705,7 +11746,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 69
+          "line": 70
         }
       ],
       "verifications": [
@@ -11724,6 +11765,11 @@
       ],
       "code": [
         {
+          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BLOCKSBUMP",
+          "path": "internal/engws/bump.go",
+          "line": 51
+        },
+        {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
           "path": "internal/engws/bump.go",
           "line": 67
@@ -11736,7 +11782,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMPOPTIONS",
           "path": "internal/engws/bump.go",
-          "line": 44
+          "line": 42
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--HASCOMPOSITIONERRORS",
@@ -11744,44 +11790,39 @@
           "line": 276
         },
         {
-          "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--NEEDSREVIEW",
-          "path": "internal/engws/bump.go",
-          "line": 51
-        },
-        {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 314
+          "line": 322
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
           "path": "internal/engws/cli.go",
-          "line": 526
+          "line": 534
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 494
+          "line": 502
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDLISTITEM",
           "path": "internal/yamledit/yamledit.go",
-          "line": 326
+          "line": 376
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDPATH",
           "path": "internal/yamledit/yamledit.go",
-          "line": 310
+          "line": 360
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGENTRY",
           "path": "internal/yamledit/yamledit.go",
-          "line": 355
+          "line": 405
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGVALUE",
           "path": "internal/yamledit/yamledit.go",
-          "line": 348
+          "line": 398
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--PARSE",
@@ -11791,7 +11832,7 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SCALAREND",
           "path": "internal/yamledit/yamledit.go",
-          "line": 163
+          "line": 213
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SETKEY",
@@ -11801,6 +11842,7 @@
       ],
       "verifications": [
         "VER-INF-TEST-BUMP_LINKS_TEST-FEBA3E",
+        "VER-INF-TEST-COMPOSITION_REQLINKS_TEST-749C5F",
         "VER-INF-TEST-REQLINKS_TEST-76AA55",
         "VER-INF-TEST-REVIEWLINKS_TEST-39A109"
       ],
@@ -11818,7 +11860,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--ACCEPTLINK",
           "path": "internal/engws/reviewlinks.go",
-          "line": 57
+          "line": 58
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--LINKREVIEW",
@@ -11833,7 +11875,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--PRINTREVIEWS",
           "path": "internal/engws/reviewlinks.go",
-          "line": 78
+          "line": 79
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--REVIEWLINKS",
@@ -11848,17 +11890,22 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-REVIEWLINKS-GO--RUNREVIEWLINKS",
           "path": "internal/engws/reviewlinks.go",
-          "line": 119
+          "line": 120
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-SCAN-GO--WRITEFILEATOMIC",
+          "path": "internal/engws/scan.go",
+          "line": 293
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ACCEPT",
           "path": "internal/linkreview/linkreview.go",
-          "line": 291
+          "line": 335
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ACCEPTANCE",
           "path": "internal/linkreview/linkreview.go",
-          "line": 276
+          "line": 320
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--CONTEXT",
@@ -11868,7 +11915,7 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--DIFFLINES",
           "path": "internal/linkreview/linkreview.go",
-          "line": 234
+          "line": 278
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATE",
@@ -11876,14 +11923,24 @@
           "line": 132
         },
         {
+          "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATE",
+          "path": "internal/linkreview/linkreview.go",
+          "line": 139
+        },
+        {
+          "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATEFORACCEPT",
+          "path": "internal/linkreview/linkreview.go",
+          "line": 165
+        },
+        {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--FIRSTERROR",
           "path": "internal/linkreview/linkreview.go",
-          "line": 152
+          "line": 182
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEMSATVERSION",
           "path": "internal/linkreview/linkreview.go",
-          "line": 208
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEMVIEW",
@@ -11923,22 +11980,22 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--REVIEWS",
           "path": "internal/linkreview/linkreview.go",
-          "line": 167
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--SCALARAT",
           "path": "internal/linkreview/linkreview.go",
-          "line": 369
+          "line": 413
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDLISTITEM",
           "path": "internal/yamledit/yamledit.go",
-          "line": 326
+          "line": 376
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDPATH",
           "path": "internal/yamledit/yamledit.go",
-          "line": 310
+          "line": 360
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--KEYRANGE",
@@ -11948,12 +12005,12 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGENTRY",
           "path": "internal/yamledit/yamledit.go",
-          "line": 355
+          "line": 405
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGVALUE",
           "path": "internal/yamledit/yamledit.go",
-          "line": 348
+          "line": 398
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--PARSE",
@@ -11968,7 +12025,7 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SCALAREND",
           "path": "internal/yamledit/yamledit.go",
-          "line": 163
+          "line": 213
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SETKEY",
@@ -11987,7 +12044,10 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-REVIEWLINKS_TEST-39A109"
+        "VER-INF-TEST-LINKREVIEW_TEST-4DF152",
+        "VER-INF-TEST-REVIEWLINKS_TEST-39A109",
+        "VER-INF-TEST-WRITEFILE_TEST-7BF459",
+        "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -12003,7 +12063,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 274
+          "line": 278
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFFRESULT",
@@ -12038,12 +12098,12 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
           "path": "internal/engws/contractdiff.go",
-          "line": 219
+          "line": 221
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--PRINTCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 290
+          "line": 294
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RANK",
@@ -12053,7 +12113,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RUNCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 314
+          "line": 318
         }
       ],
       "verifications": [
@@ -12079,7 +12139,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
           "path": "internal/engws/contractdiff.go",
-          "line": 219
+          "line": 221
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--BUMPOF",
@@ -12094,7 +12154,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RELEASECHECK",
           "path": "internal/engws/releasecheck.go",
-          "line": 120
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RELEASECHECKRESULT",
@@ -12109,7 +12169,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--RUNRELEASECHECK",
           "path": "internal/engws/releasecheck.go",
-          "line": 195
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--UNRELEASEDPINS",
@@ -12134,7 +12194,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--APPLYINMEMORY",
           "path": "internal/engws/migratelinks.go",
-          "line": 137
+          "line": 181
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--CHANGED",
@@ -12144,12 +12204,12 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--CONTAINSTRIMMED",
           "path": "internal/engws/migratelinks.go",
-          "line": 236
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--FLOWLIST",
           "path": "internal/engws/migratelinks.go",
-          "line": 226
+          "line": 270
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--KEPTALLOCATION",
@@ -12159,17 +12219,17 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKBLOCK",
           "path": "internal/engws/migratelinks.go",
-          "line": 397
+          "line": 437
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKID",
           "path": "internal/engws/migratelinks.go",
-          "line": 368
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEALLOCATIONS",
           "path": "internal/engws/migratelinks.go",
-          "line": 252
+          "line": 296
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEDLINK",
@@ -12189,7 +12249,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEREFS",
           "path": "internal/engws/migratelinks.go",
-          "line": 163
+          "line": 207
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATERESULT",
@@ -12199,37 +12259,47 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--NOTLINKTARGET",
           "path": "internal/engws/migratelinks.go",
-          "line": 344
+          "line": 388
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RESOLVEDEPENDENCYITEMS",
           "path": "internal/engws/migratelinks.go",
-          "line": 424
+          "line": 464
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RUNMIGRATELINKS",
           "path": "internal/engws/migratelinks.go",
-          "line": 459
+          "line": 499
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--UNIQUELINKID",
           "path": "internal/engws/migratelinks.go",
-          "line": 386
+          "line": 426
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--WRITEALLORNOTHING",
+          "path": "internal/engws/migratelinks.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--NONITEMREASON",
+          "path": "internal/reqlinks/evaluate.go",
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--APPENDSEQUENCEITEMS",
           "path": "internal/yamledit/yamledit.go",
-          "line": 228
+          "line": 278
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDLISTITEM",
           "path": "internal/yamledit/yamledit.go",
-          "line": 326
+          "line": 376
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--FINDPATH",
           "path": "internal/yamledit/yamledit.go",
-          "line": 310
+          "line": 360
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--KEYRANGE",
@@ -12239,12 +12309,12 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGENTRY",
           "path": "internal/yamledit/yamledit.go",
-          "line": 355
+          "line": 405
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--MAPPINGVALUE",
           "path": "internal/yamledit/yamledit.go",
-          "line": 348
+          "line": 398
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--PARSE",
@@ -12254,12 +12324,12 @@
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--REMOVEKEY",
           "path": "internal/yamledit/yamledit.go",
-          "line": 198
+          "line": 248
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--REMOVESEQUENCEITEMS",
           "path": "internal/yamledit/yamledit.go",
-          "line": 271
+          "line": 321
         },
         {
           "symbol": "CODE-INTERNAL-YAMLEDIT-YAMLEDIT-GO--SCALAR",
@@ -12283,7 +12353,8 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-MIGRATELINKS_TEST-36D479"
+        "VER-INF-TEST-MIGRATELINKS_TEST-36D479",
+        "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -12312,79 +12383,84 @@
           "line": 131
         },
         {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 191
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--SORTEDREALIZERS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 180
+        },
+        {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--APPENDUNIQUE",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 188
+          "line": 170
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--APPLYREQUIREMENTLINKS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 92
-        },
-        {
-          "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--CAPABILITYREFS",
-          "path": "internal/trace/reqlinks_trace.go",
-          "line": 21
+          "line": 80
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--COUNTUNPARENTED",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 64
+          "line": 51
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--DEPENDENCYREQUIREMENTSTATUS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 227
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANPATH",
+          "path": "internal/trace/reqlinks_trace.go",
+          "line": 193
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANREQUIREMENT",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 212
+          "line": 198
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--PUBLISHEDCAPABILITYREFS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 33
+          "line": 20
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--REMOVESTRING",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 199
+          "line": 181
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--REQUIREMENTPARENTS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 48
-        },
-        {
-          "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--SORTEDREALIZERS",
-          "path": "internal/trace/reqlinks_trace.go",
-          "line": 176
+          "line": 35
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 828
+          "line": 832
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 664
+          "line": 668
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 502
+          "line": 506
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--LINKREF",
           "path": "internal/trace/trace_matrix.go",
-          "line": 85
+          "line": 89
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 766
+          "line": 770
         }
       ],
       "verifications": [
@@ -12405,12 +12481,12 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ACCEPT",
           "path": "internal/linkreview/linkreview.go",
-          "line": 291
+          "line": 335
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ACCEPTANCE",
           "path": "internal/linkreview/linkreview.go",
-          "line": 276
+          "line": 320
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--CONTEXT",
@@ -12420,7 +12496,7 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--DIFFLINES",
           "path": "internal/linkreview/linkreview.go",
-          "line": 234
+          "line": 278
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATE",
@@ -12428,9 +12504,19 @@
           "line": 132
         },
         {
+          "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATE",
+          "path": "internal/linkreview/linkreview.go",
+          "line": 139
+        },
+        {
+          "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATEFORACCEPT",
+          "path": "internal/linkreview/linkreview.go",
+          "line": 165
+        },
+        {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEMSATVERSION",
           "path": "internal/linkreview/linkreview.go",
-          "line": 208
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEMVIEW",
@@ -12455,7 +12541,7 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--PATCH",
           "path": "internal/linkreview/linkreview.go",
-          "line": 354
+          "line": 398
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--REALIZERVIEW",
@@ -12470,55 +12556,61 @@
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--REVIEWS",
           "path": "internal/linkreview/linkreview.go",
-          "line": 167
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--LINKCONTEXT",
           "path": "internal/mcp/reqlinks.go",
-          "line": 27
+          "line": 26
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--LINKSLIST",
           "path": "internal/mcp/reqlinks.go",
-          "line": 38
+          "line": 37
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--LINKSREVIEW",
           "path": "internal/mcp/reqlinks.go",
-          "line": 84
+          "line": 83
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--LINKSSUSPECT",
           "path": "internal/mcp/reqlinks.go",
-          "line": 70
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--REQUIREMENTSPARENTS",
           "path": "internal/mcp/reqlinks.go",
-          "line": 193
+          "line": 196
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--REQUIREMENTTRACE",
           "path": "internal/mcp/reqlinks.go",
-          "line": 134
+          "line": 137
         },
         {
           "symbol": "CODE-INTERNAL-MCP-REQLINKS-GO--SHELLQUOTE",
           "path": "internal/mcp/reqlinks.go",
-          "line": 123
+          "line": 126
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 535
+          "line": 548
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 153
+          "line": 166
+        },
+        {
+          "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NOW",
+          "path": "internal/mcp/server.go",
+          "line": 57
         }
       ],
       "verifications": [
+        "VER-INF-TEST-LINKREVIEW_TEST-4DF152",
         "VER-INF-TEST-REQLINKS_TEST-98C2BD"
       ],
       "result": "not-run",
@@ -12546,47 +12638,47 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 69
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--HASBLOCKINGERRORS",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 701
+          "line": 715
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--LINKSTATELABEL",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 27
+          "line": 29
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--NONEMPTYDASH",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 228
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--ONELINETEXT",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 82
+          "line": 90
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--REALIZERTRACELABEL",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 63
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--RENDERCONTRACTITEMSCHAPTER",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 180
+          "line": 199
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--RENDERREQUIREMENTLINKSCHAPTER",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 88
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--REVIEWLABEL",
           "path": "internal/asciidoc/asciidoc_reqlinks.go",
-          "line": 53
+          "line": 59
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-WORKSPACE-USERS-GO--LINKUSE",
@@ -12596,17 +12688,181 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-WORKSPACE-USERS-GO--WORKSPACELINKUSERS",
           "path": "internal/composition/workspace_users.go",
-          "line": 39
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--SORTEDREALIZERS",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--DEPENDENCYREQUIREMENTSTATUS",
           "path": "internal/trace/reqlinks_trace.go",
-          "line": 227
+          "line": 216
         }
       ],
       "verifications": [
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_DISCLOSURE_TEST-D57A96",
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_RENDER_TEST-BB7550"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-108",
+      "text": "When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace.",
+      "units": [
+        "FU-MODEL-LOADER",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-COMPOSITION-WORKSPACE-USERS-GO--WORKSPACELINKUSERS",
+          "path": "internal/composition/workspace_users.go",
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--FINDWORKSPACEWITH",
+          "path": "internal/model/workspace.go",
+          "line": 74
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--TRUSTEDWORKSPACEFILE",
+          "path": "internal/model/workspace.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-OWNER-OTHER-GO--FILEOWNER",
+          "path": "internal/model/workspace_owner_other.go",
+          "line": 17
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-OWNER-UNIX-GO--FILEOWNER",
+          "path": "internal/model/workspace_owner_unix.go",
+          "line": 20
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-REQUIREMENT_LINKS_DISCLOSURE_TEST-D57A96",
+        "VER-INF-TEST-WORKSPACE_TEST-F6AA18"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-109",
+      "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEMFINGERPRINTVERSION",
+          "path": "api_reqlinks.go",
+          "line": 51
+        },
+        {
+          "symbol": "CODE-API-REQLINKS-GO--OUTDATEDLINKMESSAGE",
+          "path": "api_reqlinks.go",
+          "line": 86
+        },
+        {
+          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-REQLINKS-GO--LINKDIAGNOSTICS",
+          "path": "internal/composition/composition_reqlinks.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--NEEDSREVIEW",
+          "path": "internal/linkreview/linkreview.go",
+          "line": 111
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--EVALUATELINKS",
+          "path": "internal/reqlinks/evaluate.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--OUTDATEDMESSAGE",
+          "path": "internal/reqlinks/evaluate.go",
+          "line": 227
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--FINGERPRINT",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 151
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--FINGERPRINTVERSION",
+          "path": "internal/reqlinks/reqlinks.go",
+          "line": 163
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-COMPOSITION_REQLINKS_TEST-749C5F",
+        "VER-INF-TEST-REQLINKS_TEST-76AA55"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-110",
+      "text": "When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough.",
+      "units": [
+        "FU-ASCIIDOC-GENERATOR"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--ESCAPEPASSTHROUGH",
+          "path": "internal/asciidoc/asciidoc_reqlinks.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--ONELINETEXT",
+          "path": "internal/asciidoc/asciidoc_reqlinks.go",
+          "line": 90
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-ASCIIDOC_REQLINKS_TEST-2E90ED"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-111",
+      "text": "When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
+          "path": "internal/validate/reqlinks.go",
+          "line": 178
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REQLINKS_TEST-493BCD"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-112",
+      "text": "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
+          "path": "internal/validate/reqlinks.go",
+          "line": 178
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
       "status": "implemented"
@@ -12617,11 +12873,11 @@
     "REQ-EMG-027"
   ],
   "summary": {
-    "requirements": 100,
-    "implemented": 98,
-    "verified": 91,
-    "tested": 91,
-    "testLinked": 91,
+    "requirements": 105,
+    "implemented": 103,
+    "verified": 96,
+    "tested": 96,
+    "testLinked": 96,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

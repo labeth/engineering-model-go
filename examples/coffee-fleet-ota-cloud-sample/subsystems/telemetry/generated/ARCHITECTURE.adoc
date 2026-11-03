@@ -456,21 +456,7 @@ Realized by:
 * `REQ-TELEM-002`: Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.
 * `REQ-TELEM-003`: Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.
 
-Fingerprint: `sha256:0ad9a171238a041155b3f1b4e37db8a027f7683c585346496e1495ddd738c651`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-TELEM-REPORT
-|sample-coffee-fleet-ota-cloud-model
-|LNK-COF-001-TELEMETRY
-|REQ-COF-001
-|claimed
-|===
+Fingerprint: `sha256:v1:1fc5bcba17ed64b9ad8f30ab0c3290236b9724dc744280a4c2e7744968c9c005`
 
 <<<
 == Reference Index

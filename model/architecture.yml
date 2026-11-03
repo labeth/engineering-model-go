@@ -91,8 +91,10 @@ architecture:
   - id: FU-ALLOCATION-TRACE
     name: Allocation Trace
     group: FG-TRACEABILITY-COMPLIANCE
-    prose: Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying
-      subsystem models.
+    prose: Traces requirements across composed systems without modifying subsystem models - each child requirement up to the
+      contract items it realizes, each system requirement down through its requirement links (pinned, fingerprinted and
+      reviewed) to the child items and their realizing requirements - and rolls a system requirement up from its reviewed,
+      unchanged links; materializes the deprecated allocations for one release.
   - id: FU-MCP-SERVER
     name: MCP Server
     group: FG-MCP-INTEGRATION

@@ -1085,21 +1085,7 @@ Realized by:
 * `REQ-AEG-003`: The aegis sentinel system shall retain each perimeter track using managed cloud operations.
 * `REQ-AEG-004`: The aegis sentinel system shall authenticate product services using shared security services.
 
-Fingerprint: `sha256:493f883aabb63a31e2f359917711c351020aa48f01a198916c65c6a3a3fc520a`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-AEGIS-MISSION
-|atlas-industries-portfolio
-|LNK-PORT-002-AEGIS
-|REQ-PORT-002
-|accepted
-|===
+Fingerprint: `sha256:v1:b190d8d17c81e07ebf1e1443f56411cad8f88a72c0fd18f68f4768945a5afdab`
 
 <<<
 == Reference Index

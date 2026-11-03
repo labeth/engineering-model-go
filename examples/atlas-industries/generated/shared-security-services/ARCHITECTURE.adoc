@@ -485,7 +485,7 @@ Realized by:
 
 * `REQ-SEC-001`: The atlas security services shall issue short-lived identity credentials using the identity service.
 
-Fingerprint: `sha256:0fa787a1cbaea4f17e55597dbf42df3087d04d6055af24adf5fb01ba70d55b94`
+Fingerprint: `sha256:v1:5d63e4a604ade37ddbc990a45f3e26a70e65ad226b576e329b932102651a049c`
 
 === CAP-ZERO-TRUST (capability)
 
@@ -495,26 +495,7 @@ Realized by:
 
 * `REQ-SEC-002`: When credential replay is detected, the atlas security services shall notify the security analyst.
 
-Fingerprint: `sha256:be850cc8c9579a360b8b9b27a31c9b9bd96bcf5d27d29ae582b85a332df91ae9`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-ZERO-TRUST
-|atlas-aegis-sentinel
-|LNK-AEG-004-SECURITY
-|REQ-AEG-004
-|accepted
-|CAP-ZERO-TRUST
-|atlas-orion-relay
-|LNK-ORI-004-SECURITY
-|REQ-ORI-004
-|accepted
-|===
+Fingerprint: `sha256:v1:c08033fcd954c760e92db35f308885d2ced51b9817ee061c43d6db3adf2034cd`
 
 <<<
 == Reference Index

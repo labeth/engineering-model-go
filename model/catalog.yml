@@ -327,6 +327,26 @@ catalog:
     definition: State where generated outputs reflect the latest authored model inputs.
     aliases:
     - up to date
+  - id: STATE-LINK-CLAIMED
+    name: requirement link is claimed
+    definition: State where a requirement link is recorded but not yet reviewed.
+    aliases:
+    - claimed link
+  - id: STATE-LINK-ACCEPTED
+    name: requirement link is accepted
+    definition: State where a requirement link is reviewed and its fingerprint matches the child item.
+    aliases:
+    - accepted link
+  - id: STATE-LINK-SUSPECT
+    name: requirement link is suspect
+    definition: State where the child item of a requirement link changed since its review.
+    aliases:
+    - suspect link
+  - id: STATE-LINK-BROKEN
+    name: requirement link is broken
+    definition: State where the child item of a requirement link no longer exists.
+    aliases:
+    - broken link
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled

@@ -409,21 +409,7 @@ Realized by:
 * `REQ-CLOUD-001`: Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.
 * `REQ-CLOUD-002`: Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.
 
-Fingerprint: `sha256:fc8c67627f922f38425a09451002458f6245521928146cfd014b39a22e534aaa`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-CLOUD-INGEST
-|sample-coffee-fleet-ota-cloud-model
-|LNK-COF-002-CLOUD-API
-|REQ-COF-002
-|claimed
-|===
+Fingerprint: `sha256:v1:6077e439acc7c48485ea1ff25bed09ebc2c18f731bebd7eb2c74fcd9ca0758b7`
 
 <<<
 == Reference Index

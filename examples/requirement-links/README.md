@@ -12,7 +12,9 @@ Three independently publishable repositories with `requirementLinks: strict`:
   with the derived requirement `REQ-SYS-003`. Each link is pinned to `v0.1.0` and the
   fingerprint of the item at that version.
 
-A child never names its users. The links live only in the system. `engmod.work.yml`
+A child never names its users. The links live only in the system. Rendering child-a with
+`engdoc --used-by` in this workspace adds a Used By section with the system's links; that
+render is for local reading only and is never committed into the child. `engmod.work.yml`
 replaces both children with their directories under `repos/`, so the system resolves
 them offline.
 

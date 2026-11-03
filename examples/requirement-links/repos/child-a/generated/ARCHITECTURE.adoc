@@ -505,7 +505,7 @@ Realized by:
 * `REQ-A-001`: When epoch period elapses, the position encoder shall publish one position sentence.
 * `REQ-A-002`: The sentence encoder shall format each position sentence with latitude and longitude.
 
-Fingerprint: `sha256:947139d5f7e4609793cb066ed0dd819989d73012d84051e969b1075e8fa4b5ff`
+Fingerprint: `sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16`
 
 === CAP-A-2 (capability)
 
@@ -515,26 +515,7 @@ Realized by:
 
 * `REQ-A-003`: The sentence encoder shall append a checksum to each position sentence.
 
-Fingerprint: `sha256:f0cd6cf2d6352efe67f03d5eda61acb1364a54b4351743851d4f2b9def528585`
-
-=== Used By
-
-Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
-
-[cols="2,2,2,2,1",options="header"]
-|===
-|Item |Model |Link |Parent requirement |Status
-|CAP-A-1
-|REQLINKS-SYSTEM
-|LNK-SYS-001-ENCODER
-|REQ-SYS-001
-|accepted
-|CAP-A-2
-|REQLINKS-SYSTEM
-|LNK-SYS-002-ENCODER
-|REQ-SYS-002
-|accepted
-|===
+Fingerprint: `sha256:v1:e606f5ca738fa37b0361f8ee2c1043c6796333f0c09f926cfe1863d87aa78125`
 
 <<<
 == Reference Index
