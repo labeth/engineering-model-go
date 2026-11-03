@@ -112,6 +112,11 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 	for i, r := range b.Requirements.Requirements {
 		path := fmt.Sprintf("requirements[%d]", i)
 		id := strings.TrimSpace(r.ID)
+		if strings.Contains(id, "::") {
+			// An imported requirement (a bundle enriched with dependency
+			// publications) traces within its own model, checked there.
+			continue
+		}
 		targets := append([]string(nil), r.Realizes...)
 		if item := refRealizers[id]; item != "" {
 			targets = append(targets, item)

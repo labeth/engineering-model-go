@@ -3468,8 +3468,6 @@ flowchart TB
   CODE_REQ_COF_001_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 12"]:::code_element
   RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME --->|implemented_by| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
   REQC_REQ_COF_001 -->|code trace| CODE_REQ_COF_001_MACHINE_TELEMETRY_RS
-  SUBREQ_SUB_TELEMETRY_REQ_TELEM_001["REQ-TELEM-001 — SUB-TELEMETRY"]:::referenced_element
-  REQC_REQ_COF_001 -->|delegates to| SUBREQ_SUB_TELEMETRY_REQ_TELEM_001
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794["VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794 (pass)"]:::verification
   VERC_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794 -->|verifies| REQC_REQ_COF_001
   VERCODE_REQ_COF_001_VER_INF_TEST_TELEMETRY_INGEST_CONTRACT_TEST_394794_TELEMETRY_INGEST_CONTRACT_TEST_GO["telemetry_ingest_contract_test.go: 7"]:::code_element
@@ -3529,8 +3527,6 @@ flowchart TB
   CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 6"]:::code_element
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
   REQC_REQ_COF_002 -->|code trace| CODE_REQ_COF_002_FLEET_OBSERVABILITY_REPORTING_TS
-  SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-CLOUD-API"]:::referenced_element
-  REQC_REQ_COF_002 -->|delegates to| SUBREQ_SUB_CLOUD_API_REQ_CLOUD_001
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF["VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF (partial)"]:::verification
   VERC_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF -->|verifies| REQC_REQ_COF_002
   VERCODE_REQ_COF_002_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF_LOGGING_PIPELINE_TEST_TS["logging_pipeline_test.ts: 4"]:::code_element
@@ -3590,8 +3586,6 @@ flowchart TB
   CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS["update_campaign_orchestrator.ts: 6"]:::code_element
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION --->|implemented_by| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
   REQC_REQ_COF_003 -->|code trace| CODE_REQ_COF_003_UPDATE_CAMPAIGN_ORCHESTRATOR_TS
-  SUBREQ_SUB_OTA_AGENT_REQ_OTA_001["REQ-OTA-001 — SUB-OTA-AGENT"]:::referenced_element
-  REQC_REQ_COF_003 -->|delegates to| SUBREQ_SUB_OTA_AGENT_REQ_OTA_001
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC["VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC (not-run)"]:::verification
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
   VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
@@ -4589,52 +4583,46 @@ flowchart LR
 |`models.example/coffee-fleet/telemetry@v0@v0.1.0`
 |===
 
-=== Requirement Allocation Matrix
-
-[cols="2,2,2,1",options="header"]
-|===
-|Requirement |Subsystem |Target |Resolved
-|REQ-COF-001
-|SUB-TELEMETRY
-|telemetry::CAP-TELEM-REPORT
-|yes
-|REQ-COF-003
-|SUB-OTA-AGENT
-|ota-agent::CAP-OTA-APPLY
-|yes
-|REQ-COF-002
-|SUB-CLOUD-API
-|cloud-api::CAP-CLOUD-INGEST
-|yes
-|===
-
-==== Requirement Delegation View
-
-Each delegated requirement of this system links downward to the subsystem contract it binds. Requirements not shown here carry no delegation link and are implemented in this system.
-
-[source,mermaid]
-----
-flowchart LR
-  subgraph SYS["Connected Coffee Fleet OTA + Cloud Architecture"]
-    REQ_COF_001["REQ-COF-001"]
-    REQ_COF_003["REQ-COF-003"]
-    REQ_COF_002["REQ-COF-002"]
-  end
-  subgraph SUB_TELEMETRY["Machine Telemetry Subsystem"]
-    SUB_TELEMETRY__REQ_TELEM_001(["REQ-TELEM-001 (telemetry::CAP-TELEM-REPORT)"])
-  end
-  subgraph SUB_OTA_AGENT["OTA Update Agent Subsystem"]
-    SUB_OTA_AGENT__REQ_OTA_001(["REQ-OTA-001 (ota-agent::CAP-OTA-APPLY)"])
-  end
-  subgraph SUB_CLOUD_API["Cloud API Subsystem"]
-    SUB_CLOUD_API__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud-api::CAP-CLOUD-INGEST)"])
-  end
-  REQ_COF_001 -->|delegates to| SUB_TELEMETRY__REQ_TELEM_001
-  REQ_COF_003 -->|delegates to| SUB_OTA_AGENT__REQ_OTA_001
-  REQ_COF_002 -->|delegates to| SUB_CLOUD_API__REQ_CLOUD_001
-----
-
 All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+
+
+<<<
+== Requirement Links
+
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+
+* *REQ-COF-001*: While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations.
+** link LNK-COF-001-TELEMETRY (unchanged, *CLAIMED*: not yet reviewed) to `telemetry::CAP-TELEM-REPORT`: Report machine telemetry to the fleet.
+*** `telemetry::REQ-TELEM-001` (implemented, not test linked): Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet.
+*** `telemetry::REQ-TELEM-002` (implemented, not test linked): Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.
+*** `telemetry::REQ-TELEM-003` (implemented, not test linked): Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.
+* *REQ-COF-002*: While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist fleet telemetry metrics for fleet operator.
+** link LNK-COF-002-CLOUD-API (unchanged, *CLAIMED*: not yet reviewed) to `cloud-api::CAP-CLOUD-INGEST`: Ingest and persist fleet telemetry.
+*** `cloud-api::REQ-CLOUD-001` (implemented, not test linked): Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.
+*** `cloud-api::REQ-CLOUD-002` (implemented, not test linked): Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.
+* *REQ-COF-003*: Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall distribute signed firmware bundle to targeted machine cohort using ota campaign policy.
+** link LNK-COF-003-OTA-AGENT (unchanged, *CLAIMED*: not yet reviewed) to `ota-agent::CAP-OTA-APPLY`: Apply a signed firmware update to the machine.
+*** `ota-agent::REQ-OTA-001` (implemented, not test linked): Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.
+*** `ota-agent::REQ-OTA-002` (implemented, not test linked): Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.
+*** `ota-agent::REQ-OTA-003` (implemented, not test linked): When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
+* *REQ-COF-004*: Where ota campaign is enabled, when ota campaign scheduled event is received, the coffee fleet system shall gate firmware apply on firmware signature is valid.
+** no requirement link
+* *REQ-COF-005*: If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply.
+** no requirement link
+* *REQ-COF-006*: If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry.
+** no requirement link
+* *REQ-COF-007*: Where audit logging is enabled, when ota status reported event is received, the coffee fleet system shall persist redacted audit log record with machine identity plus campaign id.
+** no requirement link
+* *REQ-COF-008*: If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry.
+** no requirement link
+* *REQ-COF-009*: While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist logging records for fleet operator.
+** no requirement link
+* *REQ-COF-010*: If firmware validation failed event is received, then the coffee fleet system shall report ota status to platform operator.
+** no requirement link
+* *REQ-COF-011*: If cloud ingest endpoint is unavailable, then the coffee fleet system shall flush queued telemetry when normal mode is active.
+** no requirement link
+* *REQ-COF-012*: If telemetry replay abuse is detected, then the coffee fleet system shall notify security analyst.
+** no requirement link
 
 <<<
 == Reference Index

@@ -14,7 +14,10 @@
           "line": 6
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-CLOUD-INGEST"
+      ]
     },
     {
       "id": "REQ-CLOUD-002",
@@ -29,7 +32,10 @@
           "line": 12
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-CLOUD-INGEST"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -46,6 +52,10 @@
     "delegatedTestLinked": 0,
     "orphan": 0,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

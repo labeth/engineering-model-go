@@ -8,6 +8,8 @@ import (
 
 	"github.com/labeth/engineering-model-go/internal/asciidoc"
 	"github.com/labeth/engineering-model-go/internal/composition"
+	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // renderRepo renders repos/<repo> of a copied fixture to AsciiDoc with the
@@ -120,3 +122,39 @@ func asciidocResolution(workspace string) asciidocResolutionOptions {
 
 // asciidocResolutionOptions names the resolution options type.
 type asciidocResolutionOptions = composition.ResolutionOptions
+
+// A system whose dependencies publish requirements with realizes validates
+// with those requirements imported (as the OSCAL assessment results export
+// imports them): an imported requirement's realizes names its own model's
+// contract items, qualified with the dependency alias, and is not checked
+// against the system's contract.
+// Mutation: validating imported requirements' realizes against the
+// system, or not qualifying the imported realizes, fails this test.
+// TRLC-LINKS: REQ-EMG-090, REQ-EMG-091
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func TestImportedRequirementRealizesIsTheDependencys(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system", "engmod.yml")
+	bundle, err := model.LoadBundle(system)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enriched, err := composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var imported *model.Requirement
+	for i, r := range enriched.Requirements.Requirements {
+		if r.ID == "encoder::REQ-A-003" {
+			imported = &enriched.Requirements.Requirements[i]
+		}
+	}
+	if imported == nil || len(imported.Realizes) != 1 || imported.Realizes[0] != "encoder::CAP-A-2" {
+		t.Fatalf("imported REQ-A-003: %+v", imported)
+	}
+	for _, d := range validate.Bundle(enriched) {
+		if d.Severity == validate.SeverityError {
+			t.Fatalf("enriched system: %s %s", d.Code, d.Message)
+		}
+	}
+}

@@ -273,14 +273,6 @@ package 'atlas-aegis-sentinel' {
     }
     attribute 'TS-AEG-SENSOR-SPOOF';
 
-    part 'SUB-AEG-CLOUD/cloud::CAP-CLOUD-OPERATIONS' : EngineeringPart;
-
-    part 'SUB-AEG-COMPLIANCE/compliance::CAP-CONTROL-BASELINE' : EngineeringPart;
-
-    part 'SUB-AEG-EDGE/edge::CAP-EDGE-COMPUTE' : EngineeringPart;
-
-    part 'SUB-AEG-SECURITY/security::CAP-ZERO-TRUST' : EngineeringPart;
-
     requirement 'cloud::NEED-CLOUD-IDENTITY' : EngineeringRequirement;
 
     requirement 'edge::NEED-EDGE-IDENTITY' : EngineeringRequirement;
@@ -295,17 +287,6 @@ package 'atlas-aegis-sentinel' {
     verification 'REL-5D08DE35DFFD6F53' : EngineeringVerification {
         subject 'CV-AEG-TRACK-CONFIDENCE' : EngineeringItem;
         objective 'CTRL-AEG-TRACK-CONFIDENCE' : EngineeringRequirement;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-9B105138F82B9A7A";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-9B105138F82B9A7A-context' {
-        part 'REQ-AEG-004' : EngineeringPart;
-        part 'SUB-AEG-SECURITY/security::CAP-ZERO-TRUST' : EngineeringPart;
-        allocation 'REL-9B105138F82B9A7A' allocate 'REQ-AEG-004' to 'SUB-AEG-SECURITY/security::CAP-ZERO-TRUST';
     }
 
     @EngineeringRelationship {
@@ -337,39 +318,6 @@ package 'atlas-aegis-sentinel' {
         part source : 'HW-AEG-RADAR';
         part target : 'HW-AEG-OPTICAL';
         connection 'REL-B68E3259B6568EDA' connect source to target;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-BAB141DBF9BC04D6";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-BAB141DBF9BC04D6-context' {
-        part 'REQ-AEG-002' : EngineeringPart;
-        part 'SUB-AEG-EDGE/edge::CAP-EDGE-COMPUTE' : EngineeringPart;
-        allocation 'REL-BAB141DBF9BC04D6' allocate 'REQ-AEG-002' to 'SUB-AEG-EDGE/edge::CAP-EDGE-COMPUTE';
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-BE6D3544886A27B2";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-BE6D3544886A27B2-context' {
-        part 'REQ-AEG-005' : EngineeringPart;
-        part 'SUB-AEG-COMPLIANCE/compliance::CAP-CONTROL-BASELINE' : EngineeringPart;
-        allocation 'REL-BE6D3544886A27B2' allocate 'REQ-AEG-005' to 'SUB-AEG-COMPLIANCE/compliance::CAP-CONTROL-BASELINE';
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-E7851CD623FEB34D";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-E7851CD623FEB34D-context' {
-        part 'REQ-AEG-003' : EngineeringPart;
-        part 'SUB-AEG-CLOUD/cloud::CAP-CLOUD-OPERATIONS' : EngineeringPart;
-        allocation 'REL-E7851CD623FEB34D' allocate 'REQ-AEG-003' to 'SUB-AEG-CLOUD/cloud::CAP-CLOUD-OPERATIONS';
     }
 
     // Publication public from models.atlas.example/shared/cloud-platform@v0@v0.1.0 (atlas-shared-cloud-platform).

@@ -731,14 +731,17 @@ architecture:
         name: Machine Telemetry Subsystem
         dependency: telemetry
         publication: public
-    allocations:
-      - requirement: REQ-COF-001
-        to: SUB-TELEMETRY
-        target: telemetry::CAP-TELEM-REPORT
-        rationale: Reporting is realized by the telemetry subsystem.
     satisfactions:
       - need: ota-agent::NEED-TELEMETRY-FEED
         by: telemetry::CAP-TELEM-REPORT
+
+# model/req-links.yml (documents.reqLinks)
+reqLinks:
+  - id: LNK-COF-001-TELEMETRY
+    parent: REQ-COF-001
+    child: telemetry::CAP-TELEM-REPORT
+    pinned: {version: v0.1.0, fingerprint: "sha256:..."}
+    status: claimed
 ```
 
 Dependencies are standard CUE modules fetched from the OCI registry selected by
@@ -903,15 +906,13 @@ See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 products reusing shared hardware/software, security, compliance, and cloud
 modules through OCI coordinates.
 
-### Requirement delegation (no tiers)
+### Requirement delegation (no tiers, deprecated)
 
-Delegation is flat — there are no requirement tiers. A parent requirement is satisfied by
-delegating it to a subsystem contract entry, expressed as a `composition.allocations` entry
-that binds the requirement `to` a subsystem (`target` naming the provided contract id within
-that subsystem). A delegation without a resolvable target raises
-`composition.untraceable_delegation`. A delegated requirement counts against the
-`requirement.orphan` rollup, so a requirement that is neither implemented in code nor delegated
-to a subsystem still surfaces as orphaned.
+`composition.allocations` (a parent requirement bound `to` a subsystem with a `target` contract
+id) is deprecated in favour of requirement links (`composition.allocation_deprecated`); it is
+still read for one release. A delegation without a resolvable target raises
+`composition.untraceable_delegation`, and a delegated requirement is not an orphan. Convert
+allocations with `engws migrate-links`; both maintained composition examples are migrated.
 
 ## OSCAL chain generation
 

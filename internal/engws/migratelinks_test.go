@@ -2,6 +2,7 @@
 package engws
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -14,12 +15,42 @@ import (
 const coffeeExample = "../../examples/coffee-fleet-ota-cloud-sample"
 
 // coffeeCopy copies the coffee fleet sample (system plus three subsystems
-// resolved through its engmod.work.yml) into a temporary directory.
+// resolved through its engmod.work.yml) into a temporary directory and
+// turns it back into its pre-migration form: allocations in the system,
+// contract refs in the subsystems, no realizes, no link file.
 func coffeeCopy(t *testing.T) string {
 	t.Helper()
 	newLinksRegistry(t)
 	dir := filepath.Join(t.TempDir(), "coffee")
 	copyTree(t, coffeeExample, dir)
+	for sub, refs := range map[string][2]string{
+		"telemetry": {"CAP-TELEM-REPORT", "REQ-TELEM-001"}, "ota-agent": {"CAP-OTA-APPLY", "REQ-OTA-001"}, "cloud-api": {"CAP-CLOUD-INGEST", "REQ-CLOUD-001"},
+	} {
+		subDir := filepath.Join(dir, "subsystems", sub)
+		replaceIn(t, filepath.Join(subDir, "model", "architecture.yml"), "    - id: "+refs[0]+"\n      kind: capability\n", "    - id: "+refs[0]+"\n      kind: capability\n      ref: "+refs[1]+"\n")
+		reqs := filepath.Join(subDir, "model", "requirements.yml")
+		write(t, reqs, strings.ReplaceAll(read(t, reqs), "  realizes: ["+refs[0]+"]\n", ""))
+	}
+	replaceIn(t, filepath.Join(dir, "engmod.yml"), "  reqLinks: model/req-links.yml\n", "")
+	replaceIn(t, filepath.Join(dir, "engmod.yml"), "  topLevel: true\n", "")
+	if err := os.Remove(filepath.Join(dir, "model", "req-links.yml")); err != nil {
+		t.Fatal(err)
+	}
+	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    satisfactions:\n", `    allocations:
+    - requirement: REQ-COF-001
+      to: SUB-TELEMETRY
+      target: telemetry::CAP-TELEM-REPORT
+      rationale: Machine telemetry reporting is realized by the telemetry subsystem.
+    - requirement: REQ-COF-003
+      to: SUB-OTA-AGENT
+      target: ota-agent::CAP-OTA-APPLY
+      rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
+    - requirement: REQ-COF-002
+      to: SUB-CLOUD-API
+      target: cloud-api::CAP-CLOUD-INGEST
+      rationale: Telemetry persistence is realized by the cloud API subsystem.
+    satisfactions:
+`)
 	return dir
 }
 

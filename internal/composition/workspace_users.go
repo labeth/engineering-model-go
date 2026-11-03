@@ -7,6 +7,7 @@ package composition
 // and never written into the child.
 
 import (
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -30,7 +31,7 @@ type LinkUse struct {
 // WorkspaceLinkUsers finds the workspace of bundle's manifest under mode
 // (empty: ENGMOD_WORK, else search upwards; "off": none) and returns, sorted,
 // every reqLinks entry of a sibling checkout (a replacement other than this
-// module) whose child names one of this model's published contract items
+// module, or the model at the workspace root) whose child names one of this model's published contract items
 // through a dependency on this module path. Without an active workspace it
 // returns nothing; a sibling that does not load is skipped.
 // TRLC-LINKS: REQ-EMG-107
@@ -49,10 +50,23 @@ func WorkspaceLinkUsers(bundle model.Bundle, mode string) []LinkUse {
 		return nil
 	}
 	self, _ := filepath.Abs(filepath.Dir(bundle.ManifestPath))
-	var uses []LinkUse
+	// The checkouts of the workspace: every replacement, and the model at
+	// the workspace root itself (a system whose engmod.work.yml replaces
+	// its children below it).
+	dirs := []string{filepath.Dir(path)}
 	for _, r := range doc.Replacements {
-		dir := filepath.Clean(filepath.Join(filepath.Dir(path), r.Path))
-		if r.Module == modulePath || dir == self {
+		if r.Module != modulePath {
+			dirs = append(dirs, filepath.Clean(filepath.Join(filepath.Dir(path), r.Path)))
+		}
+	}
+	var uses []LinkUse
+	seen := map[string]bool{}
+	for _, dir := range dirs {
+		if dir == self || seen[dir] {
+			continue
+		}
+		seen[dir] = true
+		if _, err := os.Stat(filepath.Join(dir, "engmod.yml")); err != nil {
 			continue
 		}
 		sibling, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))

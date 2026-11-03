@@ -7,7 +7,10 @@
       "units": [
         "FU-CLOUD-RUNTIME"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-CLOUD-OPERATIONS"
+      ]
     },
     {
       "id": "REQ-CLOUD-002",
@@ -35,6 +38,10 @@
     "delegatedTestLinked": 0,
     "orphan": 2,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

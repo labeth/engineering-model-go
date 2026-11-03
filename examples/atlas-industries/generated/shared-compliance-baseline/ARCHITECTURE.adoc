@@ -739,6 +739,48 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |Medium
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-CONTROL-BASELINE (capability)
+
+Shared control implementation and evidence baseline.
+
+Realized by:
+
+* `REQ-COMP-001`: The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.
+* `REQ-COMP-002`: The atlas compliance baseline shall report control implementation status to the compliance officer.
+* `REQ-COMP-003`: The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.
+* `REQ-COMP-004`: The people security and awareness shall record policy acknowledgment for every employee at onboarding.
+* `REQ-COMP-005`: The people security and awareness shall record annual employee completion in the security awareness training record.
+* `REQ-COMP-006`: The people security and awareness shall request a line manager access review following an employee role change.
+* `REQ-COMP-007`: The people security and awareness shall revoke employee access following employment termination.
+* `REQ-COMP-008`: The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
+
+Fingerprint: `sha256:a83d44e3b037279253478a225904085e57f81f9f65e348d6a47e652e4bf06e25`
+
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|CAP-CONTROL-BASELINE
+|atlas-aegis-sentinel
+|LNK-AEG-005-COMPLIANCE
+|REQ-AEG-005
+|accepted
+|CAP-CONTROL-BASELINE
+|atlas-orion-relay
+|LNK-ORI-005-COMPLIANCE
+|REQ-ORI-005
+|accepted
+|===
+
 <<<
 == Reference Index
 

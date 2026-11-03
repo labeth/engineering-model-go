@@ -7,7 +7,10 @@
       "units": [
         "FU-PORT-GOVERNANCE"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-ATLAS-PORTFOLIO"
+      ]
     },
     {
       "id": "REQ-PORT-002",
@@ -15,18 +18,22 @@
       "units": [
         "FU-PORT-GOVERNANCE"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-PORT-AEGIS",
-        "target": "aegis::CAP-AEGIS-MISSION",
-        "targetRequirement": "REQ-AEG-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-AEG-001",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "children": [
+        "aegis::CAP-AEGIS-MISSION",
+        "aegis::REQ-AEG-001",
+        "aegis::REQ-AEG-002",
+        "aegis::REQ-AEG-003",
+        "aegis::REQ-AEG-004"
+      ],
+      "links": [
+        {
+          "id": "LNK-PORT-002-AEGIS",
+          "child": "aegis::CAP-AEGIS-MISSION",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-PORT-003",
@@ -34,18 +41,22 @@
       "units": [
         "FU-PORT-GOVERNANCE"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-PORT-ORION",
-        "target": "orion::CAP-ORION-MISSION",
-        "targetRequirement": "REQ-ORI-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-ORI-001",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "children": [
+        "orion::CAP-ORION-MISSION",
+        "orion::REQ-ORI-001",
+        "orion::REQ-ORI-002",
+        "orion::REQ-ORI-003",
+        "orion::REQ-ORI-004"
+      ],
+      "links": [
+        {
+          "id": "LNK-PORT-003-ORION",
+          "child": "orion::CAP-ORION-MISSION",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "aegis::REQ-AEG-001",
@@ -53,11 +64,6 @@
       "units": [
         "aegis::FU-AEG-MISSION"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-PORT-AEGIS",
-        "target": "aegis::CAP-AEGIS-MISSION",
-        "targetRequirement": "aegis::REQ-AEG-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-AEG-001",
         "status": "not-available",
@@ -72,7 +78,10 @@
         "publication": "public",
         "sourceId": "REQ-AEG-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "aegis::CAP-AEGIS-MISSION"
+      ]
     },
     {
       "id": "aegis::REQ-AEG-002",
@@ -80,6 +89,12 @@
       "units": [
         "aegis::FU-AEG-SENSOR-FUSION"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-AEG-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "aegis",
         "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
@@ -88,7 +103,10 @@
         "publication": "public",
         "sourceId": "REQ-AEG-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "aegis::CAP-AEGIS-MISSION"
+      ]
     },
     {
       "id": "aegis::REQ-AEG-003",
@@ -96,6 +114,12 @@
       "units": [
         "aegis::FU-AEG-MISSION"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-AEG-003",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "aegis",
         "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
@@ -104,7 +128,10 @@
         "publication": "public",
         "sourceId": "REQ-AEG-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "aegis::CAP-AEGIS-MISSION"
+      ]
     },
     {
       "id": "aegis::REQ-AEG-004",
@@ -113,6 +140,12 @@
         "aegis::FU-AEG-SENSOR-FUSION",
         "aegis::FU-AEG-MISSION"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-AEG-004",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "aegis",
         "modulePath": "models.atlas.example/products/aegis-sentinel@v0",
@@ -121,7 +154,10 @@
         "publication": "public",
         "sourceId": "REQ-AEG-004"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "aegis::CAP-AEGIS-MISSION"
+      ]
     },
     {
       "id": "aegis::REQ-AEG-005",
@@ -145,11 +181,6 @@
       "units": [
         "orion::FU-ORI-ROUTER"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-PORT-ORION",
-        "target": "orion::CAP-ORION-MISSION",
-        "targetRequirement": "orion::REQ-ORI-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-ORI-001",
         "status": "not-available",
@@ -164,7 +195,10 @@
         "publication": "public",
         "sourceId": "REQ-ORI-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "orion::CAP-ORION-MISSION"
+      ]
     },
     {
       "id": "orion::REQ-ORI-002",
@@ -172,6 +206,12 @@
       "units": [
         "orion::FU-ORI-LINK"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-ORI-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "orion",
         "modulePath": "models.atlas.example/products/orion-relay@v0",
@@ -180,7 +220,10 @@
         "publication": "public",
         "sourceId": "REQ-ORI-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "orion::CAP-ORION-MISSION"
+      ]
     },
     {
       "id": "orion::REQ-ORI-003",
@@ -188,6 +231,12 @@
       "units": [
         "orion::FU-ORI-ROUTER"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-ORI-003",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "orion",
         "modulePath": "models.atlas.example/products/orion-relay@v0",
@@ -196,7 +245,10 @@
         "publication": "public",
         "sourceId": "REQ-ORI-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "orion::CAP-ORION-MISSION"
+      ]
     },
     {
       "id": "orion::REQ-ORI-004",
@@ -205,6 +257,12 @@
         "orion::FU-ORI-LINK",
         "orion::FU-ORI-ROUTER"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-ORI-004",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "orion",
         "modulePath": "models.atlas.example/products/orion-relay@v0",
@@ -213,7 +271,10 @@
         "publication": "public",
         "sourceId": "REQ-ORI-004"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "orion::CAP-ORION-MISSION"
+      ]
     },
     {
       "id": "orion::REQ-ORI-005",
@@ -234,7 +295,9 @@
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-PORT-001"
+    "REQ-PORT-001",
+    "REQ-PORT-002",
+    "REQ-PORT-003"
   ],
   "summary": {
     "requirements": 13,
@@ -243,11 +306,15 @@
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
-    "delegated": 4,
+    "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
-    "orphan": 1,
+    "orphan": 3,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

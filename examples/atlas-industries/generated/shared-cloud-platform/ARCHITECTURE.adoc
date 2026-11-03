@@ -453,6 +453,41 @@ This chapter shows the system architecture across hardware and software: hardwar
 |-
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-CLOUD-OPERATIONS (capability)
+
+Resilient event processing and service hosting.
+
+Realized by:
+
+* `REQ-CLOUD-001`: The atlas cloud platform shall process each cloud event using the cloud runtime.
+
+Fingerprint: `sha256:21645b5d26fc12a011f2d158ae8a622d013a56f4418a0e43e3ea92af8993ca34`
+
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|CAP-CLOUD-OPERATIONS
+|atlas-aegis-sentinel
+|LNK-AEG-003-CLOUD
+|REQ-AEG-003
+|accepted
+|CAP-CLOUD-OPERATIONS
+|atlas-orion-relay
+|LNK-ORI-003-CLOUD
+|REQ-ORI-003
+|accepted
+|===
+
 <<<
 == Reference Index
 

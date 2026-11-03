@@ -1,0 +1,42 @@
+schemaVersion: 2
+reqLinks:
+- id: LNK-AEG-002-EDGE
+  parent: REQ-AEG-002
+  child: edge::CAP-EDGE-COMPUTE
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:129bb5d0d038c84bfe254483dc9feff637133fec6485e100a0205bfc7953b718
+  status: accepted
+  rationale: Sensor fusion requires rugged signed compute.
+  reviewedBy: ACT-AEG-ENGINEER
+  reviewedOn: "2026-11-02"
+- id: LNK-AEG-003-CLOUD
+  parent: REQ-AEG-003
+  child: cloud::CAP-CLOUD-OPERATIONS
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:21645b5d26fc12a011f2d158ae8a622d013a56f4418a0e43e3ea92af8993ca34
+  status: accepted
+  rationale: Incident history requires resilient cloud processing.
+  reviewedBy: ACT-AEG-ENGINEER
+  reviewedOn: "2026-11-02"
+- id: LNK-AEG-004-SECURITY
+  parent: REQ-AEG-004
+  child: security::CAP-ZERO-TRUST
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:be850cc8c9579a360b8b9b27a31c9b9bd96bcf5d27d29ae582b85a332df91ae9
+  status: accepted
+  rationale: Mission boundaries require shared identity and monitoring.
+  reviewedBy: ACT-AEG-ENGINEER
+  reviewedOn: "2026-11-02"
+- id: LNK-AEG-005-COMPLIANCE
+  parent: REQ-AEG-005
+  child: compliance::CAP-CONTROL-BASELINE
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:a83d44e3b037279253478a225904085e57f81f9f65e348d6a47e652e4bf06e25
+  status: accepted
+  rationale: Product assurance inherits the company baseline.
+  reviewedBy: ACT-AEG-ENGINEER
+  reviewedOn: "2026-11-02"

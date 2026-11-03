@@ -24,18 +24,21 @@
         "VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794"
       ],
       "result": "passed",
-      "delegatedTo": {
-        "subsystem": "SUB-TELEMETRY",
-        "target": "telemetry::CAP-TELEM-REPORT",
-        "targetRequirement": "REQ-TELEM-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-TELEM-001",
-        "status": "implemented",
-        "implemented": true,
-        "testLinked": false
-      },
-      "status": "implemented"
+      "status": "implemented",
+      "children": [
+        "telemetry::CAP-TELEM-REPORT",
+        "telemetry::REQ-TELEM-001",
+        "telemetry::REQ-TELEM-002",
+        "telemetry::REQ-TELEM-003"
+      ],
+      "links": [
+        {
+          "id": "LNK-COF-001-TELEMETRY",
+          "child": "telemetry::CAP-TELEM-REPORT",
+          "state": "unchanged",
+          "status": "claimed"
+        }
+      ]
     },
     {
       "id": "REQ-COF-002",
@@ -60,18 +63,20 @@
         "VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF"
       ],
       "result": "not-run",
-      "delegatedTo": {
-        "subsystem": "SUB-CLOUD-API",
-        "target": "cloud-api::CAP-CLOUD-INGEST",
-        "targetRequirement": "REQ-CLOUD-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-CLOUD-001",
-        "status": "implemented",
-        "implemented": true,
-        "testLinked": false
-      },
-      "status": "implemented"
+      "status": "implemented",
+      "children": [
+        "cloud-api::CAP-CLOUD-INGEST",
+        "cloud-api::REQ-CLOUD-001",
+        "cloud-api::REQ-CLOUD-002"
+      ],
+      "links": [
+        {
+          "id": "LNK-COF-002-CLOUD-API",
+          "child": "cloud-api::CAP-CLOUD-INGEST",
+          "state": "unchanged",
+          "status": "claimed"
+        }
+      ]
     },
     {
       "id": "REQ-COF-003",
@@ -97,18 +102,21 @@
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
       "result": "passed",
-      "delegatedTo": {
-        "subsystem": "SUB-OTA-AGENT",
-        "target": "ota-agent::CAP-OTA-APPLY",
-        "targetRequirement": "REQ-OTA-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-OTA-001",
-        "status": "implemented",
-        "implemented": true,
-        "testLinked": false
-      },
-      "status": "implemented"
+      "status": "implemented",
+      "children": [
+        "ota-agent::CAP-OTA-APPLY",
+        "ota-agent::REQ-OTA-001",
+        "ota-agent::REQ-OTA-002",
+        "ota-agent::REQ-OTA-003"
+      ],
+      "links": [
+        {
+          "id": "LNK-COF-003-OTA-AGENT",
+          "child": "ota-agent::CAP-OTA-APPLY",
+          "state": "unchanged",
+          "status": "claimed"
+        }
+      ]
     },
     {
       "id": "REQ-COF-004",
@@ -273,11 +281,6 @@
       "units": [
         "cloud-api::FU-CLOUD-INGEST"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-CLOUD-API",
-        "target": "cloud-api::CAP-CLOUD-INGEST",
-        "targetRequirement": "cloud-api::REQ-CLOUD-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-CLOUD-001",
         "status": "implemented",
@@ -292,7 +295,10 @@
         "publication": "public",
         "sourceId": "REQ-CLOUD-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "cloud-api::CAP-CLOUD-INGEST"
+      ]
     },
     {
       "id": "cloud-api::REQ-CLOUD-002",
@@ -300,6 +306,12 @@
       "units": [
         "cloud-api::FU-CLOUD-INGEST"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-CLOUD-002",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "cloud-api",
         "modulePath": "models.example/coffee-fleet/cloud-api@v0",
@@ -308,7 +320,10 @@
         "publication": "public",
         "sourceId": "REQ-CLOUD-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "cloud-api::CAP-CLOUD-INGEST"
+      ]
     },
     {
       "id": "ota-agent::REQ-OTA-001",
@@ -316,11 +331,6 @@
       "units": [
         "ota-agent::FU-OTA-APPLY"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-OTA-AGENT",
-        "target": "ota-agent::CAP-OTA-APPLY",
-        "targetRequirement": "ota-agent::REQ-OTA-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-OTA-001",
         "status": "implemented",
@@ -335,7 +345,10 @@
         "publication": "public",
         "sourceId": "REQ-OTA-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "ota-agent::CAP-OTA-APPLY"
+      ]
     },
     {
       "id": "ota-agent::REQ-OTA-002",
@@ -343,6 +356,12 @@
       "units": [
         "ota-agent::FU-OTA-VERIFY"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-002",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "ota-agent",
         "modulePath": "models.example/coffee-fleet/ota-agent@v0",
@@ -351,7 +370,10 @@
         "publication": "public",
         "sourceId": "REQ-OTA-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "ota-agent::CAP-OTA-APPLY"
+      ]
     },
     {
       "id": "ota-agent::REQ-OTA-003",
@@ -359,6 +381,12 @@
       "units": [
         "ota-agent::FU-OTA-APPLY"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-OTA-003",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "ota-agent",
         "modulePath": "models.example/coffee-fleet/ota-agent@v0",
@@ -367,7 +395,10 @@
         "publication": "public",
         "sourceId": "REQ-OTA-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "ota-agent::CAP-OTA-APPLY"
+      ]
     },
     {
       "id": "telemetry::REQ-TELEM-001",
@@ -375,11 +406,6 @@
       "units": [
         "telemetry::FU-TELEM-REPORT"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-TELEMETRY",
-        "target": "telemetry::CAP-TELEM-REPORT",
-        "targetRequirement": "telemetry::REQ-TELEM-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-TELEM-001",
         "status": "implemented",
@@ -394,7 +420,10 @@
         "publication": "public",
         "sourceId": "REQ-TELEM-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "telemetry::CAP-TELEM-REPORT"
+      ]
     },
     {
       "id": "telemetry::REQ-TELEM-002",
@@ -402,6 +431,12 @@
       "units": [
         "telemetry::FU-TELEM-SAMPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-002",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "telemetry",
         "modulePath": "models.example/coffee-fleet/telemetry@v0",
@@ -410,7 +445,10 @@
         "publication": "public",
         "sourceId": "REQ-TELEM-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "telemetry::CAP-TELEM-REPORT"
+      ]
     },
     {
       "id": "telemetry::REQ-TELEM-003",
@@ -418,6 +456,12 @@
       "units": [
         "telemetry::FU-TELEM-REPORT"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-TELEM-003",
+        "status": "implemented",
+        "implemented": true,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "telemetry",
         "modulePath": "models.example/coffee-fleet/telemetry@v0",
@@ -426,7 +470,10 @@
         "publication": "public",
         "sourceId": "REQ-TELEM-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "telemetry::CAP-TELEM-REPORT"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -443,11 +490,15 @@
     "tested": 6,
     "testLinked": 6,
     "passed": 4,
-    "delegated": 6,
-    "delegatedImplemented": 3,
+    "delegated": 0,
+    "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
     "orphan": 4,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 3,
+    "unparented": 0
   }
 }

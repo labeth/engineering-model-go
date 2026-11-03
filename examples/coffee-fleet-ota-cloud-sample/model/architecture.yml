@@ -225,19 +225,6 @@ architecture:
       dependency: cloud-api
       publication: public
       description: Ingests telemetry and drives OTA campaigns.
-    allocations:
-    - requirement: REQ-COF-001
-      to: SUB-TELEMETRY
-      target: telemetry::CAP-TELEM-REPORT
-      rationale: Machine telemetry reporting is realized by the telemetry subsystem.
-    - requirement: REQ-COF-003
-      to: SUB-OTA-AGENT
-      target: ota-agent::CAP-OTA-APPLY
-      rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
-    - requirement: REQ-COF-002
-      to: SUB-CLOUD-API
-      target: cloud-api::CAP-CLOUD-INGEST
-      rationale: Telemetry persistence is realized by the cloud API subsystem.
     satisfactions:
     - need: ota-agent::NEED-TELEMETRY-FEED
       by: telemetry::CAP-TELEM-REPORT

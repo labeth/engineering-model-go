@@ -11,9 +11,11 @@ requirements:
   notes: Telemetry ingestion behavior; implemented here.
   appliesTo:
   - FU-CLOUD-INGEST
+  realizes: [CAP-CLOUD-INGEST]
 - id: REQ-CLOUD-002
   text: Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate
     the reporting machine.
   notes: Ingest authentication control.
   appliesTo:
   - FU-CLOUD-INGEST
+  realizes: [CAP-CLOUD-INGEST]

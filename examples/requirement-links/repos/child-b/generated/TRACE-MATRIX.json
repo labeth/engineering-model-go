@@ -7,7 +7,11 @@
       "units": [
         "FU-BRIDGE"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-B-1",
+        "AOU-B-1"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -26,6 +30,10 @@
     "delegatedTestLinked": 0,
     "orphan": 1,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

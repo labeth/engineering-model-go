@@ -396,6 +396,22 @@ What this section shows: verification checks inferred from test artifacts, linke
 
 
 <<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-CLOUD-INGEST (capability)
+
+Ingest and persist fleet telemetry.
+
+Realized by:
+
+* `REQ-CLOUD-001`: Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall persist a fleet metric.
+* `REQ-CLOUD-002`: Where cloud ingestion is enabled, when telemetry ingested event is received, the cloud api subsystem shall authenticate the reporting machine.
+
+Fingerprint: `sha256:fc8c67627f922f38425a09451002458f6245521928146cfd014b39a22e534aaa`
+
+<<<
 == Reference Index
 
 === Authored References

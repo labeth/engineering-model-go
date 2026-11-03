@@ -27,7 +27,6 @@ architecture:
     provides:
     - id: CAP-OTA-APPLY
       kind: capability
-      ref: REQ-OTA-001
       note: Apply a signed firmware update to the machine.
     requires:
     - id: NEED-TELEMETRY-FEED

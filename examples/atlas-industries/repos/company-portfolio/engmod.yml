@@ -15,6 +15,7 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
+  reqLinks: model/req-links.yml
 dependencies:
 - alias: aegis
   path: models.atlas.example/products/aegis-sentinel@v0
@@ -38,4 +39,5 @@ publications:
   - REQ-PORT-001
   - REQ-PORT-002
   - REQ-PORT-003
-inferenceHints: {}
+inferenceHints:
+  topLevel: true

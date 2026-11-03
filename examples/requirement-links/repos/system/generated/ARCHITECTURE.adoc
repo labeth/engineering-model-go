@@ -550,6 +550,31 @@ This chapter shows the system architecture across hardware and software: hardwar
 
 All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
 
+
+<<<
+== Requirement Links
+
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+
+* *REQ-SYS-001*: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.
+** link LNK-SYS-001-ENCODER (unchanged, accepted) to `encoder::CAP-A-1`: Publish ownship position sentences at the configured rate.
+*** `encoder::REQ-A-001` (status not available): When epoch period elapses, the position encoder shall publish one position sentence.
+*** `encoder::REQ-A-002` (status not available): The sentence encoder shall format each position sentence with latitude and longitude.
+** link LNK-SYS-001-BRIDGE (unchanged, accepted) to `bridge::CAP-B-1`: Forward position sentences onto the lab bus.
+*** `bridge::REQ-B-001` (status not available): When a position sentence is received, the lab bus bridge shall forward one bus frame.
+* *REQ-SYS-002*: The position simulator shall protect each published ownship position against corruption.
+** link LNK-SYS-002-ENCODER (unchanged, accepted) to `encoder::CAP-A-2`: Protect each position sentence with a checksum.
+*** `encoder::REQ-A-003` (status not available): The sentence encoder shall append a checksum to each position sentence.
+* *REQ-SYS-003*: The lab network shall isolate the lab bus from every other network.
+** derived: Holds the bridge's assumption of use that the lab bus is isolated.
+
+=== Assumptions of Use
+
+Conditions a dependency relies on, with the local requirements, controls or tests that show they hold in this model.
+
+* `bridge::AOU-B-1`: The lab bus carries no traffic other than this bridge's frames.
+** evidence REQ-SYS-003 (link LNK-AOU-B-1, unchanged, accepted)
+
 <<<
 == Reference Index
 

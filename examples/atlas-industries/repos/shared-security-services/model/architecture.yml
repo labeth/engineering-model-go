@@ -40,9 +40,7 @@ architecture:
     provides:
     - id: CAP-DEVICE-IDENTITY
       kind: capability
-      ref: REQ-SEC-001
       note: Device and workload identity service.
     - id: CAP-ZERO-TRUST
       kind: capability
-      ref: REQ-SEC-002
       note: Zero-trust access and immutable audit monitoring.

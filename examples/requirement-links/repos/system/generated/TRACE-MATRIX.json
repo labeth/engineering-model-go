@@ -7,7 +7,28 @@
       "units": [
         "FU-LAB-NETWORK"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "children": [
+        "encoder::CAP-A-1",
+        "encoder::REQ-A-001",
+        "encoder::REQ-A-002",
+        "bridge::CAP-B-1",
+        "bridge::REQ-B-001"
+      ],
+      "links": [
+        {
+          "id": "LNK-SYS-001-ENCODER",
+          "child": "encoder::CAP-A-1",
+          "state": "unchanged",
+          "status": "accepted"
+        },
+        {
+          "id": "LNK-SYS-001-BRIDGE",
+          "child": "bridge::CAP-B-1",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-SYS-002",
@@ -15,7 +36,19 @@
       "units": [
         "FU-LAB-NETWORK"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "children": [
+        "encoder::CAP-A-2",
+        "encoder::REQ-A-003"
+      ],
+      "links": [
+        {
+          "id": "LNK-SYS-002-ENCODER",
+          "child": "encoder::CAP-A-2",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-SYS-003",
@@ -31,6 +64,12 @@
       "units": [
         "bridge::FU-BRIDGE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-B-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "bridge",
         "modulePath": "models.example/reqlinks/child-b@v0",
@@ -39,7 +78,11 @@
         "publication": "public",
         "sourceId": "REQ-B-001"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "bridge::CAP-B-1",
+        "bridge::AOU-B-1"
+      ]
     },
     {
       "id": "encoder::REQ-A-001",
@@ -47,6 +90,12 @@
       "units": [
         "encoder::FU-ENCODER"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-A-001",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "encoder",
         "modulePath": "models.example/reqlinks/child-a@v0",
@@ -55,7 +104,10 @@
         "publication": "public",
         "sourceId": "REQ-A-001"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "encoder::CAP-A-1"
+      ]
     },
     {
       "id": "encoder::REQ-A-002",
@@ -63,6 +115,12 @@
       "units": [
         "encoder::FU-ENCODER"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-A-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "encoder",
         "modulePath": "models.example/reqlinks/child-a@v0",
@@ -71,7 +129,10 @@
         "publication": "public",
         "sourceId": "REQ-A-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "encoder::CAP-A-1"
+      ]
     },
     {
       "id": "encoder::REQ-A-003",
@@ -79,6 +140,12 @@
       "units": [
         "encoder::FU-ENCODER"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-A-003",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "encoder",
         "modulePath": "models.example/reqlinks/child-a@v0",
@@ -87,7 +154,10 @@
         "publication": "public",
         "sourceId": "REQ-A-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "encoder::CAP-A-2"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -108,6 +178,10 @@
     "delegatedTestLinked": 0,
     "orphan": 3,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

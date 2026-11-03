@@ -91,6 +91,17 @@ semantic versioning.
 - `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
 - A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
 
+### Fixed
+
+- A requirement imported from a dependency publication (OSCAL assessment results enrich the
+  bundle with requirements) keeps its `realizes` qualified with the dependency alias and is not
+  checked against the importing model's contract (`requirement.realizes_unknown`).
+- Examples: `coffee-fleet-ota-cloud-sample` (with its subsystems) and every
+  `atlas-industries` repository are migrated to requirement links (`engws migrate-links`):
+  no `composition.allocations` or contract `ref` remain, every child requirement realizes a
+  capability or is derived, the composing top systems set `inferenceHints.topLevel`. The
+  Atlas links are accepted; the coffee fleet links stay `claimed` as the migration writes them.
+
 ### Deprecated
 
 - `composition.allocations` and `contract.provides[].ref`: still read for this release; use

@@ -438,7 +438,9 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 				bundle.Compliance.Compliance.Mappings = append(bundle.Compliance.Compliance.Mappings, value)
 			}
 		case model.Requirement:
-			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
+			// realizes names the dependency's own contract items: qualify
+			// the published ones and drop the others with the alias.
+			value.ID, value.AppliesTo, value.Realizes = q, entity.QualifyList(value.AppliesTo), entity.QualifyList(value.Realizes)
 			bundle.Requirements.Requirements = append(bundle.Requirements.Requirements, value)
 		case model.View:
 			value.ID, value.Roots = q, entity.QualifyList(value.Roots)

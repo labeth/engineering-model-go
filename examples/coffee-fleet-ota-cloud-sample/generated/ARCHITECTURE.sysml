@@ -1399,12 +1399,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
         inout item 'item_DO_COFFEE_OTA_PLAN' : 'DO-COFFEE-OTA-PLAN';
     }
 
-    part 'SUB-CLOUD-API/cloud-api::CAP-CLOUD-INGEST' : EngineeringPart;
-
-    part 'SUB-OTA-AGENT/ota-agent::CAP-OTA-APPLY' : EngineeringPart;
-
-    part 'SUB-TELEMETRY/telemetry::CAP-TELEM-REPORT' : EngineeringPart;
-
     requirement 'cloud-api::NEED-INTERNET' : EngineeringRequirement;
 
     requirement 'ota-agent::NEED-CELLULAR-LINK' : EngineeringRequirement;
@@ -1516,17 +1510,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-1D84FBFBCFD2C3EE";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-1D84FBFBCFD2C3EE-context' {
-        part 'REQ-COF-001' : EngineeringPart;
-        part 'SUB-TELEMETRY/telemetry::CAP-TELEM-REPORT' : EngineeringPart;
-        allocation 'REL-1D84FBFBCFD2C3EE' allocate 'REQ-COF-001' to 'SUB-TELEMETRY/telemetry::CAP-TELEM-REPORT';
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-21DA2C76632381A2";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -1588,17 +1571,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
         action 'STATE-COFFEE-OTA-APPLIED' : EngineeringAction;
         action 'CTRL-COFFEE-FIRMWARE-SIGNATURE' : EngineeringAction;
         transition 'REL-314DD6D1BC67B72B' first 'STATE-COFFEE-OTA-APPLIED' if true then 'CTRL-COFFEE-FIRMWARE-SIGNATURE';
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-3156E46ACE93EC5C";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-3156E46ACE93EC5C-context' {
-        part 'REQ-COF-003' : EngineeringPart;
-        part 'SUB-OTA-AGENT/ota-agent::CAP-OTA-APPLY' : EngineeringPart;
-        allocation 'REL-3156E46ACE93EC5C' allocate 'REQ-COF-003' to 'SUB-OTA-AGENT/ota-agent::CAP-OTA-APPLY';
     }
 
     @EngineeringRelationship {
@@ -1861,17 +1833,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
         part 'ACT-FLEET-OPERATOR' : EngineeringPart { port pOut : EngineeringPort; }
         part 'FU-UPDATE-CAMPAIGN-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-8B5D1F31AF101438' from 'ACT-FLEET-OPERATOR'.pOut to 'FU-UPDATE-CAMPAIGN-ORCHESTRATION'.pIn;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-91F58002CA8FA3DA";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-91F58002CA8FA3DA-context' {
-        part 'REQ-COF-002' : EngineeringPart;
-        part 'SUB-CLOUD-API/cloud-api::CAP-CLOUD-INGEST' : EngineeringPart;
-        allocation 'REL-91F58002CA8FA3DA' allocate 'REQ-COF-002' to 'SUB-CLOUD-API/cloud-api::CAP-CLOUD-INGEST';
     }
 
     @EngineeringRelationship {

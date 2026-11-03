@@ -368,6 +368,53 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |5
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== AOU-B-1 (assumption)
+
+The lab bus carries no traffic other than this bridge's frames.
+
+Verification criteria: The using system shows the lab bus is isolated from other networks.
+
+Realized by:
+
+* `REQ-B-001`: When a position sentence is received, the lab bus bridge shall forward one bus frame.
+
+Fingerprint: `sha256:508b8dc6af52fc062234fdad5398c3479ec4457021662bbe94475007c3905093`
+
+=== CAP-B-1 (capability)
+
+Forward position sentences onto the lab bus.
+
+Realized by:
+
+* `REQ-B-001`: When a position sentence is received, the lab bus bridge shall forward one bus frame.
+
+Fingerprint: `sha256:99bda44112d4cc81b624dbe15c7c8006e06031a173ed80a18bc79b6186846002`
+
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|AOU-B-1
+|REQLINKS-SYSTEM
+|LNK-AOU-B-1
+|-
+|accepted
+|CAP-B-1
+|REQLINKS-SYSTEM
+|LNK-SYS-001-BRIDGE
+|REQ-SYS-001
+|accepted
+|===
+
 <<<
 == Reference Index
 

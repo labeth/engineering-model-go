@@ -9,7 +9,10 @@ requirements:
   text: The atlas edge platform shall execute signed workloads on the edge runtime.
   appliesTo:
   - FU-EDGE-RUNTIME
+  realizes: [CAP-EDGE-COMPUTE]
 - id: REQ-EDGE-002
   text: The atlas edge platform shall authenticate the edge runtime using device identity.
   appliesTo:
   - FU-EDGE-RUNTIME
+  derived: true
+  derivedRationale: Consumes the device identity the composing product supplies (contract.requires NEED-EDGE-IDENTITY); it serves no published capability on its own.

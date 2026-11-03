@@ -33,18 +33,21 @@ Each subsystem directory is a complete engmod model in its own right (its own `e
 eight `model/*.yml` domain documents, `cue.mod/module.cue`, and `src/`), and each regenerates its own
 `generated/ARCHITECTURE.adoc` and `generated/TRACE-MATRIX.json` independently of the parent.
 
-Requirement delegation runs downward across the boundary. Top-level requirements are delegated to a specific
-subsystem contract entry via `composition.allocations`, for example:
+Requirements trace upward across the boundary. Each subsystem requirement realizes the subsystem's
+published capability (`realizes: [CAP-TELEM-REPORT]` and so on), and the parent links its
+requirements to those capabilities in `model/req-links.yml` (`engws migrate-links` converted the
+former `composition.allocations` and contract `ref`s):
 
-- `REQ-COF-001` delegated to `SUB-TELEMETRY` / `CAP-TELEM-REPORT`.
-- `REQ-COF-002` delegated to `SUB-CLOUD-API` / `CAP-CLOUD-INGEST`.
-- `REQ-COF-003` delegated to `SUB-OTA-AGENT` / `CAP-OTA-APPLY`.
+- `LNK-COF-001-TELEMETRY`: `REQ-COF-001` to `telemetry::CAP-TELEM-REPORT`.
+- `LNK-COF-002-CLOUD-API`: `REQ-COF-002` to `cloud-api::CAP-CLOUD-INGEST`.
+- `LNK-COF-003-OTA-AGENT`: `REQ-COF-003` to `ota-agent::CAP-OTA-APPLY`.
 
-A requirement delegated to a subsystem is rolled up with a `delegated` status in the parent
-`TRACE-MATRIX.json` rather than being flagged as orphan. A delegation that does not name a specific target
-contract entry raises a `composition.untraceable_delegation` diagnostic. Subsystem needs are bound to
-providers via `composition.satisfactions` (for example `SUB-OTA-AGENT/NEED-TELEMETRY-FEED` satisfied by
-`SUB-TELEMETRY/CAP-TELEM-REPORT`, and hardware needs satisfied by hosting hardware items).
+The links are left `status: claimed`, as the migration writes them, so the check reports
+`link.claimed_only` (a warning) until someone reviews them with `engws review-links --accept`.
+The parent is a top-level system (`inferenceHints.topLevel: true`), so its own requirements need no
+upward trace. Subsystem needs are bound to providers via `composition.satisfactions` (for example
+`SUB-OTA-AGENT/NEED-TELEMETRY-FEED` satisfied by `SUB-TELEMETRY/CAP-TELEM-REPORT`, and hardware
+needs satisfied by hosting hardware items).
 
 All four models — the parent plus the three subsystems — are validated together by
 `scripts/validate-all.sh`, so each one is built, documented, and trace-checked on its own.

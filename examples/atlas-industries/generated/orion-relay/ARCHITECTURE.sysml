@@ -273,41 +273,11 @@ package 'atlas-orion-relay' {
     }
     attribute 'SYS-ORI';
 
-    part 'SUB-ORI-CLOUD/cloud::CAP-CLOUD-OPERATIONS' : EngineeringPart;
-
-    part 'SUB-ORI-COMPLIANCE/compliance::CAP-CONTROL-BASELINE' : EngineeringPart;
-
-    part 'SUB-ORI-EDGE/edge::CAP-EDGE-COMPUTE' : EngineeringPart;
-
-    part 'SUB-ORI-SECURITY/security::CAP-ZERO-TRUST' : EngineeringPart;
-
     requirement 'cloud::NEED-CLOUD-IDENTITY' : EngineeringRequirement;
 
     requirement 'edge::NEED-EDGE-IDENTITY' : EngineeringRequirement;
 
     part 'security::CAP-DEVICE-IDENTITY' : EngineeringPart;
-
-    @EngineeringRelationship {
-        sourceId = "REL-1ECC77DFA3AF4D7D";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-1ECC77DFA3AF4D7D-context' {
-        part 'REQ-ORI-004' : EngineeringPart;
-        part 'SUB-ORI-SECURITY/security::CAP-ZERO-TRUST' : EngineeringPart;
-        allocation 'REL-1ECC77DFA3AF4D7D' allocate 'REQ-ORI-004' to 'SUB-ORI-SECURITY/security::CAP-ZERO-TRUST';
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-3007AE47ACBC6155";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-3007AE47ACBC6155-context' {
-        part 'REQ-ORI-005' : EngineeringPart;
-        part 'SUB-ORI-COMPLIANCE/compliance::CAP-CONTROL-BASELINE' : EngineeringPart;
-        allocation 'REL-3007AE47ACBC6155' allocate 'REQ-ORI-005' to 'SUB-ORI-COMPLIANCE/compliance::CAP-CONTROL-BASELINE';
-    }
 
     @EngineeringRelationship {
         sourceId = "REL-4EBC91E7BEE130FA";
@@ -330,17 +300,6 @@ package 'atlas-orion-relay' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-77C6B1E749C1FAA3";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-77C6B1E749C1FAA3-context' {
-        part 'REQ-ORI-003' : EngineeringPart;
-        part 'SUB-ORI-CLOUD/cloud::CAP-CLOUD-OPERATIONS' : EngineeringPart;
-        allocation 'REL-77C6B1E749C1FAA3' allocate 'REQ-ORI-003' to 'SUB-ORI-CLOUD/cloud::CAP-CLOUD-OPERATIONS';
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-B9A301F3DFE62F87";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -359,17 +318,6 @@ package 'atlas-orion-relay' {
         part source : 'HW-ORI-RADIO';
         part target : 'HW-ORI-ANTENNA';
         connection 'REL-C1BB9A366F3A5CB9' connect source to target;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-D527153375A79290";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-D527153375A79290-context' {
-        part 'REQ-ORI-002' : EngineeringPart;
-        part 'SUB-ORI-EDGE/edge::CAP-EDGE-COMPUTE' : EngineeringPart;
-        allocation 'REL-D527153375A79290' allocate 'REQ-ORI-002' to 'SUB-ORI-EDGE/edge::CAP-EDGE-COMPUTE';
     }
 
     // Publication public from models.atlas.example/shared/cloud-platform@v0@v0.1.0 (atlas-shared-cloud-platform).

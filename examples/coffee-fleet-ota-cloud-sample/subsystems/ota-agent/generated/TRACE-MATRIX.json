@@ -14,7 +14,10 @@
           "line": 12
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-OTA-APPLY"
+      ]
     },
     {
       "id": "REQ-OTA-002",
@@ -29,7 +32,10 @@
           "line": 18
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-OTA-APPLY"
+      ]
     },
     {
       "id": "REQ-OTA-003",
@@ -44,7 +50,10 @@
           "line": 24
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-OTA-APPLY"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -61,6 +70,10 @@
     "delegatedTestLinked": 0,
     "orphan": 0,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

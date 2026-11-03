@@ -1,0 +1,22 @@
+schemaVersion: 2
+reqLinks:
+- id: LNK-PORT-002-AEGIS
+  parent: REQ-PORT-002
+  child: aegis::CAP-AEGIS-MISSION
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:493f883aabb63a31e2f359917711c351020aa48f01a198916c65c6a3a3fc520a
+  status: accepted
+  rationale: Aegis supplies the company perimeter-awareness capability.
+  reviewedBy: ACT-PORT-EXECUTIVE
+  reviewedOn: "2026-11-02"
+- id: LNK-PORT-003-ORION
+  parent: REQ-PORT-003
+  child: orion::CAP-ORION-MISSION
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:6c3369b48d1b3b77202bdab0600e3012c916a06a80f9fb2c2460e1dc48be9f80
+  status: accepted
+  rationale: Orion supplies the company resilient-communications capability.
+  reviewedBy: ACT-PORT-EXECUTIVE
+  reviewedOn: "2026-11-02"

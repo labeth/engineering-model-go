@@ -6,8 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/export/gemara"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // systemMarkers are strings that only the using system knows: its model id,
@@ -106,5 +108,26 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 	}
 	if strings.Contains(used, "GHOST") {
 		t.Fatalf("Used By lists a link onto no contract item of child-a:\n%s", used)
+	}
+}
+
+// A workspace file next to the using system's own manifest (the system is
+// the workspace root, its children replacements below it) makes the system
+// a visible user of each child: Used By lists its links.
+// Mutation: scanning only the replacements fails this test.
+// TRLC-LINKS: REQ-EMG-107
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ASCIIDOC-GENERATOR
+func TestUsedByIncludesTheWorkspaceRootModel(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	work := filepath.Join(system, model.WorkspaceFileName)
+	testutil.WriteFile(t, work, "schemaVersion: 2\nreplacements:\n- module: models.example/reqlinks/child-a@v0\n  path: ../child-a\n")
+	bundle, err := model.LoadBundle(filepath.Join(root, "repos", "child-a", "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	uses := composition.WorkspaceLinkUsers(bundle, work)
+	if len(uses) != 2 || uses[0].Model != "REQLINKS-SYSTEM" || uses[0].Link != "LNK-SYS-001-ENCODER" || uses[1].Item != "CAP-A-2" {
+		t.Fatalf("uses = %+v", uses)
 	}
 }

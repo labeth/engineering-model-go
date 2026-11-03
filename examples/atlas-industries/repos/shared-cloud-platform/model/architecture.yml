@@ -42,7 +42,6 @@ architecture:
     provides:
     - id: CAP-CLOUD-OPERATIONS
       kind: capability
-      ref: REQ-CLOUD-001
       note: Resilient event processing and service hosting.
     requires:
     - id: NEED-CLOUD-IDENTITY

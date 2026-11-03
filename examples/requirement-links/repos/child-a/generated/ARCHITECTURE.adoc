@@ -490,6 +490,52 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |6
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-A-1 (capability)
+
+Publish ownship position sentences at the configured rate.
+
+Realized by:
+
+* `REQ-A-001`: When epoch period elapses, the position encoder shall publish one position sentence.
+* `REQ-A-002`: The sentence encoder shall format each position sentence with latitude and longitude.
+
+Fingerprint: `sha256:947139d5f7e4609793cb066ed0dd819989d73012d84051e969b1075e8fa4b5ff`
+
+=== CAP-A-2 (capability)
+
+Protect each position sentence with a checksum.
+
+Realized by:
+
+* `REQ-A-003`: The sentence encoder shall append a checksum to each position sentence.
+
+Fingerprint: `sha256:f0cd6cf2d6352efe67f03d5eda61acb1364a54b4351743851d4f2b9def528585`
+
+=== Used By
+
+Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.
+
+[cols="2,2,2,2,1",options="header"]
+|===
+|Item |Model |Link |Parent requirement |Status
+|CAP-A-1
+|REQLINKS-SYSTEM
+|LNK-SYS-001-ENCODER
+|REQ-SYS-001
+|accepted
+|CAP-A-2
+|REQLINKS-SYSTEM
+|LNK-SYS-002-ENCODER
+|REQ-SYS-002
+|accepted
+|===
+
 <<<
 == Reference Index
 

@@ -23,6 +23,7 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
+  reqLinks: model/req-links.yml
 dependencies:
 - alias: telemetry
   path: models.example/coffee-fleet/telemetry@v0
@@ -136,6 +137,7 @@ publications:
   - VIEW-INTERACTION-FLOW
   - VIEW-STATE-LIFECYCLE
 inferenceHints:
+  topLevel: true
   runtimeSources:
   - ./infra/terraform
   expectedRuntimeKinds:
