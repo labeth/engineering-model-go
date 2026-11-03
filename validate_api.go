@@ -63,3 +63,15 @@ func DedupeDiagnostics(lists ...[]Diagnostic) []Diagnostic {
 func AuthoringRules() ValidationRules {
 	return validate.AuthoringRules()
 }
+
+// ExcludeAcceptedForms names the inferenceHints.exclude forms the code scan
+// applies.
+const ExcludeAcceptedForms = validate.ExcludeAcceptedForms
+
+// ExcludePatternProblem returns why an inferenceHints.exclude pattern cannot
+// be applied, or "" when it can.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-114
+func ExcludePatternProblem(pattern string) string {
+	return validate.ExcludePatternProblem(pattern)
+}

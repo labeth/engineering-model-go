@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
@@ -1200,6 +1201,10 @@ func (s *Server) filesContaining(token string) []string {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 func (s *Server) ensureRepoIndex() error {
 	s.indexOnce.Do(func() {
+		skip := func(string, bool) bool { return false }
+		if s.bundle != nil {
+			skip = codescan.CodeScopeSkip(*s.bundle)
+		}
 		s.indexErr = filepath.Walk(s.repoRoot, func(path string, info os.FileInfo, err error) error {
 			if err != nil || info == nil {
 				return nil
@@ -1208,9 +1213,14 @@ func (s *Server) ensureRepoIndex() error {
 				switch info.Name() {
 				case ".git", "node_modules", ".opencode", ".idea", ".vscode":
 					return filepath.SkipDir
-				default:
-					return nil
 				}
+				if path != s.repoRoot && skip(path, true) {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if skip(path, false) {
+				return nil
 			}
 			if len(s.repoFiles) >= maxIndexedFiles {
 				return errRepoIndexLimit
@@ -1844,7 +1854,9 @@ func (s *Server) scanCodeSymbols() ([]codemap.Symbol, []map[string]any) {
 	if strings.TrimSpace(s.repoRoot) == "" {
 		return nil, []map[string]any{{"code": "repo_root_missing", "message": "server not initialized with repoRoot"}}
 	}
-	symbols, diags, err := codemap.Scan(s.repoRoot)
+	// The check's code scope: git-ignored files, inferenceHints.exclude and
+	// nested modules are left out (codescan.ScanCodeScope, REQ-EMG-114).
+	symbols, diags, err := codescan.ScanCodeScope(*s.bundle, s.repoRoot)
 	diagnostics := []map[string]any{}
 	if err != nil {
 		diagnostics = append(diagnostics, map[string]any{"code": "scan_failed", "message": err.Error()})

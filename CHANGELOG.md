@@ -17,6 +17,18 @@ semantic versioning.
   `FindByID`, `SetPath`, `UnsetPath`, `AppendPath`, `RemovePath`, `UnifiedDiff` and
   `WriteFileAtomic`.
 
+### Fixed
+
+- MCP code tools scan the check's code scope (REQ-EMG-114): `coverage.strictStatus`,
+  `files.for*`, `*.implementations`, `tests.*` and `code.contextForTask` now leave out
+  git-ignored files, `inferenceHints.exclude` paths and nested modules
+  (`codescan.ScanCodeScope`), so git-ignored build output no longer fails
+  `coverage.strictStatus` while the check passes.
+- `inferenceHints.exclude` accepts `dir`, `dir/`, `dir/*`, `dir/**` and `./dir` alike (each
+  leaves the whole directory out). A pattern the scan cannot apply (absolute, `..`, `**` other
+  than a trailing `/**`, malformed) is the new error `model.invalid_exclude_pattern`, which names
+  the accepted forms.
+
 ## [0.8.0] — 2026-11-03: Child-to-parent requirement links across composed models
 
 ### Added

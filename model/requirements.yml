@@ -723,3 +723,12 @@ requirements:
     appliesTo:
       - FU-MCP-SERVER
       - FU-MODEL-CHANGE
+  - id: REQ-EMG-114
+    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall scan the same code scope as the model check.
+    notes: 'The MCP code tools (coverage.strictStatus, files.forRequirement, files.forControl, files.forThreat, model.implementations, tests.*, interfaces.implementations, code.contextForTask) scan through codescan.ScanCodeScope and codescan.CodeScopeSkip, the skip function the check and the trace use (codeScanSkipper): files git does not track or would ignore (git ls-files --cached --others --exclude-standard), paths matching inferenceHints.exclude and directories of nested modules are left out. Before, the MCP scanner walked repoRoot with only a fixed list of skipped directories, so git-ignored build output (viewer/dist/assets/*.js) failed coverage.strictStatus while the check passed. inferenceHints.exclude accepts dir, dir/, dir/* and dir/** (each leaves the whole directory out), ./dir, a file path and a glob with * ? [...] within one path segment (*.gen.go), relative to the module root; a pattern matches a path and every ancestor directory of it. A pattern the scan cannot apply (empty, absolute, with .., ** other than a trailing /**, a malformed glob) is model.invalid_exclude_pattern (error) at inferenceHints.exclude[i], naming the accepted forms.'
+    verificationMethods: [test]
+    verificationCriteria: When a git-ignored viewer/dist holds an unmarked JavaScript function and vendor-copy/* is excluded, then coverage.strictStatus passes and files.forRequirement lists only the in-scope file, and an unmarked tracked function still fails it; viewer/dist, viewer/dist/, viewer/dist/*, viewer/dist/** and ./viewer/dist each exclude viewer/dist/assets/app.js and keep viewer/distribution; /abs/dir, ../up/**, **/dist, a/**/b and bad[glob are model.invalid_exclude_pattern naming the accepted forms.
+    appliesTo:
+      - FU-MCP-SERVER
+      - FU-CODEMAP-INFERENCE
+      - FU-VALIDATION-ENGINE

@@ -105,6 +105,8 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"SkipScanDir", "SplitEvidencePathLines", "SplitSourceLine",
 			"UniqueExistingSources", "VerificationCheck", "VerificationResult",
 			"WithCodeIndex", "WithDefaultCodeRoot",
+			// the code scope the MCP tools share with the check (REQ-EMG-114).
+			"CodeScopeSkip", "ScanCodeScope",
 			// codescan.LoadBundle attaches the code index; the root LoadBundle is
 			// model.LoadBundle, a different function.
 			"LoadBundle",
